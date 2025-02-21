@@ -1,0 +1,152 @@
+import 'package:flutter/material.dart';
+
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Container(
+          decoration: BoxDecoration(color: Color(0xffcfa381)),
+          child: Row(
+            children: [
+              //logo
+              Expanded(
+                child: Image.asset(
+                  'assets/images/logoDT.png',
+                  height: 250,
+                  width: 250,
+                ),
+              ),
+
+              //form login
+              Expanded(
+                child: Center(
+                  child: SizedBox(
+                    width: 600,
+                    height: 700,
+                    child: Container(
+                      // constraints: BoxConstraints(maxWidth: 400, maxHeight: 600),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(35),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          //title
+                          SizedBox(height: 20),
+                          Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 80),
+
+                          //email
+                          TextField(
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              hintText: 'Nhập email',
+                              prefixIcon: Icon(Icons.email),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 25),
+
+                          //password
+                          TextField(
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              hintText: 'Nhập mật khẩu',
+                              prefixIcon: Icon(Icons.lock),
+                              suffixIcon: Icon(Icons.visibility),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 5),
+
+                          //forgot password
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {},
+                              child: TextButton(
+                                onPressed: () {},
+                                child: Text(
+                                  "Quên mật khẩu",
+                                  style: TextStyle(
+                                    color: Colors.blue.shade400,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 50),
+
+                          //login button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text(
+                                "Login",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 5),
+
+                          //register
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Chưa có tài khoản?"),
+                              TextButton(
+                                onPressed: () {},
+                                child: Text(
+                                  "Đăng ký",
+                                  style: TextStyle(
+                                    color: Colors.blue.shade400,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
