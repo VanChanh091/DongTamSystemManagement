@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool isObscureText = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +47,7 @@ class LoginScreen extends StatelessWidget {
                           //title
                           SizedBox(height: 20),
                           Text(
-                            "Login",
+                            "Đăng nhập",
                             style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
@@ -64,12 +70,23 @@ class LoginScreen extends StatelessWidget {
 
                           //password
                           TextField(
-                            obscureText: true,
+                            obscureText: isObscureText,
                             decoration: InputDecoration(
                               labelText: 'Password',
                               hintText: 'Nhập mật khẩu',
                               prefixIcon: Icon(Icons.lock),
-                              suffixIcon: Icon(Icons.visibility),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isObscureText = !isObscureText;
+                                  });
+                                },
+                                icon: Icon(
+                                  isObscureText
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
