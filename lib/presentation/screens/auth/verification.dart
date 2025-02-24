@@ -28,7 +28,7 @@ class Verification extends StatelessWidget {
                           SizedBox(height: 50),
                           Center(
                             child: Icon(
-                              Icons.keyboard_alt,
+                              Icons.keyboard,
                               size: 50,
                               color: Colors.yellow,
                             ),
