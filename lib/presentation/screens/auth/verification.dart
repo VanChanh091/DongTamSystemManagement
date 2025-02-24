@@ -1,6 +1,7 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
 import 'package:dongtam/presentation/screens/auth/reset_password.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 class Verification extends StatelessWidget {
   const Verification({super.key});
@@ -97,8 +98,10 @@ class Verification extends StatelessWidget {
                                     onPressed: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ResetPassword(),
+                                        PageTransition(
+                                          type: PageTransitionType.fade,
+                                          duration: Duration(milliseconds: 500),
+                                          child: ResetPassword(),
                                         ),
                                       );
                                     },

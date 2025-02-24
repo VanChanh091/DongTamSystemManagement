@@ -1,6 +1,7 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
 import 'package:dongtam/presentation/screens/auth/verification.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -101,8 +102,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Verification(),
+                                    PageTransition(
+                                      type: PageTransitionType.fade,
+                                      duration: Duration(milliseconds: 500),
+                                      child: Verification(),
                                     ),
                                   );
                                 },

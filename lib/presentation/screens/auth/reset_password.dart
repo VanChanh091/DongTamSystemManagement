@@ -1,6 +1,7 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
 import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});
@@ -146,8 +147,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChangeToLogin(),
+                                    PageTransition(
+                                      type: PageTransitionType.fade,
+                                      duration: Duration(milliseconds: 500),
+                                      child: ChangeToLogin(),
                                     ),
                                   );
                                 },

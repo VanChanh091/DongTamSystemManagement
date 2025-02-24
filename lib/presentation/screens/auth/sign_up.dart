@@ -1,5 +1,6 @@
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -151,6 +152,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                             ),
                           ),
+                          SizedBox(height: 5),
 
                           //Sign in
                           Row(
@@ -161,8 +163,10 @@ class _SignUpState extends State<SignUp> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) => LoginScreen(),
+                                    PageTransition(
+                                      type: PageTransitionType.fade,
+                                      duration: Duration(milliseconds: 500),
+                                      child: LoginScreen(),
                                     ),
                                   );
                                 },

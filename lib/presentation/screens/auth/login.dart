@@ -2,6 +2,7 @@ import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/sign_up.dart';
 import 'package:dongtam/presentation/screens/home/dashboard.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -106,8 +107,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ForgotPassword(),
+                                    PageTransition(
+                                      type: PageTransitionType.fade,
+                                      duration: Duration(milliseconds: 500),
+                                      child: ForgotPassword(),
                                     ),
                                   );
                                 },
@@ -131,8 +134,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Dashboard(),
+                                  PageTransition(
+                                    duration: Duration(milliseconds: 500),
+                                    type: PageTransitionType.fade,
+                                    child: Dashboard(),
                                   ),
                                 );
                               },
@@ -163,8 +168,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SignUp(),
+                                    PageTransition(
+                                      duration: Duration(milliseconds: 500),
+                                      type: PageTransitionType.fade,
+                                      child: SignUp(),
                                     ),
                                   );
                                 },

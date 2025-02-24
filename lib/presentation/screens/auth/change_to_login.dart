@@ -1,6 +1,7 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 class ChangeToLogin extends StatefulWidget {
   const ChangeToLogin({super.key});
@@ -81,8 +82,10 @@ class _ChangeToLoginState extends State<ChangeToLogin> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) => LoginScreen(),
+                                    PageTransition(
+                                      type: PageTransitionType.fade,
+                                      duration: Duration(milliseconds: 500),
+                                      child: LoginScreen(),
                                     ),
                                   );
                                 },
