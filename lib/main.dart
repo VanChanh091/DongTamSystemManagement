@@ -1,4 +1,5 @@
 import 'package:dongtam/presentation/screens/auth/Verification.dart';
+import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
 import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/reset_password.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
       // home: SignUpPage(),
       // home: ForgotPassword(),
       // home: Verification(),
-      home: ResetPassword(),
+      // home: ResetPassword(),
+      home: ChangeToLogin(),
     );
   }
 }

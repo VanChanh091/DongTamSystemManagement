@@ -25,7 +25,7 @@ class Verification extends StatelessWidget {
                       padding: EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          SizedBox(height: 50),
+                          SizedBox(height: 70),
                           Center(
                             child: Icon(
                               Icons.keyboard,

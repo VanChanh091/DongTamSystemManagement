@@ -31,7 +31,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       child: Column(
                         // crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 50),
+                          SizedBox(height: 70),
                           Center(
                             child: Icon(
                               Icons.lock,
