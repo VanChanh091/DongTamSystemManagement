@@ -1,13 +1,14 @@
+import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:flutter/material.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
 
   @override
-  State<SignUpPage> createState() => _SignUpState();
+  State<SignUp> createState() => _SignUpState();
 }
 
-class _SignUpState extends State<SignUpPage> {
+class _SignUpState extends State<SignUp> {
   bool isObscureText = true;
   @override
   Widget build(BuildContext context) {
@@ -157,7 +158,14 @@ class _SignUpState extends State<SignUpPage> {
                             children: [
                               Text("Bạn đã có tài khoản?"),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => LoginScreen(),
+                                    ),
+                                  );
+                                },
                                 child: Text(
                                   "Đăng nhập",
                                   style: TextStyle(

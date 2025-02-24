@@ -57,7 +57,9 @@ class StepItems extends StatelessWidget {
                 Align(
                   alignment: Alignment.bottomLeft,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

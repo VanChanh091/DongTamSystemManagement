@@ -1,4 +1,5 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
+import 'package:dongtam/presentation/screens/auth/reset_password.dart';
 import 'package:flutter/material.dart';
 
 class Verification extends StatelessWidget {
@@ -93,7 +94,14 @@ class Verification extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ResetPassword(),
+                                        ),
+                                      );
+                                    },
                                     child: Text(
                                       "Xác nhận",
                                       style: TextStyle(

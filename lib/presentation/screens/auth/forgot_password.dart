@@ -1,4 +1,5 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
+import 'package:dongtam/presentation/screens/auth/verification.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -97,7 +98,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Verification(),
+                                    ),
+                                  );
+                                },
                                 child: Text(
                                   "Gửi mã",
                                   style: TextStyle(

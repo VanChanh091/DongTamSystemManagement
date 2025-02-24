@@ -1,4 +1,5 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
+import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
 import 'package:flutter/material.dart';
 
 class ResetPassword extends StatefulWidget {
@@ -142,7 +143,14 @@ class _ResetPasswordState extends State<ResetPassword> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChangeToLogin(),
+                                    ),
+                                  );
+                                },
                                 child: Text(
                                   "Xác nhận",
                                   style: TextStyle(

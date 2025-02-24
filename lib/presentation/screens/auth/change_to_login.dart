@@ -1,4 +1,5 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
+import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:flutter/material.dart';
 
 class ChangeToLogin extends StatefulWidget {
@@ -77,7 +78,14 @@ class _ChangeToLoginState extends State<ChangeToLogin> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => LoginScreen(),
+                                    ),
+                                  );
+                                },
                                 child: Text(
                                   "Xác nhận",
                                   style: TextStyle(

@@ -1,3 +1,6 @@
+import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
+import 'package:dongtam/presentation/screens/auth/sign_up.dart';
+import 'package:dongtam/presentation/screens/home/dashboard.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -100,7 +103,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: TextButton(
                               onPressed: () {},
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ForgotPassword(),
+                                    ),
+                                  );
+                                },
                                 child: Text(
                                   "Quên mật khẩu",
                                   style: TextStyle(
@@ -118,7 +128,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Dashboard(),
+                                  ),
+                                );
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                                 shape: RoundedRectangleBorder(
@@ -126,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                               child: Text(
-                                "Login",
+                                "Đăng nhập",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -143,7 +160,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               Text("Chưa có tài khoản?"),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SignUp(),
+                                    ),
+                                  );
+                                },
                                 child: Text(
                                   "Đăng ký",
                                   style: TextStyle(
