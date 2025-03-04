@@ -54,7 +54,7 @@ class _SignUpState extends State<SignUp> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 50),
+                          SizedBox(height: 40),
 
                           // name
                           TextField(
@@ -66,19 +66,38 @@ class _SignUpState extends State<SignUp> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 25),
+                          SizedBox(height: 22),
 
                           //email
-                          TextField(
-                            decoration: InputDecoration(
-                              labelText: "Email",
-                              prefixIcon: Icon(Icons.email),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+                          SizedBox(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      labelText: "Email",
+                                      prefixIcon: Icon(Icons.mail),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {},
+                                  child: Text(
+                                    "Gửi mã",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.red.shade400,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(height: 25),
+                          SizedBox(height: 22),
 
                           //password
                           TextField(
@@ -103,7 +122,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 25),
+                          SizedBox(height: 22),
 
                           //confirm password
                           TextField(
@@ -128,7 +147,20 @@ class _SignUpState extends State<SignUp> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 60),
+                          SizedBox(height: 22),
+
+                          //enter code otp
+                          TextField(
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: "Nhập mã xác nhận",
+                              prefixIcon: Icon(Icons.code),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 40),
 
                           //button
                           SizedBox(

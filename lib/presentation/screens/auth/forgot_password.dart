@@ -1,5 +1,6 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
-import 'package:dongtam/presentation/screens/auth/verification.dart';
+import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
+import 'package:dongtam/presentation/screens/auth/reset_password.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -29,11 +30,17 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     width: 500,
                     height: 600,
                     child: Container(
+                      // decoration: BoxDecoration(
+                      //   color: Colors.white,
+                      //   borderRadius: BorderRadius.circular(10),
+                      // ),
                       padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(25),
                       child: Column(
-                        // crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(height: 70),
+                          SizedBox(height: 50),
                           Center(
                             child: Icon(
                               Icons.lock,
@@ -71,17 +78,63 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
                           Center(
                             child: SizedBox(
-                              width: 400,
-                              height: 50,
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  labelText: "Nhập email",
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  prefixIcon: Icon(Icons.email),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      decoration: InputDecoration(
+                                        labelText: "Email",
+                                        prefixIcon: Icon(Icons.mail),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
+
+                                  SizedBox(width: 5),
+
+                                  SizedBox(
+                                    height: 45,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade400,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: TextButton(
+                                        onPressed: () {},
+                                        child: Text(
+                                          "Gửi mã",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20),
+
+                          //enter code otp
+                          Center(
+                            child: TextField(
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: "Mã xác nhận",
+                                prefixIcon: Icon(Icons.code),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
                             ),
@@ -105,12 +158,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                     PageTransition(
                                       type: PageTransitionType.fade,
                                       duration: Duration(milliseconds: 500),
-                                      child: Verification(),
+                                      child: ResetPassword(),
                                     ),
                                   );
                                 },
                                 child: Text(
-                                  "Gửi mã",
+                                  "Xác nhận",
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,

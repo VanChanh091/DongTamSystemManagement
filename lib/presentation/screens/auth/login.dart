@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Center(
                   child: SizedBox(
                     width: 600,
-                    height: 700,
+                    height: 550,
                     child: Container(
                       // constraints: BoxConstraints(maxWidth: 400, maxHeight: 600),
                       decoration: BoxDecoration(
@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 80),
+                          SizedBox(height: 70),
 
                           //email
                           TextField(
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 50),
+                          SizedBox(height: 45),
 
                           //login button
                           SizedBox(
