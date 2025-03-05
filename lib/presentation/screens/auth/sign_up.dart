@@ -1,4 +1,7 @@
 import 'package:dongtam/presentation/screens/auth/login.dart';
+import 'package:dongtam/presentation/screens/home/dashboard.dart';
+import 'package:dongtam/service/auth_Service.dart';
+import 'package:dongtam/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -10,7 +13,66 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  final AuthService authService = AuthService();
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPWController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
+
   bool isObscureText = true;
+
+  void register() async {
+    Validators.validateFullName(fullNameController.text);
+    Validators.validateEmail(emailController.text);
+    Validators.validatePassword(passwordController.text);
+    Validators.validateConfirmPassword(
+      passwordController.text,
+      confirmPWController.text,
+    );
+    // Validators.validateOTP(otpController.text);
+
+    bool success = await authService.register(
+      fullNameController.text,
+      emailController.text,
+      passwordController.text,
+      confirmPWController.text,
+      otpController.text,
+    );
+
+    if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Đăng ký thành công")));
+      Navigator.push(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          duration: Duration(milliseconds: 500),
+          child: Dashboard(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Đăng ký thất bại")));
+    }
+  }
+
+  void sendOTP() async {
+    bool success = await authService.sendOTP(emailController.text);
+
+    if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Đã gửi OTP")));
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gửi OTP thất bại")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +120,7 @@ class _SignUpState extends State<SignUp> {
 
                           // name
                           TextField(
+                            controller: fullNameController,
                             decoration: InputDecoration(
                               labelText: "Họ và tên",
                               prefixIcon: Icon(Icons.person),
@@ -74,6 +137,7 @@ class _SignUpState extends State<SignUp> {
                               children: [
                                 Expanded(
                                   child: TextField(
+                                    controller: emailController,
                                     decoration: InputDecoration(
                                       labelText: "Email",
                                       prefixIcon: Icon(Icons.mail),
@@ -84,7 +148,9 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                 ),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    sendOTP();
+                                  },
                                   child: Text(
                                     "Gửi mã",
                                     style: TextStyle(
@@ -101,6 +167,7 @@ class _SignUpState extends State<SignUp> {
 
                           //password
                           TextField(
+                            controller: passwordController,
                             obscureText: isObscureText,
                             decoration: InputDecoration(
                               labelText: "Mật khẩu",
@@ -126,7 +193,8 @@ class _SignUpState extends State<SignUp> {
 
                           //confirm password
                           TextField(
-                            obscureText: true,
+                            obscureText: isObscureText,
+                            controller: confirmPWController,
                             decoration: InputDecoration(
                               labelText: "Nhập lại mật khẩu",
                               prefixIcon: Icon(Icons.lock),
@@ -151,10 +219,10 @@ class _SignUpState extends State<SignUp> {
 
                           //enter code otp
                           TextField(
-                            obscureText: true,
+                            controller: otpController,
                             decoration: InputDecoration(
                               labelText: "Nhập mã xác nhận",
-                              prefixIcon: Icon(Icons.code),
+                              prefixIcon: Icon(Icons.verified),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -167,7 +235,9 @@ class _SignUpState extends State<SignUp> {
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                register();
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                                 shape: RoundedRectangleBorder(
