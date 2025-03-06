@@ -1,6 +1,7 @@
 import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/sign_up.dart';
 import 'package:dongtam/presentation/screens/home/dashboard.dart';
+import 'package:dongtam/service/auth_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -12,7 +13,36 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final AuthService authService = AuthService();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
   bool isObscureText = true;
+
+  void login() async {
+    bool susccess = await authService.login(
+      emailController.text,
+      passwordController.text,
+    );
+    if (susccess) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Đăng nhập thành công")));
+      Navigator.push(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          duration: Duration(milliseconds: 500),
+          child: Dashboard(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Sai thông tin đăng nhập")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           //email
                           TextField(
+                            controller: emailController,
                             decoration: InputDecoration(
                               labelText: 'Email',
                               hintText: 'Nhập email',
@@ -74,6 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           //password
                           TextField(
+                            controller: passwordController,
                             obscureText: isObscureText,
                             decoration: InputDecoration(
                               labelText: 'Password',
@@ -132,14 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 50,
                             child: ElevatedButton(
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  PageTransition(
-                                    duration: Duration(milliseconds: 500),
-                                    type: PageTransitionType.fade,
-                                    child: Dashboard(),
-                                  ),
-                                );
+                                login();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,

@@ -23,14 +23,13 @@ class _SignUpState extends State<SignUp> {
   bool isObscureText = true;
 
   void register() async {
-    Validators.validateFullName(fullNameController.text);
-    Validators.validateEmail(emailController.text);
-    Validators.validatePassword(passwordController.text);
-    Validators.validateConfirmPassword(
+    String? fullNameErr = Validators.validateFullName(fullNameController.text);
+    String? emailErr = Validators.validateEmail(emailController.text);
+    String? passwordErr = Validators.validatePassword(passwordController.text);
+    String? confirmPwErr = Validators.validateConfirmPassword(
       passwordController.text,
       confirmPWController.text,
     );
-    // Validators.validateOTP(otpController.text);
 
     bool success = await authService.register(
       fullNameController.text,
@@ -49,7 +48,7 @@ class _SignUpState extends State<SignUp> {
         PageTransition(
           type: PageTransitionType.fade,
           duration: Duration(milliseconds: 500),
-          child: Dashboard(),
+          child: LoginScreen(),
         ),
       );
     } else {

@@ -45,18 +45,4 @@ class Validators {
     }
     return null;
   }
-
-  static String? validateOTP(String? value, String correctOTP) {
-    if (value == null || value.trim().isEmpty) {
-      return "Mã OTP không được để trống";
-    }
-    if (value.length != 4) {
-      return "Mã OTP phải có 4 ký tự";
-    }
-
-    if (value != correctOTP) {
-      return "Mã OTP không đúng";
-    }
-    return null;
-  }
 }
