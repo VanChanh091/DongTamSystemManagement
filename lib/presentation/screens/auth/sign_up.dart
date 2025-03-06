@@ -1,5 +1,4 @@
 import 'package:dongtam/presentation/screens/auth/login.dart';
-import 'package:dongtam/presentation/screens/home/dashboard.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/validators.dart';
 import 'package:flutter/material.dart';
@@ -23,13 +22,36 @@ class _SignUpState extends State<SignUp> {
   bool isObscureText = true;
 
   void register() async {
-    String? fullNameErr = Validators.validateFullName(fullNameController.text);
-    String? emailErr = Validators.validateEmail(emailController.text);
-    String? passwordErr = Validators.validatePassword(passwordController.text);
-    String? confirmPwErr = Validators.validateConfirmPassword(
+    String? fullNameError = Validators.validateFullName(
+      fullNameController.text,
+    );
+    String? emailError = Validators.validateEmail(emailController.text);
+    String? passwordError = Validators.validatePassword(
+      passwordController.text,
+    );
+    String? confirmPWError = Validators.validateConfirmPassword(
       passwordController.text,
       confirmPWController.text,
     );
+
+    if (fullNameError != null ||
+        emailError != null ||
+        passwordError != null ||
+        confirmPWError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            fullNameError ??
+                emailError ??
+                passwordError ??
+                confirmPWError ??
+                "Lỗi không xác định",
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+      return;
+    }
 
     bool success = await authService.register(
       fullNameController.text,
@@ -59,6 +81,12 @@ class _SignUpState extends State<SignUp> {
   }
 
   void sendOTP() async {
+    if (emailController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Vui lòng nhập email")));
+      return;
+    }
     bool success = await authService.sendOTP(emailController.text);
 
     if (success) {

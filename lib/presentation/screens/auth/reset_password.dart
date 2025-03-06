@@ -1,17 +1,68 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
 import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
+import 'package:dongtam/service/auth_Service.dart';
+import 'package:dongtam/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
 class ResetPassword extends StatefulWidget {
-  const ResetPassword({super.key});
+  final String email;
+  const ResetPassword({super.key, required this.email});
 
   @override
   State<ResetPassword> createState() => _ResetPasswordState();
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
+  final AuthService authService = AuthService();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPwController = TextEditingController();
+
   bool isObscureText = true;
+
+  void changePassword() async {
+    String? errPassword = Validators.validatePassword(passwordController.text);
+    String? errConfirmPw = Validators.validateConfirmPassword(
+      passwordController.text,
+      confirmPwController.text,
+    );
+
+    if (errPassword != null || errConfirmPw != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            errPassword ?? errConfirmPw ?? "Lỗi không xác định",
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+      return;
+    }
+
+    bool success = await authService.changePassword(
+      widget.email,
+      passwordController.text,
+      confirmPwController.text,
+    );
+    if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Thay đổi mật khẩu thành công")));
+      Navigator.push(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          duration: Duration(milliseconds: 500),
+          child: ChangeToLogin(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Thay đổi mật khẩu thất bại")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,6 +125,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                               width: 400,
                               height: 50,
                               child: TextField(
+                                controller: passwordController,
                                 obscureText: isObscureText,
                                 decoration: InputDecoration(
                                   hintText: "Nhập mật khẩu mới",
@@ -106,6 +158,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                               width: 400,
                               height: 50,
                               child: TextField(
+                                controller: confirmPwController,
                                 obscureText: isObscureText,
                                 decoration: InputDecoration(
                                   hintText: "Xác nhận lại mật khẩu",
@@ -145,14 +198,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    PageTransition(
-                                      type: PageTransitionType.fade,
-                                      duration: Duration(milliseconds: 500),
-                                      child: ChangeToLogin(),
-                                    ),
-                                  );
+                                  changePassword();
                                 },
                                 child: Text(
                                   "Xác nhận",

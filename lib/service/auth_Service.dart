@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:dongtam/utils/secure_storage_service.dart';
 
 class AuthService {
   final Dio dioService = Dio(
@@ -10,7 +10,7 @@ class AuthService {
     ),
   );
 
-  final FlutterSecureStorage storage = FlutterSecureStorage(); //save token
+  final SecureStorageService secureStorage = SecureStorageService();
 
   //register
   Future<bool> register(
@@ -49,7 +49,7 @@ class AuthService {
 
       if (response.statusCode == 201) {
         String token = response.data['token'];
-        await storage.write(key: 'token', value: token);
+        await secureStorage.saveToken(token);
         return true;
       } else {
         return false;
@@ -58,6 +58,15 @@ class AuthService {
       print("Error login: $e");
       return false;
     }
+  }
+
+  Future<bool> checkLoginStatus() async {
+    String? token = await secureStorage.getToken();
+    return token != null;
+  }
+
+  Future<void> logout() async {
+    await secureStorage.deleteToken();
   }
 
   //get otp
@@ -84,7 +93,7 @@ class AuthService {
   Future<bool> verifyOTPChangePassword(String email, String otp) async {
     try {
       final response = await dioService.post(
-        "/auth/verifyOtpCode",
+        "/auth/verifyOTPChangePassword",
         data: {"email": email, "otpInput": otp},
       );
 
@@ -102,7 +111,7 @@ class AuthService {
     String confirmNewPW,
   ) async {
     try {
-      final token = await storage.read(key: 'token');
+      final token = await secureStorage.getToken();
       final response = await dioService.post(
         "/auth/changePassword",
         data: {

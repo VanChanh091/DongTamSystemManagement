@@ -1,20 +1,25 @@
 import 'package:dongtam/presentation/screens/auth/login.dart';
+import 'package:dongtam/presentation/screens/home/dashboard.dart';
+import 'package:dongtam/utils/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SecureStorageService secureStorage = SecureStorageService();
+  String? token = await secureStorage.getToken();
+
+  runApp(MyApp(isLoggedIn: token != null));
 }
 
-//root
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      home: LoginScreen(),
+      home: isLoggedIn ? Dashboard() : LoginScreen(),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
 import 'package:dongtam/presentation/screens/auth/reset_password.dart';
+import 'package:dongtam/service/auth_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -11,6 +12,62 @@ class ForgotPassword extends StatefulWidget {
 }
 
 class _ForgotPasswordState extends State<ForgotPassword> {
+  final AuthService authService = AuthService();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
+
+  void sendOTP() async {
+    if (emailController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Vui lòng nhập email")));
+      return;
+    }
+
+    bool success = await authService.sendOTP(emailController.text);
+
+    if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Đã gửi OTP")));
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gửi OTP thất bại")));
+    }
+  }
+
+  void verifyOTP() async {
+    if (emailController.text.isEmpty || otpController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Vui lòng điền đầy đủ thông tin")));
+      return;
+    }
+
+    bool success = await authService.verifyOTPChangePassword(
+      emailController.text,
+      otpController.text,
+    );
+    if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Xác thực OTP thành công")));
+      Navigator.push(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          duration: Duration(milliseconds: 500),
+          child: ResetPassword(email: emailController.text),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Sai mã OTP")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,10 +86,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     width: 500,
                     height: 600,
                     child: Container(
-                      // decoration: BoxDecoration(
-                      //   color: Colors.white,
-                      //   borderRadius: BorderRadius.circular(10),
-                      // ),
                       padding: const EdgeInsets.all(20),
                       margin: const EdgeInsets.all(25),
                       child: Column(
@@ -81,6 +134,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 children: [
                                   Expanded(
                                     child: TextField(
+                                      controller: emailController,
                                       decoration: InputDecoration(
                                         labelText: "Email",
                                         prefixIcon: Icon(Icons.mail),
@@ -105,7 +159,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: TextButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          sendOTP();
+                                        },
                                         child: Text(
                                           "Gửi mã",
                                           style: TextStyle(
@@ -126,7 +182,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           //enter code otp
                           Center(
                             child: TextField(
-                              obscureText: true,
+                              controller: otpController,
                               decoration: InputDecoration(
                                 labelText: "Mã xác nhận",
                                 prefixIcon: Icon(Icons.code),
@@ -152,14 +208,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    PageTransition(
-                                      type: PageTransitionType.fade,
-                                      duration: Duration(milliseconds: 500),
-                                      child: ResetPassword(),
-                                    ),
-                                  );
+                                  verifyOTP();
                                 },
                                 child: Text(
                                   "Xác nhận",

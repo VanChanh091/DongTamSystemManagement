@@ -2,6 +2,7 @@ import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/sign_up.dart';
 import 'package:dongtam/presentation/screens/home/dashboard.dart';
 import 'package:dongtam/service/auth_Service.dart';
+import 'package:dongtam/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -20,6 +21,23 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isObscureText = true;
 
   void login() async {
+    String? emailError = Validators.validateEmail(emailController.text);
+    String? passwordError = Validators.validatePassword(
+      passwordController.text,
+    );
+
+    if (emailError != null || passwordError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            emailError ?? passwordError ?? "Lỗi không xác định",
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+      return;
+    }
+
     bool susccess = await authService.login(
       emailController.text,
       passwordController.text,

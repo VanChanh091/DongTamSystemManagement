@@ -7,14 +7,13 @@ class Validators {
   }
 
   static String? validateEmail(String? value) {
+    final RegExp emailRegex = RegExp(r'^[\w.-]+@gmail\.com$');
     if (value == null || value.trim().isEmpty) {
       return "Email không được để trống";
     }
-    final emailRegExp = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
-    if (!emailRegExp.hasMatch(value)) {
-      return "Email không hợp lệ";
+
+    if (!emailRegex.hasMatch(value)) {
+      return "Email không hợp lệ, hãy nhập đúng định dạng @gmail.com";
     }
     return null;
   }
