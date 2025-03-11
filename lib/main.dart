@@ -1,5 +1,5 @@
 import 'package:dongtam/presentation/screens/auth/login.dart';
-import 'package:dongtam/presentation/screens/home/dashboard.dart';
+import 'package:dongtam/presentation/screens/main/home.dart';
 import 'package:dongtam/utils/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: isLoggedIn ? Dashboard() : LoginScreen(),
+      home: isLoggedIn ? HomePage() : LoginScreen(),
     );
   }
 }

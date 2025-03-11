@@ -1,6 +1,6 @@
 import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/sign_up.dart';
-import 'package:dongtam/presentation/screens/home/dashboard.dart';
+import 'package:dongtam/presentation/screens/main/home.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/validators.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
         PageTransition(
           type: PageTransitionType.fade,
           duration: Duration(milliseconds: 500),
-          child: Dashboard(),
+          child: HomePage(),
         ),
       );
     } else {
