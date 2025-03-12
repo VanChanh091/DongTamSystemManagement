@@ -1,15 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/utils/secure_storage_service.dart';
+import 'package:dongtam/constant/appInfo.dart';
 
 class AuthService {
   final Dio dioService = Dio(
     BaseOptions(
-      baseUrl: "http://localhost:5000",
+      baseUrl: AppInfo.BASE_URL,
       connectTimeout: Duration(seconds: 10),
       receiveTimeout: Duration(seconds: 10),
     ),
   );
 
+  //jwt
   final SecureStorageService secureStorage = SecureStorageService();
 
   //register
@@ -65,6 +67,7 @@ class AuthService {
     return token != null;
   }
 
+  //logout
   Future<void> logout() async {
     await secureStorage.deleteToken();
   }
