@@ -64,6 +64,7 @@ class _CustomerPageState extends State<CustomerPage> {
                 ),
                 const SizedBox(width: 10),
 
+                // find
                 ElevatedButton.icon(
                   onPressed: () {},
                   label: Text("Tìm kiếm"),
@@ -71,6 +72,7 @@ class _CustomerPageState extends State<CustomerPage> {
                 ),
                 const SizedBox(width: 10),
 
+                // refresh
                 ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
@@ -82,6 +84,7 @@ class _CustomerPageState extends State<CustomerPage> {
                 ),
                 const SizedBox(width: 10),
 
+                //add
                 ElevatedButton.icon(
                   onPressed: () {
                     showDialog(
@@ -103,29 +106,47 @@ class _CustomerPageState extends State<CustomerPage> {
                 ),
                 const SizedBox(width: 10),
 
+                //delete customers
                 ElevatedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder:
-                          (_) => CustomerDialog(
-                            // customer: ,
-                            onCustomerAddOrUpdate: () {
-                              setState(() {
-                                futureCustomer =
-                                    CustomerService().getAllCustomers();
-                              });
-                            },
-                          ),
-                    );
-                  },
-                  label: Text("Cập nhật"),
-                  icon: Icon(Icons.delete),
-                ),
-                const SizedBox(width: 10),
+                  onPressed:
+                      isSelected.isNotEmpty
+                          ? () {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text("Xác nhận"),
+                                    content: Text(
+                                      'Bạn có chắc chắn muốn xóa ${isSelected.length} khách hàng?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text("Hủy"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          for (String id in isSelected) {
+                                            await CustomerService()
+                                                .deleteCustomer(id);
+                                          }
 
-                ElevatedButton.icon(
-                  onPressed: () {},
+                                          setState(() {
+                                            isSelected.clear();
+                                            futureCustomer =
+                                                CustomerService()
+                                                    .getAllCustomers();
+                                          });
+
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Xoá"),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                          }
+                          : null,
                   label: Text("Xóa"),
                   icon: Icon(Icons.delete),
                 ),
@@ -219,9 +240,81 @@ class _CustomerPageState extends State<CustomerPage> {
                             DataCell(Text(customer.phone.toString())),
                             DataCell(Text(customer.cskh)),
                             DataCell(
-                              IconButton(
-                                icon: const Icon(Icons.more_vert),
-                                onPressed: () {},
+                              PopupMenuButton(
+                                icon: Icon(Icons.more_vert),
+                                onSelected: (String choice) {
+                                  if (choice == 'edit') {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => CustomerDialog(
+                                            customer: customer,
+                                            onCustomerAddOrUpdate: () {
+                                              setState(() {
+                                                futureCustomer =
+                                                    CustomerService()
+                                                        .getAllCustomers();
+                                              });
+                                            },
+                                          ),
+                                    );
+                                  } else if (choice == 'delete') {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (context) => AlertDialog(
+                                            title: Text("Xác nhận"),
+                                            content: Text(
+                                              'Bạn có chắc chắn muốn xóa không?',
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () =>
+                                                        Navigator.pop(context),
+                                                child: Text("Hủy"),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  CustomerService()
+                                                      .deleteCustomer(
+                                                        customer.customerId,
+                                                      )
+                                                      .then((_) {
+                                                        setState(() {
+                                                          futureCustomer =
+                                                              CustomerService()
+                                                                  .getAllCustomers();
+                                                        });
+                                                      });
+
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text("Xoá"),
+                                              ),
+                                            ],
+                                          ),
+                                    );
+                                  }
+                                },
+                                itemBuilder:
+                                    (BuildContext context) =>
+                                        <PopupMenuEntry<String>>[
+                                          const PopupMenuItem<String>(
+                                            value: 'edit',
+                                            child: ListTile(
+                                              leading: Icon(Icons.edit),
+                                              title: Text('Sửa'),
+                                            ),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'delete',
+                                            child: ListTile(
+                                              leading: Icon(Icons.delete),
+                                              title: Text('Xóa'),
+                                            ),
+                                          ),
+                                        ],
                               ),
                             ),
                           ],
