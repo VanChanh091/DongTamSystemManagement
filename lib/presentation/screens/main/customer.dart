@@ -12,15 +12,34 @@ class CustomerPage extends StatefulWidget {
 
 class _CustomerPageState extends State<CustomerPage> {
   late Future<List<Customer>> futureCustomer;
-  TextEditingController searchController = TextEditingController();
-  List<Customer> filteredCustomers = [];
   List<String> isSelected = [];
   bool selectedAll = false;
+  TextEditingController searchController = TextEditingController();
+  String searchType = "Tất cả";
+  bool isTextFieldEnabled = false;
 
   @override
   void initState() {
     super.initState();
     futureCustomer = CustomerService().getAllCustomers();
+  }
+
+  void searchCustomer() {
+    String keyword = searchController.text.trim().toLowerCase();
+
+    if (searchType == "Tất cả") {
+      setState(() {
+        futureCustomer = CustomerService().getAllCustomers();
+      });
+    } else if (searchType == "Theo Mã") {
+      setState(() {
+        futureCustomer = CustomerService().getCustomerById(keyword);
+      });
+    } else if (searchType == "Theo Tên KH") {
+      setState(() {
+        futureCustomer = CustomerService().getCustomerByName(keyword);
+      });
+    }
   }
 
   @override
@@ -36,15 +55,24 @@ class _CustomerPageState extends State<CustomerPage> {
             child: Row(
               children: [
                 DropdownButton<String>(
-                  value: "Tất cả",
+                  value: searchType,
                   items:
-                      ['Tất cả', "Theo Mã", "Theo Tên"].map((String value) {
+                      ['Tất cả', "Theo Mã", "Theo Tên KH"].map((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
                         );
                       }).toList(),
-                  onChanged: (value) {},
+                  onChanged: (value) {
+                    setState(() {
+                      searchType = value!;
+                      isTextFieldEnabled = searchType != 'Tất cả';
+
+                      if (!isTextFieldEnabled) {
+                        searchController.clear();
+                      }
+                    });
+                  },
                 ),
                 SizedBox(width: 10),
 
@@ -52,6 +80,8 @@ class _CustomerPageState extends State<CustomerPage> {
                   width: 250,
                   child: Expanded(
                     child: TextField(
+                      controller: searchController,
+                      enabled: isTextFieldEnabled,
                       decoration: InputDecoration(
                         hintText: 'Tìm kiếm...',
                         border: OutlineInputBorder(),
@@ -66,7 +96,9 @@ class _CustomerPageState extends State<CustomerPage> {
 
                 // find
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    searchCustomer();
+                  },
                   label: Text("Tìm kiếm"),
                   icon: Icon(Icons.search),
                 ),
@@ -217,6 +249,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                 : Colors.grey.shade200,
                           ),
                           cells: [
+                            // checkbox
                             DataCell(
                               Checkbox(
                                 value: isSelected.contains(customer.customerId),
@@ -239,6 +272,7 @@ class _CustomerPageState extends State<CustomerPage> {
                             DataCell(Text(customer.mst.toString())),
                             DataCell(Text(customer.phone.toString())),
                             DataCell(Text(customer.cskh)),
+                            // more vert
                             DataCell(
                               PopupMenuButton(
                                 icon: Icon(Icons.more_vert),
@@ -275,8 +309,8 @@ class _CustomerPageState extends State<CustomerPage> {
                                                 child: Text("Hủy"),
                                               ),
                                               TextButton(
-                                                onPressed: () {
-                                                  CustomerService()
+                                                onPressed: () async {
+                                                  await CustomerService()
                                                       .deleteCustomer(
                                                         customer.customerId,
                                                       )

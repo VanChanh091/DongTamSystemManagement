@@ -25,23 +25,39 @@ class CustomerService {
   }
 
   // get by id
-  Future<Customer> getCustomerById(String customerId) async {
+  Future<List<Customer>> getCustomerById(String customerId) async {
     try {
       final response = await dioService.get('/api/customer/$customerId');
 
-      return Customer.fromJson(response.data['customer']);
+      final List<dynamic> customersData = response.data['customer'];
+      return customersData
+          .map((json) => Customer.fromJson(json))
+          .where(
+            (customer) => customer.customerId.toLowerCase().contains(
+              customerId.toLowerCase(),
+            ),
+          )
+          .toList();
     } catch (e) {
       throw Exception('Failed to get customerId: $e');
     }
   }
 
   // get by name
-  Future<Customer> getCustomerByName(String customerName) async {
+  Future<List<Customer>> getCustomerByName(String customerName) async {
     try {
       final response = await dioService.get(
         '/api/customer/search/$customerName',
       );
-      return Customer.fromJson(response.data['customer']);
+      final List<dynamic> customersData = response.data['customer'];
+      return customersData
+          .map((json) => Customer.fromJson(json))
+          .where(
+            (customer) => customer.customerName.toLowerCase().contains(
+              customerName.toLowerCase(),
+            ),
+          )
+          .toList();
     } catch (e) {
       throw Exception('Failed to get customerName: $e');
     }
