@@ -45,6 +45,7 @@ class _CustomerPageState extends State<CustomerPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Colors.white,
       padding: const EdgeInsets.all(5),
       child: Column(
         children: [
@@ -100,7 +101,15 @@ class _CustomerPageState extends State<CustomerPage> {
                     searchCustomer();
                   },
                   label: Text("Tìm kiếm"),
-                  icon: Icon(Icons.search),
+                  icon: Icon(Icons.search, color: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff78D761),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 10),
 
@@ -112,7 +121,14 @@ class _CustomerPageState extends State<CustomerPage> {
                     });
                   },
                   label: Text("Tải lại"),
-                  icon: Icon(Icons.refresh),
+                  icon: Icon(Icons.refresh, color: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 10),
 
@@ -134,7 +150,15 @@ class _CustomerPageState extends State<CustomerPage> {
                     );
                   },
                   label: Text("Thêm mới"),
-                  icon: Icon(Icons.add),
+                  icon: Icon(Icons.add, color: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff78D761),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 10),
 
@@ -180,7 +204,15 @@ class _CustomerPageState extends State<CustomerPage> {
                           }
                           : null,
                   label: Text("Xóa"),
-                  icon: Icon(Icons.delete),
+                  icon: Icon(Icons.delete, color: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xffEA4346),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -275,6 +307,7 @@ class _CustomerPageState extends State<CustomerPage> {
                             // more vert
                             DataCell(
                               PopupMenuButton(
+                                color: Colors.white,
                                 icon: Icon(Icons.more_vert),
                                 onSelected: (String choice) {
                                   if (choice == 'edit') {

@@ -1,7 +1,6 @@
 import 'package:dongtam/data/models/customer_model.dart';
 import 'package:dongtam/service/customer_Service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class CustomerDialog extends StatefulWidget {
   final Customer? customer;
@@ -14,10 +13,10 @@ class CustomerDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CustomerDialog> createState() => _ShowDialogState();
+  State<CustomerDialog> createState() => _CustomerDialogState();
 }
 
-class _ShowDialogState extends State<CustomerDialog> {
+class _CustomerDialogState extends State<CustomerDialog> {
   final formKey = GlobalKey<FormState>();
 
   final _idController = TextEditingController();
@@ -58,9 +57,7 @@ class _ShowDialogState extends State<CustomerDialog> {
   }
 
   void submit() async {
-    if (!formKey.currentState!.validate()) {
-      return;
-    }
+    if (!formKey.currentState!.validate()) return;
 
     final newCustomer = Customer(
       customerId: widget.customer?.customerId ?? _idController.text,
@@ -104,42 +101,117 @@ class _ShowDialogState extends State<CustomerDialog> {
     final isEdit = widget.customer != null;
 
     return AlertDialog(
-      title: Text(isEdit ? "Cập nhật khách hàng" : "Thêm khách hàng"),
-      content: Form(
-        key: formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            validateInput("Mã Khách hàng", _idController),
-            validateInput("Tên công ty", _nameController),
-            validateInput("Địa chỉ công ty", _companyAddressController),
-            validateInput("Địa chỉ giao hàng", _shippingAddressController),
-            validateInput("MST", _mstController),
-            validateInput("SDT", _phoneController),
-            validateInput("CSKH", _cskhController),
-          ],
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: Center(
+        child: Text(
+          isEdit ? "Cập nhật khách hàng" : "Thêm khách hàng",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
+      content: Container(
+        width: 700,
+        height: 550,
+        child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                const SizedBox(height: 15),
+                validateInput("Mã Khách hàng", _idController, Icons.badge, 1),
+                const SizedBox(height: 15),
+                validateInput(
+                  "Tên khách hàng",
+                  _nameController,
+                  Icons.person,
+                  1,
+                ),
+                const SizedBox(height: 15),
+                validateInput(
+                  "Tên công ty",
+                  _companyNameController,
+                  Icons.business,
+                  1,
+                ),
+                const SizedBox(height: 15),
+                validateInput(
+                  "Địa chỉ công ty",
+                  _companyAddressController,
+                  Icons.location_city,
+                  2,
+                ),
+                const SizedBox(height: 15),
+                validateInput(
+                  "Địa chỉ giao hàng",
+                  _shippingAddressController,
+                  Icons.local_shipping,
+                  2,
+                ),
+                const SizedBox(height: 15),
+                validateInput("MST", _mstController, Icons.numbers, 1),
+                const SizedBox(height: 15),
+                validateInput("SDT", _phoneController, Icons.phone, 1),
+                const SizedBox(height: 15),
+                validateInput("CSKH", _cskhController, Icons.support_agent, 1),
+              ],
+            ),
+          ),
+        ),
+      ),
+      actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text("Hủy")),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            "Hủy",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.red,
+            ),
+          ),
+        ),
         ElevatedButton(
           onPressed: submit,
-          child: Text(isEdit ? "Cập nhật" : "Thêm"),
+          child: Text(
+            isEdit ? "Cập nhật" : "Thêm",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
       ],
     );
   }
 }
 
-Widget validateInput(String label, TextEditingController controller) {
+Widget validateInput(
+  String label,
+  TextEditingController controller,
+  IconData icon,
+  int numLines,
+) {
   return TextFormField(
     controller: controller,
-    decoration: InputDecoration(labelText: label),
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return "Không được để trống";
-      }
-      return null;
-    },
+    maxLines: numLines,
+    decoration: InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    ),
+    validator:
+        (value) =>
+            value == null || value.isEmpty ? 'Vui lòng nhập $label' : null,
   );
 }
