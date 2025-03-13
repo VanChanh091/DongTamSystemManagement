@@ -1,3 +1,4 @@
+import 'package:dongtam/presentation/components/dialog_add_customer.dart';
 import 'package:dongtam/service/customer_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer_model.dart';
@@ -11,6 +12,8 @@ class CustomerPage extends StatefulWidget {
 
 class _CustomerPageState extends State<CustomerPage> {
   late Future<List<Customer>> futureCustomer;
+  TextEditingController searchController = TextEditingController();
+  List<Customer> filteredCustomers = [];
   List<String> isSelected = [];
   bool selectedAll = false;
 
@@ -69,16 +72,55 @@ class _CustomerPageState extends State<CustomerPage> {
                 const SizedBox(width: 10),
 
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      futureCustomer = CustomerService().getAllCustomers();
+                    });
+                  },
                   label: Text("Tải lại"),
                   icon: Icon(Icons.refresh),
                 ),
                 const SizedBox(width: 10),
 
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder:
+                          (_) => CustomerDialog(
+                            customer: null,
+                            onCustomerAddOrUpdate: () {
+                              setState(() {
+                                futureCustomer =
+                                    CustomerService().getAllCustomers();
+                              });
+                            },
+                          ),
+                    );
+                  },
                   label: Text("Thêm mới"),
                   icon: Icon(Icons.add),
+                ),
+                const SizedBox(width: 10),
+
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder:
+                          (_) => CustomerDialog(
+                            // customer: ,
+                            onCustomerAddOrUpdate: () {
+                              setState(() {
+                                futureCustomer =
+                                    CustomerService().getAllCustomers();
+                              });
+                            },
+                          ),
+                    );
+                  },
+                  label: Text("Cập nhật"),
+                  icon: Icon(Icons.delete),
                 ),
                 const SizedBox(width: 10),
 
@@ -174,7 +216,7 @@ class _CustomerPageState extends State<CustomerPage> {
                             DataCell(Text(customer.companyAddress)),
                             DataCell(Text(customer.shippingAddress)),
                             DataCell(Text(customer.mst.toString())),
-                            DataCell(Text(customer.phone)),
+                            DataCell(Text(customer.phone.toString())),
                             DataCell(Text(customer.cskh)),
                             DataCell(
                               IconButton(
