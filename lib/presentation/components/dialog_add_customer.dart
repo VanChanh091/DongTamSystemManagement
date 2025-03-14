@@ -118,41 +118,33 @@ class _CustomerDialogState extends State<CustomerDialog> {
             child: Column(
               children: [
                 const SizedBox(height: 15),
-                validateInput("Mã Khách hàng", _idController, Icons.badge, 1),
+                validateInput("Mã Khách hàng", _idController, Icons.badge),
                 const SizedBox(height: 15),
-                validateInput(
-                  "Tên khách hàng",
-                  _nameController,
-                  Icons.person,
-                  1,
-                ),
+                validateInput("Tên khách hàng", _nameController, Icons.person),
                 const SizedBox(height: 15),
                 validateInput(
                   "Tên công ty",
                   _companyNameController,
                   Icons.business,
-                  1,
                 ),
                 const SizedBox(height: 15),
                 validateInput(
                   "Địa chỉ công ty",
                   _companyAddressController,
                   Icons.location_city,
-                  2,
                 ),
                 const SizedBox(height: 15),
                 validateInput(
                   "Địa chỉ giao hàng",
                   _shippingAddressController,
                   Icons.local_shipping,
-                  2,
                 ),
                 const SizedBox(height: 15),
-                validateInput("MST", _mstController, Icons.numbers, 1),
+                validateInput("MST", _mstController, Icons.numbers),
                 const SizedBox(height: 15),
-                validateInput("SDT", _phoneController, Icons.phone, 1),
+                validateInput("SDT", _phoneController, Icons.phone),
                 const SizedBox(height: 15),
-                validateInput("CSKH", _cskhController, Icons.support_agent, 1),
+                validateInput("CSKH", _cskhController, Icons.support_agent),
               ],
             ),
           ),
@@ -174,19 +166,19 @@ class _CustomerDialogState extends State<CustomerDialog> {
         ),
         ElevatedButton(
           onPressed: submit,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
           child: Text(
             isEdit ? "Cập nhật" : "Thêm",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
               color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
             ),
           ),
         ),
@@ -199,11 +191,9 @@ Widget validateInput(
   String label,
   TextEditingController controller,
   IconData icon,
-  int numLines,
 ) {
   return TextFormField(
     controller: controller,
-    maxLines: numLines,
     decoration: InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon),
