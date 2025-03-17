@@ -32,7 +32,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
   void initState() {
     super.initState();
     if (widget.customer != null) {
-      _idController.text = widget.customer!.customerId.toString();
+      _idController.text = widget.customer!.customerId;
       _nameController.text = widget.customer!.customerName;
       _companyNameController.text = widget.customer!.companyName;
       _companyAddressController.text = widget.customer!.companyAddress;
@@ -59,8 +59,9 @@ class _CustomerDialogState extends State<CustomerDialog> {
   void submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    // Chuẩn hóa dữ liệu đầu vào
     final newCustomer = Customer(
-      customerId: widget.customer?.customerId ?? _idController.text,
+      customerId: _idController.text.toUpperCase(), //prefix
       customerName: _nameController.text,
       companyName: _companyNameController.text,
       companyAddress: _companyAddressController.text,
@@ -72,11 +73,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
     try {
       if (widget.customer == null) {
+        // add
         await CustomerService().addCustomer(newCustomer.toJson());
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Thêm thành công")));
       } else {
+        // update
         await CustomerService().updateCustomer(
           newCustomer.customerId,
           newCustomer.toJson(),

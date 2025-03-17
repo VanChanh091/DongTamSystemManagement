@@ -1,9 +1,9 @@
 import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
-import 'package:dongtam/presentation/screens/main/customer.dart';
+import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard.dart';
-import 'package:dongtam/presentation/screens/main/order.dart';
-import 'package:dongtam/presentation/screens/main/planing.dart';
+import 'package:dongtam/presentation/screens/main/order/order.dart';
+import 'package:dongtam/presentation/screens/main/planning/planing.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

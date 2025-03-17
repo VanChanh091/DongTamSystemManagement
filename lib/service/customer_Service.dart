@@ -67,7 +67,6 @@ class CustomerService {
   Future<bool> addCustomer(Map<String, dynamic> customerData) async {
     try {
       await dioService.post("/api/customer/", data: customerData);
-
       return true;
     } catch (e) {
       throw Exception('Failed to add customer: $e');
@@ -81,7 +80,6 @@ class CustomerService {
   ) async {
     try {
       await dioService.put("/api/customer/$customerId", data: updateCustomer);
-
       return true;
     } catch (e) {
       throw Exception('Failed to update customer: $e');
