@@ -1,7 +1,7 @@
-import 'package:dongtam/presentation/components/dialog_add_customer.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
 import 'package:dongtam/service/customer_Service.dart';
 import 'package:flutter/material.dart';
-import 'package:dongtam/data/models/customer_model.dart';
+import 'package:dongtam/data/models/customer/customer_model.dart';
 
 class CustomerPage extends StatefulWidget {
   const CustomerPage({super.key});
@@ -51,7 +51,7 @@ class _CustomerPageState extends State<CustomerPage> {
       padding: const EdgeInsets.all(5),
       child: Column(
         children: [
-          //search
+          //button
           SizedBox(
             height: 80,
             width: double.infinity,
@@ -89,6 +89,7 @@ class _CustomerPageState extends State<CustomerPage> {
                       // input
                       SizedBox(
                         width: 250,
+                        height: 50,
                         child: TextField(
                           controller: searchController,
                           enabled: isTextFieldEnabled,
@@ -297,8 +298,8 @@ class _CustomerPageState extends State<CustomerPage> {
                   scrollDirection: Axis.vertical,
                   child: DataTable(
                     columnSpacing: 25,
-                    headingRowColor: WidgetStateProperty.all(
-                      const Color.fromARGB(255, 185, 182, 182),
+                    headingRowColor: WidgetStatePropertyAll(
+                      Color.fromARGB(255, 145, 145, 145),
                     ),
                     columns: [
                       DataColumn(
@@ -331,7 +332,9 @@ class _CustomerPageState extends State<CustomerPage> {
                       final customer = data[index];
                       return DataRow(
                         color: WidgetStateProperty.all(
-                          index % 2 == 0 ? Colors.white : Colors.grey.shade200,
+                          index % 2 == 0
+                              ? Colors.white
+                              : const Color.fromARGB(255, 212, 212, 212),
                         ),
                         cells: [
                           DataCell(
@@ -352,8 +355,8 @@ class _CustomerPageState extends State<CustomerPage> {
                             ),
                           ),
                           DataCell(styleCell(null, customer.customerId)),
-                          DataCell(styleCell(120, customer.customerName)),
-                          DataCell(styleCell(200, customer.companyName)),
+                          DataCell(styleCell(120, customer.customerName ?? "")),
+                          DataCell(styleCell(200, customer.companyName ?? "")),
                           DataCell(styleCell(null, customer.companyAddress)),
                           DataCell(styleCell(null, customer.shippingAddress)),
                           DataCell(styleCell(null, customer.mst)),

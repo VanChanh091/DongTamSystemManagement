@@ -1,7 +1,7 @@
 class Customer {
   final String customerId;
-  final String customerName;
-  final String companyName;
+  final String? customerName;
+  final String? companyName;
   final String companyAddress;
   final String shippingAddress;
   final String mst;
@@ -10,8 +10,8 @@ class Customer {
 
   Customer({
     required this.customerId,
-    required this.customerName,
-    required this.companyName,
+    this.customerName,
+    this.companyName,
     required this.companyAddress,
     required this.shippingAddress,
     required this.mst,
@@ -22,13 +22,13 @@ class Customer {
   factory Customer.fromJson(Map<String, dynamic> json) {
     return Customer(
       customerId: json['customerId'] ?? 'CUSTOM',
-      customerName: json['customerName'],
-      companyName: json['companyName'],
-      companyAddress: json['companyAddress'],
-      shippingAddress: json['shippingAddress'],
-      mst: json['mst'],
-      phone: json['phone'],
-      cskh: json['cskh'],
+      customerName: json['customerName'] ?? "",
+      companyName: json['companyName'] ?? "",
+      companyAddress: json['companyAddress'] ?? "",
+      shippingAddress: json['shippingAddress'] ?? "",
+      mst: json['mst'] ?? "",
+      phone: json['phone'] ?? "",
+      cskh: json['cskh'] ?? "",
     );
   }
 

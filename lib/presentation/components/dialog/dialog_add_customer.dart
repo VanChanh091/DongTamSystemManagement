@@ -1,4 +1,4 @@
-import 'package:dongtam/data/models/customer_model.dart';
+import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_Service.dart';
 import 'package:flutter/material.dart';
 
@@ -7,10 +7,10 @@ class CustomerDialog extends StatefulWidget {
   final VoidCallback onCustomerAddOrUpdate;
 
   const CustomerDialog({
-    Key? key,
+    super.key,
     this.customer,
     required this.onCustomerAddOrUpdate,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomerDialog> createState() => _CustomerDialogState();
@@ -33,8 +33,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
     super.initState();
     if (widget.customer != null) {
       _idController.text = widget.customer!.customerId;
-      _nameController.text = widget.customer!.customerName;
-      _companyNameController.text = widget.customer!.companyName;
+      _nameController.text = widget.customer!.customerName ?? "";
+      _companyNameController.text = widget.customer!.companyName ?? "";
       _companyAddressController.text = widget.customer!.companyAddress;
       _shippingAddressController.text = widget.customer!.shippingAddress;
       _mstController.text = widget.customer!.mst;
@@ -121,7 +121,12 @@ class _CustomerDialogState extends State<CustomerDialog> {
             child: Column(
               children: [
                 const SizedBox(height: 15),
-                validateInput("Mã Khách hàng", _idController, Icons.badge),
+                validateInput(
+                  "Mã Khách hàng",
+                  _idController,
+                  Icons.badge,
+                  readOnly: isEdit,
+                ),
                 const SizedBox(height: 15),
                 validateInput("Tên khách hàng", _nameController, Icons.person),
                 const SizedBox(height: 15),
@@ -193,15 +198,19 @@ class _CustomerDialogState extends State<CustomerDialog> {
 Widget validateInput(
   String label,
   TextEditingController controller,
-  IconData icon,
-) {
+  IconData icon, {
+  bool readOnly = false,
+}) {
   return TextFormField(
     controller: controller,
+    readOnly: readOnly,
     decoration: InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      fillColor: readOnly ? Colors.grey.shade300 : Colors.white,
+      filled: true,
     ),
     validator:
         (value) =>

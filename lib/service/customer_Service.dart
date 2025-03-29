@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
-import 'package:dongtam/data/models/customer_model.dart';
+import 'package:dongtam/data/models/customer/customer_model.dart';
 
 class CustomerService {
   final Dio dioService = Dio(
@@ -11,7 +11,7 @@ class CustomerService {
     ),
   );
 
-  // get all //done
+  // get all
   Future<List<Customer>> getAllCustomers() async {
     try {
       final response = await dioService.get("/api/customer/");
@@ -53,7 +53,7 @@ class CustomerService {
       return customersData
           .map((json) => Customer.fromJson(json))
           .where(
-            (customer) => customer.customerName.toLowerCase().contains(
+            (customer) => customer.customerName!.toLowerCase().contains(
               customerName.toLowerCase(),
             ),
           )
