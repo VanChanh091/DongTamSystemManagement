@@ -1,7 +1,7 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
 import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
 import 'package:dongtam/service/auth_Service.dart';
-import 'package:dongtam/utils/validators.dart';
+import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 

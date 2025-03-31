@@ -11,7 +11,7 @@ class InfoProduction {
   final int quantity;
   final String? instructSpecial;
   final int numberChild;
-  final String teBien;
+  final String? teBien;
   final String? nextStep;
 
   InfoProduction({
@@ -27,7 +27,7 @@ class InfoProduction {
     required this.quantity,
     this.instructSpecial,
     required this.numberChild,
-    required this.teBien,
+    this.teBien,
     this.nextStep,
   });
 

@@ -16,7 +16,7 @@ class OrderDataSource extends DataGridSource {
     required this.isSelected,
     required this.onCheckboxChanged,
   }) {
-    this.orders = orders;
+    orders = orders;
     buildDataCell();
   }
 

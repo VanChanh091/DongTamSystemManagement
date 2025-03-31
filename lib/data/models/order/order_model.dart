@@ -6,10 +6,11 @@ import 'package:intl/intl.dart';
 class Order {
   final String orderId;
   final DateTime dayReceiveOrder;
-  final String song;
-  final String typeProduct;
-  final String productName;
-  final String QC_box;
+  final String customerId;
+  final String? typeProduct;
+  final String? productName;
+  final String? song;
+  final String? QC_box;
   final String? day;
   final String? middle_1;
   final String? middle_2;
@@ -28,7 +29,7 @@ class Order {
   final DateTime dateRequestShipping;
   final double? vat;
   final double totalPrice;
-  final String customerId;
+
   final Customer? customer;
   final InfoProduction? infoProduction;
   final Box? box;
@@ -38,10 +39,10 @@ class Order {
     required this.orderId,
     required this.dayReceiveOrder,
     required this.customerId,
-    required this.song,
-    required this.typeProduct,
-    required this.productName,
-    required this.QC_box,
+    this.song,
+    this.typeProduct,
+    this.productName,
+    this.QC_box,
     this.day,
     this.middle_1,
     this.middle_2,
@@ -169,13 +170,13 @@ class Order {
       'lengthPaper': lengthPaper,
       'paperSize': paperSize,
       'quantity': quantity,
-      'acreage': acreagePaper,
+      'acreage': acreage,
       'dvt': dvt,
       'price': price,
       'pricePaper': pricePaper,
       'dateRequestShipping': dateRequestShipping.toIso8601String(),
       'vat': vat,
-      'totalPrice': totalPricePaper,
+      'totalPrice': totalPrice,
       'infoProduction': infoProduction?.toJson(),
       'box': box?.toJson(),
     };

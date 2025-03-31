@@ -8,10 +8,20 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  bool checked = false;
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text("Trang Dashboard", style: TextStyle(fontSize: 24)),
+      child: Container(
+        child: CheckboxListTile(
+          value: checked,
+          onChanged: (bool? value) {
+            setState(() {
+              checked = value!;
+            });
+          },
+        ),
+      ),
     );
   }
 }

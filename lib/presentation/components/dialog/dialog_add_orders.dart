@@ -1,6 +1,6 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/service/order_Service.dart';
-import 'package:flutter/widgets.dart';
+import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -82,10 +82,10 @@ class _OrderDialogState extends State<OrderDialog> {
       orderIdController.text = widget.order!.orderId;
       dayReceive = DateTime.now();
       customerIdController.text = widget.order!.customerId;
-      songController.text = widget.order!.song;
-      typeSpController.text = widget.order!.typeProduct;
-      nameSpController.text = widget.order!.productName;
-      qcBoxController.text = widget.order!.QC_box;
+      songController.text = widget.order!.song ?? "";
+      typeSpController.text = widget.order!.typeProduct ?? "";
+      nameSpController.text = widget.order!.productName ?? "";
+      qcBoxController.text = widget.order!.QC_box ?? "";
       dayController.text = widget.order!.day ?? "";
       middle_1Controller.text = widget.order!.middle_1 ?? "";
       middle_2Controller.text = widget.order!.middle_2 ?? "";
@@ -127,7 +127,7 @@ class _OrderDialogState extends State<OrderDialog> {
           widget.order!.infoProduction!.instructSpecial ?? "";
       numChildController.text =
           widget.order!.infoProduction!.numberChild.toString();
-      teBienController.text = widget.order!.infoProduction!.teBien;
+      teBienController.text = widget.order!.infoProduction!.teBien ?? "";
       nextStepController.text =
           widget.order!.infoProduction!.nextStep.toString();
       inMatTruocController.text = widget.order!.box!.inMatTruoc.toString();
@@ -197,6 +197,19 @@ class _OrderDialogState extends State<OrderDialog> {
   void submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    double totalAcreage = Order.acreagePaper(
+      double.tryParse(lengthController.text) ?? 0.0,
+      double.tryParse(sizeController.text) ?? 0.0,
+      int.tryParse(quantityController.text) ?? 0,
+    );
+
+    String totalPrice = Order.totalPricePaper(
+      dvtController.text,
+      double.tryParse(sizeController.text) ?? 0.0,
+      double.tryParse(lengthController.text) ?? 0.0,
+      double.tryParse(sizeController.text) ?? 0.0,
+    );
+
     final newOrder = Order(
       orderId: orderIdController.text.toUpperCase(),
       dayReceiveOrder: dayReceive ?? DateTime.now(),
@@ -214,27 +227,15 @@ class _OrderDialogState extends State<OrderDialog> {
       lengthPaper: double.tryParse(lengthController.text) ?? 0.0,
       paperSize: double.tryParse(sizeController.text) ?? 0.0,
       quantity: int.tryParse(quantityController.text) ?? 0,
-      acreage: Order.acreagePaper(
-        double.tryParse(lengthController.text) ?? 0.0,
-        double.tryParse(sizeController.text) ?? 0.0,
-        int.tryParse(quantityController.text) ?? 0,
-      ),
+      acreage: totalAcreage,
       dvt: dvtController.text,
       price: double.tryParse(priceController.text) ?? 0.0,
       pricePaper: double.tryParse(pricePaperController.text) ?? 0.0,
       dateRequestShipping: dateShipping ?? DateTime.now(),
       vat: double.tryParse(vatController.text) ?? 0.0,
-      totalPrice:
-          double.tryParse(
-            Order.totalPricePaper(
-              dvtController.text,
-              double.tryParse(sizeController.text) ?? 0.0,
-              double.tryParse(lengthController.text) ?? 0.0,
-              double.tryParse(sizeController.text) ?? 0.0,
-            ),
-          ) ??
-          0.0,
+      totalPrice: double.tryParse(totalPrice) ?? 0.0,
     );
+    print(newOrder);
 
     try {
       if (widget.order == null) {
@@ -310,7 +311,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Mã Đơn Hàng",
                                     orderIdController,
                                     Symbols.orders,
@@ -319,7 +320,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Loại sản phẩm",
                                     typeSpController,
                                     Symbols.box,
@@ -328,7 +329,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Sóng",
                                     songController,
                                     Symbols.airwave,
@@ -336,7 +337,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Ngày nhận đơn hàng",
                                     dayReceiveController,
                                     Symbols.calendar_month,
@@ -371,7 +372,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Mã Khách Hàng",
                                     customerIdController,
                                     Symbols.badge,
@@ -379,7 +380,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Tên sản phẩm",
                                     nameSpController,
                                     Symbols.box,
@@ -387,7 +388,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "QC Thùng",
                                     qcBoxController,
                                     Symbols.deployed_code,
@@ -395,7 +396,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Ngày yêu cầu giao",
                                     dateShippingController,
                                     Symbols.calendar_month,
@@ -430,7 +431,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Cắt",
                                     lengthController,
                                     Symbols.vertical_distribute,
@@ -438,7 +439,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Số lượng",
                                     quantityController,
                                     Symbols.filter_9_plus,
@@ -446,7 +447,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Đơn vị tính",
                                     dvtController,
                                     Symbols.communities,
@@ -454,7 +455,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Diện tích",
                                     acreageController,
                                     Symbols.thermostat_carbon,
@@ -470,7 +471,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Khổ",
                                     sizeController,
                                     Symbols.horizontal_distribute,
@@ -478,7 +479,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Đơn giá",
                                     priceController,
                                     Symbols.price_change,
@@ -486,7 +487,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Giá tấm",
                                     pricePaperController,
                                     Symbols.price_change,
@@ -494,7 +495,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Doanh số",
                                     totalPrice,
                                     Symbols.attach_money,
@@ -510,7 +511,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Đáy",
                                     dayController,
                                     Symbols.vertical_align_bottom,
@@ -518,7 +519,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Giữa 1",
                                     middle_1Controller,
                                     Symbols.vertical_align_center,
@@ -526,7 +527,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Giữa 2",
                                     middle_2Controller,
                                     Symbols.vertical_align_center,
@@ -534,7 +535,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Mặt",
                                     matController,
                                     Symbols.vertical_align_top,
@@ -549,7 +550,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Sóng E",
                                     songEController,
                                     Symbols.airwave,
@@ -557,7 +558,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Sóng B",
                                     songBController,
                                     Symbols.airwave,
@@ -565,7 +566,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Sóng C",
                                     songCController,
                                     Symbols.airwave,
@@ -573,7 +574,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Sóng E2",
                                     songE2Controller,
                                     Symbols.airwave,
@@ -611,7 +612,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Đáy thay thế",
                                     dayControllerReplace,
                                     Symbols.vertical_align_bottom,
@@ -619,7 +620,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Giữa 1 thay thế",
                                     middle_1ControllerReplace,
                                     Symbols.vertical_align_center,
@@ -627,7 +628,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Giữa 2 thay thế",
                                     middle_2ControllerReplace,
                                     Symbols.vertical_align_center,
@@ -635,7 +636,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Mặt thay thế",
                                     matControllerReplace,
                                     Symbols.vertical_align_top,
@@ -650,7 +651,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Sóng E thay thế",
                                     songEControllerReplace,
                                     Symbols.airwave,
@@ -658,7 +659,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Sóng B thay thế",
                                     songBControllerReplace,
                                     Symbols.airwave,
@@ -666,7 +667,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Sóng C thay thế",
                                     songCControllerReplace,
                                     Symbols.airwave,
@@ -674,7 +675,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Sóng E2 thay thế",
                                     songE2ControllerReplace,
                                     Symbols.airwave,
@@ -689,7 +690,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Khổ tấm",
                                     sizeInfoController,
                                     Symbols.horizontal_distribute,
@@ -697,7 +698,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Số lượng",
                                     quantityInfoController,
                                     Symbols.filter_9_plus,
@@ -705,7 +706,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "HD đặc biệt",
                                     instructSpecialController,
                                     Symbols.developer_guide,
@@ -713,7 +714,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "VAT",
                                     vatController,
                                     Symbols.money,
@@ -728,7 +729,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(
                                   width: 400,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Số con",
                                     numChildController,
                                     Symbols.counter_5,
@@ -736,7 +737,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 400,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Tề biên",
                                     teBienController,
                                     Symbols.border_outer,
@@ -744,7 +745,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 400,
-                                  child: validateInput(
+                                  child: ValidationOrder.validateInput(
                                     "Công đoạn sau",
                                     nextStepController,
                                     Symbols.fast_forward,
@@ -784,13 +785,13 @@ class _OrderDialogState extends State<OrderDialog> {
                                   width: 400,
                                   child: Column(
                                     children: [
-                                      validateInput(
+                                      ValidationOrder.validateInput(
                                         "In mặt trước",
                                         inMatTruocController,
                                         Symbols.print,
                                       ),
                                       SizedBox(height: 15),
-                                      validateInput(
+                                      ValidationOrder.validateInput(
                                         "In mặt sau",
                                         inMatSauController,
                                         Symbols.print,
@@ -803,13 +804,13 @@ class _OrderDialogState extends State<OrderDialog> {
                                   width: 400,
                                   child: Column(
                                     children: [
-                                      validateInput(
+                                      ValidationOrder.validateInput(
                                         "Khác 1",
                                         khac_1Controller,
                                         Symbols.chat_bubble,
                                       ),
                                       SizedBox(height: 15),
-                                      validateInput(
+                                      ValidationOrder.validateInput(
                                         "Khác 2",
                                         khac_2Controller,
                                         Symbols.chat_bubble,
@@ -822,11 +823,14 @@ class _OrderDialogState extends State<OrderDialog> {
                                   width: 185,
                                   child: Column(
                                     children: [
-                                      checkboxForBox(
+                                      ValidationOrder.checkboxForBox(
                                         "Cán màng",
                                         canMangChecked,
                                       ),
-                                      checkboxForBox("Xả", xaChecked),
+                                      ValidationOrder.checkboxForBox(
+                                        "Xả",
+                                        xaChecked,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -835,11 +839,14 @@ class _OrderDialogState extends State<OrderDialog> {
                                   width: 185,
                                   child: Column(
                                     children: [
-                                      checkboxForBox(
-                                        "Cán màng",
-                                        canMangChecked,
+                                      ValidationOrder.checkboxForBox(
+                                        "Dán 1 mảnh",
+                                        dan1ManhChecked,
                                       ),
-                                      checkboxForBox("Xả", xaChecked),
+                                      ValidationOrder.checkboxForBox(
+                                        "Dán 2 mảnh",
+                                        dan2ManhChecked,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -855,11 +862,13 @@ class _OrderDialogState extends State<OrderDialog> {
                                   width: 185,
                                   child: Column(
                                     children: [
-                                      checkboxForBox("Cắt khe", catKheChecked),
-                                      checkboxForBox("Bế", beChecked),
-                                      checkboxForBox(
-                                        "Đóng ghim",
-                                        dongGhimChecked,
+                                      ValidationOrder.checkboxForBox(
+                                        "Cắt khe",
+                                        catKheChecked,
+                                      ),
+                                      ValidationOrder.checkboxForBox(
+                                        "Bế",
+                                        beChecked,
                                       ),
                                     ],
                                   ),
@@ -869,15 +878,11 @@ class _OrderDialogState extends State<OrderDialog> {
                                   width: 185,
                                   child: Column(
                                     children: [
-                                      checkboxForBox(
-                                        "Dán 1 mảnh",
-                                        dan1ManhChecked,
+                                      ValidationOrder.checkboxForBox(
+                                        "Đóng ghim",
+                                        dongGhimChecked,
                                       ),
-                                      checkboxForBox(
-                                        "Dán 2 mảnh",
-                                        dan2ManhChecked,
-                                      ),
-                                      checkboxForBox("", false),
+                                      SizedBox(height: 50),
                                     ],
                                   ),
                                 ),
@@ -928,46 +933,6 @@ class _OrderDialogState extends State<OrderDialog> {
           ],
         );
       },
-    );
-  }
-
-  Widget checkboxForBox(String label, bool checked) {
-    return CheckboxListTile(
-      title: Text(
-        label,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
-      value: checked,
-      onChanged: (bool? value) {
-        setState(() {
-          checked = value!;
-        });
-      },
-    );
-  }
-
-  Widget validateInput(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
-    bool readOnly = false,
-    VoidCallback? onTap,
-  }) {
-    return TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        fillColor: readOnly ? Colors.grey.shade200 : Colors.white,
-        filled: true,
-      ),
-      validator:
-          (value) =>
-              value == null || value.isEmpty ? 'Vui lòng nhập $label' : null,
-      onTap: onTap,
     );
   }
 }
