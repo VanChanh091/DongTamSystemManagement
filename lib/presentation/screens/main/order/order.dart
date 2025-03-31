@@ -245,7 +245,7 @@ class _OrderPageState extends State<OrderPage> {
                                         (context) => AlertDialog(
                                           title: Text("Xác nhận"),
                                           content: Text(
-                                            'Bạn có chắc chắn muốn xóa ${isSelected.length} khách hàng?',
+                                            'Bạn có chắc chắn muốn xóa khách hàng này?',
                                           ),
                                           actions: [
                                             TextButton(
@@ -327,11 +327,11 @@ class _OrderPageState extends State<OrderPage> {
                   orders: data,
                   isSelected: isSelected,
                   onCheckboxChanged: handleCheckboxChanged,
+                  selectedOrderId: selectedOrderId,
                 );
 
                 return SfDataGrid(
                   source: orderDataSource,
-                  frozenColumnsCount: 1,
                   isScrollbarAlwaysShown: true,
                   allowSorting: true,
                   selectionMode: SelectionMode.single,

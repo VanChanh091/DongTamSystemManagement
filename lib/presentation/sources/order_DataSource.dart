@@ -9,11 +9,13 @@ class OrderDataSource extends DataGridSource {
   List<String> isSelected = [];
   bool selectedAll = false;
   final void Function(String orderId, bool? value) onCheckboxChanged;
+  String? selectedOrderId;
 
   OrderDataSource({
     required this.orders,
     required this.isSelected,
     required this.onCheckboxChanged,
+    this.selectedOrderId,
   }) {
     orders = orders;
     buildDataCell();
@@ -213,12 +215,18 @@ class OrderDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
+    final orderId = row.getCells()[0].value.toString();
+
     return DataGridRowAdapter(
+      color:
+          selectedOrderId == orderId
+              ? Color.fromARGB((0.3 * 255).toInt(), 33, 150, 243)
+              : Colors.transparent,
       cells:
           row.getCells().map<Widget>((dataCell) {
             return Container(
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              // padding: EdgeInsets.symmetric(horizontal: 8.0),
               child:
                   buildCellWidget(row, dataCell.columnName) ??
                   Text('${dataCell.value}'),
