@@ -6,17 +6,11 @@ import 'package:intl/intl.dart';
 class OrderDataSource extends DataGridSource {
   final formatter = DateFormat('dd/MM/yyyy');
   List<Order> orders;
-  List<String> isSelected = [];
+
   bool selectedAll = false;
-  final void Function(String orderId, bool? value) onCheckboxChanged;
   String? selectedOrderId;
 
-  OrderDataSource({
-    required this.orders,
-    required this.isSelected,
-    required this.onCheckboxChanged,
-    this.selectedOrderId,
-  }) {
+  OrderDataSource({required this.orders, this.selectedOrderId}) {
     orders = orders;
     buildDataCell();
   }
@@ -29,16 +23,6 @@ class OrderDataSource extends DataGridSource {
         orders.map<DataGridRow>((order) {
           return DataGridRow(
             cells: [
-              DataGridCell(
-                columnName: "checkbox",
-                // value: Checkbox(
-                //   value: isSelected.contains(order.orderId),
-                //   onChanged: (value) {
-                //     onCheckboxChanged(order.orderId, value);
-                //   },
-                // ),
-                value: order.orderId,
-              ),
               DataGridCell<String>(columnName: 'orderId', value: order.orderId),
               DataGridCell<String>(
                 columnName: 'dayReceiveOrder',
@@ -182,28 +166,6 @@ class OrderDataSource extends DataGridSource {
   @override
   List<DataGridRow> get rows => orderDataGridRows;
 
-  Widget? buildCellWidget(DataGridRow dataGridRow, String columnName) {
-    if (columnName == "checkbox") {
-      final orderId =
-          dataGridRow
-                  .getCells()
-                  .firstWhere(
-                    (cell) => cell.columnName == "orderId",
-                  ) // Fix here
-                  .value
-              as String;
-
-      return Checkbox(
-        value: isSelected.contains(orderId),
-        onChanged: (value) {
-          onCheckboxChanged(orderId, value);
-          notifyListeners();
-        },
-      );
-    }
-    return null;
-  }
-
   void removeItemById(String orderId) {
     orders.removeWhere((order) => order.orderId == orderId);
   }
@@ -220,16 +182,17 @@ class OrderDataSource extends DataGridSource {
     return DataGridRowAdapter(
       color:
           selectedOrderId == orderId
-              ? Color.fromARGB((0.3 * 255).toInt(), 33, 150, 243)
+              ? Colors.blue.withOpacity(0.3)
               : Colors.transparent,
       cells:
           row.getCells().map<Widget>((dataCell) {
             return Container(
               alignment: Alignment.centerLeft,
-              // padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child:
-                  buildCellWidget(row, dataCell.columnName) ??
-                  Text('${dataCell.value}'),
+              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Text(
+                '${dataCell.value}',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              ),
             );
           }).toList(),
     );

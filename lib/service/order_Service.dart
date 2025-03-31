@@ -61,7 +61,7 @@ class OrderService {
     Map<String, dynamic> orderUpdated,
   ) async {
     try {
-      await dioService.put("/api/order/", data: orderUpdated);
+      await dioService.put("/api/order/orders?id=$orderId", data: orderUpdated);
       return true;
     } catch (e) {
       throw Exception('Failed to load orders: $e');

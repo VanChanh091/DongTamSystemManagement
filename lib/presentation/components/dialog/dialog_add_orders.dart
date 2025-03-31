@@ -235,7 +235,6 @@ class _OrderDialogState extends State<OrderDialog> {
       vat: double.tryParse(vatController.text) ?? 0.0,
       totalPrice: double.tryParse(totalPrice) ?? 0.0,
     );
-    print(newOrder);
 
     try {
       if (widget.order == null) {
@@ -717,7 +716,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                   child: ValidationOrder.validateInput(
                                     "VAT",
                                     vatController,
-                                    Symbols.money,
+                                    Symbols.percent,
                                   ),
                                 ),
                               ],
@@ -728,7 +727,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 SizedBox(
-                                  width: 400,
+                                  width: 290,
                                   child: ValidationOrder.validateInput(
                                     "Số con",
                                     numChildController,
@@ -736,7 +735,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 400,
+                                  width: 290,
                                   child: ValidationOrder.validateInput(
                                     "Tề biên",
                                     teBienController,
@@ -744,13 +743,14 @@ class _OrderDialogState extends State<OrderDialog> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 400,
+                                  width: 290,
                                   child: ValidationOrder.validateInput(
                                     "Công đoạn sau",
                                     nextStepController,
                                     Symbols.fast_forward,
                                   ),
                                 ),
+                                SizedBox(width: 290),
                               ],
                             ),
                             SizedBox(height: 15),

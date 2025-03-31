@@ -16,36 +16,17 @@ class OrderPage extends StatefulWidget {
 
 class _OrderPageState extends State<OrderPage> {
   late Future<List<Order>> futureOrders;
+  late OrderDataSource orderDataSource;
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
+  String? selectedOrderId;
   bool isTextFieldEnabled = false;
   final formatter = DateFormat('dd/MM/yyyy');
-  late OrderDataSource orderDataSource;
-  String? selectedOrderId;
-
-  List<String> isSelected = [];
-  bool selectedAll = false;
 
   @override
   void initState() {
     super.initState();
     futureOrders = OrderService().getAllOrders();
-  }
-
-  void handleCheckboxChanged(String orderId, bool? value) {
-    setState(() {
-      if (value == true) {
-        if (!isSelected.contains(orderId)) {
-          isSelected.add(orderId);
-        }
-      } else {
-        isSelected.remove(orderId);
-      }
-
-      selectedAll = isSelected.length == orderDataSource.orders.length;
-    });
-
-    orderDataSource.notifyListeners();
   }
 
   // void searchCustomer() {
@@ -234,6 +215,69 @@ class _OrderPageState extends State<OrderPage> {
                       ),
                       const SizedBox(width: 10),
 
+                      //update
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          if (selectedOrderId == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Vui lòng chọn một đơn hàng để sửa!",
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          // Tìm đơn hàng dựa trên selectedOrderId
+                          final selectedOrder = futureOrders.then(
+                            (orders) => orders.firstWhere(
+                              (order) => order.orderId == selectedOrderId,
+                            ),
+                          );
+
+                          selectedOrder
+                              .then((order) {
+                                showDialog(
+                                  context: context,
+                                  builder:
+                                      (_) => OrderDialog(
+                                        order: order,
+                                        onCustomerAddOrUpdate: () {
+                                          setState(() {
+                                            futureOrders =
+                                                OrderService().getAllOrders();
+                                          });
+                                        },
+                                      ),
+                                );
+                              })
+                              .catchError((e) {
+                                print("Không tìm thấy đơn hàng: $e");
+                              });
+                        },
+                        label: Text(
+                          "Sửa",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        icon: Icon(Icons.add, color: Colors.white),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff78D761),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 15,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
                       //delete customers
                       ElevatedButton.icon(
                         onPressed:
@@ -259,13 +303,12 @@ class _OrderPageState extends State<OrderPage> {
                                                     .deleteOrder(
                                                       selectedOrderId!,
                                                     );
+                                                orderDataSource.removeItemById(
+                                                  selectedOrderId!,
+                                                );
+                                                selectedOrderId = null;
 
                                                 setState(() {
-                                                  orderDataSource
-                                                      .removeItemById(
-                                                        selectedOrderId!,
-                                                      );
-                                                  selectedOrderId = null;
                                                   futureOrders =
                                                       OrderService()
                                                           .getAllOrders();
@@ -325,8 +368,6 @@ class _OrderPageState extends State<OrderPage> {
 
                 orderDataSource = OrderDataSource(
                   orders: data,
-                  isSelected: isSelected,
-                  onCheckboxChanged: handleCheckboxChanged,
                   selectedOrderId: selectedOrderId,
                 );
 
@@ -348,34 +389,7 @@ class _OrderPageState extends State<OrderPage> {
                   },
 
                   columnWidthMode: ColumnWidthMode.auto,
-                  columns: [
-                    GridColumn(
-                      columnName: "checkbox",
-                      label: Center(
-                        child: Checkbox(
-                          value: selectedAll,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedAll = value ?? false;
-                              if (selectedAll) {
-                                isSelected =
-                                    orderDataSource.orders
-                                        .map((row) => row.orderId)
-                                        .toList();
-                              } else {
-                                isSelected.clear();
-                              }
-                            });
-
-                            orderDataSource
-                                .notifyListeners(); // Ensure all rows update
-                          },
-                        ),
-                      ),
-                    ),
-
-                    ...buildCommonColumns(),
-                  ],
+                  columns: buildCommonColumns(),
                 );
               },
             ),
