@@ -73,5 +73,6 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'dongGhim', label: Text('Đóng Ghim')),
     GridColumn(columnName: 'khac_1', label: Text('Khác 1')),
     GridColumn(columnName: 'khac_2', label: Text('Khác 2')),
+    GridColumn(columnName: '#', label: Text("")),
   ];
 }

@@ -1,3 +1,4 @@
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_orders.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
 import 'package:dongtam/presentation/sources/order_DataSource.dart';
@@ -14,38 +15,21 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
-  List<String> isSelected = [];
-  bool selectedAll = false;
+  late Future<List<Order>> futureOrders;
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
   bool isTextFieldEnabled = false;
   final formatter = DateFormat('dd/MM/yyyy');
-
   late OrderDataSource orderDataSource;
-  final OrderService orderService = OrderService();
-  bool isLoading = true;
+  String? selectedOrderId;
+
+  List<String> isSelected = [];
+  bool selectedAll = false;
 
   @override
   void initState() {
     super.initState();
-    loadOrders();
-  }
-
-  Future<void> loadOrders() async {
-    try {
-      final orders = await orderService.getAllOrders();
-      print('Orders: $orders');
-      setState(() {
-        orderDataSource = OrderDataSource(
-          orders: orders,
-          isSelected: isSelected,
-          onCheckboxChanged: handleCheckboxChanged,
-        );
-        isLoading = false;
-      });
-    } catch (e) {
-      print(e);
-    }
+    futureOrders = OrderService().getAllOrders();
   }
 
   void handleCheckboxChanged(String orderId, bool? value) {
@@ -98,6 +82,7 @@ class _OrderPageState extends State<OrderPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                //dropdown
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
@@ -176,6 +161,7 @@ class _OrderPageState extends State<OrderPage> {
                   ),
                 ),
 
+                //button
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
@@ -184,7 +170,7 @@ class _OrderPageState extends State<OrderPage> {
                       ElevatedButton.icon(
                         onPressed: () {
                           setState(() {
-                            loadOrders();
+                            futureOrders = OrderService().getAllOrders();
                           });
                         },
                         label: Text(
@@ -219,7 +205,8 @@ class _OrderPageState extends State<OrderPage> {
                                   order: null,
                                   onCustomerAddOrUpdate: () {
                                     setState(() {
-                                      loadOrders();
+                                      futureOrders =
+                                          OrderService().getAllOrders();
                                     });
                                   },
                                 ),
@@ -250,7 +237,7 @@ class _OrderPageState extends State<OrderPage> {
                       //delete customers
                       ElevatedButton.icon(
                         onPressed:
-                            isSelected.isNotEmpty
+                            selectedOrderId != null
                                 ? () {
                                   showDialog(
                                     context: context,
@@ -268,19 +255,23 @@ class _OrderPageState extends State<OrderPage> {
                                             ),
                                             TextButton(
                                               onPressed: () async {
-                                                // for (String id in isSelected) {
-                                                //   await CustomerService()
-                                                //       .deleteCustomer(id);
-                                                // }
+                                                await OrderService()
+                                                    .deleteOrder(
+                                                      selectedOrderId!,
+                                                    );
 
-                                                // setState(() {
-                                                //   isSelected.clear();
-                                                //   futureCustomer =
-                                                //       CustomerService()
-                                                //           .getAllCustomers();
-                                                // });
+                                                setState(() {
+                                                  orderDataSource
+                                                      .removeItemById(
+                                                        selectedOrderId!,
+                                                      );
+                                                  selectedOrderId = null;
+                                                  futureOrders =
+                                                      OrderService()
+                                                          .getAllOrders();
+                                                });
 
-                                                // Navigator.pop(context);
+                                                Navigator.pop(context);
                                               },
                                               child: Text("Xoá"),
                                             ),
@@ -289,6 +280,7 @@ class _OrderPageState extends State<OrderPage> {
                                   );
                                 }
                                 : null,
+
                         label: Text(
                           "Xóa",
                           style: TextStyle(
@@ -317,20 +309,42 @@ class _OrderPageState extends State<OrderPage> {
           ),
 
           // table
-          isLoading
-              ? Center(child: CircularProgressIndicator())
-              : Expanded(
-                child: SfDataGrid(
+          Expanded(
+            child: FutureBuilder(
+              future: futureOrders,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Lỗi: ${snapshot.error}"));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text("Không có đơn hàng nào"));
+                }
+
+                final List<Order> data = snapshot.data!;
+
+                orderDataSource = OrderDataSource(
+                  orders: data,
+                  isSelected: isSelected,
+                  onCheckboxChanged: handleCheckboxChanged,
+                );
+
+                return SfDataGrid(
                   source: orderDataSource,
                   frozenColumnsCount: 1,
                   isScrollbarAlwaysShown: true,
                   allowSorting: true,
-                  selectionMode: SelectionMode.multiple,
-                  onSelectionChanged: (
-                    List<DataGridRow> selectedRows,
-                    List<DataGridRow> deselectedRows,
-                  ) {
-                    print("Dòng đã chọn: ${selectedRows.length}");
+                  selectionMode: SelectionMode.single,
+                  onSelectionChanged: (addedRows, removedRows) {
+                    setState(() {
+                      if (addedRows.isNotEmpty) {
+                        selectedOrderId =
+                            addedRows.first.getCells()[0].value.toString();
+                      } else {
+                        selectedOrderId = null;
+                      }
+                    });
+                    print(selectedOrderId);
                   },
 
                   columnWidthMode: ColumnWidthMode.auto,
@@ -362,8 +376,10 @@ class _OrderPageState extends State<OrderPage> {
 
                     ...buildCommonColumns(),
                   ],
-                ),
-              ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

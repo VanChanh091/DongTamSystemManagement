@@ -1,6 +1,5 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:intl/intl.dart';
 
@@ -171,9 +170,11 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'khac_2',
                 value: order.box?.khac_2,
               ),
+              DataGridCell<String>(columnName: '#', value: order.box?.khac_2),
             ],
           );
         }).toList();
+    notifyListeners();
   }
 
   @override
@@ -201,8 +202,12 @@ class OrderDataSource extends DataGridSource {
     return null;
   }
 
-  void updateOrders(List<Order> newOrder) {
-    orders = newOrder;
+  void removeItemById(String orderId) {
+    orders.removeWhere((order) => order.orderId == orderId);
+  }
+
+  void removeAll() {
+    orders.clear();
     buildDataCell();
   }
 

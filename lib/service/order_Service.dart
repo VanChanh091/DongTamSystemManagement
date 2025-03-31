@@ -71,7 +71,7 @@ class OrderService {
   //delete order
   Future<bool> deleteOrder(String orderId) async {
     try {
-      await dioService.delete('/api/order/$orderId');
+      await dioService.delete('/api/order/orders?id=$orderId');
       return true;
     } catch (e) {
       throw Exception('Failed to load orders: $e');
