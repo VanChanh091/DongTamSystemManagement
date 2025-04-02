@@ -46,16 +46,37 @@ class OrderService {
   }
 
   //get by customer name
-  Future<List<Order>> getOrderByCustomerName(String orderId) async {
+  // Future<List<Order>> getOrderByCustomerName(String orderId) async {
+  //   try {
+  //     final response = await dioService.get();
+
+  //     final List<dynamic> orderData = response.data['orders'];
+  //     return orderData
+  //         .map((json) => Order.fromJson(json))
+  //         .where(
+  //           (customer) => customer.customerName.toLowerCase().contains(
+  //             orderId.toLowerCase(),
+  //           ),
+  //         )
+  //         .toList();
+  //   } catch (e) {
+  //     throw Exception('Failed to load orders: $e');
+  //   }
+  // }
+
+  //get by product name
+  Future<List<Order>> getOrderByProductName(String inputProductName) async {
     try {
-      final response = await dioService.get();
+      final response = await dioService.get(
+        '/api/order/productName?name=$inputProductName',
+      );
 
       final List<dynamic> orderData = response.data['orders'];
       return orderData
           .map((json) => Order.fromJson(json))
           .where(
-            (customer) => customer.customerName.toLowerCase().contains(
-              orderId.toLowerCase(),
+            (order) => order.productName!.toLowerCase().contains(
+              inputProductName.toLowerCase(),
             ),
           )
           .toList();
@@ -64,33 +85,63 @@ class OrderService {
     }
   }
 
-  //get by product name
-  // Future<List<Order>> getOrderByProductName(String orderId) async {
-  //   try {} catch (e) {
-  //     throw Exception('Failed to load orders: $e');
-  //   }
-  // }
-
   //get by type product
-  // Future<List<Order>> getOrderByTypeProduct(String orderId) async {
-  //   try {} catch (e) {
-  //     throw Exception('Failed to load orders: $e');
-  //   }
-  // }
+  Future<List<Order>> getOrderByTypeProduct(String inputCustomerName) async {
+    try {
+      final response = await dioService.get(
+        '/api/order/customerName?name=$inputCustomerName',
+      );
+
+      final List<dynamic> orderData = response.data['orders'];
+      return orderData
+          .map((json) => Order.fromJson(json))
+          .where(
+            (order) => order.customer!.customerName!.toLowerCase().contains(
+              inputCustomerName.toLowerCase(),
+            ),
+          )
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to load orders: $e');
+    }
+  }
 
   //get by QC box
-  // Future<List<Order>> getOrderByQcBox(String orderId) async {
-  //   try {} catch (e) {
-  //     throw Exception('Failed to load orders: $e');
-  //   }
-  // }
+  Future<List<Order>> getOrderByQcBox(String inputQcBox) async {
+    try {
+      final response = await dioService.get(
+        '/api/order/qcBox?QcBox=$inputQcBox',
+      );
+
+      final List<dynamic> orderData = response.data['orders'];
+      return orderData
+          .map((json) => Order.fromJson(json))
+          .where(
+            (order) =>
+                order.QC_box!.toLowerCase().contains(inputQcBox.toLowerCase()),
+          )
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to load orders: $e');
+    }
+  }
 
   //get by price
-  // Future<List<Order>> getOrderByPrice(String orderId) async {
-  //   try {} catch (e) {
-  //     throw Exception('Failed to load orders: $e');
-  //   }
-  // }
+  Future<List<Order>> getOrderByPrice(double inputPrice) async {
+    try {
+      final response = await dioService.get(
+        '/api/order/qcBox?QcBox=$inputPrice',
+      );
+
+      final List<dynamic> orderData = response.data['orders'];
+      return orderData
+          .map((json) => Order.fromJson(json))
+          .where((order) => order.price == inputPrice)
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to load orders: $e');
+    }
+  }
 
   //add order
   Future<bool> addOrders(Map<String, dynamic> orderData) async {

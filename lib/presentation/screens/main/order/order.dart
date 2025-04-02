@@ -35,25 +35,21 @@ class _OrderPageState extends State<OrderPage> {
     });
   }
 
-  // void searchCustomer() {
-  //   String keyword = searchController.text.trim().toLowerCase();
+  void searchCustomer() {
+    String keyword = searchController.text.trim().toLowerCase();
 
-  //   if (isTextFieldEnabled && keyword.isEmpty) return;
+    if (isTextFieldEnabled && keyword.isEmpty) return;
 
-  //   if (searchType == "Tất cả") {
-  //     setState(() {
-  //       futureOrder = OrderService().getAllOrders();
-  //     });
-  //   } else if (searchType == "Theo Mã") {
-  //     setState(() {
-  //       futureOrder = OrderService().getOrdersById(keyword);
-  //     });
-  //   } else if (searchType == "Theo Tên KH") {
-  //     setState(() {
-  //       // futureOrder = OrderService().getCustomerByName(keyword);
-  //     });
-  //   }
-  // }
+    if (searchType == "Tất cả") {
+      setState(() {
+        futureOrders = OrderService().getAllOrders();
+      });
+    } else if (searchType == "Theo Mã") {
+      setState(() {
+        futureOrders = OrderService().getOrdersById(keyword);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

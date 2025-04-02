@@ -280,7 +280,8 @@ class _CustomerPageState extends State<CustomerPage> {
           ),
 
           // table
-          Expanded(
+          SizedBox(
+            width: double.infinity,
             child: FutureBuilder<List<Customer>>(
               future: futureCustomer,
               builder: (context, snapshot) {
@@ -463,5 +464,5 @@ Widget styleText(String text) {
 }
 
 Widget styleCell(double? width, String text) {
-  return Container(width: width, child: Text(text, maxLines: 3));
+  return Container(width: width, child: Text(text, maxLines: 2));
 }
