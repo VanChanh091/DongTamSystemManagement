@@ -26,7 +26,13 @@ class _OrderPageState extends State<OrderPage> {
   @override
   void initState() {
     super.initState();
-    futureOrders = OrderService().getAllOrders();
+    loadOrders();
+  }
+
+  void loadOrders() {
+    setState(() {
+      futureOrders = OrderService().getAllOrders();
+    });
   }
 
   // void searchCustomer() {
@@ -219,6 +225,7 @@ class _OrderPageState extends State<OrderPage> {
                       ElevatedButton.icon(
                         onPressed: () {
                           if (selectedOrderId == null) {
+                            if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -303,12 +310,13 @@ class _OrderPageState extends State<OrderPage> {
                                                     .deleteOrder(
                                                       selectedOrderId!,
                                                     );
-                                                orderDataSource.removeItemById(
-                                                  selectedOrderId!,
-                                                );
-                                                selectedOrderId = null;
 
                                                 setState(() {
+                                                  orderDataSource
+                                                      .removeItemById(
+                                                        selectedOrderId!,
+                                                      );
+                                                  selectedOrderId = null;
                                                   futureOrders =
                                                       OrderService()
                                                           .getAllOrders();
@@ -374,7 +382,7 @@ class _OrderPageState extends State<OrderPage> {
                 return SfDataGrid(
                   source: orderDataSource,
                   isScrollbarAlwaysShown: true,
-                  allowSorting: true,
+                  // allowSorting: true,
                   selectionMode: SelectionMode.single,
                   onSelectionChanged: (addedRows, removedRows) {
                     setState(() {

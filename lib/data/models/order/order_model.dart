@@ -33,7 +33,6 @@ class Order {
   final Customer? customer;
   final InfoProduction? infoProduction;
   final Box? box;
-  bool checkbox;
 
   Order({
     required this.orderId,
@@ -64,7 +63,6 @@ class Order {
     this.customer,
     this.infoProduction,
     this.box,
-    this.checkbox = false,
   });
 
   /// Diện tích giấy (m2) = lengthPaper * paperSize / 10000 * quantity

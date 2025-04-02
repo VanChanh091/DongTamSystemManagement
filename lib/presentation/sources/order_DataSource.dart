@@ -63,6 +63,7 @@ class OrderDataSource extends DataGridSource {
                 value: order.paperSize,
               ),
               DataGridCell<int>(columnName: 'quantity', value: order.quantity),
+              DataGridCell<String>(columnName: 'dvt', value: order.dvt),
               DataGridCell<double>(
                 columnName: 'acreage',
                 value: Order.acreagePaper(
@@ -71,7 +72,6 @@ class OrderDataSource extends DataGridSource {
                   order.quantity,
                 ),
               ),
-              DataGridCell<String>(columnName: 'dvt', value: order.dvt),
               DataGridCell<double>(columnName: 'price', value: order.price),
               DataGridCell<double>(
                 columnName: 'pricePaper',
@@ -81,6 +81,7 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'dateRequestShipping',
                 value: formatter.format(order.dateRequestShipping),
               ),
+              DataGridCell<double>(columnName: 'vat', value: order.vat),
 
               //InfoProduction
               DataGridCell<double>(
@@ -156,7 +157,6 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'khac_2',
                 value: order.box?.khac_2,
               ),
-              DataGridCell<String>(columnName: '#', value: order.box?.khac_2),
             ],
           );
         }).toList();
