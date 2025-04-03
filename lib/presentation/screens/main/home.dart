@@ -59,6 +59,7 @@ class _HomePageState extends State<HomePage> {
           ),
           SizedBox(width: 8),
           Container(
+            color: Colors.white,
             width: 35,
             height: 35,
             child: CircleAvatar(

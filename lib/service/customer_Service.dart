@@ -15,7 +15,6 @@ class CustomerService {
   Future<List<Customer>> getAllCustomers() async {
     try {
       final response = await dioService.get("/api/customer/");
-      // print(response.data);
       final data = response.data['data'] as List;
 
       return data.map((e) => Customer.fromJson(e)).toList();

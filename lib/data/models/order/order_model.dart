@@ -27,8 +27,8 @@ class Order {
   final double price;
   final double pricePaper;
   final DateTime dateRequestShipping;
-  final double? vat;
   final double totalPrice;
+  final double? vat;
 
   final Customer? customer;
   final InfoProduction? infoProduction;

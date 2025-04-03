@@ -12,11 +12,11 @@ class CustomerPage extends StatefulWidget {
 
 class _CustomerPageState extends State<CustomerPage> {
   late Future<List<Customer>> futureCustomer;
+  TextEditingController searchController = TextEditingController();
   List<String> isSelected = [];
   bool selectedAll = false;
-  TextEditingController searchController = TextEditingController();
-  String searchType = "Tất cả";
   bool isTextFieldEnabled = false;
+  String searchType = "Tất cả";
 
   @override
   void initState() {
@@ -58,6 +58,7 @@ class _CustomerPageState extends State<CustomerPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                //dropdown
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(

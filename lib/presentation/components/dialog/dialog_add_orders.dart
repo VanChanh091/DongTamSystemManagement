@@ -1,3 +1,5 @@
+import 'package:dongtam/data/models/order/box_model.dart';
+import 'package:dongtam/data/models/order/info_production_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/service/order_Service.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -56,6 +58,7 @@ class _OrderDialogState extends State<OrderDialog> {
   final dateShippingController = TextEditingController();
   final totalPrice = TextEditingController();
   final vatController = TextEditingController();
+
   DateTime? dateShipping;
   final sizeInfoController = TextEditingController();
   final quantityInfoController = TextEditingController();
@@ -210,6 +213,36 @@ class _OrderDialogState extends State<OrderDialog> {
       double.tryParse(sizeController.text) ?? 0.0,
     );
 
+    final newInfoProduction = InfoProduction(
+      dayReplace: dayControllerReplace.text,
+      middle_1Replace: middle_1Controller.text,
+      middle_2Replace: middle_2ControllerReplace.text,
+      matReplace: matControllerReplace.text,
+      songE_Replace: songEControllerReplace.text,
+      songB_Replace: songBControllerReplace.text,
+      songC_Replace: songCControllerReplace.text,
+      sizePaper: double.tryParse(sizeInfoController.text) ?? 0.0,
+      quantity: int.tryParse(quantityInfoController.text) ?? 0,
+      instructSpecial: instructSpecialController.text,
+      numberChild: int.tryParse(numChildController.text) ?? 0,
+      teBien: teBienController.text,
+      nextStep: nextStepController.text,
+    );
+
+    final newBox = Box(
+      inMatTruoc: int.tryParse(inMatTruocController.text) ?? 0,
+      inMatSau: int.tryParse(inMatSauController.text) ?? 0,
+      canMang: canMangChecked,
+      xa: xaChecked,
+      catKhe: catKheChecked,
+      be: beChecked,
+      dan_1_Manh: dan1ManhChecked,
+      dan_2_Manh: dan2ManhChecked,
+      dongGhim: dongGhimChecked,
+      khac_1: khac_1Controller.text,
+      khac_2: khac_2Controller.text,
+    );
+
     final newOrder = Order(
       orderId: orderIdController.text.toUpperCase(),
       dayReceiveOrder: dayReceive ?? DateTime.now(),
@@ -232,9 +265,14 @@ class _OrderDialogState extends State<OrderDialog> {
       price: double.tryParse(priceController.text) ?? 0.0,
       pricePaper: double.tryParse(pricePaperController.text) ?? 0.0,
       dateRequestShipping: dateShipping ?? DateTime.now(),
-      vat: double.tryParse(vatController.text) ?? 0.0,
       totalPrice: double.tryParse(totalPrice) ?? 0.0,
+      vat: double.tryParse(vatController.text) ?? 0.0,
+
+      infoProduction: newInfoProduction,
+      box: newBox,
     );
+
+    print(newOrder);
 
     try {
       if (widget.order == null) {
@@ -253,6 +291,9 @@ class _OrderDialogState extends State<OrderDialog> {
           context,
         ).showSnackBar(SnackBar(content: Text("Cập nhật thành công")));
       }
+
+      widget.onCustomerAddOrUpdate();
+      Navigator.of(context).pop();
     } catch (e) {
       print("Error: $e");
       ScaffoldMessenger.of(

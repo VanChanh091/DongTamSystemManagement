@@ -15,29 +15,29 @@ class OrderService {
   Future<List<Order>> getAllOrders() async {
     try {
       final response = await dioService.get("/api/order/");
-      final data = response.data['data'];
+      final data = response.data['data'] as List;
 
-      if (data is List) {
-        return data.map((e) => Order.fromJson(e)).toList();
-      } else {
-        return [];
-      }
+      return data.map((e) => Order.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }
   }
 
-  //get order by id
-  Future<List<Order>> getOrdersById(String orderId) async {
+  //get by customer name
+  Future<List<Order>> getOrderByCustomerName(String inputCustomerName) async {
     try {
-      final response = await dioService.get('/api/order/$orderId');
+      final response = await dioService.get(
+        '/api/order/customerName',
+        queryParameters: {'name': inputCustomerName},
+      );
 
       final List<dynamic> orderData = response.data['orders'];
       return orderData
           .map((json) => Order.fromJson(json))
           .where(
-            (customer) =>
-                customer.orderId.toLowerCase().contains(orderId.toLowerCase()),
+            (order) => order.customer!.customerName!.toLowerCase().contains(
+              inputCustomerName.toLowerCase(),
+            ),
           )
           .toList();
     } catch (e) {
@@ -45,30 +45,12 @@ class OrderService {
     }
   }
 
-  //get by customer name
-  // Future<List<Order>> getOrderByCustomerName(String orderId) async {
-  //   try {
-  //     final response = await dioService.get();
-
-  //     final List<dynamic> orderData = response.data['orders'];
-  //     return orderData
-  //         .map((json) => Order.fromJson(json))
-  //         .where(
-  //           (customer) => customer.customerName.toLowerCase().contains(
-  //             orderId.toLowerCase(),
-  //           ),
-  //         )
-  //         .toList();
-  //   } catch (e) {
-  //     throw Exception('Failed to load orders: $e');
-  //   }
-  // }
-
   //get by product name
   Future<List<Order>> getOrderByProductName(String inputProductName) async {
     try {
       final response = await dioService.get(
-        '/api/order/productName?name=$inputProductName',
+        '/api/order/productName',
+        queryParameters: {'name': inputProductName},
       );
 
       final List<dynamic> orderData = response.data['orders'];
@@ -86,18 +68,19 @@ class OrderService {
   }
 
   //get by type product
-  Future<List<Order>> getOrderByTypeProduct(String inputCustomerName) async {
+  Future<List<Order>> getOrderByTypeProduct(String inputTypeProduct) async {
     try {
       final response = await dioService.get(
-        '/api/order/customerName?name=$inputCustomerName',
+        '/api/order/typeProduct',
+        queryParameters: {'type': inputTypeProduct},
       );
 
       final List<dynamic> orderData = response.data['orders'];
       return orderData
           .map((json) => Order.fromJson(json))
           .where(
-            (order) => order.customer!.customerName!.toLowerCase().contains(
-              inputCustomerName.toLowerCase(),
+            (order) => order.typeProduct!.toLowerCase().contains(
+              inputTypeProduct.toLowerCase(),
             ),
           )
           .toList();
@@ -110,7 +93,8 @@ class OrderService {
   Future<List<Order>> getOrderByQcBox(String inputQcBox) async {
     try {
       final response = await dioService.get(
-        '/api/order/qcBox?QcBox=$inputQcBox',
+        '/api/order/qcBox',
+        queryParameters: {'QcBox': inputQcBox},
       );
 
       final List<dynamic> orderData = response.data['orders'];
@@ -130,14 +114,12 @@ class OrderService {
   Future<List<Order>> getOrderByPrice(double inputPrice) async {
     try {
       final response = await dioService.get(
-        '/api/order/qcBox?QcBox=$inputPrice',
+        '/api/order/price',
+        queryParameters: {'price': inputPrice.toString()},
       );
 
       final List<dynamic> orderData = response.data['orders'];
-      return orderData
-          .map((json) => Order.fromJson(json))
-          .where((order) => order.price == inputPrice)
-          .toList();
+      return orderData.map((json) => Order.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }

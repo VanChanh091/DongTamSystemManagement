@@ -26,16 +26,10 @@ class _OrderPageState extends State<OrderPage> {
   @override
   void initState() {
     super.initState();
-    loadOrders();
+    futureOrders = OrderService().getAllOrders();
   }
 
-  void loadOrders() {
-    setState(() {
-      futureOrders = OrderService().getAllOrders();
-    });
-  }
-
-  void searchCustomer() {
+  void searchOrders() {
     String keyword = searchController.text.trim().toLowerCase();
 
     if (isTextFieldEnabled && keyword.isEmpty) return;
@@ -44,9 +38,25 @@ class _OrderPageState extends State<OrderPage> {
       setState(() {
         futureOrders = OrderService().getAllOrders();
       });
-    } else if (searchType == "Theo Mã") {
+    } else if (searchType == "Tên KH") {
       setState(() {
-        futureOrders = OrderService().getOrdersById(keyword);
+        futureOrders = OrderService().getOrderByCustomerName(keyword);
+      });
+    } else if (searchType == "Tên SP") {
+      setState(() {
+        futureOrders = OrderService().getOrderByProductName(keyword);
+      });
+    } else if (searchType == "Loại SP") {
+      setState(() {
+        futureOrders = OrderService().getOrderByTypeProduct(keyword);
+      });
+    } else if (searchType == "QC Thùng") {
+      setState(() {
+        futureOrders = OrderService().getOrderByQcBox(keyword);
+      });
+    } else if (searchType == "Đơn Giá") {
+      setState(() {
+        futureOrders = OrderService().getOrderByPrice(double.parse(keyword));
       });
     }
   }
@@ -74,7 +84,14 @@ class _OrderPageState extends State<OrderPage> {
                       DropdownButton<String>(
                         value: searchType,
                         items:
-                            ['Tất cả', "Theo Mã"].map((String value) {
+                            [
+                              'Tất cả',
+                              "Tên KH",
+                              "Tên SP",
+                              "Loại SP",
+                              "QC Thùng",
+                              "Đơn Giá",
+                            ].map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(value),
@@ -100,7 +117,7 @@ class _OrderPageState extends State<OrderPage> {
                         child: TextField(
                           controller: searchController,
                           enabled: isTextFieldEnabled,
-                          // onSubmitted: (_) => searchCustomer(),
+                          onSubmitted: (_) => searchOrders(),
                           decoration: InputDecoration(
                             hintText: 'Tìm kiếm...',
                             border: OutlineInputBorder(
@@ -117,7 +134,7 @@ class _OrderPageState extends State<OrderPage> {
                       // find
                       ElevatedButton.icon(
                         onPressed: () {
-                          // searchCustomer();
+                          searchOrders();
                         },
                         label: Text(
                           "Tìm kiếm",
@@ -381,6 +398,7 @@ class _OrderPageState extends State<OrderPage> {
                   // allowSorting: true,
                   selectionMode: SelectionMode.single,
                   onSelectionChanged: (addedRows, removedRows) {
+                    // get selected row
                     setState(() {
                       if (addedRows.isNotEmpty) {
                         selectedOrderId =
@@ -389,9 +407,7 @@ class _OrderPageState extends State<OrderPage> {
                         selectedOrderId = null;
                       }
                     });
-                    print(selectedOrderId);
                   },
-
                   columnWidthMode: ColumnWidthMode.auto,
                   columns: buildCommonColumns(),
                 );
