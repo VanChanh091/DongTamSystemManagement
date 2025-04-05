@@ -36,7 +36,6 @@ List<GridColumn> buildCommonColumns() {
     //InfoProduction
     GridColumn(columnName: 'paperSizeInfo', label: formatColumn("Khổ Tấm")),
     GridColumn(columnName: 'quantityInfo', label: formatColumn("Số lượng")),
-    GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
     GridColumn(columnName: 'numChild', label: formatColumn("Số Con")),
     GridColumn(columnName: 'teBien', label: formatColumn("Tề Biên")),
     GridColumn(columnName: 'CD_Sau', label: formatColumn("Công Đoạn Sau")),
@@ -54,6 +53,7 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'dongGhim', label: formatColumn("Đóng Ghim")),
     GridColumn(columnName: 'khac_1', label: formatColumn("Khác 1")),
     GridColumn(columnName: 'khac_2', label: formatColumn("Khác 2")),
+    GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
   ];
 }
 

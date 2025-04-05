@@ -5,8 +5,8 @@ import 'package:intl/intl.dart';
 
 class Order {
   final String orderId;
-  final DateTime dayReceiveOrder;
   final String customerId;
+  final DateTime dayReceiveOrder;
   final String? typeProduct;
   final String? productName;
   final String? song;
@@ -28,7 +28,7 @@ class Order {
   final double pricePaper;
   final DateTime dateRequestShipping;
   final double totalPrice;
-  final double? vat;
+  final int? vat;
 
   final Customer? customer;
   final InfoProduction? infoProduction;
@@ -71,26 +71,35 @@ class Order {
     double paperSize,
     int quantity,
   ) {
-    return (lengthPaper * paperSize / 10000) *
+    return lengthPaper *
+        paperSize /
+        10000 *
         double.parse(quantity.toStringAsFixed(2));
   }
 
-  /// Tổng giá = (kg, cái) => price, ngược lại => lengthPaper * paperSize * price
+  // Tổng giá tấm = (kg, cái) => price, ngược lại => lengthPaper * paperSize * price
   static String totalPricePaper(
     String dvt,
+    double length,
+    double size,
     double price,
-    double lengthPaper,
-    double paperSize,
   ) {
     final formatCurrency = NumberFormat("#,###.##");
-    double total;
+    double totalPricePaper;
 
-    if (dvt == 'kg' || dvt == 'cái') {
-      total = price;
+    if (dvt == 'Kg' || dvt == 'Cái') {
+      totalPricePaper = price;
     } else {
-      total = lengthPaper * paperSize * price;
+      totalPricePaper = length * size * price / 10000;
     }
-    return formatCurrency.format(total);
+    return formatCurrency.format(totalPricePaper);
+  }
+
+  //Tổng doanh thu = quantity * pricePaper
+  static String totalPriceOrder(int quantity, double pricePaper) {
+    final formatCurrency = NumberFormat("#,###.##");
+    double totalPrice = double.parse(quantity.toStringAsFixed(2)) * pricePaper;
+    return formatCurrency.format(totalPrice);
   }
 
   String get formatterStructureOrder {
@@ -113,7 +122,8 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      orderId: json['orderId'],
+      orderId: json['orderId'] ?? 'CUSTOM',
+      customerId: json['customerId'],
       dayReceiveOrder: DateTime.parse(json['dayReceiveOrder']),
       song: json['song'] ?? "",
       typeProduct: json['typeProduct'] ?? "",
@@ -135,9 +145,8 @@ class Order {
       price: (json['price'] ?? 0).toDouble(),
       pricePaper: (json['pricePaper'] ?? 0).toDouble(),
       dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
-      vat: (json['acreage'] ?? 0).toDouble(),
+      vat: json['acreage'] ?? 0,
       totalPrice: (json['totalPrice'] ?? 0).toDouble(),
-      customerId: json['customerId'],
       customer:
           json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
       infoProduction:
@@ -150,9 +159,9 @@ class Order {
 
   Map<String, dynamic> toJson() {
     return {
-      'orderId': orderId,
-      'dayReceiveOrder': dayReceiveOrder.toIso8601String(),
+      'prefix': orderId,
       'customerId': customerId,
+      'dayReceiveOrder': dayReceiveOrder.toIso8601String(),
       'song': song,
       'typeProduct': typeProduct,
       'productName': productName,

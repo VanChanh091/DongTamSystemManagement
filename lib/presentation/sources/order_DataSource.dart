@@ -81,7 +81,7 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'dateRequestShipping',
                 value: formatter.format(order.dateRequestShipping),
               ),
-              DataGridCell<double>(columnName: 'vat', value: order.vat),
+              DataGridCell<int>(columnName: 'vat', value: order.vat),
 
               //InfoProduction
               DataGridCell<double>(
@@ -91,10 +91,6 @@ class OrderDataSource extends DataGridSource {
               DataGridCell<int>(
                 columnName: 'quantityInfo',
                 value: order.infoProduction?.quantity,
-              ),
-              DataGridCell<String>(
-                columnName: 'HD_special',
-                value: order.infoProduction?.instructSpecial,
               ),
               DataGridCell<int>(
                 columnName: 'numChild',
@@ -131,7 +127,7 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'canMang',
                 value: order.box?.canMang,
               ),
-              DataGridCell<bool>(columnName: 'xa', value: order.box?.xa),
+              DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa),
               DataGridCell<bool>(
                 columnName: 'catKhe',
                 value: order.box?.catKhe,
@@ -156,6 +152,10 @@ class OrderDataSource extends DataGridSource {
               DataGridCell<String>(
                 columnName: 'khac_2',
                 value: order.box?.khac_2,
+              ),
+              DataGridCell<String>(
+                columnName: 'HD_special',
+                value: order.infoProduction?.instructSpecial,
               ),
             ],
           );

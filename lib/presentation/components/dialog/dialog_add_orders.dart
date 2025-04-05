@@ -23,13 +23,31 @@ class OrderDialog extends StatefulWidget {
 
 class _OrderDialogState extends State<OrderDialog> {
   final formKey = GlobalKey<FormState>();
+  final List<String> itemsTypeProduct = [
+    'Thùng/hộp',
+    "Giấy tấm",
+    "Giấy quấn cuồn",
+    "Giấy cuộn",
+    "Giấy kg",
+  ];
+  final List<String> itemsDvt = ['Kg', 'Cái', 'M2'];
+  final List<String> itemsTeBien = [
+    "Cấn lằn",
+    "Quấn cuồn",
+    "Tề gọn",
+    "Tề biên đẹp",
+    "Tề biên cột",
+  ];
 
+  //order
   final orderIdController = TextEditingController();
   final customerIdController = TextEditingController();
   final dayReceiveController = TextEditingController();
-  DateTime? dayReceive;
   final songController = TextEditingController();
-  final typeSpController = TextEditingController();
+  String typeProduct = "Thùng/hộp";
+  String typeDVT = "Kg";
+  String typeTeBien = "Cấn lằn";
+  // final typeSpController = TextEditingController();
   final nameSpController = TextEditingController();
   final qcBoxController = TextEditingController();
   final dayController = TextEditingController();
@@ -41,6 +59,18 @@ class _OrderDialogState extends State<OrderDialog> {
   final songCController = TextEditingController();
   final songE2Controller = TextEditingController();
   final dayControllerReplace = TextEditingController();
+  final lengthController = TextEditingController();
+  final sizeController = TextEditingController();
+  final quantityController = TextEditingController();
+  final dvtController = TextEditingController();
+  final priceController = TextEditingController();
+  final pricePaperController = TextEditingController();
+  final dateShippingController = TextEditingController();
+  final vatController = TextEditingController();
+  DateTime? dayReceive;
+  DateTime? dateShipping;
+
+  //info Production
   final middle_1ControllerReplace = TextEditingController();
   final middle_2ControllerReplace = TextEditingController();
   final matControllerReplace = TextEditingController();
@@ -48,33 +78,23 @@ class _OrderDialogState extends State<OrderDialog> {
   final songBControllerReplace = TextEditingController();
   final songCControllerReplace = TextEditingController();
   final songE2ControllerReplace = TextEditingController();
-  final lengthController = TextEditingController();
-  final sizeController = TextEditingController();
-  final quantityController = TextEditingController();
-  final acreageController = TextEditingController();
-  final dvtController = TextEditingController();
-  final priceController = TextEditingController();
-  final pricePaperController = TextEditingController();
-  final dateShippingController = TextEditingController();
-  final totalPrice = TextEditingController();
-  final vatController = TextEditingController();
-
-  DateTime? dateShipping;
   final sizeInfoController = TextEditingController();
   final quantityInfoController = TextEditingController();
   final instructSpecialController = TextEditingController();
   final numChildController = TextEditingController();
   final teBienController = TextEditingController();
   final nextStepController = TextEditingController();
+
+  //box
   final inMatTruocController = TextEditingController();
   final inMatSauController = TextEditingController();
-  bool canMangChecked = false;
-  bool xaChecked = false;
-  bool catKheChecked = false;
-  bool beChecked = false;
-  bool dan1ManhChecked = false;
-  bool dan2ManhChecked = false;
-  bool dongGhimChecked = false;
+  ValueNotifier<bool> canMangChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> xaChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> catKheChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> beChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> dan1ManhChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> dan2ManhChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> dongGhimChecked = ValueNotifier<bool>(false);
   final khac_1Controller = TextEditingController();
   final khac_2Controller = TextEditingController();
 
@@ -82,11 +102,11 @@ class _OrderDialogState extends State<OrderDialog> {
   void initState() {
     super.initState();
     if (widget.order != null) {
+      //order
       orderIdController.text = widget.order!.orderId;
-      dayReceive = DateTime.now();
       customerIdController.text = widget.order!.customerId;
       songController.text = widget.order!.song ?? "";
-      typeSpController.text = widget.order!.typeProduct ?? "";
+      // typeSpController.text = widget.order!.typeProduct ?? "";
       nameSpController.text = widget.order!.productName ?? "";
       qcBoxController.text = widget.order!.QC_box ?? "";
       dayController.text = widget.order!.day ?? "";
@@ -97,6 +117,17 @@ class _OrderDialogState extends State<OrderDialog> {
       songBController.text = widget.order!.songB ?? "";
       songCController.text = widget.order!.songC ?? "";
       songE2Controller.text = widget.order!.songE2 ?? "";
+      lengthController.text = widget.order!.lengthPaper.toStringAsFixed(2);
+      sizeController.text = widget.order!.paperSize.toStringAsFixed(2);
+      quantityController.text = widget.order!.quantity.toStringAsFixed(2);
+      dvtController.text = widget.order!.dvt;
+      priceController.text = widget.order!.price.toStringAsFixed(2);
+      pricePaperController.text = widget.order!.pricePaper.toStringAsFixed(2);
+      vatController.text = widget.order!.vat.toString();
+      dayReceive = DateTime.now();
+      dateShipping = DateTime.now();
+
+      //info Production
       dayControllerReplace.text =
           widget.order!.infoProduction!.dayReplace ?? "";
       middle_1ControllerReplace.text =
@@ -113,15 +144,6 @@ class _OrderDialogState extends State<OrderDialog> {
           widget.order!.infoProduction!.songC_Replace ?? "";
       songE2ControllerReplace.text =
           widget.order!.infoProduction!.songE2_Replace ?? "";
-      lengthController.text = widget.order!.lengthPaper.toStringAsFixed(2);
-      sizeController.text = widget.order!.paperSize.toStringAsFixed(2);
-      quantityController.text = widget.order!.quantity.toStringAsFixed(2);
-      dvtController.text = widget.order!.dvt;
-      priceController.text = widget.order!.price.toStringAsFixed(2);
-      pricePaperController.text = widget.order!.pricePaper.toStringAsFixed(2);
-      dateShipping = DateTime.now();
-      totalPrice.text = widget.order!.totalPrice.toStringAsFixed(2);
-      vatController.text = widget.order!.vat!.toStringAsFixed(2);
       sizeInfoController.text = widget.order!.infoProduction!.sizePaper
           .toStringAsFixed(2);
       quantityInfoController.text = widget.order!.infoProduction!.quantity
@@ -133,15 +155,23 @@ class _OrderDialogState extends State<OrderDialog> {
       teBienController.text = widget.order!.infoProduction!.teBien ?? "";
       nextStepController.text =
           widget.order!.infoProduction!.nextStep.toString();
+
+      //box
       inMatTruocController.text = widget.order!.box!.inMatTruoc.toString();
       inMatSauController.text = widget.order!.box!.inMatSau.toString();
-      canMangChecked = widget.order!.box!.canMang ?? false;
-      xaChecked = widget.order!.box!.xa ?? false;
-      catKheChecked = widget.order!.box!.catKhe ?? false;
-      beChecked = widget.order!.box!.be ?? false;
-      dan1ManhChecked = widget.order!.box!.dan_1_Manh ?? false;
-      dan2ManhChecked = widget.order!.box!.dan_2_Manh ?? false;
-      dongGhimChecked = widget.order!.box!.dongGhim ?? false;
+      canMangChecked = ValueNotifier<bool>(widget.order!.box!.canMang ?? false);
+      xaChecked = ValueNotifier<bool>(widget.order!.box!.Xa ?? false);
+      catKheChecked = ValueNotifier<bool>(widget.order!.box!.catKhe ?? false);
+      beChecked = ValueNotifier<bool>(widget.order!.box!.be ?? false);
+      dan1ManhChecked = ValueNotifier<bool>(
+        widget.order!.box!.dan_1_Manh ?? false,
+      );
+      dan2ManhChecked = ValueNotifier<bool>(
+        widget.order!.box!.dan_2_Manh ?? false,
+      );
+      dongGhimChecked = ValueNotifier<bool>(
+        widget.order!.box!.dongGhim ?? false,
+      );
       khac_1Controller.text = widget.order!.box!.khac_1 ?? "";
       khac_2Controller.text = widget.order!.box!.khac_2 ?? "";
     }
@@ -153,7 +183,7 @@ class _OrderDialogState extends State<OrderDialog> {
     orderIdController.dispose();
     customerIdController.dispose();
     songController.dispose();
-    typeSpController.dispose();
+    // typeSpController.dispose();
     nameSpController.dispose();
     qcBoxController.dispose();
     dayController.dispose();
@@ -186,13 +216,13 @@ class _OrderDialogState extends State<OrderDialog> {
     nextStepController.dispose();
     inMatTruocController.dispose();
     inMatSauController.dispose();
-    canMangChecked = false;
-    xaChecked = false;
-    catKheChecked = false;
-    beChecked = false;
-    dan1ManhChecked = false;
-    dan2ManhChecked = false;
-    dongGhimChecked = false;
+    canMangChecked = ValueNotifier<bool>(false);
+    xaChecked = ValueNotifier<bool>(false);
+    catKheChecked = ValueNotifier<bool>(false);
+    beChecked = ValueNotifier<bool>(false);
+    dan1ManhChecked = ValueNotifier<bool>(false);
+    dan2ManhChecked = ValueNotifier<bool>(false);
+    dongGhimChecked = ValueNotifier<bool>(false);
     khac_1Controller.dispose();
     khac_2Controller.dispose();
   }
@@ -206,11 +236,16 @@ class _OrderDialogState extends State<OrderDialog> {
       int.tryParse(quantityController.text) ?? 0,
     );
 
-    String totalPrice = Order.totalPricePaper(
+    String totalPricePaper = Order.totalPricePaper(
       dvtController.text,
       double.tryParse(sizeController.text) ?? 0.0,
       double.tryParse(lengthController.text) ?? 0.0,
       double.tryParse(sizeController.text) ?? 0.0,
+    );
+
+    String totalPriceOrder = Order.totalPriceOrder(
+      int.tryParse(quantityController.text) ?? 0,
+      double.tryParse(totalPricePaper) ?? 0.0,
     );
 
     final newInfoProduction = InfoProduction(
@@ -221,24 +256,25 @@ class _OrderDialogState extends State<OrderDialog> {
       songE_Replace: songEControllerReplace.text,
       songB_Replace: songBControllerReplace.text,
       songC_Replace: songCControllerReplace.text,
+      songE2_Replace: songE2ControllerReplace.text,
       sizePaper: double.tryParse(sizeInfoController.text) ?? 0.0,
       quantity: int.tryParse(quantityInfoController.text) ?? 0,
       instructSpecial: instructSpecialController.text,
       numberChild: int.tryParse(numChildController.text) ?? 0,
-      teBien: teBienController.text,
+      teBien: typeTeBien,
       nextStep: nextStepController.text,
     );
 
     final newBox = Box(
       inMatTruoc: int.tryParse(inMatTruocController.text) ?? 0,
       inMatSau: int.tryParse(inMatSauController.text) ?? 0,
-      canMang: canMangChecked,
-      xa: xaChecked,
-      catKhe: catKheChecked,
-      be: beChecked,
-      dan_1_Manh: dan1ManhChecked,
-      dan_2_Manh: dan2ManhChecked,
-      dongGhim: dongGhimChecked,
+      canMang: canMangChecked.value,
+      Xa: xaChecked.value,
+      catKhe: catKheChecked.value,
+      be: beChecked.value,
+      dan_1_Manh: dan1ManhChecked.value,
+      dan_2_Manh: dan2ManhChecked.value,
+      dongGhim: dongGhimChecked.value,
       khac_1: khac_1Controller.text,
       khac_2: khac_2Controller.text,
     );
@@ -248,7 +284,7 @@ class _OrderDialogState extends State<OrderDialog> {
       dayReceiveOrder: dayReceive ?? DateTime.now(),
       customerId: customerIdController.text,
       song: songController.text,
-      typeProduct: typeSpController.text,
+      typeProduct: typeProduct,
       productName: nameSpController.text,
       QC_box: qcBoxController.text,
       day: dayController.text,
@@ -261,12 +297,12 @@ class _OrderDialogState extends State<OrderDialog> {
       paperSize: double.tryParse(sizeController.text) ?? 0.0,
       quantity: int.tryParse(quantityController.text) ?? 0,
       acreage: totalAcreage,
-      dvt: dvtController.text,
+      dvt: typeDVT,
       price: double.tryParse(priceController.text) ?? 0.0,
-      pricePaper: double.tryParse(pricePaperController.text) ?? 0.0,
+      pricePaper: double.tryParse(totalPricePaper) ?? 0.0,
       dateRequestShipping: dateShipping ?? DateTime.now(),
-      totalPrice: double.tryParse(totalPrice) ?? 0.0,
-      vat: double.tryParse(vatController.text) ?? 0.0,
+      vat: int.tryParse(vatController.text) ?? 0,
+      totalPrice: double.tryParse(totalPriceOrder) ?? 0.0,
 
       infoProduction: newInfoProduction,
       box: newBox,
@@ -360,10 +396,62 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Loại sản phẩm",
-                                    typeSpController,
-                                    Symbols.box,
+                                  child: DropdownButtonFormField<String>(
+                                    value:
+                                        typeProduct.isEmpty
+                                            ? typeProduct
+                                            : null,
+                                    items:
+                                        itemsTypeProduct.map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(width: 10),
+                                                Text(
+                                                  value,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        typeProduct = value!;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                    hint: Text(
+                                      "Loại sản phẩm",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    icon: Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.black,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                    dropdownColor: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
 
@@ -472,86 +560,6 @@ class _OrderDialogState extends State<OrderDialog> {
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
-                                    "Cắt",
-                                    lengthController,
-                                    Symbols.vertical_distribute,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Số lượng",
-                                    quantityController,
-                                    Symbols.filter_9_plus,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Đơn vị tính",
-                                    dvtController,
-                                    Symbols.communities,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Diện tích",
-                                    acreageController,
-                                    Symbols.thermostat_carbon,
-                                    readOnly: true,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Khổ",
-                                    sizeController,
-                                    Symbols.horizontal_distribute,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Đơn giá",
-                                    priceController,
-                                    Symbols.price_change,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Giá tấm",
-                                    pricePaperController,
-                                    Symbols.price_change,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Doanh số",
-                                    totalPrice,
-                                    Symbols.attach_money,
-                                    readOnly: true,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
                                     "Đáy",
                                     dayController,
                                     Symbols.vertical_align_bottom,
@@ -622,6 +630,121 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                               ],
                             ),
+
+                            SizedBox(height: 15),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                SizedBox(
+                                  width: 290,
+                                  child: ValidationOrder.validateInput(
+                                    "Cắt",
+                                    lengthController,
+                                    Symbols.vertical_distribute,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 290,
+                                  child: ValidationOrder.validateInput(
+                                    "Số lượng",
+                                    quantityController,
+                                    Symbols.filter_9_plus,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 290,
+                                  child: ValidationOrder.validateInput(
+                                    "Đơn giá",
+                                    priceController,
+                                    Symbols.price_change,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 290,
+                                  child: DropdownButtonFormField<String>(
+                                    value: typeDVT.isEmpty ? typeDVT : null,
+                                    items:
+                                        itemsDvt.map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(width: 10),
+                                                Text(
+                                                  value,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        typeDVT = value!;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                    hint: Text(
+                                      "Đơn vị tính",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    icon: Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.black,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                    dropdownColor: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(height: 15),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                SizedBox(
+                                  width: 290,
+                                  child: ValidationOrder.validateInput(
+                                    "Khổ",
+                                    sizeController,
+                                    Symbols.horizontal_distribute,
+                                  ),
+                                ),
+
+                                SizedBox(
+                                  width: 290,
+                                  child: ValidationOrder.validateInput(
+                                    "VAT",
+                                    vatController,
+                                    Symbols.percent,
+                                  ),
+                                ),
+                                SizedBox(width: 290),
+                                SizedBox(width: 290),
+                              ],
+                            ),
+
                             SizedBox(height: 15),
                           ],
                         ),
@@ -752,14 +875,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.developer_guide,
                                   ),
                                 ),
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "VAT",
-                                    vatController,
-                                    Symbols.percent,
-                                  ),
-                                ),
+                                SizedBox(width: 290),
                               ],
                             ),
 
@@ -777,12 +893,63 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ),
                                 SizedBox(
                                   width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Tề biên",
-                                    teBienController,
-                                    Symbols.border_outer,
+                                  child: DropdownButtonFormField<String>(
+                                    value:
+                                        typeTeBien.isEmpty ? typeTeBien : null,
+                                    items:
+                                        itemsTeBien.map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(width: 10),
+                                                Text(
+                                                  value,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        typeTeBien = value!;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                    hint: Text(
+                                      "Tề Biên",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    icon: Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.black,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                    dropdownColor: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(

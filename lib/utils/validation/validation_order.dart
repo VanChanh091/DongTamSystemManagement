@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ValidationOrder {
-  static checkboxForBox(String label, bool checked) {
-    return StatefulBuilder(
-      builder: (context, setState) {
+  static Widget checkboxForBox(String label, ValueNotifier<bool> notifier) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: notifier,
+      builder: (context, checked, _) {
         return CheckboxListTile(
           title: Text(
             label,
@@ -11,9 +12,7 @@ class ValidationOrder {
           ),
           value: checked,
           onChanged: (bool? value) {
-            setState(() {
-              checked = value!;
-            });
+            notifier.value = value ?? false;
           },
           activeColor: Colors.red,
           checkColor: Colors.white,
