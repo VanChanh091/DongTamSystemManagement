@@ -78,28 +78,27 @@ class Order {
   }
 
   // Tổng giá tấm = (kg, cái) => price, ngược lại => lengthPaper * paperSize * price
-  static String totalPricePaper(
+  static double totalPricePaper(
     String dvt,
     double length,
     double size,
     double price,
   ) {
-    final formatCurrency = NumberFormat("#,###.##");
-    double totalPricePaper;
-
     if (dvt == 'Kg' || dvt == 'Cái') {
-      totalPricePaper = price;
+      return price;
     } else {
-      totalPricePaper = length * size * price / 10000;
+      return length * size * price / 10000;
     }
-    return formatCurrency.format(totalPricePaper);
   }
 
   //Tổng doanh thu = quantity * pricePaper
-  static String totalPriceOrder(int quantity, double pricePaper) {
+  static double totalPriceOrder(int quantity, double pricePaper) {
+    return pricePaper * double.parse(quantity.toStringAsFixed(0));
+  }
+
+  static String formatCurrency(double value) {
     final formatCurrency = NumberFormat("#,###.##");
-    double totalPrice = double.parse(quantity.toStringAsFixed(2)) * pricePaper;
-    return formatCurrency.format(totalPrice);
+    return formatCurrency.format(value);
   }
 
   String get formatterStructureOrder {
@@ -161,10 +160,10 @@ class Order {
     return {
       'prefix': orderId,
       'customerId': customerId,
-      'dayReceiveOrder': dayReceiveOrder.toIso8601String(),
-      'song': song,
+      'dayReceiveOrder': DateFormat('yyyy-MM-dd').format(dayReceiveOrder),
       'typeProduct': typeProduct,
       'productName': productName,
+      'song': song,
       'QC_box': QC_box,
       'day': day,
       'middle_1': middle_1,
@@ -181,7 +180,9 @@ class Order {
       'dvt': dvt,
       'price': price,
       'pricePaper': pricePaper,
-      'dateRequestShipping': dateRequestShipping.toIso8601String(),
+      'dateRequestShipping': DateFormat(
+        'yyyy-MM-dd',
+      ).format(dateRequestShipping),
       'vat': vat,
       'totalPrice': totalPrice,
       'infoProduction': infoProduction?.toJson(),

@@ -38,7 +38,7 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'quantityInfo', label: formatColumn("Số lượng")),
     GridColumn(columnName: 'numChild', label: formatColumn("Số Con")),
     GridColumn(columnName: 'teBien', label: formatColumn("Tề Biên")),
-    GridColumn(columnName: 'CD_Sau', label: formatColumn("Công Đoạn Sau")),
+    GridColumn(columnName: 'CD_Sau', label: formatColumn("CD Sau")),
     GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
 
     //Box

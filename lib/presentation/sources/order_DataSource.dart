@@ -73,9 +73,9 @@ class OrderDataSource extends DataGridSource {
                 ),
               ),
               DataGridCell<double>(columnName: 'price', value: order.price),
-              DataGridCell<double>(
+              DataGridCell<String>(
                 columnName: 'pricePaper',
-                value: order.pricePaper,
+                value: Order.formatCurrency(order.pricePaper),
               ),
               DataGridCell<String>(
                 columnName: 'dateRequestShipping',
@@ -106,12 +106,7 @@ class OrderDataSource extends DataGridSource {
               ),
               DataGridCell<String>(
                 columnName: 'totalPrice',
-                value: Order.totalPricePaper(
-                  order.dvt,
-                  order.price,
-                  order.lengthPaper,
-                  order.paperSize,
-                ),
+                value: Order.formatCurrency(order.totalPrice),
               ),
 
               //Box

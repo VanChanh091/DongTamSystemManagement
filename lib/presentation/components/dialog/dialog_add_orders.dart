@@ -44,10 +44,6 @@ class _OrderDialogState extends State<OrderDialog> {
   final customerIdController = TextEditingController();
   final dayReceiveController = TextEditingController();
   final songController = TextEditingController();
-  String typeProduct = "Thùng/hộp";
-  String typeDVT = "Kg";
-  String typeTeBien = "Cấn lằn";
-  // final typeSpController = TextEditingController();
   final nameSpController = TextEditingController();
   final qcBoxController = TextEditingController();
   final dayController = TextEditingController();
@@ -67,6 +63,9 @@ class _OrderDialogState extends State<OrderDialog> {
   final pricePaperController = TextEditingController();
   final dateShippingController = TextEditingController();
   final vatController = TextEditingController();
+  late String typeProduct = "Thùng/hộp";
+  late String typeDVT = "Kg";
+  late String typeTeBien = "Cấn lằn";
   DateTime? dayReceive;
   DateTime? dateShipping;
 
@@ -88,6 +87,8 @@ class _OrderDialogState extends State<OrderDialog> {
   //box
   final inMatTruocController = TextEditingController();
   final inMatSauController = TextEditingController();
+  final khac_1Controller = TextEditingController();
+  final khac_2Controller = TextEditingController();
   ValueNotifier<bool> canMangChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> xaChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> catKheChecked = ValueNotifier<bool>(false);
@@ -95,8 +96,6 @@ class _OrderDialogState extends State<OrderDialog> {
   ValueNotifier<bool> dan1ManhChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> dan2ManhChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> dongGhimChecked = ValueNotifier<bool>(false);
-  final khac_1Controller = TextEditingController();
-  final khac_2Controller = TextEditingController();
 
   @override
   void initState() {
@@ -105,54 +104,58 @@ class _OrderDialogState extends State<OrderDialog> {
       //order
       orderIdController.text = widget.order!.orderId;
       customerIdController.text = widget.order!.customerId;
-      songController.text = widget.order!.song ?? "";
-      // typeSpController.text = widget.order!.typeProduct ?? "";
-      nameSpController.text = widget.order!.productName ?? "";
-      qcBoxController.text = widget.order!.QC_box ?? "";
-      dayController.text = widget.order!.day ?? "";
-      middle_1Controller.text = widget.order!.middle_1 ?? "";
-      middle_2Controller.text = widget.order!.middle_2 ?? "";
-      matController.text = widget.order!.mat ?? "";
-      songEController.text = widget.order!.songE ?? "";
-      songBController.text = widget.order!.songB ?? "";
-      songCController.text = widget.order!.songC ?? "";
-      songE2Controller.text = widget.order!.songE2 ?? "";
-      lengthController.text = widget.order!.lengthPaper.toStringAsFixed(2);
-      sizeController.text = widget.order!.paperSize.toStringAsFixed(2);
-      quantityController.text = widget.order!.quantity.toStringAsFixed(2);
-      dvtController.text = widget.order!.dvt;
-      priceController.text = widget.order!.price.toStringAsFixed(2);
-      pricePaperController.text = widget.order!.pricePaper.toStringAsFixed(2);
+      songController.text = widget.order!.song.toString();
+      typeProduct = widget.order!.typeProduct?.trim() ?? ""; //fix here
+      nameSpController.text = widget.order!.productName.toString();
+      qcBoxController.text = widget.order!.QC_box.toString();
+      dayController.text = widget.order!.day.toString();
+      middle_1Controller.text = widget.order!.middle_1.toString();
+      middle_2Controller.text = widget.order!.middle_2.toString();
+      matController.text = widget.order!.mat.toString();
+      songEController.text = widget.order!.songE.toString();
+      songBController.text = widget.order!.songB.toString();
+      songCController.text = widget.order!.songC.toString();
+      songE2Controller.text = widget.order!.songE2.toString();
+      lengthController.text = widget.order!.lengthPaper.toStringAsFixed(1);
+      sizeController.text = widget.order!.paperSize.toStringAsFixed(1);
+      quantityController.text = widget.order!.quantity.toStringAsFixed(0);
+      typeDVT = widget.order!.dvt; //fix here
+      priceController.text = widget.order!.price.toStringAsFixed(1);
+      pricePaperController.text = widget.order!.pricePaper.toStringAsFixed(1);
       vatController.text = widget.order!.vat.toString();
-      dayReceive = DateTime.now();
-      dateShipping = DateTime.now();
+      dayReceive = widget.order!.dayReceiveOrder;
+      dayReceiveController.text = DateFormat('dd/MM/yyyy').format(dayReceive!);
+      dateShipping = widget.order!.dateRequestShipping;
+      dateShippingController.text = DateFormat(
+        'dd/MM/yyyy',
+      ).format(dateShipping!);
 
       //info Production
       dayControllerReplace.text =
-          widget.order!.infoProduction!.dayReplace ?? "";
+          widget.order!.infoProduction!.dayReplace.toString();
       middle_1ControllerReplace.text =
-          widget.order!.infoProduction!.middle_1Replace ?? "";
+          widget.order!.infoProduction!.middle_1Replace.toString();
       middle_2ControllerReplace.text =
-          widget.order!.infoProduction!.middle_2Replace ?? "";
+          widget.order!.infoProduction!.middle_2Replace.toString();
       matControllerReplace.text =
-          widget.order!.infoProduction!.matReplace ?? "";
+          widget.order!.infoProduction!.matReplace.toString();
       songEControllerReplace.text =
-          widget.order!.infoProduction!.songE_Replace ?? "";
+          widget.order!.infoProduction!.songE_Replace.toString();
       songBControllerReplace.text =
-          widget.order!.infoProduction!.songB_Replace ?? "";
+          widget.order!.infoProduction!.songB_Replace.toString();
       songCControllerReplace.text =
-          widget.order!.infoProduction!.songC_Replace ?? "";
+          widget.order!.infoProduction!.songC_Replace.toString();
       songE2ControllerReplace.text =
-          widget.order!.infoProduction!.songE2_Replace ?? "";
+          widget.order!.infoProduction!.songE2_Replace.toString();
       sizeInfoController.text = widget.order!.infoProduction!.sizePaper
           .toStringAsFixed(2);
       quantityInfoController.text = widget.order!.infoProduction!.quantity
           .toStringAsFixed(0);
       instructSpecialController.text =
-          widget.order!.infoProduction!.instructSpecial ?? "";
+          widget.order!.infoProduction!.instructSpecial.toString();
       numChildController.text =
           widget.order!.infoProduction!.numberChild.toString();
-      teBienController.text = widget.order!.infoProduction!.teBien ?? "";
+      typeTeBien = widget.order!.infoProduction!.teBien.toString();
       nextStepController.text =
           widget.order!.infoProduction!.nextStep.toString();
 
@@ -236,16 +239,16 @@ class _OrderDialogState extends State<OrderDialog> {
       int.tryParse(quantityController.text) ?? 0,
     );
 
-    String totalPricePaper = Order.totalPricePaper(
-      dvtController.text,
+    late double totalPricePaper = Order.totalPricePaper(
+      typeDVT,
       double.tryParse(sizeController.text) ?? 0.0,
       double.tryParse(lengthController.text) ?? 0.0,
-      double.tryParse(sizeController.text) ?? 0.0,
+      double.tryParse(priceController.text) ?? 0.0,
     );
 
-    String totalPriceOrder = Order.totalPriceOrder(
+    late double totalPriceOrder = Order.totalPriceOrder(
       int.tryParse(quantityController.text) ?? 0,
-      double.tryParse(totalPricePaper) ?? 0.0,
+      totalPricePaper,
     );
 
     final newInfoProduction = InfoProduction(
@@ -281,17 +284,19 @@ class _OrderDialogState extends State<OrderDialog> {
 
     final newOrder = Order(
       orderId: orderIdController.text.toUpperCase(),
-      dayReceiveOrder: dayReceive ?? DateTime.now(),
       customerId: customerIdController.text,
-      song: songController.text,
+      dayReceiveOrder: dayReceive ?? DateTime.now(),
       typeProduct: typeProduct,
       productName: nameSpController.text,
+      song: songController.text,
       QC_box: qcBoxController.text,
       day: dayController.text,
       middle_1: middle_1Controller.text,
       middle_2: middle_2Controller.text,
       mat: matController.text,
       songE: songEController.text,
+      songB: songBController.text,
+      songC: songCController.text,
       songE2: songE2Controller.text,
       lengthPaper: double.tryParse(lengthController.text) ?? 0.0,
       paperSize: double.tryParse(sizeController.text) ?? 0.0,
@@ -299,10 +304,10 @@ class _OrderDialogState extends State<OrderDialog> {
       acreage: totalAcreage,
       dvt: typeDVT,
       price: double.tryParse(priceController.text) ?? 0.0,
-      pricePaper: double.tryParse(totalPricePaper) ?? 0.0,
-      dateRequestShipping: dateShipping ?? DateTime.now(),
-      vat: int.tryParse(vatController.text) ?? 0,
-      totalPrice: double.tryParse(totalPriceOrder) ?? 0.0,
+      pricePaper: totalPricePaper,
+      dateRequestShipping: dateShipping ?? DateTime.now(), //fix here
+      vat: int.tryParse(vatController.text) ?? 0, //fix here
+      totalPrice: totalPriceOrder, //fix here
 
       infoProduction: newInfoProduction,
       box: newBox,
@@ -404,7 +409,12 @@ class _OrderDialogState extends State<OrderDialog> {
                                     items:
                                         itemsTypeProduct.map((String value) {
                                           return DropdownMenuItem<String>(
-                                            value: value,
+                                            value:
+                                                itemsTypeProduct.contains(
+                                                      typeProduct,
+                                                    )
+                                                    ? typeProduct
+                                                    : null,
                                             child: Row(
                                               children: [
                                                 SizedBox(width: 10),
