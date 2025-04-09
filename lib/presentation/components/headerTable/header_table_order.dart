@@ -3,10 +3,9 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildCommonColumns() {
   return [
-    GridColumn(columnName: 'orderId', label: formatColumn('Mã đơn hàng')),
-    GridColumn(columnName: 'dayReceiveOrder', label: formatColumn('Ngày nhận')),
+    GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
+    GridColumn(columnName: 'dayReceiveOrder', label: formatColumn('Ngày Nhận')),
     GridColumn(columnName: 'customerName', label: formatColumn("Tên KH")),
-
     GridColumn(columnName: 'companyName', label: formatColumn("Tên Cty")),
     GridColumn(columnName: 'song', label: formatColumn("Sóng")),
     GridColumn(columnName: 'typeProduct', label: formatColumn("Loại SP")),
@@ -61,9 +60,13 @@ Widget formatColumn(String text, {double widthBorder = 0}) {
   return Container(
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      border: Border(right: BorderSide(color: Colors.grey, width: 1)),
+      color: Colors.amberAccent.shade200,
+      border: Border(right: BorderSide(color: Colors.grey.shade400, width: 1)),
     ),
     width: widthBorder,
-    child: Text(text),
+    child: Text(
+      text,
+      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+    ),
   );
 }

@@ -54,25 +54,24 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'structureReplace',
                 value: order.infoProduction?.formatterStructureInfo,
               ),
-              DataGridCell<double>(
+              DataGridCell<String>(
                 columnName: 'lengthPaper',
-                value: order.lengthPaper,
+                value: Order.formatCurrency(order.lengthPaper),
               ),
-              DataGridCell<double>(
+              DataGridCell<String>(
                 columnName: 'paperSize',
-                value: order.paperSize,
+                value: Order.formatCurrency(order.paperSize),
               ),
               DataGridCell<int>(columnName: 'quantity', value: order.quantity),
               DataGridCell<String>(columnName: 'dvt', value: order.dvt),
-              DataGridCell<double>(
+              DataGridCell<String>(
                 columnName: 'acreage',
-                value: Order.acreagePaper(
-                  order.lengthPaper,
-                  order.paperSize,
-                  order.quantity,
-                ),
+                value: Order.formatCurrency(order.acreage),
               ),
-              DataGridCell<double>(columnName: 'price', value: order.price),
+              DataGridCell<String>(
+                columnName: 'price',
+                value: Order.formatCurrency(order.price),
+              ),
               DataGridCell<String>(
                 columnName: 'pricePaper',
                 value: Order.formatCurrency(order.pricePaper),
@@ -81,12 +80,12 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'dateRequestShipping',
                 value: formatter.format(order.dateRequestShipping),
               ),
-              DataGridCell<int>(columnName: 'vat', value: order.vat),
+              DataGridCell<String>(columnName: 'vat', value: '${order.vat}%'),
 
               //InfoProduction
-              DataGridCell<double>(
+              DataGridCell<String>(
                 columnName: 'paperSizeInfo',
-                value: order.infoProduction?.sizePaper,
+                value: Order.formatCurrency(order.infoProduction!.sizePaper),
               ),
               DataGridCell<int>(
                 columnName: 'quantityInfo',
@@ -170,6 +169,28 @@ class OrderDataSource extends DataGridSource {
     buildDataCell();
   }
 
+  String formatCellValue(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = [
+      'canMang',
+      'xa',
+      'catKhe',
+      'be',
+      'dan_1_Manh',
+      'dan_2_Manh',
+      'dongGhim',
+    ];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return 'Không';
+      return value == true ? 'Có' : 'Không';
+    }
+
+    // Mặc định hiển thị dạng chuỗi
+    return value?.toString() ?? '';
+  }
+
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
@@ -182,10 +203,15 @@ class OrderDataSource extends DataGridSource {
       cells:
           row.getCells().map<Widget>((dataCell) {
             return Container(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(color: Colors.grey.shade300, width: 1),
+                ),
+              ),
               padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: Text(
-                '${dataCell.value}',
+                formatCellValue(dataCell),
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
               ),
             );

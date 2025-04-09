@@ -41,6 +41,10 @@ class _CustomerPageState extends State<CustomerPage> {
       setState(() {
         futureCustomer = CustomerService().getCustomerByName(keyword);
       });
+    } else if (searchType == "CSKH") {
+      setState(() {
+        futureCustomer = CustomerService().getCustomerByCSKH(keyword);
+      });
     }
   }
 
@@ -66,7 +70,7 @@ class _CustomerPageState extends State<CustomerPage> {
                       DropdownButton<String>(
                         value: searchType,
                         items:
-                            ['Tất cả', "Theo Mã", "Theo Tên KH"].map((
+                            ['Tất cả', "Theo Mã", "Theo Tên KH", "CSKH"].map((
                               String value,
                             ) {
                               return DropdownMenuItem<String>(
@@ -301,7 +305,7 @@ class _CustomerPageState extends State<CustomerPage> {
                   child: DataTable(
                     columnSpacing: 25,
                     headingRowColor: WidgetStatePropertyAll(
-                      Color.fromARGB(255, 145, 145, 145),
+                      Colors.amberAccent.shade200,
                     ),
                     columns: [
                       DataColumn(
@@ -336,7 +340,7 @@ class _CustomerPageState extends State<CustomerPage> {
                         color: WidgetStateProperty.all(
                           index % 2 == 0
                               ? Colors.white
-                              : const Color.fromARGB(255, 212, 212, 212),
+                              : const Color.fromARGB(77, 196, 196, 196),
                         ),
                         cells: [
                           DataCell(
@@ -461,7 +465,10 @@ class _CustomerPageState extends State<CustomerPage> {
 }
 
 Widget styleText(String text) {
-  return Text(text, style: TextStyle(fontWeight: FontWeight.bold));
+  return Text(
+    text,
+    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+  );
 }
 
 Widget styleCell(double? width, String text) {

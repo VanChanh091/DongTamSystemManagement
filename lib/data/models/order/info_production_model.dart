@@ -34,7 +34,7 @@ class InfoProduction {
   String get formatterStructureInfo {
     final parts = [
       dayReplace,
-      songE2_Replace,
+      songE_Replace,
       middle_1Replace,
       songB_Replace,
       middle_2Replace,

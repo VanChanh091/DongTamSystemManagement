@@ -84,11 +84,11 @@ class Order {
     double size,
     double price,
   ) {
+    dvt = dvt.trim();
     if (dvt == 'Kg' || dvt == 'Cái') {
       return price;
-    } else {
-      return length * size * price / 10000;
     }
+    return length * size * price / 10000;
   }
 
   //Tổng doanh thu = quantity * pricePaper
@@ -144,7 +144,7 @@ class Order {
       price: (json['price'] ?? 0).toDouble(),
       pricePaper: (json['pricePaper'] ?? 0).toDouble(),
       dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
-      vat: json['acreage'] ?? 0,
+      vat: json['vat'] ?? 0,
       totalPrice: (json['totalPrice'] ?? 0).toDouble(),
       customer:
           json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,

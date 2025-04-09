@@ -102,82 +102,91 @@ class _OrderDialogState extends State<OrderDialog> {
     super.initState();
     if (widget.order != null) {
       //order
-      orderIdController.text = widget.order!.orderId;
-      customerIdController.text = widget.order!.customerId;
-      songController.text = widget.order!.song.toString();
-      typeProduct = widget.order!.typeProduct?.trim() ?? ""; //fix here
-      nameSpController.text = widget.order!.productName.toString();
-      qcBoxController.text = widget.order!.QC_box.toString();
-      dayController.text = widget.order!.day.toString();
-      middle_1Controller.text = widget.order!.middle_1.toString();
-      middle_2Controller.text = widget.order!.middle_2.toString();
-      matController.text = widget.order!.mat.toString();
-      songEController.text = widget.order!.songE.toString();
-      songBController.text = widget.order!.songB.toString();
-      songCController.text = widget.order!.songC.toString();
-      songE2Controller.text = widget.order!.songE2.toString();
-      lengthController.text = widget.order!.lengthPaper.toStringAsFixed(1);
-      sizeController.text = widget.order!.paperSize.toStringAsFixed(1);
-      quantityController.text = widget.order!.quantity.toStringAsFixed(0);
-      typeDVT = widget.order!.dvt; //fix here
-      priceController.text = widget.order!.price.toStringAsFixed(1);
-      pricePaperController.text = widget.order!.pricePaper.toStringAsFixed(1);
-      vatController.text = widget.order!.vat.toString();
-      dayReceive = widget.order!.dayReceiveOrder;
-      dayReceiveController.text = DateFormat('dd/MM/yyyy').format(dayReceive!);
-      dateShipping = widget.order!.dateRequestShipping;
-      dateShippingController.text = DateFormat(
-        'dd/MM/yyyy',
-      ).format(dateShipping!);
+      orderInitState();
 
       //info Production
-      dayControllerReplace.text =
-          widget.order!.infoProduction!.dayReplace.toString();
-      middle_1ControllerReplace.text =
-          widget.order!.infoProduction!.middle_1Replace.toString();
-      middle_2ControllerReplace.text =
-          widget.order!.infoProduction!.middle_2Replace.toString();
-      matControllerReplace.text =
-          widget.order!.infoProduction!.matReplace.toString();
-      songEControllerReplace.text =
-          widget.order!.infoProduction!.songE_Replace.toString();
-      songBControllerReplace.text =
-          widget.order!.infoProduction!.songB_Replace.toString();
-      songCControllerReplace.text =
-          widget.order!.infoProduction!.songC_Replace.toString();
-      songE2ControllerReplace.text =
-          widget.order!.infoProduction!.songE2_Replace.toString();
-      sizeInfoController.text = widget.order!.infoProduction!.sizePaper
-          .toStringAsFixed(2);
-      quantityInfoController.text = widget.order!.infoProduction!.quantity
-          .toStringAsFixed(0);
-      instructSpecialController.text =
-          widget.order!.infoProduction!.instructSpecial.toString();
-      numChildController.text =
-          widget.order!.infoProduction!.numberChild.toString();
-      typeTeBien = widget.order!.infoProduction!.teBien.toString();
-      nextStepController.text =
-          widget.order!.infoProduction!.nextStep.toString();
+      infoProductionInitState();
 
       //box
-      inMatTruocController.text = widget.order!.box!.inMatTruoc.toString();
-      inMatSauController.text = widget.order!.box!.inMatSau.toString();
-      canMangChecked = ValueNotifier<bool>(widget.order!.box!.canMang ?? false);
-      xaChecked = ValueNotifier<bool>(widget.order!.box!.Xa ?? false);
-      catKheChecked = ValueNotifier<bool>(widget.order!.box!.catKhe ?? false);
-      beChecked = ValueNotifier<bool>(widget.order!.box!.be ?? false);
-      dan1ManhChecked = ValueNotifier<bool>(
-        widget.order!.box!.dan_1_Manh ?? false,
-      );
-      dan2ManhChecked = ValueNotifier<bool>(
-        widget.order!.box!.dan_2_Manh ?? false,
-      );
-      dongGhimChecked = ValueNotifier<bool>(
-        widget.order!.box!.dongGhim ?? false,
-      );
-      khac_1Controller.text = widget.order!.box!.khac_1 ?? "";
-      khac_2Controller.text = widget.order!.box!.khac_2 ?? "";
+      boxInitState();
     }
+  }
+
+  void orderInitState() {
+    orderIdController.text = widget.order!.orderId;
+    customerIdController.text = widget.order!.customerId;
+    songController.text = widget.order!.song.toString();
+    typeProduct = widget.order!.typeProduct?.trim() ?? "";
+    typeDVT = widget.order?.dvt ?? "Kg";
+    nameSpController.text = widget.order!.productName.toString();
+    qcBoxController.text = widget.order!.QC_box.toString();
+    dayController.text = widget.order!.day.toString();
+    middle_1Controller.text = widget.order!.middle_1.toString();
+    middle_2Controller.text = widget.order!.middle_2.toString();
+    matController.text = widget.order!.mat.toString();
+    songEController.text = widget.order!.songE.toString();
+    songBController.text = widget.order!.songB.toString();
+    songCController.text = widget.order!.songC.toString();
+    songE2Controller.text = widget.order!.songE2.toString();
+    lengthController.text = widget.order!.lengthPaper.toStringAsFixed(1);
+    sizeController.text = widget.order!.paperSize.toStringAsFixed(1);
+    quantityController.text = widget.order!.quantity.toString();
+    priceController.text = widget.order!.price.toString();
+    pricePaperController.text = widget.order!.pricePaper.toString();
+    vatController.text = widget.order!.vat.toString();
+    dayReceive = widget.order!.dayReceiveOrder;
+    dayReceiveController.text = DateFormat('dd/MM/yyyy').format(dayReceive!);
+    dateShipping = widget.order!.dateRequestShipping;
+    dateShippingController.text = DateFormat(
+      'dd/MM/yyyy',
+    ).format(dateShipping!);
+  }
+
+  void infoProductionInitState() {
+    dayControllerReplace.text =
+        widget.order!.infoProduction!.dayReplace.toString();
+    middle_1ControllerReplace.text =
+        widget.order!.infoProduction!.middle_1Replace.toString();
+    middle_2ControllerReplace.text =
+        widget.order!.infoProduction!.middle_2Replace.toString();
+    matControllerReplace.text =
+        widget.order!.infoProduction!.matReplace.toString();
+    songEControllerReplace.text =
+        widget.order!.infoProduction!.songE_Replace.toString();
+    songBControllerReplace.text =
+        widget.order!.infoProduction!.songB_Replace.toString();
+    songCControllerReplace.text =
+        widget.order!.infoProduction!.songC_Replace.toString();
+    songE2ControllerReplace.text =
+        widget.order!.infoProduction!.songE2_Replace.toString();
+    sizeInfoController.text = widget.order!.infoProduction!.sizePaper
+        .toStringAsFixed(1);
+    quantityInfoController.text = widget.order!.infoProduction!.quantity
+        .toStringAsFixed(0);
+    instructSpecialController.text =
+        widget.order!.infoProduction!.instructSpecial.toString();
+    numChildController.text =
+        widget.order!.infoProduction!.numberChild.toString();
+    typeTeBien = widget.order!.infoProduction!.teBien?.trim() ?? "";
+    nextStepController.text = widget.order!.infoProduction!.nextStep.toString();
+  }
+
+  void boxInitState() {
+    inMatTruocController.text = widget.order!.box!.inMatTruoc.toString();
+    inMatSauController.text = widget.order!.box!.inMatSau.toString();
+    canMangChecked = ValueNotifier<bool>(widget.order!.box!.canMang ?? false);
+    xaChecked = ValueNotifier<bool>(widget.order!.box!.Xa ?? false);
+    catKheChecked = ValueNotifier<bool>(widget.order!.box!.catKhe ?? false);
+    beChecked = ValueNotifier<bool>(widget.order!.box!.be ?? false);
+    dan1ManhChecked = ValueNotifier<bool>(
+      widget.order!.box!.dan_1_Manh ?? false,
+    );
+    dan2ManhChecked = ValueNotifier<bool>(
+      widget.order!.box!.dan_2_Manh ?? false,
+    );
+    dongGhimChecked = ValueNotifier<bool>(widget.order!.box!.dongGhim ?? false);
+    khac_1Controller.text = widget.order!.box!.khac_1 ?? "";
+    khac_2Controller.text = widget.order!.box!.khac_2 ?? "";
   }
 
   @override
@@ -241,8 +250,8 @@ class _OrderDialogState extends State<OrderDialog> {
 
     late double totalPricePaper = Order.totalPricePaper(
       typeDVT,
-      double.tryParse(sizeController.text) ?? 0.0,
       double.tryParse(lengthController.text) ?? 0.0,
+      double.tryParse(sizeController.text) ?? 0.0,
       double.tryParse(priceController.text) ?? 0.0,
     );
 
@@ -305,9 +314,9 @@ class _OrderDialogState extends State<OrderDialog> {
       dvt: typeDVT,
       price: double.tryParse(priceController.text) ?? 0.0,
       pricePaper: totalPricePaper,
-      dateRequestShipping: dateShipping ?? DateTime.now(), //fix here
+      dateRequestShipping: dateShipping ?? DateTime.now(),
       vat: int.tryParse(vatController.text) ?? 0, //fix here
-      totalPrice: totalPriceOrder, //fix here
+      totalPrice: totalPriceOrder,
 
       infoProduction: newInfoProduction,
       box: newBox,
@@ -399,22 +408,18 @@ class _OrderDialogState extends State<OrderDialog> {
                                     readOnly: isEdit,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: DropdownButtonFormField<String>(
                                     value:
-                                        typeProduct.isEmpty
+                                        itemsTypeProduct.contains(typeProduct)
                                             ? typeProduct
                                             : null,
                                     items:
                                         itemsTypeProduct.map((String value) {
                                           return DropdownMenuItem<String>(
-                                            value:
-                                                itemsTypeProduct.contains(
-                                                      typeProduct,
-                                                    )
-                                                    ? typeProduct
-                                                    : null,
+                                            value: value,
                                             child: Row(
                                               children: [
                                                 SizedBox(width: 10),
@@ -473,6 +478,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.airwave,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -653,6 +659,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.vertical_distribute,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -661,6 +668,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.filter_9_plus,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -669,10 +677,14 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.price_change,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: DropdownButtonFormField<String>(
-                                    value: typeDVT.isEmpty ? typeDVT : null,
+                                    value:
+                                        itemsDvt.contains(typeDVT)
+                                            ? typeDVT
+                                            : null,
                                     items:
                                         itemsDvt.map((String value) {
                                           return DropdownMenuItem<String>(
@@ -791,6 +803,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.vertical_align_bottom,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -799,6 +812,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.vertical_align_center,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -807,6 +821,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.vertical_align_center,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -830,6 +845,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.airwave,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -838,6 +854,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.airwave,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -846,6 +863,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.airwave,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -869,6 +887,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.horizontal_distribute,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -877,6 +896,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.filter_9_plus,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -885,6 +905,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.developer_guide,
                                   ),
                                 ),
+
                                 SizedBox(width: 290),
                               ],
                             ),
@@ -901,11 +922,14 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.counter_5,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: DropdownButtonFormField<String>(
                                     value:
-                                        typeTeBien.isEmpty ? typeTeBien : null,
+                                        itemsTeBien.contains(typeTeBien)
+                                            ? typeTeBien
+                                            : null,
                                     items:
                                         itemsTeBien.map((String value) {
                                           return DropdownMenuItem<String>(
@@ -968,6 +992,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.fast_forward,
                                   ),
                                 ),
+
                                 SizedBox(width: 290),
                               ],
                             ),
