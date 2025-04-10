@@ -6,12 +6,10 @@ import 'package:intl/intl.dart';
 class OrderDataSource extends DataGridSource {
   final formatter = DateFormat('dd/MM/yyyy');
   List<Order> orders;
-
   bool selectedAll = false;
   String? selectedOrderId;
 
   OrderDataSource({required this.orders, this.selectedOrderId}) {
-    orders = orders;
     buildDataCell();
   }
 
@@ -30,29 +28,32 @@ class OrderDataSource extends DataGridSource {
               ),
               DataGridCell<String>(
                 columnName: 'customerName',
-                value: order.customer?.customerName,
+                value: order.customer?.customerName ?? '',
               ),
               DataGridCell<String>(
                 columnName: 'companyName',
-                value: order.customer?.companyName,
+                value: order.customer?.companyName ?? '',
               ),
-              DataGridCell<String>(columnName: 'song', value: order.song),
+              DataGridCell<String>(columnName: 'song', value: order.song ?? ''),
               DataGridCell<String>(
                 columnName: 'typeProduct',
-                value: order.typeProduct,
+                value: order.typeProduct ?? '',
               ),
               DataGridCell<String>(
                 columnName: 'productName',
-                value: order.productName,
+                value: order.productName ?? '',
               ),
-              DataGridCell<String>(columnName: 'QC_box', value: order.QC_box),
+              DataGridCell<String>(
+                columnName: 'QC_box',
+                value: order.QC_box ?? '',
+              ),
               DataGridCell<String>(
                 columnName: 'structure',
-                value: order.formatterStructureOrder,
+                value: order.formatterStructureOrder ?? '',
               ),
               DataGridCell<String>(
                 columnName: 'structureReplace',
-                value: order.infoProduction?.formatterStructureInfo,
+                value: order.infoProduction?.formatterStructureInfo ?? '',
               ),
               DataGridCell<String>(
                 columnName: 'lengthPaper',
@@ -80,76 +81,85 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'dateRequestShipping',
                 value: formatter.format(order.dateRequestShipping),
               ),
-              DataGridCell<String>(columnName: 'vat', value: '${order.vat}%'),
-
-              //InfoProduction
+              DataGridCell<String>(
+                columnName: 'vat',
+                value: '${order.vat ?? 0}%',
+              ),
+              // InfoProduction
               DataGridCell<String>(
                 columnName: 'paperSizeInfo',
-                value: Order.formatCurrency(order.infoProduction!.sizePaper),
+                value: Order.formatCurrency(
+                  order.infoProduction?.sizePaper ?? 0.0,
+                ),
               ),
               DataGridCell<int>(
                 columnName: 'quantityInfo',
-                value: order.infoProduction?.quantity,
+                value: order.infoProduction?.quantity ?? 0,
               ),
               DataGridCell<int>(
                 columnName: 'numChild',
-                value: order.infoProduction?.numberChild,
+                value: order.infoProduction?.numberChild ?? 0,
               ),
               DataGridCell<String>(
                 columnName: 'teBien',
-                value: order.infoProduction?.teBien,
+                value: order.infoProduction?.teBien ?? '',
               ),
               DataGridCell<String>(
                 columnName: 'CD_Sau',
-                value: order.infoProduction?.nextStep,
+                value: order.infoProduction?.nextStep ?? '',
               ),
               DataGridCell<String>(
                 columnName: 'totalPrice',
                 value: Order.formatCurrency(order.totalPrice),
               ),
-
-              //Box
+              // Box
               DataGridCell<int>(
                 columnName: 'inMatTruoc',
-                value: order.box?.inMatTruoc,
+                value: order.box?.inMatTruoc ?? 0,
               ),
               DataGridCell<int>(
                 columnName: 'inMatSau',
-                value: order.box?.inMatSau,
+                value: order.box?.inMatSau ?? 0,
               ),
               DataGridCell<bool>(
                 columnName: 'canMang',
-                value: order.box?.canMang,
+                value: order.box?.canMang ?? false,
               ),
-              DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa),
+              DataGridCell<bool>(
+                columnName: 'xa',
+                value: order.box?.Xa ?? false,
+              ),
               DataGridCell<bool>(
                 columnName: 'catKhe',
-                value: order.box?.catKhe,
+                value: order.box?.catKhe ?? false,
               ),
-              DataGridCell<bool>(columnName: 'be', value: order.box?.be),
+              DataGridCell<bool>(
+                columnName: 'be',
+                value: order.box?.be ?? false,
+              ),
               DataGridCell<bool>(
                 columnName: 'dan_1_Manh',
-                value: order.box?.dan_1_Manh,
+                value: order.box?.dan_1_Manh ?? false,
               ),
               DataGridCell<bool>(
                 columnName: 'dan_2_Manh',
-                value: order.box?.dan_2_Manh,
+                value: order.box?.dan_2_Manh ?? false,
               ),
               DataGridCell<bool>(
                 columnName: 'dongGhim',
-                value: order.box?.dongGhim,
+                value: order.box?.dongGhim ?? false,
               ),
               DataGridCell<String>(
                 columnName: 'khac_1',
-                value: order.box?.khac_1,
+                value: order.box?.khac_1 ?? '',
               ),
               DataGridCell<String>(
                 columnName: 'khac_2',
-                value: order.box?.khac_2,
+                value: order.box?.khac_2 ?? '',
               ),
               DataGridCell<String>(
                 columnName: 'HD_special',
-                value: order.infoProduction?.instructSpecial,
+                value: order.infoProduction?.instructSpecial ?? '',
               ),
             ],
           );
@@ -162,6 +172,7 @@ class OrderDataSource extends DataGridSource {
 
   void removeItemById(String orderId) {
     orders.removeWhere((order) => order.orderId == orderId);
+    buildDataCell();
   }
 
   void removeAll() {
@@ -187,7 +198,6 @@ class OrderDataSource extends DataGridSource {
       return value == true ? 'Có' : 'Không';
     }
 
-    // Mặc định hiển thị dạng chuỗi
     return value?.toString() ?? '';
   }
 
@@ -209,10 +219,16 @@ class OrderDataSource extends DataGridSource {
                   right: BorderSide(color: Colors.grey.shade300, width: 1),
                 ),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 4.0,
+              ),
               child: Text(
                 formatCellValue(dataCell),
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             );
           }).toList(),

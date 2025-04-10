@@ -54,7 +54,6 @@ class _OrderDialogState extends State<OrderDialog> {
   final songBController = TextEditingController();
   final songCController = TextEditingController();
   final songE2Controller = TextEditingController();
-  final dayControllerReplace = TextEditingController();
   final lengthController = TextEditingController();
   final sizeController = TextEditingController();
   final quantityController = TextEditingController();
@@ -70,6 +69,7 @@ class _OrderDialogState extends State<OrderDialog> {
   DateTime? dateShipping;
 
   //info Production
+  final dayControllerReplace = TextEditingController();
   final middle_1ControllerReplace = TextEditingController();
   final middle_2ControllerReplace = TextEditingController();
   final matControllerReplace = TextEditingController();
@@ -110,6 +110,8 @@ class _OrderDialogState extends State<OrderDialog> {
       //box
       boxInitState();
     }
+
+    addListenerForField();
   }
 
   void orderInitState() {
@@ -189,6 +191,14 @@ class _OrderDialogState extends State<OrderDialog> {
     khac_2Controller.text = widget.order!.box!.khac_2 ?? "";
   }
 
+  void addListenerForField() {
+    dayController.addListener(() {
+      if (dayController.text != dayControllerReplace.text) {
+        dayControllerReplace.text = dayController.text;
+      }
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -242,23 +252,26 @@ class _OrderDialogState extends State<OrderDialog> {
   void submit() async {
     if (!formKey.currentState!.validate()) return;
 
-    double totalAcreage = Order.acreagePaper(
-      double.tryParse(lengthController.text) ?? 0.0,
-      double.tryParse(sizeController.text) ?? 0.0,
-      int.tryParse(quantityController.text) ?? 0,
-    );
+    double totalAcreage =
+        Order.acreagePaper(
+          double.tryParse(lengthController.text) ?? 0.0,
+          double.tryParse(sizeController.text) ?? 0.0,
+          int.tryParse(quantityController.text) ?? 0,
+        ).ceilToDouble();
 
-    late double totalPricePaper = Order.totalPricePaper(
-      typeDVT,
-      double.tryParse(lengthController.text) ?? 0.0,
-      double.tryParse(sizeController.text) ?? 0.0,
-      double.tryParse(priceController.text) ?? 0.0,
-    );
+    late double totalPricePaper =
+        Order.totalPricePaper(
+          typeDVT,
+          double.tryParse(lengthController.text) ?? 0.0,
+          double.tryParse(sizeController.text) ?? 0.0,
+          double.tryParse(priceController.text) ?? 0.0,
+        ).ceilToDouble();
 
-    late double totalPriceOrder = Order.totalPriceOrder(
-      int.tryParse(quantityController.text) ?? 0,
-      totalPricePaper,
-    );
+    late double totalPriceOrder =
+        Order.totalPriceOrder(
+          int.tryParse(quantityController.text) ?? 0,
+          totalPricePaper,
+        ).ceilToDouble();
 
     final newInfoProduction = InfoProduction(
       dayReplace: dayControllerReplace.text,
@@ -522,6 +535,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.badge,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -530,6 +544,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.box,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -538,6 +553,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.deployed_code,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -581,6 +597,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.vertical_align_bottom,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -589,6 +606,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.vertical_align_center,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -597,6 +615,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.vertical_align_center,
                                   ),
                                 ),
+
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -762,7 +781,9 @@ class _OrderDialogState extends State<OrderDialog> {
                                     Symbols.percent,
                                   ),
                                 ),
+
                                 SizedBox(width: 290),
+
                                 SizedBox(width: 290),
                               ],
                             ),
@@ -1101,6 +1122,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               children: [
                                 SizedBox(width: 400),
                                 SizedBox(width: 400),
+
                                 SizedBox(
                                   width: 185,
                                   child: Column(

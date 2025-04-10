@@ -33,8 +33,8 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'vat', label: formatColumn("VAT")),
 
     //InfoProduction
-    GridColumn(columnName: 'paperSizeInfo', label: formatColumn("Khổ Tấm")),
-    GridColumn(columnName: 'quantityInfo', label: formatColumn("Số lượng")),
+    GridColumn(columnName: 'paperSizeInfo', label: formatColumn("Khổ TT")),
+    GridColumn(columnName: 'quantityInfo', label: formatColumn("Số lượng TT")),
     GridColumn(columnName: 'numChild', label: formatColumn("Số Con")),
     GridColumn(columnName: 'teBien', label: formatColumn("Tề Biên")),
     GridColumn(columnName: 'CD_Sau', label: formatColumn("CD Sau")),

@@ -96,7 +96,7 @@ class Order {
     return pricePaper * double.parse(quantity.toStringAsFixed(0));
   }
 
-  static String formatCurrency(double value) {
+  static String formatCurrency(num value) {
     final formatCurrency = NumberFormat("#,###.##");
     return formatCurrency.format(value);
   }
@@ -136,16 +136,35 @@ class Order {
       songB: json['songB'] ?? "",
       songC: json['songC'] ?? "",
       songE2: json['songE2'] ?? "",
-      lengthPaper: (json['lengthPaper'] ?? 0).toDouble(),
-      paperSize: (json['paperSize'] ?? 0).toDouble(),
-      quantity: json['quantity'] ?? 0,
-      acreage: (json['acreage'] ?? 0).toDouble(),
       dvt: json['dvt'] ?? "",
-      price: (json['price'] ?? 0).toDouble(),
-      pricePaper: (json['pricePaper'] ?? 0).toDouble(),
-      dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
       vat: json['vat'] ?? 0,
-      totalPrice: (json['totalPrice'] ?? 0).toDouble(),
+      quantity: json['quantity'] ?? 0,
+      lengthPaper:
+          (json['lengthPaper'] is int)
+              ? (json['lengthPaper'] as int).toDouble()
+              : (json['lengthPaper'] ?? 0.0) as double,
+      paperSize:
+          (json['paperSize'] is int)
+              ? (json['paperSize'] as int).toDouble()
+              : (json['paperSize'] ?? 0.0) as double,
+      acreage:
+          (json['acreage'] is int)
+              ? (json['acreage'] as int).toDouble()
+              : (json['acreage'] ?? 0.0) as double,
+      price:
+          (json['price'] is int)
+              ? (json['price'] as int).toDouble()
+              : (json['price'] ?? 0.0) as double,
+      pricePaper:
+          (json['pricePaper'] is int)
+              ? (json['pricePaper'] as int).toDouble()
+              : (json['pricePaper'] ?? 0.0) as double,
+      dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
+      totalPrice:
+          (json['totalPrice'] is int)
+              ? (json['totalPrice'] as int).toDouble()
+              : (json['totalPrice'] ?? 0.0) as double,
+
       customer:
           json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
       infoProduction:
@@ -155,7 +174,6 @@ class Order {
       box: json['box'] != null ? Box.fromJson(json['box']) : null,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'prefix': orderId,

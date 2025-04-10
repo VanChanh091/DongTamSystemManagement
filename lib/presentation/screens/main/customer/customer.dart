@@ -305,7 +305,8 @@ class _CustomerPageState extends State<CustomerPage> {
                   child: DataTable(
                     columnSpacing: 25,
                     headingRowColor: WidgetStatePropertyAll(
-                      Colors.amberAccent.shade200,
+                      // Color.fromARGB(255, 142, 241, 117),
+                      Colors.grey.shade400,
                     ),
                     columns: [
                       DataColumn(
@@ -340,7 +341,7 @@ class _CustomerPageState extends State<CustomerPage> {
                         color: WidgetStateProperty.all(
                           index % 2 == 0
                               ? Colors.white
-                              : const Color.fromARGB(77, 196, 196, 196),
+                              : const Color.fromARGB(77, 184, 184, 184),
                         ),
                         cells: [
                           DataCell(
