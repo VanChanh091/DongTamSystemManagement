@@ -93,12 +93,11 @@ class Order {
 
   //Tổng doanh thu = quantity * pricePaper
   static double totalPriceOrder(int quantity, double pricePaper) {
-    return pricePaper * double.parse(quantity.toStringAsFixed(0));
+    return pricePaper * double.parse(quantity.toStringAsFixed(1));
   }
 
   static String formatCurrency(num value) {
-    final formatCurrency = NumberFormat("#,###.##");
-    return formatCurrency.format(value);
+    return NumberFormat("#,###.##").format(value);
   }
 
   String get formatterStructureOrder {
@@ -159,11 +158,11 @@ class Order {
           (json['pricePaper'] is int)
               ? (json['pricePaper'] as int).toDouble()
               : (json['pricePaper'] ?? 0.0) as double,
-      dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
       totalPrice:
           (json['totalPrice'] is int)
               ? (json['totalPrice'] as int).toDouble()
               : (json['totalPrice'] ?? 0.0) as double,
+      dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
 
       customer:
           json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
@@ -174,6 +173,7 @@ class Order {
       box: json['box'] != null ? Box.fromJson(json['box']) : null,
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'prefix': orderId,

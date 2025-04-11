@@ -59,7 +59,10 @@ class InfoProduction {
       songB_Replace: json['songB_Replace'] ?? "",
       songC_Replace: json['songC_Replace'] ?? "",
       songE2_Replace: json['songE2_Replace'] ?? "",
-      sizePaper: json['sizePaper'] ?? 0.0,
+      sizePaper:
+          (json['sizePaper'] is int)
+              ? (json['sizePaper'] as int).toDouble()
+              : (json['sizePaper'] ?? 0.0) as double,
       quantity: json['quantity'] ?? 0,
       instructSpecial: json['instructSpecial'] ?? "",
       numberChild: json['numberChild'] ?? 0,

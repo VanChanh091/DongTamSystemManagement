@@ -103,14 +103,13 @@ class _OrderDialogState extends State<OrderDialog> {
     if (widget.order != null) {
       //order
       orderInitState();
-
       //info Production
       infoProductionInitState();
-
       //box
       boxInitState();
+      //listener
+      addListenerForField();
     }
-
     addListenerForField();
   }
 
@@ -191,12 +190,29 @@ class _OrderDialogState extends State<OrderDialog> {
     khac_2Controller.text = widget.order!.box!.khac_2 ?? "";
   }
 
-  void addListenerForField() {
-    dayController.addListener(() {
-      if (dayController.text != dayControllerReplace.text) {
-        dayControllerReplace.text = dayController.text;
+  //component
+  void listenerForFieldNeed(
+    TextEditingController fieldController,
+    TextEditingController fieldControllerReplace,
+  ) {
+    fieldController.addListener(() {
+      if (fieldController.text != fieldControllerReplace.text) {
+        fieldControllerReplace.text = fieldController.text;
       }
     });
+  }
+
+  void addListenerForField() {
+    listenerForFieldNeed(dayController, dayControllerReplace);
+    listenerForFieldNeed(middle_1Controller, middle_1ControllerReplace);
+    listenerForFieldNeed(middle_2Controller, middle_2ControllerReplace);
+    listenerForFieldNeed(matController, matControllerReplace);
+    listenerForFieldNeed(songEController, songEControllerReplace);
+    listenerForFieldNeed(songBController, songBControllerReplace);
+    listenerForFieldNeed(songCController, songCControllerReplace);
+    listenerForFieldNeed(songE2Controller, songE2ControllerReplace);
+    listenerForFieldNeed(sizeController, sizeInfoController);
+    listenerForFieldNeed(quantityController, quantityInfoController);
   }
 
   @override
@@ -257,7 +273,7 @@ class _OrderDialogState extends State<OrderDialog> {
           double.tryParse(lengthController.text) ?? 0.0,
           double.tryParse(sizeController.text) ?? 0.0,
           int.tryParse(quantityController.text) ?? 0,
-        ).ceilToDouble();
+        ).roundToDouble();
 
     late double totalPricePaper =
         Order.totalPricePaper(
@@ -265,13 +281,13 @@ class _OrderDialogState extends State<OrderDialog> {
           double.tryParse(lengthController.text) ?? 0.0,
           double.tryParse(sizeController.text) ?? 0.0,
           double.tryParse(priceController.text) ?? 0.0,
-        ).ceilToDouble();
+        ).roundToDouble();
 
     late double totalPriceOrder =
         Order.totalPriceOrder(
           int.tryParse(quantityController.text) ?? 0,
           totalPricePaper,
-        ).ceilToDouble();
+        ).roundToDouble();
 
     final newInfoProduction = InfoProduction(
       dayReplace: dayControllerReplace.text,
@@ -328,14 +344,12 @@ class _OrderDialogState extends State<OrderDialog> {
       price: double.tryParse(priceController.text) ?? 0.0,
       pricePaper: totalPricePaper,
       dateRequestShipping: dateShipping ?? DateTime.now(),
-      vat: int.tryParse(vatController.text) ?? 0, //fix here
+      vat: int.tryParse(vatController.text) ?? 0,
       totalPrice: totalPriceOrder,
 
       infoProduction: newInfoProduction,
       box: newBox,
     );
-
-    print(newOrder);
 
     try {
       if (widget.order == null) {

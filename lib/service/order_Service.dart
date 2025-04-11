@@ -17,7 +17,7 @@ class OrderService {
       final response = await dioService.get("/api/order/");
       // print('response: $response');
       final data = response.data['data'] as List;
-      // print('data: $data');
+      print('data: $data');
       return data.map((e) => Order.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to load orders: $e');

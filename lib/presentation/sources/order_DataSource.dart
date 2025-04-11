@@ -85,12 +85,11 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'vat',
                 value: '${order.vat ?? 0}%',
               ),
+
               // InfoProduction
               DataGridCell<String>(
                 columnName: 'paperSizeInfo',
-                value: Order.formatCurrency(
-                  order.infoProduction?.sizePaper ?? 0.0,
-                ),
+                value: Order.formatCurrency(order.infoProduction!.sizePaper),
               ),
               DataGridCell<int>(
                 columnName: 'quantityInfo',
@@ -112,6 +111,7 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'totalPrice',
                 value: Order.formatCurrency(order.totalPrice),
               ),
+
               // Box
               DataGridCell<int>(
                 columnName: 'inMatTruoc',
