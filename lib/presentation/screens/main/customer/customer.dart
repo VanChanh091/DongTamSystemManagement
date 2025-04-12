@@ -41,9 +41,13 @@ class _CustomerPageState extends State<CustomerPage> {
       setState(() {
         futureCustomer = CustomerService().getCustomerByName(keyword);
       });
-    } else if (searchType == "CSKH") {
+    } else if (searchType == "Theo CSKH") {
       setState(() {
         futureCustomer = CustomerService().getCustomerByCSKH(keyword);
+      });
+    } else if (searchType == "Theo SDT") {
+      setState(() {
+        futureCustomer = CustomerService().getCustomerByPhone(keyword);
       });
     }
   }
@@ -67,27 +71,46 @@ class _CustomerPageState extends State<CustomerPage> {
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
                     children: [
-                      DropdownButton<String>(
-                        value: searchType,
-                        items:
-                            ['Tất cả', "Theo Mã", "Theo Tên KH", "CSKH"].map((
-                              String value,
-                            ) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            searchType = value!;
-                            isTextFieldEnabled = searchType != 'Tất cả';
+                      SizedBox(
+                        width: 170,
+                        child: DropdownButtonFormField<String>(
+                          value: searchType,
+                          items:
+                              [
+                                'Tất cả',
+                                "Theo Mã",
+                                "Theo Tên KH",
+                                "Theo CSKH",
+                                "Theo SDT",
+                              ].map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              searchType = value!;
+                              isTextFieldEnabled = searchType != 'Tất cả';
 
-                            if (!isTextFieldEnabled) {
-                              searchController.clear();
-                            }
-                          });
-                        },
+                              if (!isTextFieldEnabled) {
+                                searchController.clear();
+                              }
+                            });
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                        ),
                       ),
                       SizedBox(width: 10),
 

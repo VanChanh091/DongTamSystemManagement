@@ -79,6 +79,20 @@ class CustomerService {
     }
   }
 
+  // get by cskh
+  Future<List<Customer>> getCustomerByPhone(String phone) async {
+    try {
+      final response = await dioService.get('/api/customer/phone/$phone');
+      final List<dynamic> customersData = response.data['customer'];
+      return customersData
+          .map((json) => Customer.fromJson(json))
+          .where((customer) => customer.phone.contains(phone))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get customerName: $e');
+    }
+  }
+
   // add customer
   Future<bool> addCustomer(Map<String, dynamic> customerData) async {
     try {

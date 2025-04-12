@@ -99,6 +99,38 @@ class _CustomerDialogState extends State<CustomerDialog> {
     }
   }
 
+  static validateInput(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    bool readOnly = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      readOnly: readOnly,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        fillColor: readOnly ? Colors.grey.shade300 : Colors.white,
+        filled: true,
+      ),
+      validator: (value) {
+        if ((label == 'Mã Khách hàng' ||
+                label == "Tên khách hàng" ||
+                label == "Tên công ty" ||
+                label == "Địa chỉ công ty" ||
+                label == "Địa chỉ giao hàng" ||
+                label == "CSKH") &&
+            (value == null || value.isEmpty)) {
+          return 'Vui lòng nhập $label';
+        }
+        return null;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.customer != null;
@@ -191,29 +223,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
           ),
         ),
       ],
-    );
-  }
-
-  static validateInput(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
-    bool readOnly = false,
-  }) {
-    return TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        fillColor: readOnly ? Colors.grey.shade300 : Colors.white,
-        filled: true,
-      ),
-      validator:
-          (value) =>
-              value == null || value.isEmpty ? 'Vui lòng nhập $label' : null,
     );
   }
 }
