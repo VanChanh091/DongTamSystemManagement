@@ -3,11 +3,11 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildCommonColumns() {
   return [
+    //order
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
     GridColumn(columnName: 'dayReceiveOrder', label: formatColumn('Ngày Nhận')),
     GridColumn(columnName: 'customerName', label: formatColumn("Tên KH")),
     GridColumn(columnName: 'companyName', label: formatColumn("Tên Cty")),
-    GridColumn(columnName: 'song', label: formatColumn("Sóng")),
     GridColumn(columnName: 'typeProduct', label: formatColumn("Loại SP")),
     GridColumn(columnName: 'productName', label: formatColumn("Tên SP")),
     GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
@@ -37,7 +37,6 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'quantityInfo', label: formatColumn("Số lượng TT")),
     GridColumn(columnName: 'numChild', label: formatColumn("Số Con")),
     GridColumn(columnName: 'teBien', label: formatColumn("Tề Biên")),
-    GridColumn(columnName: 'CD_Sau', label: formatColumn("CD Sau")),
     GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
 
     //Box
@@ -49,7 +48,16 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'be', label: formatColumn("Bế")),
     GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
     GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
-    GridColumn(columnName: 'dongGhim', label: formatColumn("Đóng Ghim")),
+    GridColumn(
+      columnName: 'dongGhim1Manh',
+      label: formatColumn("Đóng Ghim 1 Mảnh"),
+    ),
+    GridColumn(
+      columnName: 'dongGhim2Manh',
+      label: formatColumn("Đóng Ghim 2 Mảnh"),
+    ),
+    GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Hói")),
+    GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
     GridColumn(columnName: 'khac_1', label: formatColumn("Khác 1")),
     GridColumn(columnName: 'khac_2', label: formatColumn("Khác 2")),
     GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),

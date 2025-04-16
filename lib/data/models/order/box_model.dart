@@ -1,7 +1,15 @@
 class Box {
   final int? inMatTruoc, inMatSau;
-  final bool? canMang, Xa, catKhe, be, dan_1_Manh, dan_2_Manh, dongGhim;
-  final String? khac_1, khac_2;
+  final bool? canMang,
+      Xa,
+      catKhe,
+      be,
+      dan_1_Manh,
+      dan_2_Manh,
+      dongGhim1Manh,
+      dongGhim2Manh,
+      chongTham;
+  final String? dongGoi, maKhuon, khac_1, khac_2;
 
   Box({
     this.inMatTruoc,
@@ -12,7 +20,11 @@ class Box {
     this.be,
     this.dan_1_Manh,
     this.dan_2_Manh,
-    this.dongGhim,
+    this.dongGhim1Manh,
+    this.dongGhim2Manh,
+    this.chongTham,
+    this.dongGoi,
+    this.maKhuon,
     this.khac_1,
     this.khac_2,
   });
@@ -27,7 +39,11 @@ class Box {
       be: json['be'] ?? false,
       dan_1_Manh: json['dan_1_Manh'] ?? false,
       dan_2_Manh: json['dan_2_Manh'] ?? false,
-      dongGhim: json['dongGhim'] ?? false,
+      dongGhim1Manh: json['dongGhim1Manh'] ?? false,
+      dongGhim2Manh: json['dongGhim2Manh'] ?? false,
+      chongTham: json['chongTham'] ?? false,
+      dongGoi: json['dongGoi'] ?? "",
+      maKhuon: json['maKhuon'] ?? "",
       khac_1: json['khac_1'] ?? "",
       khac_2: json['khac_2'] ?? "",
     );
@@ -43,7 +59,11 @@ class Box {
       'be': be,
       'dan_1_Manh': dan_1_Manh,
       'dan_2_Manh': dan_2_Manh,
-      'dongGhim': dongGhim,
+      'dongGhim1Manh': dongGhim1Manh,
+      'dongGhim2Manh': dongGhim2Manh,
+      'chongTham': chongTham,
+      'dongGoi': dongGoi,
+      'maKhuon': maKhuon,
       'khac_1': khac_1,
       'khac_2': khac_2,
     };

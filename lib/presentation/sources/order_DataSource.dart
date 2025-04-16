@@ -34,14 +34,13 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'companyName',
                 value: order.customer?.companyName ?? '',
               ),
-              DataGridCell<String>(columnName: 'song', value: order.song ?? ''),
               DataGridCell<String>(
                 columnName: 'typeProduct',
-                value: order.typeProduct ?? '',
+                value: order.product!.typeProduct,
               ),
               DataGridCell<String>(
                 columnName: 'productName',
-                value: order.productName ?? '',
+                value: order.product!.productName,
               ),
               DataGridCell<String>(
                 columnName: 'QC_box',
@@ -49,7 +48,7 @@ class OrderDataSource extends DataGridSource {
               ),
               DataGridCell<String>(
                 columnName: 'structure',
-                value: order.formatterStructureOrder ?? '',
+                value: order.formatterStructureOrder,
               ),
               DataGridCell<String>(
                 columnName: 'structureReplace',
@@ -103,10 +102,7 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'teBien',
                 value: order.infoProduction?.teBien ?? '',
               ),
-              DataGridCell<String>(
-                columnName: 'CD_Sau',
-                value: order.infoProduction?.nextStep ?? '',
-              ),
+
               DataGridCell<String>(
                 columnName: 'totalPrice',
                 value: Order.formatCurrency(order.totalPrice),
@@ -146,8 +142,20 @@ class OrderDataSource extends DataGridSource {
                 value: order.box?.dan_2_Manh ?? false,
               ),
               DataGridCell<bool>(
-                columnName: 'dongGhim',
-                value: order.box?.dongGhim ?? false,
+                columnName: 'dongGhim1Manh',
+                value: order.box?.dongGhim1Manh ?? false,
+              ),
+              DataGridCell<bool>(
+                columnName: 'dongGhim2Manh',
+                value: order.box?.dongGhim2Manh ?? false,
+              ),
+              DataGridCell<String>(
+                columnName: 'dongGoi',
+                value: order.box?.dongGoi ?? "",
+              ),
+              DataGridCell<String>(
+                columnName: 'maKhuon',
+                value: order.box?.maKhuon ?? "",
               ),
               DataGridCell<String>(
                 columnName: 'khac_1',

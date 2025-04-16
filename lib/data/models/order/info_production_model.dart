@@ -9,10 +9,9 @@ class InfoProduction {
   final String? songE2_Replace;
   final double sizePaper;
   final int quantity;
-  final String? instructSpecial;
   final int numberChild;
+  final String? instructSpecial;
   final String? teBien;
-  final String? nextStep;
 
   InfoProduction({
     this.dayReplace,
@@ -28,10 +27,11 @@ class InfoProduction {
     this.instructSpecial,
     required this.numberChild,
     this.teBien,
-    this.nextStep,
   });
 
+  //fix here
   String get formatterStructureInfo {
+    final prefixes = ['', 'E', '', 'B', '', 'C', '', ''];
     final parts = [
       dayReplace,
       songE_Replace,
@@ -40,13 +40,22 @@ class InfoProduction {
       middle_2Replace,
       songC_Replace,
       matReplace,
-      if (songE2_Replace != null && songE2_Replace!.isNotEmpty) songE2_Replace,
+      songE2_Replace,
     ];
+    final formattedParts = <String>[];
 
-    return parts
-        .where((e) => e != null && e.isNotEmpty)
-        .map((e) => e!)
-        .join('/');
+    for (int i = 0; i < parts.length; i++) {
+      final part = parts[i];
+      if (part != null && part.isNotEmpty) {
+        final prefix = prefixes[i];
+        if (!part.startsWith(prefix.replaceAll(r'[^A-Z]', ""))) {
+          formattedParts.add('$prefix$part');
+        } else {
+          formattedParts.add(part);
+        }
+      }
+    }
+    return formattedParts.join('/');
   }
 
   factory InfoProduction.fromJson(Map<String, dynamic> json) {
@@ -67,7 +76,6 @@ class InfoProduction {
       instructSpecial: json['instructSpecial'] ?? "",
       numberChild: json['numberChild'] ?? 0,
       teBien: json['teBien'] ?? "",
-      nextStep: json['nextStep'] ?? "",
     );
   }
 
@@ -86,7 +94,6 @@ class InfoProduction {
       'instructSpecial': instructSpecial,
       'numberChild': numberChild,
       'teBien': teBien,
-      'nextStep': nextStep,
     };
   }
 }

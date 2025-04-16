@@ -1,7 +1,7 @@
 class Customer {
   final String customerId;
-  final String? customerName;
-  final String? companyName;
+  final String customerName;
+  final String companyName;
   final String companyAddress;
   final String shippingAddress;
   final String mst;
@@ -10,8 +10,8 @@ class Customer {
 
   Customer({
     required this.customerId,
-    this.customerName,
-    this.companyName,
+    required this.customerName,
+    required this.companyName,
     required this.companyAddress,
     required this.shippingAddress,
     required this.mst,

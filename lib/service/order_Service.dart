@@ -16,8 +16,8 @@ class OrderService {
     try {
       final response = await dioService.get("/api/order/");
       // print('response: $response');
-      final data = response.data['data'] as List;
-      print('data: $data');
+      final data = response.data['orders'] as List;
+      // print('data: $data');
       return data.map((e) => Order.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to load orders: $e');
@@ -36,7 +36,7 @@ class OrderService {
       return orderData
           .map((json) => Order.fromJson(json))
           .where(
-            (order) => order.customer!.customerName!.toLowerCase().contains(
+            (order) => order.customer!.customerName.toLowerCase().contains(
               inputCustomerName.toLowerCase(),
             ),
           )
@@ -58,7 +58,7 @@ class OrderService {
       return orderData
           .map((json) => Order.fromJson(json))
           .where(
-            (order) => order.productName!.toLowerCase().contains(
+            (order) => order.product!.productName.toLowerCase().contains(
               inputProductName.toLowerCase(),
             ),
           )
@@ -80,7 +80,7 @@ class OrderService {
       return orderData
           .map((json) => Order.fromJson(json))
           .where(
-            (order) => order.typeProduct!.toLowerCase().contains(
+            (order) => order.product!.typeProduct.toLowerCase().contains(
               inputTypeProduct.toLowerCase(),
             ),
           )

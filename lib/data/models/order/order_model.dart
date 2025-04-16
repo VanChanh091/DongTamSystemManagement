@@ -1,15 +1,12 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/order/info_production_model.dart';
+import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:intl/intl.dart';
 
 class Order {
   final String orderId;
-  final String customerId;
   final DateTime dayReceiveOrder;
-  final String? typeProduct;
-  final String? productName;
-  final String? song;
   final String? QC_box;
   final String? day;
   final String? middle_1;
@@ -30,17 +27,18 @@ class Order {
   final double totalPrice;
   final int? vat;
 
+  final String customerId;
   final Customer? customer;
-  final InfoProduction? infoProduction;
+  final String productId;
+  final Product? product;
   final Box? box;
+  final InfoProduction? infoProduction;
 
   Order({
     required this.orderId,
     required this.dayReceiveOrder,
     required this.customerId,
-    this.song,
-    this.typeProduct,
-    this.productName,
+    required this.productId,
     this.QC_box,
     this.day,
     this.middle_1,
@@ -63,9 +61,10 @@ class Order {
     this.customer,
     this.infoProduction,
     this.box,
+    this.product,
   });
 
-  /// Diện tích giấy (m2) = lengthPaper * paperSize / 10000 * quantity
+  //Acreage (m2) = lengthPaper * paperSize / 10000 * quantity
   static double acreagePaper(
     double lengthPaper,
     double paperSize,
@@ -77,7 +76,7 @@ class Order {
         double.parse(quantity.toStringAsFixed(2));
   }
 
-  // Tổng giá tấm = (kg, cái) => price, ngược lại => lengthPaper * paperSize * price
+  //Total price paper = (kg, cái) => price, else => lengthPaper * paperSize * price
   static double totalPricePaper(
     String dvt,
     double length,
@@ -91,41 +90,41 @@ class Order {
     return length * size * price / 10000;
   }
 
-  //Tổng doanh thu = quantity * pricePaper
+  //Total price = quantity * pricePaper
   static double totalPriceOrder(int quantity, double pricePaper) {
     return pricePaper * double.parse(quantity.toStringAsFixed(1));
   }
 
+  //format number
   static String formatCurrency(num value) {
     return NumberFormat("#,###.##").format(value);
   }
 
   String get formatterStructureOrder {
-    final parts = [
-      day,
-      songE,
-      middle_1,
-      songB,
-      middle_2,
-      songC,
-      mat,
-      if (songE2 != null && songE2!.isNotEmpty) songE2,
-    ];
+    final prefixes = ['', 'E', '', 'B', '', 'C', '', ''];
+    final parts = [day, songE, middle_1, songB, middle_2, songC, mat, songE2];
+    final formattedParts = <String>[];
 
-    return parts
-        .where((e) => e != null && e.isNotEmpty)
-        .map((e) => e!)
-        .join('/');
+    for (int i = 0; i < parts.length; i++) {
+      final part = parts[i];
+      if (part != null && part.isNotEmpty) {
+        final prefix = prefixes[i];
+        if (!part.startsWith(prefix.replaceAll(r'[^A-Z]', ""))) {
+          formattedParts.add('$prefix$part');
+        } else {
+          formattedParts.add(part);
+        }
+      }
+    }
+    return formattedParts.join('/');
   }
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      orderId: json['orderId'] ?? 'CUSTOM',
-      customerId: json['customerId'],
+      orderId: json['orderId'] ?? 'ORDER',
+      customerId: json['customerId'] ?? 'CUSTOMER',
+      productId: json['productId'] ?? "PRODUCT",
       dayReceiveOrder: DateTime.parse(json['dayReceiveOrder']),
-      song: json['song'] ?? "",
-      typeProduct: json['typeProduct'] ?? "",
-      productName: json['productName'] ?? "",
       QC_box: json['QC_box'] ?? "",
       day: json['day'] ?? "",
       middle_1: json['middle_1'] ?? "",
@@ -163,7 +162,7 @@ class Order {
               ? (json['totalPrice'] as int).toDouble()
               : (json['totalPrice'] ?? 0.0) as double,
       dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
-
+      //note
       customer:
           json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
       infoProduction:
@@ -171,6 +170,8 @@ class Order {
               ? InfoProduction.fromJson(json['infoProduction'])
               : null,
       box: json['box'] != null ? Box.fromJson(json['box']) : null,
+      product:
+          json['Product'] != null ? Product.fromJson(json['Product']) : null,
     );
   }
 
@@ -178,10 +179,8 @@ class Order {
     return {
       'prefix': orderId,
       'customerId': customerId,
+      'productId': productId,
       'dayReceiveOrder': DateFormat('yyyy-MM-dd').format(dayReceiveOrder),
-      'typeProduct': typeProduct,
-      'productName': productName,
-      'song': song,
       'QC_box': QC_box,
       'day': day,
       'middle_1': middle_1,
@@ -216,9 +215,6 @@ Order(
   customerId: $customerId,
   customerName: ${customer?.customerName ?? 'N/A'},
   companyName: ${customer?.companyName ?? 'N/A'},
-  productName: $productName,
-  typeProduct: $typeProduct,
-  song: $song,
   QC_box: $QC_box,
   day: ${day ?? 'N/A'},
   middle_1: ${middle_1 ?? 'N/A'},

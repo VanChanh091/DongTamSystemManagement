@@ -41,10 +41,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
   //order
   final orderIdController = TextEditingController();
-  final customerIdController = TextEditingController();
   final dayReceiveController = TextEditingController();
-  final songController = TextEditingController();
-  final nameSpController = TextEditingController();
   final qcBoxController = TextEditingController();
   final dayController = TextEditingController();
   final middle_1Controller = TextEditingController();
@@ -59,7 +56,6 @@ class _OrderDialogState extends State<OrderDialog> {
   final quantityController = TextEditingController();
   final dvtController = TextEditingController();
   final priceController = TextEditingController();
-  final pricePaperController = TextEditingController();
   final dateShippingController = TextEditingController();
   final vatController = TextEditingController();
   late String typeProduct = "Thùng/hộp";
@@ -67,6 +63,8 @@ class _OrderDialogState extends State<OrderDialog> {
   late String typeTeBien = "Cấn lằn";
   DateTime? dayReceive;
   DateTime? dateShipping;
+  final customerIdController = TextEditingController();
+  final productIdController = TextEditingController();
 
   //info Production
   final dayControllerReplace = TextEditingController();
@@ -79,8 +77,8 @@ class _OrderDialogState extends State<OrderDialog> {
   final songE2ControllerReplace = TextEditingController();
   final sizeInfoController = TextEditingController();
   final quantityInfoController = TextEditingController();
-  final instructSpecialController = TextEditingController();
   final numChildController = TextEditingController();
+  final instructSpecialController = TextEditingController();
   final teBienController = TextEditingController();
   final nextStepController = TextEditingController();
 
@@ -121,10 +119,7 @@ class _OrderDialogState extends State<OrderDialog> {
   void orderInitState() {
     orderIdController.text = widget.order!.orderId;
     customerIdController.text = widget.order!.customerId;
-    songController.text = widget.order!.song.toString();
-    typeProduct = widget.order!.typeProduct?.trim() ?? "";
     typeDVT = widget.order?.dvt ?? "Kg";
-    nameSpController.text = widget.order!.productName.toString();
     qcBoxController.text = widget.order!.QC_box.toString();
     dayController.text = widget.order!.day.toString();
     middle_1Controller.text = widget.order!.middle_1.toString();
@@ -138,7 +133,6 @@ class _OrderDialogState extends State<OrderDialog> {
     sizeController.text = widget.order!.paperSize.toStringAsFixed(1);
     quantityController.text = widget.order!.quantity.toString();
     priceController.text = widget.order!.price.toString();
-    pricePaperController.text = widget.order!.pricePaper.toString();
     vatController.text = widget.order!.vat.toString();
     dayReceive = widget.order!.dayReceiveOrder;
     dayReceiveController.text = DateFormat('dd/MM/yyyy').format(dayReceive!);
@@ -174,7 +168,6 @@ class _OrderDialogState extends State<OrderDialog> {
     numChildController.text =
         widget.order!.infoProduction!.numberChild.toString();
     typeTeBien = widget.order!.infoProduction!.teBien?.trim() ?? "";
-    nextStepController.text = widget.order!.infoProduction!.nextStep.toString();
   }
 
   void boxInitState() {
@@ -190,7 +183,6 @@ class _OrderDialogState extends State<OrderDialog> {
     dan2ManhChecked = ValueNotifier<bool>(
       widget.order!.box!.dan_2_Manh ?? false,
     );
-    dongGhimChecked = ValueNotifier<bool>(widget.order!.box!.dongGhim ?? false);
     khac_1Controller.text = widget.order!.box!.khac_1 ?? "";
     khac_2Controller.text = widget.order!.box!.khac_2 ?? "";
   }
@@ -225,9 +217,6 @@ class _OrderDialogState extends State<OrderDialog> {
     super.dispose();
     orderIdController.dispose();
     customerIdController.dispose();
-    songController.dispose();
-    // typeSpController.dispose();
-    nameSpController.dispose();
     qcBoxController.dispose();
     dayController.dispose();
     middle_1Controller.dispose();
@@ -250,7 +239,6 @@ class _OrderDialogState extends State<OrderDialog> {
     quantityController.dispose();
     dvtController.dispose();
     priceController.dispose();
-    pricePaperController.dispose();
     sizeInfoController.dispose();
     quantityInfoController.dispose();
     instructSpecialController.dispose();
@@ -308,7 +296,6 @@ class _OrderDialogState extends State<OrderDialog> {
       instructSpecial: instructSpecialController.text,
       numberChild: int.tryParse(numChildController.text) ?? 0,
       teBien: typeTeBien,
-      nextStep: nextStepController.text,
     );
 
     final newBox = Box(
@@ -320,7 +307,6 @@ class _OrderDialogState extends State<OrderDialog> {
       be: beChecked.value,
       dan_1_Manh: dan1ManhChecked.value,
       dan_2_Manh: dan2ManhChecked.value,
-      dongGhim: dongGhimChecked.value,
       khac_1: khac_1Controller.text,
       khac_2: khac_2Controller.text,
     );
@@ -328,10 +314,8 @@ class _OrderDialogState extends State<OrderDialog> {
     final newOrder = Order(
       orderId: orderIdController.text.toUpperCase(),
       customerId: customerIdController.text,
+      productId: productIdController.text,
       dayReceiveOrder: dayReceive ?? DateTime.now(),
-      typeProduct: typeProduct,
-      productName: nameSpController.text,
-      song: songController.text,
       QC_box: qcBoxController.text,
       day: dayController.text,
       middle_1: middle_1Controller.text,
@@ -351,7 +335,6 @@ class _OrderDialogState extends State<OrderDialog> {
       dateRequestShipping: dateShipping ?? DateTime.now(),
       vat: int.tryParse(vatController.text) ?? 0,
       totalPrice: totalPriceOrder,
-
       infoProduction: newInfoProduction,
       box: newBox,
     );
@@ -502,15 +485,14 @@ class _OrderDialogState extends State<OrderDialog> {
                                   ),
                                 ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Sóng",
-                                    songController,
-                                    Symbols.airwave,
-                                  ),
-                                ),
-
+                                // SizedBox(
+                                //   width: 290,
+                                //   child: ValidationOrder.validateInput(
+                                //     "Sóng",
+                                //     songController,
+                                //     Symbols.airwave,
+                                //   ),
+                                // ),
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
@@ -555,15 +537,14 @@ class _OrderDialogState extends State<OrderDialog> {
                                   ),
                                 ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Tên sản phẩm",
-                                    nameSpController,
-                                    Symbols.box,
-                                  ),
-                                ),
-
+                                // SizedBox(
+                                //   width: 290,
+                                //   child: ValidationOrder.validateInput(
+                                //     "Tên sản phẩm",
+                                //     nameSpController,
+                                //     Symbols.box,
+                                //   ),
+                                // ),
                                 SizedBox(
                                   width: 290,
                                   child: ValidationOrder.validateInput(
