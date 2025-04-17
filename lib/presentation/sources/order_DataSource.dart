@@ -27,6 +27,10 @@ class OrderDataSource extends DataGridSource {
                 value: formatter.format(order.dayReceiveOrder),
               ),
               DataGridCell<String>(
+                columnName: 'dateRequestShipping',
+                value: formatter.format(order.dateRequestShipping),
+              ),
+              DataGridCell<String>(
                 columnName: 'customerName',
                 value: order.customer?.customerName ?? '',
               ),
@@ -76,10 +80,7 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'pricePaper',
                 value: Order.formatCurrency(order.pricePaper),
               ),
-              DataGridCell<String>(
-                columnName: 'dateRequestShipping',
-                value: formatter.format(order.dateRequestShipping),
-              ),
+
               DataGridCell<String>(
                 columnName: 'vat',
                 value: '${order.vat ?? 0}%',
@@ -102,7 +103,6 @@ class OrderDataSource extends DataGridSource {
                 columnName: 'teBien',
                 value: order.infoProduction?.teBien ?? '',
               ),
-
               DataGridCell<String>(
                 columnName: 'totalPrice',
                 value: Order.formatCurrency(order.totalPrice),
@@ -148,6 +148,10 @@ class OrderDataSource extends DataGridSource {
               DataGridCell<bool>(
                 columnName: 'dongGhim2Manh',
                 value: order.box?.dongGhim2Manh ?? false,
+              ),
+              DataGridCell<bool>(
+                columnName: 'chongTham',
+                value: order.box?.chongTham ?? false,
               ),
               DataGridCell<String>(
                 columnName: 'dongGoi',

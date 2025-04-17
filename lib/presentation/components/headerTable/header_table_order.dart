@@ -6,6 +6,10 @@ List<GridColumn> buildCommonColumns() {
     //order
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
     GridColumn(columnName: 'dayReceiveOrder', label: formatColumn('Ngày Nhận')),
+    GridColumn(
+      columnName: 'dateRequestShipping',
+      label: formatColumn("Ngày YC Giao"),
+    ),
     GridColumn(columnName: 'customerName', label: formatColumn("Tên KH")),
     GridColumn(columnName: 'companyName', label: formatColumn("Tên Cty")),
     GridColumn(columnName: 'typeProduct', label: formatColumn("Loại SP")),
@@ -26,10 +30,6 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'acreage', label: formatColumn("Diện Tích")),
     GridColumn(columnName: 'price', label: formatColumn("Đơn Giá")),
     GridColumn(columnName: 'pricePaper', label: formatColumn("Giá Tấm")),
-    GridColumn(
-      columnName: 'dateRequestShipping',
-      label: formatColumn("Ngày YC Giao"),
-    ),
     GridColumn(columnName: 'vat', label: formatColumn("VAT")),
 
     //InfoProduction
@@ -56,7 +56,8 @@ List<GridColumn> buildCommonColumns() {
       columnName: 'dongGhim2Manh',
       label: formatColumn("Đóng Ghim 2 Mảnh"),
     ),
-    GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Hói")),
+    GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
+    GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
     GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
     GridColumn(columnName: 'khac_1', label: formatColumn("Khác 1")),
     GridColumn(columnName: 'khac_2', label: formatColumn("Khác 2")),

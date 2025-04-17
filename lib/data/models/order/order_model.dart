@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 
 class Order {
   final String orderId;
-  final DateTime dayReceiveOrder;
   final String? QC_box;
   final String? day;
   final String? middle_1;
@@ -23,13 +22,14 @@ class Order {
   final String dvt;
   final double price;
   final double pricePaper;
-  final DateTime dateRequestShipping;
   final double totalPrice;
   final int? vat;
-
+  final DateTime dayReceiveOrder;
+  final DateTime dateRequestShipping;
   final String customerId;
-  final Customer? customer;
   final String productId;
+
+  final Customer? customer;
   final Product? product;
   final Box? box;
   final InfoProduction? infoProduction;

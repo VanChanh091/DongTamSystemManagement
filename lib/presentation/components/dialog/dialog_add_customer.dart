@@ -33,8 +33,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
     super.initState();
     if (widget.customer != null) {
       _idController.text = widget.customer!.customerId;
-      _nameController.text = widget.customer!.customerName ?? "";
-      _companyNameController.text = widget.customer!.companyName ?? "";
+      _nameController.text = widget.customer!.customerName;
+      _companyNameController.text = widget.customer!.companyName;
       _companyAddressController.text = widget.customer!.companyAddress;
       _shippingAddressController.text = widget.customer!.shippingAddress;
       _mstController.text = widget.customer!.mst;

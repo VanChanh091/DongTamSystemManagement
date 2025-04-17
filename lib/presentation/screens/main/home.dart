@@ -142,8 +142,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              // Đăng xuất (Đẩy xuống cuối)
-              Divider(),
+              // Đăng xuất
+              Divider(), //Đẩy xuống cuối
               ListTile(
                 leading: Icon(Icons.logout, color: Colors.white),
                 title: Text(

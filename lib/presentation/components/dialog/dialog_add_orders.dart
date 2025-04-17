@@ -58,7 +58,7 @@ class _OrderDialogState extends State<OrderDialog> {
   final priceController = TextEditingController();
   final dateShippingController = TextEditingController();
   final vatController = TextEditingController();
-  late String typeProduct = "Thùng/hộp";
+  // late String typeProduct = "Thùng/hộp";
   late String typeDVT = "Kg";
   late String typeTeBien = "Cấn lằn";
   DateTime? dayReceive;
@@ -95,10 +95,9 @@ class _OrderDialogState extends State<OrderDialog> {
   ValueNotifier<bool> beChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> dan1ManhChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> dan2ManhChecked = ValueNotifier<bool>(false);
-  ValueNotifier<bool> dongGhimChecked = ValueNotifier<bool>(false);
-  ValueNotifier<bool> chongTham = ValueNotifier<bool>(false);
-  ValueNotifier<bool> dongGhim1Manh = ValueNotifier<bool>(false);
-  ValueNotifier<bool> dongGhim2Manh = ValueNotifier<bool>(false);
+  ValueNotifier<bool> chongThamChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> dongGhim1ManhChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> dongGhim2ManhChecked = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -119,7 +118,7 @@ class _OrderDialogState extends State<OrderDialog> {
   void orderInitState() {
     orderIdController.text = widget.order!.orderId;
     customerIdController.text = widget.order!.customerId;
-    typeDVT = widget.order?.dvt ?? "Kg";
+    productIdController.text = widget.order!.productId;
     qcBoxController.text = widget.order!.QC_box.toString();
     dayController.text = widget.order!.day.toString();
     middle_1Controller.text = widget.order!.middle_1.toString();
@@ -132,11 +131,13 @@ class _OrderDialogState extends State<OrderDialog> {
     lengthController.text = widget.order!.lengthPaper.toStringAsFixed(1);
     sizeController.text = widget.order!.paperSize.toStringAsFixed(1);
     quantityController.text = widget.order!.quantity.toString();
+    typeDVT = widget.order?.dvt ?? "Kg";
     priceController.text = widget.order!.price.toString();
     vatController.text = widget.order!.vat.toString();
+
     dayReceive = widget.order!.dayReceiveOrder;
-    dayReceiveController.text = DateFormat('dd/MM/yyyy').format(dayReceive!);
     dateShipping = widget.order!.dateRequestShipping;
+    dayReceiveController.text = DateFormat('dd/MM/yyyy').format(dayReceive!);
     dateShippingController.text = DateFormat(
       'dd/MM/yyyy',
     ).format(dateShipping!);
@@ -167,7 +168,7 @@ class _OrderDialogState extends State<OrderDialog> {
         widget.order!.infoProduction!.instructSpecial.toString();
     numChildController.text =
         widget.order!.infoProduction!.numberChild.toString();
-    typeTeBien = widget.order!.infoProduction!.teBien?.trim() ?? "";
+    typeTeBien = widget.order!.infoProduction!.teBien ?? "Cấn lằn";
   }
 
   void boxInitState() {
@@ -183,6 +184,17 @@ class _OrderDialogState extends State<OrderDialog> {
     dan2ManhChecked = ValueNotifier<bool>(
       widget.order!.box!.dan_2_Manh ?? false,
     );
+    dongGhim1ManhChecked = ValueNotifier<bool>(
+      widget.order!.box!.dongGhim1Manh ?? false,
+    );
+    dongGhim2ManhChecked = ValueNotifier<bool>(
+      widget.order!.box!.dongGhim2Manh ?? false,
+    );
+    chongThamChecked = ValueNotifier<bool>(
+      widget.order!.box!.chongTham ?? false,
+    );
+    dongGoiController.text = widget.order!.box!.dongGoi ?? "";
+    maKhuonController.text = widget.order!.box!.maKhuon ?? "";
     khac_1Controller.text = widget.order!.box!.khac_1 ?? "";
     khac_2Controller.text = widget.order!.box!.khac_2 ?? "";
   }
@@ -217,6 +229,9 @@ class _OrderDialogState extends State<OrderDialog> {
     super.dispose();
     orderIdController.dispose();
     customerIdController.dispose();
+    productIdController.dispose();
+    dayReceiveController.dispose();
+    dateShippingController.dispose();
     qcBoxController.dispose();
     dayController.dispose();
     middle_1Controller.dispose();
@@ -253,7 +268,11 @@ class _OrderDialogState extends State<OrderDialog> {
     beChecked = ValueNotifier<bool>(false);
     dan1ManhChecked = ValueNotifier<bool>(false);
     dan2ManhChecked = ValueNotifier<bool>(false);
-    dongGhimChecked = ValueNotifier<bool>(false);
+    chongThamChecked = ValueNotifier<bool>(false);
+    dongGhim1ManhChecked = ValueNotifier<bool>(false);
+    dongGhim2ManhChecked = ValueNotifier<bool>(false);
+    dongGoiController.dispose();
+    maKhuonController.dispose();
     khac_1Controller.dispose();
     khac_2Controller.dispose();
   }
@@ -307,6 +326,11 @@ class _OrderDialogState extends State<OrderDialog> {
       be: beChecked.value,
       dan_1_Manh: dan1ManhChecked.value,
       dan_2_Manh: dan2ManhChecked.value,
+      dongGhim1Manh: dongGhim1ManhChecked.value,
+      dongGhim2Manh: dongGhim2ManhChecked.value,
+      chongTham: chongThamChecked.value,
+      dongGoi: dongGoiController.text,
+      maKhuon: maKhuonController.text,
       khac_1: khac_1Controller.text,
       khac_2: khac_2Controller.text,
     );
@@ -371,6 +395,83 @@ class _OrderDialogState extends State<OrderDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.order != null;
 
+    final List<Map<String, dynamic>> boxes = [
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "In mặt trước",
+              inMatTruocController,
+              Symbols.print,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "In mặt sau",
+              inMatSauController,
+              Symbols.print,
+            ),
+        'checkbox1': () => ValidationOrder.checkboxForBox("Xả", xaChecked),
+        'checkbox2':
+            () => ValidationOrder.checkboxForBox("Cán màng", canMangChecked),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Đóng gói",
+              dongGoiController,
+              Symbols.box,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Mã Khuôn",
+              maKhuonController,
+              Symbols.box,
+            ),
+        'checkbox1': () => ValidationOrder.checkboxForBox("Bế", beChecked),
+        'checkbox2':
+            () => ValidationOrder.checkboxForBox("Dán 1 mảnh", dan1ManhChecked),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Khác 1",
+              khac_1Controller,
+              Symbols.chat_bubble,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Khác 2",
+              khac_2Controller,
+              Symbols.chat_bubble,
+            ),
+        'checkbox1':
+            () => ValidationOrder.checkboxForBox("Cắt khe", catKheChecked),
+        'checkbox2':
+            () => ValidationOrder.checkboxForBox("Dán 2 mảnh", dan2ManhChecked),
+      },
+      {
+        'left': SizedBox(), // ô trống
+        'right': SizedBox(),
+        'checkbox1':
+            () =>
+                ValidationOrder.checkboxForBox("Chống thấm", chongThamChecked),
+        'checkbox2':
+            () => ValidationOrder.checkboxForBox(
+              "Đóng ghim 1 mảnh",
+              dongGhim1ManhChecked,
+            ),
+      },
+      {
+        'left': SizedBox(),
+        'right': SizedBox(),
+        'checkbox1': SizedBox(),
+        'checkbox2':
+            () => ValidationOrder.checkboxForBox(
+              "Đóng ghim 2 mảnh",
+              dongGhim2ManhChecked,
+            ),
+      },
+    ];
+
     return StatefulBuilder(
       builder: (context, state) {
         return AlertDialog(
@@ -407,395 +508,390 @@ class _OrderDialogState extends State<OrderDialog> {
                         color: Color(0xffF2E873),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Expanded(
-                        child: Column(
-                          children: [
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Mã Đơn Hàng",
-                                    orderIdController,
-                                    Symbols.orders,
-                                    readOnly: isEdit,
-                                  ),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Mã Đơn Hàng",
+                                  orderIdController,
+                                  Symbols.orders,
+                                  readOnly: isEdit,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: DropdownButtonFormField<String>(
-                                    value:
-                                        itemsTypeProduct.contains(typeProduct)
-                                            ? typeProduct
-                                            : null,
-                                    items:
-                                        itemsTypeProduct.map((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Row(
-                                              children: [
-                                                SizedBox(width: 10),
-                                                Text(
-                                                  value,
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }).toList(),
-                                    onChanged: (value) {
+                              // SizedBox(
+                              //   width: 290,
+                              //   child: DropdownButtonFormField<String>(
+                              //     value:
+                              //         itemsTypeProduct.contains(typeProduct)
+                              //             ? typeProduct
+                              //             : null,
+                              //     items:
+                              //         itemsTypeProduct.map((String value) {
+                              //           return DropdownMenuItem<String>(
+                              //             value: value,
+                              //             child: Row(
+                              //               children: [
+                              //                 SizedBox(width: 10),
+                              //                 Text(
+                              //                   value,
+                              //                   style: TextStyle(
+                              //                     fontSize: 16,
+                              //                     fontWeight: FontWeight.w500,
+                              //                   ),
+                              //                 ),
+                              //               ],
+                              //             ),
+                              //           );
+                              //         }).toList(),
+                              //     onChanged: (value) {
+                              //       setState(() {
+                              //         typeProduct = value!;
+                              //       });
+                              //     },
+                              //     decoration: InputDecoration(
+                              //       filled: true,
+                              //       fillColor: Colors.white,
+                              //       border: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(10),
+                              //         borderSide: BorderSide(
+                              //           color: Colors.grey,
+                              //         ),
+                              //       ),
+                              //       contentPadding: EdgeInsets.symmetric(
+                              //         horizontal: 12,
+                              //         vertical: 8,
+                              //       ),
+                              //     ),
+                              //     hint: Text(
+                              //       "Loại sản phẩm",
+                              //       style: TextStyle(color: Colors.black),
+                              //     ),
+                              //     icon: Icon(
+                              //       Icons.arrow_drop_down,
+                              //       color: Colors.black,
+                              //     ),
+                              //     style: TextStyle(
+                              //       fontSize: 16,
+                              //       color: Colors.black,
+                              //     ),
+                              //     dropdownColor: Colors.white,
+                              //     borderRadius: BorderRadius.circular(12),
+                              //   ),
+                              // ),
+
+                              // SizedBox(
+                              //   width: 290,
+                              //   child: ValidationOrder.validateInput(
+                              //     "Sóng",
+                              //     songController,
+                              //     Symbols.airwave,
+                              //   ),
+                              // ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Ngày nhận đơn hàng",
+                                  dayReceiveController,
+                                  Symbols.calendar_month,
+                                  readOnly: true,
+                                  onTap: () async {
+                                    DateTime? pickedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: dayReceive ?? DateTime.now(),
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (pickedDate != null) {
                                       setState(() {
-                                        typeProduct = value!;
+                                        dayReceive = pickedDate;
+                                        dayReceiveController.text = DateFormat(
+                                          'dd/MM/yyyy',
+                                        ).format(pickedDate);
                                       });
-                                    },
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
-                                      ),
-                                    ),
-                                    hint: Text(
-                                      "Loại sản phẩm",
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                    icon: Icon(
-                                      Icons.arrow_drop_down,
-                                      color: Colors.black,
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black,
-                                    ),
-                                    dropdownColor: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                                    }
+                                  },
                                 ),
+                              ),
+                            ],
+                          ),
 
-                                // SizedBox(
-                                //   width: 290,
-                                //   child: ValidationOrder.validateInput(
-                                //     "Sóng",
-                                //     songController,
-                                //     Symbols.airwave,
-                                //   ),
-                                // ),
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Ngày nhận đơn hàng",
-                                    dayReceiveController,
-                                    Symbols.calendar_month,
-                                    readOnly: true,
-                                    onTap: () async {
-                                      DateTime? pickedDate =
-                                          await showDatePicker(
-                                            context: context,
-                                            initialDate:
-                                                dayReceive ?? DateTime.now(),
-                                            firstDate: DateTime(2000),
-                                            lastDate: DateTime(2100),
-                                          );
-                                      if (pickedDate != null) {
-                                        setState(() {
-                                          dayReceive = pickedDate;
-                                          dayReceiveController
-                                              .text = DateFormat(
-                                            'dd/MM/yyyy',
-                                          ).format(pickedDate);
-                                        });
-                                      }
-                                    },
-                                  ),
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Mã Khách Hàng",
+                                  customerIdController,
+                                  Symbols.badge,
                                 ),
-                              ],
-                            ),
+                              ),
 
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Mã Khách Hàng",
-                                    customerIdController,
-                                    Symbols.badge,
-                                  ),
+                              // SizedBox(
+                              //   width: 290,
+                              //   child: ValidationOrder.validateInput(
+                              //     "Tên sản phẩm",
+                              //     nameSpController,
+                              //     Symbols.box,
+                              //   ),
+                              // ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "QC Thùng",
+                                  qcBoxController,
+                                  Symbols.deployed_code,
                                 ),
+                              ),
 
-                                // SizedBox(
-                                //   width: 290,
-                                //   child: ValidationOrder.validateInput(
-                                //     "Tên sản phẩm",
-                                //     nameSpController,
-                                //     Symbols.box,
-                                //   ),
-                                // ),
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "QC Thùng",
-                                    qcBoxController,
-                                    Symbols.deployed_code,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Ngày yêu cầu giao",
-                                    dateShippingController,
-                                    Symbols.calendar_month,
-                                    readOnly: true,
-                                    onTap: () async {
-                                      DateTime? pickedDate =
-                                          await showDatePicker(
-                                            context: context,
-                                            initialDate:
-                                                dateShipping ?? DateTime.now(),
-                                            firstDate: DateTime(2000),
-                                            lastDate: DateTime(2100),
-                                          );
-                                      if (pickedDate != null) {
-                                        setState(() {
-                                          dateShipping = pickedDate;
-                                          dateShippingController
-                                              .text = DateFormat(
-                                            'dd/MM/yyyy',
-                                          ).format(pickedDate);
-                                        });
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Đáy (g)",
-                                    dayController,
-                                    Symbols.vertical_align_bottom,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Giữa 1 (g)",
-                                    middle_1Controller,
-                                    Symbols.vertical_align_center,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Giữa 2 (g)",
-                                    middle_2Controller,
-                                    Symbols.vertical_align_center,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Mặt (g)",
-                                    matController,
-                                    Symbols.vertical_align_top,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Sóng E (g)",
-                                    songEController,
-                                    Symbols.airwave,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Sóng B (g)",
-                                    songBController,
-                                    Symbols.airwave,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Sóng C (g)",
-                                    songCController,
-                                    Symbols.airwave,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Sóng E2 (g)",
-                                    songE2Controller,
-                                    Symbols.airwave,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Cắt (cm)",
-                                    lengthController,
-                                    Symbols.vertical_distribute,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Số lượng",
-                                    quantityController,
-                                    Symbols.filter_9_plus,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Đơn giá",
-                                    priceController,
-                                    Symbols.price_change,
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: DropdownButtonFormField<String>(
-                                    value:
-                                        itemsDvt.contains(typeDVT)
-                                            ? typeDVT
-                                            : null,
-                                    items:
-                                        itemsDvt.map((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Row(
-                                              children: [
-                                                SizedBox(width: 10),
-                                                Text(
-                                                  value,
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }).toList(),
-                                    onChanged: (value) {
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Ngày yêu cầu giao",
+                                  dateShippingController,
+                                  Symbols.calendar_month,
+                                  readOnly: true,
+                                  onTap: () async {
+                                    DateTime? pickedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate:
+                                          dateShipping ?? DateTime.now(),
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (pickedDate != null) {
                                       setState(() {
-                                        typeDVT = value!;
+                                        dateShipping = pickedDate;
+                                        dateShippingController
+                                            .text = DateFormat(
+                                          'dd/MM/yyyy',
+                                        ).format(pickedDate);
                                       });
-                                    },
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey,
-                                        ),
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Đáy (g)",
+                                  dayController,
+                                  Symbols.vertical_align_bottom,
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Giữa 1 (g)",
+                                  middle_1Controller,
+                                  Symbols.vertical_align_center,
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Giữa 2 (g)",
+                                  middle_2Controller,
+                                  Symbols.vertical_align_center,
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Mặt (g)",
+                                  matController,
+                                  Symbols.vertical_align_top,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Sóng E (g)",
+                                  songEController,
+                                  Symbols.airwave,
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Sóng B (g)",
+                                  songBController,
+                                  Symbols.airwave,
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Sóng C (g)",
+                                  songCController,
+                                  Symbols.airwave,
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Sóng E2 (g)",
+                                  songE2Controller,
+                                  Symbols.airwave,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Cắt (cm)",
+                                  lengthController,
+                                  Symbols.vertical_distribute,
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Số lượng",
+                                  quantityController,
+                                  Symbols.filter_9_plus,
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Đơn giá",
+                                  priceController,
+                                  Symbols.price_change,
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 290,
+                                child: DropdownButtonFormField<String>(
+                                  value:
+                                      itemsDvt.contains(typeDVT)
+                                          ? typeDVT
+                                          : null,
+                                  items:
+                                      itemsDvt.map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 10),
+                                              Text(
+                                                value,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      typeDVT = value!;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey,
                                       ),
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
-                                      ),
                                     ),
-                                    hint: Text(
-                                      "Đơn vị tính",
-                                      style: TextStyle(color: Colors.black),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
                                     ),
-                                    icon: Icon(
-                                      Icons.arrow_drop_down,
-                                      color: Colors.black,
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black,
-                                    ),
-                                    dropdownColor: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Khổ  (cm)",
-                                    sizeController,
-                                    Symbols.horizontal_distribute,
+                                  hint: Text(
+                                    "Đơn vị tính",
+                                    style: TextStyle(color: Colors.black),
                                   ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "VAT",
-                                    vatController,
-                                    Symbols.percent,
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black,
                                   ),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                  dropdownColor: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
+                              ),
+                            ],
+                          ),
 
-                                SizedBox(width: 290),
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Khổ  (cm)",
+                                  sizeController,
+                                  Symbols.horizontal_distribute,
+                                ),
+                              ),
 
-                                SizedBox(width: 290),
-                              ],
-                            ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "VAT",
+                                  vatController,
+                                  Symbols.percent,
+                                ),
+                              ),
 
-                            SizedBox(height: 15),
-                          ],
-                        ),
+                              SizedBox(width: 290),
+
+                              SizedBox(width: 290),
+                            ],
+                          ),
+
+                          SizedBox(height: 15),
+                        ],
                       ),
                     ),
+
                     SizedBox(height: 20),
 
                     //infoProduction
@@ -812,217 +908,215 @@ class _OrderDialogState extends State<OrderDialog> {
                         color: Color(0xffF2E873),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Expanded(
-                        child: Column(
-                          children: [
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Đáy thay thế (g)",
-                                    dayControllerReplace,
-                                    Symbols.vertical_align_bottom,
-                                  ),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Đáy thay thế (g)",
+                                  dayControllerReplace,
+                                  Symbols.vertical_align_bottom,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Giữa 1 thay thế (g)",
-                                    middle_1ControllerReplace,
-                                    Symbols.vertical_align_center,
-                                  ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Giữa 1 thay thế (g)",
+                                  middle_1ControllerReplace,
+                                  Symbols.vertical_align_center,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Giữa 2 thay thế (g)",
-                                    middle_2ControllerReplace,
-                                    Symbols.vertical_align_center,
-                                  ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Giữa 2 thay thế (g)",
+                                  middle_2ControllerReplace,
+                                  Symbols.vertical_align_center,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Mặt thay thế (g)",
-                                    matControllerReplace,
-                                    Symbols.vertical_align_top,
-                                  ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Mặt thay thế (g)",
+                                  matControllerReplace,
+                                  Symbols.vertical_align_top,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
+                          ),
 
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Sóng E thay thế (g)",
-                                    songEControllerReplace,
-                                    Symbols.airwave,
-                                  ),
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Sóng E thay thế (g)",
+                                  songEControllerReplace,
+                                  Symbols.airwave,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Sóng B thay thế (g)",
-                                    songBControllerReplace,
-                                    Symbols.airwave,
-                                  ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Sóng B thay thế (g)",
+                                  songBControllerReplace,
+                                  Symbols.airwave,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Sóng C thay thế (g)",
-                                    songCControllerReplace,
-                                    Symbols.airwave,
-                                  ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Sóng C thay thế (g)",
+                                  songCControllerReplace,
+                                  Symbols.airwave,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Sóng E2 thay thế (g)",
-                                    songE2ControllerReplace,
-                                    Symbols.airwave,
-                                  ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Sóng E2 thay thế (g)",
+                                  songE2ControllerReplace,
+                                  Symbols.airwave,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
+                          ),
 
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Khổ tấm  (cm)",
-                                    sizeInfoController,
-                                    Symbols.horizontal_distribute,
-                                  ),
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Khổ tấm  (cm)",
+                                  sizeInfoController,
+                                  Symbols.horizontal_distribute,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Số lượng",
-                                    quantityInfoController,
-                                    Symbols.filter_9_plus,
-                                  ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Số lượng",
+                                  quantityInfoController,
+                                  Symbols.filter_9_plus,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "HD đặc biệt",
-                                    instructSpecialController,
-                                    Symbols.developer_guide,
-                                  ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "HD đặc biệt",
+                                  instructSpecialController,
+                                  Symbols.developer_guide,
                                 ),
+                              ),
 
-                                SizedBox(width: 290),
-                              ],
-                            ),
+                              SizedBox(width: 290),
+                            ],
+                          ),
 
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Số con",
-                                    numChildController,
-                                    Symbols.counter_5,
-                                  ),
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Số con",
+                                  numChildController,
+                                  Symbols.counter_5,
                                 ),
+                              ),
 
-                                SizedBox(
-                                  width: 290,
-                                  child: DropdownButtonFormField<String>(
-                                    value:
-                                        itemsTeBien.contains(typeTeBien)
-                                            ? typeTeBien
-                                            : null,
-                                    items:
-                                        itemsTeBien.map((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Row(
-                                              children: [
-                                                SizedBox(width: 10),
-                                                Text(
-                                                  value,
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
+                              SizedBox(
+                                width: 290,
+                                child: DropdownButtonFormField<String>(
+                                  value:
+                                      itemsTeBien.contains(typeTeBien)
+                                          ? typeTeBien
+                                          : null,
+                                  items:
+                                      itemsTeBien.map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 10),
+                                              Text(
+                                                value,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
                                                 ),
-                                              ],
-                                            ),
-                                          );
-                                        }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        typeTeBien = value!;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      typeTeBien = value!;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey,
                                       ),
                                     ),
-                                    hint: Text(
-                                      "Tề Biên",
-                                      style: TextStyle(color: Colors.black),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
                                     ),
-                                    icon: Icon(
-                                      Icons.arrow_drop_down,
-                                      color: Colors.black,
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black,
-                                    ),
-                                    dropdownColor: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                ),
-
-                                SizedBox(
-                                  width: 290,
-                                  child: ValidationOrder.validateInput(
-                                    "Công đoạn sau",
-                                    nextStepController,
-                                    Symbols.fast_forward,
+                                  hint: Text(
+                                    "Tề Biên",
+                                    style: TextStyle(color: Colors.black),
                                   ),
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black,
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                  dropdownColor: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
+                              ),
 
-                                SizedBox(width: 290),
-                              ],
-                            ),
-                            SizedBox(height: 15),
-                          ],
-                        ),
+                              SizedBox(
+                                width: 290,
+                                child: ValidationOrder.validateInput(
+                                  "Công đoạn sau",
+                                  nextStepController,
+                                  Symbols.fast_forward,
+                                ),
+                              ),
+
+                              SizedBox(width: 290),
+                            ],
+                          ),
+                          SizedBox(height: 15),
+                        ],
                       ),
                     ),
                     SizedBox(height: 20),
@@ -1041,124 +1135,74 @@ class _OrderDialogState extends State<OrderDialog> {
                         color: Color(0xffF2E873),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Expanded(
-                        child: Column(
-                          children: [
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  width: 400,
-                                  child: Column(
-                                    children: [
-                                      ValidationOrder.validateInput(
-                                        "In mặt trước",
-                                        inMatTruocController,
-                                        Symbols.print,
+                      padding: EdgeInsets.all(12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: Column(
+                              children:
+                                  boxes.map((row) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 15,
                                       ),
-                                      SizedBox(height: 15),
-                                      ValidationOrder.validateInput(
-                                        "In mặt sau",
-                                        inMatSauController,
-                                        Symbols.print,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child:
+                                                row['left'] is Function
+                                                    ? row['left']()
+                                                    : row['left'],
+                                          ),
+                                          SizedBox(width: 30),
+                                          Expanded(
+                                            child:
+                                                row['right'] is Function
+                                                    ? row['right']()
+                                                    : row['right'],
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 400,
-                                  child: Column(
-                                    children: [
-                                      ValidationOrder.validateInput(
-                                        "Khác 1",
-                                        khac_1Controller,
-                                        Symbols.chat_bubble,
-                                      ),
-                                      SizedBox(height: 15),
-                                      ValidationOrder.validateInput(
-                                        "Khác 2",
-                                        khac_2Controller,
-                                        Symbols.chat_bubble,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 185,
-                                  child: Column(
-                                    children: [
-                                      ValidationOrder.checkboxForBox(
-                                        "Cán màng",
-                                        canMangChecked,
-                                      ),
-                                      ValidationOrder.checkboxForBox(
-                                        "Xả",
-                                        xaChecked,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 185,
-                                  child: Column(
-                                    children: [
-                                      ValidationOrder.checkboxForBox(
-                                        "Dán 1 mảnh",
-                                        dan1ManhChecked,
-                                      ),
-                                      ValidationOrder.checkboxForBox(
-                                        "Dán 2 mảnh",
-                                        dan2ManhChecked,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                    );
+                                  }).toList(),
                             ),
+                          ),
 
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(width: 400),
-                                SizedBox(width: 400),
+                          SizedBox(width: 30),
 
-                                SizedBox(
-                                  width: 185,
-                                  child: Column(
-                                    children: [
-                                      ValidationOrder.checkboxForBox(
-                                        "Cắt khe",
-                                        catKheChecked,
+                          Expanded(
+                            flex: 4,
+                            child: Column(
+                              children:
+                                  boxes.map((row) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 15,
                                       ),
-                                      ValidationOrder.checkboxForBox(
-                                        "Bế",
-                                        beChecked,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child:
+                                                row['checkbox1'] is Function
+                                                    ? row['checkbox1']()
+                                                    : row['checkbox1'],
+                                          ),
+                                          SizedBox(width: 20),
+                                          Expanded(
+                                            child:
+                                                row['checkbox2'] is Function
+                                                    ? row['checkbox2']()
+                                                    : row['checkbox2'],
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width: 185,
-                                  child: Column(
-                                    children: [
-                                      ValidationOrder.checkboxForBox(
-                                        "Đóng ghim",
-                                        dongGhimChecked,
-                                      ),
-                                      SizedBox(height: 50),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                    );
+                                  }).toList(),
                             ),
-                            SizedBox(height: 15),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
