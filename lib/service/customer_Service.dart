@@ -28,7 +28,7 @@ class CustomerService {
     try {
       final response = await dioService.get('/api/customer/$customerId');
 
-      final List<dynamic> customersData = response.data['customer'];
+      final List<dynamic> customersData = response.data['data'];
       return customersData
           .map((json) => Customer.fromJson(json))
           .where(

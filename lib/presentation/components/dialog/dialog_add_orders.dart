@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/order/info_production_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/service/customer_Service.dart';
 import 'package:dongtam/service/order_Service.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +26,8 @@ class OrderDialog extends StatefulWidget {
 
 class _OrderDialogState extends State<OrderDialog> {
   final formKey = GlobalKey<FormState>();
+  Timer? _debounce;
+
   final List<String> itemsTypeProduct = [
     'Thùng/hộp',
     "Giấy tấm",
@@ -31,13 +36,7 @@ class _OrderDialogState extends State<OrderDialog> {
     "Giấy kg",
   ];
   final List<String> itemsDvt = ['Kg', 'Cái', 'M2'];
-  final List<String> itemsTeBien = [
-    "Cấn lằn",
-    "Quấn cuồn",
-    "Tề gọn",
-    "Tề biên đẹp",
-    "Tề biên cột",
-  ];
+  final List<String> itemsDaoXa = ["Tề gọn", "Tề biên đẹp", "Tề biên cột"];
 
   //order
   final orderIdController = TextEditingController();
@@ -58,9 +57,12 @@ class _OrderDialogState extends State<OrderDialog> {
   final priceController = TextEditingController();
   final dateShippingController = TextEditingController();
   final vatController = TextEditingController();
-  // late String typeProduct = "Thùng/hộp";
+  final nameSpController = TextEditingController();
+  final typeProduct = TextEditingController();
+  final customerNameController = TextEditingController();
+  final customerCompanyController = TextEditingController();
   late String typeDVT = "Kg";
-  late String typeTeBien = "Cấn lằn";
+  late String typeDaoXa = "Tề gọn";
   DateTime? dayReceive;
   DateTime? dateShipping;
   final customerIdController = TextEditingController();
@@ -79,7 +81,8 @@ class _OrderDialogState extends State<OrderDialog> {
   final quantityInfoController = TextEditingController();
   final numChildController = TextEditingController();
   final instructSpecialController = TextEditingController();
-  final teBienController = TextEditingController();
+  final canLanController = TextEditingController();
+  final daoXaController = TextEditingController();
   final nextStepController = TextEditingController();
 
   //box
@@ -113,6 +116,39 @@ class _OrderDialogState extends State<OrderDialog> {
       addListenerForField();
     }
     addListenerForField();
+
+    //debounce customerId, productId
+    customerIdController.addListener(onCustomerIdChanged);
+  }
+
+  void onCustomerIdChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(Duration(milliseconds: 800), () {
+      getCustomerById(customerIdController.text);
+    });
+  }
+
+  Future<void> getCustomerById(String customerId) async {
+    try {
+      final customers = await CustomerService().getCustomerById(customerId);
+      if (customers.isNotEmpty) {
+        final customer = customers.first;
+        setState(() {
+          customerNameController.text = customer.customerName;
+          customerCompanyController.text = customer.companyName;
+        });
+      } else {
+        setState(() {
+          customerNameController.clear();
+          customerCompanyController.clear();
+        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Không tìm thấy khách hàng')));
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
   }
 
   void orderInitState() {
@@ -168,7 +204,7 @@ class _OrderDialogState extends State<OrderDialog> {
         widget.order!.infoProduction!.instructSpecial.toString();
     numChildController.text =
         widget.order!.infoProduction!.numberChild.toString();
-    typeTeBien = widget.order!.infoProduction!.teBien ?? "Cấn lằn";
+    typeDaoXa = widget.order!.infoProduction!.teBien ?? "Tề gọn";
   }
 
   void boxInitState() {
@@ -232,7 +268,11 @@ class _OrderDialogState extends State<OrderDialog> {
     productIdController.dispose();
     dayReceiveController.dispose();
     dateShippingController.dispose();
+    customerNameController.dispose();
+    customerCompanyController.dispose();
+    typeProduct.dispose();
     qcBoxController.dispose();
+    nameSpController.dispose();
     dayController.dispose();
     middle_1Controller.dispose();
     middle_2Controller.dispose();
@@ -258,7 +298,7 @@ class _OrderDialogState extends State<OrderDialog> {
     quantityInfoController.dispose();
     instructSpecialController.dispose();
     numChildController.dispose();
-    teBienController.dispose();
+    canLanController.dispose();
     nextStepController.dispose();
     inMatTruocController.dispose();
     inMatSauController.dispose();
@@ -275,6 +315,8 @@ class _OrderDialogState extends State<OrderDialog> {
     maKhuonController.dispose();
     khac_1Controller.dispose();
     khac_2Controller.dispose();
+    customerIdController.removeListener(onCustomerIdChanged);
+    _debounce?.cancel();
   }
 
   void submit() async {
@@ -314,7 +356,7 @@ class _OrderDialogState extends State<OrderDialog> {
       quantity: int.tryParse(quantityInfoController.text) ?? 0,
       instructSpecial: instructSpecialController.text,
       numberChild: int.tryParse(numChildController.text) ?? 0,
-      teBien: typeTeBien,
+      teBien: typeDaoXa,
     );
 
     final newBox = Box(
@@ -395,6 +437,304 @@ class _OrderDialogState extends State<OrderDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.order != null;
 
+    final List<Map<String, dynamic>> orders = [
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Mã Đơn Hàng",
+              orderIdController,
+              Symbols.orders,
+              readOnly: isEdit,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Loại sản phẩm",
+              typeProduct,
+              Symbols.comment,
+              readOnly: true,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Mã Sản phẩm",
+              productIdController,
+              Symbols.box,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Ngày nhận đơn hàng",
+              dayReceiveController,
+              Symbols.calendar_month,
+              readOnly: true,
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: dayReceive ?? DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+                if (pickedDate != null) {
+                  setState(() {
+                    dayReceive = pickedDate;
+                    dayReceiveController.text = DateFormat(
+                      'dd/MM/yyyy',
+                    ).format(pickedDate);
+                  });
+                }
+              },
+            ),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Mã Khách Hàng",
+              customerIdController,
+              Symbols.badge,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Tên sản phẩm",
+              nameSpController,
+              Symbols.box,
+              readOnly: true,
+            ),
+
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "QC Thùng",
+              qcBoxController,
+              Symbols.deployed_code,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Ngày yêu cầu giao",
+              dateShippingController,
+              Symbols.calendar_month,
+              readOnly: true,
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: dateShipping ?? DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+                if (pickedDate != null) {
+                  setState(() {
+                    dateShipping = pickedDate;
+                    dateShippingController.text = DateFormat(
+                      'dd/MM/yyyy',
+                    ).format(pickedDate);
+                  });
+                }
+              },
+            ),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Đáy (g)",
+              dayController,
+              Symbols.vertical_align_bottom,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Giữa 1 (g)",
+              middle_1Controller,
+              Symbols.vertical_align_center,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Giữa 2 (g)",
+              middle_2Controller,
+              Symbols.vertical_align_center,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Mặt (g)",
+              matController,
+              Symbols.vertical_align_top,
+            ),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Sóng E (g)",
+              songEController,
+              Symbols.airwave,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Sóng B (g)",
+              songBController,
+              Symbols.airwave,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Sóng C (g)",
+              songCController,
+              Symbols.airwave,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Sóng E2 (g)",
+              songE2Controller,
+              Symbols.airwave,
+            ),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Cắt (cm)",
+              lengthController,
+              Symbols.vertical_distribute,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Số lượng",
+              quantityController,
+              Symbols.filter_9_plus,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Đơn giá",
+              priceController,
+              Symbols.price_change,
+            ),
+        'right':
+            () => ValidationOrder.dropdownForTypes(itemsDvt, typeDVT, (value) {
+              setState(() {
+                typeDVT = value!;
+              });
+            }),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Khổ  (cm)",
+              sizeController,
+              Symbols.horizontal_distribute,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "VAT",
+              vatController,
+              Symbols.percent,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Tên KH",
+              customerNameController,
+              Symbols.person,
+              readOnly: true,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Tên công ty KH",
+              customerCompanyController,
+              Symbols.business,
+              readOnly: true,
+            ),
+      },
+    ];
+
+    final List<Map<String, dynamic>> infoProduction = [
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Đáy thay thế (g)",
+              dayControllerReplace,
+              Symbols.vertical_align_bottom,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Giữa 1 thay thế (g)",
+              middle_1ControllerReplace,
+              Symbols.vertical_align_center,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Giữa 2 thay thế (g)",
+              middle_2ControllerReplace,
+              Symbols.vertical_align_center,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Mặt thay thế (g)",
+              matControllerReplace,
+              Symbols.vertical_align_top,
+            ),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Sóng E thay thế (g)",
+              songEControllerReplace,
+              Symbols.airwave,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Sóng B thay thế (g)",
+              songBControllerReplace,
+              Symbols.airwave,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Sóng C thay thế (g)",
+              songCControllerReplace,
+              Symbols.airwave,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Sóng E2 thay thế (g)",
+              songE2ControllerReplace,
+              Symbols.airwave,
+            ),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Khổ tấm  (cm)",
+              sizeInfoController,
+              Symbols.horizontal_distribute,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Số lượng",
+              quantityInfoController,
+              Symbols.filter_9_plus,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "HD đặc biệt",
+              instructSpecialController,
+              Symbols.developer_guide,
+            ),
+        'right': () => SizedBox(),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
+              "Số con",
+              numChildController,
+              Symbols.counter_5,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Cấn lằn",
+              canLanController,
+              Symbols.grid_goldenratio,
+            ),
+        'middle_2':
+            () => ValidationOrder.dropdownForTypes(itemsDaoXa, typeDaoXa, (
+              value,
+            ) {
+              setState(() {
+                typeDaoXa = value!;
+              });
+            }),
+        'right': () => SizedBox(),
+      },
+    ];
+
     final List<Map<String, dynamic>> boxes = [
       {
         'left':
@@ -449,7 +789,7 @@ class _OrderDialogState extends State<OrderDialog> {
             () => ValidationOrder.checkboxForBox("Dán 2 mảnh", dan2ManhChecked),
       },
       {
-        'left': SizedBox(), // ô trống
+        'left': SizedBox(), // null box
         'right': SizedBox(),
         'checkbox1':
             () =>
@@ -508,387 +848,45 @@ class _OrderDialogState extends State<OrderDialog> {
                         color: Color(0xffF2E873),
                         borderRadius: BorderRadius.circular(10),
                       ),
+                      padding: EdgeInsets.all(15),
                       child: Column(
-                        children: [
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Mã Đơn Hàng",
-                                  orderIdController,
-                                  Symbols.orders,
-                                  readOnly: isEdit,
-                                ),
-                              ),
-
-                              // SizedBox(
-                              //   width: 290,
-                              //   child: DropdownButtonFormField<String>(
-                              //     value:
-                              //         itemsTypeProduct.contains(typeProduct)
-                              //             ? typeProduct
-                              //             : null,
-                              //     items:
-                              //         itemsTypeProduct.map((String value) {
-                              //           return DropdownMenuItem<String>(
-                              //             value: value,
-                              //             child: Row(
-                              //               children: [
-                              //                 SizedBox(width: 10),
-                              //                 Text(
-                              //                   value,
-                              //                   style: TextStyle(
-                              //                     fontSize: 16,
-                              //                     fontWeight: FontWeight.w500,
-                              //                   ),
-                              //                 ),
-                              //               ],
-                              //             ),
-                              //           );
-                              //         }).toList(),
-                              //     onChanged: (value) {
-                              //       setState(() {
-                              //         typeProduct = value!;
-                              //       });
-                              //     },
-                              //     decoration: InputDecoration(
-                              //       filled: true,
-                              //       fillColor: Colors.white,
-                              //       border: OutlineInputBorder(
-                              //         borderRadius: BorderRadius.circular(10),
-                              //         borderSide: BorderSide(
-                              //           color: Colors.grey,
-                              //         ),
-                              //       ),
-                              //       contentPadding: EdgeInsets.symmetric(
-                              //         horizontal: 12,
-                              //         vertical: 8,
-                              //       ),
-                              //     ),
-                              //     hint: Text(
-                              //       "Loại sản phẩm",
-                              //       style: TextStyle(color: Colors.black),
-                              //     ),
-                              //     icon: Icon(
-                              //       Icons.arrow_drop_down,
-                              //       color: Colors.black,
-                              //     ),
-                              //     style: TextStyle(
-                              //       fontSize: 16,
-                              //       color: Colors.black,
-                              //     ),
-                              //     dropdownColor: Colors.white,
-                              //     borderRadius: BorderRadius.circular(12),
-                              //   ),
-                              // ),
-
-                              // SizedBox(
-                              //   width: 290,
-                              //   child: ValidationOrder.validateInput(
-                              //     "Sóng",
-                              //     songController,
-                              //     Symbols.airwave,
-                              //   ),
-                              // ),
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Ngày nhận đơn hàng",
-                                  dayReceiveController,
-                                  Symbols.calendar_month,
-                                  readOnly: true,
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: dayReceive ?? DateTime.now(),
-                                      firstDate: DateTime(2000),
-                                      lastDate: DateTime(2100),
-                                    );
-                                    if (pickedDate != null) {
-                                      setState(() {
-                                        dayReceive = pickedDate;
-                                        dayReceiveController.text = DateFormat(
-                                          'dd/MM/yyyy',
-                                        ).format(pickedDate);
-                                      });
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Mã Khách Hàng",
-                                  customerIdController,
-                                  Symbols.badge,
-                                ),
-                              ),
-
-                              // SizedBox(
-                              //   width: 290,
-                              //   child: ValidationOrder.validateInput(
-                              //     "Tên sản phẩm",
-                              //     nameSpController,
-                              //     Symbols.box,
-                              //   ),
-                              // ),
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "QC Thùng",
-                                  qcBoxController,
-                                  Symbols.deployed_code,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Ngày yêu cầu giao",
-                                  dateShippingController,
-                                  Symbols.calendar_month,
-                                  readOnly: true,
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate:
-                                          dateShipping ?? DateTime.now(),
-                                      firstDate: DateTime(2000),
-                                      lastDate: DateTime(2100),
-                                    );
-                                    if (pickedDate != null) {
-                                      setState(() {
-                                        dateShipping = pickedDate;
-                                        dateShippingController
-                                            .text = DateFormat(
-                                          'dd/MM/yyyy',
-                                        ).format(pickedDate);
-                                      });
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Đáy (g)",
-                                  dayController,
-                                  Symbols.vertical_align_bottom,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Giữa 1 (g)",
-                                  middle_1Controller,
-                                  Symbols.vertical_align_center,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Giữa 2 (g)",
-                                  middle_2Controller,
-                                  Symbols.vertical_align_center,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Mặt (g)",
-                                  matController,
-                                  Symbols.vertical_align_top,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Sóng E (g)",
-                                  songEController,
-                                  Symbols.airwave,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Sóng B (g)",
-                                  songBController,
-                                  Symbols.airwave,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Sóng C (g)",
-                                  songCController,
-                                  Symbols.airwave,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Sóng E2 (g)",
-                                  songE2Controller,
-                                  Symbols.airwave,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Cắt (cm)",
-                                  lengthController,
-                                  Symbols.vertical_distribute,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Số lượng",
-                                  quantityController,
-                                  Symbols.filter_9_plus,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Đơn giá",
-                                  priceController,
-                                  Symbols.price_change,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: DropdownButtonFormField<String>(
-                                  value:
-                                      itemsDvt.contains(typeDVT)
-                                          ? typeDVT
-                                          : null,
-                                  items:
-                                      itemsDvt.map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(width: 10),
-                                              Text(
-                                                value,
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      typeDVT = value!;
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey,
-                                      ),
+                        children:
+                            orders.map((row) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 15),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child:
+                                          row['left'] is Function
+                                              ? row['left']()
+                                              : row['left'],
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['middle_1'] is Function
+                                              ? row['middle_1']()
+                                              : row['middle_1'],
                                     ),
-                                  ),
-                                  hint: Text(
-                                    "Đơn vị tính",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  icon: Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.black,
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black,
-                                  ),
-                                  dropdownColor: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['middle_2'] is Function
+                                              ? row['middle_2']()
+                                              : row['middle_2'],
+                                    ),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['right'] is Function
+                                              ? row['right']()
+                                              : row['right'],
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Khổ  (cm)",
-                                  sizeController,
-                                  Symbols.horizontal_distribute,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "VAT",
-                                  vatController,
-                                  Symbols.percent,
-                                ),
-                              ),
-
-                              SizedBox(width: 290),
-
-                              SizedBox(width: 290),
-                            ],
-                          ),
-
-                          SizedBox(height: 15),
-                        ],
+                              );
+                            }).toList(),
                       ),
                     ),
 
@@ -908,215 +906,45 @@ class _OrderDialogState extends State<OrderDialog> {
                         color: Color(0xffF2E873),
                         borderRadius: BorderRadius.circular(10),
                       ),
+                      padding: EdgeInsets.all(15),
                       child: Column(
-                        children: [
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Đáy thay thế (g)",
-                                  dayControllerReplace,
-                                  Symbols.vertical_align_bottom,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Giữa 1 thay thế (g)",
-                                  middle_1ControllerReplace,
-                                  Symbols.vertical_align_center,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Giữa 2 thay thế (g)",
-                                  middle_2ControllerReplace,
-                                  Symbols.vertical_align_center,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Mặt thay thế (g)",
-                                  matControllerReplace,
-                                  Symbols.vertical_align_top,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Sóng E thay thế (g)",
-                                  songEControllerReplace,
-                                  Symbols.airwave,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Sóng B thay thế (g)",
-                                  songBControllerReplace,
-                                  Symbols.airwave,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Sóng C thay thế (g)",
-                                  songCControllerReplace,
-                                  Symbols.airwave,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Sóng E2 thay thế (g)",
-                                  songE2ControllerReplace,
-                                  Symbols.airwave,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Khổ tấm  (cm)",
-                                  sizeInfoController,
-                                  Symbols.horizontal_distribute,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Số lượng",
-                                  quantityInfoController,
-                                  Symbols.filter_9_plus,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "HD đặc biệt",
-                                  instructSpecialController,
-                                  Symbols.developer_guide,
-                                ),
-                              ),
-
-                              SizedBox(width: 290),
-                            ],
-                          ),
-
-                          SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Số con",
-                                  numChildController,
-                                  Symbols.counter_5,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: DropdownButtonFormField<String>(
-                                  value:
-                                      itemsTeBien.contains(typeTeBien)
-                                          ? typeTeBien
-                                          : null,
-                                  items:
-                                      itemsTeBien.map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(width: 10),
-                                              Text(
-                                                value,
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      typeTeBien = value!;
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey,
-                                      ),
+                        children:
+                            infoProduction.map((row) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 15),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child:
+                                          row['left'] is Function
+                                              ? row['left']()
+                                              : row['left'],
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['middle_1'] is Function
+                                              ? row['middle_1']()
+                                              : row['middle_1'],
                                     ),
-                                  ),
-                                  hint: Text(
-                                    "Tề Biên",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  icon: Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.black,
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black,
-                                  ),
-                                  dropdownColor: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['middle_2'] is Function
+                                              ? row['middle_2']()
+                                              : row['middle_2'],
+                                    ),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['right'] is Function
+                                              ? row['right']()
+                                              : row['right'],
+                                    ),
+                                  ],
                                 ),
-                              ),
-
-                              SizedBox(
-                                width: 290,
-                                child: ValidationOrder.validateInput(
-                                  "Công đoạn sau",
-                                  nextStepController,
-                                  Symbols.fast_forward,
-                                ),
-                              ),
-
-                              SizedBox(width: 290),
-                            ],
-                          ),
-                          SizedBox(height: 15),
-                        ],
+                              );
+                            }).toList(),
                       ),
                     ),
                     SizedBox(height: 20),
