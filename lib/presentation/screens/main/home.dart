@@ -4,9 +4,11 @@ import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/order/order.dart';
 import 'package:dongtam/presentation/screens/main/planning/planing.dart';
+import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:page_transition/page_transition.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,6 +26,7 @@ class _HomePageState extends State<HomePage> {
     DashboardPage(),
     OrderPage(),
     CustomerPage(),
+    ProductPage(),
     PlaningPage(),
   ];
 
@@ -109,6 +112,7 @@ class _HomePageState extends State<HomePage> {
                     _buildDrawerItem(Icons.dashboard, "Dashboard", 0),
                     _buildDrawerItem(Icons.shopping_cart, "Đơn hàng", 1),
                     _buildDrawerItem(Icons.person, "Khách hàng", 2),
+                    _buildDrawerItem(Symbols.box, "Sản phẩm", 3),
 
                     // Expansion Tile
                     Theme(
