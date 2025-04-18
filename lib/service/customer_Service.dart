@@ -52,7 +52,7 @@ class CustomerService {
       return customersData
           .map((json) => Customer.fromJson(json))
           .where(
-            (customer) => customer.customerName!.toLowerCase().contains(
+            (customer) => customer.customerName.toLowerCase().contains(
               customerName.toLowerCase(),
             ),
           )
