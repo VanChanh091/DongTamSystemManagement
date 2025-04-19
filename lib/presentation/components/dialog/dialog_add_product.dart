@@ -1,7 +1,7 @@
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_Service.dart';
+import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ProductDialog extends StatefulWidget {
   final Product? product;
@@ -21,16 +21,24 @@ class _ProductDialogState extends State<ProductDialog> {
   final formKey = GlobalKey<FormState>();
 
   final idController = TextEditingController();
-  final typeProduct = TextEditingController();
+  final typeProductController = TextEditingController();
   final nameProductController = TextEditingController();
   final maKhuonController = TextEditingController();
+  String typeProduct = "Thùng/hộp";
+  final List<String> itemsTypeProduct = [
+    'Thùng/hộp',
+    "Giấy tấm",
+    "Giấy quấn cuồn",
+    "Giấy cuộn",
+    "Giấy kg",
+  ];
 
   @override
   void initState() {
     super.initState();
     if (widget.product != null) {
       idController.text = widget.product!.productId;
-      typeProduct.text = widget.product!.typeProduct;
+      typeProduct = widget.product!.typeProduct;
       nameProductController.text = widget.product!.productName;
       maKhuonController.text = widget.product!.maKhuon;
     }
@@ -40,7 +48,6 @@ class _ProductDialogState extends State<ProductDialog> {
   void dispose() {
     super.dispose();
     idController.dispose();
-    typeProduct.dispose();
     nameProductController.dispose();
     maKhuonController.dispose();
   }
@@ -49,8 +56,8 @@ class _ProductDialogState extends State<ProductDialog> {
     if (!formKey.currentState!.validate()) return;
 
     final newProduct = Product(
-      productId: idController.text,
-      typeProduct: typeProduct.text,
+      productId: idController.text.toUpperCase(),
+      typeProduct: typeProduct,
       productName: nameProductController.text,
       maKhuon: maKhuonController.text,
     );
@@ -104,7 +111,10 @@ class _ProductDialogState extends State<ProductDialog> {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return "Vui lòng nhập $label";
+          return "Không được để trống";
+        }
+        if (label == 'Mã Sản Phẩm' && value.length > 10) {
+          return 'Mã khách hàng chỉ được nhập tối đa 10 ký tự';
         }
         return null;
       },
@@ -125,31 +135,41 @@ class _ProductDialogState extends State<ProductDialog> {
         ),
       ),
       content: Container(
-        width: 700,
-        height: 550,
+        width: 550,
+        height: 400,
         child: SingleChildScrollView(
-          key: formKey,
-          child: Column(
-            children: [
-              SizedBox(height: 15),
-              validateInput(
-                "Mã sản phẩm",
-                idController,
-                Icons.code,
-                readOnly: isEdit,
-              ),
-              SizedBox(height: 15),
-              validateInput("Loại sản phẩm", typeProduct, Icons.category),
-              SizedBox(height: 15),
-              validateInput(
-                "Tên sản phẩm",
-                nameProductController,
-                Icons.production_quantity_limits,
-              ),
-              SizedBox(height: 15),
-              validateInput("Mã khuôn", maKhuonController, Icons.code),
-              SizedBox(height: 15),
-            ],
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                SizedBox(height: 15),
+                validateInput(
+                  "Mã Sản Phẩm",
+                  idController,
+                  Icons.code,
+                  readOnly: isEdit,
+                ),
+                SizedBox(height: 15),
+                ValidationOrder.dropdownForTypes(
+                  itemsTypeProduct,
+                  typeProduct,
+                  (value) {
+                    setState(() {
+                      typeProduct = value!;
+                    });
+                  },
+                ),
+                SizedBox(height: 15),
+                validateInput(
+                  "Tên sản phẩm",
+                  nameProductController,
+                  Icons.production_quantity_limits,
+                ),
+                SizedBox(height: 15),
+                validateInput("Mã khuôn", maKhuonController, Icons.code),
+                SizedBox(height: 15),
+              ],
+            ),
           ),
         ),
       ),

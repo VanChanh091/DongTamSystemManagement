@@ -126,6 +126,23 @@ class _CustomerDialogState extends State<CustomerDialog> {
             (value == null || value.isEmpty)) {
           return 'Vui lòng nhập $label';
         }
+        if (label == 'Mã Khách hàng' && value!.length > 6) {
+          return 'Mã khách hàng chỉ được nhập tối đa 6 ký tự';
+        }
+        if (label == "SDT" && value != null && value.isNotEmpty) {
+          if (!RegExp(r'^\d+$').hasMatch(value)) {
+            return 'Số điện thoại chỉ được chứa chữ số';
+          }
+        }
+        if (label == "MST" && value != null && value.isNotEmpty) {
+          if (!RegExp(r'^\d+$').hasMatch(value)) {
+            return 'Mã số thuế chỉ được chứa chữ số';
+          }
+        }
+        if ((label == 'Mã Khách hàng' || label == "CSKH") &&
+            RegExp(r'\d').hasMatch(value!)) {
+          return '$label không được chứa số';
+        }
         return null;
       },
     );

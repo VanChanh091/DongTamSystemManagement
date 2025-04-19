@@ -1,6 +1,5 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
-import 'package:dongtam/data/models/order/info_production_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:intl/intl.dart';
 
@@ -32,7 +31,6 @@ class Order {
   final Customer? customer;
   final Product? product;
   final Box? box;
-  final InfoProduction? infoProduction;
 
   Order({
     required this.orderId,
@@ -59,7 +57,6 @@ class Order {
     this.vat,
     required this.totalPrice,
     this.customer,
-    this.infoProduction,
     this.box,
     this.product,
   });
@@ -165,10 +162,6 @@ class Order {
       //note
       customer:
           json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
-      infoProduction:
-          json['infoProduction'] != null
-              ? InfoProduction.fromJson(json['infoProduction'])
-              : null,
       box: json['box'] != null ? Box.fromJson(json['box']) : null,
       product:
           json['Product'] != null ? Product.fromJson(json['Product']) : null,
@@ -202,7 +195,6 @@ class Order {
       ).format(dateRequestShipping),
       'vat': vat,
       'totalPrice': totalPrice,
-      'infoProduction': infoProduction?.toJson(),
       'box': box?.toJson(),
     };
   }

@@ -5,6 +5,7 @@ import 'package:dongtam/presentation/sources/order_DataSource.dart';
 import 'package:dongtam/service/order_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class OrderPage extends StatefulWidget {
@@ -283,7 +284,7 @@ class _OrderPageState extends State<OrderPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        icon: Icon(Icons.add, color: Colors.white),
+                        icon: Icon(Symbols.construction, color: Colors.white),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xff78D761),
                           foregroundColor: Colors.white,

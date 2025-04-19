@@ -19,10 +19,6 @@ List<GridColumn> buildCommonColumns() {
       columnName: 'structure',
       label: formatColumn("Kết Cấu Đặt Thùng"),
     ),
-    GridColumn(
-      columnName: 'structureReplace',
-      label: formatColumn("Kết Cấu Thay Thế"),
-    ),
     GridColumn(columnName: 'lengthPaper', label: formatColumn("Cắt")),
     GridColumn(columnName: 'paperSize', label: formatColumn("Khổ")),
     GridColumn(columnName: 'quantity', label: formatColumn("Số Lượng")),
@@ -31,12 +27,6 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'price', label: formatColumn("Đơn Giá")),
     GridColumn(columnName: 'pricePaper', label: formatColumn("Giá Tấm")),
     GridColumn(columnName: 'vat', label: formatColumn("VAT")),
-
-    //InfoProduction
-    GridColumn(columnName: 'paperSizeInfo', label: formatColumn("Khổ TT")),
-    GridColumn(columnName: 'quantityInfo', label: formatColumn("Số lượng TT")),
-    GridColumn(columnName: 'numChild', label: formatColumn("Số Con")),
-    GridColumn(columnName: 'teBien', label: formatColumn("Tề Biên")),
     GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
 
     //Box
@@ -61,7 +51,7 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
     GridColumn(columnName: 'khac_1', label: formatColumn("Khác 1")),
     GridColumn(columnName: 'khac_2', label: formatColumn("Khác 2")),
-    GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
+    // GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
   ];
 }
 

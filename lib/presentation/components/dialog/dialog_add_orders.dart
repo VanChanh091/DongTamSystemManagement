@@ -1,10 +1,9 @@
 import 'dart:async';
-
 import 'package:dongtam/data/models/order/box_model.dart';
-import 'package:dongtam/data/models/order/info_production_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/service/customer_Service.dart';
 import 'package:dongtam/service/order_Service.dart';
+import 'package:dongtam/service/product_Service.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -27,16 +26,9 @@ class OrderDialog extends StatefulWidget {
 class _OrderDialogState extends State<OrderDialog> {
   final formKey = GlobalKey<FormState>();
   Timer? _debounce;
-
-  final List<String> itemsTypeProduct = [
-    'Thùng/hộp',
-    "Giấy tấm",
-    "Giấy quấn cuồn",
-    "Giấy cuộn",
-    "Giấy kg",
-  ];
+  String lastSearchedCustomerId = "";
+  String lastSearchedProductId = "";
   final List<String> itemsDvt = ['Kg', 'Cái', 'M2'];
-  final List<String> itemsDaoXa = ["Tề gọn", "Tề biên đẹp", "Tề biên cột"];
 
   //order
   final orderIdController = TextEditingController();
@@ -53,37 +45,19 @@ class _OrderDialogState extends State<OrderDialog> {
   final lengthController = TextEditingController();
   final sizeController = TextEditingController();
   final quantityController = TextEditingController();
-  final dvtController = TextEditingController();
   final priceController = TextEditingController();
   final dateShippingController = TextEditingController();
   final vatController = TextEditingController();
-  final nameSpController = TextEditingController();
-  final typeProduct = TextEditingController();
-  final customerNameController = TextEditingController();
-  final customerCompanyController = TextEditingController();
+  final dvtController = TextEditingController();
   late String typeDVT = "Kg";
-  late String typeDaoXa = "Tề gọn";
   DateTime? dayReceive;
   DateTime? dateShipping;
   final customerIdController = TextEditingController();
   final productIdController = TextEditingController();
-
-  //info Production
-  final dayControllerReplace = TextEditingController();
-  final middle_1ControllerReplace = TextEditingController();
-  final middle_2ControllerReplace = TextEditingController();
-  final matControllerReplace = TextEditingController();
-  final songEControllerReplace = TextEditingController();
-  final songBControllerReplace = TextEditingController();
-  final songCControllerReplace = TextEditingController();
-  final songE2ControllerReplace = TextEditingController();
-  final sizeInfoController = TextEditingController();
-  final quantityInfoController = TextEditingController();
-  final numChildController = TextEditingController();
-  final instructSpecialController = TextEditingController();
-  final canLanController = TextEditingController();
-  final daoXaController = TextEditingController();
-  final nextStepController = TextEditingController();
+  final nameSpController = TextEditingController();
+  final typeProduct = TextEditingController();
+  final customerNameController = TextEditingController();
+  final customerCompanyController = TextEditingController();
 
   //box
   final inMatTruocController = TextEditingController();
@@ -108,47 +82,14 @@ class _OrderDialogState extends State<OrderDialog> {
     if (widget.order != null) {
       //order
       orderInitState();
-      //info Production
-      infoProductionInitState();
       //box
       boxInitState();
-      //listener
-      addListenerForField();
     }
-    addListenerForField();
+    // addListenerForField();
 
     //debounce customerId, productId
     customerIdController.addListener(onCustomerIdChanged);
-  }
-
-  void onCustomerIdChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(Duration(milliseconds: 800), () {
-      getCustomerById(customerIdController.text);
-    });
-  }
-
-  Future<void> getCustomerById(String customerId) async {
-    try {
-      final customers = await CustomerService().getCustomerById(customerId);
-      if (customers.isNotEmpty) {
-        final customer = customers.first;
-        setState(() {
-          customerNameController.text = customer.customerName;
-          customerCompanyController.text = customer.companyName;
-        });
-      } else {
-        setState(() {
-          customerNameController.clear();
-          customerCompanyController.clear();
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Không tìm thấy khách hàng')));
-      }
-    } catch (e) {
-      print("Error: $e");
-    }
+    productIdController.addListener(onProductIdChanged);
   }
 
   void orderInitState() {
@@ -179,34 +120,6 @@ class _OrderDialogState extends State<OrderDialog> {
     ).format(dateShipping!);
   }
 
-  void infoProductionInitState() {
-    dayControllerReplace.text =
-        widget.order!.infoProduction!.dayReplace.toString();
-    middle_1ControllerReplace.text =
-        widget.order!.infoProduction!.middle_1Replace.toString();
-    middle_2ControllerReplace.text =
-        widget.order!.infoProduction!.middle_2Replace.toString();
-    matControllerReplace.text =
-        widget.order!.infoProduction!.matReplace.toString();
-    songEControllerReplace.text =
-        widget.order!.infoProduction!.songE_Replace.toString();
-    songBControllerReplace.text =
-        widget.order!.infoProduction!.songB_Replace.toString();
-    songCControllerReplace.text =
-        widget.order!.infoProduction!.songC_Replace.toString();
-    songE2ControllerReplace.text =
-        widget.order!.infoProduction!.songE2_Replace.toString();
-    sizeInfoController.text = widget.order!.infoProduction!.sizePaper
-        .toStringAsFixed(1);
-    quantityInfoController.text = widget.order!.infoProduction!.quantity
-        .toStringAsFixed(0);
-    instructSpecialController.text =
-        widget.order!.infoProduction!.instructSpecial.toString();
-    numChildController.text =
-        widget.order!.infoProduction!.numberChild.toString();
-    typeDaoXa = widget.order!.infoProduction!.teBien ?? "Tề gọn";
-  }
-
   void boxInitState() {
     inMatTruocController.text = widget.order!.box!.inMatTruoc.toString();
     inMatSauController.text = widget.order!.box!.inMatSau.toString();
@@ -235,6 +148,96 @@ class _OrderDialogState extends State<OrderDialog> {
     khac_2Controller.text = widget.order!.box!.khac_2 ?? "";
   }
 
+  //debounce customer
+  void onCustomerIdChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    final input = customerIdController.text.trim();
+
+    _debounce = Timer(Duration(milliseconds: 800), () {
+      if (input.isNotEmpty) {
+        lastSearchedCustomerId = input;
+        getCustomerById(input);
+      }
+    });
+  }
+
+  Future<void> getCustomerById(String customerId) async {
+    try {
+      final customers = await CustomerService().getCustomerById(customerId);
+
+      if (customerId != lastSearchedCustomerId) return;
+
+      if (customers.isNotEmpty) {
+        final customer = customers.first;
+        if (mounted) {
+          setState(() {
+            customerNameController.text = customer.customerName;
+            customerCompanyController.text = customer.companyName;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            customerNameController.clear();
+            customerCompanyController.clear();
+          });
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Không tìm thấy khách hàng')));
+        }
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  //debounce product
+  void onProductIdChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    final input = productIdController.text.trim();
+
+    _debounce = Timer(Duration(milliseconds: 800), () {
+      if (input.isNotEmpty) {
+        lastSearchedProductId = input;
+        getProductById(input);
+      }
+    });
+  }
+
+  Future<void> getProductById(String productId) async {
+    try {
+      final products = await ProductService().getProductById(productId);
+
+      if (productId != lastSearchedProductId) return;
+
+      if (products.isNotEmpty) {
+        final product = products.first;
+        if (mounted) {
+          setState(() {
+            typeProduct.text = product.typeProduct;
+            nameSpController.text = product.productName;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            nameSpController.clear();
+            typeProduct.clear();
+          });
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Không tìm thấy sản phẩm')));
+        }
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
   //component
   void listenerForFieldNeed(
     TextEditingController fieldController,
@@ -247,18 +250,18 @@ class _OrderDialogState extends State<OrderDialog> {
     });
   }
 
-  void addListenerForField() {
-    listenerForFieldNeed(dayController, dayControllerReplace);
-    listenerForFieldNeed(middle_1Controller, middle_1ControllerReplace);
-    listenerForFieldNeed(middle_2Controller, middle_2ControllerReplace);
-    listenerForFieldNeed(matController, matControllerReplace);
-    listenerForFieldNeed(songEController, songEControllerReplace);
-    listenerForFieldNeed(songBController, songBControllerReplace);
-    listenerForFieldNeed(songCController, songCControllerReplace);
-    listenerForFieldNeed(songE2Controller, songE2ControllerReplace);
-    listenerForFieldNeed(sizeController, sizeInfoController);
-    listenerForFieldNeed(quantityController, quantityInfoController);
-  }
+  // void addListenerForField() {
+  //   listenerForFieldNeed(dayController, dayControllerReplace);
+  //   listenerForFieldNeed(middle_1Controller, middle_1ControllerReplace);
+  //   listenerForFieldNeed(middle_2Controller, middle_2ControllerReplace);
+  //   listenerForFieldNeed(matController, matControllerReplace);
+  //   listenerForFieldNeed(songEController, songEControllerReplace);
+  //   listenerForFieldNeed(songBController, songBControllerReplace);
+  //   listenerForFieldNeed(songCController, songCControllerReplace);
+  //   listenerForFieldNeed(songE2Controller, songE2ControllerReplace);
+  //   listenerForFieldNeed(sizeController, sizeInfoController);
+  //   listenerForFieldNeed(quantityController, quantityInfoController);
+  // }
 
   @override
   void dispose() {
@@ -281,25 +284,11 @@ class _OrderDialogState extends State<OrderDialog> {
     songBController.dispose();
     songCController.dispose();
     songE2Controller.dispose();
-    dayControllerReplace.dispose();
-    middle_1ControllerReplace.dispose();
-    middle_2ControllerReplace.dispose();
-    matControllerReplace.dispose();
-    songEControllerReplace.dispose();
-    songBControllerReplace.dispose();
-    songCControllerReplace.dispose();
-    songE2ControllerReplace.dispose();
     lengthController.dispose();
     sizeController.dispose();
     quantityController.dispose();
     dvtController.dispose();
     priceController.dispose();
-    sizeInfoController.dispose();
-    quantityInfoController.dispose();
-    instructSpecialController.dispose();
-    numChildController.dispose();
-    canLanController.dispose();
-    nextStepController.dispose();
     inMatTruocController.dispose();
     inMatSauController.dispose();
     canMangChecked = ValueNotifier<bool>(false);
@@ -343,22 +332,6 @@ class _OrderDialogState extends State<OrderDialog> {
           totalPricePaper,
         ).roundToDouble();
 
-    final newInfoProduction = InfoProduction(
-      dayReplace: dayControllerReplace.text,
-      middle_1Replace: middle_1Controller.text,
-      middle_2Replace: middle_2ControllerReplace.text,
-      matReplace: matControllerReplace.text,
-      songE_Replace: songEControllerReplace.text,
-      songB_Replace: songBControllerReplace.text,
-      songC_Replace: songCControllerReplace.text,
-      songE2_Replace: songE2ControllerReplace.text,
-      sizePaper: double.tryParse(sizeInfoController.text) ?? 0.0,
-      quantity: int.tryParse(quantityInfoController.text) ?? 0,
-      instructSpecial: instructSpecialController.text,
-      numberChild: int.tryParse(numChildController.text) ?? 0,
-      teBien: typeDaoXa,
-    );
-
     final newBox = Box(
       inMatTruoc: int.tryParse(inMatTruocController.text) ?? 0,
       inMatSau: int.tryParse(inMatSauController.text) ?? 0,
@@ -401,7 +374,6 @@ class _OrderDialogState extends State<OrderDialog> {
       dateRequestShipping: dateShipping ?? DateTime.now(),
       vat: int.tryParse(vatController.text) ?? 0,
       totalPrice: totalPriceOrder,
-      infoProduction: newInfoProduction,
       box: newBox,
     );
 
@@ -448,16 +420,24 @@ class _OrderDialogState extends State<OrderDialog> {
             ),
         'middle_1':
             () => ValidationOrder.validateInput(
-              "Loại sản phẩm",
-              typeProduct,
-              Symbols.comment,
-              readOnly: true,
+              "Mã Khách Hàng",
+              customerIdController,
+              Symbols.badge,
             ),
+
         'middle_2':
             () => ValidationOrder.validateInput(
-              "Mã Sản phẩm",
-              productIdController,
-              Symbols.box,
+              "Tên KH",
+              customerNameController,
+              Symbols.person,
+              readOnly: true,
+            ),
+        'middle_3':
+            () => ValidationOrder.validateInput(
+              "Tên công ty KH",
+              customerCompanyController,
+              Symbols.business,
+              readOnly: true,
             ),
         'right':
             () => ValidationOrder.validateInput(
@@ -486,23 +466,29 @@ class _OrderDialogState extends State<OrderDialog> {
       {
         'left':
             () => ValidationOrder.validateInput(
-              "Mã Khách Hàng",
-              customerIdController,
-              Symbols.badge,
+              "QC Thùng",
+              qcBoxController,
+              Symbols.deployed_code,
             ),
         'middle_1':
+            () => ValidationOrder.validateInput(
+              "Mã Sản Phẩm",
+              productIdController,
+              Symbols.box,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Loại sản phẩm",
+              typeProduct,
+              Symbols.comment,
+              readOnly: true,
+            ),
+        'middle_3':
             () => ValidationOrder.validateInput(
               "Tên sản phẩm",
               nameSpController,
               Symbols.box,
               readOnly: true,
-            ),
-
-        'middle_2':
-            () => ValidationOrder.validateInput(
-              "QC Thùng",
-              qcBoxController,
-              Symbols.deployed_code,
             ),
         'right':
             () => ValidationOrder.validateInput(
@@ -531,6 +517,39 @@ class _OrderDialogState extends State<OrderDialog> {
       {
         'left':
             () => ValidationOrder.validateInput(
+              "Khổ  (cm)",
+              sizeController,
+              Symbols.horizontal_distribute,
+            ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Cắt (cm)",
+              lengthController,
+              Symbols.vertical_distribute,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Số lượng",
+              quantityController,
+              Symbols.filter_9_plus,
+            ),
+        'middle_3':
+            () => ValidationOrder.validateInput(
+              "Đơn giá",
+              priceController,
+              Symbols.price_change,
+            ),
+
+        'right':
+            () => ValidationOrder.validateInput(
+              "VAT",
+              vatController,
+              Symbols.percent,
+            ),
+      },
+      {
+        'left':
+            () => ValidationOrder.validateInput(
               "Đáy (g)",
               dayController,
               Symbols.vertical_align_bottom,
@@ -547,12 +566,18 @@ class _OrderDialogState extends State<OrderDialog> {
               middle_2Controller,
               Symbols.vertical_align_center,
             ),
-        'right':
+        'middle_3':
             () => ValidationOrder.validateInput(
               "Mặt (g)",
               matController,
               Symbols.vertical_align_top,
             ),
+        'right':
+            () => ValidationOrder.dropdownForTypes(itemsDvt, typeDVT, (value) {
+              setState(() {
+                typeDVT = value!;
+              });
+            }),
       },
       {
         'left':
@@ -573,164 +598,12 @@ class _OrderDialogState extends State<OrderDialog> {
               songCController,
               Symbols.airwave,
             ),
-        'right':
+        'middle_3':
             () => ValidationOrder.validateInput(
               "Sóng E2 (g)",
               songE2Controller,
               Symbols.airwave,
             ),
-      },
-      {
-        'left':
-            () => ValidationOrder.validateInput(
-              "Cắt (cm)",
-              lengthController,
-              Symbols.vertical_distribute,
-            ),
-        'middle_1':
-            () => ValidationOrder.validateInput(
-              "Số lượng",
-              quantityController,
-              Symbols.filter_9_plus,
-            ),
-        'middle_2':
-            () => ValidationOrder.validateInput(
-              "Đơn giá",
-              priceController,
-              Symbols.price_change,
-            ),
-        'right':
-            () => ValidationOrder.dropdownForTypes(itemsDvt, typeDVT, (value) {
-              setState(() {
-                typeDVT = value!;
-              });
-            }),
-      },
-      {
-        'left':
-            () => ValidationOrder.validateInput(
-              "Khổ  (cm)",
-              sizeController,
-              Symbols.horizontal_distribute,
-            ),
-        'middle_1':
-            () => ValidationOrder.validateInput(
-              "VAT",
-              vatController,
-              Symbols.percent,
-            ),
-        'middle_2':
-            () => ValidationOrder.validateInput(
-              "Tên KH",
-              customerNameController,
-              Symbols.person,
-              readOnly: true,
-            ),
-        'right':
-            () => ValidationOrder.validateInput(
-              "Tên công ty KH",
-              customerCompanyController,
-              Symbols.business,
-              readOnly: true,
-            ),
-      },
-    ];
-
-    final List<Map<String, dynamic>> infoProduction = [
-      {
-        'left':
-            () => ValidationOrder.validateInput(
-              "Đáy thay thế (g)",
-              dayControllerReplace,
-              Symbols.vertical_align_bottom,
-            ),
-        'middle_1':
-            () => ValidationOrder.validateInput(
-              "Giữa 1 thay thế (g)",
-              middle_1ControllerReplace,
-              Symbols.vertical_align_center,
-            ),
-        'middle_2':
-            () => ValidationOrder.validateInput(
-              "Giữa 2 thay thế (g)",
-              middle_2ControllerReplace,
-              Symbols.vertical_align_center,
-            ),
-        'right':
-            () => ValidationOrder.validateInput(
-              "Mặt thay thế (g)",
-              matControllerReplace,
-              Symbols.vertical_align_top,
-            ),
-      },
-      {
-        'left':
-            () => ValidationOrder.validateInput(
-              "Sóng E thay thế (g)",
-              songEControllerReplace,
-              Symbols.airwave,
-            ),
-        'middle_1':
-            () => ValidationOrder.validateInput(
-              "Sóng B thay thế (g)",
-              songBControllerReplace,
-              Symbols.airwave,
-            ),
-        'middle_2':
-            () => ValidationOrder.validateInput(
-              "Sóng C thay thế (g)",
-              songCControllerReplace,
-              Symbols.airwave,
-            ),
-        'right':
-            () => ValidationOrder.validateInput(
-              "Sóng E2 thay thế (g)",
-              songE2ControllerReplace,
-              Symbols.airwave,
-            ),
-      },
-      {
-        'left':
-            () => ValidationOrder.validateInput(
-              "Khổ tấm  (cm)",
-              sizeInfoController,
-              Symbols.horizontal_distribute,
-            ),
-        'middle_1':
-            () => ValidationOrder.validateInput(
-              "Số lượng",
-              quantityInfoController,
-              Symbols.filter_9_plus,
-            ),
-        'middle_2':
-            () => ValidationOrder.validateInput(
-              "HD đặc biệt",
-              instructSpecialController,
-              Symbols.developer_guide,
-            ),
-        'right': () => SizedBox(),
-      },
-      {
-        'left':
-            () => ValidationOrder.validateInput(
-              "Số con",
-              numChildController,
-              Symbols.counter_5,
-            ),
-        'middle_1':
-            () => ValidationOrder.validateInput(
-              "Cấn lằn",
-              canLanController,
-              Symbols.grid_goldenratio,
-            ),
-        'middle_2':
-            () => ValidationOrder.dropdownForTypes(itemsDaoXa, typeDaoXa, (
-              value,
-            ) {
-              setState(() {
-                typeDaoXa = value!;
-              });
-            }),
         'right': () => SizedBox(),
       },
     ];
@@ -879,60 +752,9 @@ class _OrderDialogState extends State<OrderDialog> {
                                     SizedBox(width: 30),
                                     Expanded(
                                       child:
-                                          row['right'] is Function
-                                              ? row['right']()
-                                              : row['right'],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                      ),
-                    ),
-
-                    SizedBox(height: 20),
-
-                    //infoProduction
-                    Text(
-                      "Thông Tin Sản Xuất",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xffF2E873),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: EdgeInsets.all(15),
-                      child: Column(
-                        children:
-                            infoProduction.map((row) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 15),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child:
-                                          row['left'] is Function
-                                              ? row['left']()
-                                              : row['left'],
-                                    ),
-                                    SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['middle_1'] is Function
-                                              ? row['middle_1']()
-                                              : row['middle_1'],
-                                    ),
-                                    SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['middle_2'] is Function
-                                              ? row['middle_2']()
-                                              : row['middle_2'],
+                                          row['middle_3'] is Function
+                                              ? row['middle_3']()
+                                              : row['middle_3'],
                                     ),
                                     SizedBox(width: 30),
                                     Expanded(
@@ -947,6 +769,7 @@ class _OrderDialogState extends State<OrderDialog> {
                             }).toList(),
                       ),
                     ),
+
                     SizedBox(height: 20),
 
                     //box

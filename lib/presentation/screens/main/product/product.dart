@@ -3,6 +3,7 @@ import 'package:dongtam/service/product_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
@@ -64,6 +65,7 @@ class _ProductPageState extends State<ProductPage> {
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
                     children: [
+                      //dropdown
                       SizedBox(
                         width: 170,
                         child: DropdownButtonFormField<String>(
@@ -226,6 +228,59 @@ class _ProductPageState extends State<ProductPage> {
                       ),
                       const SizedBox(width: 10),
 
+                      // update
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          if (isSelected.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Vui lòng chọn sản phẩm để sửa"),
+                              ),
+                            );
+                            return;
+                          }
+
+                          String productId = isSelected.first;
+                          ProductService().getProductById(productId).then((
+                            product,
+                          ) {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (_) => ProductDialog(
+                                    product: product.first,
+                                    onProductAddOrUpdate: () {
+                                      setState(() {
+                                        futureProducts =
+                                            ProductService().getAllProducts();
+                                      });
+                                    },
+                                  ),
+                            );
+                          });
+                        },
+                        label: Text(
+                          "Sửa",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        icon: Icon(Symbols.construction, color: Colors.white),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff78D761),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 15,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
                       //delete customers
                       ElevatedButton.icon(
                         onPressed:
@@ -316,7 +371,6 @@ class _ProductPageState extends State<ProductPage> {
                   child: DataTable(
                     columnSpacing: 25,
                     headingRowColor: WidgetStatePropertyAll(
-                      // Color.fromARGB(255, 142, 241, 117),
                       Colors.grey.shade400,
                     ),
                     columns: [
@@ -336,11 +390,10 @@ class _ProductPageState extends State<ProductPage> {
                           },
                         ),
                       ),
-                      DataColumn(label: styleText("Mã SP")),
-                      DataColumn(label: styleText("Loại SP")),
-                      DataColumn(label: styleText("Tên SP")),
+                      DataColumn(label: styleText("Mã Sản Phẩm")),
+                      DataColumn(label: styleText("Loại Sản Phẩm")),
+                      DataColumn(label: styleText("Tên Sản Phẩm")),
                       DataColumn(label: styleText("Mã Khuôn")),
-                      DataColumn(label: Text("")),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
                       final product = data[index];
@@ -372,88 +425,6 @@ class _ProductPageState extends State<ProductPage> {
                           DataCell(styleCell(null, product.typeProduct)),
                           DataCell(styleCell(null, product.productName)),
                           DataCell(styleCell(null, product.maKhuon)),
-                          DataCell(
-                            SizedBox(
-                              width: 30,
-                              child: PopupMenuButton(
-                                icon: Icon(Icons.more_vert),
-                                color: Colors.white,
-                                onSelected: (String choice) {
-                                  if (choice == 'edit') {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => ProductDialog(
-                                            product: product,
-                                            onProductAddOrUpdate: () {
-                                              setState(() {
-                                                futureProducts =
-                                                    ProductService()
-                                                        .getAllProducts();
-                                              });
-                                            },
-                                          ),
-                                    );
-                                  } else if (choice == 'delete') {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (context) => AlertDialog(
-                                            title: Text("Xác nhận"),
-                                            content: Text(
-                                              'Bạn có chắc chắn muốn xóa không?',
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed:
-                                                    () =>
-                                                        Navigator.pop(context),
-                                                child: Text("Hủy"),
-                                              ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  await ProductService()
-                                                      .deleteProduct(
-                                                        product.productId,
-                                                      )
-                                                      .then((_) {
-                                                        setState(() {
-                                                          futureProducts =
-                                                              ProductService()
-                                                                  .getAllProducts();
-                                                        });
-                                                      });
-
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Text("Xoá"),
-                                              ),
-                                            ],
-                                          ),
-                                    );
-                                  }
-                                },
-                                itemBuilder:
-                                    (BuildContext context) =>
-                                        <PopupMenuEntry<String>>[
-                                          const PopupMenuItem<String>(
-                                            value: 'edit',
-                                            child: ListTile(
-                                              leading: Icon(Icons.edit),
-                                              title: Text('Sửa'),
-                                            ),
-                                          ),
-                                          const PopupMenuItem<String>(
-                                            value: 'delete',
-                                            child: ListTile(
-                                              leading: Icon(Icons.delete),
-                                              title: Text('Xóa'),
-                                            ),
-                                          ),
-                                        ],
-                              ),
-                            ),
-                          ),
                         ],
                       );
                     }),

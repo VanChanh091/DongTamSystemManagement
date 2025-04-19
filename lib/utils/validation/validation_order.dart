@@ -44,17 +44,16 @@ class ValidationOrder {
                 label == "Ngày nhận đơn hàng" ||
                 label == "Ngày yêu cầu giao" ||
                 label == "Mã Khách Hàng" ||
+                label == "Mã Sản Phẩm" ||
                 label == "Khổ" ||
                 label == "Cắt" ||
                 label == "Số lượng" ||
-                label == "Đơn vị tính" ||
-                label == "Đơn giá" ||
-                label == "Giá tấm" ||
-                label == "Khổ tấm" ||
-                label == "Số lượng" ||
-                label == "Số con") &&
+                label == "Đơn giá") &&
             (value == null || value.isEmpty)) {
           return 'Vui lòng nhập $label';
+        }
+        if (label == "Mã Đơn Hàng" && value!.length > 10) {
+          return 'Mã đơn hàng chỉ được nhập tối đa 10 ký tự';
         }
         return null;
       },
@@ -94,7 +93,6 @@ class ValidationOrder {
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
-      // hint: Text(text, style: TextStyle(color: Colors.black)),
       icon: Icon(Icons.arrow_drop_down, color: Colors.black),
       style: TextStyle(fontSize: 16, color: Colors.black),
       dropdownColor: Colors.white,
