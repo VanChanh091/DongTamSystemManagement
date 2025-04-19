@@ -25,6 +25,7 @@ class Order {
   final int? vat;
   final DateTime dayReceiveOrder;
   final DateTime dateRequestShipping;
+  final String? instructSpecial;
   final String customerId;
   final String productId;
 
@@ -54,6 +55,7 @@ class Order {
     required this.price,
     required this.pricePaper,
     required this.dateRequestShipping,
+    this.instructSpecial,
     this.vat,
     required this.totalPrice,
     this.customer,
@@ -159,12 +161,12 @@ class Order {
               ? (json['totalPrice'] as int).toDouble()
               : (json['totalPrice'] ?? 0.0) as double,
       dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
-      //note
+      instructSpecial: json['instructSpecial'] ?? "",
       customer:
           json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
-      box: json['box'] != null ? Box.fromJson(json['box']) : null,
       product:
           json['Product'] != null ? Product.fromJson(json['Product']) : null,
+      box: json['box'] != null ? Box.fromJson(json['box']) : null,
     );
   }
 
@@ -193,41 +195,10 @@ class Order {
       'dateRequestShipping': DateFormat(
         'yyyy-MM-dd',
       ).format(dateRequestShipping),
+      'instructSpecial': instructSpecial,
       'vat': vat,
       'totalPrice': totalPrice,
       'box': box?.toJson(),
     };
-  }
-
-  @override
-  String toString() {
-    return '''
-Order(
-  orderId: $orderId,
-  customerId: $customerId,
-  customerName: ${customer?.customerName ?? 'N/A'},
-  companyName: ${customer?.companyName ?? 'N/A'},
-  QC_box: $QC_box,
-  day: ${day ?? 'N/A'},
-  middle_1: ${middle_1 ?? 'N/A'},
-  middle_2: ${middle_2 ?? 'N/A'},
-  mat: ${mat ?? 'N/A'},
-  songE: ${songE ?? 'N/A'},
-  songB: ${songB ?? 'N/A'},
-  songC: ${songC ?? 'N/A'},
-  songE2: ${songE2 ?? 'N/A'},
-  quantity: $quantity,
-  lengthPaper: $lengthPaper,
-  paperSize: $paperSize,
-  acreagePaper: $acreagePaper($lengthPaper, $paperSize, $quantity),
-  dvt: $dvt,
-  price: $price,
-  pricePaper: $pricePaper,
-  totalPrice: $totalPricePaper($dvt, $price, $lengthPaper, $paperSize),
-  vat: $vat,
-  dayReceiveOrder: ${dayReceiveOrder.toIso8601String()},
-  dateRequestShipping: ${dateRequestShipping.toIso8601String()}
-)
-''';
   }
 }

@@ -9,7 +9,7 @@ class Box {
       dongGhim1Manh,
       dongGhim2Manh,
       chongTham;
-  final String? dongGoi, maKhuon, khac_1, khac_2;
+  final String? dongGoi, maKhuon;
 
   Box({
     this.inMatTruoc,
@@ -25,8 +25,6 @@ class Box {
     this.chongTham,
     this.dongGoi,
     this.maKhuon,
-    this.khac_1,
-    this.khac_2,
   });
 
   factory Box.fromJson(Map<String, dynamic> json) {
@@ -44,8 +42,6 @@ class Box {
       chongTham: json['chongTham'] ?? false,
       dongGoi: json['dongGoi'] ?? "",
       maKhuon: json['maKhuon'] ?? "",
-      khac_1: json['khac_1'] ?? "",
-      khac_2: json['khac_2'] ?? "",
     );
   }
 
@@ -64,8 +60,6 @@ class Box {
       'chongTham': chongTham,
       'dongGoi': dongGoi,
       'maKhuon': maKhuon,
-      'khac_1': khac_1,
-      'khac_2': khac_2,
     };
   }
 }

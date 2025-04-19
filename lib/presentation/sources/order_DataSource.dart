@@ -126,12 +126,8 @@ class OrderDataSource extends DataGridSource {
         value: order.box?.maKhuon ?? "",
       ),
       DataGridCell<String>(
-        columnName: 'khac_1',
-        value: order.box?.khac_1 ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: 'khac_2',
-        value: order.box?.khac_2 ?? '',
+        columnName: 'HD_special',
+        value: order.instructSpecial ?? "",
       ),
     ];
   }

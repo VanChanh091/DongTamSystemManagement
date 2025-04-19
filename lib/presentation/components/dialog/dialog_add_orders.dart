@@ -62,8 +62,6 @@ class _OrderDialogState extends State<OrderDialog> {
   //box
   final inMatTruocController = TextEditingController();
   final inMatSauController = TextEditingController();
-  final khac_1Controller = TextEditingController();
-  final khac_2Controller = TextEditingController();
   final dongGoiController = TextEditingController();
   final maKhuonController = TextEditingController();
   ValueNotifier<bool> canMangChecked = ValueNotifier<bool>(false);
@@ -144,8 +142,6 @@ class _OrderDialogState extends State<OrderDialog> {
     );
     dongGoiController.text = widget.order!.box!.dongGoi ?? "";
     maKhuonController.text = widget.order!.box!.maKhuon ?? "";
-    khac_1Controller.text = widget.order!.box!.khac_1 ?? "";
-    khac_2Controller.text = widget.order!.box!.khac_2 ?? "";
   }
 
   //debounce customer
@@ -302,8 +298,6 @@ class _OrderDialogState extends State<OrderDialog> {
     dongGhim2ManhChecked = ValueNotifier<bool>(false);
     dongGoiController.dispose();
     maKhuonController.dispose();
-    khac_1Controller.dispose();
-    khac_2Controller.dispose();
     customerIdController.removeListener(onCustomerIdChanged);
     _debounce?.cancel();
   }
@@ -346,8 +340,6 @@ class _OrderDialogState extends State<OrderDialog> {
       chongTham: chongThamChecked.value,
       dongGoi: dongGoiController.text,
       maKhuon: maKhuonController.text,
-      khac_1: khac_1Controller.text,
-      khac_2: khac_2Controller.text,
     );
 
     final newOrder = Order(
@@ -616,72 +608,53 @@ class _OrderDialogState extends State<OrderDialog> {
               inMatTruocController,
               Symbols.print,
             ),
-        'right':
+        'middle_1':
             () => ValidationOrder.validateInput(
               "In mặt sau",
               inMatSauController,
               Symbols.print,
             ),
-        'checkbox1': () => ValidationOrder.checkboxForBox("Xả", xaChecked),
-        'checkbox2':
-            () => ValidationOrder.checkboxForBox("Cán màng", canMangChecked),
-      },
-      {
-        'left':
+        'middle_2':
             () => ValidationOrder.validateInput(
-              "Đóng gói",
+              "Cách Đóng gói",
               dongGoiController,
               Symbols.box,
             ),
-        'right':
+        'middle_3':
             () => ValidationOrder.validateInput(
               "Mã Khuôn",
               maKhuonController,
               Symbols.box,
             ),
-        'checkbox1': () => ValidationOrder.checkboxForBox("Bế", beChecked),
-        'checkbox2':
-            () => ValidationOrder.checkboxForBox("Dán 1 mảnh", dan1ManhChecked),
+        'right': () => SizedBox(),
       },
       {
         'left':
-            () => ValidationOrder.validateInput(
-              "Khác 1",
-              khac_1Controller,
-              Symbols.chat_bubble,
-            ),
-        'right':
-            () => ValidationOrder.validateInput(
-              "Khác 2",
-              khac_2Controller,
-              Symbols.chat_bubble,
-            ),
-        'checkbox1':
+            () =>
+                ValidationOrder.checkboxForBox("Chống thấm", chongThamChecked),
+        'middle_1': () => ValidationOrder.checkboxForBox("Xả", xaChecked),
+        'middle_2':
             () => ValidationOrder.checkboxForBox("Cắt khe", catKheChecked),
-        'checkbox2':
+        'middle_3':
+            () => ValidationOrder.checkboxForBox("Dán 1 mảnh", dan1ManhChecked),
+        'right':
             () => ValidationOrder.checkboxForBox("Dán 2 mảnh", dan2ManhChecked),
       },
       {
-        'left': SizedBox(), // null box
-        'right': SizedBox(),
-        'checkbox1':
-            () =>
-                ValidationOrder.checkboxForBox("Chống thấm", chongThamChecked),
-        'checkbox2':
+        'left':
+            () => ValidationOrder.checkboxForBox("Cán màng", canMangChecked),
+        'middle_1': () => ValidationOrder.checkboxForBox("Bế", beChecked),
+        'middle_2':
             () => ValidationOrder.checkboxForBox(
               "Đóng ghim 1 mảnh",
               dongGhim1ManhChecked,
             ),
-      },
-      {
-        'left': SizedBox(),
-        'right': SizedBox(),
-        'checkbox1': SizedBox(),
-        'checkbox2':
+        'middle_3':
             () => ValidationOrder.checkboxForBox(
               "Đóng ghim 2 mảnh",
               dongGhim2ManhChecked,
             ),
+        'right': () => SizedBox(),
       },
     ];
 
@@ -786,75 +759,8 @@ class _OrderDialogState extends State<OrderDialog> {
                         color: Color(0xffF2E873),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 6,
-                            child: Column(
-                              children:
-                                  boxes.map((row) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 15,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child:
-                                                row['left'] is Function
-                                                    ? row['left']()
-                                                    : row['left'],
-                                          ),
-                                          SizedBox(width: 30),
-                                          Expanded(
-                                            child:
-                                                row['right'] is Function
-                                                    ? row['right']()
-                                                    : row['right'],
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                            ),
-                          ),
-
-                          SizedBox(width: 30),
-
-                          Expanded(
-                            flex: 4,
-                            child: Column(
-                              children:
-                                  boxes.map((row) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 15,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child:
-                                                row['checkbox1'] is Function
-                                                    ? row['checkbox1']()
-                                                    : row['checkbox1'],
-                                          ),
-                                          SizedBox(width: 20),
-                                          Expanded(
-                                            child:
-                                                row['checkbox2'] is Function
-                                                    ? row['checkbox2']()
-                                                    : row['checkbox2'],
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                            ),
-                          ),
-                        ],
-                      ),
+                      padding: EdgeInsets.all(15),
+                      child: Column(children: []),
                     ),
                   ],
                 ),
