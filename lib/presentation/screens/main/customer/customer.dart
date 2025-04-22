@@ -2,6 +2,7 @@ import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart'
 import 'package:dongtam/service/customer_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class CustomerPage extends StatefulWidget {
   const CustomerPage({super.key});
@@ -238,6 +239,59 @@ class _CustomerPageState extends State<CustomerPage> {
                       ),
                       const SizedBox(width: 10),
 
+                      // update
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          if (isSelected.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Vui lòng chọn sản phẩm để sửa"),
+                              ),
+                            );
+                            return;
+                          }
+
+                          String productId = isSelected.first;
+                          CustomerService().getCustomerById(productId).then((
+                            product,
+                          ) {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (_) => CustomerDialog(
+                                    customer: product.first,
+                                    onCustomerAddOrUpdate: () {
+                                      setState(() {
+                                        futureCustomer =
+                                            CustomerService().getAllCustomers();
+                                      });
+                                    },
+                                  ),
+                            );
+                          });
+                        },
+                        label: Text(
+                          "Sửa",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        icon: Icon(Symbols.construction, color: Colors.white),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff78D761),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 15,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
                       //delete customers
                       ElevatedButton.icon(
                         onPressed:
@@ -328,7 +382,6 @@ class _CustomerPageState extends State<CustomerPage> {
                   child: DataTable(
                     columnSpacing: 25,
                     headingRowColor: WidgetStatePropertyAll(
-                      // Color.fromARGB(255, 142, 241, 117),
                       Colors.grey.shade400,
                     ),
                     columns: [
@@ -356,7 +409,6 @@ class _CustomerPageState extends State<CustomerPage> {
                       DataColumn(label: styleText('MST')),
                       DataColumn(label: styleText("SDT")),
                       DataColumn(label: styleText("CSKH")),
-                      DataColumn(label: Text("")),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
                       final customer = data[index];
@@ -392,88 +444,6 @@ class _CustomerPageState extends State<CustomerPage> {
                           DataCell(styleCell(null, customer.mst)),
                           DataCell(styleCell(null, customer.phone)),
                           DataCell(styleCell(55, customer.cskh)),
-                          DataCell(
-                            SizedBox(
-                              width: 30,
-                              child: PopupMenuButton(
-                                icon: Icon(Icons.more_vert),
-                                color: Colors.white,
-                                onSelected: (String choice) {
-                                  if (choice == 'edit') {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => CustomerDialog(
-                                            customer: customer,
-                                            onCustomerAddOrUpdate: () {
-                                              setState(() {
-                                                futureCustomer =
-                                                    CustomerService()
-                                                        .getAllCustomers();
-                                              });
-                                            },
-                                          ),
-                                    );
-                                  } else if (choice == 'delete') {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (context) => AlertDialog(
-                                            title: Text("Xác nhận"),
-                                            content: Text(
-                                              'Bạn có chắc chắn muốn xóa không?',
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed:
-                                                    () =>
-                                                        Navigator.pop(context),
-                                                child: Text("Hủy"),
-                                              ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  await CustomerService()
-                                                      .deleteCustomer(
-                                                        customer.customerId,
-                                                      )
-                                                      .then((_) {
-                                                        setState(() {
-                                                          futureCustomer =
-                                                              CustomerService()
-                                                                  .getAllCustomers();
-                                                        });
-                                                      });
-
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Text("Xoá"),
-                                              ),
-                                            ],
-                                          ),
-                                    );
-                                  }
-                                },
-                                itemBuilder:
-                                    (BuildContext context) =>
-                                        <PopupMenuEntry<String>>[
-                                          const PopupMenuItem<String>(
-                                            value: 'edit',
-                                            child: ListTile(
-                                              leading: Icon(Icons.edit),
-                                              title: Text('Sửa'),
-                                            ),
-                                          ),
-                                          const PopupMenuItem<String>(
-                                            value: 'delete',
-                                            child: ListTile(
-                                              leading: Icon(Icons.delete),
-                                              title: Text('Xóa'),
-                                            ),
-                                          ),
-                                        ],
-                              ),
-                            ),
-                          ),
                         ],
                       );
                     }),

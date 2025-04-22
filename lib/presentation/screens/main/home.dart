@@ -49,6 +49,31 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Hàm tạo item menu Drawer
+  Widget _buildDrawerItem(IconData icon, String title, int index) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title, style: TextStyle(color: Colors.white, fontSize: 18)),
+      onTap: () {
+        sidebarController.selectedIndex.value = index;
+        sidebarController.changePage(index);
+        Navigator.pop(context); // Đóng Drawer sau khi chọn
+      },
+    );
+  }
+
+  // Hàm tạo sub-menu trong ExpansionTile
+  Widget _buildSubMenuItem(String title, VoidCallback onTap, IconData icon) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title, style: TextStyle(color: Colors.white, fontSize: 16)),
+      onTap: () {
+        onTap();
+        Navigator.pop(context);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                         leading: Icon(Icons.event_note, color: Colors.white),
                         title: Text(
                           "Kế hoạch",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.white, fontSize: 18),
                         ),
                         iconColor: Colors.white,
                         collapsedIconColor: Colors.white,
@@ -163,31 +188,6 @@ class _HomePageState extends State<HomePage> {
 
       // Nội dung hiển thị khi chọn menu
       body: Obx(() => pages[sidebarController.selectedIndex.value]),
-    );
-  }
-
-  // Hàm tạo item menu Drawer
-  Widget _buildDrawerItem(IconData icon, String title, int index) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(title, style: TextStyle(color: Colors.white)),
-      onTap: () {
-        sidebarController.selectedIndex.value = index;
-        sidebarController.changePage(index);
-        Navigator.pop(context); // Đóng Drawer sau khi chọn
-      },
-    );
-  }
-
-  // Hàm tạo sub-menu trong ExpansionTile
-  Widget _buildSubMenuItem(String title, VoidCallback onTap, IconData icon) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(title, style: TextStyle(color: Colors.white)),
-      onTap: () {
-        onTap();
-        Navigator.pop(context);
-      },
     );
   }
 }

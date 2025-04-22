@@ -5,17 +5,32 @@ class ValidationOrder {
     return ValueListenableBuilder<bool>(
       valueListenable: notifier,
       builder: (context, checked, _) {
-        return CheckboxListTile(
-          title: Text(
-            label,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        return Theme(
+          data: Theme.of(context).copyWith(
+            checkboxTheme: CheckboxThemeData(
+              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Colors.red; // nền trắng khi chọn
+                }
+                return Colors.white; // nền trắng khi không chọn
+              }),
+              checkColor: MaterialStateProperty.all<Color>(Colors.white),
+              side: BorderSide(color: Colors.black, width: 1),
+            ),
           ),
-          value: checked,
-          onChanged: (bool? value) {
-            notifier.value = value ?? false;
-          },
-          activeColor: Colors.red,
-          checkColor: Colors.white,
+          child: CheckboxListTile(
+            title: Text(
+              label,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            value: checked,
+            onChanged: (bool? value) {
+              notifier.value = value ?? false;
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+            tileColor: Colors.transparent, // không ảnh hưởng nền tile
+            contentPadding: EdgeInsets.zero,
+          ),
         );
       },
     );
@@ -51,9 +66,6 @@ class ValidationOrder {
                 label == "Đơn giá") &&
             (value == null || value.isEmpty)) {
           return 'Vui lòng nhập $label';
-        }
-        if (label == "Mã Đơn Hàng" && value!.length > 10) {
-          return 'Mã đơn hàng chỉ được nhập tối đa 10 ký tự';
         }
         return null;
       },

@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/customer_Service.dart';
 import 'package:dongtam/service/order_Service.dart';
 import 'package:dongtam/service/product_Service.dart';
+import 'package:dongtam/utils/auto_complete_field.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class OrderDialog extends StatefulWidget {
   final Order? order;
@@ -29,6 +33,9 @@ class _OrderDialogState extends State<OrderDialog> {
   String lastSearchedCustomerId = "";
   String lastSearchedProductId = "";
   final List<String> itemsDvt = ['Kg', 'Cái', 'M2'];
+  late String originalOrderId;
+  List<Customer> allCustomers = [];
+  List<Product> allProducts = [];
 
   //order
   final orderIdController = TextEditingController();
@@ -48,9 +55,10 @@ class _OrderDialogState extends State<OrderDialog> {
   final priceController = TextEditingController();
   final dateShippingController = TextEditingController();
   final vatController = TextEditingController();
+  final instructSpecialController = TextEditingController();
   final dvtController = TextEditingController();
   late String typeDVT = "Kg";
-  DateTime? dayReceive;
+  DateTime? dayReceive = DateTime.now();
   DateTime? dateShipping;
   final customerIdController = TextEditingController();
   final productIdController = TextEditingController();
@@ -78,19 +86,21 @@ class _OrderDialogState extends State<OrderDialog> {
   void initState() {
     super.initState();
     if (widget.order != null) {
-      //order
       orderInitState();
-      //box
       boxInitState();
     }
+    fetchAllCustomers();
+    fetchAllProduct();
     // addListenerForField();
 
+    dayReceiveController.text = DateFormat('dd/MM/yyyy').format(dayReceive!);
     //debounce customerId, productId
     customerIdController.addListener(onCustomerIdChanged);
     productIdController.addListener(onProductIdChanged);
   }
 
   void orderInitState() {
+    originalOrderId = widget.order!.orderId;
     orderIdController.text = widget.order!.orderId;
     customerIdController.text = widget.order!.customerId;
     productIdController.text = widget.order!.productId;
@@ -109,7 +119,7 @@ class _OrderDialogState extends State<OrderDialog> {
     typeDVT = widget.order?.dvt ?? "Kg";
     priceController.text = widget.order!.price.toString();
     vatController.text = widget.order!.vat.toString();
-
+    instructSpecialController.text = widget.order!.instructSpecial.toString();
     dayReceive = widget.order!.dayReceiveOrder;
     dateShipping = widget.order!.dateRequestShipping;
     dayReceiveController.text = DateFormat('dd/MM/yyyy').format(dayReceive!);
@@ -144,20 +154,6 @@ class _OrderDialogState extends State<OrderDialog> {
     maKhuonController.text = widget.order!.box!.maKhuon ?? "";
   }
 
-  //debounce customer
-  void onCustomerIdChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-    final input = customerIdController.text.trim();
-
-    _debounce = Timer(Duration(milliseconds: 800), () {
-      if (input.isNotEmpty) {
-        lastSearchedCustomerId = input;
-        getCustomerById(input);
-      }
-    });
-  }
-
   Future<void> getCustomerById(String customerId) async {
     try {
       final customers = await CustomerService().getCustomerById(customerId);
@@ -189,20 +185,6 @@ class _OrderDialogState extends State<OrderDialog> {
     }
   }
 
-  //debounce product
-  void onProductIdChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-    final input = productIdController.text.trim();
-
-    _debounce = Timer(Duration(milliseconds: 800), () {
-      if (input.isNotEmpty) {
-        lastSearchedProductId = input;
-        getProductById(input);
-      }
-    });
-  }
-
   Future<void> getProductById(String productId) async {
     try {
       final products = await ProductService().getProductById(productId);
@@ -215,6 +197,7 @@ class _OrderDialogState extends State<OrderDialog> {
           setState(() {
             typeProduct.text = product.typeProduct;
             nameSpController.text = product.productName;
+            maKhuonController.text = product.maKhuon;
           });
         }
       } else {
@@ -234,17 +217,60 @@ class _OrderDialogState extends State<OrderDialog> {
     }
   }
 
-  //component
-  void listenerForFieldNeed(
-    TextEditingController fieldController,
-    TextEditingController fieldControllerReplace,
-  ) {
-    fieldController.addListener(() {
-      if (fieldController.text != fieldControllerReplace.text) {
-        fieldControllerReplace.text = fieldController.text;
+  Future<void> fetchAllCustomers() async {
+    try {
+      allCustomers = await CustomerService().getAllCustomers();
+    } catch (e) {
+      print("Lỗi lấy danh sách khách hàng: $e");
+    }
+  }
+
+  Future<void> fetchAllProduct() async {
+    try {
+      allProducts = await ProductService().getAllProducts();
+    } catch (e) {
+      print("Lỗi lấy danh sách khách hàng: $e");
+    }
+  }
+
+  //debounce customer
+  void onCustomerIdChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    final input = customerIdController.text.trim();
+
+    _debounce = Timer(Duration(milliseconds: 800), () {
+      if (input.isNotEmpty) {
+        lastSearchedCustomerId = input;
+        getCustomerById(input);
       }
     });
   }
+
+  //debounce product
+  void onProductIdChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    final input = productIdController.text.trim();
+
+    _debounce = Timer(Duration(milliseconds: 800), () {
+      if (input.isNotEmpty) {
+        lastSearchedProductId = input;
+        getProductById(input);
+      }
+    });
+  }
+
+  // void listenerForFieldNeed(
+  //   TextEditingController fieldController,
+  //   TextEditingController fieldControllerReplace,
+  // ) {
+  //   fieldController.addListener(() {
+  //     if (fieldController.text != fieldControllerReplace.text) {
+  //       fieldControllerReplace.text = fieldController.text;
+  //     }
+  //   });
+  // }
 
   // void addListenerForField() {
   //   listenerForFieldNeed(dayController, dayControllerReplace);
@@ -259,51 +285,16 @@ class _OrderDialogState extends State<OrderDialog> {
   //   listenerForFieldNeed(quantityController, quantityInfoController);
   // }
 
-  @override
-  void dispose() {
-    super.dispose();
-    orderIdController.dispose();
-    customerIdController.dispose();
-    productIdController.dispose();
-    dayReceiveController.dispose();
-    dateShippingController.dispose();
-    customerNameController.dispose();
-    customerCompanyController.dispose();
-    typeProduct.dispose();
-    qcBoxController.dispose();
-    nameSpController.dispose();
-    dayController.dispose();
-    middle_1Controller.dispose();
-    middle_2Controller.dispose();
-    matController.dispose();
-    songEController.dispose();
-    songBController.dispose();
-    songCController.dispose();
-    songE2Controller.dispose();
-    lengthController.dispose();
-    sizeController.dispose();
-    quantityController.dispose();
-    dvtController.dispose();
-    priceController.dispose();
-    inMatTruocController.dispose();
-    inMatSauController.dispose();
-    canMangChecked = ValueNotifier<bool>(false);
-    xaChecked = ValueNotifier<bool>(false);
-    catKheChecked = ValueNotifier<bool>(false);
-    beChecked = ValueNotifier<bool>(false);
-    dan1ManhChecked = ValueNotifier<bool>(false);
-    dan2ManhChecked = ValueNotifier<bool>(false);
-    chongThamChecked = ValueNotifier<bool>(false);
-    dongGhim1ManhChecked = ValueNotifier<bool>(false);
-    dongGhim2ManhChecked = ValueNotifier<bool>(false);
-    dongGoiController.dispose();
-    maKhuonController.dispose();
-    customerIdController.removeListener(onCustomerIdChanged);
-    _debounce?.cancel();
+  String generateOrderCode(String prefix) {
+    final now = DateTime.now();
+    final String month = now.month.toString().padLeft(2, '0');
+    final String year = now.year.toString().substring(2);
+    return "$prefix/$month/$year/D";
   }
 
   void submit() async {
     if (!formKey.currentState!.validate()) return;
+    final prefix = orderIdController.text.toUpperCase();
 
     double totalAcreage =
         Order.acreagePaper(
@@ -343,9 +334,9 @@ class _OrderDialogState extends State<OrderDialog> {
     );
 
     final newOrder = Order(
-      orderId: orderIdController.text.toUpperCase(),
-      customerId: customerIdController.text,
-      productId: productIdController.text,
+      orderId: generateOrderCode(prefix),
+      customerId: customerIdController.text.toUpperCase(),
+      productId: productIdController.text.toUpperCase(),
       dayReceiveOrder: dayReceive ?? DateTime.now(),
       QC_box: qcBoxController.text,
       day: dayController.text,
@@ -365,6 +356,7 @@ class _OrderDialogState extends State<OrderDialog> {
       pricePaper: totalPricePaper,
       dateRequestShipping: dateShipping ?? DateTime.now(),
       vat: int.tryParse(vatController.text) ?? 0,
+      instructSpecial: instructSpecialController.text,
       totalPrice: totalPriceOrder,
       box: newBox,
     );
@@ -379,7 +371,7 @@ class _OrderDialogState extends State<OrderDialog> {
       } else {
         //update
         await OrderService().updateOrderById(
-          newOrder.orderId,
+          originalOrderId,
           newOrder.toJson(),
         );
         ScaffoldMessenger.of(
@@ -398,6 +390,50 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    orderIdController.dispose();
+    instructSpecialController.dispose();
+    customerIdController.dispose();
+    productIdController.dispose();
+    dayReceiveController.dispose();
+    dateShippingController.dispose();
+    customerNameController.dispose();
+    customerCompanyController.dispose();
+    typeProduct.dispose();
+    qcBoxController.dispose();
+    nameSpController.dispose();
+    dayController.dispose();
+    middle_1Controller.dispose();
+    middle_2Controller.dispose();
+    matController.dispose();
+    songEController.dispose();
+    songBController.dispose();
+    songCController.dispose();
+    songE2Controller.dispose();
+    lengthController.dispose();
+    sizeController.dispose();
+    quantityController.dispose();
+    dvtController.dispose();
+    priceController.dispose();
+    inMatTruocController.dispose();
+    inMatSauController.dispose();
+    canMangChecked = ValueNotifier<bool>(false);
+    xaChecked = ValueNotifier<bool>(false);
+    catKheChecked = ValueNotifier<bool>(false);
+    beChecked = ValueNotifier<bool>(false);
+    dan1ManhChecked = ValueNotifier<bool>(false);
+    dan2ManhChecked = ValueNotifier<bool>(false);
+    chongThamChecked = ValueNotifier<bool>(false);
+    dongGhim1ManhChecked = ValueNotifier<bool>(false);
+    dongGhim2ManhChecked = ValueNotifier<bool>(false);
+    dongGoiController.dispose();
+    maKhuonController.dispose();
+    customerIdController.removeListener(onCustomerIdChanged);
+    _debounce?.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isEdit = widget.order != null;
 
@@ -411,10 +447,24 @@ class _OrderDialogState extends State<OrderDialog> {
               readOnly: isEdit,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
-              "Mã Khách Hàng",
-              customerIdController,
-              Symbols.badge,
+            () => AutoCompleteField<Customer>(
+              controller: customerIdController,
+              labelText: "Mã Khách Hàng",
+              icon: Icons.badge,
+              suggestionsCallback:
+                  (pattern) => CustomerService().getCustomerById(pattern),
+              displayStringForItem: (customer) => customer.customerId,
+              itemBuilder: (context, customer) {
+                return ListTile(
+                  title: Text(customer.customerId),
+                  subtitle: Text(customer.customerName),
+                );
+              },
+              onSelected: (customer) {
+                customerIdController.text = customer.customerId;
+                customerNameController.text = customer.customerName;
+                customerCompanyController.text = customer.companyName;
+              },
             ),
 
         'middle_2':
@@ -437,22 +487,6 @@ class _OrderDialogState extends State<OrderDialog> {
               dayReceiveController,
               Symbols.calendar_month,
               readOnly: true,
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: dayReceive ?? DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                );
-                if (pickedDate != null) {
-                  setState(() {
-                    dayReceive = pickedDate;
-                    dayReceiveController.text = DateFormat(
-                      'dd/MM/yyyy',
-                    ).format(pickedDate);
-                  });
-                }
-              },
             ),
       },
       {
@@ -463,10 +497,25 @@ class _OrderDialogState extends State<OrderDialog> {
               Symbols.deployed_code,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
-              "Mã Sản Phẩm",
-              productIdController,
-              Symbols.box,
+            () => AutoCompleteField<Product>(
+              controller: productIdController,
+              labelText: "Mã Sản Phẩm",
+              icon: Symbols.box,
+              suggestionsCallback:
+                  (pattern) => ProductService().getProductById(pattern),
+              displayStringForItem: (product) => product.productId,
+              itemBuilder: (context, product) {
+                return ListTile(
+                  title: Text(product.productId),
+                  subtitle: Text(product.productId),
+                );
+              },
+              onSelected: (product) {
+                productIdController.text = product.productId;
+                typeProduct.text = product.typeProduct;
+                nameSpController.text = product.productName;
+                maKhuonController.text = product.maKhuon;
+              },
             ),
         'middle_2':
             () => ValidationOrder.validateInput(
@@ -489,10 +538,11 @@ class _OrderDialogState extends State<OrderDialog> {
               Symbols.calendar_month,
               readOnly: true,
               onTap: () async {
+                DateTime baseDate = dayReceive ?? DateTime.now();
                 DateTime? pickedDate = await showDatePicker(
                   context: context,
-                  initialDate: dateShipping ?? DateTime.now(),
-                  firstDate: DateTime(2000),
+                  initialDate: dateShipping ?? dayReceive,
+                  firstDate: baseDate,
                   lastDate: DateTime(2100),
                 );
                 if (pickedDate != null) {
@@ -604,13 +654,13 @@ class _OrderDialogState extends State<OrderDialog> {
       {
         'left':
             () => ValidationOrder.validateInput(
-              "In mặt trước",
+              "Số màu in mặt trước",
               inMatTruocController,
               Symbols.print,
             ),
         'middle_1':
             () => ValidationOrder.validateInput(
-              "In mặt sau",
+              "Số màu in mặt sau",
               inMatSauController,
               Symbols.print,
             ),
@@ -625,6 +675,7 @@ class _OrderDialogState extends State<OrderDialog> {
               "Mã Khuôn",
               maKhuonController,
               Symbols.box,
+              readOnly: true,
             ),
         'right': () => SizedBox(),
       },
@@ -742,7 +793,6 @@ class _OrderDialogState extends State<OrderDialog> {
                             }).toList(),
                       ),
                     ),
-
                     SizedBox(height: 20),
 
                     //box
@@ -760,7 +810,76 @@ class _OrderDialogState extends State<OrderDialog> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       padding: EdgeInsets.all(15),
-                      child: Column(children: []),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ...boxes.map((row) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 15),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child:
+                                        row['left'] is Function
+                                            ? row['left']()
+                                            : row['left'],
+                                  ),
+                                  SizedBox(width: 30),
+                                  Expanded(
+                                    child:
+                                        row['middle_1'] is Function
+                                            ? row['middle_1']()
+                                            : row['middle_1'],
+                                  ),
+                                  SizedBox(width: 30),
+                                  Expanded(
+                                    child:
+                                        row['middle_2'] is Function
+                                            ? row['middle_2']()
+                                            : row['middle_2'],
+                                  ),
+                                  SizedBox(width: 30),
+                                  Expanded(
+                                    child:
+                                        row['middle_3'] is Function
+                                            ? row['middle_3']()
+                                            : row['middle_3'],
+                                  ),
+                                  SizedBox(width: 30),
+                                  Expanded(
+                                    child:
+                                        row['right'] is Function
+                                            ? row['right']()
+                                            : row['right'],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+
+                          Text(
+                            'Hướng dẫn đặc biệt:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          TextFormField(
+                            controller: instructSpecialController,
+                            decoration: InputDecoration(
+                              hintText: 'Nhập ghi chú tại đây...',
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(color: Colors.grey),
+                              ),
+                            ),
+                            maxLines: 3,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
