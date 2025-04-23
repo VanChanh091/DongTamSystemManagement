@@ -42,34 +42,58 @@ class ValidationOrder {
     IconData icon, {
     bool readOnly = false,
     VoidCallback? onTap,
+    VoidCallback? onSuffixTap,
   }) {
-    return TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        fillColor: readOnly ? Colors.grey.shade300 : Colors.white,
-        filled: true,
-      ),
-      validator: (value) {
-        if ((label == "Mã Đơn Hàng" ||
-                label == "Ngày nhận đơn hàng" ||
-                label == "Ngày yêu cầu giao" ||
-                label == "Mã Khách Hàng" ||
-                label == "Mã Sản Phẩm" ||
-                label == "Khổ" ||
-                label == "Cắt" ||
-                label == "Số lượng" ||
-                label == "Đơn giá") &&
-            (value == null || value.isEmpty)) {
-          return 'Vui lòng nhập $label';
-        }
-        return null;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        controller.addListener(() {
+          setState(() {}); // cập nhật mỗi khi text thay đổi
+        });
+
+        final isFilled = controller.text.isEmpty;
+
+        return TextFormField(
+          controller: controller,
+          readOnly: readOnly,
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: Icon(icon),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            fillColor:
+                readOnly
+                    ? Colors.grey.shade300
+                    : (isFilled
+                        ? Colors.white
+                        : Color.fromARGB(255, 148, 236, 154)),
+            filled: true,
+            suffixIcon:
+                onSuffixTap != null
+                    ? IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: onSuffixTap,
+                      tooltip: 'Thêm $label',
+                    )
+                    : null,
+          ),
+          validator: (value) {
+            if ((label == "Mã Đơn Hàng" ||
+                    label == "Ngày nhận đơn hàng" ||
+                    label == "Ngày yêu cầu giao" ||
+                    label == "Mã Khách Hàng" ||
+                    label == "Mã Sản Phẩm" ||
+                    label == "Khổ" ||
+                    label == "Cắt" ||
+                    label == "Số lượng" ||
+                    label == "Đơn giá") &&
+                (value == null || value.isEmpty)) {
+              return 'Vui lòng nhập $label';
+            }
+            return null;
+          },
+          onTap: onTap,
+        );
       },
-      onTap: onTap,
     );
   }
 

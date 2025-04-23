@@ -43,6 +43,8 @@ class OrderDataSource extends DataGridSource {
         value: order.product?.productName ?? '',
       ),
       DataGridCell<String>(columnName: 'QC_box', value: order.QC_box ?? ''),
+      DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
+      DataGridCell<String>(columnName: 'daoXa', value: order.daoXa ?? ''),
       DataGridCell<String>(
         columnName: 'structure',
         value: order.formatterStructureOrder,
@@ -173,8 +175,8 @@ class OrderDataSource extends DataGridSource {
     ];
 
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return 'Không';
-      return value == true ? 'Có' : 'Không';
+      if (value == null) return '';
+      return value == true ? 'Có' : '';
     }
 
     return value?.toString() ?? '';

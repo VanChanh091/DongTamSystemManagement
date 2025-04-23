@@ -351,86 +351,88 @@ class _ProductPageState extends State<ProductPage> {
           ),
 
           // table
-          SizedBox(
-            width: double.infinity,
-            child: FutureBuilder<List<Product>>(
-              future: futureProducts,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+          Expanded(
+            child: SizedBox(
+              width: double.infinity,
+              child: FutureBuilder<List<Product>>(
+                future: futureProducts,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                if (snapshot.hasError) {
-                  return Text("Error: ${snapshot.error}");
-                }
+                  if (snapshot.hasError) {
+                    return Text("Error: ${snapshot.error}");
+                  }
 
-                final data = snapshot.data!;
+                  final data = snapshot.data!;
 
-                return SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: DataTable(
-                    columnSpacing: 25,
-                    headingRowColor: WidgetStatePropertyAll(
-                      Colors.grey.shade400,
-                    ),
-                    columns: [
-                      DataColumn(
-                        label: Checkbox(
-                          value: selectedAll,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedAll = value!;
-                              if (selectedAll) {
-                                isSelected =
-                                    data.map((e) => e.productId).toList();
-                              } else {
-                                isSelected.clear();
-                              }
-                            });
-                          },
-                        ),
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: DataTable(
+                      columnSpacing: 25,
+                      headingRowColor: WidgetStatePropertyAll(
+                        Colors.grey.shade400,
                       ),
-                      DataColumn(label: styleText("Mã Sản Phẩm")),
-                      DataColumn(label: styleText("Loại Sản Phẩm")),
-                      DataColumn(label: styleText("Tên Sản Phẩm")),
-                      DataColumn(label: styleText("Mã Khuôn")),
-                    ],
-                    rows: List<DataRow>.generate(data.length, (index) {
-                      final product = data[index];
-                      return DataRow(
-                        color: WidgetStateProperty.all(
-                          index % 2 == 0
-                              ? Colors.white
-                              : const Color.fromARGB(77, 184, 184, 184),
-                        ),
-                        cells: [
-                          DataCell(
-                            Checkbox(
-                              value: isSelected.contains(product.productId),
-                              onChanged: (val) {
-                                setState(() {
-                                  if (val == true) {
-                                    isSelected.add(product.productId);
-                                  } else {
-                                    isSelected.remove(product.productId);
-                                  }
-
-                                  selectedAll =
-                                      isSelected.length == data.length;
-                                });
-                              },
-                            ),
+                      columns: [
+                        DataColumn(
+                          label: Checkbox(
+                            value: selectedAll,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedAll = value!;
+                                if (selectedAll) {
+                                  isSelected =
+                                      data.map((e) => e.productId).toList();
+                                } else {
+                                  isSelected.clear();
+                                }
+                              });
+                            },
                           ),
-                          DataCell(styleCell(null, product.productId)),
-                          DataCell(styleCell(null, product.typeProduct)),
-                          DataCell(styleCell(null, product.productName)),
-                          DataCell(styleCell(null, product.maKhuon)),
-                        ],
-                      );
-                    }),
-                  ),
-                );
-              },
+                        ),
+                        DataColumn(label: styleText("Mã Sản Phẩm")),
+                        DataColumn(label: styleText("Loại Sản Phẩm")),
+                        DataColumn(label: styleText("Tên Sản Phẩm")),
+                        DataColumn(label: styleText("Mã Khuôn")),
+                      ],
+                      rows: List<DataRow>.generate(data.length, (index) {
+                        final product = data[index];
+                        return DataRow(
+                          color: WidgetStateProperty.all(
+                            index % 2 == 0
+                                ? Colors.white
+                                : const Color.fromARGB(77, 184, 184, 184),
+                          ),
+                          cells: [
+                            DataCell(
+                              Checkbox(
+                                value: isSelected.contains(product.productId),
+                                onChanged: (val) {
+                                  setState(() {
+                                    if (val == true) {
+                                      isSelected.add(product.productId);
+                                    } else {
+                                      isSelected.remove(product.productId);
+                                    }
+
+                                    selectedAll =
+                                        isSelected.length == data.length;
+                                  });
+                                },
+                              ),
+                            ),
+                            DataCell(styleCell(product.productId)),
+                            DataCell(styleCell(product.typeProduct)),
+                            DataCell(styleCell(product.productName)),
+                            DataCell(styleCell(product.maKhuon)),
+                          ],
+                        );
+                      }),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -445,7 +447,7 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  Widget styleCell(double? width, String text) {
-    return Container(width: width, child: Text(text, maxLines: 2));
+  Widget styleCell(String text) {
+    return SizedBox(child: Text(text, maxLines: 2));
   }
 }

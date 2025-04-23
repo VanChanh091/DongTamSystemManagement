@@ -362,94 +362,111 @@ class _CustomerPageState extends State<CustomerPage> {
           ),
 
           // table
-          SizedBox(
-            width: double.infinity,
-            child: FutureBuilder<List<Customer>>(
-              future: futureCustomer,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+          Expanded(
+            child: SizedBox(
+              width: double.infinity,
+              child: FutureBuilder<List<Customer>>(
+                future: futureCustomer,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                if (snapshot.hasError) {
-                  return Text("Error: ${snapshot.error}");
-                }
+                  if (snapshot.hasError) {
+                    return Text("Error: ${snapshot.error}");
+                  }
 
-                final data = snapshot.data!;
+                  final data = snapshot.data!;
 
-                return SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: DataTable(
-                    columnSpacing: 25,
-                    headingRowColor: WidgetStatePropertyAll(
-                      Colors.grey.shade400,
-                    ),
-                    columns: [
-                      DataColumn(
-                        label: Checkbox(
-                          value: selectedAll,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedAll = value!;
-                              if (selectedAll) {
-                                isSelected =
-                                    data.map((e) => e.customerId).toList();
-                              } else {
-                                isSelected.clear();
-                              }
-                            });
-                          },
-                        ),
+                  // Sort the data by the numeric part of customerId in ascending order
+                  data.sort((a, b) {
+                    final aNumeric =
+                        int.tryParse(
+                          a.customerId.replaceAll(RegExp(r'[^0-9]'), ''),
+                        ) ??
+                        0;
+                    final bNumeric =
+                        int.tryParse(
+                          b.customerId.replaceAll(RegExp(r'[^0-9]'), ''),
+                        ) ??
+                        0;
+                    return aNumeric.compareTo(bNumeric);
+                  });
+
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: DataTable(
+                      columnSpacing: 25,
+                      headingRowColor: WidgetStatePropertyAll(
+                        Colors.grey.shade400,
                       ),
-                      DataColumn(label: styleText("Mã KH")),
-                      DataColumn(label: styleText("Tên KH")),
-                      DataColumn(label: styleText('Tên Công Ty')),
-                      DataColumn(label: styleText("Địa chỉ công ty")),
-                      DataColumn(label: styleText("Địa chỉ Giao Hàng")),
-                      DataColumn(label: styleText('MST')),
-                      DataColumn(label: styleText("SDT")),
-                      DataColumn(label: styleText("CSKH")),
-                    ],
-                    rows: List<DataRow>.generate(data.length, (index) {
-                      final customer = data[index];
-                      return DataRow(
-                        color: WidgetStateProperty.all(
-                          index % 2 == 0
-                              ? Colors.white
-                              : const Color.fromARGB(77, 184, 184, 184),
-                        ),
-                        cells: [
-                          DataCell(
-                            Checkbox(
-                              value: isSelected.contains(customer.customerId),
-                              onChanged: (val) {
-                                setState(() {
-                                  if (val == true) {
-                                    isSelected.add(customer.customerId);
-                                  } else {
-                                    isSelected.remove(customer.customerId);
-                                  }
-
-                                  selectedAll =
-                                      isSelected.length == data.length;
-                                });
-                              },
-                            ),
+                      columns: [
+                        DataColumn(
+                          label: Checkbox(
+                            value: selectedAll,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedAll = value!;
+                                if (selectedAll) {
+                                  isSelected =
+                                      data.map((e) => e.customerId).toList();
+                                } else {
+                                  isSelected.clear();
+                                }
+                              });
+                            },
                           ),
-                          DataCell(styleCell(null, customer.customerId)),
-                          DataCell(styleCell(120, customer.customerName)),
-                          DataCell(styleCell(200, customer.companyName)),
-                          DataCell(styleCell(null, customer.companyAddress)),
-                          DataCell(styleCell(null, customer.shippingAddress)),
-                          DataCell(styleCell(null, customer.mst)),
-                          DataCell(styleCell(null, customer.phone)),
-                          DataCell(styleCell(55, customer.cskh)),
-                        ],
-                      );
-                    }),
-                  ),
-                );
-              },
+                        ),
+                        DataColumn(label: styleText("Mã KH")),
+                        DataColumn(label: styleText("Tên KH")),
+                        DataColumn(label: styleText('Tên Công Ty')),
+                        DataColumn(label: styleText("Địa chỉ công ty")),
+                        DataColumn(label: styleText("Địa chỉ Giao Hàng")),
+                        DataColumn(label: styleText('MST')),
+                        DataColumn(label: styleText("SDT")),
+                        DataColumn(label: styleText("CSKH")),
+                      ],
+                      rows: List<DataRow>.generate(data.length, (index) {
+                        final customer = data[index];
+                        return DataRow(
+                          color: WidgetStateProperty.all(
+                            index % 2 == 0
+                                ? Colors.white
+                                : const Color.fromARGB(77, 184, 184, 184),
+                          ),
+                          cells: [
+                            DataCell(
+                              Checkbox(
+                                value: isSelected.contains(customer.customerId),
+                                onChanged: (val) {
+                                  setState(() {
+                                    if (val == true) {
+                                      isSelected.add(customer.customerId);
+                                    } else {
+                                      isSelected.remove(customer.customerId);
+                                    }
+
+                                    selectedAll =
+                                        isSelected.length == data.length;
+                                  });
+                                },
+                              ),
+                            ),
+                            DataCell(styleCell(null, customer.customerId)),
+                            DataCell(styleCell(120, customer.customerName)),
+                            DataCell(styleCell(200, customer.companyName)),
+                            DataCell(styleCell(null, customer.companyAddress)),
+                            DataCell(styleCell(null, customer.shippingAddress)),
+                            DataCell(styleCell(null, customer.mst)),
+                            DataCell(styleCell(null, customer.phone)),
+                            DataCell(styleCell(55, customer.cskh)),
+                          ],
+                        );
+                      }),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],

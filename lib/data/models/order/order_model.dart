@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 class Order {
   final String orderId;
   final String? QC_box;
+  final String? canLan;
+  final String? daoXa;
   final String? day;
   final String? middle_1;
   final String? middle_2;
@@ -39,6 +41,8 @@ class Order {
     required this.customerId,
     required this.productId,
     this.QC_box,
+    this.canLan,
+    this.daoXa,
     this.day,
     this.middle_1,
     this.middle_2,
@@ -125,6 +129,8 @@ class Order {
       productId: json['productId'] ?? "PRODUCT",
       dayReceiveOrder: DateTime.parse(json['dayReceiveOrder']),
       QC_box: json['QC_box'] ?? "",
+      canLan: json['canLan'] ?? "",
+      daoXa: json['daoXa'] ?? "",
       day: json['day'] ?? "",
       middle_1: json['middle_1'] ?? "",
       middle_2: json['middle_2'] ?? "",
@@ -177,6 +183,8 @@ class Order {
       'productId': productId,
       'dayReceiveOrder': DateFormat('yyyy-MM-dd').format(dayReceiveOrder),
       'QC_box': QC_box,
+      'canLan': canLan,
+      'daoXa': daoXa,
       'day': day,
       'middle_1': middle_1,
       'middle_2': middle_2,

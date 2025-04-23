@@ -15,6 +15,8 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'typeProduct', label: formatColumn("Loại SP")),
     GridColumn(columnName: 'productName', label: formatColumn("Tên SP")),
     GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
+    GridColumn(columnName: 'canLan', label: formatColumn("Cấn Lằn")),
+    GridColumn(columnName: 'daoXa', label: formatColumn("Dao Xả")),
     GridColumn(
       columnName: 'structure',
       label: formatColumn("Kết Cấu Đặt Thùng"),

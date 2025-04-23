@@ -28,7 +28,7 @@ class ProductService {
     try {
       final response = await dioService.get(
         '/api/product/productId',
-        queryParameters: {'id': productId},
+        queryParameters: {"id": productId},
       );
 
       final List<dynamic> productsData = response.data['data'];

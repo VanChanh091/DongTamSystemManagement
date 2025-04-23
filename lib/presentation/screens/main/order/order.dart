@@ -397,7 +397,7 @@ class _OrderPageState extends State<OrderPage> {
                   source: orderDataSource,
                   isScrollbarAlwaysShown: true,
                   // allowSorting: true,
-                  selectionMode: SelectionMode.single,
+                  selectionMode: SelectionMode.multiple,
                   onSelectionChanged: (addedRows, removedRows) {
                     // get selected row
                     setState(() {
