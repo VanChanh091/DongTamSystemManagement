@@ -488,6 +488,12 @@ class _OrderDialogState extends State<OrderDialog> {
                       ),
                 );
               },
+              onChanged: (value) {
+                if (value.isEmpty) {
+                  customerNameController.clear();
+                  customerCompanyController.clear();
+                }
+              },
             ),
 
         'middle_2':
@@ -561,6 +567,13 @@ class _OrderDialogState extends State<OrderDialog> {
                         },
                       ),
                 );
+              },
+              onChanged: (value) {
+                if (value.isEmpty) {
+                  typeProduct.clear();
+                  nameSpController.clear();
+                  maKhuonController.clear();
+                }
               },
             ),
         'middle_1':

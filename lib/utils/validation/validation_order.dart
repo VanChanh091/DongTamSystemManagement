@@ -42,7 +42,6 @@ class ValidationOrder {
     IconData icon, {
     bool readOnly = false,
     VoidCallback? onTap,
-    VoidCallback? onSuffixTap,
   }) {
     return StatefulBuilder(
       builder: (context, setState) {
@@ -67,14 +66,6 @@ class ValidationOrder {
                         ? Colors.white
                         : Color.fromARGB(255, 148, 236, 154)),
             filled: true,
-            suffixIcon:
-                onSuffixTap != null
-                    ? IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: onSuffixTap,
-                      tooltip: 'Thêm $label',
-                    )
-                    : null,
           ),
           validator: (value) {
             if ((label == "Mã Đơn Hàng" ||

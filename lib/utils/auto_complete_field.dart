@@ -10,6 +10,7 @@ class AutoCompleteField<T> extends StatefulWidget {
   final IconData icon;
   final String Function(T item) displayStringForItem;
   final VoidCallback? onPlusTap;
+  final void Function(String) onChanged;
 
   const AutoCompleteField({
     super.key,
@@ -21,6 +22,7 @@ class AutoCompleteField<T> extends StatefulWidget {
     required this.icon,
     required this.displayStringForItem,
     this.onPlusTap,
+    required this.onChanged,
   });
 
   @override
@@ -71,12 +73,12 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
             labelText: widget.labelText,
             prefixIcon: Icon(
               widget.icon,
-              color: isFilled ? Colors.cyan : Colors.black,
+              color: isFilled ? Colors.red : Colors.black,
             ),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            filled: true,
             fillColor:
                 isFilled ? Color.fromARGB(255, 148, 236, 154) : Colors.white,
+            filled: true,
             suffixIcon:
                 widget.onPlusTap != null
                     ? IconButton(
@@ -85,9 +87,12 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
                     )
                     : null,
           ),
-          // onChanged: (val) => _internalController.text = val,
+          onChanged: (val) {
+            widget.onChanged(val);
+          },
         );
       },
+      constraints: BoxConstraints(maxHeight: 200),
       emptyBuilder:
           (context) => const Padding(
             padding: EdgeInsets.all(8.0),
