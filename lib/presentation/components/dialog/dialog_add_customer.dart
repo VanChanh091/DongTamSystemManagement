@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_Service.dart';
+import 'package:dongtam/utils/validation/validation_customer.dart';
 import 'package:flutter/material.dart';
 
 class CustomerDialog extends StatefulWidget {
@@ -18,6 +19,7 @@ class CustomerDialog extends StatefulWidget {
 
 class _CustomerDialogState extends State<CustomerDialog> {
   final formKey = GlobalKey<FormState>();
+  List<Customer> allCustomers = [];
 
   final _idController = TextEditingController();
   final _nameController = TextEditingController();
@@ -41,6 +43,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       _phoneController.text = widget.customer!.phone;
       _cskhController.text = widget.customer!.cskh;
     }
+    fetchAllCustomer();
   }
 
   @override
@@ -56,8 +59,86 @@ class _CustomerDialogState extends State<CustomerDialog> {
     super.dispose();
   }
 
+  Future<void> fetchAllCustomer() async {
+    try {
+      allCustomers = await CustomerService().getAllCustomers();
+    } catch (e) {
+      print("Lỗi lấy danh sách khách hàng: $e");
+    }
+  }
+
   void submit() async {
     if (!formKey.currentState!.validate()) return;
+
+    if (widget.customer == null) {
+      final isPhoneExist = allCustomers.any(
+        (customer) => customer.phone == _phoneController.text,
+      );
+
+      if (isPhoneExist) {
+        final shouldContinue = await showDialog<bool>(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                title: Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Cảnh báo',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                content: const Text(
+                  'Số điện thoại này đã tồn tại trong hệ thống.\nBạn có chắc chắn muốn tiếp tục lưu không?',
+                  style: TextStyle(fontSize: 16),
+                ),
+                actionsPadding: EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 15,
+                ),
+                actionsAlignment: MainAxisAlignment.spaceBetween,
+                actions: [
+                  TextButton.icon(
+                    label: const Text(
+                      "Huỷ",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.red,
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(false),
+                  ),
+                  ElevatedButton.icon(
+                    label: const Text(
+                      "Tiếp tục",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(true),
+                  ),
+                ],
+              ),
+        );
+
+        if (shouldContinue != true) return;
+      }
+    }
 
     // Chuẩn hóa dữ liệu đầu vào
     final newCustomer = Customer(
@@ -99,55 +180,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
     }
   }
 
-  static validateInput(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
-    bool readOnly = false,
-  }) {
-    return TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        fillColor: readOnly ? Colors.grey.shade300 : Colors.white,
-        filled: true,
-      ),
-      validator: (value) {
-        if ((label == 'Mã Khách hàng' ||
-                label == "Tên khách hàng" ||
-                label == "Tên công ty" ||
-                label == "Địa chỉ công ty" ||
-                label == "Địa chỉ giao hàng" ||
-                label == "CSKH") &&
-            (value == null || value.isEmpty)) {
-          return 'Vui lòng nhập $label';
-        }
-        if (label == 'Mã Khách hàng' && value!.length > 6) {
-          return 'Mã khách hàng chỉ được nhập tối đa 6 ký tự';
-        }
-        if (label == "SDT" && value != null && value.isNotEmpty) {
-          if (!RegExp(r'^\d+$').hasMatch(value)) {
-            return 'Số điện thoại chỉ được chứa chữ số';
-          }
-        }
-        if (label == "MST" && value != null && value.isNotEmpty) {
-          if (!RegExp(r'^\d+$').hasMatch(value)) {
-            return 'Mã số thuế chỉ được chứa chữ số';
-          }
-        }
-        if ((label == 'Mã Khách hàng' || label == "CSKH") &&
-            RegExp(r'\d').hasMatch(value!)) {
-          return '$label không được chứa số';
-        }
-        return null;
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.customer != null;
@@ -170,38 +202,54 @@ class _CustomerDialogState extends State<CustomerDialog> {
             child: Column(
               children: [
                 const SizedBox(height: 15),
-                validateInput(
+                ValidationCustomer.validateInput(
                   "Mã Khách hàng",
                   _idController,
                   Icons.badge,
                   readOnly: isEdit,
                 ),
                 const SizedBox(height: 15),
-                validateInput("Tên khách hàng", _nameController, Icons.person),
+                ValidationCustomer.validateInput(
+                  "Tên khách hàng",
+                  _nameController,
+                  Icons.person,
+                ),
                 const SizedBox(height: 15),
-                validateInput(
+                ValidationCustomer.validateInput(
                   "Tên công ty",
                   _companyNameController,
                   Icons.business,
                 ),
                 const SizedBox(height: 15),
-                validateInput(
+                ValidationCustomer.validateInput(
                   "Địa chỉ công ty",
                   _companyAddressController,
                   Icons.location_city,
                 ),
                 const SizedBox(height: 15),
-                validateInput(
+                ValidationCustomer.validateInput(
                   "Địa chỉ giao hàng",
                   _shippingAddressController,
                   Icons.local_shipping,
                 ),
                 const SizedBox(height: 15),
-                validateInput("MST", _mstController, Icons.numbers),
+                ValidationCustomer.validateInput(
+                  "MST",
+                  _mstController,
+                  Icons.numbers,
+                ),
                 const SizedBox(height: 15),
-                validateInput("SDT", _phoneController, Icons.phone),
+                ValidationCustomer.validateInput(
+                  "SDT",
+                  _phoneController,
+                  Icons.phone,
+                ),
                 const SizedBox(height: 15),
-                validateInput("CSKH", _cskhController, Icons.support_agent),
+                ValidationCustomer.validateInput(
+                  "CSKH",
+                  _cskhController,
+                  Icons.support_agent,
+                ),
               ],
             ),
           ),
