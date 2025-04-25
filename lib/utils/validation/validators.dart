@@ -1,4 +1,4 @@
-class Validators {
+class ValidationAuth {
   static String? validateFullName(String? value) {
     if (value == null || value.trim().isEmpty) {
       return "Họ và tên không được để trống";
@@ -25,10 +25,12 @@ class Validators {
     if (value.length < 8) {
       return "Mật khẩu phải có ít nhất 8 ký tự";
     }
-    final passwordRegExp = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+
+    final passwordRegExp = RegExp(r'^(?=.*[A-Za-z])(?=.*\d).{8,}$');
     if (!passwordRegExp.hasMatch(value)) {
-      return "Mật khẩu phải bao gồm ít nhất một chữ cái và một số";
+      return "Mật khẩu phải chứa ít nhất một chữ cái và một số";
     }
+
     return null;
   }
 

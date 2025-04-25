@@ -156,27 +156,36 @@ class _CustomerDialogState extends State<CustomerDialog> {
       if (widget.customer == null) {
         // add
         await CustomerService().addCustomer(newCustomer.toJson());
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Thêm thành công")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Thêm thành công"),
+            duration: Duration(milliseconds: 2000),
+          ),
+        );
       } else {
         // update
         await CustomerService().updateCustomer(
           newCustomer.customerId,
           newCustomer.toJson(),
         );
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Cập nhật thành công")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Cập nhật thành công"),
+            duration: Duration(milliseconds: 2000),
+          ),
+        );
       }
 
       widget.onCustomerAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e) {
       print("Error: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Lỗi: không thể lưu dữ liệu")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Lỗi: không thể lưu dữ liệu"),
+          duration: Duration(milliseconds: 2000),
+        ),
+      );
     }
   }
 

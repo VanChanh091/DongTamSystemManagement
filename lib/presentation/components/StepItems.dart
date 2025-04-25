@@ -17,8 +17,8 @@ class StepItems extends StatelessWidget {
     return Expanded(
       child: Center(
         child: SizedBox(
-          width: 500,
-          height: 600,
+          width: 600,
+          height: 800,
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(

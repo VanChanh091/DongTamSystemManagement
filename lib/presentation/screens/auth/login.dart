@@ -14,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final AuthService authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -21,31 +22,17 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isObscureText = true;
 
   void login() async {
-    String? emailError = Validators.validateEmail(emailController.text);
-    String? passwordError = Validators.validatePassword(
-      passwordController.text,
-    );
-
-    if (emailError != null || passwordError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            emailError ?? passwordError ?? "Lỗi không xác định",
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-        ),
-      );
-      return;
-    }
-
-    bool susccess = await authService.login(
+    bool success = await authService.login(
       emailController.text,
       passwordController.text,
     );
-    if (susccess) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Đăng nhập thành công")));
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Đăng nhập thành công"),
+          duration: Duration(milliseconds: 2000),
+        ),
+      );
       Navigator.push(
         context,
         PageTransition(
@@ -55,9 +42,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Sai thông tin đăng nhập")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Sai thông tin đăng nhập"),
+          duration: Duration(milliseconds: 2000),
+        ),
+      );
     }
   }
 
@@ -82,77 +72,80 @@ class _LoginScreenState extends State<LoginScreen> {
               Expanded(
                 child: Center(
                   child: SizedBox(
-                    width: 600,
-                    height: 550,
+                    width: 700,
+                    height: 600,
                     child: Container(
-                      // constraints: BoxConstraints(maxWidth: 400, maxHeight: 600),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       margin: const EdgeInsets.all(35),
                       padding: const EdgeInsets.all(20),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          //title
-                          SizedBox(height: 20),
-                          Text(
-                            "Đăng nhập",
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 70),
-
-                          //email
-                          TextField(
-                            controller: emailController,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              hintText: 'Nhập email',
-                              prefixIcon: Icon(Icons.email),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: 20),
+                            Text(
+                              "Đăng nhập",
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                          SizedBox(height: 25),
+                            SizedBox(height: 70),
 
-                          //password
-                          TextField(
-                            controller: passwordController,
-                            obscureText: isObscureText,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Nhập mật khẩu',
-                              prefixIcon: Icon(Icons.lock),
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isObscureText = !isObscureText;
-                                  });
-                                },
-                                icon: Icon(
-                                  isObscureText
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
+                            // Email
+                            TextFormField(
+                              controller: emailController,
+                              decoration: InputDecoration(
+                                labelText: 'Email',
+                                prefixIcon: Icon(Icons.email),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+                              validator:
+                                  (value) =>
+                                      ValidationAuth.validateEmail(value),
                             ),
-                          ),
-                          SizedBox(height: 5),
+                            SizedBox(height: 25),
 
-                          //forgot password
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {},
+                            // Password
+                            TextFormField(
+                              controller: passwordController,
+                              obscureText: isObscureText,
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                hintText: 'Nhập mật khẩu',
+                                prefixIcon: Icon(Icons.lock),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isObscureText = !isObscureText;
+                                    });
+                                  },
+                                  icon: Icon(
+                                    isObscureText
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                  ),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              validator:
+                                  (value) =>
+                                      ValidationAuth.validatePassword(value),
+                            ),
+                            SizedBox(height: 5),
+
+                            // Quên mật khẩu
+                            Align(
+                              alignment: Alignment.centerRight,
                               child: TextButton(
                                 onPressed: () {
                                   Navigator.push(
@@ -173,62 +166,64 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 45),
+                            SizedBox(height: 35),
 
-                          //login button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                login();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Text(
-                                "Đăng nhập",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 5),
-
-                          //register
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text("Chưa có tài khoản?"),
-                              TextButton(
+                            // Nút đăng nhập
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    PageTransition(
-                                      duration: Duration(milliseconds: 500),
-                                      type: PageTransitionType.fade,
-                                      child: SignUp(),
-                                    ),
-                                  );
+                                  if (_formKey.currentState!.validate()) {
+                                    login();
+                                  }
                                 },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
                                 child: Text(
-                                  "Đăng ký",
+                                  "Đăng nhập",
                                   style: TextStyle(
-                                    color: Colors.blue.shade400,
+                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: 20,
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            SizedBox(height: 5),
+
+                            // Đăng ký
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Bạn chưa có tài khoản?"),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        duration: Duration(milliseconds: 500),
+                                        type: PageTransitionType.fade,
+                                        child: SignUp(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    "Đăng ký",
+                                    style: TextStyle(
+                                      color: Colors.blue.shade400,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

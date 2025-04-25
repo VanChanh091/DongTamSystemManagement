@@ -1,7 +1,6 @@
 import 'package:dongtam/presentation/components/StepItems.dart';
 import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
 import 'package:dongtam/service/auth_Service.dart';
-import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -14,40 +13,25 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
+  bool isObscureText = true;
+
   final AuthService authService = AuthService();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPwController = TextEditingController();
 
-  bool isObscureText = true;
-
   void changePassword() async {
-    String? errPassword = Validators.validatePassword(passwordController.text);
-    String? errConfirmPw = Validators.validateConfirmPassword(
-      passwordController.text,
-      confirmPwController.text,
-    );
-
-    if (errPassword != null || errConfirmPw != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            errPassword ?? errConfirmPw ?? "Lỗi không xác định",
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-        ),
-      );
-      return;
-    }
-
     bool success = await authService.changePassword(
       widget.email,
       passwordController.text,
       confirmPwController.text,
     );
     if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Thay đổi mật khẩu thành công")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Thay đổi mật khẩu thành công"),
+          duration: Duration(milliseconds: 2000),
+        ),
+      );
       Navigator.push(
         context,
         PageTransition(
@@ -57,9 +41,12 @@ class _ResetPasswordState extends State<ResetPassword> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Thay đổi mật khẩu thất bại")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Thay đổi mật khẩu thất bại"),
+          duration: Duration(milliseconds: 2000),
+        ),
+      );
     }
   }
 
