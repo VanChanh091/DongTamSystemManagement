@@ -128,9 +128,12 @@ class _OrderDialogState extends State<OrderDialog> {
             customerCompanyController.clear();
           });
 
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Không tìm thấy khách hàng')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Không tìm thấy khách hàng'),
+              duration: Duration(milliseconds: 2000),
+            ),
+          );
         }
       }
     } catch (e) {
@@ -161,9 +164,12 @@ class _OrderDialogState extends State<OrderDialog> {
             maKhuonController.clear();
           });
 
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Không tìm thấy sản phẩm')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Không tìm thấy sản phẩm'),
+              duration: Duration(milliseconds: 2000),
+            ),
+          );
         }
       }
     } catch (e) {
@@ -377,27 +383,36 @@ class _OrderDialogState extends State<OrderDialog> {
       if (widget.order == null) {
         //add
         await OrderService().addOrders(newOrder.toJson());
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Thêm thành công")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Thêm thành công"),
+            duration: Duration(milliseconds: 2000),
+          ),
+        );
       } else {
         //update
         await OrderService().updateOrderById(
           originalOrderId,
           newOrder.toJson(),
         );
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Cập nhật thành công")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Cập nhật thành công"),
+            duration: Duration(milliseconds: 2000),
+          ),
+        );
       }
 
       widget.onCustomerAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e) {
       print("Error: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Lỗi: không thể lưu dữ liệu")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Lỗi: không thể lưu dữ liệu"),
+          duration: Duration(milliseconds: 2000),
+        ),
+      );
     }
   }
 

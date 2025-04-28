@@ -71,10 +71,7 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
           focusNode: focusNode,
           decoration: InputDecoration(
             labelText: widget.labelText,
-            prefixIcon: Icon(
-              widget.icon,
-              color: isFilled ? Colors.red : Colors.black,
-            ),
+            prefixIcon: Icon(widget.icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             fillColor:
                 isFilled ? Color.fromARGB(255, 148, 236, 154) : Colors.white,
