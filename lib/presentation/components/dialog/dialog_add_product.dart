@@ -113,9 +113,6 @@ class _ProductDialogState extends State<ProductDialog> {
         if (value == null || value.isEmpty) {
           return "Không được để trống";
         }
-        if (label == 'Mã Sản Phẩm' && value.length > 10) {
-          return 'Mã khách hàng chỉ được nhập tối đa 10 ký tự';
-        }
         return null;
       },
     );
