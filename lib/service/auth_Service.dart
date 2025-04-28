@@ -51,6 +51,7 @@ class AuthService {
 
       if (response.statusCode == 201) {
         String token = response.data['token'];
+        print('Token lấy từ storage: $token');
         await secureStorage.saveToken(token);
         return true;
       } else {

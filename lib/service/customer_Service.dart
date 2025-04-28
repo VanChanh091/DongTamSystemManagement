@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
+import 'package:dongtam/utils/secure_storage_service.dart';
 
 class CustomerService {
   final Dio dioService = Dio(
@@ -14,7 +15,17 @@ class CustomerService {
   // get all
   Future<List<Customer>> getAllCustomers() async {
     try {
-      final response = await dioService.get("/api/customer/");
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        "/api/customer/",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
       final data = response.data['data'] as List;
 
       return data.map((e) => Customer.fromJson(e)).toList();
@@ -26,7 +37,17 @@ class CustomerService {
   // get by id
   Future<List<Customer>> getCustomerById(String customerId) async {
     try {
-      final response = await dioService.get('/api/customer/$customerId');
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/customer/$customerId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
 
       final List<dynamic> customersData = response.data['data'];
       return customersData
@@ -45,10 +66,19 @@ class CustomerService {
   // get by name
   Future<List<Customer>> getCustomerByName(String customerName) async {
     try {
+      final token = await SecureStorageService().getToken();
+
       final response = await dioService.get(
-        '/api/customer/search/$customerName',
+        '/api/customer/byName/$customerName',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
       );
-      final List<dynamic> customersData = response.data['customer'];
+
+      final List<dynamic> customersData = response.data['data'];
       return customersData
           .map((json) => Customer.fromJson(json))
           .where(
@@ -65,8 +95,18 @@ class CustomerService {
   // get by cskh
   Future<List<Customer>> getCustomerByCSKH(String nameCSKH) async {
     try {
-      final response = await dioService.get('/api/customer/cskh/$nameCSKH');
-      final List<dynamic> customersData = response.data['customer'];
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/customer/cskh/$nameCSKH',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final List<dynamic> customersData = response.data['data'];
       return customersData
           .map((json) => Customer.fromJson(json))
           .where(
@@ -82,8 +122,18 @@ class CustomerService {
   // get by cskh
   Future<List<Customer>> getCustomerByPhone(String phone) async {
     try {
-      final response = await dioService.get('/api/customer/phone/$phone');
-      final List<dynamic> customersData = response.data['customer'];
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/customer/phone/$phone',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final List<dynamic> customersData = response.data['data'];
       return customersData
           .map((json) => Customer.fromJson(json))
           .where((customer) => customer.phone.contains(phone))
@@ -96,7 +146,18 @@ class CustomerService {
   // add customer
   Future<bool> addCustomer(Map<String, dynamic> customerData) async {
     try {
-      await dioService.post("/api/customer/", data: customerData);
+      final token = await SecureStorageService().getToken();
+
+      await dioService.post(
+        "/api/customer/",
+        data: customerData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
       return true;
     } catch (e) {
       throw Exception('Failed to add customer: $e');
@@ -109,7 +170,17 @@ class CustomerService {
     Map<String, dynamic> updateCustomer,
   ) async {
     try {
-      await dioService.put("/api/customer/$customerId", data: updateCustomer);
+      final token = await SecureStorageService().getToken();
+      await dioService.put(
+        "/api/customer/$customerId",
+        data: updateCustomer,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
       return true;
     } catch (e) {
       throw Exception('Failed to update customer: $e');
@@ -119,7 +190,17 @@ class CustomerService {
   // delete customer
   Future<bool> deleteCustomer(String customerId) async {
     try {
-      await dioService.delete('/api/customer/$customerId');
+      final token = await SecureStorageService().getToken();
+
+      await dioService.delete(
+        '/api/customer/$customerId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
       return true;
     } catch (e) {
       throw Exception('Failed to delete customer: $e');

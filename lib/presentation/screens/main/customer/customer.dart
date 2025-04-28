@@ -23,6 +23,7 @@ class _CustomerPageState extends State<CustomerPage> {
   void initState() {
     super.initState();
     futureCustomer = CustomerService().getAllCustomers();
+    print(CustomerService().getAllCustomers());
   }
 
   void searchCustomer() {
