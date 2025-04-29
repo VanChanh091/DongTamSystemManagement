@@ -377,6 +377,7 @@ class _OrderDialogState extends State<OrderDialog> {
       instructSpecial: instructSpecialController.text,
       totalPrice: totalPriceOrder,
       box: newBox,
+      status: 'pending',
     );
 
     try {

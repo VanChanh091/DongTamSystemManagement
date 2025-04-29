@@ -1,9 +1,11 @@
 import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
+import 'package:dongtam/presentation/screens/main/admin/admin_Order.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
+import 'package:dongtam/presentation/screens/main/admin/admin_Planing.dart';
 import 'package:dongtam/presentation/screens/main/order/order.dart';
-import 'package:dongtam/presentation/screens/main/planning/planing.dart';
+import 'package:dongtam/presentation/screens/main/planning/planing_Order.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +29,9 @@ class _HomePageState extends State<HomePage> {
     OrderPage(),
     CustomerPage(),
     ProductPage(),
-    PlaningPage(),
+    PlaningOrder(),
+    AdminOrder(),
+    AdminPlaning(),
   ];
 
   void logout() async {
@@ -63,12 +67,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Hàm tạo sub-menu trong ExpansionTile
-  Widget _buildSubMenuItem(String title, VoidCallback onTap, IconData icon) {
+  Widget _buildSubMenuItem(IconData icon, String title, int index) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(title, style: TextStyle(color: Colors.white, fontSize: 16)),
       onTap: () {
-        onTap();
+        sidebarController.selectedIndex.value = index;
+        sidebarController.changePage(index);
         Navigator.pop(context);
       },
     );
@@ -77,6 +82,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // appbar
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2,
@@ -155,14 +161,41 @@ class _HomePageState extends State<HomePage> {
                         childrenPadding: EdgeInsets.only(left: 20),
                         children: [
                           _buildSubMenuItem(
-                            "Chờ lên kế hoạch",
-                            () {},
                             Icons.schedule,
+                            "Chờ lên kế hoạch",
+                            4,
                           ),
+                          // _buildSubMenuItem(
+                          //   Icons.production_quantity_limits,
+                          //   "Hàng đang sản xuất",
+                          //   5,
+                          // ),
+                        ],
+                      ),
+                    ),
+
+                    Theme(
+                      data: Theme.of(
+                        context,
+                      ).copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        leading: Icon(
+                          Symbols.bookmark_manager,
+                          color: Colors.white,
+                        ),
+                        title: Text(
+                          "Quản lý",
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                        iconColor: Colors.white,
+                        collapsedIconColor: Colors.white,
+                        childrenPadding: EdgeInsets.only(left: 20),
+                        children: [
+                          _buildSubMenuItem(Symbols.docs, "Duyệt đơn hàng", 5),
                           _buildSubMenuItem(
-                            "Hàng đang sản xuất",
-                            () {},
-                            Icons.production_quantity_limits,
+                            Symbols.event_note,
+                            "Duyệt kế hoạch",
+                            6,
                           ),
                         ],
                       ),

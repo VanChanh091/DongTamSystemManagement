@@ -28,6 +28,7 @@ class Order {
   final DateTime dayReceiveOrder;
   final DateTime dateRequestShipping;
   final String? instructSpecial;
+  final String status;
   final String customerId;
   final String productId;
 
@@ -61,6 +62,7 @@ class Order {
     required this.dateRequestShipping,
     this.instructSpecial,
     this.vat,
+    required this.status,
     required this.totalPrice,
     this.customer,
     this.box,
@@ -168,6 +170,7 @@ class Order {
               : (json['totalPrice'] ?? 0.0) as double,
       dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
       instructSpecial: json['instructSpecial'] ?? "",
+      status: json['status'] ?? "",
       customer:
           json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
       product:
@@ -204,6 +207,7 @@ class Order {
         'yyyy-MM-dd',
       ).format(dateRequestShipping),
       'instructSpecial': instructSpecial,
+      'status': status,
       'vat': vat,
       'totalPrice': totalPrice,
       'box': box?.toJson(),

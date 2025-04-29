@@ -131,6 +131,7 @@ class OrderDataSource extends DataGridSource {
         columnName: 'HD_special',
         value: order.instructSpecial ?? "",
       ),
+      DataGridCell(columnName: 'status', value: formatStatus(order.status)),
     ];
   }
 
@@ -144,6 +145,15 @@ class OrderDataSource extends DataGridSource {
         }).toList();
 
     notifyListeners();
+  }
+
+  String formatStatus(String status) {
+    if (status == 'accept') {
+      return 'Chấp nhận';
+    } else if (status == 'reject') {
+      return "Từ chối";
+    }
+    return "Chờ Duyệt";
   }
 
   @override

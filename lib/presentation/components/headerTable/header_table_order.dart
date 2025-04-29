@@ -52,6 +52,7 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
     GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
     GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
+    GridColumn(columnName: 'status', label: formatColumn("Trạng thái")),
   ];
 }
 

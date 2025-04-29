@@ -211,7 +211,7 @@ class OrderService {
       );
       return true;
     } catch (e) {
-      throw Exception('Failed to load orders: $e');
+      throw Exception('Failed to update orders: $e');
     }
   }
 
