@@ -152,6 +152,8 @@ class OrderDataSource extends DataGridSource {
       return 'Chấp nhận';
     } else if (status == 'reject') {
       return "Từ chối";
+    } else if (status == 'planning') {
+      return "Đã lên kế hoạch";
     }
     return "Chờ Duyệt";
   }

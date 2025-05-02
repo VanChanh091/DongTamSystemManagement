@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SecureStorageService secureStorage = SecureStorageService();
-  await secureStorage.deleteToken();
+  // await secureStorage.deleteToken();
 
   String? token = await secureStorage.getToken();
   runApp(MyApp(isLoggedIn: token != null));

@@ -10,6 +10,8 @@ class AdminPlaning extends StatefulWidget {
 class _AdminPlaningState extends State<AdminPlaning> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Center(
+      child: Text("Trang quản lý Ke hoach", style: TextStyle(fontSize: 24)),
+    );
   }
 }

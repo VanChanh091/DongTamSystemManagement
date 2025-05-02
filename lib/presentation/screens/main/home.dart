@@ -1,15 +1,15 @@
 import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_Order.dart';
+import 'package:dongtam/presentation/screens/main/admin/pendingOrder.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_Planing.dart';
 import 'package:dongtam/presentation/screens/main/order/order.dart';
 import 'package:dongtam/presentation/screens/main/planning/planing_Order.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -30,8 +30,7 @@ class _HomePageState extends State<HomePage> {
     CustomerPage(),
     ProductPage(),
     PlaningOrder(),
-    AdminOrder(),
-    AdminPlaning(),
+    PendingOrder(),
   ];
 
   void logout() async {
@@ -53,7 +52,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Hàm tạo item menu Drawer
   Widget _buildDrawerItem(IconData icon, String title, int index) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
@@ -61,12 +59,11 @@ class _HomePageState extends State<HomePage> {
       onTap: () {
         sidebarController.selectedIndex.value = index;
         sidebarController.changePage(index);
-        Navigator.pop(context); // Đóng Drawer sau khi chọn
+        Navigator.pop(context);
       },
     );
   }
 
-  // Hàm tạo sub-menu trong ExpansionTile
   Widget _buildSubMenuItem(IconData icon, String title, int index) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
@@ -82,37 +79,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appbar
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 2,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications, size: 35),
-            onPressed: () {},
-          ),
-          SizedBox(width: 8),
-          Container(
-            color: Colors.white,
-            width: 35,
-            height: 35,
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(
-                "https://static.vecteezy.com/system/resources/previews/024/983/914/original/simple-user-default-icon-free-png.png",
-              ),
-            ),
-          ),
-          SizedBox(width: 16),
-        ],
-      ),
-
-      //drawer
+      backgroundColor: Colors.white,
       drawer: Drawer(
         child: Container(
           color: Color(0xffcfa381),
           child: Column(
             children: [
-              // Header (Logo + Title)
               DrawerHeader(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -135,8 +107,6 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-
-              // Menu Items
               Expanded(
                 child: ListView(
                   children: [
@@ -144,8 +114,6 @@ class _HomePageState extends State<HomePage> {
                     _buildDrawerItem(Icons.shopping_cart, "Đơn hàng", 1),
                     _buildDrawerItem(Icons.person, "Khách hàng", 2),
                     _buildDrawerItem(Symbols.box, "Sản phẩm", 3),
-
-                    // Expansion Tile
                     Theme(
                       data: Theme.of(
                         context,
@@ -165,15 +133,9 @@ class _HomePageState extends State<HomePage> {
                             "Chờ lên kế hoạch",
                             4,
                           ),
-                          // _buildSubMenuItem(
-                          //   Icons.production_quantity_limits,
-                          //   "Hàng đang sản xuất",
-                          //   5,
-                          // ),
                         ],
                       ),
                     ),
-
                     Theme(
                       data: Theme.of(
                         context,
@@ -191,21 +153,14 @@ class _HomePageState extends State<HomePage> {
                         collapsedIconColor: Colors.white,
                         childrenPadding: EdgeInsets.only(left: 20),
                         children: [
-                          _buildSubMenuItem(Symbols.docs, "Duyệt đơn hàng", 5),
-                          _buildSubMenuItem(
-                            Symbols.event_note,
-                            "Duyệt kế hoạch",
-                            6,
-                          ),
+                          _buildSubMenuItem(Symbols.docs, "Chờ duyệt", 5),
                         ],
                       ),
                     ),
                   ],
                 ),
               ),
-
-              // Đăng xuất
-              Divider(), //Đẩy xuống cuối
+              Divider(),
               ListTile(
                 leading: Icon(Icons.logout, color: Colors.white),
                 title: Text(
@@ -218,9 +173,56 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-
-      // Nội dung hiển thị khi chọn menu
-      body: Obx(() => pages[sidebarController.selectedIndex.value]),
+      body: Column(
+        children: [
+          Container(
+            height: 60,
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Color(0xffcfa381),
+              // color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 6,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Builder(
+                  builder:
+                      (context) => IconButton(
+                        icon: Icon(Icons.menu, color: Colors.black87),
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                      ),
+                ),
+                Spacer(),
+                IconButton(
+                  icon: Icon(
+                    Icons.notifications,
+                    size: 28,
+                    color: Colors.black87,
+                  ),
+                  onPressed: () {},
+                ),
+                SizedBox(width: 8),
+                CircleAvatar(
+                  radius: 18,
+                  backgroundImage: NetworkImage(
+                    "https://static.vecteezy.com/system/resources/previews/024/983/914/original/simple-user-default-icon-free-png.png",
+                  ),
+                ),
+                SizedBox(width: 16),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Obx(() => pages[sidebarController.selectedIndex.value]),
+          ),
+        ],
+      ),
     );
   }
 }
