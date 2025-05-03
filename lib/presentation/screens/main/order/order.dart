@@ -21,6 +21,7 @@ class _OrderPageState extends State<OrderPage> {
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
   String? selectedOrderId;
+  bool isAcceptStatus = true;
   bool isTextFieldEnabled = false;
   final formatter = DateFormat('dd/MM/yyyy');
 
@@ -237,46 +238,39 @@ class _OrderPageState extends State<OrderPage> {
 
                       //update
                       ElevatedButton.icon(
-                        onPressed: () {
-                          if (selectedOrderId == null) {
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Vui lòng chọn một đơn hàng để sửa!",
-                                ),
-                              ),
-                            );
-                            return;
-                          }
+                        onPressed:
+                            (selectedOrderId == null || isAcceptStatus)
+                                ? null // Disable nút nếu không chọn đơn hàng hoặc đơn hàng đã "accept"
+                                : () {
+                                  // Lấy đơn hàng dựa trên selectedOrderId
+                                  final selectedOrder = futureOrders.then(
+                                    (orders) => orders.firstWhere(
+                                      (order) =>
+                                          order.orderId == selectedOrderId,
+                                    ),
+                                  );
 
-                          // Tìm đơn hàng dựa trên selectedOrderId
-                          final selectedOrder = futureOrders.then(
-                            (orders) => orders.firstWhere(
-                              (order) => order.orderId == selectedOrderId,
-                            ),
-                          );
-
-                          selectedOrder
-                              .then((order) {
-                                showDialog(
-                                  context: context,
-                                  builder:
-                                      (_) => OrderDialog(
-                                        order: order,
-                                        onCustomerAddOrUpdate: () {
-                                          setState(() {
-                                            futureOrders =
-                                                OrderService().getAllOrders();
-                                          });
-                                        },
-                                      ),
-                                );
-                              })
-                              .catchError((e) {
-                                print("Không tìm thấy đơn hàng: $e");
-                              });
-                        },
+                                  selectedOrder
+                                      .then((order) {
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (_) => OrderDialog(
+                                                order: order,
+                                                onCustomerAddOrUpdate: () {
+                                                  setState(() {
+                                                    futureOrders =
+                                                        OrderService()
+                                                            .getAllOrders();
+                                                  });
+                                                },
+                                              ),
+                                        );
+                                      })
+                                      .catchError((e) {
+                                        print("Không tìm thấy đơn hàng: $e");
+                                      });
+                                },
                         label: Text(
                           "Sửa",
                           style: TextStyle(
@@ -297,6 +291,7 @@ class _OrderPageState extends State<OrderPage> {
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 10),
 
                       //delete customers
@@ -397,18 +392,34 @@ class _OrderPageState extends State<OrderPage> {
                   source: orderDataSource,
                   isScrollbarAlwaysShown: true,
                   // allowSorting: true,
-                  selectionMode: SelectionMode.multiple,
+                  selectionMode: SelectionMode.single,
                   onSelectionChanged: (addedRows, removedRows) {
-                    // get selected row
-                    setState(() {
-                      if (addedRows.isNotEmpty) {
-                        selectedOrderId =
-                            addedRows.first.getCells()[0].value.toString();
-                      } else {
+                    if (addedRows.isNotEmpty) {
+                      final selectedRow = addedRows.first;
+                      final orderId =
+                          selectedRow.getCells()[0].value.toString();
+
+                      final selectedOrder = data.firstWhere(
+                        (order) => order.orderId == orderId,
+                      );
+
+                      setState(() {
+                        selectedOrderId = selectedOrder.orderId;
+                        isAcceptStatus =
+                            selectedOrder.status.toLowerCase() == 'accept';
+                      });
+
+                      print(
+                        '✅ Selected Order: $selectedOrderId | Status: ${selectedOrder.status}',
+                      );
+                    } else {
+                      setState(() {
                         selectedOrderId = null;
-                      }
-                    });
+                        isAcceptStatus = false;
+                      });
+                    }
                   },
+
                   columnWidthMode: ColumnWidthMode.auto,
                   columns: buildCommonColumns(),
                 );
@@ -426,5 +437,5 @@ Widget styleText(String text) {
 }
 
 Widget styleCell(double? width, String text) {
-  return Container(width: width, child: Text(text, maxLines: 3));
+  return SizedBox(width: width, child: Text(text, maxLines: 3));
 }

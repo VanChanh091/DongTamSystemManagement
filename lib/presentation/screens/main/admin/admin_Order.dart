@@ -1,5 +1,8 @@
+import 'package:dongtam/service/admin_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:intl/intl.dart';
 
 class AdminOrder extends StatefulWidget {
   const AdminOrder({super.key});
@@ -8,111 +11,156 @@ class AdminOrder extends StatefulWidget {
   State<AdminOrder> createState() => _ManageOrderState();
 }
 
-class Order {
-  final String id;
-  final String customer;
-  final String date;
-  final double total;
-
-  Order({
-    required this.id,
-    required this.customer,
-    required this.date,
-    required this.total,
-  });
-}
-
 class _ManageOrderState extends State<AdminOrder> {
-  List<Order> orders = [
-    Order(
-      id: 'DH001',
-      customer: 'Nguyễn Văn A',
-      date: '28/04/2025',
-      total: 120000,
-    ),
-    Order(
-      id: 'DH002',
-      customer: 'Trần Thị B',
-      date: '29/04/2025',
-      total: 550000,
-    ),
-    Order(id: 'DH003', customer: 'Lê Văn C', date: '29/04/2025', total: 235000),
-    Order(
-      id: 'DH004',
-      customer: 'Phạm Thị D',
-      date: '30/04/2025',
-      total: 780000,
-    ),
-    Order(
-      id: 'DH005',
-      customer: 'Hoàng Văn E',
-      date: '30/04/2025',
-      total: 95000,
-    ),
-    Order(
-      id: 'DH006',
-      customer: 'Hoàng Văn E',
-      date: '30/04/2025',
-      total: 95000,
-    ),
-    Order(
-      id: 'DH007',
-      customer: 'Hoàng Văn E',
-      date: '30/04/2025',
-      total: 95000,
-    ),
-    Order(
-      id: 'DH008',
-      customer: 'Hoàng Văn E',
-      date: '30/04/2025',
-      total: 95000,
-    ),
-    Order(
-      id: 'DH009',
-      customer: 'Hoàng Văn E',
-      date: '30/04/2025',
-      total: 95000,
-    ),
-  ];
-
+  List<dynamic> orders = [];
   Order? selectedOrder;
+  final formatter = DateFormat('dd/MM/yyyy');
 
-  void _refreshOrders() {
+  @override
+  void initState() {
+    super.initState();
+    _loadOrders();
+  }
+
+  Future<void> _loadOrders() async {
+    final fetchedOrders = await AdminService().getOrderByStatus();
+    print(fetchedOrders);
     setState(() {
-      // Giả sử làm mới dữ liệu đơn hàng ở đây
-      orders = [
-        Order(
-          id: 'DH001',
-          customer: 'Nguyễn Văn A',
-          date: '28/04/2025',
-          total: 120000,
-        ),
-        Order(
-          id: 'DH002',
-          customer: 'Trần Thị B',
-          date: '29/04/2025',
-          total: 550000,
-        ),
-        Order(
-          id: 'DH003',
-          customer: 'Lê Văn C',
-          date: '29/04/2025',
-          total: 235000,
-        ),
-        Order(
-          id: 'DH004',
-          customer: 'Phạm Thị D',
-          date: '30/04/2025',
-          total: 780000,
-        ),
-        Order(
-          id: 'DH005',
-          customer: 'Hoàng Văn E',
-          date: '30/04/2025',
-          total: 95000,
-        ),
-      ]; // Ví dụ làm mới, bạn có thể thay đổi để lấy từ API hoặc nguồn dữ liệu khác
+      orders = fetchedOrders;
     });
+  }
+
+  Widget rowOrder() {
+    final order = selectedOrder!;
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '📄 Thông tin đơn hàng',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _infoRow('🧾 Mã đơn:', order.orderId),
+            _infoRow('🧾 Ngày nhận:', formatter.format(order.dayReceiveOrder)),
+            _infoRow(
+              '👤 Ngày giao:',
+              formatter.format(order.dateRequestShipping),
+            ),
+            _infoRow('👤 Tên khách hàng:', order.customer!.customerName),
+            _infoRow('🧾 Tên công ty:', order.customer!.cskh),
+            _infoRow('👤 Loại sản phẩm:', order.product!.typeProduct),
+            _infoRow('🧾 Tên sản phẩm:', order.product!.productName),
+            _infoRow('👤 Quy cách thùng:', order.QC_box.toString()),
+            _infoRow('🧾 Cấn lằn:', order.canLan.toString()),
+            _infoRow('👤 Dao xả:', order.daoXa.toString()),
+            _infoRow('🧾 Kết cấu đặt hàng:', order.formatterStructureOrder),
+            _infoRow('👤 Cắt:', Order.formatCurrency(order.lengthPaper)),
+            _infoRow('🧾 Khổ:', Order.formatCurrency(order.paperSize)),
+            _infoRow('👤 Số lượng:', order.quantity.toString()),
+            _infoRow('🧾 Đơn vị tính:', order.dvt),
+            _infoRow('👤 Diện tích:', Order.formatCurrency(order.acreage)),
+            _infoRow('🧾 Giá:', Order.formatCurrency(order.price)),
+            _infoRow('👤 Giá tấm:', Order.formatCurrency(order.pricePaper)),
+            _infoRow('🧾 VAT:', order.vat.toString()),
+            _infoRow('👤 Tổng tiền:', Order.formatCurrency(order.totalPrice)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget rowBox() {
+    final box = selectedOrder!.box!;
+    final boolFields = [
+      {'label': 'Cấn màng', 'value': box.canMang},
+      {'label': 'Xả', 'value': box.Xa},
+      {'label': 'Cắt khe', 'value': box.catKhe},
+      {'label': 'Bế', 'value': box.be},
+      {'label': 'Dán 1 mảnh', 'value': box.dan_1_Manh},
+      {'label': 'Dán 2 mảnh', 'value': box.dan_2_Manh},
+      {'label': 'Đóng ghim 1 mảnh', 'value': box.dongGhim1Manh},
+      {'label': 'Đóng ghim 2 mảnh', 'value': box.dongGhim2Manh},
+      {'label': 'Chống thấm', 'value': box.chongTham},
+    ];
+
+    return Card(
+      elevation: 3,
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: const [
+                Text(
+                  '📦 Thông tin thùng',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            for (int i = 0; i < boolFields.length; i += 3) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  for (int j = i; j < i + 3 && j < boolFields.length; j++)
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            boolFields[j]['value'] as bool
+                                ? Icons.check_circle
+                                : Icons.cancel,
+                            color:
+                                boolFields[j]['value'] as bool
+                                    ? Colors.green
+                                    : Colors.red,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              boolFields[j]['label'] as String,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                color: Colors.black87,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            const SizedBox(height: 10),
+            _infoRow('In mặt trước:', box.inMatTruoc.toString()),
+            _infoRow('In mặt sau:', box.inMatSau.toString()),
+            _infoRow('Đóng gói:', box.dongGoi.toString()),
+            _infoRow('Mã khuôn:', box.maKhuon.toString()),
+            _infoRow('HD đặc biệt:', selectedOrder!.instructSpecial.toString()),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -137,8 +185,8 @@ class _ManageOrderState extends State<AdminOrder> {
                   itemCount: orders.length,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   itemBuilder: (context, index) {
-                    final order = orders[index];
-                    final isSelected = selectedOrder == order;
+                    final ordersPending = orders[index];
+                    final isSelected = selectedOrder == ordersPending;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.symmetric(
@@ -170,19 +218,29 @@ class _ManageOrderState extends State<AdminOrder> {
                           vertical: 8,
                         ),
                         title: Text(
-                          order.id,
-                          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                          "ID: ${ordersPending.orderId}",
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         subtitle: Text(
-                          order.customer,
-                          style: GoogleFonts.inter(),
+                          'Sản phẩm: ${ordersPending.product.productName}',
+                          style: GoogleFonts.inter(
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
                         ),
                         trailing: Text(
-                          '${order.total.toStringAsFixed(0)} đ',
-                          style: GoogleFonts.inter(color: Colors.blue.shade700),
+                          'Tổng tiền: ${Order.formatCurrency(ordersPending.totalPrice)} đ',
+                          style: GoogleFonts.inter(
+                            color: Colors.blue.shade700,
+                            fontSize: 14,
+                          ),
                         ),
                         selected: isSelected,
-                        onTap: () => setState(() => selectedOrder = order),
+                        onTap:
+                            () => setState(() => selectedOrder = ordersPending),
                       ),
                     );
                   },
@@ -190,6 +248,7 @@ class _ManageOrderState extends State<AdminOrder> {
               ),
             ),
             const VerticalDivider(width: 1),
+
             // order detail
             Expanded(
               flex: 2,
@@ -208,60 +267,42 @@ class _ManageOrderState extends State<AdminOrder> {
                           key: const ValueKey('detail'),
                           padding: const EdgeInsets.all(24.0),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                '📋 Chi tiết đơn hàng',
-                                style: GoogleFonts.inter(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF0F172A),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '📋 Chi tiết đơn hàng',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+
+                                      rowOrder(),
+                                      const SizedBox(height: 12),
+                                      rowBox(),
+                                    ],
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              _infoRow('🧾 Mã đơn:', selectedOrder!.id),
-                              _infoRow(
-                                '👤 Khách hàng:',
-                                selectedOrder!.customer,
-                              ),
-                              _infoRow('📅 Ngày đặt:', selectedOrder!.date),
-                              _infoRow(
-                                '💵 Tổng tiền:',
-                                '${selectedOrder!.total.toStringAsFixed(0)} đ',
-                                valueColor: Colors.blue,
-                              ),
-                              const Spacer(),
                               Row(
                                 children: [
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red.shade600,
-                                    ),
-                                    onPressed: () {
-                                      _showSnackBar(
-                                        context,
-                                        'Từ chối phê duyệt thành công',
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                    ),
-                                    label: Text(
-                                      'Từ chối',
-                                      style: GoogleFonts.inter(
-                                        color: Colors.white,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.green.shade600,
                                     ),
                                     onPressed: () {
+                                      AdminService().updateStatusOrder(
+                                        selectedOrder!.orderId,
+                                        'reject',
+                                      );
                                       _showSnackBar(
                                         context,
                                         'Phê duyệt thành công',
@@ -280,6 +321,34 @@ class _ManageOrderState extends State<AdminOrder> {
                                       ),
                                     ),
                                   ),
+                                  const SizedBox(width: 12),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red.shade600,
+                                    ),
+                                    onPressed: () {
+                                      AdminService().updateStatusOrder(
+                                        selectedOrder!.orderId,
+                                        'accept',
+                                      );
+                                      _showSnackBar(
+                                        context,
+                                        'Từ chối phê duyệt thành công',
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                    ),
+                                    label: Text(
+                                      'Từ chối',
+                                      style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -291,7 +360,11 @@ class _ManageOrderState extends State<AdminOrder> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _refreshOrders,
+        onPressed: () {
+          setState(() {
+            _loadOrders();
+          });
+        },
         backgroundColor: Colors.blue.shade700,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
