@@ -386,7 +386,7 @@ class _OrderDialogState extends State<OrderDialog> {
         await OrderService().addOrders(newOrder.toJson());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Thêm thành công"),
+            content: Text("Đơn hàng phê duyệt đã được gửi đi"),
             duration: Duration(milliseconds: 2000),
           ),
         );

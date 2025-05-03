@@ -240,7 +240,7 @@ class _OrderPageState extends State<OrderPage> {
                       ElevatedButton.icon(
                         onPressed:
                             (selectedOrderId == null || isAcceptStatus)
-                                ? null // Disable nút nếu không chọn đơn hàng hoặc đơn hàng đã "accept"
+                                ? null
                                 : () {
                                   // Lấy đơn hàng dựa trên selectedOrderId
                                   final selectedOrder = futureOrders.then(
@@ -408,10 +408,6 @@ class _OrderPageState extends State<OrderPage> {
                         isAcceptStatus =
                             selectedOrder.status.toLowerCase() == 'accept';
                       });
-
-                      print(
-                        '✅ Selected Order: $selectedOrderId | Status: ${selectedOrder.status}',
-                      );
                     } else {
                       setState(() {
                         selectedOrderId = null;

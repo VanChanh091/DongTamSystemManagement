@@ -24,141 +24,18 @@ class _ManageOrderState extends State<AdminOrder> {
 
   Future<void> _loadOrders() async {
     final fetchedOrders = await AdminService().getOrderByStatus();
-    print(fetchedOrders);
     setState(() {
       orders = fetchedOrders;
     });
   }
 
-  Widget rowOrder() {
-    final order = selectedOrder!;
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '📄 Thông tin đơn hàng',
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _infoRow('🧾 Mã đơn:', order.orderId),
-            _infoRow('🧾 Ngày nhận:', formatter.format(order.dayReceiveOrder)),
-            _infoRow(
-              '👤 Ngày giao:',
-              formatter.format(order.dateRequestShipping),
-            ),
-            _infoRow('👤 Tên khách hàng:', order.customer!.customerName),
-            _infoRow('🧾 Tên công ty:', order.customer!.cskh),
-            _infoRow('👤 Loại sản phẩm:', order.product!.typeProduct),
-            _infoRow('🧾 Tên sản phẩm:', order.product!.productName),
-            _infoRow('👤 Quy cách thùng:', order.QC_box.toString()),
-            _infoRow('🧾 Cấn lằn:', order.canLan.toString()),
-            _infoRow('👤 Dao xả:', order.daoXa.toString()),
-            _infoRow('🧾 Kết cấu đặt hàng:', order.formatterStructureOrder),
-            _infoRow('👤 Cắt:', Order.formatCurrency(order.lengthPaper)),
-            _infoRow('🧾 Khổ:', Order.formatCurrency(order.paperSize)),
-            _infoRow('👤 Số lượng:', order.quantity.toString()),
-            _infoRow('🧾 Đơn vị tính:', order.dvt),
-            _infoRow('👤 Diện tích:', Order.formatCurrency(order.acreage)),
-            _infoRow('🧾 Giá:', Order.formatCurrency(order.price)),
-            _infoRow('👤 Giá tấm:', Order.formatCurrency(order.pricePaper)),
-            _infoRow('🧾 VAT:', order.vat.toString()),
-            _infoRow('👤 Tổng tiền:', Order.formatCurrency(order.totalPrice)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget rowBox() {
-    final box = selectedOrder!.box!;
-    final boolFields = [
-      {'label': 'Cấn màng', 'value': box.canMang},
-      {'label': 'Xả', 'value': box.Xa},
-      {'label': 'Cắt khe', 'value': box.catKhe},
-      {'label': 'Bế', 'value': box.be},
-      {'label': 'Dán 1 mảnh', 'value': box.dan_1_Manh},
-      {'label': 'Dán 2 mảnh', 'value': box.dan_2_Manh},
-      {'label': 'Đóng ghim 1 mảnh', 'value': box.dongGhim1Manh},
-      {'label': 'Đóng ghim 2 mảnh', 'value': box.dongGhim2Manh},
-      {'label': 'Chống thấm', 'value': box.chongTham},
-    ];
-
-    return Card(
-      elevation: 3,
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: const [
-                Text(
-                  '📦 Thông tin thùng',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blueAccent,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            for (int i = 0; i < boolFields.length; i += 3) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  for (int j = i; j < i + 3 && j < boolFields.length; j++)
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Icon(
-                            boolFields[j]['value'] as bool
-                                ? Icons.check_circle
-                                : Icons.cancel,
-                            color:
-                                boolFields[j]['value'] as bool
-                                    ? Colors.green
-                                    : Colors.red,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              boolFields[j]['label'] as String,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                                color: Colors.black87,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-            ],
-
-            const SizedBox(height: 10),
-            _infoRow('In mặt trước:', box.inMatTruoc.toString()),
-            _infoRow('In mặt sau:', box.inMatSau.toString()),
-            _infoRow('Đóng gói:', box.dongGoi.toString()),
-            _infoRow('Mã khuôn:', box.maKhuon.toString()),
-            _infoRow('HD đặc biệt:', selectedOrder!.instructSpecial.toString()),
-          ],
-        ),
+  // Hàm hiển thị SnackBar
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.inter(color: Colors.white)),
+        backgroundColor: Colors.blue.shade600,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -218,7 +95,7 @@ class _ManageOrderState extends State<AdminOrder> {
                           vertical: 8,
                         ),
                         title: Text(
-                          "ID: ${ordersPending.orderId}",
+                          "Mã đơn: ${ordersPending.orderId}",
                           style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -272,18 +149,8 @@ class _ManageOrderState extends State<AdminOrder> {
                                 child: SingleChildScrollView(
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      Text(
-                                        '📋 Chi tiết đơn hàng',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF0F172A),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-
                                       rowOrder(),
                                       const SizedBox(height: 12),
                                       rowBox(),
@@ -298,16 +165,21 @@ class _ManageOrderState extends State<AdminOrder> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.green.shade600,
                                     ),
-                                    onPressed: () {
-                                      AdminService().updateStatusOrder(
+                                    onPressed: () async {
+                                      await AdminService().updateStatusOrder(
                                         selectedOrder!.orderId,
-                                        'reject',
+                                        'accept',
                                       );
                                       _showSnackBar(
                                         context,
                                         'Phê duyệt thành công',
                                       );
+                                      await _loadOrders();
+                                      setState(() {
+                                        selectedOrder = null;
+                                      });
                                     },
+
                                     icon: const Icon(
                                       Icons.check,
                                       color: Colors.white,
@@ -326,16 +198,21 @@ class _ManageOrderState extends State<AdminOrder> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red.shade600,
                                     ),
-                                    onPressed: () {
-                                      AdminService().updateStatusOrder(
+                                    onPressed: () async {
+                                      await AdminService().updateStatusOrder(
                                         selectedOrder!.orderId,
-                                        'accept',
+                                        'reject',
                                       );
                                       _showSnackBar(
                                         context,
                                         'Từ chối phê duyệt thành công',
                                       );
+                                      await _loadOrders();
+                                      setState(() {
+                                        selectedOrder = null;
+                                      });
                                     },
+
                                     icon: const Icon(
                                       Icons.close,
                                       color: Colors.white,
@@ -360,9 +237,10 @@ class _ManageOrderState extends State<AdminOrder> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
+          await _loadOrders();
           setState(() {
-            _loadOrders();
+            selectedOrder = null;
           });
         },
         backgroundColor: Colors.blue.shade700,
@@ -376,28 +254,180 @@ class _ManageOrderState extends State<AdminOrder> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Text(label, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           const SizedBox(width: 8),
           Text(
             value,
             style: GoogleFonts.inter(
               fontWeight: FontWeight.w500,
               color: valueColor ?? Colors.black87,
+              fontSize: 16,
             ),
           ),
         ],
       ),
     );
   }
-}
 
-// Hàm hiển thị SnackBar
-void _showSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message, style: GoogleFonts.inter(color: Colors.white)),
-      backgroundColor: Colors.blue.shade600,
-      duration: const Duration(seconds: 2),
-    ),
-  );
+  Widget rowOrder() {
+    final order = selectedOrder!;
+
+    // Danh sách các _infoRow
+    final infoRows = [
+      _infoRow('🧾 Mã đơn:', order.orderId),
+      _infoRow('📅 Ngày nhận:', formatter.format(order.dayReceiveOrder)),
+      _infoRow('🚚 Ngày giao:', formatter.format(order.dateRequestShipping)),
+      _infoRow('👤 Tên khách hàng:', order.customer!.customerName),
+      _infoRow('🏢 Tên công ty:', order.customer!.cskh),
+      _infoRow('📦 Loại sản phẩm:', order.product!.typeProduct),
+      _infoRow('🛒 Tên sản phẩm:', order.product!.productName),
+      _infoRow('📦 Quy cách thùng:', order.QC_box.toString()),
+      _infoRow('🔢 Cấn lằn:', order.canLan.toString()),
+      _infoRow('🔪 Dao xả:', order.daoXa.toString()),
+      _infoRow('🔧 Kết cấu:', order.formatterStructureOrder),
+      _infoRow('✂️ Cắt:', Order.formatCurrency(order.lengthPaper)),
+      _infoRow('📏 Khổ:', Order.formatCurrency(order.paperSize)),
+      _infoRow('🔢 Số lượng:', order.quantity.toString()),
+      _infoRow('📐 Đơn vị tính:', order.dvt),
+      _infoRow('🌍 Diện tích:', Order.formatCurrency(order.acreage)),
+      _infoRow('💲 Giá:', Order.formatCurrency(order.price)),
+      _infoRow('💵 Giá tấm:', Order.formatCurrency(order.pricePaper)),
+      _infoRow('💡 VAT:', order.vat.toString()),
+      _infoRow('💰 Tổng tiền:', Order.formatCurrency(order.totalPrice)),
+    ];
+
+    return Card(
+      elevation: 2,
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              '📄 Thông tin đơn hàng',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.redAccent,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: infoRows.sublist(
+                      0,
+                      (infoRows.length / 2).ceil(),
+                    ), // nửa đầu
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: infoRows.sublist(
+                      (infoRows.length / 2).ceil(),
+                    ), // nửa sau
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget rowBox() {
+    final box = selectedOrder!.box!;
+    final boolFields = [
+      {'label': 'Cấn màng', 'value': box.canMang},
+      {'label': 'Xả', 'value': box.Xa},
+      {'label': 'Cắt khe', 'value': box.catKhe},
+      {'label': 'Bế', 'value': box.be},
+      {'label': 'Dán 1 mảnh', 'value': box.dan_1_Manh},
+      {'label': 'Dán 2 mảnh', 'value': box.dan_2_Manh},
+      {'label': 'Đóng ghim 1 mảnh', 'value': box.dongGhim1Manh},
+      {'label': 'Đóng ghim 2 mảnh', 'value': box.dongGhim2Manh},
+      {'label': 'Chống thấm', 'value': box.chongTham},
+    ];
+
+    return Card(
+      elevation: 2,
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              '📦 Thông tin làm thùng',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.redAccent,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            _infoRow('🧾 In mặt trước:', box.inMatTruoc.toString()),
+            _infoRow('🧾 In mặt sau:', box.inMatSau.toString()),
+            _infoRow('📦 Đóng gói:', box.dongGoi.toString()),
+            _infoRow('🔲 Mã khuôn:', box.maKhuon.toString()),
+            _infoRow(
+              '✨ HD đặc biệt:',
+              selectedOrder!.instructSpecial.toString(),
+            ),
+            const SizedBox(height: 10),
+
+            for (int i = 0; i < boolFields.length; i += 3) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  for (int j = i; j < i + 3 && j < boolFields.length; j++)
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            boolFields[j]['value'] as bool
+                                ? Icons.check_circle
+                                : Icons.cancel,
+                            color:
+                                boolFields[j]['value'] as bool
+                                    ? Colors.green
+                                    : Colors.red,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              boolFields[j]['label'] as String,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 }
