@@ -3,12 +3,14 @@ class Product {
   String typeProduct;
   String productName;
   String maKhuon;
+  String? productImage;
 
   Product({
     required this.productId,
     required this.typeProduct,
     required this.productName,
     required this.maKhuon,
+    this.productImage,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class Product {
       typeProduct: json['typeProduct'] ?? "",
       productName: json['productName'] ?? "",
       maKhuon: json['maKhuon'] ?? "",
+      productImage: json['productImage'] ?? "",
     );
   }
 
@@ -26,6 +29,7 @@ class Product {
       'typeProduct': typeProduct,
       'productName': productName,
       'maKhuon': maKhuon,
+      'productImage': productImage,
     };
   }
 }

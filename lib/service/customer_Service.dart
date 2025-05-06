@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
-import 'package:dongtam/utils/secure_storage_service.dart';
+import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class CustomerService {
   final Dio dioService = Dio(

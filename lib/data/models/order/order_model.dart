@@ -16,22 +16,27 @@ class Order {
   final String? songB;
   final String? songC;
   final String? songE2;
-  final double lengthPaper;
-  final double paperSize;
-  final int quantity;
+  final double lengthPaperCustomer;
+  final double lengthPaperManufacture;
+  final double paperSizeCustomer;
+  final double paperSizeManufacture;
+  final int quantityCustomer;
+  final int quantityManufacture;
   final double acreage;
   final String dvt;
   final double price;
   final double pricePaper;
+  final double? discount;
+  final double profit;
   final double totalPrice;
   final int? vat;
   final DateTime dayReceiveOrder;
   final DateTime dateRequestShipping;
   final String? instructSpecial;
   final String status;
+
   final String customerId;
   final String productId;
-
   final Customer? customer;
   final Product? product;
   final Box? box;
@@ -52,13 +57,18 @@ class Order {
     this.songB,
     this.songC,
     this.songE2,
-    required this.lengthPaper,
-    required this.paperSize,
-    required this.quantity,
+    required this.lengthPaperCustomer,
+    required this.lengthPaperManufacture,
+    required this.paperSizeCustomer,
+    required this.paperSizeManufacture,
+    required this.quantityCustomer,
+    required this.quantityManufacture,
     required this.acreage,
     required this.dvt,
     required this.price,
     required this.pricePaper,
+    this.discount,
+    required this.profit,
     required this.dateRequestShipping,
     this.instructSpecial,
     this.vat,
@@ -143,15 +153,24 @@ class Order {
       songE2: json['songE2'] ?? "",
       dvt: json['dvt'] ?? "",
       vat: json['vat'] ?? 0,
-      quantity: json['quantity'] ?? 0,
-      lengthPaper:
-          (json['lengthPaper'] is int)
-              ? (json['lengthPaper'] as int).toDouble()
-              : (json['lengthPaper'] ?? 0.0) as double,
-      paperSize:
-          (json['paperSize'] is int)
-              ? (json['paperSize'] as int).toDouble()
-              : (json['paperSize'] ?? 0.0) as double,
+      quantityCustomer: json['quantityCustomer'] ?? 0,
+      quantityManufacture: json['quantityManufacture'] ?? 0,
+      lengthPaperCustomer:
+          (json['lengthPaperCustomer'] is int)
+              ? (json['lengthPaperCustomer'] as int).toDouble()
+              : (json['lengthPaperCustomer'] ?? 0.0) as double,
+      lengthPaperManufacture:
+          (json['lengthPaperManufacture'] is int)
+              ? (json['lengthPaperManufacture'] as int).toDouble()
+              : (json['lengthPaperManufacture'] ?? 0.0) as double,
+      paperSizeCustomer:
+          (json['paperSizeCustomer'] is int)
+              ? (json['paperSizeCustomer'] as int).toDouble()
+              : (json['paperSizeCustomer'] ?? 0.0) as double,
+      paperSizeManufacture:
+          (json['paperSizeManufacture'] is int)
+              ? (json['paperSizeManufacture'] as int).toDouble()
+              : (json['paperSizeManufacture'] ?? 0.0) as double,
       acreage:
           (json['acreage'] is int)
               ? (json['acreage'] as int).toDouble()
@@ -164,6 +183,14 @@ class Order {
           (json['pricePaper'] is int)
               ? (json['pricePaper'] as int).toDouble()
               : (json['pricePaper'] ?? 0.0) as double,
+      discount:
+          (json['discount'] is int)
+              ? (json['discount'] as int).toDouble()
+              : (json['discount'] ?? 0.0) as double,
+      profit:
+          (json['profit'] is int)
+              ? (json['profit'] as int).toDouble()
+              : (json['profit'] ?? 0.0) as double,
       totalPrice:
           (json['totalPrice'] is int)
               ? (json['totalPrice'] as int).toDouble()
@@ -196,13 +223,18 @@ class Order {
       'songB': songB,
       'songC': songC,
       'songE2': songE2,
-      'lengthPaper': lengthPaper,
-      'paperSize': paperSize,
-      'quantity': quantity,
+      'lengthPaperCustomer': lengthPaperCustomer,
+      'lengthPaperManufacture': lengthPaperManufacture,
+      'paperSizeCustomer': paperSizeCustomer,
+      'paperSizeManufacture': paperSizeManufacture,
+      'quantityCustomer': quantityCustomer,
+      'quantityManufacture': quantityManufacture,
       'acreage': acreage,
       'dvt': dvt,
       'price': price,
       'pricePaper': pricePaper,
+      'discount': discount,
+      'profit': profit,
       'dateRequestShipping': DateFormat(
         'yyyy-MM-dd',
       ).format(dateRequestShipping),

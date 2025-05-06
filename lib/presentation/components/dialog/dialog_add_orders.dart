@@ -8,7 +8,7 @@ import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/service/customer_Service.dart';
 import 'package:dongtam/service/order_Service.dart';
 import 'package:dongtam/service/product_Service.dart';
-import 'package:dongtam/utils/auto_complete_field.dart';
+import 'package:dongtam/utils/autocompleteField/auto_complete_field.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -56,10 +56,15 @@ class _OrderDialogState extends State<OrderDialog> {
   final songBController = TextEditingController();
   final songCController = TextEditingController();
   final songE2Controller = TextEditingController();
-  final lengthController = TextEditingController();
-  final sizeController = TextEditingController();
-  final quantityController = TextEditingController();
+  final lengthCustomerController = TextEditingController();
+  final lengthManufactureController = TextEditingController();
+  final sizeCustomerController = TextEditingController();
+  final sizeManufactureController = TextEditingController();
+  final quantityCustomerController = TextEditingController();
+  final quantityManufactureController = TextEditingController();
   final priceController = TextEditingController();
+  final discountController = TextEditingController();
+  final profitController = TextEditingController();
   final dateShippingController = TextEditingController();
   final vatController = TextEditingController();
   final instructSpecialController = TextEditingController();
@@ -100,7 +105,8 @@ class _OrderDialogState extends State<OrderDialog> {
     }
     fetchAllCustomers();
     fetchAllProduct();
-    // addListenerForField();
+
+    addListenerForField();
 
     //debounce customerId, productId
     customerIdController.addListener(onCustomerIdChanged);
@@ -236,12 +242,23 @@ class _OrderDialogState extends State<OrderDialog> {
     songBController.text = widget.order!.songB.toString();
     songCController.text = widget.order!.songC.toString();
     songE2Controller.text = widget.order!.songE2.toString();
-    lengthController.text = widget.order!.lengthPaper.toStringAsFixed(1);
-    sizeController.text = widget.order!.paperSize.toStringAsFixed(1);
-    quantityController.text = widget.order!.quantity.toString();
+    lengthCustomerController.text = widget.order!.lengthPaperCustomer
+        .toStringAsFixed(1);
+    lengthManufactureController.text = widget.order!.lengthPaperManufacture
+        .toStringAsFixed(1);
+    sizeCustomerController.text = widget.order!.paperSizeCustomer
+        .toStringAsFixed(1);
+    sizeManufactureController.text = widget.order!.paperSizeManufacture
+        .toStringAsFixed(1);
+    quantityCustomerController.text = widget.order!.quantityCustomer.toString();
+    quantityManufactureController.text =
+        widget.order!.quantityManufacture.toString();
     typeDVT = widget.order?.dvt ?? "Kg";
     typeDaoXa = widget.order?.daoXa ?? "Quấn cuồn";
     priceController.text = widget.order!.price.toString();
+    discountController.text =
+        widget.order!.discount?.toStringAsFixed(1) ?? '0.0';
+    profitController.text = widget.order!.profit.toStringAsFixed(1);
     vatController.text = widget.order!.vat.toString();
     instructSpecialController.text = widget.order!.instructSpecial.toString();
     dayReceive = widget.order!.dayReceiveOrder;
@@ -277,29 +294,26 @@ class _OrderDialogState extends State<OrderDialog> {
     maKhuonController.text = widget.order!.box!.maKhuon ?? "";
   }
 
-  // void listenerForFieldNeed(
-  //   TextEditingController fieldController,
-  //   TextEditingController fieldControllerReplace,
-  // ) {
-  //   fieldController.addListener(() {
-  //     if (fieldController.text != fieldControllerReplace.text) {
-  //       fieldControllerReplace.text = fieldController.text;
-  //     }
-  //   });
-  // }
+  //listener
+  void listenerForFieldNeed(
+    TextEditingController fieldController,
+    TextEditingController fieldControllerReplace,
+  ) {
+    fieldController.addListener(() {
+      if (fieldController.text != fieldControllerReplace.text) {
+        fieldControllerReplace.text = fieldController.text;
+      }
+    });
+  }
 
-  // void addListenerForField() {
-  //   listenerForFieldNeed(dayController, dayControllerReplace);
-  //   listenerForFieldNeed(middle_1Controller, middle_1ControllerReplace);
-  //   listenerForFieldNeed(middle_2Controller, middle_2ControllerReplace);
-  //   listenerForFieldNeed(matController, matControllerReplace);
-  //   listenerForFieldNeed(songEController, songEControllerReplace);
-  //   listenerForFieldNeed(songBController, songBControllerReplace);
-  //   listenerForFieldNeed(songCController, songCControllerReplace);
-  //   listenerForFieldNeed(songE2Controller, songE2ControllerReplace);
-  //   listenerForFieldNeed(sizeController, sizeInfoController);
-  //   listenerForFieldNeed(quantityController, quantityInfoController);
-  // }
+  void addListenerForField() {
+    listenerForFieldNeed(lengthCustomerController, lengthManufactureController);
+    listenerForFieldNeed(sizeCustomerController, sizeManufactureController);
+    listenerForFieldNeed(
+      quantityCustomerController,
+      quantityManufactureController,
+    );
+  }
 
   String generateOrderCode(String prefix) {
     final now = DateTime.now();
@@ -314,22 +328,22 @@ class _OrderDialogState extends State<OrderDialog> {
 
     double totalAcreage =
         Order.acreagePaper(
-          double.tryParse(lengthController.text) ?? 0.0,
-          double.tryParse(sizeController.text) ?? 0.0,
-          int.tryParse(quantityController.text) ?? 0,
+          double.tryParse(lengthCustomerController.text) ?? 0.0,
+          double.tryParse(sizeCustomerController.text) ?? 0.0,
+          int.tryParse(quantityCustomerController.text) ?? 0,
         ).roundToDouble();
 
     late double totalPricePaper =
         Order.totalPricePaper(
           typeDVT,
-          double.tryParse(lengthController.text) ?? 0.0,
-          double.tryParse(sizeController.text) ?? 0.0,
+          double.tryParse(lengthCustomerController.text) ?? 0.0,
+          double.tryParse(sizeCustomerController.text) ?? 0.0,
           double.tryParse(priceController.text) ?? 0.0,
         ).roundToDouble();
 
     late double totalPriceOrder =
         Order.totalPriceOrder(
-          int.tryParse(quantityController.text) ?? 0,
+          int.tryParse(quantityCustomerController.text) ?? 0,
           totalPricePaper,
         ).roundToDouble();
 
@@ -365,12 +379,21 @@ class _OrderDialogState extends State<OrderDialog> {
       songB: songBController.text,
       songC: songCController.text,
       songE2: songE2Controller.text,
-      lengthPaper: double.tryParse(lengthController.text) ?? 0.0,
-      paperSize: double.tryParse(sizeController.text) ?? 0.0,
-      quantity: int.tryParse(quantityController.text) ?? 0,
+      lengthPaperCustomer:
+          double.tryParse(lengthCustomerController.text) ?? 0.0,
+      lengthPaperManufacture:
+          double.tryParse(lengthManufactureController.text) ?? 0.0,
+      paperSizeCustomer: double.tryParse(sizeCustomerController.text) ?? 0.0,
+      paperSizeManufacture:
+          double.tryParse(sizeManufactureController.text) ?? 0.0,
+      quantityCustomer: int.tryParse(quantityCustomerController.text) ?? 0,
+      quantityManufacture:
+          int.tryParse(quantityManufactureController.text) ?? 0,
       acreage: totalAcreage,
       dvt: typeDVT,
       price: double.tryParse(priceController.text) ?? 0.0,
+      discount: double.tryParse(discountController.text) ?? 0.0,
+      profit: double.tryParse(profitController.text) ?? 0.0,
       pricePaper: totalPricePaper,
       dateRequestShipping: dateShipping ?? DateTime.now(),
       vat: int.tryParse(vatController.text) ?? 0,
@@ -386,7 +409,7 @@ class _OrderDialogState extends State<OrderDialog> {
         await OrderService().addOrders(newOrder.toJson());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Đơn hàng phê duyệt đã được gửi đi"),
+            content: Text("Đơn hàng đang chờ phê duyệt"),
             duration: Duration(milliseconds: 2000),
           ),
         );
@@ -438,11 +461,16 @@ class _OrderDialogState extends State<OrderDialog> {
     songBController.dispose();
     songCController.dispose();
     songE2Controller.dispose();
-    lengthController.dispose();
-    sizeController.dispose();
-    quantityController.dispose();
+    lengthCustomerController.dispose();
+    lengthManufactureController.dispose();
+    sizeCustomerController.dispose();
+    sizeManufactureController.dispose();
+    quantityCustomerController.dispose();
+    quantityManufactureController.dispose();
     dvtController.dispose();
     priceController.dispose();
+    discountController.dispose();
+    profitController.dispose();
     inMatTruocController.dispose();
     inMatSauController.dispose();
     canMangChecked = ValueNotifier<bool>(false);
@@ -608,16 +636,16 @@ class _OrderDialogState extends State<OrderDialog> {
             ),
         'middle_3':
             () => ValidationOrder.validateInput(
-              "Số lượng",
-              quantityController,
+              "Số lượng (KH)",
+              quantityCustomerController,
               Symbols.filter_9_plus,
             ),
         'right':
-            () => ValidationOrder.dropdownForTypes(itemsDvt, typeDVT, (value) {
-              setState(() {
-                typeDVT = value!;
-              });
-            }),
+            () => ValidationOrder.validateInput(
+              "Số lượng (SX)",
+              quantityManufactureController,
+              Symbols.filter_9_plus,
+            ),
       },
       {
         'left':
@@ -628,29 +656,62 @@ class _OrderDialogState extends State<OrderDialog> {
             ),
         'middle_1':
             () => ValidationOrder.validateInput(
-              "Khổ (cm)",
-              sizeController,
+              "Khổ khách đặt (cm)",
+              sizeCustomerController,
               Symbols.horizontal_distribute,
             ),
         'middle_2':
             () => ValidationOrder.validateInput(
-              "Cắt (cm)",
-              lengthController,
-              Symbols.vertical_distribute,
+              "Khổ sản xuất (cm)",
+              sizeManufactureController,
+              Symbols.horizontal_distribute,
             ),
         'middle_3':
+            () => ValidationOrder.validateInput(
+              "Dài khách đặt (cm)",
+              lengthCustomerController,
+              Symbols.vertical_distribute,
+            ),
+
+        'right':
+            () => ValidationOrder.validateInput(
+              "Dài sản xuất (cm)",
+              lengthManufactureController,
+              Symbols.vertical_distribute,
+            ),
+      },
+      {
+        'left':
             () => ValidationOrder.validateInput(
               "Đơn giá",
               priceController,
               Symbols.price_change,
             ),
-
-        'right':
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Chiết khấu",
+              discountController,
+              Symbols.price_change,
+            ),
+        'middle_2':
+            () => ValidationOrder.validateInput(
+              "Lợi nhuận",
+              profitController,
+              Symbols.price_change,
+            ),
+        'middle_3':
             () => ValidationOrder.validateInput(
               "VAT",
               vatController,
               Symbols.percent,
             ),
+
+        'right':
+            () => ValidationOrder.dropdownForTypes(itemsDvt, typeDVT, (value) {
+              setState(() {
+                typeDVT = value!;
+              });
+            }),
       },
       {
         'left':
@@ -786,15 +847,9 @@ class _OrderDialogState extends State<OrderDialog> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: Center(
-            child: Text(
-              isEdit ? "Cập nhật khách hàng" : "Thêm khách hàng",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-          ),
           content: SizedBox(
-            width: 1300,
-            height: 800,
+            width: 1400,
+            height: 900,
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Form(
@@ -802,6 +857,7 @@ class _OrderDialogState extends State<OrderDialog> {
                 child: Column(
                   children: [
                     //Order
+                    SizedBox(height: 10),
                     Text(
                       "Đơn Hàng",
                       style: TextStyle(
@@ -925,7 +981,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }),
 
                           Text(
                             'Hướng dẫn đặc biệt:',

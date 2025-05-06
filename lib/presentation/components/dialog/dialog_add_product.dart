@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_Service.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 class ProductDialog extends StatefulWidget {
@@ -32,6 +35,7 @@ class _ProductDialogState extends State<ProductDialog> {
     "Giấy cuộn",
     "Giấy kg",
   ];
+  Uint8List? pickedProductImage;
 
   @override
   void initState() {
@@ -52,6 +56,18 @@ class _ProductDialogState extends State<ProductDialog> {
     maKhuonController.dispose();
   }
 
+  Future<void> pickImage() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (result != null && result.files.single.bytes != null) {
+      setState(() {
+        pickedProductImage = result.files.single.bytes;
+      });
+    }
+  }
+
   void submit() async {
     if (!formKey.currentState!.validate()) return;
 
@@ -65,7 +81,10 @@ class _ProductDialogState extends State<ProductDialog> {
     try {
       if (widget.product == null) {
         // Add new product
-        await ProductService().addProduct(newProduct.toJson());
+        await ProductService().addProduct(
+          newProduct.toJson(),
+          imageBytes: pickedProductImage,
+        );
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Thêm thành công")));
@@ -74,6 +93,7 @@ class _ProductDialogState extends State<ProductDialog> {
         await ProductService().updateProductById(
           newProduct.productId,
           newProduct.toJson(),
+          imageBytes: pickedProductImage,
         );
         ScaffoldMessenger.of(
           context,
@@ -131,7 +151,7 @@ class _ProductDialogState extends State<ProductDialog> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
-      content: Container(
+      content: SizedBox(
         width: 550,
         height: 400,
         child: SingleChildScrollView(
@@ -146,6 +166,7 @@ class _ProductDialogState extends State<ProductDialog> {
                   Icons.code,
                   readOnly: isEdit,
                 ),
+
                 SizedBox(height: 15),
                 ValidationOrder.dropdownForTypes(
                   itemsTypeProduct,
@@ -156,15 +177,43 @@ class _ProductDialogState extends State<ProductDialog> {
                     });
                   },
                 ),
+
                 SizedBox(height: 15),
                 validateInput(
                   "Tên sản phẩm",
                   nameProductController,
                   Icons.production_quantity_limits,
                 ),
+
                 SizedBox(height: 15),
                 validateInput("Mã khuôn", maKhuonController, Icons.code),
+
                 SizedBox(height: 15),
+                ElevatedButton.icon(
+                  onPressed: pickImage,
+                  icon: Icon(Icons.upload),
+                  label: Text(
+                    "Chọn ảnh sản phẩm",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                if (pickedProductImage != null) ...[
+                  SizedBox(height: 15),
+                  Image.memory(
+                    pickedProductImage!,
+                    width: 350,
+                    height: 350,
+                    fit: BoxFit.cover,
+                  ),
+                ],
               ],
             ),
           ),

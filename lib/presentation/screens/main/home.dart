@@ -6,6 +6,7 @@ import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/order/order.dart';
 import 'package:dongtam/presentation/screens/main/planning/planing_Order.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
+import 'package:dongtam/presentation/screens/main/user/user.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   bool _isHovered = false;
   bool _isPlanningExpanded = false;
   bool _isApprovalExpanded = false;
+  int newNotificationsCount = 1;
 
   final List<Widget> pages = [
     DashboardPage(),
@@ -32,6 +34,7 @@ class _HomePageState extends State<HomePage> {
     ProductPage(),
     PlaningOrder(),
     PendingOrder(),
+    UserPage(),
   ];
 
   void logout() async {
@@ -53,20 +56,246 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _buildSidebarItem(IconData icon, String title, int index) {
+  void updateNotifications(int newCount) {
+    setState(() {
+      newNotificationsCount = newCount;
+    });
+  }
+
+  Widget buildSidebar() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: _isHovered ? 300 : 60,
+        decoration: _sidebarDecoration(),
+        child: ClipRect(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              if (_isHovered) _buildLogoSection(),
+              const SizedBox(height: 20),
+              Expanded(child: _buildMenuList()),
+              _buildSidebarItem(
+                Icons.notifications,
+                notificationCount: newNotificationsCount,
+                "Thông báo",
+                onTap: () {
+                  // Chỉ hiển thị snackbar, dialog hoặc pop-up nhỏ
+                  showDialog(
+                    context: context,
+                    builder:
+                        (_) => AlertDialog(
+                          title: Text('Thông báo'),
+                          content: Text('Bạn có 3 thông báo mới.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text("Đóng"),
+                            ),
+                          ],
+                        ),
+                  );
+                },
+              ),
+              _buildSidebarItem(Icons.person, "Người dùng", index: 7),
+              const Divider(color: Colors.white70),
+              _buildLogoutSection(),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration _sidebarDecoration() {
+    return const BoxDecoration(
+      borderRadius: BorderRadius.only(
+        topRight: Radius.circular(12),
+        bottomRight: Radius.circular(12),
+      ),
+      color: Color(0xffcfa381),
+      boxShadow: [
+        BoxShadow(color: Colors.black26, offset: Offset(3, 0), blurRadius: 10),
+      ],
+    );
+  }
+
+  Widget _buildLogoSection() {
+    return Center(
+      child: Column(
+        children: [
+          Image.asset('assets/images/logoDT.png', width: 150, height: 150),
+          const SizedBox(height: 5),
+          const Text(
+            'Bao Bì Đồng Tâm',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuList() {
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSidebarItem(Icons.dashboard, "Dashboard", index: 0),
+          _buildSidebarItem(Icons.shopping_cart, "Đơn hàng", index: 1),
+          _buildSidebarItem(Icons.person, "Khách hàng", index: 2),
+          _buildSidebarItem(Icons.inventory, "Sản phẩm", index: 3),
+          _buildPlanningMenu(),
+          _buildApprovalMenu(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlanningMenu() {
+    return Column(
+      children: [
+        _isHovered
+            ? ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              leading: const Icon(Icons.schedule, color: Colors.white),
+              title:
+                  _isHovered
+                      ? const Text(
+                        "Kế hoạch",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
+                      )
+                      : null,
+              trailing:
+                  _isHovered
+                      ? Icon(
+                        _isPlanningExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: Colors.white,
+                        size: 20,
+                      )
+                      : null,
+              onTap:
+                  () => setState(() {
+                    _isPlanningExpanded = !_isPlanningExpanded;
+                  }),
+            )
+            : const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Center(child: Icon(Icons.schedule, color: Colors.white)),
+            ),
+        if (_isHovered && _isPlanningExpanded)
+          _buildSubMenuItem(Icons.outbox_rounded, "Chờ lên kế hoạch", 4),
+      ],
+    );
+  }
+
+  Widget _buildApprovalMenu() {
+    return Column(
+      children: [
+        _isHovered
+            ? ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              leading: const Icon(Icons.assignment, color: Colors.white),
+              title:
+                  _isHovered
+                      ? const Text(
+                        "Quản lý",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
+                      )
+                      : null,
+              trailing:
+                  _isHovered
+                      ? Icon(
+                        _isApprovalExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: Colors.white,
+                        size: 20,
+                      )
+                      : null,
+              onTap:
+                  () => setState(() {
+                    _isApprovalExpanded = !_isApprovalExpanded;
+                  }),
+            )
+            : const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Center(child: Icon(Icons.assignment, color: Colors.white)),
+            ),
+        if (_isHovered && _isApprovalExpanded)
+          _buildSubMenuItem(Icons.outbox_rounded, "Chờ duyệt", 5),
+      ],
+    );
+  }
+
+  Widget _buildLogoutSection() {
+    return _isHovered
+        ? ListTile(
+          leading: const Icon(Icons.logout, color: Colors.white),
+          title: const Text("Đăng xuất", style: TextStyle(color: Colors.white)),
+          onTap: logout,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        )
+        : const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Center(child: Icon(Icons.logout, color: Colors.white)),
+        );
+  }
+
+  Widget _buildSidebarItem(
+    IconData icon,
+    String title, {
+    int? index,
+    int? notificationCount,
+    VoidCallback? onTap,
+  }) {
     return _isHovered
         ? ListTile(
           contentPadding: EdgeInsets.symmetric(horizontal: 16),
-          leading: Icon(icon, color: Colors.white),
+          leading: Stack(
+            children: [
+              Icon(icon, color: Colors.white),
+              if (notificationCount != null && notificationCount > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      notificationCount > 9 ? "9+" : "$notificationCount",
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                ),
+            ],
+          ),
           title: Text(
             title,
             style: TextStyle(color: Colors.white, fontSize: 18),
           ),
-          onTap: () {
-            sidebarController.selectedIndex.value = index;
-            sidebarController.changePage(index);
-          },
-          horizontalTitleGap: 12,
+          onTap:
+              onTap ??
+              () {
+                if (index != null) {
+                  sidebarController.selectedIndex.value = index;
+                  sidebarController.changePage(index);
+                }
+              },
         )
         : Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -91,303 +320,19 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      //drawer
-      // drawer: Drawer(
-      //   child: Container(
-      //     color: Color(0xffcfa381),
-      //     child: Column(
-      //       children: [
-      //         DrawerHeader(
-      //           child: Row(
-      //             crossAxisAlignment: CrossAxisAlignment.center,
-      //             mainAxisAlignment: MainAxisAlignment.center,
-      //             children: [
-      //               Image.asset(
-      //                 'assets/images/logoDT.png',
-      //                 width: 100,
-      //                 height: 100,
-      //               ),
-      //               SizedBox(width: 8),
-      //               Text(
-      //                 'Đồng Tâm',
-      //                 style: TextStyle(
-      //                   color: Colors.white,
-      //                   fontSize: 26,
-      //                   fontWeight: FontWeight.bold,
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //         Expanded(
-      //           child: ListView(
-      //             children: [
-      //               _buildDrawerItem(Icons.dashboard, "Dashboard", 0),
-      //               _buildDrawerItem(Icons.shopping_cart, "Đơn hàng", 1),
-      //               _buildDrawerItem(Icons.person, "Khách hàng", 2),
-      //               _buildDrawerItem(Symbols.box, "Sản phẩm", 3),
-      //               Theme(
-      //                 data: Theme.of(
-      //                   context,
-      //                 ).copyWith(dividerColor: Colors.transparent),
-      //                 child: ExpansionTile(
-      //                   leading: Icon(Icons.event_note, color: Colors.white),
-      //                   title: Text(
-      //                     "Kế hoạch",
-      //                     style: TextStyle(color: Colors.white, fontSize: 18),
-      //                   ),
-      //                   iconColor: Colors.white,
-      //                   collapsedIconColor: Colors.white,
-      //                   childrenPadding: EdgeInsets.only(left: 20),
-      //                   children: [
-      //                     _buildSubMenuItem(
-      //                       Icons.schedule,
-      //                       "Chờ lên kế hoạch",
-      //                       4,
-      //                     ),
-      //                   ],
-      //                 ),
-      //               ),
-      //               Theme(
-      //                 data: Theme.of(
-      //                   context,
-      //                 ).copyWith(dividerColor: Colors.transparent),
-      //                 child: ExpansionTile(
-      //                   leading: Icon(
-      //                     Symbols.bookmark_manager,
-      //                     color: Colors.white,
-      //                   ),
-      //                   title: Text(
-      //                     "Quản lý",
-      //                     style: TextStyle(color: Colors.white, fontSize: 18),
-      //                   ),
-      //                   iconColor: Colors.white,
-      //                   collapsedIconColor: Colors.white,
-      //                   childrenPadding: EdgeInsets.only(left: 20),
-      //                   children: [
-      //                     _buildSubMenuItem(Symbols.docs, "Chờ duyệt", 5),
-      //                   ],
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //         Divider(),
-      //         ListTile(
-      //           leading: Icon(Icons.logout, color: Colors.white),
-      //           title: Text(
-      //             "Đăng xuất",
-      //             style: TextStyle(color: Colors.white, fontSize: 16),
-      //           ),
-      //           onTap: logout,
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      // ),
       body: Row(
         children: [
-          // Thanh bên trái
-          MouseRegion(
-            onEnter: (_) => setState(() => _isHovered = true),
-            onExit: (_) => setState(() => _isHovered = false),
-            child: AnimatedContainer(
-              duration: Duration(milliseconds: 200),
-              width: _isHovered ? 300 : 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(12),
-                  bottomRight: Radius.circular(12),
-                ),
-                color: Color(0xffcfa381),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    offset: Offset(3, 0),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20),
-                  if (_isHovered)
-                    Center(
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            'assets/images/logoDT.png',
-                            width: 150,
-                            height: 150,
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            'Bao Bì Đồng Tâm',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  SizedBox(height: 20),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        _buildSidebarItem(Icons.dashboard, "Dashboard", 0),
-                        _buildSidebarItem(Icons.shopping_cart, "Đơn hàng", 1),
-                        _buildSidebarItem(Icons.person, "Khách hàng", 2),
-                        _buildSidebarItem(Icons.inventory, "Sản phẩm", 3),
-
-                        // --- KẾ HOẠCH ---
-                        _isHovered
-                            ? ListTile(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              leading: Icon(
-                                Icons.schedule,
-                                color: Colors.white,
-                              ),
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      "Kế hoạch",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Icon(
-                                    _isPlanningExpanded
-                                        ? Icons.expand_less
-                                        : Icons.expand_more,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ],
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  _isPlanningExpanded = !_isPlanningExpanded;
-                                });
-                              },
-                            )
-                            : Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Center(
-                                child: Icon(
-                                  Icons.schedule,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-
-                        if (_isHovered && _isPlanningExpanded) ...[
-                          _buildSubMenuItem(
-                            Icons.outbox_rounded,
-                            "Chờ lên kế hoạch",
-                            4,
-                          ),
-                          // _buildSubMenuItem("Đang thực hiện", 5),
-                        ],
-
-                        // --- QUẢN LÝ ---
-                        _isHovered
-                            ? ListTile(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              leading: Icon(
-                                Icons.assignment,
-                                color: Colors.white,
-                              ),
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      "Quản lý",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Icon(
-                                    _isApprovalExpanded
-                                        ? Icons.expand_less
-                                        : Icons.expand_more,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ],
-                              ),
-                              onTap: () {
-                                setState(
-                                  () =>
-                                      _isApprovalExpanded =
-                                          !_isApprovalExpanded,
-                                );
-                              },
-                            )
-                            : Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Center(
-                                child: Icon(
-                                  Icons.assignment,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-
-                        if (_isHovered && _isApprovalExpanded) ...[
-                          _buildSubMenuItem(
-                            Icons.outbox_rounded,
-                            "Chờ duyệt",
-                            5,
-                          ),
-                          // _buildSubMenuItem("Đã duyệt", 7),
-                        ],
-                      ],
-                    ),
-                  ),
-
-                  _buildSidebarItem(Icons.notifications, "Thông báo", 6),
-                  _buildSidebarItem(Icons.person, "Người dùng", 7),
-
-                  Divider(color: Colors.white70),
-                  _isHovered
-                      ? ListTile(
-                        leading: Icon(Icons.logout, color: Colors.white),
-                        title: Text(
-                          "Đăng xuất",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onTap: logout,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                      )
-                      : Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Center(
-                          child: Icon(Icons.logout, color: Colors.white),
-                        ),
-                      ),
-                  SizedBox(height: 16),
-                ],
-              ),
-            ),
-          ),
-
-          // Nội dung chính
+          // side bar
+          buildSidebar(),
+          // main
           Expanded(
-            child: Obx(() => pages[sidebarController.selectedIndex.value]),
+            child: Obx(() {
+              final index = sidebarController.selectedIndex.value;
+              if (index < 0 || index >= pages.length) {
+                return Center(child: Text("Trang không tồn tại"));
+              }
+              return pages[index];
+            }),
           ),
         ],
       ),

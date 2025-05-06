@@ -21,13 +21,24 @@ List<GridColumn> buildCommonColumns() {
       columnName: 'structure',
       label: formatColumn("Kết Cấu Đặt Thùng"),
     ),
-    GridColumn(columnName: 'lengthPaper', label: formatColumn("Cắt")),
-    GridColumn(columnName: 'paperSize', label: formatColumn("Khổ")),
-    GridColumn(columnName: 'quantity', label: formatColumn("Số Lượng")),
+    GridColumn(columnName: 'lengthCus', label: formatColumn("Dài (KH)")),
+    GridColumn(columnName: 'lengthMf', label: formatColumn("Dài (SX)")),
+    GridColumn(columnName: 'sizeCustomer', label: formatColumn("Khổ (KH)")),
+    GridColumn(columnName: 'sizeManufacture', label: formatColumn("Khổ (SX)")),
+    GridColumn(
+      columnName: 'quantityCustomer',
+      label: formatColumn("Số Lượng (KH)"),
+    ),
+    GridColumn(
+      columnName: 'qtyManufacture',
+      label: formatColumn("Số Lượng (SX)"),
+    ),
     GridColumn(columnName: 'dvt', label: formatColumn("DVT")),
     GridColumn(columnName: 'acreage', label: formatColumn("Diện Tích")),
     GridColumn(columnName: 'price', label: formatColumn("Đơn Giá")),
     GridColumn(columnName: 'pricePaper', label: formatColumn("Giá Tấm")),
+    GridColumn(columnName: 'discount', label: formatColumn("Chiết Khẩu")),
+    GridColumn(columnName: 'profit', label: formatColumn("Lợi Nhuận")),
     GridColumn(columnName: 'vat', label: formatColumn("VAT")),
     GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
 
@@ -41,17 +52,18 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
     GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
     GridColumn(
-      columnName: 'dongGhim1Manh',
+      columnName: 'dongGhimMotManh',
       label: formatColumn("Đóng Ghim 1 Mảnh"),
     ),
     GridColumn(
-      columnName: 'dongGhim2Manh',
+      columnName: 'dongGhimHaiManh',
       label: formatColumn("Đóng Ghim 2 Mảnh"),
     ),
     GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
     GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
     GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
     GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
+    // GridColumn(columnName: 'productImage', label: formatColumn("Hình ảnh")),
     GridColumn(columnName: 'status', label: formatColumn("Trạng thái")),
   ];
 }
@@ -60,13 +72,18 @@ Widget formatColumn(String text, {double widthBorder = 0}) {
   return Container(
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: Colors.amberAccent.shade200,
+      // color: Colors.amberAccent.shade200,
+      color: Color(0xffcfa381),
       border: Border(right: BorderSide(color: Colors.grey.shade400, width: 1)),
     ),
     width: widthBorder,
     child: Text(
       text,
-      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+        color: Colors.white,
+      ),
     ),
   );
 }

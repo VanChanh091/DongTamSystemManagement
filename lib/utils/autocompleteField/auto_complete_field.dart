@@ -66,7 +66,7 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
       builder: (context, textEditingController, focusNode) {
         textEditingController.text = _internalController.text;
 
-        return TextField(
+        return TextFormField(
           controller: textEditingController,
           focusNode: focusNode,
           decoration: InputDecoration(
@@ -86,6 +86,12 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
           ),
           onChanged: (val) {
             widget.onChanged(val);
+          },
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Không được để trống';
+            }
+            return null;
           },
         );
       },

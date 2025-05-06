@@ -1,7 +1,9 @@
+import 'dart:typed_data';
+import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
-import 'package:dongtam/utils/secure_storage_service.dart';
+import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class ProductService {
   final Dio dioService = Dio(
@@ -94,20 +96,34 @@ class ProductService {
   }
 
   //add product
-  Future<bool> addProduct(Map<String, dynamic> product) async {
+  Future<bool> addProduct(
+    Map<String, dynamic> product, {
+    Uint8List? imageBytes,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
+      final formData = FormData.fromMap({
+        ...product,
+        if (imageBytes != null)
+          'productImage': MultipartFile.fromBytes(
+            imageBytes,
+            filename: 'product.jpg',
+            contentType: MediaType('image', 'jpeg'),
+          ),
+      });
+
       await dioService.post(
         '/api/product/',
-        data: product,
+        data: formData,
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
+            'Content-Type': 'multipart/form-data',
           },
         ),
       );
+
       return true;
     } catch (e) {
       throw Exception('Failed to add product: $e');
@@ -117,22 +133,35 @@ class ProductService {
   //update product
   Future<bool> updateProductById(
     String productId,
-    Map<String, dynamic> productUpdated,
-  ) async {
+    Map<String, dynamic> productUpdated, {
+    Uint8List? imageBytes,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
+
+      FormData formData = FormData.fromMap({
+        ...productUpdated,
+        if (imageBytes != null)
+          'productImage': MultipartFile.fromBytes(
+            imageBytes,
+            filename: 'image.jpg',
+            contentType: MediaType('image', 'jpeg'),
+          ),
+      });
 
       await dioService.put(
         '/api/product/updateProduct',
         queryParameters: {'id': productId},
-        data: productUpdated,
+        data: formData,
+        // data: productUpdated,
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
+            'Content-Type': 'multipart/form-data',
           },
         ),
       );
+
       return true;
     } catch (e) {
       throw Exception('Failed to update product: $e');

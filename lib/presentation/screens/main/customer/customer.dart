@@ -398,23 +398,42 @@ class _CustomerPageState extends State<CustomerPage> {
                     child: DataTable(
                       columnSpacing: 25,
                       headingRowColor: WidgetStatePropertyAll(
-                        Colors.grey.shade400,
+                        // Colors.grey.shade400,
+                        Color(0xffcfa381),
                       ),
                       columns: [
                         DataColumn(
-                          label: Checkbox(
-                            value: selectedAll,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedAll = value!;
-                                if (selectedAll) {
-                                  isSelected =
-                                      data.map((e) => e.customerId).toList();
-                                } else {
-                                  isSelected.clear();
-                                }
-                              });
-                            },
+                          label: Theme(
+                            data: Theme.of(context).copyWith(
+                              checkboxTheme: CheckboxThemeData(
+                                fillColor: MaterialStateProperty.resolveWith<
+                                  Color
+                                >((states) {
+                                  if (states.contains(MaterialState.selected)) {
+                                    return Colors.red;
+                                  }
+                                  return Colors.white;
+                                }),
+                                checkColor: MaterialStateProperty.all<Color>(
+                                  Colors.white,
+                                ),
+                                side: BorderSide(color: Colors.black, width: 1),
+                              ),
+                            ),
+                            child: Checkbox(
+                              value: selectedAll,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedAll = value!;
+                                  if (selectedAll) {
+                                    isSelected =
+                                        data.map((e) => e.customerId).toList();
+                                  } else {
+                                    isSelected.clear();
+                                  }
+                                });
+                              },
+                            ),
                           ),
                         ),
                         DataColumn(label: styleText("Mã KH")),
@@ -430,26 +449,51 @@ class _CustomerPageState extends State<CustomerPage> {
                         final customer = data[index];
                         return DataRow(
                           color: WidgetStateProperty.all(
-                            index % 2 == 0
-                                ? Colors.white
-                                : const Color.fromARGB(77, 184, 184, 184),
+                            index % 2 == 0 ? Colors.white : Colors.white70,
                           ),
                           cells: [
                             DataCell(
-                              Checkbox(
-                                value: isSelected.contains(customer.customerId),
-                                onChanged: (val) {
-                                  setState(() {
-                                    if (val == true) {
-                                      isSelected.add(customer.customerId);
-                                    } else {
-                                      isSelected.remove(customer.customerId);
-                                    }
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  checkboxTheme: CheckboxThemeData(
+                                    fillColor: MaterialStateProperty.resolveWith<
+                                      Color
+                                    >((states) {
+                                      if (states.contains(
+                                        MaterialState.selected,
+                                      )) {
+                                        return Colors.red; // nền trắng khi chọn
+                                      }
+                                      return Colors
+                                          .white; // nền trắng khi không chọn
+                                    }),
+                                    checkColor:
+                                        MaterialStateProperty.all<Color>(
+                                          Colors.white,
+                                        ),
+                                    side: BorderSide(
+                                      color: Colors.black,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                                child: Checkbox(
+                                  value: isSelected.contains(
+                                    customer.customerId,
+                                  ),
+                                  onChanged: (val) {
+                                    setState(() {
+                                      if (val == true) {
+                                        isSelected.add(customer.customerId);
+                                      } else {
+                                        isSelected.remove(customer.customerId);
+                                      }
 
-                                    selectedAll =
-                                        isSelected.length == data.length;
-                                  });
-                                },
+                                      selectedAll =
+                                          isSelected.length == data.length;
+                                    });
+                                  },
+                                ),
                               ),
                             ),
                             DataCell(styleCell(null, customer.customerId)),
@@ -478,10 +522,14 @@ class _CustomerPageState extends State<CustomerPage> {
 Widget styleText(String text) {
   return Text(
     text,
-    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+    style: TextStyle(
+      fontWeight: FontWeight.w700,
+      fontSize: 15,
+      color: Colors.white,
+    ),
   );
 }
 
 Widget styleCell(double? width, String text) {
-  return Container(width: width, child: Text(text, maxLines: 2));
+  return SizedBox(width: width, child: Text(text, maxLines: 2));
 }

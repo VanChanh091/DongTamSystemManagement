@@ -50,14 +50,29 @@ class OrderDataSource extends DataGridSource {
         value: order.formatterStructureOrder,
       ),
       DataGridCell<String>(
-        columnName: 'lengthPaper',
-        value: Order.formatCurrency(order.lengthPaper),
+        columnName: 'lengthCus',
+        value: Order.formatCurrency(order.lengthPaperCustomer),
       ),
       DataGridCell<String>(
-        columnName: 'paperSize',
-        value: Order.formatCurrency(order.paperSize),
+        columnName: 'lengthMf',
+        value: Order.formatCurrency(order.lengthPaperManufacture),
       ),
-      DataGridCell<int>(columnName: 'quantity', value: order.quantity),
+      DataGridCell<String>(
+        columnName: 'sizeCustomer',
+        value: Order.formatCurrency(order.paperSizeCustomer),
+      ),
+      DataGridCell<String>(
+        columnName: 'sizeManufacture',
+        value: Order.formatCurrency(order.paperSizeManufacture),
+      ),
+      DataGridCell<int>(
+        columnName: 'quantityCustomer',
+        value: order.quantityCustomer,
+      ),
+      DataGridCell<int>(
+        columnName: 'qtyManufacture',
+        value: order.quantityManufacture,
+      ),
       DataGridCell<String>(columnName: 'dvt', value: order.dvt),
       DataGridCell<String>(
         columnName: 'acreage',
@@ -70,6 +85,14 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<String>(
         columnName: 'pricePaper',
         value: Order.formatCurrency(order.pricePaper),
+      ),
+      DataGridCell<String>(
+        columnName: 'discount',
+        value: Order.formatCurrency(order.discount ?? 0),
+      ),
+      DataGridCell<String>(
+        columnName: 'profit',
+        value: Order.formatCurrency(order.profit),
       ),
       DataGridCell<String>(columnName: 'vat', value: '${order.vat ?? 0}%'),
       DataGridCell<String>(
@@ -108,11 +131,11 @@ class OrderDataSource extends DataGridSource {
         value: order.box?.dan_2_Manh ?? false,
       ),
       DataGridCell<bool>(
-        columnName: 'dongGhim1Manh',
+        columnName: 'dongGhimMotManh',
         value: order.box?.dongGhim1Manh ?? false,
       ),
       DataGridCell<bool>(
-        columnName: 'dongGhim2Manh',
+        columnName: 'dongGhimHaiManh',
         value: order.box?.dongGhim2Manh ?? false,
       ),
       DataGridCell<bool>(
@@ -131,6 +154,10 @@ class OrderDataSource extends DataGridSource {
         columnName: 'HD_special',
         value: order.instructSpecial ?? "",
       ),
+      // DataGridCell<String>(
+      //   columnName: 'productImage',
+      //   value: order.product!.productImage ?? "",
+      // ),
       DataGridCell(columnName: 'status', value: formatStatus(order.status)),
     ];
   }

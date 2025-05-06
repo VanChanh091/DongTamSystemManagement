@@ -78,7 +78,7 @@ class ValidationOrder {
                     label == "Số lượng" ||
                     label == "Đơn giá") &&
                 (value == null || value.isEmpty)) {
-              return 'Vui lòng nhập $label';
+              return 'Không được để trống';
             }
             return null;
           },

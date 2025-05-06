@@ -58,70 +58,82 @@ class _ManageOrderState extends State<AdminOrder> {
               flex: 1,
               child: Container(
                 color: Color(0xFFF8FAFC),
-                child: ListView.builder(
-                  itemCount: orders.length,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  itemBuilder: (context, index) {
-                    final ordersPending = orders[index];
-                    final isSelected = selectedOrder == ordersPending;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected ? Colors.blue.shade50 : Colors.white70,
-                        border: Border.all(
-                          color:
-                              isSelected
-                                  ? Colors.blue.shade400
-                                  : Colors.grey.shade300,
-                          width: isSelected ? 1.5 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 8,
-                            offset: const Offset(1, 2),
+                child:
+                    orders.isEmpty
+                        ? Center(
+                          child: Text(
+                            "Không có đơn hàng cần duyệt",
+                            style: GoogleFonts.inter(fontSize: 16),
                           ),
-                        ],
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                        )
+                        : ListView.builder(
+                          itemCount: orders.length,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          itemBuilder: (context, index) {
+                            final ordersPending = orders[index];
+                            final isSelected = selectedOrder == ordersPending;
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color:
+                                    isSelected
+                                        ? Colors.blue.shade50
+                                        : Colors.white70,
+                                border: Border.all(
+                                  color:
+                                      isSelected
+                                          ? Colors.blue.shade400
+                                          : Colors.grey.shade300,
+                                  width: isSelected ? 1.5 : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 8,
+                                    offset: const Offset(1, 2),
+                                  ),
+                                ],
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                title: Text(
+                                  "Mã đơn: ${ordersPending.orderId}",
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Sản phẩm: ${ordersPending.product.productName}',
+                                  style: GoogleFonts.inter(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                trailing: Text(
+                                  'Tổng tiền: ${Order.formatCurrency(ordersPending.totalPrice)} đ',
+                                  style: GoogleFonts.inter(
+                                    color: Colors.blue.shade700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                selected: isSelected,
+                                onTap:
+                                    () => setState(
+                                      () => selectedOrder = ordersPending,
+                                    ),
+                              ),
+                            );
+                          },
                         ),
-                        title: Text(
-                          "Mã đơn: ${ordersPending.orderId}",
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Text(
-                          'Sản phẩm: ${ordersPending.product.productName}',
-                          style: GoogleFonts.inter(
-                            color: Colors.black,
-                            fontSize: 14,
-                          ),
-                        ),
-                        trailing: Text(
-                          'Tổng tiền: ${Order.formatCurrency(ordersPending.totalPrice)} đ',
-                          style: GoogleFonts.inter(
-                            color: Colors.blue.shade700,
-                            fontSize: 14,
-                          ),
-                        ),
-                        selected: isSelected,
-                        onTap:
-                            () => setState(() => selectedOrder = ordersPending),
-                      ),
-                    );
-                  },
-                ),
               ),
             ),
             const VerticalDivider(width: 1),
@@ -249,7 +261,12 @@ class _ManageOrderState extends State<AdminOrder> {
     );
   }
 
-  Widget _infoRow(String label, String value, {Color? valueColor}) {
+  Widget _infoRow(
+    String label,
+    String value, {
+    String? unit,
+    Color? valueColor,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -260,7 +277,7 @@ class _ManageOrderState extends State<AdminOrder> {
           ),
           const SizedBox(width: 8),
           Text(
-            value,
+            unit != null ? '$value $unit' : value,
             style: GoogleFonts.inter(
               fontWeight: FontWeight.w500,
               color: valueColor ?? Colors.black87,
@@ -272,6 +289,16 @@ class _ManageOrderState extends State<AdminOrder> {
     );
   }
 
+  String formatQuantity(String typeProduct) {
+    final typeProduct = selectedOrder!.product!.typeProduct;
+    if (typeProduct == "Thùng/hộp") {
+      return "cái";
+    } else if (typeProduct == "Giấy tấm" || typeProduct == "Giấy quấn cuồn") {
+      return "m²";
+    }
+    return "kg";
+  }
+
   Widget rowOrder() {
     final order = selectedOrder!;
 
@@ -281,22 +308,71 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('📅 Ngày nhận:', formatter.format(order.dayReceiveOrder)),
       _infoRow('🚚 Ngày giao:', formatter.format(order.dateRequestShipping)),
       _infoRow('👤 Tên khách hàng:', order.customer!.customerName),
-      _infoRow('🏢 Tên công ty:', order.customer!.cskh),
+      _infoRow('🏢 Tên công ty:', order.customer!.companyName),
       _infoRow('📦 Loại sản phẩm:', order.product!.typeProduct),
       _infoRow('🛒 Tên sản phẩm:', order.product!.productName),
       _infoRow('📦 Quy cách thùng:', order.QC_box.toString()),
       _infoRow('🔢 Cấn lằn:', order.canLan.toString()),
       _infoRow('🔪 Dao xả:', order.daoXa.toString()),
       _infoRow('🔧 Kết cấu:', order.formatterStructureOrder),
-      _infoRow('✂️ Cắt:', Order.formatCurrency(order.lengthPaper)),
-      _infoRow('📏 Khổ:', Order.formatCurrency(order.paperSize)),
-      _infoRow('🔢 Số lượng:', order.quantity.toString()),
+      _infoRow(
+        '✂️ Cắt (KH):',
+        Order.formatCurrency(order.lengthPaperCustomer),
+        unit: "cm",
+      ),
+      _infoRow(
+        '✂️ Cắt (SX) :',
+        Order.formatCurrency(order.lengthPaperManufacture),
+        unit: "cm",
+      ),
+      _infoRow(
+        '📏 Khổ (KH):',
+        Order.formatCurrency(order.paperSizeCustomer),
+        unit: "cm",
+      ),
+      _infoRow(
+        '📏 Khổ (SX):',
+        Order.formatCurrency(order.paperSizeManufacture),
+        unit: "cm",
+      ),
+      _infoRow(
+        '🔢 Số lượng (KH):',
+        order.quantityCustomer.toString(),
+        unit: formatQuantity(order.product!.typeProduct),
+      ),
+      _infoRow(
+        '🔢 Số lượng (SX):',
+        order.quantityManufacture.toString(),
+        unit: formatQuantity(order.product!.typeProduct),
+      ),
       _infoRow('📐 Đơn vị tính:', order.dvt),
-      _infoRow('🌍 Diện tích:', Order.formatCurrency(order.acreage)),
-      _infoRow('💲 Giá:', Order.formatCurrency(order.price)),
-      _infoRow('💵 Giá tấm:', Order.formatCurrency(order.pricePaper)),
-      _infoRow('💡 VAT:', order.vat.toString()),
-      _infoRow('💰 Tổng tiền:', Order.formatCurrency(order.totalPrice)),
+      _infoRow(
+        '🌍 Diện tích:',
+        Order.formatCurrency(order.acreage),
+        unit: 'm²',
+      ),
+      _infoRow('💲 Giá:', Order.formatCurrency(order.price), unit: "VNĐ"),
+      _infoRow(
+        '💵 Giá tấm:',
+        Order.formatCurrency(order.pricePaper),
+        unit: "VNĐ",
+      ),
+      _infoRow(
+        '💵 Chiết khấu:',
+        Order.formatCurrency(order.pricePaper),
+        unit: "VNĐ",
+      ),
+      _infoRow(
+        '💵 Lợi nhuận:',
+        Order.formatCurrency(order.pricePaper),
+        unit: "VNĐ",
+      ),
+      _infoRow('💡 VAT:', order.vat.toString(), unit: "%"),
+      _infoRow(
+        '💰 Tổng tiền:',
+        Order.formatCurrency(order.totalPrice),
+        unit: "VNĐ",
+      ),
     ];
 
     return Card(
@@ -349,15 +425,15 @@ class _ManageOrderState extends State<AdminOrder> {
   Widget rowBox() {
     final box = selectedOrder!.box!;
     final boolFields = [
-      {'label': 'Cấn màng', 'value': box.canMang},
+      {'label': 'Cán màng', 'value': box.canMang},
       {'label': 'Xả', 'value': box.Xa},
       {'label': 'Cắt khe', 'value': box.catKhe},
       {'label': 'Bế', 'value': box.be},
       {'label': 'Dán 1 mảnh', 'value': box.dan_1_Manh},
       {'label': 'Dán 2 mảnh', 'value': box.dan_2_Manh},
+      {'label': 'Chống thấm', 'value': box.chongTham},
       {'label': 'Đóng ghim 1 mảnh', 'value': box.dongGhim1Manh},
       {'label': 'Đóng ghim 2 mảnh', 'value': box.dongGhim2Manh},
-      {'label': 'Chống thấm', 'value': box.chongTham},
     ];
 
     return Card(

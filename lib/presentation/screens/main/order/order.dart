@@ -297,8 +297,9 @@ class _OrderPageState extends State<OrderPage> {
                       //delete customers
                       ElevatedButton.icon(
                         onPressed:
-                            selectedOrderId != null
-                                ? () {
+                            (selectedOrderId == null || isAcceptStatus)
+                                ? null
+                                : () {
                                   showDialog(
                                     context: context,
                                     builder:
@@ -338,8 +339,7 @@ class _OrderPageState extends State<OrderPage> {
                                           ],
                                         ),
                                   );
-                                }
-                                : null,
+                                },
 
                         label: Text(
                           "Xóa",

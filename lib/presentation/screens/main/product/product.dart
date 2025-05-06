@@ -1,7 +1,6 @@
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/service/product_Service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
@@ -372,29 +371,48 @@ class _ProductPageState extends State<ProductPage> {
                     child: DataTable(
                       columnSpacing: 25,
                       headingRowColor: WidgetStatePropertyAll(
-                        Colors.grey.shade400,
+                        Color(0xffcfa381),
                       ),
                       columns: [
                         DataColumn(
-                          label: Checkbox(
-                            value: selectedAll,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedAll = value!;
-                                if (selectedAll) {
-                                  isSelected =
-                                      data.map((e) => e.productId).toList();
-                                } else {
-                                  isSelected.clear();
-                                }
-                              });
-                            },
+                          label: Theme(
+                            data: Theme.of(context).copyWith(
+                              checkboxTheme: CheckboxThemeData(
+                                fillColor: MaterialStateProperty.resolveWith<
+                                  Color
+                                >((states) {
+                                  if (states.contains(MaterialState.selected)) {
+                                    return Colors.red;
+                                  }
+                                  return Colors.white;
+                                }),
+                                checkColor: MaterialStateProperty.all<Color>(
+                                  Colors.white,
+                                ),
+                                side: BorderSide(color: Colors.black, width: 1),
+                              ),
+                            ),
+                            child: Checkbox(
+                              value: selectedAll,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedAll = value!;
+                                  if (selectedAll) {
+                                    isSelected =
+                                        data.map((e) => e.productId).toList();
+                                  } else {
+                                    isSelected.clear();
+                                  }
+                                });
+                              },
+                            ),
                           ),
                         ),
                         DataColumn(label: styleText("Mã Sản Phẩm")),
                         DataColumn(label: styleText("Loại Sản Phẩm")),
                         DataColumn(label: styleText("Tên Sản Phẩm")),
                         DataColumn(label: styleText("Mã Khuôn")),
+                        DataColumn(label: styleText("Hình ảnh")),
                       ],
                       rows: List<DataRow>.generate(data.length, (index) {
                         final product = data[index];
@@ -406,26 +424,54 @@ class _ProductPageState extends State<ProductPage> {
                           ),
                           cells: [
                             DataCell(
-                              Checkbox(
-                                value: isSelected.contains(product.productId),
-                                onChanged: (val) {
-                                  setState(() {
-                                    if (val == true) {
-                                      isSelected.add(product.productId);
-                                    } else {
-                                      isSelected.remove(product.productId);
-                                    }
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  checkboxTheme: CheckboxThemeData(
+                                    fillColor:
+                                        MaterialStateProperty.resolveWith<
+                                          Color
+                                        >((states) {
+                                          if (states.contains(
+                                            MaterialState.selected,
+                                          )) {
+                                            return Colors.red;
+                                          }
+                                          return Colors.white;
+                                        }),
+                                    checkColor:
+                                        MaterialStateProperty.all<Color>(
+                                          Colors.white,
+                                        ),
+                                    side: BorderSide(
+                                      color: Colors.black,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                                child: Checkbox(
+                                  value: isSelected.contains(product.productId),
+                                  onChanged: (val) {
+                                    setState(() {
+                                      if (val == true) {
+                                        isSelected.add(product.productId);
+                                      } else {
+                                        isSelected.remove(product.productId);
+                                      }
 
-                                    selectedAll =
-                                        isSelected.length == data.length;
-                                  });
-                                },
+                                      selectedAll =
+                                          isSelected.length == data.length;
+                                    });
+                                  },
+                                ),
                               ),
                             ),
                             DataCell(styleCell(product.productId)),
                             DataCell(styleCell(product.typeProduct)),
                             DataCell(styleCell(product.productName)),
                             DataCell(styleCell(product.maKhuon)),
+                            DataCell(
+                              styleCell(product.productImage ?? 'Không có ảnh'),
+                            ),
                           ],
                         );
                       }),
