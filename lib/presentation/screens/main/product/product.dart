@@ -1,5 +1,6 @@
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/service/product_Service.dart';
+import 'package:dongtam/utils/loadImage/image_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -457,7 +458,6 @@ class _ProductPageState extends State<ProductPage> {
                                       } else {
                                         isSelected.remove(product.productId);
                                       }
-
                                       selectedAll =
                                           isSelected.length == data.length;
                                     });
@@ -470,7 +470,70 @@ class _ProductPageState extends State<ProductPage> {
                             DataCell(styleCell(product.productName)),
                             DataCell(styleCell(product.maKhuon)),
                             DataCell(
-                              styleCell(product.productImage ?? 'Không có ảnh'),
+                              product.productImage != null
+                                  ? TextButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: true,
+                                        builder: (_) {
+                                          return GestureDetector(
+                                            onTap:
+                                                () =>
+                                                    Navigator.of(context).pop(),
+                                            child: Scaffold(
+                                              backgroundColor: Colors.black54,
+                                              body: Center(
+                                                child: GestureDetector(
+                                                  onTap: () {},
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    child: Image.network(
+                                                      getImageUrl(
+                                                        product.productImage!,
+                                                      ),
+                                                      fit: BoxFit.contain,
+                                                      errorBuilder:
+                                                          (
+                                                            context,
+                                                            error,
+                                                            stackTrace,
+                                                          ) => Container(
+                                                            width: 200,
+                                                            height: 200,
+                                                            color:
+                                                                Colors
+                                                                    .grey
+                                                                    .shade300,
+                                                            alignment:
+                                                                Alignment
+                                                                    .center,
+                                                            child: const Text(
+                                                              "Lỗi ảnh",
+                                                            ),
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+
+                                    child: Text(
+                                      product.productImage!,
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  )
+                                  : const Text('Không có ảnh'),
                             ),
                           ],
                         );
@@ -489,11 +552,20 @@ class _ProductPageState extends State<ProductPage> {
   Widget styleText(String text) {
     return Text(
       text,
-      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 17,
+        color: Colors.white,
+      ),
     );
   }
 
   Widget styleCell(String text) {
-    return SizedBox(child: Text(text, maxLines: 2));
+    return SizedBox(
+      child: Text(
+        text,
+        style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+      ),
+    );
   }
 }

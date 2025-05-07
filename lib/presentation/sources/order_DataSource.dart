@@ -10,6 +10,7 @@ class OrderDataSource extends DataGridSource {
   String? selectedOrderId;
 
   OrderDataSource({required this.orders, this.selectedOrderId}) {
+    _sortOrdersByStatus();
     buildDataCell();
   }
 
@@ -154,10 +155,6 @@ class OrderDataSource extends DataGridSource {
         columnName: 'HD_special',
         value: order.instructSpecial ?? "",
       ),
-      // DataGridCell<String>(
-      //   columnName: 'productImage',
-      //   value: order.product!.productImage ?? "",
-      // ),
       DataGridCell(columnName: 'status', value: formatStatus(order.status)),
     ];
   }
@@ -183,6 +180,25 @@ class OrderDataSource extends DataGridSource {
       return "Đã lên kế hoạch";
     }
     return "Chờ Duyệt";
+  }
+
+  void _sortOrdersByStatus() {
+    orders.sort((a, b) {
+      int getStatusPriority(String? status) {
+        switch (status?.toLowerCase()) {
+          case 'pending':
+            return 0;
+          case 'reject':
+            return 1;
+          case 'accept':
+            return 2;
+          default:
+            return 3;
+        }
+      }
+
+      return getStatusPriority(a.status).compareTo(getStatusPriority(b.status));
+    });
   }
 
   @override

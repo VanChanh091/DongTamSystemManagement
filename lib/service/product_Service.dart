@@ -18,6 +18,9 @@ class ProductService {
   Future<List<Product>> getAllProducts() async {
     try {
       final token = await SecureStorageService().getToken();
+      if (token == null) {
+        throw Exception('Token not found');
+      }
 
       final response = await dioService.get(
         "/api/product/",
@@ -28,6 +31,7 @@ class ProductService {
           },
         ),
       );
+
       final data = response.data['data'] as List;
 
       return data.map((e) => Product.fromJson(e)).toList();
@@ -40,6 +44,9 @@ class ProductService {
   Future<List<Product>> getProductById(String productId) async {
     try {
       final token = await SecureStorageService().getToken();
+      if (token == null) {
+        throw Exception('Token not found');
+      }
 
       final response = await dioService.get(
         '/api/product/productId',
@@ -70,6 +77,9 @@ class ProductService {
   Future<List<Product>> getProductByName(String productName) async {
     try {
       final token = await SecureStorageService().getToken();
+      if (token == null) {
+        throw Exception('Token not found');
+      }
 
       final response = await dioService.get(
         '/api/product/productName',
@@ -102,6 +112,9 @@ class ProductService {
   }) async {
     try {
       final token = await SecureStorageService().getToken();
+      if (token == null) {
+        throw Exception('Token not found');
+      }
 
       final formData = FormData.fromMap({
         ...product,
@@ -116,12 +129,7 @@ class ProductService {
       await dioService.post(
         '/api/product/',
         data: formData,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       return true;
@@ -138,6 +146,9 @@ class ProductService {
   }) async {
     try {
       final token = await SecureStorageService().getToken();
+      if (token == null) {
+        throw Exception('Token not found');
+      }
 
       FormData formData = FormData.fromMap({
         ...productUpdated,
@@ -153,13 +164,7 @@ class ProductService {
         '/api/product/updateProduct',
         queryParameters: {'id': productId},
         data: formData,
-        // data: productUpdated,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       return true;
@@ -172,6 +177,9 @@ class ProductService {
   Future<bool> deleteProduct(String productId) async {
     try {
       final token = await SecureStorageService().getToken();
+      if (token == null) {
+        throw Exception('Token not found');
+      }
 
       await dioService.delete(
         '/api/product/$productId',

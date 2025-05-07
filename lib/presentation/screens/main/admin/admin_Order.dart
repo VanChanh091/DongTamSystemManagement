@@ -1,4 +1,5 @@
 import 'package:dongtam/service/admin_Service.dart';
+import 'package:dongtam/utils/loadImage/image_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
@@ -377,7 +378,7 @@ class _ManageOrderState extends State<AdminOrder> {
 
     return Card(
       elevation: 2,
-      color: Colors.white,
+      // color: Colors.white,
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -424,6 +425,7 @@ class _ManageOrderState extends State<AdminOrder> {
 
   Widget rowBox() {
     final box = selectedOrder!.box!;
+    final productImage = selectedOrder!.product?.productImage ?? '';
     final boolFields = [
       {'label': 'Cán màng', 'value': box.canMang},
       {'label': 'Xả', 'value': box.Xa},
@@ -437,70 +439,141 @@ class _ManageOrderState extends State<AdminOrder> {
     ];
 
     return Card(
-      elevation: 2,
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      // color: Colors.tealAccent,
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '📦 Thông tin làm thùng',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.redAccent,
+            const Center(
+              child: Text(
+                '📦 Thông tin làm thùng',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.redAccent,
+                ),
               ),
             ),
             const SizedBox(height: 20),
 
-            _infoRow('🧾 In mặt trước:', box.inMatTruoc.toString()),
-            _infoRow('🧾 In mặt sau:', box.inMatSau.toString()),
-            _infoRow('📦 Đóng gói:', box.dongGoi.toString()),
-            _infoRow('🔲 Mã khuôn:', box.maKhuon.toString()),
-            _infoRow(
-              '✨ HD đặc biệt:',
-              selectedOrder!.instructSpecial.toString(),
-            ),
-            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // LEFT SIDE - INFO
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _infoRow('🧾 In mặt trước:', box.inMatTruoc.toString()),
+                        _infoRow('🧾 In mặt sau:', box.inMatSau.toString()),
+                        _infoRow('📦 Đóng gói:', box.dongGoi.toString()),
+                        _infoRow('🔲 Mã khuôn:', box.maKhuon.toString()),
+                        _infoRow(
+                          '✨ HD đặc biệt:',
+                          selectedOrder!.instructSpecial.toString(),
+                        ),
+                        const SizedBox(height: 15),
 
-            for (int i = 0; i < boolFields.length; i += 3) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  for (int j = i; j < i + 3 && j < boolFields.length; j++)
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Icon(
-                            boolFields[j]['value'] as bool
-                                ? Icons.check_circle
-                                : Icons.cancel,
-                            color:
-                                boolFields[j]['value'] as bool
-                                    ? Colors.green
-                                    : Colors.red,
+                        const Text(
+                          '🛠️ Các yêu cầu tùy chỉnh:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              boolFields[j]['label'] as String,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                                color: Colors.black87,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+
+                        for (int i = 0; i < boolFields.length; i += 3) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Row(
+                              children: [
+                                for (
+                                  int j = i;
+                                  j < i + 3 && j < boolFields.length;
+                                  j++
+                                )
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          boolFields[j]['value'] as bool
+                                              ? Icons.check_circle
+                                              : Icons.cancel,
+                                          color:
+                                              boolFields[j]['value'] as bool
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            boolFields[j]['label'] as String,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black87,
+                                              fontSize: 16,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                         ],
-                      ),
+                      ],
                     ),
-                ],
-              ),
-              const SizedBox(height: 12),
-            ],
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                // RIGHT SIDE - IMAGE
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    height: 300,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child:
+                          productImage.isNotEmpty
+                              ? Image.network(
+                                getImageUrl(productImage),
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (context, error, stackTrace) =>
+                                        const Center(
+                                          child: Text(
+                                            'Lỗi ảnh',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                        ),
+                              )
+                              : const Center(
+                                child: Text(
+                                  "Không có hình",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
