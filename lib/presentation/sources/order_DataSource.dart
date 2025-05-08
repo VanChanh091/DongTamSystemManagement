@@ -10,7 +10,6 @@ class OrderDataSource extends DataGridSource {
   String? selectedOrderId;
 
   OrderDataSource({required this.orders, this.selectedOrderId}) {
-    _sortOrdersByStatus();
     buildDataCell();
   }
 
@@ -160,7 +159,30 @@ class OrderDataSource extends DataGridSource {
   }
 
   void buildDataCell() {
-    orders.sort((a, b) => a.orderId.compareTo(b.orderId));
+    orders.sort((a, b) {
+      int getStatusPriority(String? status) {
+        switch (status?.toLowerCase()) {
+          case 'pending':
+            return 0;
+          case 'reject':
+            return 1;
+          case 'accept':
+            return 2;
+          default:
+            return 3;
+        }
+      }
+
+      // So sánh theo status trước
+      int statusCompare = getStatusPriority(
+        a.status,
+      ).compareTo(getStatusPriority(b.status));
+      if (statusCompare != 0) return statusCompare;
+
+      // Nếu status giống nhau, so sánh tiếp theo orderId
+      return a.orderId.compareTo(b.orderId);
+    });
+
     orderDataGridRows =
         orders.map<DataGridRow>((order) {
           return DataGridRow(
@@ -182,25 +204,6 @@ class OrderDataSource extends DataGridSource {
     return "Chờ Duyệt";
   }
 
-  void _sortOrdersByStatus() {
-    orders.sort((a, b) {
-      int getStatusPriority(String? status) {
-        switch (status?.toLowerCase()) {
-          case 'pending':
-            return 0;
-          case 'reject':
-            return 1;
-          case 'accept':
-            return 2;
-          default:
-            return 3;
-        }
-      }
-
-      return getStatusPriority(a.status).compareTo(getStatusPriority(b.status));
-    });
-  }
-
   @override
   List<DataGridRow> get rows => orderDataGridRows;
 
@@ -214,7 +217,7 @@ class OrderDataSource extends DataGridSource {
     buildDataCell();
   }
 
-  String formatCellValue(DataGridCell dataCell) {
+  String formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
     const boolColumns = [
@@ -241,11 +244,35 @@ class OrderDataSource extends DataGridSource {
   DataGridRowAdapter buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
 
+    final statusCell = row.getCells().firstWhere(
+      (cell) => cell.columnName == 'status',
+      orElse: () => DataGridCell<String>(columnName: 'status', value: ''),
+    );
+
+    final status = (statusCell.value ?? '').toString().toLowerCase();
+
+    // Chọn màu nền theo status
+    Color backgroundColor;
+    if (selectedOrderId == orderId) {
+      backgroundColor = Colors.blue.withOpacity(0.3); // Ưu tiên selected
+    } else {
+      switch (status) {
+        case 'chờ duyệt':
+          backgroundColor = Colors.yellow.withOpacity(0.3);
+          break;
+        case 'từ chối':
+          backgroundColor = Colors.red.withOpacity(0.3);
+          break;
+        case 'chấp nhận':
+          backgroundColor = Colors.white; // Trắng rõ ràng
+          break;
+        default:
+          backgroundColor = Colors.transparent; // Hoặc màu khác tuỳ ý
+      }
+    }
+
     return DataGridRowAdapter(
-      color:
-          selectedOrderId == orderId
-              ? Colors.blue.withOpacity(0.3)
-              : Colors.transparent,
+      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
             return Container(
@@ -260,7 +287,7 @@ class OrderDataSource extends DataGridSource {
                 vertical: 4.0,
               ),
               child: Text(
-                formatCellValue(dataCell),
+                formatCellValueBool(dataCell),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,

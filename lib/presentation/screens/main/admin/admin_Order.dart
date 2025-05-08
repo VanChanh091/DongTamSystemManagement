@@ -378,7 +378,6 @@ class _ManageOrderState extends State<AdminOrder> {
 
     return Card(
       elevation: 2,
-      // color: Colors.white,
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
