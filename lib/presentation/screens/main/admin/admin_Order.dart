@@ -182,6 +182,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                       await AdminService().updateStatusOrder(
                                         selectedOrder!.orderId,
                                         'accept',
+                                        "",
                                       );
                                       _showSnackBar(
                                         context,
@@ -211,19 +212,102 @@ class _ManageOrderState extends State<AdminOrder> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red.shade600,
                                     ),
-                                    onPressed: () async {
-                                      await AdminService().updateStatusOrder(
-                                        selectedOrder!.orderId,
-                                        'reject',
+                                    onPressed: () {
+                                      final TextEditingController
+                                      reasonController =
+                                          TextEditingController();
+                                      final formKey = GlobalKey<FormState>();
+
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            backgroundColor: Colors.white,
+                                            title: const Text(
+                                              'Nhập lý do từ chối',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                            content: SizedBox(
+                                              width: 350,
+                                              height: 150,
+                                              child: Form(
+                                                key: formKey,
+                                                child: TextFormField(
+                                                  controller: reasonController,
+                                                  maxLines: 3,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                        hintText:
+                                                            'Nhập lý do...',
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                      ),
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.trim().isEmpty) {
+                                                      return 'Vui lòng nhập lý do từ chối';
+                                                    }
+                                                    return null;
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () =>
+                                                        Navigator.pop(context),
+                                                child: const Text(
+                                                  'Hủy',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                              ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Colors.red.shade600,
+                                                ),
+                                                onPressed: () async {
+                                                  if (formKey.currentState!
+                                                      .validate()) {
+                                                    Navigator.pop(context);
+
+                                                    await AdminService()
+                                                        .updateStatusOrder(
+                                                          selectedOrder!
+                                                              .orderId,
+                                                          'reject',
+                                                          reasonController.text,
+                                                        );
+
+                                                    _showSnackBar(
+                                                      context,
+                                                      'Từ chối phê duyệt thành công',
+                                                    );
+                                                    await _loadOrders();
+                                                    setState(() {
+                                                      selectedOrder = null;
+                                                    });
+                                                  }
+                                                },
+                                                child: const Text(
+                                                  'Xác nhận',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       );
-                                      _showSnackBar(
-                                        context,
-                                        'Từ chối phê duyệt thành công',
-                                      );
-                                      await _loadOrders();
-                                      setState(() {
-                                        selectedOrder = null;
-                                      });
                                     },
 
                                     icon: const Icon(

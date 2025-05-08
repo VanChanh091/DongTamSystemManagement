@@ -155,6 +155,7 @@ class OrderDataSource extends DataGridSource {
         value: order.instructSpecial ?? "",
       ),
       DataGridCell(columnName: 'status', value: formatStatus(order.status)),
+      DataGridCell(columnName: 'rejectReason', value: order.rejectReason ?? ""),
     ];
   }
 
@@ -173,24 +174,25 @@ class OrderDataSource extends DataGridSource {
         }
       }
 
-      // So sánh theo status trước
       int statusCompare = getStatusPriority(
         a.status,
       ).compareTo(getStatusPriority(b.status));
       if (statusCompare != 0) return statusCompare;
-
-      // Nếu status giống nhau, so sánh tiếp theo orderId
       return a.orderId.compareTo(b.orderId);
     });
 
     orderDataGridRows =
-        orders.map<DataGridRow>((order) {
-          return DataGridRow(
-            cells: [...buildOrderCells(order), ...buildBoxCells(order)],
-          );
-        }).toList();
+        orders
+            .map<DataGridRow>(
+              (order) => DataGridRow(
+                cells: [...buildOrderCells(order), ...buildBoxCells(order)],
+              ),
+            )
+            .toList();
 
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   String formatStatus(String status) {
@@ -254,7 +256,7 @@ class OrderDataSource extends DataGridSource {
     // Chọn màu nền theo status
     Color backgroundColor;
     if (selectedOrderId == orderId) {
-      backgroundColor = Colors.blue.withOpacity(0.3); // Ưu tiên selected
+      backgroundColor = Colors.blue.withOpacity(0.3);
     } else {
       switch (status) {
         case 'chờ duyệt':
@@ -264,6 +266,9 @@ class OrderDataSource extends DataGridSource {
           backgroundColor = Colors.red.withOpacity(0.3);
           break;
         case 'chấp nhận':
+          backgroundColor = Colors.green.withOpacity(0.3);
+          break;
+        case 'đã lên kế hoạch':
           backgroundColor = Colors.white; // Trắng rõ ràng
           break;
         default:

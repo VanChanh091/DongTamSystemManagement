@@ -34,12 +34,17 @@ class AdminService {
   }
 
   //update status order
-  Future<bool> updateStatusOrder(String orderId, String newStatus) async {
+  Future<bool> updateStatusOrder(
+    String orderId,
+    String newStatus,
+    String rejectReason,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
-        "/api/admin/updateStatus?id=$orderId&newStatus=$newStatus",
+        "/api/admin/updateStatus?id=$orderId",
+        data: {"newStatus": newStatus, "rejectReason": rejectReason},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

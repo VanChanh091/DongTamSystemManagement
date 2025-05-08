@@ -202,7 +202,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
-      content: Container(
+      content: SizedBox(
         width: 700,
         height: 550,
         child: SingleChildScrollView(

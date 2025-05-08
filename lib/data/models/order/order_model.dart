@@ -34,6 +34,7 @@ class Order {
   final DateTime dateRequestShipping;
   final String? instructSpecial;
   final String status;
+  final String? rejectReason;
 
   final String customerId;
   final String productId;
@@ -73,6 +74,7 @@ class Order {
     this.instructSpecial,
     this.vat,
     required this.status,
+    this.rejectReason,
     required this.totalPrice,
     this.customer,
     this.box,
@@ -198,6 +200,7 @@ class Order {
       dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
       instructSpecial: json['instructSpecial'] ?? "",
       status: json['status'] ?? "",
+      rejectReason: json['rejectReason'] ?? "",
       customer:
           json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
       product:
@@ -240,6 +243,7 @@ class Order {
       ).format(dateRequestShipping),
       'instructSpecial': instructSpecial,
       'status': status,
+      "rejectReason": rejectReason,
       'vat': vat,
       'totalPrice': totalPrice,
       'box': box?.toJson(),
