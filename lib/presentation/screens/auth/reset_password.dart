@@ -1,7 +1,9 @@
 import 'package:dongtam/presentation/components/step_Items.dart';
 import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
 import 'package:dongtam/service/auth_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 
 class ResetPassword extends StatefulWidget {
@@ -26,12 +28,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       confirmPwController.text,
     );
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Thay đổi mật khẩu thành công"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarSuccess(context, 'Đổi mật khẩu thành công');
       Navigator.push(
         context,
         PageTransition(
@@ -41,12 +38,7 @@ class _ResetPasswordState extends State<ResetPassword> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Thay đổi mật khẩu thất bại"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarError(context, 'Thay đổi mật khẩu thất bại');
     }
   }
 

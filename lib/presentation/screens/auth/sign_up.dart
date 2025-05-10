@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/service/auth_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 
 class SignUp extends StatefulWidget {
@@ -50,29 +52,17 @@ class _SignUpState extends State<SignUp> {
 
   void sendOTP() async {
     if (emailController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Vui lòng nhập email")));
+      showSnackBarError(context, "Vui lòng nhập email");
       return;
     }
 
     bool success = await authService.sendOTP(emailController.text);
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Đã gửi OTP"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarSuccess(context, "Đã gửi OTP");
       startTimer();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Gửi OTP thất bại"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarError(context, "Gửi OTP thất bại");
     }
   }
 
@@ -91,12 +81,7 @@ class _SignUpState extends State<SignUp> {
     );
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Đăng ký thành công"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarSuccess(context, 'Đăng ký thành công');
       Navigator.push(
         context,
         PageTransition(
@@ -106,12 +91,7 @@ class _SignUpState extends State<SignUp> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Đăng ký thất bại"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarError(context, 'Đăng ký thất bại');
     }
   }
 

@@ -8,59 +8,23 @@ import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class OrderPage extends StatefulWidget {
-  const OrderPage({super.key});
+class OrderRejectAndPending extends StatefulWidget {
+  const OrderRejectAndPending({super.key});
 
   @override
-  State<OrderPage> createState() => _OrderPageState();
+  State<OrderRejectAndPending> createState() => _OrderRejectAndPendingState();
 }
 
-class _OrderPageState extends State<OrderPage> {
-  late Future<List<Order>> futureOrders;
+class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
+  late Future<List<Order>> futureOrdersPending;
   late OrderDataSource orderDataSource;
-  TextEditingController searchController = TextEditingController();
-  String searchType = "Tất cả";
   String? selectedOrderId;
-  bool isAcceptStatus = true;
-  bool isTextFieldEnabled = false;
   final formatter = DateFormat('dd/MM/yyyy');
 
   @override
   void initState() {
     super.initState();
-    futureOrders = OrderService().getAllOrders();
-  }
-
-  void searchOrders() {
-    String keyword = searchController.text.trim().toLowerCase();
-
-    if (isTextFieldEnabled && keyword.isEmpty) return;
-
-    if (searchType == "Tất cả") {
-      setState(() {
-        futureOrders = OrderService().getAllOrders();
-      });
-    } else if (searchType == "Tên KH") {
-      setState(() {
-        futureOrders = OrderService().getOrderByCustomerName(keyword);
-      });
-    } else if (searchType == "Tên SP") {
-      setState(() {
-        futureOrders = OrderService().getOrderByProductName(keyword);
-      });
-    } else if (searchType == "Loại SP") {
-      setState(() {
-        futureOrders = OrderService().getOrderByTypeProduct(keyword);
-      });
-    } else if (searchType == "QC Thùng") {
-      setState(() {
-        futureOrders = OrderService().getOrderByQcBox(keyword);
-      });
-    } else if (searchType == "Đơn Giá") {
-      setState(() {
-        futureOrders = OrderService().getOrderByPrice(double.parse(keyword));
-      });
-    }
+    futureOrdersPending = OrderService().getOrderPendingAndReject();
   }
 
   @override
@@ -77,91 +41,7 @@ class _OrderPageState extends State<OrderPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //dropdown
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  child: Row(
-                    children: [
-                      // dropdown
-                      DropdownButton<String>(
-                        value: searchType,
-                        items:
-                            [
-                              'Tất cả',
-                              "Tên KH",
-                              "Tên SP",
-                              "Loại SP",
-                              "QC Thùng",
-                              "Đơn Giá",
-                            ].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            searchType = value!;
-                            isTextFieldEnabled = searchType != 'Tất cả';
-
-                            if (!isTextFieldEnabled) {
-                              searchController.clear();
-                            }
-                          });
-                        },
-                      ),
-                      SizedBox(width: 10),
-
-                      // input
-                      SizedBox(
-                        width: 250,
-                        height: 50,
-                        child: TextField(
-                          controller: searchController,
-                          enabled: isTextFieldEnabled,
-                          onSubmitted: (_) => searchOrders(),
-                          decoration: InputDecoration(
-                            hintText: 'Tìm kiếm...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-
-                      // find
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          searchOrders();
-                        },
-                        label: Text(
-                          "Tìm kiếm",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Icons.search, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                ),
+                SizedBox(),
 
                 //button
                 Container(
@@ -172,7 +52,8 @@ class _OrderPageState extends State<OrderPage> {
                       ElevatedButton.icon(
                         onPressed: () {
                           setState(() {
-                            futureOrders = OrderService().getAllOrders();
+                            futureOrdersPending =
+                                OrderService().getOrderPendingAndReject();
                           });
                         },
                         label: Text(
@@ -205,10 +86,11 @@ class _OrderPageState extends State<OrderPage> {
                             builder:
                                 (_) => OrderDialog(
                                   order: null,
-                                  onCustomerAddOrUpdate: () {
+                                  onOrderAddOrUpdate: () {
                                     setState(() {
-                                      futureOrders =
-                                          OrderService().getAllOrders();
+                                      futureOrdersPending =
+                                          OrderService()
+                                              .getOrderPendingAndReject();
                                     });
                                   },
                                 ),
@@ -239,16 +121,17 @@ class _OrderPageState extends State<OrderPage> {
                       //update
                       ElevatedButton.icon(
                         onPressed:
-                            (selectedOrderId == null || isAcceptStatus)
+                            selectedOrderId == null
                                 ? null
                                 : () {
                                   // Lấy đơn hàng dựa trên selectedOrderId
-                                  final selectedOrder = futureOrders.then(
-                                    (orders) => orders.firstWhere(
-                                      (order) =>
-                                          order.orderId == selectedOrderId,
-                                    ),
-                                  );
+                                  final selectedOrder = futureOrdersPending
+                                      .then(
+                                        (orders) => orders.firstWhere(
+                                          (order) =>
+                                              order.orderId == selectedOrderId,
+                                        ),
+                                      );
 
                                   selectedOrder
                                       .then((order) {
@@ -257,11 +140,11 @@ class _OrderPageState extends State<OrderPage> {
                                           builder:
                                               (_) => OrderDialog(
                                                 order: order,
-                                                onCustomerAddOrUpdate: () {
+                                                onOrderAddOrUpdate: () {
                                                   setState(() {
-                                                    futureOrders =
+                                                    futureOrdersPending =
                                                         OrderService()
-                                                            .getAllOrders();
+                                                            .getOrderPendingAndReject();
                                                   });
                                                 },
                                               ),
@@ -297,7 +180,7 @@ class _OrderPageState extends State<OrderPage> {
                       //delete customers
                       ElevatedButton.icon(
                         onPressed:
-                            (selectedOrderId == null || isAcceptStatus)
+                            selectedOrderId == null
                                 ? null
                                 : () {
                                   showDialog(
@@ -327,9 +210,9 @@ class _OrderPageState extends State<OrderPage> {
                                                         selectedOrderId!,
                                                       );
                                                   selectedOrderId = null;
-                                                  futureOrders =
+                                                  futureOrdersPending =
                                                       OrderService()
-                                                          .getAllOrders();
+                                                          .getOrderPendingAndReject();
                                                 });
 
                                                 Navigator.pop(context);
@@ -371,7 +254,7 @@ class _OrderPageState extends State<OrderPage> {
           // table
           Expanded(
             child: FutureBuilder(
-              future: futureOrders,
+              future: futureOrdersPending,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -391,7 +274,6 @@ class _OrderPageState extends State<OrderPage> {
                 return SfDataGrid(
                   source: orderDataSource,
                   isScrollbarAlwaysShown: true,
-                  // allowSorting: true,
                   selectionMode: SelectionMode.single,
                   onSelectionChanged: (addedRows, removedRows) {
                     if (addedRows.isNotEmpty) {
@@ -405,13 +287,10 @@ class _OrderPageState extends State<OrderPage> {
 
                       setState(() {
                         selectedOrderId = selectedOrder.orderId;
-                        isAcceptStatus =
-                            selectedOrder.status.toLowerCase() == 'accept';
                       });
                     } else {
                       setState(() {
                         selectedOrderId = null;
-                        isAcceptStatus = false;
                       });
                     }
                   },

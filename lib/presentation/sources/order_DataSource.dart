@@ -266,13 +266,13 @@ class OrderDataSource extends DataGridSource {
           backgroundColor = Colors.red.withOpacity(0.3);
           break;
         case 'chấp nhận':
-          backgroundColor = Colors.green.withOpacity(0.3);
+          backgroundColor = Colors.amberAccent.withOpacity(0.3);
           break;
         case 'đã lên kế hoạch':
-          backgroundColor = Colors.white; // Trắng rõ ràng
+          backgroundColor = Colors.white;
           break;
         default:
-          backgroundColor = Colors.transparent; // Hoặc màu khác tuỳ ý
+          backgroundColor = Colors.transparent;
       }
     }
 

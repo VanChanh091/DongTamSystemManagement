@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dongtam/presentation/components/step_Items.dart';
 import 'package:dongtam/presentation/screens/auth/reset_password.dart';
 import 'package:dongtam/service/auth_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -58,26 +59,17 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   void sendOTP() async {
     if (emailController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Vui lòng nhập email")));
+      showSnackBarError(context, 'Vui lòng nhập email');
       return;
     }
 
     bool success = await authService.sendOTP(emailController.text);
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Đã gửi OTP"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarSuccess(context, 'Đã gửi OTP');
       startTimer();
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Gửi OTP thất bại")));
+      showSnackBarError(context, 'Gửi OTP thất bại');
     }
   }
 
@@ -87,12 +79,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       otpController.text,
     );
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Xác thực OTP thành công"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarSuccess(context, 'Xác thực OTP thành công');
       Navigator.push(
         context,
         PageTransition(
@@ -102,12 +89,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Sai mã OTP"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarError(context, 'Sai mã OTP');
     }
   }
 

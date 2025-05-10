@@ -1,5 +1,6 @@
 import 'package:dongtam/service/admin_Service.dart';
 import 'package:dongtam/utils/loadImage/image_helper.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
@@ -28,17 +29,6 @@ class _ManageOrderState extends State<AdminOrder> {
     setState(() {
       orders = fetchedOrders;
     });
-  }
-
-  // Hàm hiển thị SnackBar
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: GoogleFonts.inter(color: Colors.white)),
-        backgroundColor: Colors.blue.shade600,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   @override
@@ -184,7 +174,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                         'accept',
                                         "",
                                       );
-                                      _showSnackBar(
+                                      showSnackBarSuccess(
                                         context,
                                         'Phê duyệt thành công',
                                       );
@@ -232,12 +222,11 @@ class _ManageOrderState extends State<AdminOrder> {
                                             ),
                                             content: SizedBox(
                                               width: 350,
-                                              height: 150,
+                                              height: 80,
                                               child: Form(
                                                 key: formKey,
                                                 child: TextFormField(
                                                   controller: reasonController,
-                                                  maxLines: 3,
                                                   decoration:
                                                       const InputDecoration(
                                                         hintText:
@@ -286,9 +275,9 @@ class _ManageOrderState extends State<AdminOrder> {
                                                           reasonController.text,
                                                         );
 
-                                                    _showSnackBar(
+                                                    showSnackBarSuccess(
                                                       context,
-                                                      'Từ chối phê duyệt thành công',
+                                                      "Từ chối phê duyệt thành công",
                                                     );
                                                     await _loadOrders();
                                                     setState(() {

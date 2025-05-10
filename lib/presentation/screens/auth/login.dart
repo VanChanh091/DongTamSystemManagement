@@ -2,8 +2,10 @@ import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/sign_up.dart';
 import 'package:dongtam/presentation/screens/main/home.dart';
 import 'package:dongtam/service/auth_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -27,12 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
       passwordController.text,
     );
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Đăng nhập thành công"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarSuccess(context, 'Đăng nhập thành công');
       Navigator.push(
         context,
         PageTransition(
@@ -42,12 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Sai thông tin đăng nhập"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarError(context, 'Sai thông tin đăng nhập');
     }
   }
 

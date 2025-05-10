@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_customer.dart';
 import 'package:flutter/material.dart';
 
@@ -156,36 +157,21 @@ class _CustomerDialogState extends State<CustomerDialog> {
       if (widget.customer == null) {
         // add
         await CustomerService().addCustomer(newCustomer.toJson());
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Thêm thành công"),
-            duration: Duration(milliseconds: 2000),
-          ),
-        );
+        showSnackBarSuccess(context, "Thêm thành công");
       } else {
         // update
         await CustomerService().updateCustomer(
           newCustomer.customerId,
           newCustomer.toJson(),
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Cập nhật thành công"),
-            duration: Duration(milliseconds: 2000),
-          ),
-        );
+        showSnackBarSuccess(context, "Cập nhật thành công");
       }
 
       widget.onCustomerAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e) {
       print("Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Lỗi: không thể lưu dữ liệu"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }
 

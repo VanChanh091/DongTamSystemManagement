@@ -9,6 +9,7 @@ import 'package:dongtam/service/customer_Service.dart';
 import 'package:dongtam/service/order_Service.dart';
 import 'package:dongtam/service/product_Service.dart';
 import 'package:dongtam/utils/autocompleteField/auto_complete_field.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -16,13 +17,9 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class OrderDialog extends StatefulWidget {
   final Order? order;
-  final VoidCallback onCustomerAddOrUpdate;
+  final VoidCallback onOrderAddOrUpdate;
 
-  const OrderDialog({
-    super.key,
-    this.order,
-    required this.onCustomerAddOrUpdate,
-  });
+  const OrderDialog({super.key, this.order, required this.onOrderAddOrUpdate});
 
   @override
   State<OrderDialog> createState() => _OrderDialogState();
@@ -134,12 +131,7 @@ class _OrderDialogState extends State<OrderDialog> {
             customerCompanyController.clear();
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Không tìm thấy khách hàng'),
-              duration: Duration(milliseconds: 2000),
-            ),
-          );
+          showSnackBarError(context, 'Không tìm thấy khách hàng');
         }
       }
     } catch (e) {
@@ -170,12 +162,7 @@ class _OrderDialogState extends State<OrderDialog> {
             maKhuonController.clear();
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Không tìm thấy sản phẩm'),
-              duration: Duration(milliseconds: 2000),
-            ),
-          );
+          showSnackBarError(context, "Không tìm thấy sản phẩm");
         }
       }
     } catch (e) {
@@ -407,36 +394,21 @@ class _OrderDialogState extends State<OrderDialog> {
       if (widget.order == null) {
         //add
         await OrderService().addOrders(newOrder.toJson());
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Đơn hàng đang chờ phê duyệt"),
-            duration: Duration(milliseconds: 2000),
-          ),
-        );
+        showSnackBarSuccess(context, "Lưu thành công");
       } else {
         //update
         await OrderService().updateOrderById(
           originalOrderId,
           newOrder.toJson(),
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Cập nhật thành công"),
-            duration: Duration(milliseconds: 2000),
-          ),
-        );
+        showSnackBarSuccess(context, 'Cập nhật thành công');
       }
 
-      widget.onCustomerAddOrUpdate();
+      widget.onOrderAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e) {
       print("Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Lỗi: không thể lưu dữ liệu"),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
+      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }
   }
 

@@ -12,13 +12,13 @@ class OrderService {
     ),
   );
 
-  //get all order
-  Future<List<Order>> getAllOrders() async {
+  //get Order Pending And Reject
+  Future<List<Order>> getOrderPendingAndReject() async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        "/api/order/",
+        "/api/order/pendingAndReject",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -26,7 +26,28 @@ class OrderService {
           },
         ),
       );
-      final data = response.data['orders'] as List;
+      final data = response.data['data'] as List;
+      return data.map((e) => Order.fromJson(e)).toList();
+    } catch (e) {
+      throw Exception('Failed to load orders: $e');
+    }
+  }
+
+  //get Order Accept And Planning
+  Future<List<Order>> getOrderAcceptAndPlanning() async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        "/api/order/acceptAndPlanning",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final data = response.data['data'] as List;
       return data.map((e) => Order.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to load orders: $e');
@@ -143,28 +164,6 @@ class OrderService {
                 order.QC_box!.toLowerCase().contains(inputQcBox.toLowerCase()),
           )
           .toList();
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
-    }
-  }
-
-  //get by price
-  Future<List<Order>> getOrderByPrice(double inputPrice) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/order/price',
-        queryParameters: {'price': inputPrice.toString()},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final List<dynamic> orderData = response.data['orders'];
-      return orderData.map((json) => Order.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }

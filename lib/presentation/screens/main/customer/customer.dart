@@ -1,5 +1,6 @@
 import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
 import 'package:dongtam/service/customer_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -243,10 +244,9 @@ class _CustomerPageState extends State<CustomerPage> {
                       ElevatedButton.icon(
                         onPressed: () {
                           if (isSelected.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Vui lòng chọn sản phẩm để sửa"),
-                              ),
+                            showSnackBarError(
+                              context,
+                              'Vui lòng chọn sản phẩm cần sửa',
                             );
                             return;
                           }

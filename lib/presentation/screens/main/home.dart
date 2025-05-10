@@ -1,13 +1,14 @@
 import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
-import 'package:dongtam/presentation/screens/main/admin/pendingOrder.dart';
+import 'package:dongtam/presentation/screens/main/admin/top_Tab_Admin.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
-import 'package:dongtam/presentation/screens/main/order/order.dart';
+import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
 import 'package:dongtam/presentation/screens/main/planning/planing_Order.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/presentation/screens/main/user/user.dart';
 import 'package:dongtam/service/auth_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:page_transition/page_transition.dart';
@@ -29,20 +30,18 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> pages = [
     DashboardPage(),
-    OrderPage(),
+    TopTabOrder(),
     CustomerPage(),
     ProductPage(),
     PlaningOrder(),
-    PendingOrder(),
+    TopTabAdmin(),
     UserPage(),
   ];
 
   void logout() async {
     try {
       await authService.logout();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Đăng xuất thành công")));
+      showSnackBarSuccess(context, 'Đăng xuất thành công');
       Navigator.push(
         context,
         PageTransition(

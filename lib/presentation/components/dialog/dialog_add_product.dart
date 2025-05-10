@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -85,9 +86,7 @@ class _ProductDialogState extends State<ProductDialog> {
           newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Thêm thành công")));
+        showSnackBarSuccess(context, 'Thêm thành công');
       } else {
         // Update existing product
         await ProductService().updateProductById(
@@ -95,18 +94,14 @@ class _ProductDialogState extends State<ProductDialog> {
           newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Cập nhật thành công")));
+        showSnackBarSuccess(context, 'Cập nhật thành công');
       }
 
       widget.onProductAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e) {
       print("Error: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Lỗi: không thể lưu dữ liệu")));
+      showSnackBarError(context, 'Lỗi: không thể lưu dữ liệu');
     }
 
     widget.onProductAddOrUpdate();
