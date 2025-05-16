@@ -12,34 +12,19 @@ class OrderService {
     ),
   );
 
-  //get Order Pending And Reject
-  Future<List<Order>> getOrderPendingAndReject() async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        "/api/order/pendingAndReject",
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data['data'] as List;
-      return data.map((e) => Order.fromJson(e)).toList();
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
-    }
-  }
+  //===============================ACCEPT AND PLANNING====================================
 
   //get Order Accept And Planning
-  Future<List<Order>> getOrderAcceptAndPlanning() async {
+  Future<Map<String, dynamic>> getOrderAcceptAndPlanning(
+    int page,
+    int pageSize,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        "/api/order/acceptAndPlanning",
+        "/api/order/accept-planning",
+        queryParameters: {"page": page, 'pageSize': pageSize},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -47,21 +32,33 @@ class OrderService {
           },
         ),
       );
-      final data = response.data['data'] as List;
-      return data.map((e) => Order.fromJson(e)).toList();
+      final data = response.data;
+      final orders = data['data'] as List;
+      final currentPage = data['currentPage'];
+      final totalPages = data['totalPages'];
+
+      // Trả về dữ liệu cùng với totalPages và currentPage
+      return {
+        'orders': orders.map((e) => Order.fromJson(e)).toList(),
+        'currentPage': currentPage,
+        'totalPages': totalPages,
+      };
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }
   }
 
   //get by customer name
-  Future<List<Order>> getOrderByCustomerName(String inputCustomerName) async {
+  Future<Map<String, dynamic>> getOrderByCustomerName(
+    String inputCustomerName,
+    int page,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/customerName',
-        queryParameters: {'name': inputCustomerName},
+        queryParameters: {'name': inputCustomerName, 'page': page},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -70,27 +67,32 @@ class OrderService {
         ),
       );
       final List<dynamic> orderData = response.data['orders'];
-      return orderData
-          .map((json) => Order.fromJson(json))
-          .where(
-            (order) => order.customer!.customerName.toLowerCase().contains(
-              inputCustomerName.toLowerCase(),
-            ),
-          )
-          .toList();
+      final filteredOrders =
+          orderData
+              .map((json) => Order.fromJson(json))
+              .where(
+                (order) => order.customer!.customerName.toLowerCase().contains(
+                  inputCustomerName.toLowerCase(),
+                ),
+              )
+              .toList();
+      return {'orders': filteredOrders};
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }
   }
 
   //get by product name
-  Future<List<Order>> getOrderByProductName(String inputProductName) async {
+  Future<List<Order>> getOrderByProductName(
+    String inputProductName,
+    int page,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/productName',
-        queryParameters: {'name': inputProductName},
+        queryParameters: {'name': inputProductName, 'page': page},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -112,43 +114,14 @@ class OrderService {
     }
   }
 
-  //get by type product
-  Future<List<Order>> getOrderByTypeProduct(String inputTypeProduct) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/order/typeProduct',
-        queryParameters: {'type': inputTypeProduct},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final List<dynamic> orderData = response.data['orders'];
-      return orderData
-          .map((json) => Order.fromJson(json))
-          .where(
-            (order) => order.product!.typeProduct.toLowerCase().contains(
-              inputTypeProduct.toLowerCase(),
-            ),
-          )
-          .toList();
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
-    }
-  }
-
   //get by QC box
-  Future<List<Order>> getOrderByQcBox(String inputQcBox) async {
+  Future<List<Order>> getOrderByQcBox(String inputQcBox, int page) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/qcBox',
-        queryParameters: {'QcBox': inputQcBox},
+        queryParameters: {'QcBox': inputQcBox, 'page': page},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -169,13 +142,62 @@ class OrderService {
     }
   }
 
+  //get by price
+  Future<List<Order>> getOrderByPrice(double price, int page) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/order/price',
+        queryParameters: {'price': price, "page": page},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final List<dynamic> orderData = response.data['orders'];
+      return orderData
+          .map((json) => Order.fromJson(json))
+          .where(
+            (order) => order.QC_box!.toLowerCase().contains(price.toString()),
+          )
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to load orders: $e');
+    }
+  }
+
+  //===============================PENDING AND REJECT=====================================
+
+  //get Order Pending And Reject
+  Future<List<Order>> getOrderPendingAndReject() async {
+    try {
+      final token = await SecureStorageService().getToken();
+      final response = await dioService.get(
+        "/api/order/pending-reject",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final data = response.data['data'] as List;
+      return data.map((e) => Order.fromJson(e)).toList();
+    } catch (e) {
+      throw Exception('Failed to load orders: $e');
+    }
+  }
+
   //add order
   Future<bool> addOrders(Map<String, dynamic> orderData) async {
     try {
       final token = await SecureStorageService().getToken();
 
       await dioService.post(
-        "/api/order/",
+        "/api/order",
         data: orderData,
         options: Options(
           headers: {
@@ -199,7 +221,8 @@ class OrderService {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
-        "/api/order/orders?id=$orderId",
+        "/api/order/orders",
+        queryParameters: {'id': orderId},
         data: orderUpdated,
         options: Options(
           headers: {
@@ -220,7 +243,8 @@ class OrderService {
       final token = await SecureStorageService().getToken();
 
       await dioService.delete(
-        '/api/order/orders?id=$orderId',
+        '/api/order/orders',
+        queryParameters: {'id': orderId},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

@@ -17,14 +17,24 @@ class OrderRejectAndPending extends StatefulWidget {
 
 class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   late Future<List<Order>> futureOrdersPending;
-  late OrderDataSource orderDataSource;
   String? selectedOrderId;
   final formatter = DateFormat('dd/MM/yyyy');
+
+  int currentPage = 1;
+  int pageSize = 2;
+  int totalPages = 1;
+  List<dynamic> orders = [];
 
   @override
   void initState() {
     super.initState();
-    futureOrdersPending = OrderService().getOrderPendingAndReject();
+    loadOrders();
+  }
+
+  void loadOrders() {
+    setState(() {
+      futureOrdersPending = OrderService().getOrderPendingAndReject();
+    });
   }
 
   @override
@@ -50,12 +60,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     children: [
                       // refresh
                       ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            futureOrdersPending =
-                                OrderService().getOrderPendingAndReject();
-                          });
-                        },
+                        onPressed: loadOrders,
                         label: Text(
                           "Tải lại",
                           style: TextStyle(
@@ -87,11 +92,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                 (_) => OrderDialog(
                                   order: null,
                                   onOrderAddOrUpdate: () {
-                                    setState(() {
-                                      futureOrdersPending =
-                                          OrderService()
-                                              .getOrderPendingAndReject();
-                                    });
+                                    loadOrders();
                                   },
                                 ),
                           );
@@ -123,36 +124,25 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                         onPressed:
                             selectedOrderId == null
                                 ? null
-                                : () {
-                                  // Lấy đơn hàng dựa trên selectedOrderId
-                                  final selectedOrder = futureOrdersPending
-                                      .then(
-                                        (orders) => orders.firstWhere(
-                                          (order) =>
-                                              order.orderId == selectedOrderId,
-                                        ),
-                                      );
+                                : () async {
+                                  try {
+                                    final orders = await futureOrdersPending;
+                                    final selectedOrder = orders.firstWhere(
+                                      (order) =>
+                                          order.orderId == selectedOrderId,
+                                    );
 
-                                  selectedOrder
-                                      .then((order) {
-                                        showDialog(
-                                          context: context,
-                                          builder:
-                                              (_) => OrderDialog(
-                                                order: order,
-                                                onOrderAddOrUpdate: () {
-                                                  setState(() {
-                                                    futureOrdersPending =
-                                                        OrderService()
-                                                            .getOrderPendingAndReject();
-                                                  });
-                                                },
-                                              ),
-                                        );
-                                      })
-                                      .catchError((e) {
-                                        print("Không tìm thấy đơn hàng: $e");
-                                      });
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => OrderDialog(
+                                            order: selectedOrder,
+                                            onOrderAddOrUpdate: loadOrders,
+                                          ),
+                                    );
+                                  } catch (e) {
+                                    print("Không tìm thấy đơn hàng: $e");
+                                  }
                                 },
                         label: Text(
                           "Sửa",
@@ -186,10 +176,10 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                   showDialog(
                                     context: context,
                                     builder:
-                                        (context) => AlertDialog(
+                                        (_) => AlertDialog(
                                           title: Text("Xác nhận"),
                                           content: Text(
-                                            'Bạn có chắc chắn muốn xóa khách hàng này?',
+                                            "Bạn có chắc chắn muốn xóa đơn hàng này?",
                                           ),
                                           actions: [
                                             TextButton(
@@ -205,14 +195,8 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                     );
 
                                                 setState(() {
-                                                  orderDataSource
-                                                      .removeItemById(
-                                                        selectedOrderId!,
-                                                      );
                                                   selectedOrderId = null;
-                                                  futureOrdersPending =
-                                                      OrderService()
-                                                          .getOrderPendingAndReject();
+                                                  loadOrders();
                                                 });
 
                                                 Navigator.pop(context);
@@ -223,7 +207,6 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                         ),
                                   );
                                 },
-
                         label: Text(
                           "Xóa",
                           style: TextStyle(
@@ -263,10 +246,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Center(child: Text("Không có đơn hàng nào"));
                 }
-
                 final List<Order> data = snapshot.data!;
 
-                orderDataSource = OrderDataSource(
+                final orderDataSource = OrderDataSource(
                   orders: data,
                   selectedOrderId: selectedOrderId,
                 );

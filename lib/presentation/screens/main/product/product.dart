@@ -1,6 +1,5 @@
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/service/product_Service.dart';
-import 'package:dongtam/utils/loadImage/image_helper.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
@@ -417,6 +416,9 @@ class _ProductPageState extends State<ProductPage> {
                       ],
                       rows: List<DataRow>.generate(data.length, (index) {
                         final product = data[index];
+                        // print(product.productImage);
+                        // final imgURL =
+                        //     'https://res.cloudinary.com/dydcchj7h/image/upload/v1747358712/products/THUNGOI0003.jpg';
                         return DataRow(
                           color: WidgetStateProperty.all(
                             index % 2 == 0
@@ -491,30 +493,33 @@ class _ProductPageState extends State<ProductPage> {
                                                         BorderRadius.circular(
                                                           12,
                                                         ),
-                                                    child: Image.network(
-                                                      getImageUrl(
+                                                    child: SizedBox(
+                                                      width: 800,
+                                                      height: 800,
+                                                      child: Image.network(
                                                         product.productImage!,
-                                                      ),
-                                                      fit: BoxFit.contain,
-                                                      errorBuilder:
-                                                          (
-                                                            context,
-                                                            error,
-                                                            stackTrace,
-                                                          ) => Container(
-                                                            width: 200,
-                                                            height: 200,
-                                                            color:
-                                                                Colors
-                                                                    .grey
-                                                                    .shade300,
-                                                            alignment:
-                                                                Alignment
-                                                                    .center,
-                                                            child: const Text(
-                                                              "Lỗi ảnh",
+                                                        // imgURL,
+                                                        fit: BoxFit.contain,
+                                                        errorBuilder:
+                                                            (
+                                                              context,
+                                                              error,
+                                                              stackTrace,
+                                                            ) => Container(
+                                                              width: 300,
+                                                              height: 300,
+                                                              color:
+                                                                  Colors
+                                                                      .grey
+                                                                      .shade300,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: const Text(
+                                                                "Lỗi ảnh",
+                                                              ),
                                                             ),
-                                                          ),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -524,9 +529,8 @@ class _ProductPageState extends State<ProductPage> {
                                         },
                                       );
                                     },
-
                                     child: Text(
-                                      product.productImage!,
+                                      'Xem ảnh',
                                       style: const TextStyle(
                                         color: Colors.blue,
                                         decoration: TextDecoration.underline,

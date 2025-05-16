@@ -163,14 +163,16 @@ class OrderDataSource extends DataGridSource {
     orders.sort((a, b) {
       int getStatusPriority(String? status) {
         switch (status?.toLowerCase()) {
-          case 'pending':
-            return 0;
           case 'reject':
+            return 0;
+          case 'pending':
             return 1;
           case 'accept':
             return 2;
-          default:
+          case 'planning':
             return 3;
+          default:
+            return 4;
         }
       }
 
@@ -259,14 +261,14 @@ class OrderDataSource extends DataGridSource {
       backgroundColor = Colors.blue.withOpacity(0.3);
     } else {
       switch (status) {
-        case 'chờ duyệt':
-          backgroundColor = Colors.yellow.withOpacity(0.3);
-          break;
+        // case 'chờ duyệt':
+        //   backgroundColor = Colors.yellow.withOpacity(0.3);
+        //   break;
         case 'từ chối':
-          backgroundColor = Colors.red.withOpacity(0.3);
+          backgroundColor = Colors.red.withOpacity(0.4);
           break;
         case 'chấp nhận':
-          backgroundColor = Colors.amberAccent.withOpacity(0.3);
+          backgroundColor = Colors.amberAccent.withOpacity(0.4);
           break;
         case 'đã lên kế hoạch':
           backgroundColor = Colors.white;

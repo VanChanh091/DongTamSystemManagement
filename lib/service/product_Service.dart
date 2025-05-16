@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import 'dart:convert';
 
 class ProductService {
   final Dio dioService = Dio(
@@ -28,6 +29,7 @@ class ProductService {
           headers: {
             'Authorization': 'Bearer $token',
             'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0',
           },
         ),
       );
@@ -107,6 +109,7 @@ class ProductService {
 
   //add product
   Future<bool> addProduct(
+    String prefix,
     Map<String, dynamic> product, {
     Uint8List? imageBytes,
   }) async {
@@ -117,19 +120,25 @@ class ProductService {
       }
 
       final formData = FormData.fromMap({
-        ...product,
+        'prefix': prefix,
+        'product': jsonEncode(product),
         if (imageBytes != null)
           'productImage': MultipartFile.fromBytes(
             imageBytes,
             filename: 'product.jpg',
-            contentType: MediaType('image', 'jpeg'),
+            contentType: MediaType('image', 'webp'),
           ),
       });
 
       await dioService.post(
         '/api/product/',
         data: formData,
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
       );
 
       return true;
@@ -155,8 +164,8 @@ class ProductService {
         if (imageBytes != null)
           'productImage': MultipartFile.fromBytes(
             imageBytes,
-            filename: 'image.jpg',
-            contentType: MediaType('image', 'jpeg'),
+            filename: 'image.webp',
+            contentType: MediaType('image', 'webp'),
           ),
       });
 

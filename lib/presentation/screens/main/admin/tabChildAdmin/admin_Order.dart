@@ -1,5 +1,4 @@
 import 'package:dongtam/service/admin_Service.dart';
-import 'package:dongtam/utils/loadImage/image_helper.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -624,7 +623,7 @@ class _ManageOrderState extends State<AdminOrder> {
                       child:
                           productImage.isNotEmpty
                               ? Image.network(
-                                getImageUrl(productImage),
+                                productImage,
                                 fit: BoxFit.cover,
                                 errorBuilder:
                                     (context, error, stackTrace) =>

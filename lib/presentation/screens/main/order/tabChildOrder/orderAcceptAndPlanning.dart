@@ -3,7 +3,6 @@ import 'package:dongtam/presentation/components/headerTable/header_table_order.d
 import 'package:dongtam/presentation/sources/order_DataSource.dart';
 import 'package:dongtam/service/order_Service.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -15,7 +14,7 @@ class OrderAcceptAndPlanning extends StatefulWidget {
 }
 
 class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
-  late Future<List<Order>> futureOrdersAccept;
+  late Future<Map<String, dynamic>> futureOrdersAccept;
   late OrderDataSource orderDataSource;
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
@@ -23,10 +22,23 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   bool isTextFieldEnabled = false;
   final formatter = DateFormat('dd/MM/yyyy');
 
+  int currentPage = 1;
+  int totalPages = 1;
+  int pageSize = 1;
+  List<Order> orders = [];
+  bool hasMore = true;
+
   @override
   void initState() {
     super.initState();
-    futureOrdersAccept = OrderService().getOrderAcceptAndPlanning();
+    loadOrders();
+  }
+
+  void loadOrders() {
+    futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
+      currentPage,
+      pageSize,
+    );
   }
 
   void searchOrders() {
@@ -36,24 +48,44 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
     if (searchType == "Tất cả") {
       setState(() {
-        futureOrdersAccept = OrderService().getOrderAcceptAndPlanning();
+        futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
+          currentPage,
+          pageSize,
+        );
       });
     } else if (searchType == "Tên KH") {
       setState(() {
-        futureOrdersAccept = OrderService().getOrderByCustomerName(keyword);
+        futureOrdersAccept = OrderService().getOrderByCustomerName(
+          keyword,
+          currentPage,
+        );
       });
     } else if (searchType == "Tên SP") {
-      setState(() {
-        futureOrdersAccept = OrderService().getOrderByProductName(keyword);
-      });
-    } else if (searchType == "Loại SP") {
-      setState(() {
-        futureOrdersAccept = OrderService().getOrderByTypeProduct(keyword);
-      });
+      // setState(() {
+      //   futureOrdersAccept = OrderService().getOrderByProductName(
+      //     keyword,
+      //     currentPage,
+      //   );
+      // });
     } else if (searchType == "QC Thùng") {
-      setState(() {
-        futureOrdersAccept = OrderService().getOrderByQcBox(keyword);
-      });
+      // setState(() {
+      //   futureOrdersAccept = OrderService().getOrderByQcBox(
+      //     keyword,
+      //     currentPage,
+      //   );
+      // });
+    } else if (searchType == "Đơn giá") {
+      // setState(() {
+      //   try {
+      //     final price = double.parse(keyword);
+      //     futureOrdersAccept = OrderService().getOrderByPrice(
+      //       price,
+      //       currentPage,
+      //     );
+      //   } catch (e) {
+      //     showSnackBarError(context, 'Vui lòng nhập số hợp lệ cho đơn giá');
+      //   }
+      // });
     }
   }
 
@@ -84,8 +116,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                               'Tất cả',
                               "Tên KH",
                               "Tên SP",
-                              "Loại SP",
                               "QC Thùng",
+                              'Đơn giá',
                             ].map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
@@ -156,8 +188,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                       ElevatedButton.icon(
                         onPressed: () {
                           setState(() {
-                            futureOrdersAccept =
-                                OrderService().getOrderAcceptAndPlanning();
+                            futureOrdersAccept = OrderService()
+                                .getOrderAcceptAndPlanning(currentPage, 30);
                           });
                         },
                         label: Text(
@@ -193,55 +225,113 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
           // table
           Expanded(
-            child: FutureBuilder(
+            child: FutureBuilder<Map<String, dynamic>>(
               future: futureOrdersAccept,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text("Lỗi: ${snapshot.error}"));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text("Không có đơn hàng nào"));
+                } else if (!snapshot.hasData ||
+                    snapshot.data!['orders'] == null) {
+                  return Center(child: Text("Không có dữ liệu"));
                 }
 
-                final List<Order> data = snapshot.data!;
+                final data = snapshot.data!;
+                final orders = data['orders'] as List<Order>;
+                final currentPg = data['currentPage'];
+                final totalPgs = data['totalPages'];
 
                 orderDataSource = OrderDataSource(
-                  orders: data,
+                  orders: orders,
                   selectedOrderId: selectedOrderId,
                 );
 
-                return SfDataGrid(
-                  source: orderDataSource,
-                  isScrollbarAlwaysShown: true,
-                  // allowSorting: true,
-                  selectionMode: SelectionMode.single,
-                  onSelectionChanged: (addedRows, removedRows) {
-                    if (addedRows.isNotEmpty) {
-                      final selectedRow = addedRows.first;
-                      final orderId =
-                          selectedRow.getCells()[0].value.toString();
+                return Column(
+                  children: [
+                    //table
+                    Expanded(
+                      child: SfDataGrid(
+                        source: orderDataSource,
+                        isScrollbarAlwaysShown: true,
+                        selectionMode: SelectionMode.single,
+                        onSelectionChanged: (addedRows, removedRows) {
+                          if (addedRows.isNotEmpty) {
+                            final selectedRow = addedRows.first;
+                            final orderId =
+                                selectedRow.getCells()[0].value.toString();
+                            final selectedOrder = orders.firstWhere(
+                              (order) => order.orderId == orderId,
+                            );
+                            setState(() {
+                              selectedOrderId = selectedOrder.orderId;
+                            });
+                          } else {
+                            setState(() {
+                              selectedOrderId = null;
+                            });
+                          }
+                        },
+                        columnWidthMode: ColumnWidthMode.auto,
+                        columns: buildCommonColumns(),
+                      ),
+                    ),
 
-                      final selectedOrder = data.firstWhere(
-                        (order) => order.orderId == orderId,
-                      );
-
-                      setState(() {
-                        selectedOrderId = selectedOrder.orderId;
-                      });
-                    } else {
-                      setState(() {
-                        selectedOrderId = null;
-                      });
-                    }
-                  },
-
-                  columnWidthMode: ColumnWidthMode.auto,
-                  columns: buildCommonColumns(),
+                    // Nút chuyển trang
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed:
+                                currentPage > 1
+                                    ? () {
+                                      setState(() {
+                                        currentPage--;
+                                        loadOrders();
+                                      });
+                                    }
+                                    : null,
+                            child: Text("Trang trước"),
+                          ),
+                          SizedBox(width: 20),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'Trang: $currentPg / $totalPgs',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          ElevatedButton(
+                            onPressed:
+                                currentPage < totalPgs
+                                    ? () {
+                                      setState(() {
+                                        currentPage++;
+                                        loadOrders();
+                                      });
+                                    }
+                                    : null,
+                            child: Text("Trang sau"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
           ),
+
+          // Pagination buttons
+          SizedBox(height: 10),
+
+          SizedBox(height: 10),
         ],
       ),
     );

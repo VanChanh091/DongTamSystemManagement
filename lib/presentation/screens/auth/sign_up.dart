@@ -5,7 +5,6 @@ import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 
 class SignUp extends StatefulWidget {

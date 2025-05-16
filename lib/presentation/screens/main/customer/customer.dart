@@ -448,11 +448,10 @@ class _CustomerPageState extends State<CustomerPage> {
                       rows: List<DataRow>.generate(data.length, (index) {
                         final customer = data[index];
                         return DataRow(
-                          color: WidgetStateProperty.all(
-                            index % 2 == 0
-                                ? Colors.white
-                                : const Color.fromARGB(77, 184, 184, 184),
-                          ),
+                          // color: WidgetStateProperty.all(
+                          //   index % 2 == 0 ? Colors.white : Colors.
+
+                          // ),
                           cells: [
                             DataCell(
                               Theme(

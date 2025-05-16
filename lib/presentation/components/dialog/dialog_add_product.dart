@@ -83,6 +83,7 @@ class _ProductDialogState extends State<ProductDialog> {
       if (widget.product == null) {
         // Add new product
         await ProductService().addProduct(
+          newProduct.productId,
           newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
