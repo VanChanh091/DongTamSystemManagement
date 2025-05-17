@@ -226,6 +226,7 @@ class _ProductPageState extends State<ProductPage> {
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 10),
 
                       // update
@@ -287,53 +288,150 @@ class _ProductPageState extends State<ProductPage> {
                                 ? () {
                                   showDialog(
                                     context: context,
-                                    builder:
-                                        (context) => AlertDialog(
-                                          title: Text("Xác nhận"),
-                                          content: Text(
-                                            'Bạn có chắc chắn muốn xóa ${isSelected.length} khách hàng?',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed:
-                                                  () => Navigator.pop(context),
-                                              child: Text("Hủy"),
-                                            ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                for (String id in isSelected) {
-                                                  await ProductService()
-                                                      .deleteProduct(id);
-                                                }
+                                    builder: (context) {
+                                      bool isDeleting = false;
 
-                                                setState(() {
-                                                  isSelected.clear();
-                                                  futureProducts =
-                                                      ProductService()
-                                                          .getAllProducts();
-                                                });
-
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text("Xoá"),
+                                      return StatefulBuilder(
+                                        builder: (context, setStateDialog) {
+                                          return AlertDialog(
+                                            backgroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
                                             ),
-                                          ],
-                                        ),
+                                            title: Row(
+                                              children: const [
+                                                Icon(
+                                                  Icons.warning_amber_rounded,
+                                                  color: Colors.red,
+                                                  size: 30,
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                  "Xác nhận xoá",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            content:
+                                                isDeleting
+                                                    ? Row(
+                                                      children: const [
+                                                        CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                        ),
+                                                        SizedBox(width: 12),
+                                                        Text("Đang xoá..."),
+                                                      ],
+                                                    )
+                                                    : Text(
+                                                      'Bạn có chắc chắn muốn xoá ${isSelected.length} sản phẩm?',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
+                                            actions:
+                                                isDeleting
+                                                    ? []
+                                                    : [
+                                                      TextButton(
+                                                        onPressed:
+                                                            () => Navigator.pop(
+                                                              context,
+                                                            ),
+                                                        child: const Text(
+                                                          "Huỷ",
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color:
+                                                                Colors.black54,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              const Color(
+                                                                0xffEA4346,
+                                                              ),
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  8,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        onPressed: () async {
+                                                          setStateDialog(() {
+                                                            isDeleting = true;
+                                                          });
+
+                                                          for (String id
+                                                              in isSelected) {
+                                                            await ProductService()
+                                                                .deleteProduct(
+                                                                  id,
+                                                                );
+                                                          }
+
+                                                          await Future.delayed(
+                                                            const Duration(
+                                                              seconds: 1,
+                                                            ),
+                                                          );
+
+                                                          setState(() {
+                                                            isSelected.clear();
+                                                            futureProducts =
+                                                                ProductService()
+                                                                    .getAllProducts();
+                                                          });
+
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+
+                                                          // Optional: Show success toast
+                                                          showSnackBarSuccess(
+                                                            context,
+                                                            'Xoá thành công',
+                                                          );
+                                                        },
+                                                        child: const Text(
+                                                          "Xoá",
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                          );
+                                        },
+                                      );
+                                    },
                                   );
                                 }
                                 : null,
-                        label: Text(
-                          "Xóa",
+                        label: const Text(
+                          "Xoá",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        icon: Icon(Icons.delete, color: Colors.white),
+                        icon: const Icon(Icons.delete, color: Colors.white),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffEA4346),
+                          backgroundColor: const Color(0xffEA4346),
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 20,
                             vertical: 15,
                           ),
@@ -416,9 +514,7 @@ class _ProductPageState extends State<ProductPage> {
                       ],
                       rows: List<DataRow>.generate(data.length, (index) {
                         final product = data[index];
-                        // print(product.productImage);
-                        // final imgURL =
-                        //     'https://res.cloudinary.com/dydcchj7h/image/upload/v1747358712/products/THUNGOI0003.jpg';
+                        print(product.productImage);
                         return DataRow(
                           color: WidgetStateProperty.all(
                             index % 2 == 0
@@ -472,9 +568,13 @@ class _ProductPageState extends State<ProductPage> {
                             DataCell(styleCell(product.productName)),
                             DataCell(styleCell(product.maKhuon)),
                             DataCell(
-                              product.productImage != null
+                              product.productImage != null &&
+                                      product.productImage!.isNotEmpty
                                   ? TextButton(
                                     onPressed: () {
+                                      print(
+                                        'Attempting to show image from URL: ${product.productImage}',
+                                      );
                                       showDialog(
                                         context: context,
                                         barrierDismissible: true,
@@ -487,38 +587,52 @@ class _ProductPageState extends State<ProductPage> {
                                               backgroundColor: Colors.black54,
                                               body: Center(
                                                 child: GestureDetector(
-                                                  onTap: () {},
+                                                  onTap:
+                                                      () {}, // Ngăn không cho nhấn vào ảnh đóng dialog
                                                   child: ClipRRect(
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                           12,
                                                         ),
                                                     child: SizedBox(
-                                                      width: 800,
+                                                      width:
+                                                          800, // Kích thước hiển thị ảnh trong dialog
                                                       height: 800,
                                                       child: Image.network(
                                                         product.productImage!,
-                                                        // imgURL,
                                                         fit: BoxFit.contain,
-                                                        errorBuilder:
-                                                            (
-                                                              context,
-                                                              error,
-                                                              stackTrace,
-                                                            ) => Container(
-                                                              width: 300,
-                                                              height: 300,
-                                                              color:
-                                                                  Colors
-                                                                      .grey
-                                                                      .shade300,
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
-                                                              child: const Text(
-                                                                "Lỗi ảnh",
+                                                        errorBuilder: (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) {
+                                                          // In lỗi cụ thể khi Image.network thất bại
+                                                          print(
+                                                            'Image loading error: $error',
+                                                          );
+                                                          print(
+                                                            'StackTrace: $stackTrace',
+                                                          );
+                                                          return Container(
+                                                            width: 300,
+                                                            height: 300,
+                                                            color:
+                                                                Colors
+                                                                    .grey
+                                                                    .shade300,
+                                                            alignment:
+                                                                Alignment
+                                                                    .center,
+                                                            child: const Text(
+                                                              "Lỗi ảnh",
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .black,
                                                               ),
                                                             ),
+                                                          );
+                                                        },
                                                       ),
                                                     ),
                                                   ),
@@ -537,7 +651,9 @@ class _ProductPageState extends State<ProductPage> {
                                       ),
                                     ),
                                   )
-                                  : const Text('Không có ảnh'),
+                                  : const Text(
+                                    'Không có ảnh',
+                                  ), // Hiển thị khi product.productImage là null hoặc rỗng
                             ),
                           ],
                         );

@@ -125,7 +125,7 @@ class ProductService {
         if (imageBytes != null)
           'productImage': MultipartFile.fromBytes(
             imageBytes,
-            filename: 'product.jpg',
+            filename: 'product.webp',
             contentType: MediaType('image', 'webp'),
           ),
       });
@@ -164,7 +164,7 @@ class ProductService {
         if (imageBytes != null)
           'productImage': MultipartFile.fromBytes(
             imageBytes,
-            filename: 'image.webp',
+            filename: 'product.webp',
             contentType: MediaType('image', 'webp'),
           ),
       });
@@ -173,7 +173,12 @@ class ProductService {
         '/api/product/updateProduct',
         queryParameters: {'id': productId},
         data: formData,
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
       );
 
       return true;

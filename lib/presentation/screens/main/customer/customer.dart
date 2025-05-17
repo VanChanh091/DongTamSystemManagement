@@ -299,38 +299,135 @@ class _CustomerPageState extends State<CustomerPage> {
                                 ? () {
                                   showDialog(
                                     context: context,
-                                    builder:
-                                        (context) => AlertDialog(
-                                          title: Text("Xác nhận"),
-                                          content: Text(
-                                            'Bạn có chắc chắn muốn xóa ${isSelected.length} khách hàng?',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed:
-                                                  () => Navigator.pop(context),
-                                              child: Text("Hủy"),
-                                            ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                for (String id in isSelected) {
-                                                  await CustomerService()
-                                                      .deleteCustomer(id);
-                                                }
+                                    builder: (context) {
+                                      bool isDeleting = false;
 
-                                                setState(() {
-                                                  isSelected.clear();
-                                                  futureCustomer =
-                                                      CustomerService()
-                                                          .getAllCustomers();
-                                                });
-
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text("Xoá"),
+                                      return StatefulBuilder(
+                                        builder: (context, setStateDialog) {
+                                          return AlertDialog(
+                                            backgroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
                                             ),
-                                          ],
-                                        ),
+                                            title: Row(
+                                              children: const [
+                                                Icon(
+                                                  Icons.warning_amber_rounded,
+                                                  color: Colors.red,
+                                                  size: 30,
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                  "Xác nhận xoá",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            content:
+                                                isDeleting
+                                                    ? Row(
+                                                      children: const [
+                                                        CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                        ),
+                                                        SizedBox(width: 12),
+                                                        Text("Đang xoá..."),
+                                                      ],
+                                                    )
+                                                    : Text(
+                                                      'Bạn có chắc chắn muốn xoá ${isSelected.length} khách hàng?',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
+                                            actions:
+                                                isDeleting
+                                                    ? []
+                                                    : [
+                                                      TextButton(
+                                                        onPressed:
+                                                            () => Navigator.pop(
+                                                              context,
+                                                            ),
+                                                        child: const Text(
+                                                          "Huỷ",
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color:
+                                                                Colors.black54,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              const Color(
+                                                                0xffEA4346,
+                                                              ),
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  8,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        onPressed: () async {
+                                                          setStateDialog(() {
+                                                            isDeleting = true;
+                                                          });
+
+                                                          for (String id
+                                                              in isSelected) {
+                                                            await CustomerService()
+                                                                .deleteCustomer(
+                                                                  id,
+                                                                );
+                                                          }
+
+                                                          await Future.delayed(
+                                                            const Duration(
+                                                              milliseconds: 500,
+                                                            ),
+                                                          );
+
+                                                          setState(() {
+                                                            isSelected.clear();
+                                                            futureCustomer =
+                                                                CustomerService()
+                                                                    .getAllCustomers();
+                                                          });
+
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+
+                                                          // Optional: Show success toast
+                                                          showSnackBarSuccess(
+                                                            context,
+                                                            'Xoá thành công',
+                                                          );
+                                                        },
+                                                        child: const Text(
+                                                          "Xoá",
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                          );
+                                        },
+                                      );
+                                    },
                                   );
                                 }
                                 : null,

@@ -25,8 +25,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   int currentPage = 1;
   int totalPages = 1;
   int pageSize = 1;
-  List<Order> orders = [];
-  bool hasMore = true;
 
   @override
   void initState() {
@@ -233,8 +231,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                 } else if (snapshot.hasError) {
                   return Center(child: Text("Lỗi: ${snapshot.error}"));
                 } else if (!snapshot.hasData ||
-                    snapshot.data!['orders'] == null) {
-                  return Center(child: Text("Không có dữ liệu"));
+                    snapshot.data!['orders'].isEmpty) {
+                  return Center(child: Text("Không có đơn hàng nào"));
                 }
 
                 final data = snapshot.data!;
@@ -327,11 +325,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
               },
             ),
           ),
-
-          // Pagination buttons
-          SizedBox(height: 10),
-
-          SizedBox(height: 10),
         ],
       ),
     );

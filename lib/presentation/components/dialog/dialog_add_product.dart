@@ -1,11 +1,11 @@
 import 'dart:typed_data';
-
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:diacritic/diacritic.dart';
 
 class ProductDialog extends StatefulWidget {
   final Product? product;
@@ -37,6 +37,7 @@ class _ProductDialogState extends State<ProductDialog> {
     "Giấy kg",
   ];
   Uint8List? pickedProductImage;
+  String? productImageUrl;
 
   @override
   void initState() {
@@ -46,6 +47,7 @@ class _ProductDialogState extends State<ProductDialog> {
       typeProduct = widget.product!.typeProduct;
       nameProductController.text = widget.product!.productName;
       maKhuonController.text = widget.product!.maKhuon;
+      productImageUrl = widget.product!.productImage;
     }
   }
 
@@ -129,6 +131,19 @@ class _ProductDialogState extends State<ProductDialog> {
         if (value == null || value.isEmpty) {
           return "Không được để trống";
         }
+        if (label == "Mã Sản Phẩm") {
+          // Kiểm tra nếu có dấu tiếng Việt
+          final withoutDiacritics = removeDiacritics(value);
+          if (value != withoutDiacritics) {
+            return "Mã sản phẩm không được có dấu tiếng Việt";
+          }
+
+          // Regex kiểm tra ký tự đặc biệt nếu muốn
+          final pattern = RegExp(r"^[a-zA-Z0-9]+$");
+          if (!pattern.hasMatch(value)) {
+            return "Mã sản phẩm không được chúa ký tự đặc biệt";
+          }
+        }
         return null;
       },
     );
@@ -207,7 +222,18 @@ class _ProductDialogState extends State<ProductDialog> {
                     pickedProductImage!,
                     width: 350,
                     height: 350,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
+                  ),
+                ] else if (productImageUrl != null) ...[
+                  SizedBox(height: 15),
+                  Image.network(
+                    productImageUrl!,
+                    width: 350,
+                    height: 350,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Text('Lỗi tải ảnh');
+                    },
                   ),
                 ],
               ],

@@ -23,7 +23,6 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   int currentPage = 1;
   int pageSize = 2;
   int totalPages = 1;
-  List<dynamic> orders = [];
 
   @override
   void initState() {
@@ -246,6 +245,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Center(child: Text("Không có đơn hàng nào"));
                 }
+
                 final List<Order> data = snapshot.data!;
 
                 final orderDataSource = OrderDataSource(
@@ -253,32 +253,34 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                   selectedOrderId: selectedOrderId,
                 );
 
-                return SfDataGrid(
-                  source: orderDataSource,
-                  isScrollbarAlwaysShown: true,
-                  selectionMode: SelectionMode.single,
-                  onSelectionChanged: (addedRows, removedRows) {
-                    if (addedRows.isNotEmpty) {
-                      final selectedRow = addedRows.first;
-                      final orderId =
-                          selectedRow.getCells()[0].value.toString();
+                return Expanded(
+                  child: SfDataGrid(
+                    source: orderDataSource,
+                    isScrollbarAlwaysShown: true,
+                    selectionMode: SelectionMode.single,
+                    onSelectionChanged: (addedRows, removedRows) {
+                      if (addedRows.isNotEmpty) {
+                        final selectedRow = addedRows.first;
+                        final orderId =
+                            selectedRow.getCells()[0].value.toString();
 
-                      final selectedOrder = data.firstWhere(
-                        (order) => order.orderId == orderId,
-                      );
+                        final selectedOrder = data.firstWhere(
+                          (order) => order.orderId == orderId,
+                        );
 
-                      setState(() {
-                        selectedOrderId = selectedOrder.orderId;
-                      });
-                    } else {
-                      setState(() {
-                        selectedOrderId = null;
-                      });
-                    }
-                  },
+                        setState(() {
+                          selectedOrderId = selectedOrder.orderId;
+                        });
+                      } else {
+                        setState(() {
+                          selectedOrderId = null;
+                        });
+                      }
+                    },
 
-                  columnWidthMode: ColumnWidthMode.auto,
-                  columns: buildCommonColumns(),
+                    columnWidthMode: ColumnWidthMode.auto,
+                    columns: buildCommonColumns(),
+                  ),
                 );
               },
             ),

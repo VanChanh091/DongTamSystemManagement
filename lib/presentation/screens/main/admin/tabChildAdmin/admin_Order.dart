@@ -197,6 +197,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
+                                  //form reject order
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red.shade600,
@@ -510,7 +511,6 @@ class _ManageOrderState extends State<AdminOrder> {
     ];
 
     return Card(
-      // color: Colors.tealAccent,
       elevation: 3,
       margin: const EdgeInsets.symmetric(vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -612,19 +612,15 @@ class _ManageOrderState extends State<AdminOrder> {
                 // RIGHT SIDE - IMAGE
                 Expanded(
                   flex: 1,
-                  child: Container(
+                  child: SizedBox(
                     height: 300,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child:
                           productImage.isNotEmpty
                               ? Image.network(
                                 productImage,
-                                fit: BoxFit.cover,
+                                fit: BoxFit.contain,
                                 errorBuilder:
                                     (context, error, stackTrace) =>
                                         const Center(
