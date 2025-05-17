@@ -514,7 +514,6 @@ class _ProductPageState extends State<ProductPage> {
                       ],
                       rows: List<DataRow>.generate(data.length, (index) {
                         final product = data[index];
-                        print(product.productImage);
                         return DataRow(
                           color: WidgetStateProperty.all(
                             index % 2 == 0

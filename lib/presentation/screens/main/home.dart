@@ -69,41 +69,48 @@ class _HomePageState extends State<HomePage> {
         duration: const Duration(milliseconds: 200),
         width: _isHovered ? 300 : 60,
         decoration: _sidebarDecoration(),
-        child: ClipRect(
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              if (_isHovered) _buildLogoSection(),
-              const SizedBox(height: 20),
-              Expanded(child: _buildMenuList()),
-              _buildSidebarItem(
-                Icons.notifications,
-                notificationCount: newNotificationsCount,
-                "Thông báo",
-                onTap: () {
-                  // Chỉ hiển thị snackbar, dialog hoặc pop-up nhỏ
-                  showDialog(
-                    context: context,
-                    builder:
-                        (_) => AlertDialog(
-                          title: Text('Thông báo'),
-                          content: Text('Bạn có 3 thông báo mới.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text("Đóng"),
-                            ),
-                          ],
-                        ),
-                  );
-                },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      if (_isHovered) _buildLogoSection(),
+                      const SizedBox(height: 20),
+                      Expanded(child: _buildMenuList()),
+                      _buildSidebarItem(
+                        Icons.notifications,
+                        notificationCount: newNotificationsCount,
+                        "Thông báo",
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (_) => AlertDialog(
+                                  title: Text('Thông báo'),
+                                  content: Text('Bạn có 3 thông báo mới.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text("Đóng"),
+                                    ),
+                                  ],
+                                ),
+                          );
+                        },
+                      ),
+                      _buildSidebarItem(Icons.person, "Người dùng", index: 7),
+                      const Divider(color: Colors.white70),
+                      _buildLogoutSection(),
+                    ],
+                  ),
+                ),
               ),
-              _buildSidebarItem(Icons.person, "Người dùng", index: 7),
-              const Divider(color: Colors.white70),
-              _buildLogoutSection(),
-              const SizedBox(height: 16),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
