@@ -234,56 +234,54 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
           ),
 
           // table
-          Expanded(
-            child: FutureBuilder(
-              future: futureOrdersPending,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text("Lỗi: ${snapshot.error}"));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text("Không có đơn hàng nào"));
-                }
+          FutureBuilder(
+            future: futureOrdersPending,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text("Lỗi: ${snapshot.error}"));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text("Không có đơn hàng nào"));
+              }
 
-                final List<Order> data = snapshot.data!;
+              final List<Order> data = snapshot.data!;
 
-                final orderDataSource = OrderDataSource(
-                  orders: data,
-                  selectedOrderId: selectedOrderId,
-                );
+              final orderDataSource = OrderDataSource(
+                orders: data,
+                selectedOrderId: selectedOrderId,
+              );
 
-                return Expanded(
-                  child: SfDataGrid(
-                    source: orderDataSource,
-                    isScrollbarAlwaysShown: true,
-                    selectionMode: SelectionMode.single,
-                    onSelectionChanged: (addedRows, removedRows) {
-                      if (addedRows.isNotEmpty) {
-                        final selectedRow = addedRows.first;
-                        final orderId =
-                            selectedRow.getCells()[0].value.toString();
+              return Expanded(
+                child: SfDataGrid(
+                  source: orderDataSource,
+                  isScrollbarAlwaysShown: true,
+                  selectionMode: SelectionMode.single,
+                  onSelectionChanged: (addedRows, removedRows) {
+                    if (addedRows.isNotEmpty) {
+                      final selectedRow = addedRows.first;
+                      final orderId =
+                          selectedRow.getCells()[0].value.toString();
 
-                        final selectedOrder = data.firstWhere(
-                          (order) => order.orderId == orderId,
-                        );
+                      final selectedOrder = data.firstWhere(
+                        (order) => order.orderId == orderId,
+                      );
 
-                        setState(() {
-                          selectedOrderId = selectedOrder.orderId;
-                        });
-                      } else {
-                        setState(() {
-                          selectedOrderId = null;
-                        });
-                      }
-                    },
+                      setState(() {
+                        selectedOrderId = selectedOrder.orderId;
+                      });
+                    } else {
+                      setState(() {
+                        selectedOrderId = null;
+                      });
+                    }
+                  },
 
-                    columnWidthMode: ColumnWidthMode.auto,
-                    columns: buildCommonColumns(),
-                  ),
-                );
-              },
-            ),
+                  columnWidthMode: ColumnWidthMode.auto,
+                  columns: buildCommonColumns(),
+                ),
+              );
+            },
           ),
         ],
       ),

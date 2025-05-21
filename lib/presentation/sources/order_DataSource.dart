@@ -159,6 +159,53 @@ class OrderDataSource extends DataGridSource {
     ];
   }
 
+  String formatStatus(String status) {
+    if (status == 'accept') {
+      return 'Chấp nhận';
+    } else if (status == 'reject') {
+      return "Từ chối";
+    } else if (status == 'planning') {
+      return "Đã lên kế hoạch";
+    }
+    return "Chờ Duyệt";
+  }
+
+  @override
+  List<DataGridRow> get rows => orderDataGridRows;
+
+  String formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = [
+      'canMang',
+      'xa',
+      'catKhe',
+      'be',
+      'dan_1_Manh',
+      'dan_2_Manh',
+      'dongGhim1Manh',
+      'dongGhim2Manh',
+      'chongTham',
+    ];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? 'Có' : '';
+    }
+
+    return value?.toString() ?? '';
+  }
+
+  void removeItemById(String orderId) {
+    orders.removeWhere((order) => order.orderId == orderId);
+    buildDataCell();
+  }
+
+  void removeAll() {
+    orders.clear();
+    buildDataCell();
+  }
+
   void buildDataCell() {
     orders.sort((a, b) {
       int getStatusPriority(String? status) {
@@ -195,53 +242,6 @@ class OrderDataSource extends DataGridSource {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
-  }
-
-  String formatStatus(String status) {
-    if (status == 'accept') {
-      return 'Chấp nhận';
-    } else if (status == 'reject') {
-      return "Từ chối";
-    } else if (status == 'planning') {
-      return "Đã lên kế hoạch";
-    }
-    return "Chờ Duyệt";
-  }
-
-  @override
-  List<DataGridRow> get rows => orderDataGridRows;
-
-  void removeItemById(String orderId) {
-    orders.removeWhere((order) => order.orderId == orderId);
-    buildDataCell();
-  }
-
-  void removeAll() {
-    orders.clear();
-    buildDataCell();
-  }
-
-  String formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = [
-      'canMang',
-      'xa',
-      'catKhe',
-      'be',
-      'dan_1_Manh',
-      'dan_2_Manh',
-      'dongGhim1Manh',
-      'dongGhim2Manh',
-      'chongTham',
-    ];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? 'Có' : '';
-    }
-
-    return value?.toString() ?? '';
   }
 
   @override

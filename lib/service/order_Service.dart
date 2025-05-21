@@ -37,6 +37,8 @@ class OrderService {
       final currentPage = data['currentPage'];
       final totalPages = data['totalPages'];
 
+      print('Current Page: $totalPages');
+
       // Trả về dữ liệu cùng với totalPages và currentPage
       return {
         'orders': orders.map((e) => Order.fromJson(e)).toList(),
@@ -51,14 +53,13 @@ class OrderService {
   //get by customer name
   Future<Map<String, dynamic>> getOrderByCustomerName(
     String inputCustomerName,
-    int page,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/customerName',
-        queryParameters: {'name': inputCustomerName, 'page': page},
+        queryParameters: {'name': inputCustomerName},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -66,33 +67,35 @@ class OrderService {
           },
         ),
       );
-      final List<dynamic> orderData = response.data['orders'];
+
+      final data = response.data;
+      final List<dynamic> orderData = data['data'];
+
       final filteredOrders =
-          orderData
-              .map((json) => Order.fromJson(json))
-              .where(
-                (order) => order.customer!.customerName.toLowerCase().contains(
-                  inputCustomerName.toLowerCase(),
-                ),
-              )
-              .toList();
-      return {'orders': filteredOrders};
+          orderData.map((json) => Order.fromJson(json)).toList();
+      final totalPages = data['totalPages'] ?? 1;
+      final currentPage = data['currentPage'] ?? 1;
+
+      return {
+        'orders': filteredOrders,
+        'totalPages': totalPages,
+        'currentPage': currentPage,
+      };
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }
   }
 
   //get by product name
-  Future<List<Order>> getOrderByProductName(
+  Future<Map<String, dynamic>> getOrderByProductName(
     String inputProductName,
-    int page,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/productName',
-        queryParameters: {'name': inputProductName, 'page': page},
+        queryParameters: {'productName': inputProductName},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -100,28 +103,33 @@ class OrderService {
           },
         ),
       );
-      final List<dynamic> orderData = response.data['orders'];
-      return orderData
-          .map((json) => Order.fromJson(json))
-          .where(
-            (order) => order.product!.productName.toLowerCase().contains(
-              inputProductName.toLowerCase(),
-            ),
-          )
-          .toList();
+
+      final data = response.data;
+      final List<dynamic> orderData = data['data'];
+
+      final filteredOrders =
+          orderData.map((json) => Order.fromJson(json)).toList();
+      final totalPages = data['totalPages'] ?? 1;
+      final currentPage = data['currentPage'] ?? 1;
+
+      return {
+        'orders': filteredOrders,
+        'totalPages': totalPages,
+        'currentPage': currentPage,
+      };
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }
   }
 
   //get by QC box
-  Future<List<Order>> getOrderByQcBox(String inputQcBox, int page) async {
+  Future<Map<String, dynamic>> getOrderByQcBox(String inputQcBox) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/qcBox',
-        queryParameters: {'QcBox': inputQcBox, 'page': page},
+        queryParameters: {'QcBox': inputQcBox},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -129,27 +137,33 @@ class OrderService {
           },
         ),
       );
-      final List<dynamic> orderData = response.data['orders'];
-      return orderData
-          .map((json) => Order.fromJson(json))
-          .where(
-            (order) =>
-                order.QC_box!.toLowerCase().contains(inputQcBox.toLowerCase()),
-          )
-          .toList();
+
+      final data = response.data;
+      final List<dynamic> orderData = data['data'];
+
+      final filteredOrders =
+          orderData.map((json) => Order.fromJson(json)).toList();
+      final totalPages = data['totalPages'] ?? 1;
+      final currentPage = data['currentPage'] ?? 1;
+
+      return {
+        'orders': filteredOrders,
+        'totalPages': totalPages,
+        'currentPage': currentPage,
+      };
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }
   }
 
   //get by price
-  Future<List<Order>> getOrderByPrice(double price, int page) async {
+  Future<Map<String, dynamic>> getOrderByPrice(double price) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/price',
-        queryParameters: {'price': price, "page": page},
+        queryParameters: {'price': price},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -157,13 +171,20 @@ class OrderService {
           },
         ),
       );
-      final List<dynamic> orderData = response.data['orders'];
-      return orderData
-          .map((json) => Order.fromJson(json))
-          .where(
-            (order) => order.QC_box!.toLowerCase().contains(price.toString()),
-          )
-          .toList();
+
+      final data = response.data;
+      final List<dynamic> orderData = data['data'];
+
+      final filteredOrders =
+          orderData.map((json) => Order.fromJson(json)).toList();
+      final totalPages = data['totalPages'] ?? 1;
+      final currentPage = data['currentPage'] ?? 1;
+
+      return {
+        'orders': filteredOrders,
+        'totalPages': totalPages,
+        'currentPage': currentPage,
+      };
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }

@@ -2,6 +2,7 @@ import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
 import 'package:dongtam/presentation/sources/order_DataSource.dart';
 import 'package:dongtam/service/order_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -24,7 +25,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
   int currentPage = 1;
   int totalPages = 1;
-  int pageSize = 1;
+  int pageSize = 3; //change here
 
   @override
   void initState() {
@@ -33,10 +34,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   }
 
   void loadOrders() {
-    futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
-      currentPage,
-      pageSize,
-    );
+    setState(() {
+      futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
+        currentPage,
+        pageSize,
+      );
+    });
   }
 
   void searchOrders() {
@@ -53,37 +56,25 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
       });
     } else if (searchType == "Tên KH") {
       setState(() {
-        futureOrdersAccept = OrderService().getOrderByCustomerName(
-          keyword,
-          currentPage,
-        );
+        futureOrdersAccept = OrderService().getOrderByCustomerName(keyword);
       });
     } else if (searchType == "Tên SP") {
-      // setState(() {
-      //   futureOrdersAccept = OrderService().getOrderByProductName(
-      //     keyword,
-      //     currentPage,
-      //   );
-      // });
+      setState(() {
+        futureOrdersAccept = OrderService().getOrderByProductName(keyword);
+      });
     } else if (searchType == "QC Thùng") {
-      // setState(() {
-      //   futureOrdersAccept = OrderService().getOrderByQcBox(
-      //     keyword,
-      //     currentPage,
-      //   );
-      // });
+      setState(() {
+        futureOrdersAccept = OrderService().getOrderByQcBox(keyword);
+      });
     } else if (searchType == "Đơn giá") {
-      // setState(() {
-      //   try {
-      //     final price = double.parse(keyword);
-      //     futureOrdersAccept = OrderService().getOrderByPrice(
-      //       price,
-      //       currentPage,
-      //     );
-      //   } catch (e) {
-      //     showSnackBarError(context, 'Vui lòng nhập số hợp lệ cho đơn giá');
-      //   }
-      // });
+      setState(() {
+        try {
+          final price = double.parse(keyword);
+          futureOrdersAccept = OrderService().getOrderByPrice(price);
+        } catch (e) {
+          showSnackBarError(context, 'Vui lòng nhập số hợp lệ cho đơn giá');
+        }
+      });
     }
   }
 
@@ -182,6 +173,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         ),
                       ),
                       const SizedBox(width: 10),
+
                       // refresh
                       ElevatedButton.icon(
                         onPressed: () {
@@ -291,7 +283,24 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                       });
                                     }
                                     : null,
-                            child: Text("Trang trước"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 15,
+                              ),
+                              shadowColor: Colors.black.withOpacity(0.2),
+                              elevation: 5,
+                            ),
+                            child: Text(
+                              "Trang trước",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                           SizedBox(width: 20),
                           Padding(
@@ -315,7 +324,24 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                       });
                                     }
                                     : null,
-                            child: Text("Trang sau"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 15,
+                              ),
+                              shadowColor: Colors.black.withOpacity(0.2),
+                              elevation: 5,
+                            ),
+                            child: Text(
+                              "Trang sau",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
                       ),
