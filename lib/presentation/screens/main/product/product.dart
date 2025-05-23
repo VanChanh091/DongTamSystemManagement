@@ -515,11 +515,11 @@ class _ProductPageState extends State<ProductPage> {
                       rows: List<DataRow>.generate(data.length, (index) {
                         final product = data[index];
                         return DataRow(
-                          color: WidgetStateProperty.all(
-                            index % 2 == 0
-                                ? Colors.white
-                                : const Color.fromARGB(77, 184, 184, 184),
-                          ),
+                          // color: WidgetStateProperty.all(
+                          //   index % 2 == 0
+                          //       ? Colors.white
+                          //       : const Color.fromARGB(77, 184, 184, 184),
+                          // ),
                           cells: [
                             DataCell(
                               Theme(
@@ -594,8 +594,7 @@ class _ProductPageState extends State<ProductPage> {
                                                           12,
                                                         ),
                                                     child: SizedBox(
-                                                      width:
-                                                          800, // Kích thước hiển thị ảnh trong dialog
+                                                      width: 800,
                                                       height: 800,
                                                       child: Image.network(
                                                         product.productImage!,
@@ -605,7 +604,6 @@ class _ProductPageState extends State<ProductPage> {
                                                           error,
                                                           stackTrace,
                                                         ) {
-                                                          // In lỗi cụ thể khi Image.network thất bại
                                                           print(
                                                             'Image loading error: $error',
                                                           );
@@ -650,9 +648,7 @@ class _ProductPageState extends State<ProductPage> {
                                       ),
                                     ),
                                   )
-                                  : const Text(
-                                    'Không có ảnh',
-                                  ), // Hiển thị khi product.productImage là null hoặc rỗng
+                                  : const Text('Không có ảnh'),
                             ),
                           ],
                         );

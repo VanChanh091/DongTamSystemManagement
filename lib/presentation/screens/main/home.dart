@@ -4,7 +4,7 @@ import 'package:dongtam/presentation/screens/main/admin/top_Tab_Admin.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
-import 'package:dongtam/presentation/screens/main/planning/planing_Order.dart';
+import 'package:dongtam/presentation/screens/main/planning/waitting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/presentation/screens/main/user/user.dart';
 import 'package:dongtam/service/auth_Service.dart';
@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
     TopTabOrder(),
     CustomerPage(),
     ProductPage(),
-    PlaningOrder(),
+    WaitingForPlaning(),
     TopTabAdmin(),
     UserPage(),
   ];
@@ -102,7 +102,8 @@ class _HomePageState extends State<HomePage> {
                           );
                         },
                       ),
-                      _buildSidebarItem(Icons.person, "Người dùng", index: 7),
+                      _buildSidebarItem(Icons.person, "Người dùng", index: 6),
+
                       const Divider(color: Colors.white70),
                       _buildLogoutSection(),
                     ],

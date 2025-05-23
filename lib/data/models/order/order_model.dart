@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
+import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:intl/intl.dart';
 
 class Order {
@@ -157,46 +158,16 @@ class Order {
       vat: json['vat'] ?? 0,
       quantityCustomer: json['quantityCustomer'] ?? 0,
       quantityManufacture: json['quantityManufacture'] ?? 0,
-      lengthPaperCustomer:
-          (json['lengthPaperCustomer'] is int)
-              ? (json['lengthPaperCustomer'] as int).toDouble()
-              : (json['lengthPaperCustomer'] ?? 0.0) as double,
-      lengthPaperManufacture:
-          (json['lengthPaperManufacture'] is int)
-              ? (json['lengthPaperManufacture'] as int).toDouble()
-              : (json['lengthPaperManufacture'] ?? 0.0) as double,
-      paperSizeCustomer:
-          (json['paperSizeCustomer'] is int)
-              ? (json['paperSizeCustomer'] as int).toDouble()
-              : (json['paperSizeCustomer'] ?? 0.0) as double,
-      paperSizeManufacture:
-          (json['paperSizeManufacture'] is int)
-              ? (json['paperSizeManufacture'] as int).toDouble()
-              : (json['paperSizeManufacture'] ?? 0.0) as double,
-      acreage:
-          (json['acreage'] is int)
-              ? (json['acreage'] as int).toDouble()
-              : (json['acreage'] ?? 0.0) as double,
-      price:
-          (json['price'] is int)
-              ? (json['price'] as int).toDouble()
-              : (json['price'] ?? 0.0) as double,
-      pricePaper:
-          (json['pricePaper'] is int)
-              ? (json['pricePaper'] as int).toDouble()
-              : (json['pricePaper'] ?? 0.0) as double,
-      discount:
-          (json['discount'] is int)
-              ? (json['discount'] as int).toDouble()
-              : (json['discount'] ?? 0.0) as double,
-      profit:
-          (json['profit'] is int)
-              ? (json['profit'] as int).toDouble()
-              : (json['profit'] ?? 0.0) as double,
-      totalPrice:
-          (json['totalPrice'] is int)
-              ? (json['totalPrice'] as int).toDouble()
-              : (json['totalPrice'] ?? 0.0) as double,
+      lengthPaperCustomer: toDouble(json['lengthPaperCustomer']),
+      lengthPaperManufacture: toDouble(json['lengthPaperManufacture']),
+      paperSizeCustomer: toDouble(json['paperSizeCustomer']),
+      paperSizeManufacture: toDouble(json['paperSizeManufacture']),
+      acreage: toDouble(json['acreage']),
+      price: toDouble(json['price']),
+      pricePaper: toDouble(json['pricePaper']),
+      discount: toDouble(json['discount']),
+      profit: toDouble(json['profit']),
+      totalPrice: toDouble(json['totalPrice']),
       dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
       instructSpecial: json['instructSpecial'] ?? "",
       status: json['status'] ?? "",
