@@ -6,6 +6,7 @@ class ValidationCustomer {
     TextEditingController controller,
     IconData icon, {
     bool readOnly = false,
+    bool checkId = false,
   }) {
     return TextFormField(
       controller: controller,
@@ -27,6 +28,11 @@ class ValidationCustomer {
                 label == "CSKH") &&
             (value == null || value.isEmpty)) {
           return 'Vui lòng nhập $label';
+        }
+        if (checkId && label == 'Mã Khách Hàng') {
+          if (value!.length > 6) {
+            return 'Mã khách hàng chỉ được tối đa 6 ký tự';
+          }
         }
         if (label == "SDT" && value != null && value.isNotEmpty) {
           if (!RegExp(r'^\d+$').hasMatch(value)) {

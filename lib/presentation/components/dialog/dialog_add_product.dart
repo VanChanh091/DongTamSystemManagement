@@ -115,6 +115,7 @@ class _ProductDialogState extends State<ProductDialog> {
     TextEditingController controller,
     IconData icon, {
     bool readOnly = false,
+    bool checkId = false,
   }) {
     return TextFormField(
       controller: controller,
@@ -141,7 +142,12 @@ class _ProductDialogState extends State<ProductDialog> {
           // Regex kiểm tra ký tự đặc biệt nếu muốn
           final pattern = RegExp(r"^[a-zA-Z0-9]+$");
           if (!pattern.hasMatch(value)) {
-            return "Mã sản phẩm không được chúa ký tự đặc biệt";
+            return "Mã sản phẩm không được chứa ký tự đặc biệt";
+          }
+        }
+        if (checkId && label == "Mã Sản Phẩm") {
+          if (value.length > 10) {
+            return "Mã sản phẩm chỉ được tối đa 10 ký tự";
           }
         }
         return null;
@@ -164,7 +170,7 @@ class _ProductDialogState extends State<ProductDialog> {
       ),
       content: SizedBox(
         width: 550,
-        height: 400,
+        height: 450,
         child: SingleChildScrollView(
           child: Form(
             key: formKey,
@@ -176,6 +182,7 @@ class _ProductDialogState extends State<ProductDialog> {
                   idController,
                   Icons.code,
                   readOnly: isEdit,
+                  checkId: !isEdit,
                 ),
 
                 SizedBox(height: 15),

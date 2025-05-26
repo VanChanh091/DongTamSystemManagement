@@ -202,6 +202,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
                   _idController,
                   Icons.badge,
                   readOnly: isEdit,
+                  checkId: !isEdit,
                 ),
                 const SizedBox(height: 15),
                 ValidationCustomer.validateInput(

@@ -472,6 +472,7 @@ class _OrderDialogState extends State<OrderDialog> {
               orderIdController,
               Symbols.orders,
               readOnly: isEdit,
+              checkId: !isEdit,
             ),
         'middle_1':
             () => AutoCompleteField<Customer>(

@@ -226,7 +226,6 @@ class _ProductPageState extends State<ProductPage> {
                           ),
                         ),
                       ),
-
                       const SizedBox(width: 10),
 
                       // update
@@ -463,6 +462,21 @@ class _ProductPageState extends State<ProductPage> {
                   }
 
                   final data = snapshot.data!;
+
+                  // Sort the data by the numeric part of productId in ascending order
+                  data.sort((a, b) {
+                    final aNumeric =
+                        int.tryParse(
+                          a.productId.replaceAll(RegExp(r'[^0-9]'), ''),
+                        ) ??
+                        0;
+                    final bNumeric =
+                        int.tryParse(
+                          b.productId.replaceAll(RegExp(r'[^0-9]'), ''),
+                        ) ??
+                        0;
+                    return aNumeric.compareTo(bNumeric);
+                  });
 
                   return SingleChildScrollView(
                     scrollDirection: Axis.vertical,
