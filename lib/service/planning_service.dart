@@ -27,9 +27,36 @@ class PlanningService {
         ),
       );
       final data = response.data['data'] as List;
+      // print('Data: $data');
       return data.map((e) => Order.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to load orders: $e');
+    }
+  }
+
+  Future<bool> planningOrder(
+    String orderId,
+    String newStatus,
+    Map<String, dynamic> orderPlanning,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.post(
+        '/api/planning/planningOrder',
+        queryParameters: {"orderId": orderId, "newStatus": newStatus},
+        data: orderPlanning,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      throw Exception('Failed to plan order: $e');
     }
   }
 }

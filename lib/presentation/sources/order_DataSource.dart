@@ -42,6 +42,7 @@ class OrderDataSource extends DataGridSource {
         columnName: 'productName',
         value: order.product?.productName ?? '',
       ),
+      DataGridCell<String>(columnName: 'flute', value: order.flute ?? ''),
       DataGridCell<String>(columnName: 'QC_box', value: order.QC_box ?? ''),
       DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: order.daoXa ?? ''),

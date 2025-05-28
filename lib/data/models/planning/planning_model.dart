@@ -4,7 +4,7 @@ import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
 
 class Planning {
-  final String dayStart;
+  final DateTime dayStart;
   final int runningPlan;
   final TimeOfDay timeRunning;
   final String? dayReplace;
@@ -21,8 +21,11 @@ class Planning {
   final int numberChild;
   final String chooseMachine;
 
-  final PaperConsumptionNorm? paperConsumptionNorm;
+  final String orderId;
   final Order? order;
+
+  //model child
+  final PaperConsumptionNorm? paperConsumptionNorm;
 
   Planning({
     required this.dayStart,
@@ -41,12 +44,42 @@ class Planning {
     required this.quantity,
     required this.numberChild,
     required this.chooseMachine,
-    this.paperConsumptionNorm,
+    required this.orderId,
     this.order,
+    this.paperConsumptionNorm,
   });
+
+  String get formatterStructureOrder {
+    final prefixes = ['', 'E', '', 'B', '', 'C', '', ''];
+    final parts = [
+      dayReplace,
+      songE2Replace,
+      middle_1Replace,
+      songBReplace,
+      middle_2Replace,
+      songCReplace,
+      matReplace,
+      songE2Replace,
+    ];
+    final formattedParts = <String>[];
+
+    for (int i = 0; i < parts.length; i++) {
+      final part = parts[i];
+      if (part != null && part.isNotEmpty) {
+        final prefix = prefixes[i];
+        if (!part.startsWith(prefix.replaceAll(r'[^A-Z]', ""))) {
+          formattedParts.add('$prefix$part');
+        } else {
+          formattedParts.add(part);
+        }
+      }
+    }
+    return formattedParts.join('/');
+  }
 
   factory Planning.fromJson(Map<String, dynamic> json) {
     return Planning(
+      orderId: json['orderId'] ?? "",
       dayStart: json['dayStart'] ?? "",
       runningPlan: json['runningPlan'] ?? 0,
       timeRunning:
@@ -79,6 +112,7 @@ class Planning {
 
   Map<String, dynamic> toJson() {
     return {
+      'orderId': orderId,
       'dayStart': dayStart,
       'runningPlan': runningPlan,
       'timeRunning': {'hour': timeRunning.hour, 'minute': timeRunning.minute},

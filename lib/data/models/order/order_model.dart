@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 class Order {
   final String orderId;
+  final String? flute;
   final String? QC_box;
   final String? canLan;
   final String? daoXa;
@@ -48,6 +49,7 @@ class Order {
     required this.dayReceiveOrder,
     required this.customerId,
     required this.productId,
+    this.flute,
     this.QC_box,
     this.canLan,
     this.daoXa,
@@ -137,12 +139,48 @@ class Order {
     return formattedParts.join('/');
   }
 
+  static String flutePaper(
+    String day,
+    String middle_1,
+    String middle_2,
+    String mat,
+    String songE,
+    String songB,
+    String songC,
+    String songE2,
+  ) {
+    final layers =
+        [
+          day,
+          middle_1,
+          middle_2,
+          mat,
+          songE,
+          songB,
+          songC,
+          songE2,
+        ].where((e) => e.trim().isNotEmpty).toList();
+
+    // Xác định loại sóng
+    final flutes = <String>[];
+    if (songE.trim().isNotEmpty) flutes.add('E');
+    if (songB.trim().isNotEmpty) flutes.add('B');
+    if (songC.trim().isNotEmpty) flutes.add('C');
+    if (songE2.trim().isNotEmpty) flutes.add('E');
+
+    final uniqueFlutes = flutes.toSet().toList()..sort(); // ["B", "C", "E"]
+
+    // Trả về chuỗi kết quả
+    return '${layers.length}${uniqueFlutes.join()}';
+  }
+
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       orderId: json['orderId'] ?? 'ORDER',
       customerId: json['customerId'] ?? 'CUSTOMER',
       productId: json['productId'] ?? "PRODUCT",
       dayReceiveOrder: DateTime.parse(json['dayReceiveOrder']),
+      flute: json['flute'] ?? "",
       QC_box: json['QC_box'] ?? "",
       canLan: json['canLan'] ?? "",
       daoXa: json['daoXa'] ?? "",
@@ -186,6 +224,7 @@ class Order {
       'customerId': customerId,
       'productId': productId,
       'dayReceiveOrder': DateFormat('yyyy-MM-dd').format(dayReceiveOrder),
+      'flute': flute,
       'QC_box': QC_box,
       'canLan': canLan,
       'daoXa': daoXa,

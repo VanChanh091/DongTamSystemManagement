@@ -2,7 +2,7 @@ import 'package:dongtam/utils/helper/helper_model.dart';
 
 class PaperConsumptionNorm {
   final int? day, songE, matE, songB, matB, songC, matC;
-  final double weight,
+  final double? weight,
       totalConsumption,
       DmDay,
       DmSongC,
@@ -18,13 +18,13 @@ class PaperConsumptionNorm {
     required this.matB,
     required this.songC,
     required this.matC,
-    required this.weight,
-    required this.totalConsumption,
-    required this.DmDay,
-    required this.DmSongC,
-    required this.DmSongB,
-    required this.DmSongE,
-    required this.DmDao,
+    this.weight,
+    this.totalConsumption,
+    this.DmDay,
+    this.DmSongC,
+    this.DmSongB,
+    this.DmSongE,
+    this.DmDao,
   });
 
   factory PaperConsumptionNorm.fromJson(Map<String, dynamic> json) {
@@ -55,13 +55,6 @@ class PaperConsumptionNorm {
       'matB': matB,
       'songC': songC,
       'matC': matC,
-      'weight': weight,
-      'totalConsumption': totalConsumption,
-      'DmDay': DmDay,
-      'DmSongC': DmSongC,
-      'DmSongB': DmSongB,
-      'DmSongE': DmSongE,
-      'DmDao': DmDao,
     };
   }
 }

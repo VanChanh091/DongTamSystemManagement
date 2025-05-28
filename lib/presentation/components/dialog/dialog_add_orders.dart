@@ -110,6 +110,73 @@ class _OrderDialogState extends State<OrderDialog> {
     productIdController.addListener(onProductIdChanged);
   }
 
+  void orderInitState() {
+    originalOrderId = widget.order!.orderId;
+    orderIdController.text = widget.order!.orderId;
+    customerIdController.text = widget.order!.customerId;
+    productIdController.text = widget.order!.productId;
+    qcBoxController.text = widget.order!.QC_box.toString();
+    canLanController.text = widget.order!.canLan.toString();
+    dayController.text = widget.order!.day.toString();
+    middle_1Controller.text = widget.order!.middle_1.toString();
+    middle_2Controller.text = widget.order!.middle_2.toString();
+    matController.text = widget.order!.mat.toString();
+    songEController.text = widget.order!.songE.toString();
+    songBController.text = widget.order!.songB.toString();
+    songCController.text = widget.order!.songC.toString();
+    songE2Controller.text = widget.order!.songE2.toString();
+    lengthCustomerController.text = widget.order!.lengthPaperCustomer
+        .toStringAsFixed(1);
+    lengthManufactureController.text = widget.order!.lengthPaperManufacture
+        .toStringAsFixed(1);
+    sizeCustomerController.text = widget.order!.paperSizeCustomer
+        .toStringAsFixed(1);
+    sizeManufactureController.text = widget.order!.paperSizeManufacture
+        .toStringAsFixed(1);
+    quantityCustomerController.text = widget.order!.quantityCustomer.toString();
+    quantityManufactureController.text =
+        widget.order!.quantityManufacture.toString();
+    typeDVT = widget.order?.dvt ?? "Kg";
+    typeDaoXa = widget.order?.daoXa ?? "Quấn cuồn";
+    priceController.text = widget.order!.price.toString();
+    discountController.text =
+        widget.order!.discount?.toStringAsFixed(1) ?? '0.0';
+    profitController.text = widget.order!.profit.toStringAsFixed(1);
+    vatController.text = widget.order!.vat.toString();
+    instructSpecialController.text = widget.order!.instructSpecial.toString();
+    dayReceive = widget.order!.dayReceiveOrder;
+    dateShipping = widget.order!.dateRequestShipping;
+    dateShippingController.text = DateFormat(
+      'dd/MM/yyyy',
+    ).format(dateShipping!);
+  }
+
+  void boxInitState() {
+    inMatTruocController.text = widget.order!.box!.inMatTruoc.toString();
+    inMatSauController.text = widget.order!.box!.inMatSau.toString();
+    canMangChecked = ValueNotifier<bool>(widget.order!.box!.canMang ?? false);
+    xaChecked = ValueNotifier<bool>(widget.order!.box!.Xa ?? false);
+    catKheChecked = ValueNotifier<bool>(widget.order!.box!.catKhe ?? false);
+    beChecked = ValueNotifier<bool>(widget.order!.box!.be ?? false);
+    dan1ManhChecked = ValueNotifier<bool>(
+      widget.order!.box!.dan_1_Manh ?? false,
+    );
+    dan2ManhChecked = ValueNotifier<bool>(
+      widget.order!.box!.dan_2_Manh ?? false,
+    );
+    dongGhim1ManhChecked = ValueNotifier<bool>(
+      widget.order!.box!.dongGhim1Manh ?? false,
+    );
+    dongGhim2ManhChecked = ValueNotifier<bool>(
+      widget.order!.box!.dongGhim2Manh ?? false,
+    );
+    chongThamChecked = ValueNotifier<bool>(
+      widget.order!.box!.chongTham ?? false,
+    );
+    dongGoiController.text = widget.order!.box!.dongGoi ?? "";
+    maKhuonController.text = widget.order!.box!.maKhuon ?? "";
+  }
+
   Future<void> getCustomerById(String customerId) async {
     try {
       final customers = await CustomerService().getCustomerById(customerId);
@@ -214,73 +281,6 @@ class _OrderDialogState extends State<OrderDialog> {
     }
   }
 
-  void orderInitState() {
-    originalOrderId = widget.order!.orderId;
-    orderIdController.text = widget.order!.orderId;
-    customerIdController.text = widget.order!.customerId;
-    productIdController.text = widget.order!.productId;
-    qcBoxController.text = widget.order!.QC_box.toString();
-    canLanController.text = widget.order!.canLan.toString();
-    dayController.text = widget.order!.day.toString();
-    middle_1Controller.text = widget.order!.middle_1.toString();
-    middle_2Controller.text = widget.order!.middle_2.toString();
-    matController.text = widget.order!.mat.toString();
-    songEController.text = widget.order!.songE.toString();
-    songBController.text = widget.order!.songB.toString();
-    songCController.text = widget.order!.songC.toString();
-    songE2Controller.text = widget.order!.songE2.toString();
-    lengthCustomerController.text = widget.order!.lengthPaperCustomer
-        .toStringAsFixed(1);
-    lengthManufactureController.text = widget.order!.lengthPaperManufacture
-        .toStringAsFixed(1);
-    sizeCustomerController.text = widget.order!.paperSizeCustomer
-        .toStringAsFixed(1);
-    sizeManufactureController.text = widget.order!.paperSizeManufacture
-        .toStringAsFixed(1);
-    quantityCustomerController.text = widget.order!.quantityCustomer.toString();
-    quantityManufactureController.text =
-        widget.order!.quantityManufacture.toString();
-    typeDVT = widget.order?.dvt ?? "Kg";
-    typeDaoXa = widget.order?.daoXa ?? "Quấn cuồn";
-    priceController.text = widget.order!.price.toString();
-    discountController.text =
-        widget.order!.discount?.toStringAsFixed(1) ?? '0.0';
-    profitController.text = widget.order!.profit.toStringAsFixed(1);
-    vatController.text = widget.order!.vat.toString();
-    instructSpecialController.text = widget.order!.instructSpecial.toString();
-    dayReceive = widget.order!.dayReceiveOrder;
-    dateShipping = widget.order!.dateRequestShipping;
-    dateShippingController.text = DateFormat(
-      'dd/MM/yyyy',
-    ).format(dateShipping!);
-  }
-
-  void boxInitState() {
-    inMatTruocController.text = widget.order!.box!.inMatTruoc.toString();
-    inMatSauController.text = widget.order!.box!.inMatSau.toString();
-    canMangChecked = ValueNotifier<bool>(widget.order!.box!.canMang ?? false);
-    xaChecked = ValueNotifier<bool>(widget.order!.box!.Xa ?? false);
-    catKheChecked = ValueNotifier<bool>(widget.order!.box!.catKhe ?? false);
-    beChecked = ValueNotifier<bool>(widget.order!.box!.be ?? false);
-    dan1ManhChecked = ValueNotifier<bool>(
-      widget.order!.box!.dan_1_Manh ?? false,
-    );
-    dan2ManhChecked = ValueNotifier<bool>(
-      widget.order!.box!.dan_2_Manh ?? false,
-    );
-    dongGhim1ManhChecked = ValueNotifier<bool>(
-      widget.order!.box!.dongGhim1Manh ?? false,
-    );
-    dongGhim2ManhChecked = ValueNotifier<bool>(
-      widget.order!.box!.dongGhim2Manh ?? false,
-    );
-    chongThamChecked = ValueNotifier<bool>(
-      widget.order!.box!.chongTham ?? false,
-    );
-    dongGoiController.text = widget.order!.box!.dongGoi ?? "";
-    maKhuonController.text = widget.order!.box!.maKhuon ?? "";
-  }
-
   //listener
   void listenerForFieldNeed(
     TextEditingController fieldController,
@@ -334,6 +334,17 @@ class _OrderDialogState extends State<OrderDialog> {
           totalPricePaper,
         ).roundToDouble();
 
+    late String flutePaper = Order.flutePaper(
+      dayController.text,
+      middle_1Controller.text,
+      middle_2Controller.text,
+      matController.text,
+      songEController.text,
+      songBController.text,
+      songCController.text,
+      songE2Controller.text,
+    );
+
     final newBox = Box(
       inMatTruoc: int.tryParse(inMatTruocController.text) ?? 0,
       inMatSau: int.tryParse(inMatSauController.text) ?? 0,
@@ -355,6 +366,7 @@ class _OrderDialogState extends State<OrderDialog> {
       customerId: customerIdController.text.toUpperCase(),
       productId: productIdController.text.toUpperCase(),
       dayReceiveOrder: dayReceive ?? DateTime.now(),
+      flute: flutePaper,
       QC_box: qcBoxController.text,
       canLan: canLanController.text,
       daoXa: typeDaoXa,
@@ -629,28 +641,27 @@ class _OrderDialogState extends State<OrderDialog> {
             ),
         'middle_1':
             () => ValidationOrder.validateInput(
-              "Khổ khách đặt (cm)",
-              sizeCustomerController,
-              Symbols.horizontal_distribute,
-            ),
-        'middle_2':
-            () => ValidationOrder.validateInput(
-              "Khổ sản xuất (cm)",
-              sizeManufactureController,
-              Symbols.horizontal_distribute,
-            ),
-        'middle_3':
-            () => ValidationOrder.validateInput(
               "Dài khách đặt (cm)",
               lengthCustomerController,
               Symbols.vertical_distribute,
             ),
-
-        'right':
+        'middle_2':
             () => ValidationOrder.validateInput(
               "Dài sản xuất (cm)",
               lengthManufactureController,
               Symbols.vertical_distribute,
+            ),
+        'middle_3':
+            () => ValidationOrder.validateInput(
+              "Khổ khách đặt (cm)",
+              sizeCustomerController,
+              Symbols.horizontal_distribute,
+            ),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Khổ sản xuất (cm)",
+              sizeManufactureController,
+              Symbols.horizontal_distribute,
             ),
       },
       {
