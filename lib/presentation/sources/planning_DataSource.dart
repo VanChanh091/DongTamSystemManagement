@@ -1,21 +1,20 @@
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_model.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:intl/intl.dart';
 
-class PlanningDatasource extends DataGridSource {
+class PlanningDataSource extends DataGridSource {
+  late List<DataGridRow> orderDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   List<Order> orders;
   bool selectedAll = false;
   String? selectedOrderId;
 
-  PlanningDatasource({required this.orders, this.selectedOrderId}) {
-    buildPlanningCells();
+  PlanningDataSource({required this.orders, this.selectedOrderId}) {
+    buildDataCell();
   }
 
-  late List<DataGridRow> planningDataGridRows;
-
-  List<DataGridCell> buildPlanningCells(Order order) {
+  List<DataGridCell> buildOrderCells(Order order) {
     return [
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
       DataGridCell<String>(
@@ -26,44 +25,214 @@ class PlanningDatasource extends DataGridSource {
         columnName: 'companyName',
         value: order.customer?.companyName ?? '',
       ),
-      DataGridCell<String>(columnName: 'flute', value: order.QC_box ?? ''),
+      DataGridCell<String>(
+        columnName: 'typeProduct',
+        value: order.product?.typeProduct ?? '',
+      ),
+      DataGridCell<String>(
+        columnName: 'productName',
+        value: order.product?.productName ?? '',
+      ),
+      DataGridCell<String>(columnName: 'flute', value: order.flute ?? ''),
       DataGridCell<String>(columnName: 'QC_box', value: order.QC_box ?? ''),
       DataGridCell<String>(
-        columnName: 'instructSpecial',
-        value: planning.instructSpecial,
+        columnName: 'structure',
+        value: order.formatterStructureOrder,
       ),
-      DataGridCell<String>(columnName: 'daoXa', value: planning.daoXa),
+      DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
+      DataGridCell<String>(columnName: 'daoXa', value: order.daoXa ?? ''),
       DataGridCell<String>(
-        columnName: 'structurePaper',
-        value: planning.structurePaper,
+        columnName: 'lengthMf',
+        value: Order.formatCurrency(order.lengthPaperManufacture),
       ),
       DataGridCell<String>(
-        columnName: 'lengthPaper',
-        value: planning.lengthPaper,
-      ),
-      DataGridCell<String>(columnName: 'sizePaper', value: planning.sizePaper),
-      DataGridCell<int>(columnName: 'qtyOrder', value: planning.qtyOrder),
-      DataGridCell<int>(
-        columnName: 'qtyHasProduced',
-        value: planning.qtyHasProduced,
+        columnName: 'sizeManufacture',
+        value: Order.formatCurrency(order.paperSizeManufacture),
       ),
       DataGridCell<int>(
-        columnName: 'qtyNeedProduced',
-        value: planning.qtyNeedProduced,
-      ),
-      DataGridCell<String>(
-        columnName: 'dateRequestShipping',
-        value: formatter.format(planning.dateRequestShipping),
-      ),
-      DataGridCell<double>(
-        columnName: 'totalPrice',
-        value: planning.totalPrice,
+        columnName: 'qtyManufacture',
+        value: order.quantityManufacture,
       ),
     ];
   }
 
+  List<DataGridCell> buildBoxCells(Order order) {
+    return [
+      DataGridCell<int>(
+        columnName: 'inMatTruoc',
+        value: order.box?.inMatTruoc ?? 0,
+      ),
+      DataGridCell<int>(
+        columnName: 'inMatSau',
+        value: order.box?.inMatSau ?? 0,
+      ),
+      DataGridCell<bool>(
+        columnName: 'canMang',
+        value: order.box?.canMang ?? false,
+      ),
+      DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa ?? false),
+      DataGridCell<bool>(
+        columnName: 'catKhe',
+        value: order.box?.catKhe ?? false,
+      ),
+      DataGridCell<bool>(columnName: 'be', value: order.box?.be ?? false),
+      DataGridCell<bool>(
+        columnName: 'dan_1_Manh',
+        value: order.box?.dan_1_Manh ?? false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dan_2_Manh',
+        value: order.box?.dan_2_Manh ?? false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dongGhimMotManh',
+        value: order.box?.dongGhim1Manh ?? false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dongGhimHaiManh',
+        value: order.box?.dongGhim2Manh ?? false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'chongTham',
+        value: order.box?.chongTham ?? false,
+      ),
+      DataGridCell<String>(
+        columnName: 'dongGoi',
+        value: order.box?.dongGoi ?? "",
+      ),
+      DataGridCell<String>(
+        columnName: 'maKhuon',
+        value: order.box?.maKhuon ?? "",
+      ),
+      DataGridCell<String>(
+        columnName: 'HD_special',
+        value: order.instructSpecial ?? "",
+      ),
+      DataGridCell<String>(
+        columnName: 'totalPrice',
+        value: Order.formatCurrency(order.totalPrice),
+      ),
+    ];
+  }
+
+  String formatStatus(String status) {
+    if (status == 'accept') {
+      return 'Chấp nhận';
+    } else if (status == 'reject') {
+      return "Từ chối";
+    } else if (status == 'planning') {
+      return "Đã lên kế hoạch";
+    }
+    return "Chờ Duyệt";
+  }
+
   @override
-  DataGridRowAdapter? buildRow(DataGridRow row) {
-    throw UnimplementedError();
+  List<DataGridRow> get rows => orderDataGridRows;
+
+  String formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = [
+      'canMang',
+      'xa',
+      'catKhe',
+      'be',
+      'dan_1_Manh',
+      'dan_2_Manh',
+      'dongGhimMotManh',
+      'dongGhimHaiManh',
+      'chongTham',
+    ];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? 'Có' : '';
+    }
+
+    return value?.toString() ?? '';
+  }
+
+  void removeItemById(String orderId) {
+    orders.removeWhere((order) => order.orderId == orderId);
+    buildDataCell();
+  }
+
+  void removeAll() {
+    orders.clear();
+    buildDataCell();
+  }
+
+  void buildDataCell() {
+    orders.sort((a, b) {
+      int getStatusPriority(String? status) {
+        switch (status?.toLowerCase()) {
+          case 'reject':
+            return 0;
+          case 'pending':
+            return 1;
+          case 'accept':
+            return 2;
+          case 'planning':
+            return 3;
+          default:
+            return 4;
+        }
+      }
+
+      int statusCompare = getStatusPriority(
+        a.status,
+      ).compareTo(getStatusPriority(b.status));
+      if (statusCompare != 0) return statusCompare;
+      return a.orderId.compareTo(b.orderId);
+    });
+
+    orderDataGridRows =
+        orders
+            .map<DataGridRow>(
+              (order) => DataGridRow(
+                cells: [...buildOrderCells(order), ...buildBoxCells(order)],
+              ),
+            )
+            .toList();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+  }
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    final orderId = row.getCells()[0].value.toString();
+
+    Color backgroundColor = Colors.transparent;
+    if (selectedOrderId == orderId) {
+      backgroundColor = Colors.blue.withOpacity(0.3);
+    }
+
+    return DataGridRowAdapter(
+      color: backgroundColor,
+      cells:
+          row.getCells().map<Widget>((dataCell) {
+            return Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(color: Colors.grey.shade300, width: 1),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 4.0,
+              ),
+              child: Text(
+                formatCellValueBool(dataCell),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            );
+          }).toList(),
+    );
   }
 }

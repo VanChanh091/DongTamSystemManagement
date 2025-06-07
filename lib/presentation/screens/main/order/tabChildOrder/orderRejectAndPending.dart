@@ -249,34 +249,31 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                   selectedOrderId: selectedOrderId,
                 );
 
-                return Expanded(
-                  child: SfDataGrid(
-                    source: orderDataSource,
-                    isScrollbarAlwaysShown: true,
-                    selectionMode: SelectionMode.single,
-                    onSelectionChanged: (addedRows, removedRows) {
-                      if (addedRows.isNotEmpty) {
-                        final selectedRow = addedRows.first;
-                        final orderId =
-                            selectedRow.getCells()[0].value.toString();
+                return SfDataGrid(
+                  source: orderDataSource,
+                  isScrollbarAlwaysShown: true,
+                  selectionMode: SelectionMode.single,
+                  onSelectionChanged: (addedRows, removedRows) {
+                    if (addedRows.isNotEmpty) {
+                      final selectedRow = addedRows.first;
+                      final orderId =
+                          selectedRow.getCells()[0].value.toString();
 
-                        final selectedOrder = data.firstWhere(
-                          (order) => order.orderId == orderId,
-                        );
+                      final selectedOrder = data.firstWhere(
+                        (order) => order.orderId == orderId,
+                      );
 
-                        setState(() {
-                          selectedOrderId = selectedOrder.orderId;
-                        });
-                      } else {
-                        setState(() {
-                          selectedOrderId = null;
-                        });
-                      }
-                    },
-
-                    columnWidthMode: ColumnWidthMode.auto,
-                    columns: buildCommonColumns(),
-                  ),
+                      setState(() {
+                        selectedOrderId = selectedOrder.orderId;
+                      });
+                    } else {
+                      setState(() {
+                        selectedOrderId = null;
+                      });
+                    }
+                  },
+                  columnWidthMode: ColumnWidthMode.auto,
+                  columns: buildCommonColumns(),
                 );
               },
             ),

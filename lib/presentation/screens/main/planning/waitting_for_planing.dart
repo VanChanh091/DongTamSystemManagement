@@ -1,22 +1,19 @@
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_add_orders.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_planning_order.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_planning.dart';
-import 'package:dongtam/presentation/sources/order_DataSource.dart';
-import 'package:dongtam/service/order_Service.dart';
+import 'package:dongtam/presentation/sources/planning_DataSource.dart';
+import 'package:dongtam/service/planning_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class WaitingForPlaning extends StatefulWidget {
+class WaitingForPlanning extends StatefulWidget {
   @override
-  WaitingForPlaningState createState() => WaitingForPlaningState();
+  WaitingForPlanningState createState() => WaitingForPlanningState();
 }
 
-class WaitingForPlaningState extends State<WaitingForPlaning> {
-  late Future<List<Order>> futureOrdersPending;
+class WaitingForPlanningState extends State<WaitingForPlanning> {
+  late Future<List<Order>> futureOrdersAccept;
   String? selectedOrderId;
   final formatter = DateFormat('dd/MM/yyyy');
 
@@ -28,7 +25,7 @@ class WaitingForPlaningState extends State<WaitingForPlaning> {
 
   void loadOrders() {
     setState(() {
-      futureOrdersPending = OrderService().getOrderPendingAndReject();
+      futureOrdersAccept = PlanningService().getOrderAccept();
     });
   }
 
@@ -80,20 +77,31 @@ class WaitingForPlaningState extends State<WaitingForPlaning> {
 
                       //add
                       ElevatedButton.icon(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => OrderDialog(
-                                  order: null,
-                                  onOrderAddOrUpdate: () {
-                                    loadOrders();
-                                  },
-                                ),
-                          );
-                        },
+                        onPressed:
+                            selectedOrderId == null
+                                ? null
+                                : () async {
+                                  try {
+                                    final order = await futureOrdersAccept;
+                                    final selectedOrder = order.firstWhere(
+                                      (order) =>
+                                          order.orderId == selectedOrderId,
+                                    );
+
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => PLanningDialog(
+                                            order: selectedOrder,
+                                            onPlanningOrder: loadOrders,
+                                          ),
+                                    );
+                                  } catch (e) {
+                                    print("Không tìm thấy đơn hàng: $e");
+                                  }
+                                },
                         label: Text(
-                          "Thêm mới",
+                          "Lên kế hoạch",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -113,115 +121,6 @@ class WaitingForPlaningState extends State<WaitingForPlaning> {
                         ),
                       ),
                       const SizedBox(width: 10),
-
-                      //update
-                      ElevatedButton.icon(
-                        onPressed:
-                            selectedOrderId == null
-                                ? null
-                                : () async {
-                                  try {
-                                    final orders = await futureOrdersPending;
-                                    final selectedOrder = orders.firstWhere(
-                                      (order) =>
-                                          order.orderId == selectedOrderId,
-                                    );
-
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => OrderDialog(
-                                            order: selectedOrder,
-                                            onOrderAddOrUpdate: loadOrders,
-                                          ),
-                                    );
-                                  } catch (e) {
-                                    print("Không tìm thấy đơn hàng: $e");
-                                  }
-                                },
-                        label: Text(
-                          "Sửa",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Symbols.construction, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 10),
-
-                      //delete customers
-                      ElevatedButton.icon(
-                        onPressed:
-                            selectedOrderId == null
-                                ? null
-                                : () {
-                                  showDialog(
-                                    context: context,
-                                    builder:
-                                        (_) => AlertDialog(
-                                          title: Text("Xác nhận"),
-                                          content: Text(
-                                            "Bạn có chắc chắn muốn xóa đơn hàng này?",
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed:
-                                                  () => Navigator.pop(context),
-                                              child: Text("Hủy"),
-                                            ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                await OrderService()
-                                                    .deleteOrder(
-                                                      selectedOrderId!,
-                                                    );
-
-                                                setState(() {
-                                                  selectedOrderId = null;
-                                                  loadOrders();
-                                                });
-
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text("Xoá"),
-                                            ),
-                                          ],
-                                        ),
-                                  );
-                                },
-                        label: Text(
-                          "Xóa",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Icons.delete, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffEA4346),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -230,28 +129,30 @@ class WaitingForPlaningState extends State<WaitingForPlaning> {
           ),
 
           // table
-          FutureBuilder(
-            future: futureOrdersPending,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text("Lỗi: ${snapshot.error}"));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text("Không có đơn hàng nào"));
-              }
+          Expanded(
+            child: FutureBuilder(
+              future: futureOrdersAccept,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Lỗi: ${snapshot.error}"));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text("Không có đơn hàng nào"));
+                }
 
-              final List<Order> data = snapshot.data!;
+                final List<Order> data = snapshot.data!;
 
-              final planningDataSource = OrderDataSource(
-                orders: data,
-                selectedOrderId: selectedOrderId,
-              );
+                final planningDataSource = PlanningDataSource(
+                  orders: data,
+                  selectedOrderId: selectedOrderId,
+                );
 
-              return Expanded(
-                child: SfDataGrid(
+                return SfDataGrid(
                   source: planningDataSource,
+                  columns: buildColumnPlanning(),
                   isScrollbarAlwaysShown: true,
+                  columnWidthMode: ColumnWidthMode.auto,
                   selectionMode: SelectionMode.single,
                   onSelectionChanged: (addedRows, removedRows) {
                     if (addedRows.isNotEmpty) {
@@ -272,12 +173,9 @@ class WaitingForPlaningState extends State<WaitingForPlaning> {
                       });
                     }
                   },
-
-                  columnWidthMode: ColumnWidthMode.auto,
-                  columns: buildColumnPlanning(),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ],
       ),

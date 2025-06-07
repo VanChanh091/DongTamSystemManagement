@@ -4,6 +4,7 @@ import 'package:dongtam/presentation/screens/main/admin/top_Tab_Admin.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
+import 'package:dongtam/presentation/screens/main/planning/production_queue.dart';
 import 'package:dongtam/presentation/screens/main/planning/waitting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/presentation/screens/main/user/user.dart';
@@ -33,7 +34,8 @@ class _HomePageState extends State<HomePage> {
     TopTabOrder(),
     CustomerPage(),
     ProductPage(),
-    WaitingForPlaning(),
+    WaitingForPlanning(),
+    ProductionQueue(),
     TopTabAdmin(),
     UserPage(),
   ];
@@ -102,7 +104,7 @@ class _HomePageState extends State<HomePage> {
                           );
                         },
                       ),
-                      _buildSidebarItem(Icons.person, "Người dùng", index: 6),
+                      _buildSidebarItem(Icons.person, "Người dùng", index: 7),
 
                       const Divider(color: Colors.white70),
                       _buildLogoutSection(),
@@ -200,8 +202,14 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.symmetric(vertical: 12),
               child: Center(child: Icon(Icons.schedule, color: Colors.white)),
             ),
-        if (_isHovered && _isPlanningExpanded)
+        if (_isHovered && _isPlanningExpanded) ...[
           _buildSubMenuItem(Icons.outbox_rounded, "Chờ lên kế hoạch", 4),
+          _buildSubMenuItem(
+            Icons.production_quantity_limits_outlined,
+            "Hàng chờ sản xuất",
+            5,
+          ),
+        ],
       ],
     );
   }
@@ -241,7 +249,7 @@ class _HomePageState extends State<HomePage> {
               child: Center(child: Icon(Icons.assignment, color: Colors.white)),
             ),
         if (_isHovered && _isApprovalExpanded)
-          _buildSubMenuItem(Icons.outbox_rounded, "Chờ duyệt", 5),
+          _buildSubMenuItem(Icons.outbox_rounded, "Chờ duyệt", 6),
       ],
     );
   }

@@ -32,10 +32,10 @@ class _OrderDialogState extends State<OrderDialog> {
   String lastSearchedProductId = "";
   final List<String> itemsDvt = ['Kg', 'Cái', 'M2'];
   final List<String> itemsDaoXa = [
-    "Quấn cuồn",
-    "Tề gọn",
-    "Tề biên đẹp",
-    "Tề biên cột",
+    "Quấn Cuồn",
+    "Tề Gọn",
+    "Tề Biên Đẹp",
+    "Tề Biên Cột",
   ];
   late String originalOrderId;
   List<Customer> allCustomers = [];

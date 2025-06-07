@@ -11,13 +11,13 @@ class PaperConsumptionNorm {
       DmDao;
 
   PaperConsumptionNorm({
-    required this.day,
-    required this.songE,
-    required this.matE,
-    required this.songB,
-    required this.matB,
-    required this.songC,
-    required this.matC,
+    this.day,
+    this.songE,
+    this.matE,
+    this.songB,
+    this.matB,
+    this.songC,
+    this.matC,
     this.weight,
     this.totalConsumption,
     this.DmDay,

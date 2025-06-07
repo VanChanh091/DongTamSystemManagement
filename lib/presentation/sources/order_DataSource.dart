@@ -4,16 +4,14 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:intl/intl.dart';
 
 class OrderDataSource extends DataGridSource {
+  late List<DataGridRow> orderDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   List<Order> orders;
-  bool selectedAll = false;
   String? selectedOrderId;
 
   OrderDataSource({required this.orders, this.selectedOrderId}) {
     buildDataCell();
   }
-
-  late List<DataGridRow> orderDataGridRows;
 
   List<DataGridCell> buildOrderCells(Order order) {
     return [
@@ -44,12 +42,12 @@ class OrderDataSource extends DataGridSource {
       ),
       DataGridCell<String>(columnName: 'flute', value: order.flute ?? ''),
       DataGridCell<String>(columnName: 'QC_box', value: order.QC_box ?? ''),
-      DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
-      DataGridCell<String>(columnName: 'daoXa', value: order.daoXa ?? ''),
       DataGridCell<String>(
         columnName: 'structure',
         value: order.formatterStructureOrder,
       ),
+      DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
+      DataGridCell<String>(columnName: 'daoXa', value: order.daoXa ?? ''),
       DataGridCell<String>(
         columnName: 'lengthCus',
         value: Order.formatCurrency(order.lengthPaperCustomer),
@@ -184,8 +182,8 @@ class OrderDataSource extends DataGridSource {
       'be',
       'dan_1_Manh',
       'dan_2_Manh',
-      'dongGhim1Manh',
-      'dongGhim2Manh',
+      'dongGhimMotManh',
+      'dongGhimHaiManh',
       'chongTham',
     ];
 
@@ -262,9 +260,6 @@ class OrderDataSource extends DataGridSource {
       backgroundColor = Colors.blue.withOpacity(0.3);
     } else {
       switch (status) {
-        // case 'chờ duyệt':
-        //   backgroundColor = Colors.yellow.withOpacity(0.3);
-        //   break;
         case 'từ chối':
           backgroundColor = Colors.red.withOpacity(0.4);
           break;

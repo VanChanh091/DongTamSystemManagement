@@ -16,12 +16,12 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'productName', label: formatColumn("Tên SP")),
     GridColumn(columnName: 'flute', label: formatColumn("Sóng")),
     GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
-    GridColumn(columnName: 'canLan', label: formatColumn("Cấn Lằn")),
-    GridColumn(columnName: 'daoXa', label: formatColumn("Dao Xả")),
     GridColumn(
       columnName: 'structure',
       label: formatColumn("Kết Cấu Đặt Hàng"),
     ),
+    GridColumn(columnName: 'canLan', label: formatColumn("Cấn Lằn")),
+    GridColumn(columnName: 'daoXa', label: formatColumn("Dao Xả")),
     GridColumn(columnName: 'lengthCus', label: formatColumn("Dài (KH)")),
     GridColumn(columnName: 'lengthMf', label: formatColumn("Dài (SX)")),
     GridColumn(columnName: 'sizeCustomer', label: formatColumn("Khổ (KH)")),
@@ -41,7 +41,7 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'discount', label: formatColumn("Chiết Khẩu")),
     GridColumn(columnName: 'profit', label: formatColumn("Lợi Nhuận")),
     GridColumn(columnName: 'vat', label: formatColumn("VAT")),
-    GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
+    GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh số")),
 
     //Box
     GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),

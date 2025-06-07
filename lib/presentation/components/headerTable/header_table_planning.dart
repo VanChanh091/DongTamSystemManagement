@@ -1,36 +1,73 @@
-import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildColumnPlanning() {
   return [
+    //order
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
-    GridColumn(columnName: 'customerName', label: formatColumn("Tên Công Ty")),
-    GridColumn(columnName: 'flute', label: formatColumn("Sóng")),
-    GridColumn(columnName: 'qc_box', label: formatColumn("Quy cách")),
-    GridColumn(
-      columnName: 'instructSpecial',
-      label: formatColumn("Hướng dẫn đặc biệt"),
-    ),
-    GridColumn(columnName: 'daoXa', label: formatColumn("Dao xả")),
-    GridColumn(
-      columnName: 'structurePaper',
-      label: formatColumn("Kết cấu đặt hàng"),
-    ),
-    GridColumn(columnName: 'lengthPaper', label: formatColumn("Dài")),
-    GridColumn(columnName: 'sizePaper', label: formatColumn("Khổ")),
-    GridColumn(columnName: 'qtyOrder', label: formatColumn("SL đặt hàng")),
-    GridColumn(
-      columnName: 'qtyHasProduced',
-      label: formatColumn("SL đã sản xuất"),
-    ),
-    GridColumn(
-      columnName: 'qtyNeedProduced',
-      label: formatColumn("SL cần sản xuất"),
-    ),
     GridColumn(
       columnName: 'dateRequestShipping',
-      label: formatColumn("Ngày yêu cầu giao"),
+      label: formatColumn("Ngày YC Giao"),
     ),
-    GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh số")),
+    GridColumn(columnName: 'companyName', label: formatColumn("Tên Công Ty")),
+    GridColumn(columnName: 'typeProduct', label: formatColumn("Loại SP")),
+    GridColumn(columnName: 'productName', label: formatColumn("Tên SP")),
+    GridColumn(columnName: 'flute', label: formatColumn("Sóng")),
+    GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
+    GridColumn(
+      columnName: 'structure',
+      label: formatColumn("Kết Cấu Đặt Hàng"),
+    ),
+    GridColumn(columnName: 'canLan', label: formatColumn("Cấn Lằn")),
+    GridColumn(columnName: 'daoXa', label: formatColumn("Dao Xả")),
+    GridColumn(columnName: 'lengthMf', label: formatColumn("Dài (SX)")),
+    GridColumn(columnName: 'sizeManufacture', label: formatColumn("Khổ (SX)")),
+    GridColumn(
+      columnName: 'qtyManufacture',
+      label: formatColumn("Số Lượng (SX)"),
+    ),
+
+    //Box
+    GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
+    GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
+    GridColumn(columnName: 'canMang', label: formatColumn("Cán Màng")),
+    GridColumn(columnName: 'xa', label: formatColumn("Xả")),
+    GridColumn(columnName: 'catKhe', label: formatColumn("Cắt Khe")),
+    GridColumn(columnName: 'be', label: formatColumn("Bế")),
+    GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
+    GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
+    GridColumn(
+      columnName: 'dongGhimMotManh',
+      label: formatColumn("Đóng Ghim 1 Mảnh"),
+    ),
+    GridColumn(
+      columnName: 'dongGhimHaiManh',
+      label: formatColumn("Đóng Ghim 2 Mảnh"),
+    ),
+    GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
+    GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
+    GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
+    GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
+    GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
   ];
+}
+
+Widget formatColumn(String text, {double widthBorder = 0}) {
+  return Container(
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      // color: Colors.amberAccent.shade200,
+      color: Color(0xffcfa381),
+      border: Border(right: BorderSide(color: Colors.grey.shade400, width: 1)),
+    ),
+    width: widthBorder,
+    child: Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+        color: Colors.white,
+      ),
+    ),
+  );
 }

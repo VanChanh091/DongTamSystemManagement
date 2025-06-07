@@ -4,6 +4,7 @@ import 'package:dongtam/data/models/planning/planning_model.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:dongtam/utils/validation/validation_planning.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -29,6 +30,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
   late String originalOrderId;
   // Timer? _debounce;
   final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp'];
+  final List<String> listLayerPaper = ['3_LAYER', '4_5_LAYER', "MORE_5_LAYER"];
+  final Map<String, String> layerTypeLabels = {
+    '3_LAYER': '3 Lớp',
+    '4_5_LAYER': '4-5 Lớp',
+    'MORE_5_LAYER': 'Trên 5 lớp',
+  };
 
   //order
   final orderIdController = TextEditingController();
@@ -48,31 +55,32 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final sizeOrderController = TextEditingController();
   final quantityOrderController = TextEditingController();
   final totalPriceOrderController = TextEditingController();
+  final songController = TextEditingController();
   final qcBoxController = TextEditingController();
   final daoXaOrderController = TextEditingController();
   final instructSpecialController = TextEditingController();
 
   //planning
+  final ghepKhoController = TextEditingController();
   DateTime? dayStart;
   final dayStartController = TextEditingController();
-  final runningPlanController = TextEditingController();
   final timeRunningController = TextEditingController();
   late String chooseMachine = 'Máy 1350';
-
   final dayReplaceController = TextEditingController();
   final middle_1ReplaceController = TextEditingController();
   final middle_2ReplaceController = TextEditingController();
   final matReplaceController = TextEditingController();
-
   final songEReplaceController = TextEditingController();
   final songBReplaceController = TextEditingController();
   final songCReplaceController = TextEditingController();
   final songE2ReplaceController = TextEditingController();
-
   final lengthPaperPlanningController = TextEditingController();
   final sizePaperPLaningController = TextEditingController();
+  final runningPlanController = TextEditingController();
   final quantityPLanningsController = TextEditingController();
   final numberChildController = TextEditingController();
+  final numberLayerPaperController = TextEditingController();
+  late String numberOfLP = '3_LAYER';
 
   //paper consumption norm
   final dayController = TextEditingController();
@@ -105,6 +113,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     songBOrderController.text = widget.order!.songB.toString();
     songCOrderController.text = widget.order!.songC.toString();
     songE2OrderController.text = widget.order!.songE2.toString();
+    songController.text = widget.order!.flute.toString();
     qcBoxController.text = widget.order!.QC_box.toString();
     instructSpecialController.text = widget.order!.instructSpecial.toString();
     daoXaOrderController.text = widget.order!.daoXa.toString();
@@ -151,6 +160,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     songBOrderController.dispose();
     songCOrderController.dispose();
     songE2OrderController.dispose();
+    songController.dispose();
     qcBoxController.dispose();
     instructSpecialController.dispose();
     daoXaOrderController.dispose();
@@ -187,17 +197,18 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     final newPaperConsumptionNorm = PaperConsumptionNorm(
       day: int.tryParse(dayController.text) ?? 0,
-      songE: int.parse(songEController.text),
-      matE: int.parse(matEController.text),
-      songB: int.parse(songBController.text),
-      matB: int.parse(matBController.text),
-      songC: int.parse(songCController.text),
-      matC: int.parse(matCController.text),
+      songE: int.tryParse(songEController.text) ?? 0,
+      matE: int.tryParse(matEController.text) ?? 0,
+      songB: int.tryParse(songBController.text) ?? 0,
+      matB: int.tryParse(matBController.text) ?? 0,
+      songC: int.tryParse(songCController.text) ?? 0,
+      matC: int.tryParse(matCController.text) ?? 0,
     );
 
     final newPlanning = Planning(
+      planningId: 0,
       dayStart: dayStart ?? DateTime.now(),
-      runningPlan: int.parse(runningPlanController.text),
+      runningPlan: int.tryParse(runningPlanController.text) ?? 0,
       timeRunning: TimeOfDay(
         hour: int.parse(timeRunningController.text.split(':')[0]),
         minute: int.parse(timeRunningController.text.split(':')[1]),
@@ -210,21 +221,26 @@ class _PLanningDialogState extends State<PLanningDialog> {
       songBReplace: songBReplaceController.text,
       songCReplace: songCReplaceController.text,
       songE2Replace: songE2ReplaceController.text,
-      lengthPaperPlanning: double.parse(lengthPaperPlanningController.text),
-      sizePaperPLaning: double.parse(sizePaperPLaningController.text),
-      quantity: int.parse(quantityPLanningsController.text),
-      numberChild: int.parse(numberChildController.text),
+      lengthPaperPlanning:
+          double.tryParse(lengthPaperPlanningController.text) ?? 0,
+      sizePaperPLaning: double.tryParse(sizePaperPLaningController.text) ?? 0,
+      numberChild: int.tryParse(numberChildController.text) ?? 0,
+      ghepKho: ghepKhoController.text,
       chooseMachine: chooseMachine,
       orderId: widget.order!.orderId,
       order: widget.order,
       paperConsumptionNorm: newPaperConsumptionNorm,
     );
 
+    //add layerType into toJson
+    final planningJson = newPlanning.toJson();
+    planningJson['layerType'] = numberOfLP;
+
     try {
       await PlanningService().planningOrder(
         originalOrderId,
         'planning',
-        newPlanning.toJson(),
+        planningJson,
       );
       showSnackBarSuccess(context, "Lưu thành công");
 
@@ -241,28 +257,28 @@ class _PLanningDialogState extends State<PLanningDialog> {
     final List<Map<String, dynamic>> orders = [
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Mã Đơn Hàng",
               orderIdController,
               Symbols.orders,
               readOnly: true,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Tên Khách Hàng",
               customerNameController,
               Symbols.person,
               readOnly: true,
             ),
         'middle_2':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Tên Công Ty",
               companyNameController,
               Symbols.business,
               readOnly: true,
             ),
         'right':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Ngày Giao Hàng",
               dateShippingController, //fix here
               Symbols.calendar_month,
@@ -271,28 +287,28 @@ class _PLanningDialogState extends State<PLanningDialog> {
       },
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Đáy (g)",
               dayOrderController,
-              Symbols.vertical_align_center,
+              Symbols.vertical_align_bottom,
               readOnly: true,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Giữa 1 (g)",
               middle_1OrderController,
               Symbols.vertical_align_center,
               readOnly: true,
             ),
         'middle_2':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Giữa 2 (g)",
               middle_2OrderController,
               Symbols.vertical_align_center,
               readOnly: true,
             ),
         'right':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Mặt (g)",
               matOrderController,
               Symbols.vertical_align_top,
@@ -301,28 +317,28 @@ class _PLanningDialogState extends State<PLanningDialog> {
       },
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng E (g)",
               songEOrderController,
               Symbols.airwave,
               readOnly: true,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng B (g)",
               songBOrderController,
               Symbols.airwave,
               readOnly: true,
             ),
         'middle_2':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng C (g)",
               songCOrderController,
               Symbols.airwave,
               readOnly: true,
             ),
         'right':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng E2 (g)",
               songE2OrderController,
               Symbols.airwave,
@@ -331,28 +347,28 @@ class _PLanningDialogState extends State<PLanningDialog> {
       },
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Khổ sản xuất (cm)",
               sizeOrderController,
               Symbols.horizontal_distribute,
               readOnly: true,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Dài sản xuất (cm)",
               lengthOrderController,
               Symbols.vertical_distribute,
               readOnly: true,
             ),
         'middle_2':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Số lượng (SX)",
               quantityOrderController,
               Symbols.filter_9_plus,
               readOnly: true,
             ),
         'right':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Doanh số",
               totalPriceOrderController,
               Symbols.filter_9_plus,
@@ -361,34 +377,43 @@ class _PLanningDialogState extends State<PLanningDialog> {
       },
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
+              "Sóng",
+              songController,
+              Symbols.waves,
+              readOnly: true,
+            ),
+
+        'middle_1':
+            () => ValidationPlanning.validateInput(
               "QC Thùng",
               qcBoxController,
               Symbols.deployed_code,
               readOnly: true,
             ),
-        'middle_1':
-            () => ValidationOrder.validateInput(
+
+        'middle_2':
+            () => ValidationPlanning.validateInput(
               "Dao Xả",
               daoXaOrderController,
               Symbols.cut,
               readOnly: true,
             ),
-        'middle_2':
-            () => ValidationOrder.validateInput(
+
+        'right':
+            () => ValidationPlanning.validateInput(
               "Hướng dẫn đặc biệt",
               instructSpecialController,
               Symbols.description,
               readOnly: true,
             ),
-        'right': () => SizedBox(),
       },
     ];
 
     final List<Map<String, dynamic>> planning = [
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Ngày bắt đầu",
               dayStartController,
               Symbols.calendar_month,
@@ -412,7 +437,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
               },
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Thời gian chạy",
               timeRunningController,
               Symbols.clock_arrow_down,
@@ -432,40 +457,42 @@ class _PLanningDialogState extends State<PLanningDialog> {
                 }
               },
             ),
-
         'middle_2':
-            () => ValidationOrder.dropdownForTypes(machineList, chooseMachine, (
-              value,
-            ) {
-              setState(() {
-                chooseMachine = value!;
-              });
-            }),
-
-        'right': () => SizedBox(),
+            () => ValidationPlanning.validateInput(
+              "Ghép khổ",
+              ghepKhoController,
+              Symbols.layers,
+            ),
+        'right':
+            () => ValidationPlanning.dropdownForLayerType(
+              listLayerPaper,
+              numberOfLP,
+              layerTypeLabels,
+              (value) => setState(() => numberOfLP = value!),
+            ),
       },
 
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Đáy thay thế (g)",
               dayReplaceController,
               Symbols.vertical_align_bottom,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Giữa 1 thay thế (g)",
               middle_1ReplaceController,
               Symbols.vertical_align_center,
             ),
         'middle_2':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Giữa 2 thay thế (g)",
               middle_2ReplaceController,
               Symbols.vertical_align_center,
             ),
         'right':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Mặt thay thế (g)",
               matReplaceController,
               Symbols.vertical_align_top,
@@ -474,25 +501,25 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng E thay thế (g)",
               songEReplaceController,
               Symbols.airwave,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng B thay thế (g)",
               songBReplaceController,
               Symbols.airwave,
             ),
         'middle_2':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng C thay thế (g)",
               songCReplaceController,
               Symbols.airwave,
             ),
         'right':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng E2 thay thế (g)",
               songE2ReplaceController,
               Symbols.airwave,
@@ -501,25 +528,25 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Dài sản xuất (cm)",
               lengthPaperPlanningController,
               Symbols.horizontal_distribute,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Khổ sản xuất (cm)",
               sizePaperPLaningController,
               Symbols.horizontal_distribute,
             ),
         'middle_2':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Kế hoạch chạy",
               runningPlanController,
               Symbols.production_quantity_limits,
             ),
         'right':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Số con",
               numberChildController,
               Symbols.filter_9_plus,
@@ -528,27 +555,27 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng E (g)",
               songEController,
               Symbols.vertical_align_center,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Mặt E (g)",
               matEController,
               Symbols.vertical_align_top,
             ),
 
         'middle_2':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng B (g)",
               songBController,
               Symbols.vertical_align_center,
             ),
 
         'right':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Mặt B (g)",
               matBController,
               Symbols.vertical_align_top,
@@ -557,27 +584,34 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       {
         'left':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Sóng C (g)",
               songCController,
               Symbols.vertical_align_center,
             ),
 
         'middle_1':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Mặt C (g)",
               matCController,
               Symbols.vertical_align_top,
             ),
 
         'middle_2':
-            () => ValidationOrder.validateInput(
+            () => ValidationPlanning.validateInput(
               "Đáy (g)",
               dayController,
               Symbols.vertical_align_bottom,
             ),
 
-        'right': () => SizedBox(),
+        'right':
+            () => ValidationOrder.dropdownForTypes(machineList, chooseMachine, (
+              value,
+            ) {
+              setState(() {
+                chooseMachine = value!;
+              });
+            }),
       },
     ];
 
@@ -663,7 +697,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
                         fontSize: 20,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 20),
                     Container(
                       decoration: BoxDecoration(
                         color: Color(0xffF2E873),
