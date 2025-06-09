@@ -20,6 +20,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
   String machine = "Máy 1350";
+  DateTime selectedDate = DateTime.now();
   String? selectedPlanningId;
   int? selectedRowIndex;
   bool isTextFieldEnabled = false;
@@ -32,18 +33,29 @@ class _ProductionQueueState extends State<ProductionQueue> {
   }
 
   void loadPlanning() {
+    final chooseDay = DateFormat('yyyy-MM-dd').format(selectedDate);
     setState(() {
-      futurePlanning = PlanningService().getPlanningByMachine(machine);
+      futurePlanning = PlanningService().getPlanningByMachine(
+        machine,
+        chooseDay,
+      );
     });
   }
 
   void searchPlanning() {}
 
-  void changeMachine(String selected) {
+  void changeMachine(String selectedMachine) {
     setState(() {
-      machine = selected;
+      machine = selectedMachine;
       loadPlanning();
     });
+  }
+
+  void changeDate(DateTime newDate) {
+    setState(() {
+      selectedDate = newDate;
+    });
+    loadPlanning();
   }
 
   @override
@@ -189,30 +201,43 @@ class _ProductionQueueState extends State<ProductionQueue> {
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
                     children: [
-                      // print pdf
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        label: Text(
-                          "Xuất pdf",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      //choose date
+                      SizedBox(
+                        width: 150,
+                        height: 50,
+                        child: TextButton.icon(
+                          icon: Icon(Icons.calendar_today),
+                          label: Text(
+                            DateFormat('dd/MM/yyyy').format(selectedDate),
+                            style: TextStyle(fontSize: 16),
                           ),
-                        ),
-                        icon: Icon(Symbols.print, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          onPressed: () async {
+                            DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: selectedDate,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              changeDate(picked);
+                            }
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(color: Colors.grey),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 15,
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+
+                      SizedBox(width: 10),
 
                       //choose machine
                       SizedBox(
@@ -249,6 +274,33 @@ class _ProductionQueueState extends State<ProductionQueue> {
                       ),
                       SizedBox(width: 10),
 
+                      //export pdf
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        label: Text(
+                          "Xuất pdf",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        icon: Icon(Symbols.print, color: Colors.white),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff78D761),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 15,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      // nút lên xuống
                       Row(
                         children: [
                           IconButton(
@@ -287,7 +339,6 @@ class _ProductionQueueState extends State<ProductionQueue> {
                           ),
                         ],
                       ),
-                      const SizedBox(width: 10),
                     ],
                   ),
                 ),

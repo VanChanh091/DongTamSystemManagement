@@ -61,13 +61,16 @@ class PlanningService {
     }
   }
 
-  Future<List<Planning>> getPlanningByMachine(String machine) async {
+  Future<List<Planning>> getPlanningByMachine(
+    String machine,
+    String date,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/planning/byMachine',
-        queryParameters: {'machine': machine},
+        '/api/planning/byMachineWDate',
+        queryParameters: {'machine': machine, 'date': date},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -75,8 +78,6 @@ class PlanningService {
           },
         ),
       );
-
-      // print(response);
 
       final List<dynamic> planningData = response.data['data'];
       return planningData
