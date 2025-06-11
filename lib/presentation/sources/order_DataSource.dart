@@ -47,7 +47,7 @@ class OrderDataSource extends DataGridSource {
         value: order.formatterStructureOrder,
       ),
       DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
-      DataGridCell<String>(columnName: 'daoXa', value: order.daoXa ?? ''),
+      DataGridCell<String>(columnName: 'daoXa', value: order.daoXa),
       DataGridCell<String>(
         columnName: 'lengthCus',
         value: Order.formatCurrency(order.lengthPaperCustomer),

@@ -32,10 +32,10 @@ class _OrderDialogState extends State<OrderDialog> {
   String lastSearchedProductId = "";
   final List<String> itemsDvt = ['Kg', 'Cái', 'M2'];
   final List<String> itemsDaoXa = [
-    "Quấn Cuồn",
     "Tề Gọn",
     "Tề Biên Đẹp",
     "Tề Biên Cột",
+    "Quấn Cuồn",
   ];
   late String originalOrderId;
   List<Customer> allCustomers = [];
@@ -68,7 +68,7 @@ class _OrderDialogState extends State<OrderDialog> {
   final dvtController = TextEditingController();
   final daoXaController = TextEditingController();
   late String typeDVT = "Kg";
-  late String typeDaoXa = "Quấn cuồn";
+  late String typeDaoXa = "Tề Gọn";
   DateTime? dayReceive = DateTime.now();
   DateTime? dateShipping;
   final customerIdController = TextEditingController();
@@ -136,14 +136,18 @@ class _OrderDialogState extends State<OrderDialog> {
     quantityCustomerController.text = widget.order!.quantityCustomer.toString();
     quantityManufactureController.text =
         widget.order!.quantityManufacture.toString();
-    typeDVT = widget.order?.dvt ?? "Kg";
-    typeDaoXa = widget.order?.daoXa ?? "Quấn cuồn";
     priceController.text = widget.order!.price.toString();
     discountController.text =
         widget.order!.discount?.toStringAsFixed(1) ?? '0.0';
     profitController.text = widget.order!.profit.toStringAsFixed(1);
     vatController.text = widget.order!.vat.toString();
     instructSpecialController.text = widget.order!.instructSpecial.toString();
+
+    //dropdown
+    typeDVT = widget.order!.dvt;
+    typeDaoXa = widget.order!.daoXa;
+
+    //date
     dayReceive = widget.order!.dayReceiveOrder;
     dateShipping = widget.order!.dateRequestShipping;
     dateShippingController.text = DateFormat(

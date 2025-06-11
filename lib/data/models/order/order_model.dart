@@ -9,7 +9,6 @@ class Order {
   final String? flute;
   final String? QC_box;
   final String? canLan;
-  final String? daoXa;
   final String? day;
   final String? middle_1;
   final String? middle_2;
@@ -25,6 +24,7 @@ class Order {
   final int quantityCustomer;
   final int quantityManufacture;
   final double acreage;
+  final String daoXa;
   final String dvt;
   final double price;
   final double pricePaper;
@@ -52,7 +52,7 @@ class Order {
     this.flute,
     this.QC_box,
     this.canLan,
-    this.daoXa,
+    required this.daoXa,
     this.day,
     this.middle_1,
     this.middle_2,

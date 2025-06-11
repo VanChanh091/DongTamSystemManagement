@@ -35,7 +35,7 @@ dependencies:
   provider: ^6.1.2
   flutter_secure_storage: ^9.2.4
   intl: ^0.20.2
-  syncfusion_flutter_datagrid: ^28.2.12
+  syncfusion_flutter_datagrid: ^29.2.9
   material_symbols_icons: ^4.2811.0
   flutter_typeahead: ^5.2.0
   google_fonts: ^6.1.0

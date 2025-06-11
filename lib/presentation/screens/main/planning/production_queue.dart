@@ -1,7 +1,9 @@
 import 'package:dongtam/data/models/planning/planning_model.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_change_machine.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine.dart';
 import 'package:dongtam/presentation/sources/machine_DataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -21,10 +23,9 @@ class _ProductionQueueState extends State<ProductionQueue> {
   String searchType = "Tất cả";
   String machine = "Máy 1350";
   DateTime selectedDate = DateTime.now();
-  String? selectedPlanningId;
-  int? selectedRowIndex;
   bool isTextFieldEnabled = false;
   final formatter = DateFormat('dd/MM/yyyy');
+  List<String> selectedPlanningIds = [];
 
   @override
   void initState() {
@@ -33,12 +34,8 @@ class _ProductionQueueState extends State<ProductionQueue> {
   }
 
   void loadPlanning() {
-    final chooseDay = DateFormat('yyyy-MM-dd').format(selectedDate);
     setState(() {
-      futurePlanning = PlanningService().getPlanningByMachine(
-        machine,
-        chooseDay,
-      );
+      futurePlanning = PlanningService().getPlanningByMachine(machine);
     });
   }
 
@@ -49,13 +46,6 @@ class _ProductionQueueState extends State<ProductionQueue> {
       machine = selectedMachine;
       loadPlanning();
     });
-  }
-
-  void changeDate(DateTime newDate) {
-    setState(() {
-      selectedDate = newDate;
-    });
-    loadPlanning();
   }
 
   @override
@@ -170,6 +160,10 @@ class _ProductionQueueState extends State<ProductionQueue> {
                         onPressed: () {
                           setState(() {
                             loadPlanning();
+                            selectedPlanningIds.clear();
+                            machineDatasource.selectedPlanningIds =
+                                selectedPlanningIds;
+                            machineDatasource.notifyListeners();
                           });
                         },
                         label: Text(
@@ -201,43 +195,40 @@ class _ProductionQueueState extends State<ProductionQueue> {
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
                     children: [
-                      //choose date
-                      SizedBox(
-                        width: 150,
-                        height: 50,
-                        child: TextButton.icon(
-                          icon: Icon(Icons.calendar_today),
-                          label: Text(
-                            DateFormat('dd/MM/yyyy').format(selectedDate),
-                            style: TextStyle(fontSize: 16),
+                      // nút lên xuống
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_upward),
+                            // Nút hoạt động khi có ít nhất 1 hàng được chọn
+                            onPressed:
+                                selectedPlanningIds.isNotEmpty
+                                    ? () {
+                                      setState(() {
+                                        machineDatasource.moveRowUp(
+                                          selectedPlanningIds,
+                                        );
+                                      });
+                                    }
+                                    : null,
                           ),
-                          onPressed: () async {
-                            DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: selectedDate,
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            if (picked != null) {
-                              changeDate(picked);
-                            }
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: BorderSide(color: Colors.grey),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 15,
-                            ),
+                          IconButton(
+                            icon: Icon(Icons.arrow_downward),
+                            // Nút hoạt động khi có ít nhất 1 hàng được chọn
+                            onPressed:
+                                selectedPlanningIds.isNotEmpty
+                                    ? () {
+                                      setState(() {
+                                        machineDatasource.moveRowDown(
+                                          selectedPlanningIds,
+                                        );
+                                      });
+                                    }
+                                    : null,
                           ),
-                        ),
+                        ],
                       ),
-
-                      SizedBox(width: 10),
+                      SizedBox(width: 20),
 
                       //choose machine
                       SizedBox(
@@ -274,70 +265,55 @@ class _ProductionQueueState extends State<ProductionQueue> {
                       ),
                       SizedBox(width: 10),
 
-                      //export pdf
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        label: Text(
-                          "Xuất pdf",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Symbols.print, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
+                      //popup menu
+                      PopupMenuButton<String>(
+                        icon: Icon(Icons.more_vert, color: Colors.black),
+                        color: Colors.white,
+                        onSelected: (value) async {
+                          if (value == 'edit') {
+                            if (selectedPlanningIds.isEmpty) {
+                              showSnackBarError(
+                                context,
+                                "Chưa chọn kế hoạch cần chuyển máy",
+                              );
+                            }
+                            final planning = await futurePlanning;
 
-                      const SizedBox(width: 10),
-
-                      // nút lên xuống
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.arrow_upward),
-                            onPressed:
-                                selectedRowIndex != null &&
-                                        selectedRowIndex! > 0
-                                    ? () {
-                                      setState(() {
-                                        machineDatasource.moveRowUp(
-                                          selectedRowIndex!,
-                                        );
-                                        selectedRowIndex =
-                                            selectedRowIndex! - 1;
-                                      });
-                                    }
-                                    : null,
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.arrow_downward),
-                            onPressed:
-                                selectedRowIndex != null &&
-                                        selectedRowIndex! <
-                                            machineDatasource.planning.length -
-                                                1
-                                    ? () {
-                                      setState(() {
-                                        machineDatasource.moveRowDown(
-                                          selectedRowIndex!,
-                                        );
-                                        selectedRowIndex =
-                                            selectedRowIndex! + 1;
-                                      });
-                                    }
-                                    : null,
-                          ),
-                        ],
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (_) => ChangeMachineDialog(
+                                    planning:
+                                        planning
+                                            .where(
+                                              (p) => selectedPlanningIds
+                                                  .contains(p.orderId),
+                                            )
+                                            .toList(),
+                                    onChangeMachine: loadPlanning,
+                                  ),
+                            );
+                          } else if (value == 'export') {
+                            print("Xuất PDF");
+                          }
+                        },
+                        itemBuilder:
+                            (BuildContext context) => [
+                              PopupMenuItem<String>(
+                                value: 'edit',
+                                child: ListTile(
+                                  leading: Icon(Symbols.construction),
+                                  title: Text('Sửa'),
+                                ),
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'export',
+                                child: ListTile(
+                                  leading: Icon(Symbols.print),
+                                  title: Text('Xuất PDF'),
+                                ),
+                              ),
+                            ],
                       ),
                     ],
                   ),
@@ -363,7 +339,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
 
                 machineDatasource = MachineDatasource(
                   planning: data,
-                  selectedPlanningId: selectedPlanningId,
+                  selectedPlanningIds: selectedPlanningIds,
                 );
 
                 return SfDataGrid(
@@ -375,24 +351,22 @@ class _ProductionQueueState extends State<ProductionQueue> {
                   navigationMode: GridNavigationMode.row,
                   selectionMode: SelectionMode.multiple,
                   onSelectionChanged: (addedRows, removedRows) {
-                    if (addedRows.isNotEmpty) {
-                      final selectedRow = addedRows.first;
+                    setState(() {
+                      for (var row in addedRows) {
+                        final orderId = row.getCells()[0].value.toString();
+                        if (selectedPlanningIds.contains(orderId)) {
+                          selectedPlanningIds.remove(orderId);
+                          // print("❌ Unselected: $selectedPlanningIds");
+                        } else {
+                          selectedPlanningIds.add(orderId);
+                          // print("✅ Selected: $selectedPlanningIds");
+                        }
+                      }
 
-                      final orderId =
-                          selectedRow.getCells()[0].value.toString();
-                      final selectedIndex = data.indexWhere(
-                        (p) => p.orderId == orderId,
-                      );
-
-                      setState(() {
-                        selectedPlanningId = orderId;
-                        selectedRowIndex = selectedIndex;
-                      });
-                    } else {
-                      setState(() {
-                        selectedPlanningId = null;
-                      });
-                    }
+                      machineDatasource.selectedPlanningIds =
+                          selectedPlanningIds;
+                      machineDatasource.notifyListeners();
+                    });
                   },
                 );
               },

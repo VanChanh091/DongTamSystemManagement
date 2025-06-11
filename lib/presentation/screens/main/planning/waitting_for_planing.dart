@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class WaitingForPlanning extends StatefulWidget {
+  const WaitingForPlanning({super.key});
+
   @override
   WaitingForPlanningState createState() => WaitingForPlanningState();
 }

@@ -4,7 +4,6 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 List<GridColumn> buildMachineColumns() {
   return [
     //planning
-    // GridColumn(columnName: 'planningId', label: formatColumn('Mã Kế Hoạch')),
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
     GridColumn(columnName: 'customerName', label: formatColumn("Tên KH")),
     GridColumn(columnName: 'dateShipping', label: formatColumn("Ngày YC Giao")),
@@ -12,11 +11,13 @@ List<GridColumn> buildMachineColumns() {
       columnName: 'structure',
       label: formatColumn("Kết Cấu Đặt Hàng"),
     ),
+    GridColumn(columnName: 'flute', label: formatColumn("Sóng")),
     GridColumn(columnName: 'QC_box', label: formatColumn("Quy cách")),
     GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
     GridColumn(columnName: 'daoXa', label: formatColumn("Dao Xả")),
     GridColumn(columnName: 'length', label: formatColumn("Dài")),
     GridColumn(columnName: 'size', label: formatColumn("Khổ")),
+    GridColumn(columnName: 'khoCapGiay', label: formatColumn("Khổ Cấp Giấy")),
     GridColumn(columnName: 'quantity', label: formatColumn("Số Lượng")),
     GridColumn(
       columnName: 'runningPlanProd',

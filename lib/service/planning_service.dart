@@ -61,16 +61,13 @@ class PlanningService {
     }
   }
 
-  Future<List<Planning>> getPlanningByMachine(
-    String machine,
-    String date,
-  ) async {
+  Future<List<Planning>> getPlanningByMachine(String machine) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/planning/byMachineWDate',
-        queryParameters: {'machine': machine, 'date': date},
+        '/api/planning/byMachine',
+        queryParameters: {'machine': machine},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -90,6 +87,30 @@ class PlanningService {
           .toList();
     } catch (e) {
       throw Exception('Failed to get planning: $e');
+    }
+  }
+
+  Future<bool> changeMachinePlanning(
+    List<int> planningIds,
+    String newMachine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/planning/changeMachine",
+        data: {"planningIds": planningIds, "newMachine": newMachine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      throw Exception('Failed to update orders: $e');
     }
   }
 }

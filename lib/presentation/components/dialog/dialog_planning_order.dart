@@ -11,12 +11,10 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class PLanningDialog extends StatefulWidget {
   final Order? order;
-  final Planning? planning;
   final VoidCallback onPlanningOrder;
 
   const PLanningDialog({
     super.key,
-    this.planning,
     required this.order,
     required this.onPlanningOrder,
   });
@@ -28,7 +26,6 @@ class PLanningDialog extends StatefulWidget {
 class _PLanningDialogState extends State<PLanningDialog> {
   final formKey = GlobalKey<FormState>();
   late String originalOrderId;
-  // Timer? _debounce;
   final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp'];
   final List<String> listLayerPaper = ['3_LAYER', '4_5_LAYER', "MORE_5_LAYER"];
   final Map<String, String> layerTypeLabels = {
@@ -62,8 +59,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
   //planning
   final ghepKhoController = TextEditingController();
-  DateTime? dayStart;
-  final dayStartController = TextEditingController();
   final timeRunningController = TextEditingController();
   late String chooseMachine = 'Máy 1350';
   final dayReplaceController = TextEditingController();
@@ -126,6 +121,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
     totalPriceOrderController.text = widget.order!.totalPrice.toStringAsFixed(
       1,
     );
+
+    //date
     dateShipping = widget.order!.dateRequestShipping;
     dateShippingController.text = DateFormat(
       'dd/MM/yyyy',
@@ -207,7 +204,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     final newPlanning = Planning(
       planningId: 0,
-      dayStart: dayStart ?? DateTime.now(),
       runningPlan: int.tryParse(runningPlanController.text) ?? 0,
       timeRunning: TimeOfDay(
         hour: int.parse(timeRunningController.text.split(':')[0]),
@@ -225,7 +221,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
           double.tryParse(lengthPaperPlanningController.text) ?? 0,
       sizePaperPLaning: double.tryParse(sizePaperPLaningController.text) ?? 0,
       numberChild: int.tryParse(numberChildController.text) ?? 0,
-      ghepKho: ghepKhoController.text,
+      ghepKho: int.tryParse(ghepKhoController.text) ?? 0,
       chooseMachine: chooseMachine,
       orderId: widget.order!.orderId,
       order: widget.order,
@@ -414,30 +410,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
       {
         'left':
             () => ValidationPlanning.validateInput(
-              "Ngày bắt đầu",
-              dayStartController,
-              Symbols.calendar_month,
-              readOnly: true,
-              onTap: () async {
-                DateTime baseDate = dayStart ?? DateTime.now();
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: dayStart ?? DateTime.now(),
-                  firstDate: baseDate,
-                  lastDate: DateTime(2100),
-                );
-                if (pickedDate != null) {
-                  setState(() {
-                    dayStart = pickedDate;
-                    dayStartController.text = DateFormat(
-                      'dd/MM/yyyy',
-                    ).format(pickedDate);
-                  });
-                }
-              },
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
               "Thời gian chạy",
               timeRunningController,
               Symbols.clock_arrow_down,
@@ -457,12 +429,23 @@ class _PLanningDialogState extends State<PLanningDialog> {
                 }
               },
             ),
-        'middle_2':
+
+        'middle_1':
             () => ValidationPlanning.validateInput(
               "Ghép khổ",
               ghepKhoController,
               Symbols.layers,
             ),
+
+        'middle_2':
+            () => ValidationOrder.dropdownForTypes(machineList, chooseMachine, (
+              value,
+            ) {
+              setState(() {
+                chooseMachine = value!;
+              });
+            }),
+
         'right':
             () => ValidationPlanning.dropdownForLayerType(
               listLayerPaper,
@@ -604,14 +587,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
               Symbols.vertical_align_bottom,
             ),
 
-        'right':
-            () => ValidationOrder.dropdownForTypes(machineList, chooseMachine, (
-              value,
-            ) {
-              setState(() {
-                chooseMachine = value!;
-              });
-            }),
+        'right': () => SizedBox(),
       },
     ];
 

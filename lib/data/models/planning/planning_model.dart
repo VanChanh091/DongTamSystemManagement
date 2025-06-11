@@ -2,11 +2,9 @@ import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/paper_consumption_norm_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class Planning {
   final int planningId;
-  final DateTime dayStart;
   final int runningPlan;
   final TimeOfDay timeRunning;
   final String? dayReplace;
@@ -20,7 +18,7 @@ class Planning {
   final double lengthPaperPlanning;
   final double sizePaperPLaning;
   final int numberChild;
-  final String? ghepKho;
+  final int? ghepKho;
   final String chooseMachine;
 
   final String orderId;
@@ -29,7 +27,6 @@ class Planning {
 
   Planning({
     required this.planningId,
-    required this.dayStart,
     required this.runningPlan,
     required this.timeRunning,
     this.dayReplace,
@@ -110,7 +107,6 @@ class Planning {
     return Planning(
       planningId: json["planningId"] ?? 0,
       orderId: json['orderId'] ?? "",
-      dayStart: DateTime.parse(json['dayStart']),
       runningPlan: json['runningPlan'] ?? 0,
       timeRunning: parseTimeOfDay(json['timeRunning']),
       dayReplace: json['dayReplace'] ?? "",
@@ -137,7 +133,6 @@ class Planning {
   Map<String, dynamic> toJson() {
     return {
       'orderId': orderId,
-      'dayStart': DateFormat('yyyy-MM-dd').format(dayStart),
       'runningPlan': runningPlan,
       'timeRunning': '${timeRunning.hour}:${timeRunning.minute}',
       'dayReplace': dayReplace,

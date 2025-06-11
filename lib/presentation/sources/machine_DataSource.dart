@@ -8,15 +8,19 @@ class MachineDatasource extends DataGridSource {
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   List<Planning> planning;
-  String? selectedPlanningId;
+  List<String> selectedPlanningIds = [];
 
-  MachineDatasource({required this.planning, this.selectedPlanningId}) {
-    buildDataGridRows(); // Khởi tạo ngay từ đầu
+  MachineDatasource({
+    required this.planning,
+    required this.selectedPlanningIds,
+  }) {
+    buildDataGridRows();
   }
 
-  /// Tạo danh sách cell cho từng hàng
+  // Tạo danh sách cell cho từng hàng
   List<DataGridCell> buildPlanningCells(Planning planning) {
     return [
+      // DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
       DataGridCell<String>(
         columnName: 'customerName',
@@ -32,6 +36,10 @@ class MachineDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: 'structure',
         value: planning.formatterStructureOrder,
+      ),
+      DataGridCell<String>(
+        columnName: 'flute',
+        value: planning.order?.flute ?? '',
       ),
       DataGridCell<String>(
         columnName: 'QC_box',
@@ -53,6 +61,7 @@ class MachineDatasource extends DataGridSource {
         columnName: 'size',
         value: planning.sizePaperPLaning,
       ),
+      DataGridCell<int>(columnName: 'khoCapGiay', value: planning.ghepKho),
       DataGridCell<int>(
         columnName: 'quantity',
         value: planning.order?.quantityCustomer ?? 0,
@@ -99,6 +108,104 @@ class MachineDatasource extends DataGridSource {
   @override
   List<DataGridRow> get rows => planningDataGridRows;
 
+  void buildDataGridRows() {
+    planningDataGridRows =
+        planning
+            .map<DataGridRow>(
+              (planning) => DataGridRow(cells: buildPlanningCells(planning)),
+            )
+            .toList();
+
+    notifyListeners();
+  }
+
+  // Di chuyển hàng lên
+  void moveRowUp(List<String> idsToMove) {
+    if (idsToMove.isEmpty) return;
+
+    List<Planning> selectedItems =
+        planning.where((p) => idsToMove.contains(p.orderId)).toList();
+
+    selectedItems.sort(
+      (a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)),
+    );
+
+    int minCurrentIndex = planning.length;
+    for (var item in selectedItems) {
+      int index = planning.indexOf(item);
+      if (index != -1 && index < minCurrentIndex) {
+        minCurrentIndex = index;
+      }
+    }
+
+    if (minCurrentIndex == 0) return;
+
+    List<Planning> itemsToRemove = [...selectedItems];
+    itemsToRemove.sort(
+      (a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)),
+    );
+    for (var item in itemsToRemove) {
+      planning.remove(item);
+    }
+
+    int newInsertIndex = minCurrentIndex - 1;
+    planning.insertAll(newInsertIndex, selectedItems);
+
+    buildDataGridRows();
+  }
+
+  // Di chuyển hàng xuống
+  void moveRowDown(List<String> idsToMove) {
+    if (idsToMove.isEmpty) return;
+
+    List<Planning> selectedItems =
+        planning.where((p) => idsToMove.contains(p.orderId)).toList();
+
+    selectedItems.sort(
+      (a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)),
+    );
+
+    int maxCurrentIndex = -1;
+    for (var item in selectedItems) {
+      int index = planning.indexOf(item);
+      if (index != -1 && index > maxCurrentIndex) {
+        maxCurrentIndex = index;
+      }
+    }
+
+    if (maxCurrentIndex == -1 || maxCurrentIndex == planning.length - 1) return;
+
+    Planning? elementAfterBlock;
+    if (maxCurrentIndex + 1 < planning.length) {
+      elementAfterBlock = planning[maxCurrentIndex + 1];
+    } else {
+      return;
+    }
+
+    List<Planning> itemsToRemove = [...selectedItems];
+    itemsToRemove.sort(
+      (a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)),
+    );
+    for (var item in itemsToRemove) {
+      planning.remove(item);
+    }
+
+    int newInsertIndex = planning.indexOf(elementAfterBlock);
+    if (newInsertIndex == -1) {
+      newInsertIndex = planning.length;
+    } else {
+      newInsertIndex = newInsertIndex + 1;
+    }
+
+    if (newInsertIndex > planning.length) {
+      newInsertIndex = planning.length;
+    }
+
+    planning.insertAll(newInsertIndex, selectedItems);
+
+    buildDataGridRows();
+  }
+
   String formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
@@ -118,53 +225,17 @@ class MachineDatasource extends DataGridSource {
       if (value == null) return '';
       return value == true ? 'Có' : '';
     }
-
     return value?.toString() ?? '';
-  }
-
-  /// Xây dựng lại danh sách DataGridRow
-  void buildDataGridRows() {
-    planningDataGridRows =
-        planning
-            .map<DataGridRow>(
-              (planning) => DataGridRow(cells: buildPlanningCells(planning)),
-            )
-            .toList();
-
-    notifyListeners(); // cập nhật lại DataGrid
-  }
-
-  /// Di chuyển hàng lên
-  void moveRowUp(int index) {
-    if (index > 0) {
-      final temp = planning[index];
-      planning[index] = planning[index - 1];
-      planning[index - 1] = temp;
-      buildDataGridRows(); // cập nhật bảng
-    }
-  }
-
-  /// Di chuyển hàng xuống
-  void moveRowDown(int index) {
-    if (index < planning.length - 1) {
-      final temp = planning[index];
-      planning[index] = planning[index + 1];
-      planning[index + 1] = temp;
-      buildDataGridRows();
-    }
   }
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
 
-    Color backgroundColor = Colors.transparent;
-    if (selectedPlanningId == orderId) {
-      backgroundColor = Colors.blue.withOpacity(0.3);
-    }
+    final isSelected = selectedPlanningIds.contains(orderId);
 
     return DataGridRowAdapter(
-      color: backgroundColor,
+      color: isSelected ? Colors.blue.withOpacity(0.3) : Colors.transparent,
       cells:
           row.getCells().map<Widget>((dataCell) {
             return Container(
