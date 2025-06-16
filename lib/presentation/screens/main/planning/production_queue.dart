@@ -24,8 +24,9 @@ class _ProductionQueueState extends State<ProductionQueue> {
   String machine = "Máy 1350";
   DateTime selectedDate = DateTime.now();
   bool isTextFieldEnabled = false;
-  final formatter = DateFormat('dd/MM/yyyy');
   List<String> selectedPlanningIds = [];
+  final formatter = DateFormat('dd/MM/yyyy');
+  final DataGridController dataGridController = DataGridController();
 
   @override
   void initState() {
@@ -39,11 +40,56 @@ class _ProductionQueueState extends State<ProductionQueue> {
     });
   }
 
-  void searchPlanning() {}
+  void searchPlanning() {
+    String keyword = searchController.text.trim().toLowerCase();
+
+    if (isTextFieldEnabled && keyword.isEmpty) {
+      return;
+    }
+
+    switch (searchType) {
+      case 'Tất cả':
+        loadPlanning();
+        break;
+      case 'Tên KH':
+        setState(() {
+          futurePlanning = PlanningService().getPlanningByCustomerName(
+            keyword,
+            machine,
+          );
+        });
+        break;
+      case 'Sóng':
+        setState(() {
+          futurePlanning = PlanningService().getPlanningByFlute(
+            keyword,
+            machine,
+          );
+        });
+        break;
+      case 'Khổ Cấp Giấy':
+        setState(() {
+          try {
+            futurePlanning = PlanningService().getPlanningByGhepKho(
+              int.parse(keyword),
+              machine,
+            );
+          } catch (e) {
+            showSnackBarError(
+              context,
+              'Vui lòng nhập số hợp lệ cho khổ cấp giấy',
+            );
+          }
+        });
+        break;
+      default:
+    }
+  }
 
   void changeMachine(String selectedMachine) {
     setState(() {
       machine = selectedMachine;
+      selectedPlanningIds.clear();
       loadPlanning();
     });
   }
@@ -62,7 +108,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //dropdown
+                //left button
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
@@ -73,7 +119,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                         child: DropdownButtonFormField<String>(
                           value: searchType,
                           items:
-                              ['Tất cả', "Theo Mã", "Theo Tên SP"].map((
+                              ['Tất cả', 'Tên KH', "Sóng", 'Khổ Cấp Giấy'].map((
                                 String value,
                               ) {
                                 return DropdownMenuItem<String>(
@@ -157,14 +203,21 @@ class _ProductionQueueState extends State<ProductionQueue> {
 
                       // refresh
                       ElevatedButton.icon(
+                        // onPressed: () {
+                        //   setState(() {
+                        //     selectedPlanningIds.clear();
+                        //     machineDatasource.selectedPlanningIds =
+                        //         selectedPlanningIds;
+                        //     loadPlanning();
+                        //     machineDatasource.notifyListeners();
+                        //   });
+                        // },
                         onPressed: () {
                           setState(() {
-                            loadPlanning();
                             selectedPlanningIds.clear();
-                            machineDatasource.selectedPlanningIds =
-                                selectedPlanningIds;
-                            machineDatasource.notifyListeners();
                           });
+
+                          loadPlanning();
                         },
                         label: Text(
                           "Tải lại",
@@ -191,6 +244,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                   ),
                 ),
 
+                //right button
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
@@ -229,6 +283,69 @@ class _ProductionQueueState extends State<ProductionQueue> {
                         ],
                       ),
                       SizedBox(width: 20),
+
+                      // save
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          try {
+                            final List<DataGridRow> visibleRows =
+                                machineDatasource.rows;
+
+                            final List<Map<String, dynamic>> updateIndex =
+                                visibleRows.asMap().entries.map((entry) {
+                                  final planningId =
+                                      entry.value
+                                          .getCells()
+                                          .firstWhere(
+                                            (cell) =>
+                                                cell.columnName == "planningId",
+                                          )
+                                          .value;
+
+                                  return {
+                                    "planningId": planningId,
+                                    "sortPlanning": entry.key + 1,
+                                  };
+                                }).toList();
+
+                            final result = await PlanningService()
+                                .updateIndexPlanning(updateIndex, machine);
+
+                            loadPlanning();
+
+                            if (result) {
+                              showSnackBarSuccess(
+                                context,
+                                "Cập nhật thành công",
+                              );
+                            }
+                          } catch (e) {
+                            showSnackBarError(context, "Lỗi cập nhật");
+                            print("Lỗi khi lưu: $e");
+                          }
+                        },
+                        label: Text(
+                          "Lưu",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        icon: Icon(Icons.save, color: Colors.white),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff78D761),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 15,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
 
                       //choose machine
                       SizedBox(
@@ -270,14 +387,17 @@ class _ProductionQueueState extends State<ProductionQueue> {
                         icon: Icon(Icons.more_vert, color: Colors.black),
                         color: Colors.white,
                         onSelected: (value) async {
-                          if (value == 'edit') {
+                          if (value == 'change') {
                             if (selectedPlanningIds.isEmpty) {
                               showSnackBarError(
                                 context,
                                 "Chưa chọn kế hoạch cần chuyển máy",
                               );
+                              return;
                             }
                             final planning = await futurePlanning;
+
+                            print(selectedPlanningIds);
 
                             showDialog(
                               context: context,
@@ -300,10 +420,10 @@ class _ProductionQueueState extends State<ProductionQueue> {
                         itemBuilder:
                             (BuildContext context) => [
                               PopupMenuItem<String>(
-                                value: 'edit',
+                                value: 'change',
                                 child: ListTile(
                                   leading: Icon(Symbols.construction),
-                                  title: Text('Sửa'),
+                                  title: Text('Chuyển máy'),
                                 ),
                               ),
                               PopupMenuItem<String>(
@@ -315,6 +435,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                               ),
                             ],
                       ),
+                      SizedBox(width: 10),
                     ],
                   ),
                 ),
@@ -343,6 +464,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                 );
 
                 return SfDataGrid(
+                  controller: dataGridController,
                   source: machineDatasource,
                   columns: buildMachineColumns(),
                   isScrollbarAlwaysShown: true,

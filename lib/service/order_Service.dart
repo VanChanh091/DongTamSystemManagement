@@ -37,7 +37,7 @@ class OrderService {
       final currentPage = data['currentPage'];
       final totalPages = data['totalPages'];
 
-      print('Current Page: $totalPages');
+      // print('Current Page: $totalPages');
 
       // Trả về dữ liệu cùng với totalPages và currentPage
       return {

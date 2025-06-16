@@ -1,10 +1,12 @@
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
+import 'package:flutter/widgets.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildMachineColumns() {
   return [
     //planning
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
+    GridColumn(columnName: 'planningId', label: Container(), visible: false),
     GridColumn(columnName: 'customerName', label: formatColumn("Tên KH")),
     GridColumn(columnName: 'dateShipping', label: formatColumn("Ngày YC Giao")),
     GridColumn(
@@ -36,5 +38,6 @@ List<GridColumn> buildMachineColumns() {
     GridColumn(columnName: 'plDay', label: formatColumn("PL Đáy")),
     GridColumn(columnName: 'plDao', label: formatColumn("PL Dao")),
     GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
+    GridColumn(columnName: 'index', label: formatColumn("Index")),
   ];
 }

@@ -433,12 +433,12 @@ class _ManageOrderState extends State<AdminOrder> {
       ),
       _infoRow(
         '💵 Chiết khấu:',
-        Order.formatCurrency(order.pricePaper),
+        Order.formatCurrency(order.discount ?? 0),
         unit: "VNĐ",
       ),
       _infoRow(
         '💵 Lợi nhuận:',
-        Order.formatCurrency(order.pricePaper),
+        Order.formatCurrency(order.profit),
         unit: "VNĐ",
       ),
       _infoRow('💡 VAT:', order.vat.toString(), unit: "%"),

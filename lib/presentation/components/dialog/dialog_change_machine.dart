@@ -41,10 +41,7 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
     if (!formKey.currentState!.validate()) return;
 
     try {
-      await PlanningService().changeMachinePlanning(
-        planningIds, //fix here
-        chooseMachine,
-      );
+      await PlanningService().changeMachinePlanning(planningIds, chooseMachine);
 
       widget.onChangeMachine();
       Navigator.of(context).pop();
@@ -64,13 +61,14 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
             borderRadius: BorderRadius.circular(10),
           ),
           content: SizedBox(
-            width: 700,
+            width: 500,
             height: 500,
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Form(
                 key: formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(height: 10),
                     Text(
@@ -82,27 +80,96 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                     ),
                     SizedBox(height: 10),
 
+                    // Danh sách Order đã chọn
                     Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(10),
+                      margin: EdgeInsets.only(bottom: 15),
                       decoration: BoxDecoration(
-                        color: Color(0xffF2E873),
-                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade400),
                       ),
-                      padding: EdgeInsets.all(15),
-                      child: ValidationOrder.dropdownForTypes(
-                        machineList,
-                        chooseMachine,
-                        (value) {
-                          setState(() {
-                            chooseMachine = value!;
-                          });
-                        },
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Đơn hàng cần chuyển máy:",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            SizedBox(height: 5),
+                            ...widget.planning.map(
+                              (p) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2.0,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "- Mã đơn hàng: ",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    Text(
+                                      p.orderId,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+
+                    // Dropdown chọn máy
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(10),
+                      margin: EdgeInsets.only(bottom: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade400),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Chọn máy cần chuyển',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          ValidationOrder.dropdownForTypes(
+                            machineList,
+                            chooseMachine,
+                            (value) {
+                              setState(() {
+                                chooseMachine = value!;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 12),
                   ],
                 ),
               ),
             ),
           ),
+
           actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
@@ -127,7 +194,7 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                 ),
               ),
               child: Text(
-                "Lưu",
+                "Chuyển",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,

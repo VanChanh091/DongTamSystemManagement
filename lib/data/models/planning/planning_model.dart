@@ -20,6 +20,7 @@ class Planning {
   final int numberChild;
   final int? ghepKho;
   final String chooseMachine;
+  final int? sortPlanning;
 
   final String orderId;
   final Order? order;
@@ -42,6 +43,7 @@ class Planning {
     required this.ghepKho,
     required this.numberChild,
     required this.chooseMachine,
+    this.sortPlanning,
     required this.orderId,
     this.order,
     this.paperConsumptionNorm,
@@ -122,6 +124,7 @@ class Planning {
       numberChild: json['numberChild'] ?? 0,
       ghepKho: json['ghepKho'] ?? "",
       chooseMachine: json['chooseMachine'] ?? "",
+      sortPlanning: json['sortPlanning'] ?? 0,
       paperConsumptionNorm:
           json['norm'] != null
               ? PaperConsumptionNorm.fromJson(json['norm'])

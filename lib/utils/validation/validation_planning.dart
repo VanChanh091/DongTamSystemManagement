@@ -34,9 +34,7 @@ class ValidationPlanning {
             filled: true,
           ),
           validator: (value) {
-            if ((label == "Ngày bắt đầu" ||
-                    label == "Thời gian chạy" ||
-                    label == "Ghép khổ") &&
+            if ((label == "Thời gian chạy") &&
                 (value == null || value.isEmpty)) {
               return 'Không được để trống';
             }

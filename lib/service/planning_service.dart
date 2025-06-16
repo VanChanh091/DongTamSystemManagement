@@ -35,6 +35,7 @@ class PlanningService {
     }
   }
 
+  //planning for order
   Future<bool> planningOrder(
     String orderId,
     String newStatus,
@@ -61,6 +62,7 @@ class PlanningService {
     }
   }
 
+  //get planning by machine
   Future<List<Planning>> getPlanningByMachine(String machine) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -90,6 +92,7 @@ class PlanningService {
     }
   }
 
+  //get planning by id
   Future<bool> changeMachinePlanning(
     List<int> planningIds,
     String newMachine,
@@ -111,6 +114,124 @@ class PlanningService {
       return true;
     } catch (e) {
       throw Exception('Failed to update orders: $e');
+    }
+  }
+
+  //update index planning
+  Future<bool> updateIndexPlanning(
+    List<Map<String, dynamic>> updateIndex,
+    String machine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/planning/updateIndex",
+        data: {"updateIndex": updateIndex, 'machine': machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      throw Exception('Failed to update planning: $e');
+    }
+  }
+
+  // Get planning by customer name
+  Future<List<Planning>> getPlanningByCustomerName(
+    String customerName,
+    String machine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/planning/getByCustomerName',
+        queryParameters: {'customerName': customerName, 'machine': machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final List<dynamic> planningData = response.data['data'];
+      return planningData
+          .map((json) => Planning.fromJson(json))
+          .where(
+            (p) => p.order!.customer!.customerName.toLowerCase().contains(
+              customerName.toLowerCase(),
+            ),
+          )
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get planning by customerName: $e');
+    }
+  }
+
+  //get planning by flute
+  Future<List<Planning>> getPlanningByFlute(
+    String flute,
+    String machine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/planning/getByFlute',
+        queryParameters: {'flute': flute, 'machine': machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final List<dynamic> planningData = response.data['data'];
+      return planningData
+          .map((json) => Planning.fromJson(json))
+          .where(
+            (p) => p.order!.flute!.toLowerCase().contains(flute.toLowerCase()),
+          )
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get planning by flute: $e');
+    }
+  }
+
+  //get planning by ghepKho
+  Future<List<Planning>> getPlanningByGhepKho(
+    int ghepKho,
+    String machine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/planning/getByGhepKho',
+        queryParameters: {'ghepKho': ghepKho, 'machine': machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final List<dynamic> planningData = response.data['data'];
+      return planningData
+          .map((json) => Planning.fromJson(json))
+          .where((p) => p.ghepKho == ghepKho)
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get planning by ghepKho: $e');
     }
   }
 }

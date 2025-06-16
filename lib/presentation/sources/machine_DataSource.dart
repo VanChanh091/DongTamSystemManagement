@@ -5,23 +5,26 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class MachineDatasource extends DataGridSource {
+  List<Planning> planning = [];
+  List<String> selectedPlanningIds = [];
+
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
-  List<Planning> planning;
-  List<String> selectedPlanningIds = [];
+  bool hasSortedInitially = false;
 
   MachineDatasource({
     required this.planning,
     required this.selectedPlanningIds,
   }) {
+    // sortDataPlanning();
     buildDataGridRows();
   }
 
   // Tạo danh sách cell cho từng hàng
   List<DataGridCell> buildPlanningCells(Planning planning) {
     return [
-      // DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
+      DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
       DataGridCell<String>(
         columnName: 'customerName',
         value: planning.order?.customer?.customerName ?? '',
@@ -102,11 +105,18 @@ class MachineDatasource extends DataGridSource {
         columnName: 'totalPrice',
         value: Order.formatCurrency(planning.order?.totalPrice ?? 0),
       ),
+      DataGridCell<int>(columnName: 'index', value: planning.sortPlanning),
     ];
   }
 
   @override
   List<DataGridRow> get rows => planningDataGridRows;
+
+  int extractFlute(String loaiSong) {
+    //5BC => 5
+    final match = RegExp(r'^\d+').firstMatch(loaiSong);
+    return match != null ? int.parse(match.group(0)!) : 0;
+  }
 
   void buildDataGridRows() {
     planningDataGridRows =
@@ -117,6 +127,25 @@ class MachineDatasource extends DataGridSource {
             .toList();
 
     notifyListeners();
+  }
+
+  void sortDataPlanning() {
+    planning.sort((a, b) {
+      int dateCompare = a.order!.dateRequestShipping.compareTo(
+        b.order!.dateRequestShipping,
+      );
+      if (dateCompare != 0) return dateCompare;
+
+      int ghepKhoCompare = (b.ghepKho ?? 0).compareTo(a.ghepKho ?? 0);
+      if (ghepKhoCompare != 0) return ghepKhoCompare;
+
+      int fluteA = extractFlute(a.order!.flute ?? "");
+      int fluteB = extractFlute(b.order!.flute ?? "");
+      int fluteCompare = fluteB.compareTo(fluteA);
+      if (fluteCompare != 0) return fluteCompare;
+
+      return a.planningId.compareTo(b.planningId);
+    });
   }
 
   // Di chuyển hàng lên
@@ -234,8 +263,29 @@ class MachineDatasource extends DataGridSource {
 
     final isSelected = selectedPlanningIds.contains(orderId);
 
+    final sortPlanningCell = row.getCells().firstWhere(
+      (cell) => cell.columnName == 'index',
+      orElse: () => DataGridCell<int>(columnName: 'index', value: 0),
+    );
+
+    final sortPlanning = sortPlanningCell.value as int;
+
+    Color backgroundColor;
+    if (isSelected) {
+      backgroundColor = Colors.blue.withOpacity(0.3);
+    } else {
+      switch (sortPlanning) {
+        case 0:
+          backgroundColor = Colors.amberAccent.withOpacity(0.4);
+          break;
+        default:
+          backgroundColor = Colors.transparent;
+      }
+    }
+
     return DataGridRowAdapter(
-      color: isSelected ? Colors.blue.withOpacity(0.3) : Colors.transparent,
+      // color: isSelected ? Colors.blue.withOpacity(0.3) : Colors.transparent,
+      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
             return Container(

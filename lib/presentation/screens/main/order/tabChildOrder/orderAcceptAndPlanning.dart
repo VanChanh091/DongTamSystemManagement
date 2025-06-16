@@ -243,8 +243,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                     Expanded(
                       child: SfDataGrid(
                         source: orderDataSource,
+                        columns: buildCommonColumns(),
                         isScrollbarAlwaysShown: true,
                         selectionMode: SelectionMode.single,
+                        columnWidthMode: ColumnWidthMode.auto,
                         onSelectionChanged: (addedRows, removedRows) {
                           if (addedRows.isNotEmpty) {
                             final selectedRow = addedRows.first;
@@ -262,8 +264,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                             });
                           }
                         },
-                        columnWidthMode: ColumnWidthMode.auto,
-                        columns: buildCommonColumns(),
                       ),
                     ),
 

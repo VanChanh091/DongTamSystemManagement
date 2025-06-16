@@ -27,8 +27,14 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final formKey = GlobalKey<FormState>();
   late String originalOrderId;
   final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp'];
-  final List<String> listLayerPaper = ['3_LAYER', '4_5_LAYER', "MORE_5_LAYER"];
+  final List<String> listLayerPaper = [
+    '2_LAYER',
+    '3_LAYER',
+    '4_5_LAYER',
+    "MORE_5_LAYER",
+  ];
   final Map<String, String> layerTypeLabels = {
+    '2_LAYER': '2 Lớp',
     '3_LAYER': '3 Lớp',
     '4_5_LAYER': '4-5 Lớp',
     'MORE_5_LAYER': 'Trên 5 lớp',
@@ -75,7 +81,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final quantityPLanningsController = TextEditingController();
   final numberChildController = TextEditingController();
   final numberLayerPaperController = TextEditingController();
-  late String numberOfLP = '3_LAYER';
+  late String numberOfLP = '2_LAYER';
 
   //paper consumption norm
   final dayController = TextEditingController();
