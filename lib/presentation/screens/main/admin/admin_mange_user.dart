@@ -1,21 +1,20 @@
-import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
-import 'package:dongtam/service/customer_Service.dart';
+import 'package:dongtam/data/models/user/user_admin_model.dart';
+import 'package:dongtam/service/admin_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class CustomerPage extends StatefulWidget {
-  const CustomerPage({super.key});
+class AdminMangeUser extends StatefulWidget {
+  const AdminMangeUser({super.key});
 
   @override
-  State<CustomerPage> createState() => _CustomerPageState();
+  State<AdminMangeUser> createState() => _AdminMangeUserState();
 }
 
-class _CustomerPageState extends State<CustomerPage> {
-  late Future<List<Customer>> futureCustomer;
+class _AdminMangeUserState extends State<AdminMangeUser> {
+  late Future<List<UserAdminModel>> futureUserAdmin;
   TextEditingController searchController = TextEditingController();
-  List<String> isSelected = [];
+  List<int> selectedUserIds = [];
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
   String searchType = "Tất cả";
@@ -23,33 +22,29 @@ class _CustomerPageState extends State<CustomerPage> {
   @override
   void initState() {
     super.initState();
-    futureCustomer = CustomerService().getAllCustomers();
+    futureUserAdmin = AdminService().getAllUsers();
   }
 
-  void searchCustomer() {
+  void searchProduct() {
     String keyword = searchController.text.trim().toLowerCase();
 
     if (isTextFieldEnabled && keyword.isEmpty) return;
 
     if (searchType == "Tất cả") {
       setState(() {
-        futureCustomer = CustomerService().getAllCustomers();
+        futureUserAdmin = AdminService().getAllUsers();
       });
-    } else if (searchType == "Theo Mã") {
+    } else if (searchType == "Theo Tên") {
       setState(() {
-        futureCustomer = CustomerService().getCustomerById(keyword);
-      });
-    } else if (searchType == "Theo Tên KH") {
-      setState(() {
-        futureCustomer = CustomerService().getCustomerByName(keyword);
-      });
-    } else if (searchType == "Theo CSKH") {
-      setState(() {
-        futureCustomer = CustomerService().getCustomerByCSKH(keyword);
+        futureUserAdmin = AdminService().getUserByName(keyword);
       });
     } else if (searchType == "Theo SDT") {
       setState(() {
-        futureCustomer = CustomerService().getCustomerByPhone(keyword);
+        futureUserAdmin = AdminService().getUserByPhone(keyword);
+      });
+    } else if (searchType == "Theo Quyền ") {
+      setState(() {
+        // futureUserAdmin = AdminService().getUserByPermission();
       });
     }
   }
@@ -68,23 +63,20 @@ class _CustomerPageState extends State<CustomerPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //dropdown
+                //left button
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
                     children: [
+                      //dropdown
                       SizedBox(
                         width: 170,
                         child: DropdownButtonFormField<String>(
                           value: searchType,
                           items:
-                              [
-                                'Tất cả',
-                                "Theo Mã",
-                                "Theo Tên KH",
-                                "Theo CSKH",
-                                "Theo SDT",
-                              ].map((String value) {
+                              ['Tất cả', "Theo Mã", "Theo Tên SP"].map((
+                                String value,
+                              ) {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value),
@@ -123,7 +115,7 @@ class _CustomerPageState extends State<CustomerPage> {
                         child: TextField(
                           controller: searchController,
                           enabled: isTextFieldEnabled,
-                          onSubmitted: (_) => searchCustomer(),
+                          onSubmitted: (_) => searchProduct(),
                           decoration: InputDecoration(
                             hintText: 'Tìm kiếm...',
                             border: OutlineInputBorder(
@@ -140,7 +132,7 @@ class _CustomerPageState extends State<CustomerPage> {
                       // find
                       ElevatedButton.icon(
                         onPressed: () {
-                          searchCustomer();
+                          searchProduct();
                         },
                         label: Text(
                           "Tìm kiếm",
@@ -167,6 +159,7 @@ class _CustomerPageState extends State<CustomerPage> {
                   ),
                 ),
 
+                //right button
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
@@ -175,8 +168,7 @@ class _CustomerPageState extends State<CustomerPage> {
                       ElevatedButton.icon(
                         onPressed: () {
                           setState(() {
-                            futureCustomer =
-                                CustomerService().getAllCustomers();
+                            futureUserAdmin = AdminService().getAllUsers();
                           });
                         },
                         label: Text(
@@ -201,83 +193,27 @@ class _CustomerPageState extends State<CustomerPage> {
                       ),
                       const SizedBox(width: 10),
 
-                      //add
+                      //permission
                       ElevatedButton.icon(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => CustomerDialog(
-                                  customer: null,
-                                  onCustomerAddOrUpdate: () {
-                                    setState(() {
-                                      futureCustomer =
-                                          CustomerService().getAllCustomers();
-                                    });
-                                  },
-                                ),
-                          );
-                        },
-                        label: Text(
-                          "Thêm mới",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Icons.add, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-
-                      // update
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          if (isSelected.isEmpty) {
+                        onPressed: () async {
+                          if (selectedUserIds.isEmpty) {
                             showSnackBarError(
                               context,
-                              'Vui lòng chọn sản phẩm cần sửa',
+                              "Chưa chọn người dùng cần phân quyền",
                             );
                             return;
                           }
 
-                          String productId = isSelected.first;
-                          CustomerService().getCustomerById(productId).then((
-                            product,
-                          ) {
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (_) => CustomerDialog(
-                                    customer: product.first,
-                                    onCustomerAddOrUpdate: () {
-                                      setState(() {
-                                        futureCustomer =
-                                            CustomerService().getAllCustomers();
-                                      });
-                                    },
-                                  ),
-                            );
-                          });
+                          final user = await futureUserAdmin;
                         },
                         label: Text(
-                          "Sửa",
+                          "Phân Quyền",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        icon: Icon(Symbols.construction, color: Colors.white),
+                        icon: Icon(Symbols.graph_5, color: Colors.white),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xff78D761),
                           foregroundColor: Colors.white,
@@ -290,12 +226,13 @@ class _CustomerPageState extends State<CustomerPage> {
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 10),
 
                       //delete customers
                       ElevatedButton.icon(
                         onPressed:
-                            isSelected.isNotEmpty
+                            selectedUserIds.isNotEmpty
                                 ? () {
                                   showDialog(
                                     context: context,
@@ -338,7 +275,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                                       ],
                                                     )
                                                     : Text(
-                                                      'Bạn có chắc chắn muốn xoá ${isSelected.length} khách hàng?',
+                                                      'Bạn có chắc chắn muốn xoá ${selectedUserIds.length} sản phẩm?',
                                                       style: TextStyle(
                                                         fontSize: 16,
                                                       ),
@@ -383,25 +320,26 @@ class _CustomerPageState extends State<CustomerPage> {
                                                             isDeleting = true;
                                                           });
 
-                                                          for (String id
-                                                              in isSelected) {
-                                                            await CustomerService()
-                                                                .deleteCustomer(
+                                                          for (int id
+                                                              in selectedUserIds) {
+                                                            await AdminService()
+                                                                .deleteUserById(
                                                                   id,
                                                                 );
                                                           }
 
                                                           await Future.delayed(
                                                             const Duration(
-                                                              milliseconds: 500,
+                                                              seconds: 1,
                                                             ),
                                                           );
 
                                                           setState(() {
-                                                            isSelected.clear();
-                                                            futureCustomer =
-                                                                CustomerService()
-                                                                    .getAllCustomers();
+                                                            selectedUserIds
+                                                                .clear();
+                                                            futureUserAdmin =
+                                                                AdminService()
+                                                                    .getAllUsers();
                                                           });
 
                                                           Navigator.pop(
@@ -431,18 +369,18 @@ class _CustomerPageState extends State<CustomerPage> {
                                   );
                                 }
                                 : null,
-                        label: Text(
-                          "Xóa",
+                        label: const Text(
+                          "Xoá",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        icon: Icon(Icons.delete, color: Colors.white),
+                        icon: const Icon(Icons.delete, color: Colors.white),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffEA4346),
+                          backgroundColor: const Color(0xffEA4346),
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 20,
                             vertical: 15,
                           ),
@@ -451,6 +389,66 @@ class _CustomerPageState extends State<CustomerPage> {
                           ),
                         ),
                       ),
+
+                      //popup menu
+                      PopupMenuButton<String>(
+                        icon: Icon(Icons.more_vert, color: Colors.black),
+                        color: Colors.white,
+                        onSelected: (value) async {
+                          if (value == 'changeRole') {
+                            if (selectedUserIds.isEmpty) {
+                              showSnackBarError(
+                                context,
+                                "Chưa chọn người dùng cần bổ nhiệm",
+                              );
+                              return;
+                            }
+                            final planning = await futureUserAdmin;
+
+                            // showDialog(
+                            //   context: context,
+                            //   builder:
+                            //       (_) => ChangeMachineDialog(
+                            //         planning:
+                            //             planning
+                            //                 .where(
+                            //                   (p) => selectedPlanningIds
+                            //                       .contains(p.orderId),
+                            //                 )
+                            //                 .toList(),
+                            //         onChangeMachine: loadPlanning,
+                            //       ),
+                            // );
+                          } else if (value == 'resetPassword') {
+                            if (selectedUserIds.isEmpty) {
+                              showSnackBarError(
+                                context,
+                                "Chưa chọn người dùng cần bổ nhiệm",
+                              );
+                              return;
+                            }
+                            final planning = await futureUserAdmin;
+                          }
+                        },
+                        itemBuilder:
+                            (BuildContext context) => [
+                              PopupMenuItem<String>(
+                                value: 'changeRole',
+                                child: ListTile(
+                                  leading: Icon(Symbols.magic_exchange),
+                                  title: Text('Bổ nhiệm vai trò'),
+                                ),
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'resetPassword',
+                                child: ListTile(
+                                  leading: Icon(Symbols.lock_reset),
+                                  title: Text('Đặt lại mật khẩu'),
+                                ),
+                              ),
+                            ],
+                      ),
+                      SizedBox(width: 10),
                     ],
                   ),
                 ),
@@ -462,33 +460,18 @@ class _CustomerPageState extends State<CustomerPage> {
           Expanded(
             child: SizedBox(
               width: double.infinity,
-              child: FutureBuilder<List<Customer>>(
-                future: futureCustomer,
+              child: FutureBuilder<List<UserAdminModel>>(
+                future: futureUserAdmin,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
+                  }
+
+                  if (snapshot.hasError) {
                     return Text("Error: ${snapshot.error}");
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('Không có dữ liệu'));
                   }
 
                   final data = snapshot.data!;
-
-                  // Sort the data by the numeric part of customerId in ascending order
-                  data.sort((a, b) {
-                    final aNumeric =
-                        int.tryParse(
-                          a.customerId.replaceAll(RegExp(r'[^0-9]'), ''),
-                        ) ??
-                        0;
-                    final bNumeric =
-                        int.tryParse(
-                          b.customerId.replaceAll(RegExp(r'[^0-9]'), ''),
-                        ) ??
-                        0;
-                    return aNumeric.compareTo(bNumeric);
-                  });
 
                   return SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -522,44 +505,43 @@ class _CustomerPageState extends State<CustomerPage> {
                                 setState(() {
                                   selectedAll = value!;
                                   if (selectedAll) {
-                                    isSelected =
-                                        data.map((e) => e.customerId).toList();
+                                    selectedUserIds =
+                                        data.map((e) => e.userId).toList();
                                   } else {
-                                    isSelected.clear();
+                                    selectedUserIds.clear();
                                   }
                                 });
                               },
                             ),
                           ),
                         ),
-                        DataColumn(label: styleText("Mã KH")),
-                        DataColumn(label: styleText("Tên KH")),
-                        DataColumn(label: styleText('Tên Công Ty')),
-                        DataColumn(label: styleText("Địa chỉ công ty")),
-                        DataColumn(label: styleText("Địa chỉ Giao Hàng")),
-                        DataColumn(label: styleText('MST')),
-                        DataColumn(label: styleText("SDT")),
-                        DataColumn(label: styleText("CSKH")),
+                        DataColumn(label: styleText("Họ Tên")),
+                        DataColumn(label: styleText("Email")),
+                        DataColumn(label: styleText("Giới Tính")),
+                        DataColumn(label: styleText("Số Điện Thoại")),
+                        DataColumn(label: styleText("Vai Trò")),
+                        DataColumn(label: styleText("Quyền Truy Cập")),
+                        DataColumn(label: styleText("Hình Ảnh")),
                       ],
                       rows: List<DataRow>.generate(data.length, (index) {
-                        final customer = data[index];
+                        final user = data[index];
                         return DataRow(
                           cells: [
                             DataCell(
                               Theme(
                                 data: Theme.of(context).copyWith(
                                   checkboxTheme: CheckboxThemeData(
-                                    fillColor: MaterialStateProperty.resolveWith<
-                                      Color
-                                    >((states) {
-                                      if (states.contains(
-                                        MaterialState.selected,
-                                      )) {
-                                        return Colors.red; // nền trắng khi chọn
-                                      }
-                                      return Colors
-                                          .white; // nền trắng khi không chọn
-                                    }),
+                                    fillColor:
+                                        MaterialStateProperty.resolveWith<
+                                          Color
+                                        >((states) {
+                                          if (states.contains(
+                                            MaterialState.selected,
+                                          )) {
+                                            return Colors.red;
+                                          }
+                                          return Colors.white;
+                                        }),
                                     checkColor:
                                         MaterialStateProperty.all<Color>(
                                           Colors.white,
@@ -571,33 +553,110 @@ class _CustomerPageState extends State<CustomerPage> {
                                   ),
                                 ),
                                 child: Checkbox(
-                                  value: isSelected.contains(
-                                    customer.customerId,
-                                  ),
+                                  value: selectedUserIds.contains(user.userId),
                                   onChanged: (val) {
                                     setState(() {
                                       if (val == true) {
-                                        isSelected.add(customer.customerId);
+                                        selectedUserIds.add(user.userId);
                                       } else {
-                                        isSelected.remove(customer.customerId);
+                                        selectedUserIds.remove(user.userId);
                                       }
-
                                       selectedAll =
-                                          isSelected.length == data.length;
+                                          selectedUserIds.length == data.length;
                                     });
                                   },
                                 ),
                               ),
                             ),
-
-                            DataCell(styleCell(null, customer.customerId)),
-                            DataCell(styleCell(120, customer.customerName)),
-                            DataCell(styleCell(200, customer.companyName)),
-                            DataCell(styleCell(null, customer.companyAddress)),
-                            DataCell(styleCell(null, customer.shippingAddress)),
-                            DataCell(styleCell(null, customer.mst)),
-                            DataCell(styleCell(null, customer.phone)),
-                            DataCell(styleCell(55, customer.cskh)),
+                            DataCell(styleCell(user.fullName)),
+                            DataCell(styleCell(user.email)),
+                            DataCell(styleCell(user.sex ?? "")),
+                            DataCell(styleCell(user.phone ?? "")),
+                            DataCell(styleCell(user.role)),
+                            DataCell(styleCell(user.permissions.join(', '))),
+                            DataCell(
+                              user.avatar != null && user.avatar!.isNotEmpty
+                                  ? TextButton(
+                                    onPressed: () {
+                                      print(
+                                        'Attempting to show image from URL: ${user.avatar}',
+                                      );
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: true,
+                                        builder: (_) {
+                                          return GestureDetector(
+                                            onTap:
+                                                () =>
+                                                    Navigator.of(context).pop(),
+                                            child: Scaffold(
+                                              backgroundColor: Colors.black54,
+                                              body: Center(
+                                                child: GestureDetector(
+                                                  onTap:
+                                                      () {}, // Ngăn không cho nhấn vào ảnh đóng dialog
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    child: SizedBox(
+                                                      width: 600,
+                                                      height: 600,
+                                                      child: Image.network(
+                                                        user.avatar!,
+                                                        fit: BoxFit.contain,
+                                                        errorBuilder: (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) {
+                                                          print(
+                                                            'Image loading error: $error',
+                                                          );
+                                                          print(
+                                                            'StackTrace: $stackTrace',
+                                                          );
+                                                          return Container(
+                                                            width: 300,
+                                                            height: 300,
+                                                            color:
+                                                                Colors
+                                                                    .grey
+                                                                    .shade300,
+                                                            alignment:
+                                                                Alignment
+                                                                    .center,
+                                                            child: const Text(
+                                                              "Lỗi ảnh",
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .black,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Text(
+                                      'Xem ảnh',
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  )
+                                  : const Text('Không có ảnh'),
+                            ),
                           ],
                         );
                       }),
@@ -611,19 +670,24 @@ class _CustomerPageState extends State<CustomerPage> {
       ),
     );
   }
-}
 
-Widget styleText(String text) {
-  return Text(
-    text,
-    style: TextStyle(
-      fontWeight: FontWeight.w700,
-      fontSize: 15,
-      color: Colors.white,
-    ),
-  );
-}
+  Widget styleText(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 17,
+        color: Colors.white,
+      ),
+    );
+  }
 
-Widget styleCell(double? width, String text) {
-  return SizedBox(width: width, child: Text(text, maxLines: 2));
+  Widget styleCell(String text) {
+    return SizedBox(
+      child: Text(
+        text,
+        style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+      ),
+    );
+  }
 }

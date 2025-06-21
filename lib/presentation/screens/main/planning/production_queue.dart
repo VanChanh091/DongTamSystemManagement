@@ -397,8 +397,6 @@ class _ProductionQueueState extends State<ProductionQueue> {
                             }
                             final planning = await futurePlanning;
 
-                            print(selectedPlanningIds);
-
                             showDialog(
                               context: context,
                               builder:

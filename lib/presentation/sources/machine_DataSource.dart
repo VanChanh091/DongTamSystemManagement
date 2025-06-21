@@ -16,7 +16,6 @@ class MachineDatasource extends DataGridSource {
     required this.planning,
     required this.selectedPlanningIds,
   }) {
-    // sortDataPlanning();
     buildDataGridRows();
   }
 
@@ -300,7 +299,7 @@ class MachineDatasource extends DataGridSource {
                 vertical: 4.0,
               ),
               child: Text(
-                formatCellValueBool(dataCell),
+                dataCell.value?.toString() ?? "",
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,

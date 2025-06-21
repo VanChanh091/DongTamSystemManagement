@@ -26,11 +26,6 @@ class ValidationAuth {
       return "Mật khẩu phải có ít nhất 8 ký tự";
     }
 
-    final passwordRegExp = RegExp(r'^(?=.*[A-Za-z])(?=.*\d).{8,}$');
-    if (!passwordRegExp.hasMatch(value)) {
-      return "Mật khẩu phải chứa ít nhất một chữ cái và một số";
-    }
-
     return null;
   }
 

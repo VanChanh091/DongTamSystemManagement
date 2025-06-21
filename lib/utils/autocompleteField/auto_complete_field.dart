@@ -50,8 +50,6 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final isFilled = _internalController.text.isNotEmpty;
-
     return TypeAheadField<T>(
       suggestionsCallback: (pattern) async {
         final trimmed = pattern.trim();
@@ -64,29 +62,38 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
         widget.onSelected(item);
       },
       builder: (context, textEditingController, focusNode) {
-        textEditingController.text = _internalController.text;
+        final isFilled = textEditingController.text.isNotEmpty;
+
+        // Gán controller ra ngoài để dùng bên ngoài widget
+        if (textEditingController.text != _internalController.text) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              textEditingController.value = _internalController.value;
+            }
+          });
+        }
 
         return TextFormField(
-          controller: textEditingController,
+          controller: textEditingController, // Để TypeAhead hoạt động đúng
           focusNode: focusNode,
           decoration: InputDecoration(
             labelText: widget.labelText,
             prefixIcon: Icon(widget.icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             fillColor:
-                isFilled ? Color.fromARGB(255, 148, 236, 154) : Colors.white,
+                isFilled
+                    ? const Color.fromARGB(255, 148, 236, 154)
+                    : Colors.white,
             filled: true,
             suffixIcon:
                 widget.onPlusTap != null
                     ? IconButton(
-                      icon: Icon(Icons.add_circle, color: Colors.red),
+                      icon: const Icon(Icons.add_circle, color: Colors.red),
                       onPressed: widget.onPlusTap,
                     )
                     : null,
           ),
-          onChanged: (val) {
-            widget.onChanged(val);
-          },
+          onChanged: widget.onChanged,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Không được để trống';
@@ -95,6 +102,7 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
           },
         );
       },
+
       constraints: BoxConstraints(maxHeight: 200),
       emptyBuilder:
           (context) => const Padding(

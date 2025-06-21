@@ -62,7 +62,7 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
           ),
           content: SizedBox(
             width: 500,
-            height: 500,
+            height: 400,
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Form(

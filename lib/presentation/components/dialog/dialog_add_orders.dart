@@ -27,7 +27,8 @@ class OrderDialog extends StatefulWidget {
 
 class _OrderDialogState extends State<OrderDialog> {
   final formKey = GlobalKey<FormState>();
-  Timer? _debounce;
+  Timer? _customerIdDebounce;
+  Timer? _productIdDebounce;
   String lastSearchedCustomerId = "";
   String lastSearchedProductId = "";
   final List<String> itemsDvt = ['Kg', 'Cái', 'M2'];
@@ -106,8 +107,8 @@ class _OrderDialogState extends State<OrderDialog> {
     addListenerForField();
 
     //debounce customerId, productId
-    customerIdController.addListener(onCustomerIdChanged);
-    productIdController.addListener(onProductIdChanged);
+    customerIdController.addListener(_onCustomerIdChanged);
+    productIdController.addListener(_onProductIdChanged);
   }
 
   void orderInitState() {
@@ -241,13 +242,13 @@ class _OrderDialogState extends State<OrderDialog> {
     }
   }
 
-  //debounce customer
-  void onCustomerIdChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
+  // debounce customer
+  void _onCustomerIdChanged() {
+    if (_customerIdDebounce?.isActive ?? false) _customerIdDebounce!.cancel();
 
     final input = customerIdController.text.trim();
 
-    _debounce = Timer(Duration(milliseconds: 800), () {
+    _customerIdDebounce = Timer(Duration(milliseconds: 800), () {
       if (input.isNotEmpty) {
         lastSearchedCustomerId = input;
         getCustomerById(input);
@@ -255,13 +256,13 @@ class _OrderDialogState extends State<OrderDialog> {
     });
   }
 
-  //debounce product
-  void onProductIdChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
+  // debounce product
+  void _onProductIdChanged() {
+    if (_productIdDebounce?.isActive ?? false) _productIdDebounce!.cancel();
 
     final input = productIdController.text.trim();
 
-    _debounce = Timer(Duration(milliseconds: 800), () {
+    _productIdDebounce = Timer(Duration(milliseconds: 800), () {
       if (input.isNotEmpty) {
         lastSearchedProductId = input;
         getProductById(input);
@@ -472,8 +473,10 @@ class _OrderDialogState extends State<OrderDialog> {
     dongGhim2ManhChecked = ValueNotifier<bool>(false);
     dongGoiController.dispose();
     maKhuonController.dispose();
-    customerIdController.removeListener(onCustomerIdChanged);
-    _debounce?.cancel();
+    customerIdController.removeListener(_onCustomerIdChanged);
+    productIdController.removeListener(_onProductIdChanged);
+    _customerIdDebounce?.cancel();
+    _productIdDebounce?.cancel();
   }
 
   @override
@@ -523,8 +526,10 @@ class _OrderDialogState extends State<OrderDialog> {
               },
               onChanged: (value) {
                 if (value.isEmpty) {
-                  customerNameController.clear();
-                  customerCompanyController.clear();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    customerNameController.clear();
+                    customerCompanyController.clear();
+                  });
                 }
               },
             ),
@@ -603,9 +608,11 @@ class _OrderDialogState extends State<OrderDialog> {
               },
               onChanged: (value) {
                 if (value.isEmpty) {
-                  typeProduct.clear();
-                  nameSpController.clear();
-                  maKhuonController.clear();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    typeProduct.clear();
+                    nameSpController.clear();
+                    maKhuonController.clear();
+                  });
                 }
               },
             ),

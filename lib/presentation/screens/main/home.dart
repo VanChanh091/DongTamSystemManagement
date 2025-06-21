@@ -1,6 +1,8 @@
 import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
-import 'package:dongtam/presentation/screens/main/admin/top_Tab_Admin.dart';
+import 'package:dongtam/presentation/screens/main/admin/admin_Order.dart';
+import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
+import 'package:dongtam/presentation/screens/main/admin/admin_paperFactor.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
@@ -12,6 +14,7 @@ import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:page_transition/page_transition.dart';
 
 class HomePage extends StatefulWidget {
@@ -36,7 +39,9 @@ class _HomePageState extends State<HomePage> {
     ProductPage(),
     WaitingForPlanning(),
     ProductionQueue(),
-    TopTabAdmin(),
+    AdminOrder(),
+    AdminPaperFactor(),
+    AdminMangeUser(),
     UserPage(),
   ];
 
@@ -132,6 +137,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  //logo
   Widget _buildLogoSection() {
     return Center(
       child: Column(
@@ -158,9 +164,9 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSidebarItem(Icons.dashboard, "Dashboard", index: 0),
-          _buildSidebarItem(Icons.shopping_cart, "Đơn hàng", index: 1),
-          _buildSidebarItem(Icons.person, "Khách hàng", index: 2),
-          _buildSidebarItem(Icons.inventory, "Sản phẩm", index: 3),
+          _buildSidebarItem(Icons.shopping_cart, "Đơn Hàng", index: 1),
+          _buildSidebarItem(Icons.person, "Khách Hàng", index: 2),
+          _buildSidebarItem(Icons.inventory, "Sản Phẩm", index: 3),
           _buildPlanningMenu(),
           _buildApprovalMenu(),
         ],
@@ -168,6 +174,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  //planning
   Widget _buildPlanningMenu() {
     return Column(
       children: [
@@ -178,7 +185,7 @@ class _HomePageState extends State<HomePage> {
               title:
                   _isHovered
                       ? const Text(
-                        "Kế hoạch",
+                        "Kế Hoạch",
                         style: TextStyle(color: Colors.white, fontSize: 18),
                         overflow: TextOverflow.ellipsis,
                       )
@@ -203,10 +210,10 @@ class _HomePageState extends State<HomePage> {
               child: Center(child: Icon(Icons.schedule, color: Colors.white)),
             ),
         if (_isHovered && _isPlanningExpanded) ...[
-          _buildSubMenuItem(Icons.outbox_rounded, "Chờ lên kế hoạch", 4),
+          _buildSubMenuItem(Icons.outbox_rounded, "Chờ Lên Kế Hoạch", 4),
           _buildSubMenuItem(
             Icons.production_quantity_limits_outlined,
-            "Hàng chờ sản xuất",
+            "Hàng Chờ Sản Xuất",
             5,
           ),
         ],
@@ -214,6 +221,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  //admin
   Widget _buildApprovalMenu() {
     return Column(
       children: [
@@ -224,7 +232,7 @@ class _HomePageState extends State<HomePage> {
               title:
                   _isHovered
                       ? const Text(
-                        "Quản lý",
+                        "Quản Lý",
                         style: TextStyle(color: Colors.white, fontSize: 18),
                         overflow: TextOverflow.ellipsis,
                       )
@@ -248,12 +256,16 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.symmetric(vertical: 12),
               child: Center(child: Icon(Icons.assignment, color: Colors.white)),
             ),
-        if (_isHovered && _isApprovalExpanded)
-          _buildSubMenuItem(Icons.outbox_rounded, "Chờ duyệt", 6),
+        if (_isHovered && _isApprovalExpanded) ...[
+          _buildSubMenuItem(Symbols.pending_actions_sharp, "Chờ Duyệt", 6),
+          _buildSubMenuItem(Symbols.bookmark_manager_sharp, "Định Mức", 7),
+          _buildSubMenuItem(Symbols.person, "Người Dùng", 8),
+        ],
       ],
     );
   }
 
+  //logout
   Widget _buildLogoutSection() {
     return _isHovered
         ? ListTile(
@@ -318,6 +330,7 @@ class _HomePageState extends State<HomePage> {
         );
   }
 
+  //component for sub menu item
   Widget _buildSubMenuItem(IconData icon, String title, int index) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),

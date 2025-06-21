@@ -29,6 +29,7 @@ class _SignUpState extends State<SignUp> {
 
   bool isObscureText = true;
 
+  // Start the timer for OTP button
   void startTimer() {
     setState(() {
       isButtonEnabled = false;
