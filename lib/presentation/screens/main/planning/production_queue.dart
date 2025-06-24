@@ -203,15 +203,6 @@ class _ProductionQueueState extends State<ProductionQueue> {
 
                       // refresh
                       ElevatedButton.icon(
-                        // onPressed: () {
-                        //   setState(() {
-                        //     selectedPlanningIds.clear();
-                        //     machineDatasource.selectedPlanningIds =
-                        //         selectedPlanningIds;
-                        //     loadPlanning();
-                        //     machineDatasource.notifyListeners();
-                        //   });
-                        // },
                         onPressed: () {
                           setState(() {
                             selectedPlanningIds.clear();

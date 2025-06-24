@@ -457,6 +457,7 @@ class _OrderDialogState extends State<OrderDialog> {
     quantityCustomerController.dispose();
     quantityManufactureController.dispose();
     dvtController.dispose();
+    daoXaController.dispose();
     priceController.dispose();
     discountController.dispose();
     profitController.dispose();

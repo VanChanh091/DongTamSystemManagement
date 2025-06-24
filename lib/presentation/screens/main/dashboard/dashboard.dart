@@ -11,17 +11,6 @@ class _DashboardPageState extends State<DashboardPage> {
   bool checked = false;
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        child: CheckboxListTile(
-          value: checked,
-          onChanged: (bool? value) {
-            setState(() {
-              checked = value!;
-            });
-          },
-        ),
-      ),
-    );
+    return Container(color: Colors.white);
   }
 }

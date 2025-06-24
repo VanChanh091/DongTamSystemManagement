@@ -302,14 +302,13 @@ class AdminService {
   }
 
   //reset password
-  Future<bool> resetUserPassword(int userId, String newPassword) async {
+  Future<bool> resetUserPassword(List<int> userIds, String newPassword) async {
     try {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
         "/api/admin/resetPassword",
-        queryParameters: {"userId": userId},
-        data: {"newPassword": newPassword},
+        data: {"userIds": userIds, "newPassword": newPassword},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

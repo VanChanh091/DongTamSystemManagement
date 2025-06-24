@@ -549,17 +549,17 @@ class _CustomerPageState extends State<CustomerPage> {
                               Theme(
                                 data: Theme.of(context).copyWith(
                                   checkboxTheme: CheckboxThemeData(
-                                    fillColor: MaterialStateProperty.resolveWith<
-                                      Color
-                                    >((states) {
-                                      if (states.contains(
-                                        MaterialState.selected,
-                                      )) {
-                                        return Colors.red; // nền trắng khi chọn
-                                      }
-                                      return Colors
-                                          .white; // nền trắng khi không chọn
-                                    }),
+                                    fillColor:
+                                        MaterialStateProperty.resolveWith<
+                                          Color
+                                        >((states) {
+                                          if (states.contains(
+                                            MaterialState.selected,
+                                          )) {
+                                            return Colors.red;
+                                          }
+                                          return Colors.white;
+                                        }),
                                     checkColor:
                                         MaterialStateProperty.all<Color>(
                                           Colors.white,

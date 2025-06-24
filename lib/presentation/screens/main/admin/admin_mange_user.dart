@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/user/user_admin_model.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_permission_role.dart';
 import 'package:dongtam/service/admin_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
     futureUserAdmin = AdminService().getAllUsers();
   }
 
-  void searchProduct() {
+  void searchUser() {
     String keyword = searchController.text.trim().toLowerCase();
 
     if (isTextFieldEnabled && keyword.isEmpty) return;
@@ -42,9 +43,17 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
       setState(() {
         futureUserAdmin = AdminService().getUserByPhone(keyword);
       });
-    } else if (searchType == "Theo Quyền ") {
+    } else if (searchType == "Theo Quyền") {
+      List<String> permissions =
+          keyword
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
+
+      if (permissions.isEmpty) return;
       setState(() {
-        // futureUserAdmin = AdminService().getUserByPermission();
+        futureUserAdmin = AdminService().getUserByPermission(permissions);
       });
     }
   }
@@ -74,9 +83,12 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                         child: DropdownButtonFormField<String>(
                           value: searchType,
                           items:
-                              ['Tất cả', "Theo Mã", "Theo Tên SP"].map((
-                                String value,
-                              ) {
+                              [
+                                'Tất cả',
+                                "Theo Tên",
+                                "Theo SDT",
+                                "Theo Quyền",
+                              ].map((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value),
@@ -115,7 +127,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                         child: TextField(
                           controller: searchController,
                           enabled: isTextFieldEnabled,
-                          onSubmitted: (_) => searchProduct(),
+                          onSubmitted: (_) => searchUser(),
                           decoration: InputDecoration(
                             hintText: 'Tìm kiếm...',
                             border: OutlineInputBorder(
@@ -132,7 +144,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                       // find
                       ElevatedButton.icon(
                         onPressed: () {
-                          searchProduct();
+                          searchUser();
                         },
                         label: Text(
                           "Tìm kiếm",
@@ -155,15 +167,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                    ],
-                  ),
-                ),
 
-                //right button
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  child: Row(
-                    children: [
                       // refresh
                       ElevatedButton.icon(
                         onPressed: () {
@@ -192,22 +196,56 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                         ),
                       ),
                       const SizedBox(width: 10),
+                    ],
+                  ),
+                ),
 
-                      //permission
+                //right button
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                  child: Row(
+                    children: [
+                      //permission/role
                       ElevatedButton.icon(
                         onPressed: () async {
                           if (selectedUserIds.isEmpty) {
                             showSnackBarError(
                               context,
-                              "Chưa chọn người dùng cần phân quyền",
+                              "Chưa chọn người dùng cần phân quyền/vai trò",
                             );
                             return;
                           }
 
-                          final user = await futureUserAdmin;
+                          if (selectedUserIds.length > 1) {
+                            showSnackBarError(
+                              context,
+                              "Chỉ được cập nhật mỗi lần 1 user",
+                            );
+                          }
+
+                          final users = await futureUserAdmin;
+                          // For example, pick the first selected user
+                          final selectedUser = users.firstWhere(
+                            (u) => selectedUserIds.contains(u.userId),
+                            orElse: () => users.first,
+                          );
+
+                          showDialog(
+                            context: context,
+                            builder:
+                                (_) => DialogPermissionRole(
+                                  userAdmin: selectedUser,
+                                  onPermissionOrRole: () {
+                                    setState(() {
+                                      futureUserAdmin =
+                                          AdminService().getAllUsers();
+                                    });
+                                  },
+                                ),
+                          );
                         },
                         label: Text(
-                          "Phân Quyền",
+                          "Phân Quyền/Vai Trò",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -226,8 +264,128 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                           ),
                         ),
                       ),
-
                       const SizedBox(width: 10),
+
+                      //reset password
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          if (selectedUserIds.isEmpty) {
+                            showSnackBarError(
+                              context,
+                              "Chưa chọn người dùng cần đặt lại mật khẩu",
+                            );
+                            return;
+                          }
+
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: Text(
+                                    "Xác nhận đặt lại",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  content: Text(
+                                    "Bạn có muốn mặt lại mật khẩu cho ${selectedUserIds.length} người dùng?",
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, false),
+                                      child: Text(
+                                        "Huỷ",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xffEA4346,
+                                        ),
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed:
+                                          () => Navigator.pop(context, true),
+                                      child: Text(
+                                        "Xác nhận",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          );
+
+                          if (confirm == true) {
+                            const newPassword = "123456";
+
+                            try {
+                              await Future.delayed(
+                                const Duration(milliseconds: 500),
+                              );
+
+                              await AdminService().resetUserPassword(
+                                selectedUserIds,
+                                newPassword,
+                              );
+
+                              showSnackBarSuccess(
+                                context,
+                                "Đặt lại mật khẩu thành công. Mật khẩu mặc định là 123456",
+                              );
+
+                              setState(() {
+                                futureUserAdmin = AdminService().getAllUsers();
+                                selectedUserIds.clear();
+                                selectedAll = false;
+                              });
+                            } catch (e) {
+                              showSnackBarError(context, "Lỗi: $e");
+                            }
+                          }
+                        },
+                        label: const Text(
+                          "Đặt lại mật khẩu",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        icon: const Icon(
+                          Symbols.lock_reset,
+                          color: Colors.white,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff78D761),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 15,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
 
                       //delete customers
                       ElevatedButton.icon(
@@ -275,7 +433,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                       ],
                                                     )
                                                     : Text(
-                                                      'Bạn có chắc chắn muốn xoá ${selectedUserIds.length} sản phẩm?',
+                                                      'Bạn có chắc chắn muốn xoá ${selectedUserIds.length} người dùng này?',
                                                       style: TextStyle(
                                                         fontSize: 16,
                                                       ),
@@ -289,7 +447,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                             () => Navigator.pop(
                                                               context,
                                                             ),
-                                                        child: const Text(
+                                                        child: Text(
                                                           "Huỷ",
                                                           style: TextStyle(
                                                             fontSize: 16,
@@ -330,7 +488,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
 
                                                           await Future.delayed(
                                                             const Duration(
-                                                              seconds: 1,
+                                                              milliseconds: 500,
                                                             ),
                                                           );
 
@@ -388,65 +546,6 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                      ),
-
-                      //popup menu
-                      PopupMenuButton<String>(
-                        icon: Icon(Icons.more_vert, color: Colors.black),
-                        color: Colors.white,
-                        onSelected: (value) async {
-                          if (value == 'changeRole') {
-                            if (selectedUserIds.isEmpty) {
-                              showSnackBarError(
-                                context,
-                                "Chưa chọn người dùng cần bổ nhiệm",
-                              );
-                              return;
-                            }
-                            final planning = await futureUserAdmin;
-
-                            // showDialog(
-                            //   context: context,
-                            //   builder:
-                            //       (_) => ChangeMachineDialog(
-                            //         planning:
-                            //             planning
-                            //                 .where(
-                            //                   (p) => selectedPlanningIds
-                            //                       .contains(p.orderId),
-                            //                 )
-                            //                 .toList(),
-                            //         onChangeMachine: loadPlanning,
-                            //       ),
-                            // );
-                          } else if (value == 'resetPassword') {
-                            if (selectedUserIds.isEmpty) {
-                              showSnackBarError(
-                                context,
-                                "Chưa chọn người dùng cần bổ nhiệm",
-                              );
-                              return;
-                            }
-                            final planning = await futureUserAdmin;
-                          }
-                        },
-                        itemBuilder:
-                            (BuildContext context) => [
-                              PopupMenuItem<String>(
-                                value: 'changeRole',
-                                child: ListTile(
-                                  leading: Icon(Symbols.magic_exchange),
-                                  title: Text('Bổ nhiệm vai trò'),
-                                ),
-                              ),
-                              PopupMenuItem<String>(
-                                value: 'resetPassword',
-                                child: ListTile(
-                                  leading: Icon(Symbols.lock_reset),
-                                  title: Text('Đặt lại mật khẩu'),
-                                ),
-                              ),
-                            ],
                       ),
                       SizedBox(width: 10),
                     ],
