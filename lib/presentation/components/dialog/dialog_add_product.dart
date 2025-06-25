@@ -122,9 +122,11 @@ class _ProductDialogState extends State<ProductDialog> {
       readOnly: readOnly,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(fontWeight: FontWeight.bold),
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
         fillColor: readOnly ? Colors.grey.shade300 : Colors.white,
         filled: true,
       ),

@@ -78,8 +78,11 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
           focusNode: focusNode,
           decoration: InputDecoration(
             labelText: widget.labelText,
+            labelStyle: TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(widget.icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            floatingLabelBehavior: FloatingLabelBehavior.always,
             fillColor:
                 isFilled
                     ? const Color.fromARGB(255, 148, 236, 154)

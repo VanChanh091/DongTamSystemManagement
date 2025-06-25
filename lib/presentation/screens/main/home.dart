@@ -14,7 +14,6 @@ import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:page_transition/page_transition.dart';
 
 class HomePage extends StatefulWidget {
@@ -109,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                           );
                         },
                       ),
-                      _buildSidebarItem(Icons.person, "Người dùng", index: 7),
+                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 9),
 
                       const Divider(color: Colors.white70),
                       _buildLogoutSection(),
@@ -257,9 +256,9 @@ class _HomePageState extends State<HomePage> {
               child: Center(child: Icon(Icons.assignment, color: Colors.white)),
             ),
         if (_isHovered && _isApprovalExpanded) ...[
-          _buildSubMenuItem(Symbols.pending_actions_sharp, "Chờ Duyệt", 6),
-          _buildSubMenuItem(Symbols.bookmark_manager_sharp, "Định Mức", 7),
-          _buildSubMenuItem(Symbols.person, "Người Dùng", 8),
+          _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 6),
+          _buildSubMenuItem(Icons.gif_box, "Định Mức", 7),
+          _buildSubMenuItem(Icons.person, "Người Dùng", 8),
         ],
       ],
     );

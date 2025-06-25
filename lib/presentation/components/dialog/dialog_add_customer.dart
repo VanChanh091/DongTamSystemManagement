@@ -71,7 +71,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
   void submit() async {
     if (!formKey.currentState!.validate()) return;
 
-    if (widget.customer == null) {
+    if (widget.customer == null && _phoneController.text.isNotEmpty) {
       final isPhoneExist = allCustomers.any(
         (customer) => customer.phone == _phoneController.text,
       );
@@ -198,7 +198,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
               children: [
                 const SizedBox(height: 15),
                 ValidationCustomer.validateInput(
-                  "Mã Khách hàng",
+                  "Mã khách hàng",
                   _idController,
                   Icons.badge,
                   readOnly: isEdit,
@@ -233,6 +233,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
                   "MST",
                   _mstController,
                   Icons.numbers,
+                  allCustomers: allCustomers,
                 ),
                 const SizedBox(height: 15),
                 ValidationCustomer.validateInput(
