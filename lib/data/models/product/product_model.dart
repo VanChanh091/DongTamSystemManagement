@@ -1,15 +1,15 @@
 class Product {
   String productId;
   String typeProduct;
-  String productName;
-  String maKhuon;
+  String? productName;
+  String? maKhuon;
   String? productImage;
 
   Product({
     required this.productId,
     required this.typeProduct,
-    required this.productName,
-    required this.maKhuon,
+    this.productName,
+    this.maKhuon,
     this.productImage,
   });
 

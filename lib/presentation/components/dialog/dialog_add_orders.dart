@@ -47,9 +47,9 @@ class _OrderDialogState extends State<OrderDialog> {
   final qcBoxController = TextEditingController();
   final canLanController = TextEditingController();
   final dayController = TextEditingController();
-  final middle_1Controller = TextEditingController();
-  final middle_2Controller = TextEditingController();
-  final matController = TextEditingController();
+  final matEController = TextEditingController();
+  final matBController = TextEditingController();
+  final matCController = TextEditingController();
   final songEController = TextEditingController();
   final songBController = TextEditingController();
   final songCController = TextEditingController();
@@ -119,9 +119,9 @@ class _OrderDialogState extends State<OrderDialog> {
     qcBoxController.text = widget.order!.QC_box.toString();
     canLanController.text = widget.order!.canLan.toString();
     dayController.text = widget.order!.day.toString();
-    middle_1Controller.text = widget.order!.middle_1.toString();
-    middle_2Controller.text = widget.order!.middle_2.toString();
-    matController.text = widget.order!.mat.toString();
+    matEController.text = widget.order!.matE.toString();
+    matBController.text = widget.order!.matB.toString();
+    matCController.text = widget.order!.matC.toString();
     songEController.text = widget.order!.songE.toString();
     songBController.text = widget.order!.songB.toString();
     songCController.text = widget.order!.songC.toString();
@@ -222,8 +222,8 @@ class _OrderDialogState extends State<OrderDialog> {
         if (mounted) {
           setState(() {
             typeProduct.text = product.typeProduct;
-            nameSpController.text = product.productName;
-            maKhuonController.text = product.maKhuon;
+            nameSpController.text = product.productName ?? "";
+            maKhuonController.text = product.maKhuon ?? "";
           });
         }
       } else {
@@ -341,9 +341,9 @@ class _OrderDialogState extends State<OrderDialog> {
 
     late String flutePaper = Order.flutePaper(
       dayController.text,
-      middle_1Controller.text,
-      middle_2Controller.text,
-      matController.text,
+      matEController.text,
+      matBController.text,
+      matCController.text,
       songEController.text,
       songBController.text,
       songCController.text,
@@ -376,9 +376,9 @@ class _OrderDialogState extends State<OrderDialog> {
       canLan: canLanController.text,
       daoXa: typeDaoXa,
       day: dayController.text.toUpperCase(),
-      middle_1: middle_1Controller.text.toUpperCase(),
-      middle_2: middle_2Controller.text.toUpperCase(),
-      mat: matController.text.toUpperCase(),
+      matE: matEController.text.toUpperCase(),
+      matB: matBController.text.toUpperCase(),
+      matC: matCController.text.toUpperCase(),
       songE: songEController.text.toUpperCase(),
       songB: songBController.text.toUpperCase(),
       songC: songCController.text.toUpperCase(),
@@ -443,9 +443,9 @@ class _OrderDialogState extends State<OrderDialog> {
     qcBoxController.dispose();
     nameSpController.dispose();
     dayController.dispose();
-    middle_1Controller.dispose();
-    middle_2Controller.dispose();
-    matController.dispose();
+    matEController.dispose();
+    matBController.dispose();
+    matCController.dispose();
     songEController.dispose();
     songBController.dispose();
     songCController.dispose();
@@ -574,6 +574,7 @@ class _OrderDialogState extends State<OrderDialog> {
               },
             ),
       },
+
       {
         'left':
             () => AutoCompleteField<Product>(
@@ -592,8 +593,8 @@ class _OrderDialogState extends State<OrderDialog> {
               onSelected: (product) {
                 productIdController.text = product.productId;
                 typeProduct.text = product.typeProduct;
-                nameSpController.text = product.productName;
-                maKhuonController.text = product.maKhuon;
+                nameSpController.text = product.productName ?? "";
+                maKhuonController.text = product.maKhuon ?? "";
               },
               onPlusTap: () {
                 showDialog(
@@ -644,6 +645,7 @@ class _OrderDialogState extends State<OrderDialog> {
               Symbols.filter_9_plus,
             ),
       },
+
       {
         'left':
             () => ValidationOrder.validateInput(
@@ -676,6 +678,7 @@ class _OrderDialogState extends State<OrderDialog> {
               Symbols.horizontal_distribute,
             ),
       },
+
       {
         'left':
             () => ValidationOrder.validateInput(
@@ -709,6 +712,9 @@ class _OrderDialogState extends State<OrderDialog> {
               });
             }),
       },
+    ];
+
+    final List<Map<String, dynamic>> structure = [
       {
         'left':
             () => ValidationOrder.validateInput(
@@ -718,20 +724,20 @@ class _OrderDialogState extends State<OrderDialog> {
             ),
         'middle_1':
             () => ValidationOrder.validateInput(
-              "Giữa 1 (g)",
-              middle_1Controller,
+              "Mặt E (g)",
+              matEController,
               Symbols.vertical_align_center,
             ),
         'middle_2':
             () => ValidationOrder.validateInput(
-              "Giữa 2 (g)",
-              middle_2Controller,
+              "Mặt B (g)",
+              matBController,
               Symbols.vertical_align_center,
             ),
         'middle_3':
             () => ValidationOrder.validateInput(
-              "Mặt (g)",
-              matController,
+              "Mặt C (g)",
+              matCController,
               Symbols.vertical_align_top,
             ),
         'right':
@@ -741,6 +747,7 @@ class _OrderDialogState extends State<OrderDialog> {
               Symbols.bottom_sheets,
             ),
       },
+
       {
         'left':
             () => ValidationOrder.validateInput(
@@ -871,6 +878,70 @@ class _OrderDialogState extends State<OrderDialog> {
                       child: Column(
                         children:
                             orders.map((row) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 15),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child:
+                                          row['left'] is Function
+                                              ? row['left']()
+                                              : row['left'],
+                                    ),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['middle_1'] is Function
+                                              ? row['middle_1']()
+                                              : row['middle_1'],
+                                    ),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['middle_2'] is Function
+                                              ? row['middle_2']()
+                                              : row['middle_2'],
+                                    ),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['middle_3'] is Function
+                                              ? row['middle_3']()
+                                              : row['middle_3'],
+                                    ),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['right'] is Function
+                                              ? row['right']()
+                                              : row['right'],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    //structure
+                    Text(
+                      "Kết Cấu",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xffF2E873),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.all(15),
+                      child: Column(
+                        children:
+                            structure.map((row) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 15),
                                 child: Row(

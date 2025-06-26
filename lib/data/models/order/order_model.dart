@@ -6,40 +6,19 @@ import 'package:intl/intl.dart';
 
 class Order {
   final String orderId;
-  final String? flute;
-  final String? QC_box;
-  final String? canLan;
-  final String? day;
-  final String? middle_1;
-  final String? middle_2;
-  final String? mat;
-  final String? songE;
-  final String? songB;
-  final String? songC;
-  final String? songE2;
-  final double lengthPaperCustomer;
-  final double lengthPaperManufacture;
-  final double paperSizeCustomer;
-  final double paperSizeManufacture;
-  final int quantityCustomer;
-  final int quantityManufacture;
-  final double acreage;
-  final String daoXa;
-  final String dvt;
-  final double price;
-  final double pricePaper;
+  final String? flute, QC_box, canLan;
+  final String? day, matE, matB, matC, songE, songB, songC, songE2;
+  final String? instructSpecial, rejectReason;
+  final String daoXa, dvt, status;
+  final double lengthPaperCustomer, lengthPaperManufacture;
+  final double paperSizeCustomer, paperSizeManufacture;
   final double? discount;
-  final double profit;
-  final double totalPrice;
+  final double acreage, profit, totalPrice, price, pricePaper;
+  final int quantityCustomer, quantityManufacture;
   final int? vat;
-  final DateTime dayReceiveOrder;
-  final DateTime dateRequestShipping;
-  final String? instructSpecial;
-  final String status;
-  final String? rejectReason;
+  final DateTime dayReceiveOrder, dateRequestShipping;
 
-  final String customerId;
-  final String productId;
+  final String customerId, productId;
   final Customer? customer;
   final Product? product;
   final Box? box;
@@ -54,9 +33,9 @@ class Order {
     this.canLan,
     required this.daoXa,
     this.day,
-    this.middle_1,
-    this.middle_2,
-    this.mat,
+    this.matE,
+    this.matB,
+    this.matC,
     this.songE,
     this.songB,
     this.songC,
@@ -122,7 +101,7 @@ class Order {
 
   String get formatterStructureOrder {
     final prefixes = ['', 'E', '', 'B', '', 'C', '', ''];
-    final parts = [day, songE, middle_1, songB, middle_2, songC, mat, songE2];
+    final parts = [day, songE, matE, songB, matB, songC, matC, songE2];
     final formattedParts = <String>[];
 
     for (int i = 0; i < parts.length; i++) {
@@ -139,6 +118,7 @@ class Order {
     return formattedParts.join('/');
   }
 
+  //calculate flute
   static String flutePaper(
     String day,
     String middle_1,
@@ -185,9 +165,9 @@ class Order {
       canLan: json['canLan'] ?? "",
       daoXa: json['daoXa'] ?? "",
       day: json['day'] ?? "",
-      middle_1: json['middle_1'] ?? "",
-      middle_2: json['middle_2'] ?? "",
-      mat: json['mat'] ?? "",
+      matE: json['matE'] ?? "",
+      matB: json['matB'] ?? "",
+      matC: json['matC'] ?? "",
       songE: json['songE'] ?? "",
       songB: json['songB'] ?? "",
       songC: json['songC'] ?? "",
@@ -229,9 +209,9 @@ class Order {
       'canLan': canLan,
       'daoXa': daoXa,
       'day': day,
-      'middle_1': middle_1,
-      'middle_2': middle_2,
-      'mat': mat,
+      'matE': matE,
+      'matB': matB,
+      'matC': matC,
       'songE': songE,
       'songB': songB,
       'songC': songC,

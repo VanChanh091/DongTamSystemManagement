@@ -27,18 +27,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final formKey = GlobalKey<FormState>();
   late String originalOrderId;
   final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp'];
-  final List<String> listLayerPaper = [
-    '2_LAYER',
-    '3_LAYER',
-    '4_5_LAYER',
-    "MORE_5_LAYER",
-  ];
-  final Map<String, String> layerTypeLabels = {
-    '2_LAYER': '2 Lớp',
-    '3_LAYER': '3 Lớp',
-    '4_5_LAYER': '4-5 Lớp',
-    'MORE_5_LAYER': 'Trên 5 lớp',
-  };
 
   //order
   final orderIdController = TextEditingController();
@@ -47,9 +35,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final dateShippingController = TextEditingController();
   DateTime? dateShipping;
   final dayOrderController = TextEditingController();
-  final middle_1OrderController = TextEditingController();
-  final middle_2OrderController = TextEditingController();
-  final matOrderController = TextEditingController();
+  final matEOrderController = TextEditingController();
+  final matBOrderController = TextEditingController();
+  final matCOrderController = TextEditingController();
   final songEOrderController = TextEditingController();
   final songBOrderController = TextEditingController();
   final songCOrderController = TextEditingController();
@@ -66,11 +54,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
   //planning
   final ghepKhoController = TextEditingController();
   final timeRunningController = TextEditingController();
+  final fluteController = TextEditingController();
   late String chooseMachine = 'Máy 1350';
   final dayReplaceController = TextEditingController();
-  final middle_1ReplaceController = TextEditingController();
-  final middle_2ReplaceController = TextEditingController();
-  final matReplaceController = TextEditingController();
+  final matEReplaceController = TextEditingController();
+  final matBReplaceController = TextEditingController();
+  final matCReplaceController = TextEditingController();
   final songEReplaceController = TextEditingController();
   final songBReplaceController = TextEditingController();
   final songCReplaceController = TextEditingController();
@@ -81,7 +70,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final quantityPLanningsController = TextEditingController();
   final numberChildController = TextEditingController();
   final numberLayerPaperController = TextEditingController();
-  late String numberOfLP = '2_LAYER';
 
   //paper consumption norm
   final dayController = TextEditingController();
@@ -91,6 +79,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final matBController = TextEditingController();
   final songCController = TextEditingController();
   final matCController = TextEditingController();
+  final songE2Controller = TextEditingController();
 
   @override
   void initState() {
@@ -107,9 +96,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
     customerNameController.text = widget.order!.customer!.customerName;
     companyNameController.text = widget.order!.customer!.companyName;
     dayOrderController.text = widget.order!.day.toString();
-    middle_1OrderController.text = widget.order!.middle_1.toString();
-    middle_2OrderController.text = widget.order!.middle_2.toString();
-    matOrderController.text = widget.order!.mat.toString();
+    matEOrderController.text = widget.order!.matE.toString();
+    matBOrderController.text = widget.order!.matB.toString();
+    matCOrderController.text = widget.order!.matC.toString();
     songEOrderController.text = widget.order!.songE.toString();
     songBOrderController.text = widget.order!.songB.toString();
     songCOrderController.text = widget.order!.songC.toString();
@@ -137,9 +126,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
   void fillDataOrderToPlanning() {
     dayReplaceController.text = dayOrderController.text;
-    middle_1ReplaceController.text = middle_1OrderController.text;
-    middle_2ReplaceController.text = middle_2OrderController.text;
-    matReplaceController.text = matOrderController.text;
+    matEReplaceController.text = matEOrderController.text;
+    matBReplaceController.text = matBOrderController.text;
+    matCReplaceController.text = matCOrderController.text;
     songEReplaceController.text = songEOrderController.text;
     songBReplaceController.text = songBOrderController.text;
     songCReplaceController.text = songCOrderController.text;
@@ -147,52 +136,40 @@ class _PLanningDialogState extends State<PLanningDialog> {
     lengthPaperPlanningController.text = lengthOrderController.text;
     sizePaperPLaningController.text = sizeOrderController.text;
     runningPlanController.text = quantityOrderController.text;
+    fluteController.text = extractNumbers(songController.text);
+
+    //Dinh Muc
+    dayController.text = extractNumbers(dayOrderController.text);
+    songEController.text = extractNumbers(songEOrderController.text);
+    songBController.text = extractNumbers(songBOrderController.text);
+    songCController.text = extractNumbers(songCOrderController.text);
+    songE2Controller.text = extractNumbers(songE2OrderController.text);
+    matEController.text = extractNumbers(matEOrderController.text);
+    matBController.text = extractNumbers(matBOrderController.text);
+    matCController.text = extractNumbers(matCOrderController.text);
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    orderIdController.dispose();
-    customerNameController.dispose();
-    companyNameController.dispose();
-    dayOrderController.dispose();
-    middle_1OrderController.dispose();
-    middle_2OrderController.dispose();
-    matOrderController.dispose();
-    songEOrderController.dispose();
-    songBOrderController.dispose();
-    songCOrderController.dispose();
-    songE2OrderController.dispose();
-    songController.dispose();
-    qcBoxController.dispose();
-    instructSpecialController.dispose();
-    daoXaOrderController.dispose();
-    lengthOrderController.dispose();
-    sizeOrderController.dispose();
-    quantityOrderController.dispose();
-    totalPriceOrderController.dispose();
-    runningPlanController.dispose();
-    timeRunningController.dispose();
-    dayReplaceController.dispose();
-    middle_1ReplaceController.dispose();
-    middle_2ReplaceController.dispose();
-    matReplaceController.dispose();
-    songEReplaceController.dispose();
-    songBReplaceController.dispose();
-    songCReplaceController.dispose();
-    songE2ReplaceController.dispose();
-    lengthPaperPlanningController.dispose();
-    sizePaperPLaningController.dispose();
-    quantityPLanningsController.dispose();
-    numberChildController.dispose();
-    dayController.dispose();
-    songEController.dispose();
-    matEController.dispose();
-    songBController.dispose();
-    matBController.dispose();
-    songCController.dispose();
-    matCController.dispose();
-    // _debounce?.cancel();
+  /// Trích xuất số từ chuỗi văn bản
+  String extractNumbers(String input, {String mode = 'all'}) {
+    if (mode == 'first') {
+      final match = RegExp(r'\d+').firstMatch(input);
+      return match?.group(0) ?? '';
+    } else {
+      return input.replaceAll(RegExp(r'[^0-9]'), '');
+    }
+  }
+
+  String mapFluteToLayerType(String fluteText) {
+    final fluteNumber = int.tryParse(fluteText);
+
+    if (fluteNumber == null) return '2_LAYER';
+
+    if (fluteNumber == 2) return '2_LAYER';
+    if (fluteNumber == 3) return '3_LAYER';
+    if (fluteNumber == 4 || fluteNumber == 5) return '4_5_LAYER';
+    if (fluteNumber > 5) return 'MORE_5_LAYER';
+
+    return '2_LAYER';
   }
 
   void submit() async {
@@ -206,6 +183,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       matB: int.tryParse(matBController.text) ?? 0,
       songC: int.tryParse(songCController.text) ?? 0,
       matC: int.tryParse(matCController.text) ?? 0,
+      songE2: int.tryParse(matCController.text) ?? 0,
     );
 
     final newPlanning = Planning(
@@ -216,9 +194,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
         minute: int.parse(timeRunningController.text.split(':')[1]),
       ),
       dayReplace: dayReplaceController.text,
-      middle_1Replace: middle_1ReplaceController.text,
-      middle_2Replace: middle_2ReplaceController.text,
-      matReplace: matReplaceController.text,
+      matEReplace: matEReplaceController.text,
+      matBReplace: matBReplaceController.text,
+      matCReplace: matCReplaceController.text,
       songEReplace: songEReplaceController.text,
       songBReplace: songBReplaceController.text,
       songCReplace: songCReplaceController.text,
@@ -236,7 +214,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     //add layerType into toJson
     final planningJson = newPlanning.toJson();
-    planningJson['layerType'] = numberOfLP;
+    final layerType = mapFluteToLayerType(fluteController.text);
+    planningJson['layerType'] = layerType;
 
     try {
       await PlanningService().planningOrder(
@@ -252,6 +231,52 @@ class _PLanningDialogState extends State<PLanningDialog> {
       print("Error: $e");
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    orderIdController.dispose();
+    customerNameController.dispose();
+    companyNameController.dispose();
+    dayOrderController.dispose();
+    matEOrderController.dispose();
+    matBOrderController.dispose();
+    matCOrderController.dispose();
+    songEOrderController.dispose();
+    songBOrderController.dispose();
+    songCOrderController.dispose();
+    songE2OrderController.dispose();
+    songController.dispose();
+    qcBoxController.dispose();
+    instructSpecialController.dispose();
+    daoXaOrderController.dispose();
+    lengthOrderController.dispose();
+    sizeOrderController.dispose();
+    quantityOrderController.dispose();
+    totalPriceOrderController.dispose();
+    runningPlanController.dispose();
+    timeRunningController.dispose();
+    dayReplaceController.dispose();
+    matEReplaceController.dispose();
+    matBReplaceController.dispose();
+    matCReplaceController.dispose();
+    songEReplaceController.dispose();
+    songBReplaceController.dispose();
+    songCReplaceController.dispose();
+    songE2ReplaceController.dispose();
+    lengthPaperPlanningController.dispose();
+    sizePaperPLaningController.dispose();
+    quantityPLanningsController.dispose();
+    numberChildController.dispose();
+    dayController.dispose();
+    songEController.dispose();
+    matEController.dispose();
+    songBController.dispose();
+    matBController.dispose();
+    songCController.dispose();
+    matCController.dispose();
+    // _debounce?.cancel();
   }
 
   @override
@@ -287,6 +312,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
               readOnly: true,
             ),
       },
+
       {
         'left':
             () => ValidationPlanning.validateInput(
@@ -297,26 +323,27 @@ class _PLanningDialogState extends State<PLanningDialog> {
             ),
         'middle_1':
             () => ValidationPlanning.validateInput(
-              "Giữa 1 (g)",
-              middle_1OrderController,
+              "Mặt E (g)",
+              matEOrderController,
               Symbols.vertical_align_center,
               readOnly: true,
             ),
         'middle_2':
             () => ValidationPlanning.validateInput(
-              "Giữa 2 (g)",
-              middle_2OrderController,
+              "Mặt B (g)",
+              matBOrderController,
               Symbols.vertical_align_center,
               readOnly: true,
             ),
         'right':
             () => ValidationPlanning.validateInput(
-              "Mặt (g)",
-              matOrderController,
+              "Mặt C (g)",
+              matCOrderController,
               Symbols.vertical_align_top,
               readOnly: true,
             ),
       },
+
       {
         'left':
             () => ValidationPlanning.validateInput(
@@ -347,6 +374,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
               readOnly: true,
             ),
       },
+
       {
         'left':
             () => ValidationPlanning.validateInput(
@@ -377,6 +405,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
               readOnly: true,
             ),
       },
+
       {
         'left':
             () => ValidationPlanning.validateInput(
@@ -453,11 +482,10 @@ class _PLanningDialogState extends State<PLanningDialog> {
             }),
 
         'right':
-            () => ValidationPlanning.dropdownForLayerType(
-              listLayerPaper,
-              numberOfLP,
-              layerTypeLabels,
-              (value) => setState(() => numberOfLP = value!),
+            () => ValidationPlanning.validateInput(
+              "Số Lớp Sóng",
+              fluteController,
+              Symbols.stacks,
             ),
       },
 
@@ -470,20 +498,20 @@ class _PLanningDialogState extends State<PLanningDialog> {
             ),
         'middle_1':
             () => ValidationPlanning.validateInput(
-              "Giữa 1 thay thế (g)",
-              middle_1ReplaceController,
+              "Mặt E thay thế (g)",
+              matEReplaceController,
               Symbols.vertical_align_center,
             ),
         'middle_2':
             () => ValidationPlanning.validateInput(
-              "Giữa 2 thay thế (g)",
-              middle_2ReplaceController,
+              "Mặt B thay thế (g)",
+              matBReplaceController,
               Symbols.vertical_align_center,
             ),
         'right':
             () => ValidationPlanning.validateInput(
-              "Mặt thay thế (g)",
-              matReplaceController,
+              "Mặt C thay thế (g)",
+              matCReplaceController,
               Symbols.vertical_align_top,
             ),
       },
@@ -541,59 +569,66 @@ class _PLanningDialogState extends State<PLanningDialog> {
               Symbols.filter_9_plus,
             ),
       },
+    ];
 
+    final List<Map<String, dynamic>> dinhMuc = [
       {
         'left':
-            () => ValidationPlanning.validateInput(
-              "Sóng E (g)",
-              songEController,
-              Symbols.vertical_align_center,
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Mặt E (g)",
-              matEController,
-              Symbols.vertical_align_top,
-            ),
-
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Sóng B (g)",
-              songBController,
-              Symbols.vertical_align_center,
-            ),
-
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Mặt B (g)",
-              matBController,
-              Symbols.vertical_align_top,
-            ),
-      },
-
-      {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Sóng C (g)",
-              songCController,
-              Symbols.vertical_align_center,
-            ),
-
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Mặt C (g)",
-              matCController,
-              Symbols.vertical_align_top,
-            ),
-
-        'middle_2':
             () => ValidationPlanning.validateInput(
               "Đáy (g)",
               dayController,
               Symbols.vertical_align_bottom,
             ),
 
-        'right': () => SizedBox(),
+        'middle_1':
+            () => ValidationPlanning.validateInput(
+              "Mặt E (g)",
+              matEController,
+              Symbols.vertical_align_center,
+            ),
+
+        'middle_2':
+            () => ValidationPlanning.validateInput(
+              "Mặt B (g)",
+              matBController,
+              Symbols.vertical_align_center,
+            ),
+
+        'right':
+            () => ValidationPlanning.validateInput(
+              "Mặt C (g)",
+              matCController,
+              Symbols.vertical_align_bottom,
+            ),
+      },
+
+      {
+        'left':
+            () => ValidationPlanning.validateInput(
+              "Sóng E (g)",
+              songEController,
+              Symbols.airware,
+            ),
+        'middle_1':
+            () => ValidationPlanning.validateInput(
+              "Sóng B (g)",
+              songBController,
+              Symbols.airware,
+            ),
+
+        'middle_2':
+            () => ValidationPlanning.validateInput(
+              "Sóng C (g)",
+              songCController,
+              Symbols.airware,
+            ),
+
+        'right':
+            () => ValidationPlanning.validateInput(
+              "Sóng E2 (g)",
+              songE2Controller,
+              Symbols.airware,
+            ),
       },
     ];
 
@@ -689,6 +724,63 @@ class _PLanningDialogState extends State<PLanningDialog> {
                       child: Column(
                         children:
                             planning.map((row) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 15),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child:
+                                          row['left'] is Function
+                                              ? row['left']()
+                                              : row['left'],
+                                    ),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['middle_1'] is Function
+                                              ? row['middle_1']()
+                                              : row['middle_1'],
+                                    ),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['middle_2'] is Function
+                                              ? row['middle_2']()
+                                              : row['middle_2'],
+                                    ),
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child:
+                                          row['right'] is Function
+                                              ? row['right']()
+                                              : row['right'],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    //Định mức
+                    Text(
+                      "Định Mức",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xffF2E873),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.all(15),
+                      child: Column(
+                        children:
+                            dinhMuc.map((row) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 15),
                                 child: Row(

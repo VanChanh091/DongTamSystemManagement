@@ -1,3 +1,4 @@
+import 'package:diacritic/diacritic.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +34,13 @@ class ValidationCustomer {
             (value == null || value.isEmpty)) {
           return 'Vui lòng nhập $label';
         }
+        if (label == 'Mã khách hàng') {
+          final withoutDiacritics = removeDiacritics(value!);
+          if (value != withoutDiacritics) {
+            return "Mã khách hàng không được có dấu tiếng Việt";
+          }
+        }
+
         if (checkId && label == 'Mã khách hàng') {
           if (value!.length > 6) {
             return 'Mã khách hàng chỉ được tối đa 6 ký tự';

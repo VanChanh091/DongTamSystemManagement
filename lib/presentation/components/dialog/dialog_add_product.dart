@@ -45,8 +45,8 @@ class _ProductDialogState extends State<ProductDialog> {
     if (widget.product != null) {
       idController.text = widget.product!.productId;
       typeProduct = widget.product!.typeProduct;
-      nameProductController.text = widget.product!.productName;
-      maKhuonController.text = widget.product!.maKhuon;
+      nameProductController.text = widget.product?.productName ?? "";
+      maKhuonController.text = widget.product?.maKhuon ?? "";
       productImageUrl = widget.product!.productImage;
     }
   }
@@ -131,12 +131,12 @@ class _ProductDialogState extends State<ProductDialog> {
         filled: true,
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) {
+        if ((label == "Mã Sản Phẩm") && (value == null || value.isEmpty)) {
           return "Không được để trống";
         }
         if (label == "Mã Sản Phẩm") {
           // Kiểm tra nếu có dấu tiếng Việt
-          final withoutDiacritics = removeDiacritics(value);
+          final withoutDiacritics = removeDiacritics(value!);
           if (value != withoutDiacritics) {
             return "Mã sản phẩm không được có dấu tiếng Việt";
           }
@@ -148,7 +148,7 @@ class _ProductDialogState extends State<ProductDialog> {
           }
         }
         if (checkId && label == "Mã Sản Phẩm") {
-          if (value.length > 10) {
+          if (value!.length > 10) {
             return "Mã sản phẩm chỉ được tối đa 10 ký tự";
           }
         }

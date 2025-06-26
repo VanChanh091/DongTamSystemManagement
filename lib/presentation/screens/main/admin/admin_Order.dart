@@ -384,7 +384,7 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('👤 Tên khách hàng:', order.customer!.customerName),
       _infoRow('🏢 Tên công ty:', order.customer!.companyName),
       _infoRow('📦 Loại sản phẩm:', order.product!.typeProduct),
-      _infoRow('🛒 Tên sản phẩm:', order.product!.productName),
+      _infoRow('🛒 Tên sản phẩm:', order.product!.productName ?? ""),
       _infoRow('📦 Quy cách thùng:', order.QC_box.toString()),
       _infoRow('🔢 Cấn lằn:', order.canLan.toString()),
       _infoRow('🔪 Dao xả:', order.daoXa.toString()),

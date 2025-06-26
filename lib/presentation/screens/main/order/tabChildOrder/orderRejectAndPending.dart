@@ -41,190 +41,217 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
         children: [
           //button
           SizedBox(
-            height: 80,
+            height: 110,
             width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+            child: Column(
               children: [
-                SizedBox(),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(),
 
-                //button
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  child: Row(
-                    children: [
-                      // refresh
-                      ElevatedButton.icon(
-                        onPressed: loadOrders,
-                        label: Text(
-                          "Tải lại",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Icons.refresh, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                    //button
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 10,
                       ),
-                      const SizedBox(width: 10),
+                      child: Row(
+                        children: [
+                          // refresh
+                          ElevatedButton.icon(
+                            onPressed: loadOrders,
+                            label: Text(
+                              "Tải lại",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon: Icon(Icons.refresh, color: Colors.white),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
 
-                      //add
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => OrderDialog(
-                                  order: null,
-                                  onOrderAddOrUpdate: () {
-                                    loadOrders();
-                                  },
-                                ),
-                          );
-                        },
-                        label: Text(
-                          "Thêm mới",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                          //add
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (_) => OrderDialog(
+                                      order: null,
+                                      onOrderAddOrUpdate: () {
+                                        loadOrders();
+                                      },
+                                    ),
+                              );
+                            },
+                            label: Text(
+                              "Thêm mới",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon: Icon(Icons.add, color: Colors.white),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
-                        ),
-                        icon: Icon(Icons.add, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
+                          const SizedBox(width: 10),
 
-                      //update
-                      ElevatedButton.icon(
-                        onPressed:
-                            selectedOrderId == null
-                                ? null
-                                : () async {
-                                  try {
-                                    final orders = await futureOrdersPending;
-                                    final selectedOrder = orders.firstWhere(
-                                      (order) =>
-                                          order.orderId == selectedOrderId,
-                                    );
+                          //update
+                          ElevatedButton.icon(
+                            onPressed:
+                                selectedOrderId == null
+                                    ? null
+                                    : () async {
+                                      try {
+                                        final orders =
+                                            await futureOrdersPending;
+                                        final selectedOrder = orders.firstWhere(
+                                          (order) =>
+                                              order.orderId == selectedOrderId,
+                                        );
 
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => OrderDialog(
-                                            order: selectedOrder,
-                                            onOrderAddOrUpdate: loadOrders,
-                                          ),
-                                    );
-                                  } catch (e) {
-                                    print("Không tìm thấy đơn hàng: $e");
-                                  }
-                                },
-                        label: Text(
-                          "Sửa",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (_) => OrderDialog(
+                                                order: selectedOrder,
+                                                onOrderAddOrUpdate: loadOrders,
+                                              ),
+                                        );
+                                      } catch (e) {
+                                        print("Không tìm thấy đơn hàng: $e");
+                                      }
+                                    },
+                            label: Text(
+                              "Sửa",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon: Icon(
+                              Symbols.construction,
+                              color: Colors.white,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
-                        ),
-                        icon: Icon(Symbols.construction, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
 
-                      const SizedBox(width: 10),
+                          const SizedBox(width: 10),
 
-                      //delete customers
-                      ElevatedButton.icon(
-                        onPressed:
-                            selectedOrderId == null
-                                ? null
-                                : () {
-                                  showDialog(
-                                    context: context,
-                                    builder:
-                                        (_) => AlertDialog(
-                                          title: Text("Xác nhận"),
-                                          content: Text(
-                                            "Bạn có chắc chắn muốn xóa đơn hàng này?",
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed:
-                                                  () => Navigator.pop(context),
-                                              child: Text("Hủy"),
+                          //delete customers
+                          ElevatedButton.icon(
+                            onPressed:
+                                selectedOrderId == null
+                                    ? null
+                                    : () {
+                                      showDialog(
+                                        context: context,
+                                        builder:
+                                            (_) => AlertDialog(
+                                              title: Text("Xác nhận"),
+                                              content: Text(
+                                                "Bạn có chắc chắn muốn xóa đơn hàng này?",
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                      ),
+                                                  child: Text("Hủy"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () async {
+                                                    await OrderService()
+                                                        .deleteOrder(
+                                                          selectedOrderId!,
+                                                        );
+
+                                                    setState(() {
+                                                      selectedOrderId = null;
+                                                      loadOrders();
+                                                    });
+
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text("Xoá"),
+                                                ),
+                                              ],
                                             ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                await OrderService()
-                                                    .deleteOrder(
-                                                      selectedOrderId!,
-                                                    );
-
-                                                setState(() {
-                                                  selectedOrderId = null;
-                                                  loadOrders();
-                                                });
-
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text("Xoá"),
-                                            ),
-                                          ],
-                                        ),
-                                  );
-                                },
-                        label: Text(
-                          "Xóa",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                                      );
+                                    },
+                            label: Text(
+                              "Xóa",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon: Icon(Icons.delete, color: Colors.white),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xffEA4346),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
-                        ),
-                        icon: Icon(Icons.delete, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffEA4346),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+
+                Center(
+                  child: Text(
+                    "Đơn Hàng Đang Chờ Duyệt/Từ Chối",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Color(0xffcfa381),
+                    ),
                   ),
                 ),
+                SizedBox(height: 5),
               ],
             ),
           ),

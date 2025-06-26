@@ -87,128 +87,149 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         children: [
           //button
           SizedBox(
-            height: 80,
+            height: 110,
             width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+            child: Column(
               children: [
-                //dropdown
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  child: Row(
-                    children: [
-                      // dropdown
-                      DropdownButton<String>(
-                        value: searchType,
-                        items:
-                            [
-                              'Tất cả',
-                              "Tên KH",
-                              "Tên SP",
-                              "QC Thùng",
-                              'Đơn giá',
-                            ].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            searchType = value!;
-                            isTextFieldEnabled = searchType != 'Tất cả';
-
-                            if (!isTextFieldEnabled) {
-                              searchController.clear();
-                            }
-                          });
-                        },
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    //dropdown
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 10,
                       ),
-                      SizedBox(width: 10),
+                      child: Row(
+                        children: [
+                          // dropdown
+                          DropdownButton<String>(
+                            value: searchType,
+                            items:
+                                [
+                                  'Tất cả',
+                                  "Tên KH",
+                                  "Tên SP",
+                                  "QC Thùng",
+                                  'Đơn giá',
+                                ].map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                searchType = value!;
+                                isTextFieldEnabled = searchType != 'Tất cả';
 
-                      // input
-                      SizedBox(
-                        width: 250,
-                        height: 50,
-                        child: TextField(
-                          controller: searchController,
-                          enabled: isTextFieldEnabled,
-                          onSubmitted: (_) => searchOrders(),
-                          decoration: InputDecoration(
-                            hintText: 'Tìm kiếm...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                                if (!isTextFieldEnabled) {
+                                  searchController.clear();
+                                }
+                              });
+                            },
+                          ),
+                          SizedBox(width: 10),
+
+                          // input
+                          SizedBox(
+                            width: 250,
+                            height: 50,
+                            child: TextField(
+                              controller: searchController,
+                              enabled: isTextFieldEnabled,
+                              onSubmitted: (_) => searchOrders(),
+                              decoration: InputDecoration(
+                                hintText: 'Tìm kiếm...',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                              ),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10,
+                          ),
+                          const SizedBox(width: 10),
+
+                          // find
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              searchOrders();
+                            },
+                            label: Text(
+                              "Tìm kiếm",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon: Icon(Icons.search, color: Colors.white),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
+                          const SizedBox(width: 10),
 
-                      // find
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          searchOrders();
-                        },
-                        label: Text(
-                          "Tìm kiếm",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                          // refresh
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                futureOrdersAccept = OrderService()
+                                    .getOrderAcceptAndPlanning(currentPage, 30);
+                              });
+                            },
+                            label: Text(
+                              "Tải lại",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon: Icon(Icons.refresh, color: Colors.white),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
-                        ),
-                        icon: Icon(Icons.search, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                          const SizedBox(width: 10),
+                        ],
                       ),
-                      const SizedBox(width: 10),
+                    ),
 
-                      // refresh
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            futureOrdersAccept = OrderService()
-                                .getOrderAcceptAndPlanning(currentPage, 30);
-                          });
-                        },
-                        label: Text(
-                          "Tải lại",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Icons.refresh, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
+                    //button
+                    Container(),
+                  ],
                 ),
 
-                //button
-                Container(),
+                Center(
+                  child: Text(
+                    "Đơn Hàng Đã Duyệt/Chờ Lên Kế Hoạch",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Color(0xffcfa381),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 5),
               ],
             ),
           ),

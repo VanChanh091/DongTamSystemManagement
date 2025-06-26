@@ -97,7 +97,7 @@ class ProductService {
       return productsData
           .map((json) => Product.fromJson(json))
           .where(
-            (product) => product.productName.toLowerCase().contains(
+            (product) => product.productName!.toLowerCase().contains(
               productName.toLowerCase(),
             ),
           )

@@ -6,21 +6,15 @@ import 'package:flutter/material.dart';
 class Planning {
   final int planningId;
   final int runningPlan;
-  final TimeOfDay timeRunning;
-  final String? dayReplace;
-  final String? middle_1Replace;
-  final String? middle_2Replace;
-  final String? matReplace;
-  final String? songEReplace;
-  final String? songBReplace;
-  final String? songCReplace;
-  final String? songE2Replace;
-  final double lengthPaperPlanning;
-  final double sizePaperPLaning;
-  final int numberChild;
   final int? ghepKho;
-  final String chooseMachine;
   final int? sortPlanning;
+  final int numberChild;
+  final double lengthPaperPlanning, sizePaperPLaning;
+  final String? dayReplace;
+  final String? matEReplace, matBReplace, matCReplace;
+  final String? songEReplace, songBReplace, songCReplace, songE2Replace;
+  final String chooseMachine;
+  final TimeOfDay timeRunning;
 
   final String orderId;
   final Order? order;
@@ -31,9 +25,9 @@ class Planning {
     required this.runningPlan,
     required this.timeRunning,
     this.dayReplace,
-    this.middle_1Replace,
-    this.middle_2Replace,
-    this.matReplace,
+    this.matEReplace,
+    this.matBReplace,
+    this.matCReplace,
     this.songEReplace,
     this.songBReplace,
     this.songCReplace,
@@ -54,11 +48,11 @@ class Planning {
     final parts = [
       dayReplace,
       songEReplace,
-      middle_1Replace,
+      matEReplace,
       songBReplace,
-      middle_2Replace,
+      matBReplace,
       songCReplace,
-      matReplace,
+      matCReplace,
       songE2Replace,
     ];
     final formattedParts = <String>[];
@@ -112,9 +106,9 @@ class Planning {
       runningPlan: json['runningPlan'] ?? 0,
       timeRunning: parseTimeOfDay(json['timeRunning']),
       dayReplace: json['dayReplace'] ?? "",
-      middle_1Replace: json['middle_1Replace'] ?? "",
-      middle_2Replace: json['middle_2Replace'] ?? "",
-      matReplace: json['matReplace'] ?? "",
+      matEReplace: json['matEReplace'] ?? "",
+      matBReplace: json['matBReplace'] ?? "",
+      matCReplace: json['matCReplace'] ?? "",
       songEReplace: json['songEReplace'] ?? "",
       songBReplace: json['songBReplace'] ?? "",
       songCReplace: json['songCReplace'] ?? "",
@@ -139,9 +133,9 @@ class Planning {
       'runningPlan': runningPlan,
       'timeRunning': '${timeRunning.hour}:${timeRunning.minute}',
       'dayReplace': dayReplace,
-      'middle_1Replace': middle_1Replace,
-      'middle_2Replace': middle_2Replace,
-      'matReplace': matReplace,
+      'matEReplace': matEReplace,
+      'matBReplace': matBReplace,
+      'matCReplace': matCReplace,
       'songEReplace': songEReplace,
       'songBReplace': songBReplace,
       'songCReplace': songCReplace,

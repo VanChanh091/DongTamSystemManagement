@@ -91,6 +91,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             // Email
                             TextFormField(
                               controller: emailController,
+                              textInputAction: TextInputAction.next,
+                              onFieldSubmitted: (_) {
+                                FocusScope.of(context).nextFocus();
+                              },
                               decoration: InputDecoration(
                                 labelText: 'Email',
                                 prefixIcon: Icon(Icons.email),
@@ -108,6 +112,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextFormField(
                               controller: passwordController,
                               obscureText: isObscureText,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (value) {
+                                if (_formKey.currentState!.validate()) {
+                                  login();
+                                }
+                              },
                               decoration: InputDecoration(
                                 labelText: 'Password',
                                 hintText: 'Nhập mật khẩu',

@@ -573,8 +573,8 @@ class _ProductPageState extends State<ProductPage> {
                             ),
                             DataCell(styleCell(product.productId)),
                             DataCell(styleCell(product.typeProduct)),
-                            DataCell(styleCell(product.productName)),
-                            DataCell(styleCell(product.maKhuon)),
+                            DataCell(styleCell(product.productName ?? "")),
+                            DataCell(styleCell(product.maKhuon ?? "")),
                             DataCell(
                               product.productImage != null &&
                                       product.productImage!.isNotEmpty

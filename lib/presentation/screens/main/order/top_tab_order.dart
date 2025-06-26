@@ -23,8 +23,8 @@ class _TopTabOrderState extends State<TopTabOrder> {
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
               tabs: [
-                Tab(text: "Chấp nhận/Đã lên kế hoạch"),
-                Tab(text: "Chờ duyệt/Từ chối"),
+                Tab(text: "Trạng Thái Đơn Hàng"),
+                Tab(text: "Chờ Duyệt/Từ Chối"),
               ],
             ),
           ),
