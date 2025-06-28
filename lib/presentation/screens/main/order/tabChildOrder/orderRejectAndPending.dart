@@ -41,26 +41,43 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
         children: [
           //button
           SizedBox(
-            height: 110,
+            height: 80,
             width: double.infinity,
 
             child: Column(
               children: [
                 SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(),
 
-                    //button
+                Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SizedBox(),
+                          //title
+                          Text(
+                            "ĐƠN HÀNG ĐANG CHỜ DUYỆT/TỪ CHỐI",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                              color: Color(0xffcfa381),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Các nút bên phải
                     Container(
                       padding: EdgeInsets.symmetric(
                         vertical: 8,
                         horizontal: 10,
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          // refresh
+                          // nút refresh
                           ElevatedButton.icon(
                             onPressed: loadOrders,
                             label: Text(
@@ -85,7 +102,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                           ),
                           const SizedBox(width: 10),
 
-                          //add
+                          // nút thêm
                           ElevatedButton.icon(
                             onPressed: () {
                               showDialog(
@@ -93,9 +110,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                 builder:
                                     (_) => OrderDialog(
                                       order: null,
-                                      onOrderAddOrUpdate: () {
-                                        loadOrders();
-                                      },
+                                      onOrderAddOrUpdate: loadOrders,
                                     ),
                               );
                             },
@@ -121,7 +136,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                           ),
                           const SizedBox(width: 10),
 
-                          //update
+                          // nút sửa
                           ElevatedButton.icon(
                             onPressed:
                                 selectedOrderId == null
@@ -170,10 +185,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                               ),
                             ),
                           ),
-
                           const SizedBox(width: 10),
 
-                          //delete customers
+                          // nút xóa
                           ElevatedButton.icon(
                             onPressed:
                                 selectedOrderId == null
@@ -201,12 +215,10 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                         .deleteOrder(
                                                           selectedOrderId!,
                                                         );
-
                                                     setState(() {
                                                       selectedOrderId = null;
                                                       loadOrders();
                                                     });
-
                                                     Navigator.pop(context);
                                                   },
                                                   child: Text("Xoá"),
@@ -240,18 +252,6 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     ),
                   ],
                 ),
-
-                Center(
-                  child: Text(
-                    "Đơn Hàng Đang Chờ Duyệt/Từ Chối",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Color(0xffcfa381),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 5),
               ],
             ),
           ),

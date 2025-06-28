@@ -669,10 +669,22 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                             ),
                             DataCell(styleCell(user.fullName)),
                             DataCell(styleCell(user.email)),
-                            DataCell(styleCell(user.sex ?? "")),
+                            DataCell(
+                              styleCell(
+                                UserAdminModel.formatSex(user.sex ?? ""),
+                              ),
+                            ),
                             DataCell(styleCell(user.phone ?? "")),
-                            DataCell(styleCell(user.role)),
-                            DataCell(styleCell(user.permissions.join(', '))),
+                            DataCell(
+                              styleCell(UserAdminModel.formatRole(user.role)),
+                            ),
+                            DataCell(
+                              styleCell(
+                                UserAdminModel.formatPermissions(
+                                  user.permissions,
+                                ),
+                              ),
+                            ),
                             DataCell(
                               user.avatar != null && user.avatar!.isNotEmpty
                                   ? TextButton(

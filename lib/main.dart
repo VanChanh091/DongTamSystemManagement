@@ -9,6 +9,7 @@ void main() async {
   await secureStorage.deleteToken();
 
   String? token = await secureStorage.getToken();
+
   runApp(MyApp(isLoggedIn: token != null));
 }
 

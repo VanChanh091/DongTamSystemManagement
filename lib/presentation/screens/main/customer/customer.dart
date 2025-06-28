@@ -393,7 +393,7 @@ class _CustomerPageState extends State<CustomerPage> {
 
                                                           await Future.delayed(
                                                             const Duration(
-                                                              milliseconds: 500,
+                                                              seconds: 1,
                                                             ),
                                                           );
 

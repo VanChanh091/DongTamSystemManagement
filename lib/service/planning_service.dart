@@ -13,6 +13,8 @@ class PlanningService {
     ),
   );
 
+  //===============================PLANNING ORDER====================================
+
   //get status order
   Future<List<Order>> getOrderAccept() async {
     try {
@@ -62,6 +64,8 @@ class PlanningService {
     }
   }
 
+  //===============================PRODUCTION QUEUE====================================
+
   //get planning by machine
   Future<List<Planning>> getPlanningByMachine(String machine) async {
     try {
@@ -89,56 +93,6 @@ class PlanningService {
           .toList();
     } catch (e) {
       throw Exception('Failed to get planning: $e');
-    }
-  }
-
-  //get planning by id
-  Future<bool> changeMachinePlanning(
-    List<int> planningIds,
-    String newMachine,
-  ) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        "/api/planning/changeMachine",
-        data: {"planningIds": planningIds, "newMachine": newMachine},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      return true;
-    } catch (e) {
-      throw Exception('Failed to update orders: $e');
-    }
-  }
-
-  //update index planning
-  Future<bool> updateIndexPlanning(
-    List<Map<String, dynamic>> updateIndex,
-    String machine,
-  ) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        "/api/planning/updateIndex",
-        data: {"updateIndex": updateIndex, 'machine': machine},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      return true;
-    } catch (e) {
-      throw Exception('Failed to update planning: $e');
     }
   }
 
@@ -232,6 +186,81 @@ class PlanningService {
           .toList();
     } catch (e) {
       throw Exception('Failed to get planning by ghepKho: $e');
+    }
+  }
+
+  //change machine
+  Future<bool> changeMachinePlanning(
+    List<int> planningIds,
+    String newMachine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/planning/changeMachine",
+        data: {"planningIds": planningIds, "newMachine": newMachine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      throw Exception('Failed to update orders: $e');
+    }
+  }
+
+  //update index planning
+  Future<bool> updateIndexPlanning(
+    List<Map<String, dynamic>> updateIndex,
+    String machine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/planning/updateIndex",
+        data: {"updateIndex": updateIndex, 'machine': machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      throw Exception('Failed to update planning: $e');
+    }
+  }
+
+  //pause order
+  Future<bool> pauseOrAcceptLackQty(
+    List<int> planningIds,
+    String newStatus,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/planning/pauseOrAcceptLackQty",
+        data: {'planningIds': planningIds, "newStatus": newStatus},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      throw Exception('Failed to pause machine: $e');
     }
   }
 }

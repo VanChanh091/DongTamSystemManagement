@@ -15,6 +15,45 @@ class UserAdminModel {
     required this.permissions,
   });
 
+  static String formatSex(String? sex) {
+    switch (sex) {
+      case "male":
+        return 'Nam';
+      case "female":
+        return 'Nữ';
+      default:
+        return '';
+    }
+  }
+
+  static String formatRole(String role) {
+    switch (role) {
+      case 'admin':
+        return 'Quản trị';
+      case 'manager':
+        return 'Quản lý';
+      case 'user':
+        return 'Người dùng';
+      default:
+        return role;
+    }
+  }
+
+  static String formatPermissions(List<String> permissions) {
+    final permissionMap = {
+      "sale": "Kinh doanh",
+      "plan": "Kế hoạch",
+      "HR": "Nhân sự",
+      "accountant": "Kế toán",
+      "design": "Thiết kế",
+      "production": "Sản xuất",
+    };
+
+    return permissions
+        .map((position) => permissionMap[position] ?? position)
+        .join(', ');
+  }
+
   //change JSON from api to object User
   factory UserAdminModel.fromJson(Map<String, dynamic> json) {
     return UserAdminModel(

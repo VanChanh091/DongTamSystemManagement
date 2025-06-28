@@ -21,6 +21,7 @@ class CustomerDialog extends StatefulWidget {
 class _CustomerDialogState extends State<CustomerDialog> {
   final formKey = GlobalKey<FormState>();
   List<Customer> allCustomers = [];
+  bool isLoading = true;
 
   final _idController = TextEditingController();
   final _nameController = TextEditingController();
@@ -47,24 +48,15 @@ class _CustomerDialogState extends State<CustomerDialog> {
     fetchAllCustomer();
   }
 
-  @override
-  void dispose() {
-    _idController.dispose();
-    _nameController.dispose();
-    _companyNameController.dispose();
-    _companyAddressController.dispose();
-    _shippingAddressController.dispose();
-    _mstController.dispose();
-    _phoneController.dispose();
-    _cskhController.dispose();
-    super.dispose();
-  }
-
   Future<void> fetchAllCustomer() async {
     try {
       allCustomers = await CustomerService().getAllCustomers();
     } catch (e) {
-      print("Lỗi lấy danh sách khách hàng: $e");
+      print("Lỗi khi tải danh sách khách hàng: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -157,6 +149,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       if (widget.customer == null) {
         // add
         await CustomerService().addCustomer(newCustomer.toJson());
+
         showSnackBarSuccess(context, "Thêm thành công");
       } else {
         // update
@@ -176,6 +169,19 @@ class _CustomerDialogState extends State<CustomerDialog> {
   }
 
   @override
+  void dispose() {
+    _idController.dispose();
+    _nameController.dispose();
+    _companyNameController.dispose();
+    _companyAddressController.dispose();
+    _shippingAddressController.dispose();
+    _mstController.dispose();
+    _phoneController.dispose();
+    _cskhController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isEdit = widget.customer != null;
 
@@ -191,100 +197,107 @@ class _CustomerDialogState extends State<CustomerDialog> {
       content: SizedBox(
         width: 700,
         height: 550,
-        child: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                const SizedBox(height: 15),
-                ValidationCustomer.validateInput(
-                  "Mã khách hàng",
-                  _idController,
-                  Icons.badge,
-                  readOnly: isEdit,
-                  checkId: !isEdit,
+        child:
+            isLoading
+                ? Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "Mã khách hàng",
+                          _idController,
+                          Icons.badge,
+                          readOnly: isEdit,
+                          checkId: !isEdit,
+                        ),
+                        const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "Tên khách hàng",
+                          _nameController,
+                          Icons.person,
+                        ),
+                        const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "Tên công ty",
+                          _companyNameController,
+                          Icons.business,
+                        ),
+                        const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "Địa chỉ công ty",
+                          _companyAddressController,
+                          Icons.location_city,
+                        ),
+                        const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "Địa chỉ giao hàng",
+                          _shippingAddressController,
+                          Icons.local_shipping,
+                        ),
+                        const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "MST",
+                          _mstController,
+                          Icons.numbers,
+                          allCustomers: allCustomers,
+                          currentCustomerId: widget.customer?.customerId,
+                        ),
+                        const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "SDT",
+                          _phoneController,
+                          Icons.phone,
+                        ),
+                        const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "CSKH",
+                          _cskhController,
+                          Icons.support_agent,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 15),
-                ValidationCustomer.validateInput(
-                  "Tên khách hàng",
-                  _nameController,
-                  Icons.person,
-                ),
-                const SizedBox(height: 15),
-                ValidationCustomer.validateInput(
-                  "Tên công ty",
-                  _companyNameController,
-                  Icons.business,
-                ),
-                const SizedBox(height: 15),
-                ValidationCustomer.validateInput(
-                  "Địa chỉ công ty",
-                  _companyAddressController,
-                  Icons.location_city,
-                ),
-                const SizedBox(height: 15),
-                ValidationCustomer.validateInput(
-                  "Địa chỉ giao hàng",
-                  _shippingAddressController,
-                  Icons.local_shipping,
-                ),
-                const SizedBox(height: 15),
-                ValidationCustomer.validateInput(
-                  "MST",
-                  _mstController,
-                  Icons.numbers,
-                  allCustomers: allCustomers,
-                ),
-                const SizedBox(height: 15),
-                ValidationCustomer.validateInput(
-                  "SDT",
-                  _phoneController,
-                  Icons.phone,
-                ),
-                const SizedBox(height: 15),
-                ValidationCustomer.validateInput(
-                  "CSKH",
-                  _cskhController,
-                  Icons.support_agent,
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
       actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actionsAlignment: MainAxisAlignment.spaceBetween,
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            "Hủy",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.red,
-            ),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: Text(
-            isEdit ? "Cập nhật" : "Thêm",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ],
+      actions:
+          isLoading
+              ? []
+              : [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    "Hủy",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    isEdit ? "Cập nhật" : "Thêm",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
     );
   }
 }

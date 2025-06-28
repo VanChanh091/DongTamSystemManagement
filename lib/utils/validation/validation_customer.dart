@@ -10,6 +10,7 @@ class ValidationCustomer {
     bool readOnly = false,
     bool checkId = false,
     List<Customer>? allCustomers,
+    String? currentCustomerId, // 👈 thêm dòng này
   }) {
     return TextFormField(
       controller: controller,
@@ -34,31 +35,46 @@ class ValidationCustomer {
             (value == null || value.isEmpty)) {
           return 'Vui lòng nhập $label';
         }
+
         if (label == 'Mã khách hàng') {
           final withoutDiacritics = removeDiacritics(value!);
           if (value != withoutDiacritics) {
             return "Mã khách hàng không được có dấu tiếng Việt";
           }
-        }
-
-        if (checkId && label == 'Mã khách hàng') {
-          if (value!.length > 6) {
+          if (checkId && value.length > 6) {
             return 'Mã khách hàng chỉ được tối đa 6 ký tự';
           }
         }
+
         if (label == "SDT" && value != null && value.isNotEmpty) {
           if (!RegExp(r'^\d+$').hasMatch(value)) {
             return 'Số điện thoại chỉ được chứa chữ số';
           }
         }
-        if (label == "MST" && value != null && value.isNotEmpty) {
-          if (!RegExp(r'^\d+$').hasMatch(value)) {
-            return 'Mã số thuế chỉ được chứa chữ số';
-          }
 
-          final isDuplicate = allCustomers?.any((c) => c.mst == value) ?? false;
+        if (label == "MST" && value != null && value.trim().isNotEmpty) {
+          final trimmed = value.trim();
+
+          final isDuplicate =
+              allCustomers?.any((c) {
+                if (currentCustomerId != null &&
+                    c.customerId == currentCustomerId) {
+                  return false;
+                }
+
+                final customerMst = c.mst.trim();
+                if (customerMst.isEmpty) return false;
+
+                return customerMst == trimmed;
+              }) ??
+              false;
+
           if (isDuplicate) {
             return 'Mã số thuế đã tồn tại';
+          }
+
+          if (!RegExp(r'^\d+$').hasMatch(trimmed)) {
+            return 'Mã số thuế chỉ được chứa chữ số';
           }
         }
 

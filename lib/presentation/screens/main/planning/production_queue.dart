@@ -26,6 +26,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
   bool isTextFieldEnabled = false;
   List<String> selectedPlanningIds = [];
   final formatter = DateFormat('dd/MM/yyyy');
+  final Map<String, int> orderIdToPlanningId = {};
   final DataGridController dataGridController = DataGridController();
 
   @override
@@ -36,7 +37,16 @@ class _ProductionQueueState extends State<ProductionQueue> {
 
   void loadPlanning() {
     setState(() {
-      futurePlanning = PlanningService().getPlanningByMachine(machine);
+      futurePlanning = PlanningService().getPlanningByMachine(machine).then((
+        planningList,
+      ) {
+        orderIdToPlanningId.clear();
+        for (var planning in planningList) {
+          orderIdToPlanningId[planning.orderId] = planning.planningId;
+        }
+
+        return planningList;
+      });
     });
   }
 
@@ -402,7 +412,31 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                     onChangeMachine: loadPlanning,
                                   ),
                             );
-                          } else if (value == 'export') {
+                          } else if (value == 'pause') {
+                            await handlePlanningAction(
+                              context: context,
+                              selectedPlanningIds: selectedPlanningIds,
+                              status: "pending",
+                              title: "Xác nhận dừng sản xuất",
+                              message:
+                                  "Bạn có chắc chắn muốn dừng sản xuất các kế hoạch đã chọn không?",
+                              successMessage: "Dừng sản xuất thành công",
+                              errorMessage: "Có lỗi xảy ra khi dừng sản xuất",
+                              onSuccess: loadPlanning,
+                            );
+                          } else if (value == 'acceptLack') {
+                            await handlePlanningAction(
+                              context: context,
+                              selectedPlanningIds: selectedPlanningIds,
+                              status: "complete",
+                              title: "Xác nhận thiếu số lượng",
+                              message:
+                                  "Bạn có chắc chắn muốn chấp nhận thiếu không?",
+                              successMessage: "Thực thi thành công",
+                              errorMessage: "Có lỗi xảy ra khi thực thi",
+                              onSuccess: loadPlanning,
+                            );
+                          } else if (value == 'exportPDF') {
                             print("Xuất PDF");
                           }
                         },
@@ -412,11 +446,25 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                 value: 'change',
                                 child: ListTile(
                                   leading: Icon(Symbols.construction),
-                                  title: Text('Chuyển máy'),
+                                  title: Text('Chuyển Máy'),
                                 ),
                               ),
                               PopupMenuItem<String>(
-                                value: 'export',
+                                value: 'pause',
+                                child: ListTile(
+                                  leading: Icon(Symbols.pause_circle),
+                                  title: Text('Dừng Chạy Đơn'),
+                                ),
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'acceptLack',
+                                child: ListTile(
+                                  leading: Icon(Icons.approval_outlined),
+                                  title: Text('Chấp Nhận Thiếu Đơn'),
+                                ),
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'exportPDF',
                                 child: ListTile(
                                   leading: Icon(Symbols.print),
                                   title: Text('Xuất PDF'),
@@ -487,12 +535,75 @@ class _ProductionQueueState extends State<ProductionQueue> {
       ),
     );
   }
-}
 
-Widget styleText(String text) {
-  return Text(text, style: TextStyle(fontWeight: FontWeight.bold));
-}
+  Widget styleText(String text) {
+    return Text(text, style: TextStyle(fontWeight: FontWeight.bold));
+  }
 
-Widget styleCell(double? width, String text) {
-  return SizedBox(width: width, child: Text(text, maxLines: 3));
+  Widget styleCell(double? width, String text) {
+    return SizedBox(width: width, child: Text(text, maxLines: 3));
+  }
+
+  Future<void> handlePlanningAction({
+    required BuildContext context,
+    required List<String> selectedPlanningIds,
+    required String status,
+    required String title,
+    required String message,
+    required String successMessage,
+    required String errorMessage,
+    required VoidCallback onSuccess,
+  }) async {
+    if (selectedPlanningIds.isEmpty) {
+      showSnackBarError(context, "Chưa chọn kế hoạch cần thực hiện");
+      return;
+    }
+    // print('Selected planning IDs: $orderIdToPlanningId');
+
+    bool confirm =
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(title),
+              content: Text(message),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("Huỷ"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text("Xác nhận"),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+
+    if (confirm) {
+      try {
+        final planningIds =
+            selectedPlanningIds
+                .map((orderId) => orderIdToPlanningId[orderId])
+                .whereType<int>()
+                .toList();
+
+        // print('Planning IDs to send: $planningIds');
+
+        final success = await PlanningService().pauseOrAcceptLackQty(
+          planningIds,
+          status,
+        );
+
+        if (success) {
+          showSnackBarSuccess(context, successMessage);
+          onSuccess();
+        }
+      } catch (e) {
+        showSnackBarError(context, errorMessage);
+      }
+    }
+  }
 }
