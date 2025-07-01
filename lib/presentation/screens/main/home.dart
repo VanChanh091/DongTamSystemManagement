@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_Order.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_paperFactor.dart';
+import 'package:dongtam/presentation/screens/main/admin/top_tab_admin.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
     WaitingForPlanning(),
     ProductionQueue(),
     AdminOrder(),
-    AdminPaperFactor(),
+    TopTabAdmin(),
     AdminMangeUser(),
     UserPage(),
   ];
@@ -257,7 +257,7 @@ class _HomePageState extends State<HomePage> {
             ),
         if (_isHovered && _isApprovalExpanded) ...[
           _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 6),
-          _buildSubMenuItem(Icons.gif_box, "Định Mức", 7),
+          _buildSubMenuItem(Icons.gif_box, "Định Mức và Máy Chạy", 7),
           _buildSubMenuItem(Icons.person, "Người Dùng", 8),
         ],
       ],

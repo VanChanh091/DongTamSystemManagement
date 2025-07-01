@@ -76,7 +76,7 @@ class _UpdateAdminPFDialogState extends State<UpdateAdminPFDialog> {
         originalPaperFactorId,
         updatedAdminPaperFactor.toJson(),
       );
-      showSnackBarSuccess(context, "Lưu thành công");
+      showSnackBarSuccess(context, "Cập nhật thành thành công");
 
       widget.onPaperFactorUpdate();
       Navigator.of(context).pop();

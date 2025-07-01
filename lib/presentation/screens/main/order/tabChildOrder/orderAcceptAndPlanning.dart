@@ -234,6 +234,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                 } else if (snapshot.hasError) {
                   return Center(child: Text("Lỗi: ${snapshot.error}"));
                 } else if (!snapshot.hasData ||
+                    //get data from paging
                     snapshot.data!['orders'].isEmpty) {
                   return Center(child: Text("Không có đơn hàng nào"));
                 }

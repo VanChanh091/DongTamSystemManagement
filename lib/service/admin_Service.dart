@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
+import 'package:dongtam/data/models/admin/admin_machinePaper_model.dart';
 import 'package:dongtam/data/models/admin/admin_paperFactor_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
@@ -139,6 +140,121 @@ class AdminService {
       await dioService.delete(
         "/api/admin/deletePF",
         queryParameters: {"id": paperFactorId},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      throw Exception('Failed to delete paper factor: $e');
+    }
+  }
+
+  //===============================Machine====================================
+
+  //get all machine
+  Future<List<AdminMachinePaperModel>> getAllMachine() async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/admin/getAllMachine',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final data = response.data['data'] as List;
+      return data.map((e) => AdminMachinePaperModel.fromJson(e)).toList();
+    } catch (e) {
+      throw Exception('Failed to load paper factors: $e');
+    }
+  }
+
+  //get machine by Id
+  Future<List<AdminMachinePaperModel>> getMachineById(int machineId) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/admin/getMachineById',
+        queryParameters: {'machineId': machineId},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final data = response.data['data'] as List;
+      return data
+          .map((json) => AdminMachinePaperModel.fromJson(json))
+          .where((machine) => machine.machineId == machineId)
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to load paper factors: $e');
+    }
+  }
+
+  //add machine
+  Future<bool> addMachine(Map<String, dynamic> machine) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.post(
+        "/api/admin/createMachine",
+        data: machine,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      throw Exception('Failed to add paper factor: $e');
+    }
+  }
+
+  //update machine
+  Future<bool> updateMachine(
+    int machineId,
+    Map<String, dynamic> machineUpdate,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/admin/updateMachineById",
+        queryParameters: {"machineId": machineId},
+        data: machineUpdate,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      throw Exception('Failed to update paper factor: $e');
+    }
+  }
+
+  //delete machine
+  Future<bool> deleteMachine(int machineId) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.delete(
+        "/api/admin/deleteMachineById",
+        queryParameters: {"machineId": machineId},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

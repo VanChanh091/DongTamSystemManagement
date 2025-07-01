@@ -564,10 +564,10 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}");
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("Lỗi: ${snapshot.error}"));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('Không có dữ liệu'));
                   }
 
                   final data = snapshot.data!;
@@ -577,7 +577,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                     child: DataTable(
                       columnSpacing: 25,
                       headingRowColor: WidgetStatePropertyAll(
-                        Color(0xffcfa381),
+                        Color(0xFFCFA381),
                       ),
                       columns: [
                         DataColumn(
