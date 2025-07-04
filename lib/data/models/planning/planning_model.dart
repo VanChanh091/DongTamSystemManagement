@@ -2,19 +2,20 @@ import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/paper_consumption_norm_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Planning {
   final int planningId;
+  final DateTime? dayStart;
+  final TimeOfDay? timeRunning;
   final int runningPlan;
   final int? ghepKho;
   final int? sortPlanning;
-  final int numberChild;
   final double lengthPaperPlanning, sizePaperPLaning;
   final String? dayReplace;
   final String? matEReplace, matBReplace, matCReplace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
   final String chooseMachine;
-  final TimeOfDay timeRunning;
 
   final String orderId;
   final Order? order;
@@ -23,7 +24,8 @@ class Planning {
   Planning({
     required this.planningId,
     required this.runningPlan,
-    required this.timeRunning,
+    this.timeRunning,
+    this.dayStart,
     this.dayReplace,
     this.matEReplace,
     this.matBReplace,
@@ -35,9 +37,9 @@ class Planning {
     required this.lengthPaperPlanning,
     required this.sizePaperPLaning,
     required this.ghepKho,
-    required this.numberChild,
     required this.chooseMachine,
     this.sortPlanning,
+
     required this.orderId,
     this.order,
     this.paperConsumptionNorm,
@@ -102,7 +104,7 @@ class Planning {
   factory Planning.fromJson(Map<String, dynamic> json) {
     return Planning(
       planningId: json["planningId"] ?? 0,
-      orderId: json['orderId'] ?? "",
+      dayStart: DateTime.parse(json['dayStart']),
       runningPlan: json['runningPlan'] ?? 0,
       timeRunning: parseTimeOfDay(json['timeRunning']),
       dayReplace: json['dayReplace'] ?? "",
@@ -115,23 +117,24 @@ class Planning {
       songE2Replace: json['songE2Replace'] ?? "",
       lengthPaperPlanning: toDouble(json['lengthPaperPlanning']),
       sizePaperPLaning: toDouble((json['sizePaperPLaning'])),
-      numberChild: json['numberChild'] ?? 0,
       ghepKho: json['ghepKho'] ?? "",
       chooseMachine: json['chooseMachine'] ?? "",
       sortPlanning: json['sortPlanning'] ?? 0,
+
+      orderId: json['orderId'] ?? "",
+      order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
       paperConsumptionNorm:
           json['norm'] != null
               ? PaperConsumptionNorm.fromJson(json['norm'])
               : null,
-      order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'orderId': orderId,
+      "dayStart": DateFormat('yyyy-MM-dd').format(dayStart!), //
       'runningPlan': runningPlan,
-      'timeRunning': '${timeRunning.hour}:${timeRunning.minute}',
+      'timeRunning': '${timeRunning!.hour}:${timeRunning!.minute}',
       'dayReplace': dayReplace,
       'matEReplace': matEReplace,
       'matBReplace': matBReplace,
@@ -142,11 +145,12 @@ class Planning {
       'songE2Replace': songE2Replace,
       'lengthPaperPlanning': lengthPaperPlanning,
       'sizePaperPLaning': sizePaperPLaning,
-      'numberChild': numberChild,
       'ghepKho': ghepKho,
       'chooseMachine': chooseMachine,
-      'paperConsumptionNorm': paperConsumptionNorm?.toJson(),
+
+      'orderId': orderId,
       'order': order?.toJson(),
+      'paperConsumptionNorm': paperConsumptionNorm?.toJson(),
     };
   }
 }

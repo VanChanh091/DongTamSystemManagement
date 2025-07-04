@@ -61,6 +61,14 @@ class _ProductionQueueState extends State<ProductionQueue> {
       case 'Tất cả':
         loadPlanning();
         break;
+      case 'Mã Đơn Hàng':
+        setState(() {
+          futurePlanning = PlanningService().getPlanningByOrderId(
+            keyword,
+            machine,
+          );
+        });
+        break;
       case 'Tên KH':
         setState(() {
           futurePlanning = PlanningService().getPlanningByCustomerName(
@@ -125,13 +133,17 @@ class _ProductionQueueState extends State<ProductionQueue> {
                     children: [
                       //dropdown
                       SizedBox(
-                        width: 150,
+                        width: 160,
                         child: DropdownButtonFormField<String>(
                           value: searchType,
                           items:
-                              ['Tất cả', 'Tên KH', "Sóng", 'Khổ Cấp Giấy'].map((
-                                String value,
-                              ) {
+                              [
+                                'Tất cả',
+                                'Mã Đơn Hàng',
+                                'Tên KH',
+                                "Sóng",
+                                'Khổ Cấp Giấy',
+                              ].map((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value),
@@ -350,13 +362,16 @@ class _ProductionQueueState extends State<ProductionQueue> {
 
                       //choose machine
                       SizedBox(
-                        width: 150,
+                        width: 175,
                         child: DropdownButtonFormField<String>(
                           value: machine,
                           items:
-                              ['Máy 1350', "Máy 1900", "Máy 2 Lớp"].map((
-                                String value,
-                              ) {
+                              [
+                                'Máy 1350',
+                                "Máy 1900",
+                                "Máy 2 Lớp",
+                                "Máy Quấn Cuồn",
+                              ].map((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value),

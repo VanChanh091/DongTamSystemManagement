@@ -26,7 +26,12 @@ class PLanningDialog extends StatefulWidget {
 class _PLanningDialogState extends State<PLanningDialog> {
   final formKey = GlobalKey<FormState>();
   late String originalOrderId;
-  final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp'];
+  final List<String> machineList = [
+    'Máy 1350',
+    'Máy 1900',
+    'Máy 2 Lớp',
+    "Máy Quấn Cuồn",
+  ];
 
   //order
   final orderIdController = TextEditingController();
@@ -53,7 +58,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
   //planning
   final ghepKhoController = TextEditingController();
-  final timeRunningController = TextEditingController();
   final fluteController = TextEditingController();
   late String chooseMachine = 'Máy 1350';
   final dayReplaceController = TextEditingController();
@@ -68,7 +72,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final sizePaperPLaningController = TextEditingController();
   final runningPlanController = TextEditingController();
   final quantityPLanningsController = TextEditingController();
-  final numberChildController = TextEditingController();
   final numberLayerPaperController = TextEditingController();
 
   //paper consumption norm
@@ -86,7 +89,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
     super.initState();
     orderInitState();
 
-    // addListenerForField();
     fillDataOrderToPlanning();
   }
 
@@ -111,8 +113,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
         .toStringAsFixed(1);
     sizeOrderController.text = widget.order!.paperSizeManufacture
         .toStringAsFixed(1);
-    quantityOrderController.text = widget.order!.quantityManufacture
-        .toStringAsFixed(1);
+    quantityOrderController.text = widget.order!.quantityManufacture.toString();
     totalPriceOrderController.text = widget.order!.totalPrice.toStringAsFixed(
       1,
     );
@@ -188,11 +189,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     final newPlanning = Planning(
       planningId: 0,
+      dayStart: DateTime.now(),
       runningPlan: int.tryParse(runningPlanController.text) ?? 0,
-      timeRunning: TimeOfDay(
-        hour: int.parse(timeRunningController.text.split(':')[0]),
-        minute: int.parse(timeRunningController.text.split(':')[1]),
-      ),
+      timeRunning: const TimeOfDay(hour: 0, minute: 0),
       dayReplace: dayReplaceController.text,
       matEReplace: matEReplaceController.text,
       matBReplace: matBReplaceController.text,
@@ -204,9 +203,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
       lengthPaperPlanning:
           double.tryParse(lengthPaperPlanningController.text) ?? 0,
       sizePaperPLaning: double.tryParse(sizePaperPLaningController.text) ?? 0,
-      numberChild: int.tryParse(numberChildController.text) ?? 0,
       ghepKho: int.tryParse(ghepKhoController.text) ?? 0,
       chooseMachine: chooseMachine,
+
       orderId: widget.order!.orderId,
       order: widget.order,
       paperConsumptionNorm: newPaperConsumptionNorm,
@@ -236,6 +235,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   @override
   void dispose() {
     super.dispose();
+    //order
     orderIdController.dispose();
     customerNameController.dispose();
     companyNameController.dispose();
@@ -255,8 +255,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
     sizeOrderController.dispose();
     quantityOrderController.dispose();
     totalPriceOrderController.dispose();
-    runningPlanController.dispose();
-    timeRunningController.dispose();
+    //planning
+    ghepKhoController.dispose();
     dayReplaceController.dispose();
     matEReplaceController.dispose();
     matBReplaceController.dispose();
@@ -267,8 +267,10 @@ class _PLanningDialogState extends State<PLanningDialog> {
     songE2ReplaceController.dispose();
     lengthPaperPlanningController.dispose();
     sizePaperPLaningController.dispose();
+    runningPlanController.dispose();
     quantityPLanningsController.dispose();
-    numberChildController.dispose();
+    numberLayerPaperController.dispose();
+    //norm
     dayController.dispose();
     songEController.dispose();
     matEController.dispose();
@@ -445,53 +447,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
       {
         'left':
             () => ValidationPlanning.validateInput(
-              "Thời gian chạy",
-              timeRunningController,
-              Symbols.clock_arrow_down,
-              readOnly: true,
-              onTap: () async {
-                // Hiển thị time picker
-                TimeOfDay? pickedTime = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(),
-                );
-
-                if (pickedTime != null) {
-                  // Cập nhật controller text
-                  final formattedTime =
-                      '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
-                  timeRunningController.text = formattedTime;
-                }
-              },
-            ),
-
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Ghép khổ",
-              ghepKhoController,
-              Symbols.layers,
-            ),
-
-        'middle_2':
-            () => ValidationOrder.dropdownForTypes(machineList, chooseMachine, (
-              value,
-            ) {
-              setState(() {
-                chooseMachine = value!;
-              });
-            }),
-
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Số Lớp Sóng",
-              fluteController,
-              Symbols.stacks,
-            ),
-      },
-
-      {
-        'left':
-            () => ValidationPlanning.validateInput(
               "Đáy thay thế (g)",
               dayReplaceController,
               Symbols.vertical_align_bottom,
@@ -564,10 +519,32 @@ class _PLanningDialogState extends State<PLanningDialog> {
             ),
         'right':
             () => ValidationPlanning.validateInput(
-              "Số con",
-              numberChildController,
-              Symbols.filter_9_plus,
+              "Số Lớp Sóng",
+              fluteController,
+              Symbols.stacks,
             ),
+      },
+
+      {
+        'left':
+            () => ValidationPlanning.validateInput(
+              "Ghép khổ",
+              ghepKhoController,
+              Symbols.layers,
+            ),
+
+        'middle_1':
+            () => ValidationOrder.dropdownForTypes(machineList, chooseMachine, (
+              value,
+            ) {
+              setState(() {
+                chooseMachine = value!;
+              });
+            }),
+
+        'middle_2': () => SizedBox(),
+
+        'right': () => SizedBox(),
       },
     ];
 

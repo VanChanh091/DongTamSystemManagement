@@ -34,6 +34,7 @@ List<GridColumn> buildCommonColumns() {
       columnName: 'qtyManufacture',
       label: formatColumn("Số Lượng (SX)"),
     ),
+    GridColumn(columnName: 'child', label: formatColumn("Số con")),
     GridColumn(columnName: 'dvt', label: formatColumn("DVT")),
     GridColumn(columnName: 'acreage', label: formatColumn("Diện Tích")),
     GridColumn(columnName: 'price', label: formatColumn("Đơn Giá")),

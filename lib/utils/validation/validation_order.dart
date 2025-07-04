@@ -73,12 +73,10 @@ class ValidationOrder {
           validator: (value) {
             if ((label == "Mã Đơn Hàng" ||
                     label == "Ngày nhận đơn hàng" ||
-                    label == "Ngày yêu cầu giao" ||
-                    label == "Mã Khách Hàng" ||
-                    label == "Mã Sản Phẩm" ||
-                    label == "Khổ" ||
-                    label == "Cắt" ||
-                    label == "Số lượng" ||
+                    label == "Số lượng (KH)" ||
+                    label == "Dài khách đặt (cm)" ||
+                    label == "Khổ khách đặt (cm)" ||
+                    label == "Số con" ||
                     label == "Đơn giá") &&
                 (value == null || value.isEmpty)) {
               return 'Không được để trống';

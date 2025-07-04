@@ -21,7 +21,12 @@ class ChangeMachineDialog extends StatefulWidget {
 class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
   final formKey = GlobalKey<FormState>();
   late List<int> planningIds = [];
-  final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp'];
+  final List<String> machineList = [
+    'Máy 1350',
+    'Máy 1900',
+    'Máy 2 Lớp',
+    "Máy Quấn Cuồn",
+  ];
 
   //planning
   late String chooseMachine = 'Máy 1350';
@@ -42,6 +47,11 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
 
     try {
       await PlanningService().changeMachinePlanning(planningIds, chooseMachine);
+
+      showSnackBarSuccess(
+        context,
+        'Chuyển đơn hàng sang ${chooseMachine} thành công',
+      );
 
       widget.onChangeMachine();
       Navigator.of(context).pop();

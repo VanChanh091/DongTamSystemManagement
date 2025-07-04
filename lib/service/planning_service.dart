@@ -129,6 +129,35 @@ class PlanningService {
     }
   }
 
+  //get planning by orderId
+  Future<List<Planning>> getPlanningByOrderId(
+    String orderId,
+    String machine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/planning/getByOrderId',
+        queryParameters: {'orderId': orderId, 'machine': machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final List<dynamic> planningData = response.data['data'];
+      return planningData
+          .map((json) => Planning.fromJson(json))
+          .where((p) => p.orderId.toLowerCase().contains(orderId.toLowerCase()))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get planning by orderId: $e');
+    }
+  }
+
   //get planning by flute
   Future<List<Planning>> getPlanningByFlute(
     String flute,

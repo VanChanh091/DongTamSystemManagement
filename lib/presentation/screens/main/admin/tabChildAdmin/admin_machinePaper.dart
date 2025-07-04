@@ -30,10 +30,10 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
 
   Widget buildMachineDetails(AdminMachinePaperModel m) {
     final details = <String, dynamic>{
-      "Thời gian đổi khổ": "${m.timeChangePaper} phút",
+      "Thời gian đổi khổ": "${m.timeChangeSize} phút",
       if (m.speed5Layer > 0) "Tốc độ giấy 5 lớp": "${m.speed5Layer} m/phút",
-      if (m.timeChangeOrderId > 0)
-        "Thời gian đổi mã hàng": "${m.timeChangeOrderId} phút",
+      if (m.timeChangeSameSize > 0)
+        "Thời gian đổi mã hàng": "${m.timeChangeSameSize} phút",
       if (m.speed2Layer > 0) "Tốc độ giấy 2 lớp": "${m.speed2Layer} m/phút",
       if (m.speed6Layer > 0) "Tốc độ giấy 6 lớp": "${m.speed6Layer} m/phút",
       if (m.speed3Layer > 0) "Tốc độ giấy 3 lớp": "${m.speed3Layer} m/phút",

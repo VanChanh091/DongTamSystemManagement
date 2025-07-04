@@ -72,6 +72,7 @@ class OrderDataSource extends DataGridSource {
         columnName: 'qtyManufacture',
         value: order.quantityManufacture,
       ),
+      DataGridCell<int>(columnName: 'child', value: order.numberChild),
       DataGridCell<String>(columnName: 'dvt', value: order.dvt),
       DataGridCell<String>(
         columnName: 'acreage',

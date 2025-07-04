@@ -15,6 +15,7 @@ class Order {
   final double? discount;
   final double acreage, profit, totalPrice, price, pricePaper;
   final int quantityCustomer, quantityManufacture;
+  final int numberChild;
   final int? vat;
   final DateTime dayReceiveOrder, dateRequestShipping;
 
@@ -46,6 +47,7 @@ class Order {
     required this.paperSizeManufacture,
     required this.quantityCustomer,
     required this.quantityManufacture,
+    required this.numberChild,
     required this.acreage,
     required this.dvt,
     required this.price,
@@ -141,16 +143,18 @@ class Order {
           songE2,
         ].where((e) => e.trim().isNotEmpty).toList();
 
-    // Xác định loại sóng
-    final flutes = <String>[];
-    if (songE.trim().isNotEmpty) flutes.add('E');
-    if (songB.trim().isNotEmpty) flutes.add('B');
-    if (songC.trim().isNotEmpty) flutes.add('C');
-    if (songE2.trim().isNotEmpty) flutes.add('E');
+    // Thu thập sóng (có thể trùng)
+    final flutesRaw = <String>[];
+    if (songE.trim().isNotEmpty) flutesRaw.add('E');
+    if (songB.trim().isNotEmpty) flutesRaw.add('B');
+    if (songC.trim().isNotEmpty) flutesRaw.add('C');
+    if (songE2.trim().isNotEmpty) flutesRaw.add('E');
 
-    final uniqueFlutes = flutes.toSet().toList()..sort(); // ["B", "C", "E"]
+    // Sắp xếp theo thứ tự E -> B -> C và loại trùng
+    const fluteOrder = ['E', 'B', 'C'];
+    final uniqueFlutes =
+        fluteOrder.where((f) => flutesRaw.contains(f)).toList();
 
-    // Trả về chuỗi kết quả
     return '${layers.length}${uniqueFlutes.join()}';
   }
 
@@ -180,6 +184,7 @@ class Order {
       lengthPaperManufacture: toDouble(json['lengthPaperManufacture']),
       paperSizeCustomer: toDouble(json['paperSizeCustomer']),
       paperSizeManufacture: toDouble(json['paperSizeManufacture']),
+      numberChild: json['numberChild'] ?? 0,
       acreage: toDouble(json['acreage']),
       price: toDouble(json['price']),
       pricePaper: toDouble(json['pricePaper']),
@@ -222,6 +227,7 @@ class Order {
       'paperSizeManufacture': paperSizeManufacture,
       'quantityCustomer': quantityCustomer,
       'quantityManufacture': quantityManufacture,
+      'numberChild': numberChild,
       'acreage': acreage,
       'dvt': dvt,
       'price': price,

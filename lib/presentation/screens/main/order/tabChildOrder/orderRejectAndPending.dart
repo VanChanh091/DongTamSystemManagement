@@ -3,6 +3,7 @@ import 'package:dongtam/presentation/components/dialog/dialog_add_orders.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
 import 'package:dongtam/presentation/sources/order_DataSource.dart';
 import 'package:dongtam/service/order_Service.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -41,7 +42,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
         children: [
           //button
           SizedBox(
-            height: 80,
+            height: 70,
             width: double.infinity,
 
             child: Column(
@@ -195,36 +196,139 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                     : () {
                                       showDialog(
                                         context: context,
-                                        builder:
-                                            (_) => AlertDialog(
-                                              title: Text("Xác nhận"),
-                                              content: Text(
-                                                "Bạn có chắc chắn muốn xóa đơn hàng này?",
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed:
-                                                      () => Navigator.pop(
-                                                        context,
+                                        builder: (context) {
+                                          bool isDeleting = false;
+
+                                          return StatefulBuilder(
+                                            builder: (context, setStateDialog) {
+                                              return AlertDialog(
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                ),
+                                                title: Row(
+                                                  children: const [
+                                                    Icon(
+                                                      Icons
+                                                          .warning_amber_rounded,
+                                                      color: Colors.red,
+                                                      size: 30,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text(
+                                                      "Xác nhận xoá",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
-                                                  child: Text("Hủy"),
+                                                    ),
+                                                  ],
                                                 ),
-                                                TextButton(
-                                                  onPressed: () async {
-                                                    await OrderService()
-                                                        .deleteOrder(
-                                                          selectedOrderId!,
-                                                        );
-                                                    setState(() {
-                                                      selectedOrderId = null;
-                                                      loadOrders();
-                                                    });
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Text("Xoá"),
-                                                ),
-                                              ],
-                                            ),
+                                                content:
+                                                    isDeleting
+                                                        ? Row(
+                                                          children: const [
+                                                            CircularProgressIndicator(
+                                                              strokeWidth: 2,
+                                                            ),
+                                                            SizedBox(width: 12),
+                                                            Text("Đang xoá..."),
+                                                          ],
+                                                        )
+                                                        : Text(
+                                                          'Bạn có chắc chắn muốn xoá đơn hàng này?',
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                          ),
+                                                        ),
+                                                actions:
+                                                    isDeleting
+                                                        ? []
+                                                        : [
+                                                          TextButton(
+                                                            onPressed:
+                                                                () =>
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    ),
+                                                            child: Text(
+                                                              "Huỷ",
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color:
+                                                                    Colors
+                                                                        .black54,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor:
+                                                                  const Color(
+                                                                    0xffEA4346,
+                                                                  ),
+                                                              foregroundColor:
+                                                                  Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      8,
+                                                                    ),
+                                                              ),
+                                                            ),
+                                                            onPressed: () async {
+                                                              setStateDialog(
+                                                                () {
+                                                                  isDeleting =
+                                                                      true;
+                                                                },
+                                                              );
+
+                                                              await OrderService()
+                                                                  .deleteOrder(
+                                                                    selectedOrderId!,
+                                                                  );
+
+                                                              await Future.delayed(
+                                                                const Duration(
+                                                                  milliseconds:
+                                                                      500,
+                                                                ),
+                                                              );
+
+                                                              setState(() {
+                                                                loadOrders();
+                                                              });
+
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+
+                                                              // Optional: Show success toast
+                                                              showSnackBarSuccess(
+                                                                context,
+                                                                'Xoá thành công',
+                                                              );
+                                                            },
+                                                            child: const Text(
+                                                              "Xoá",
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                              );
+                                            },
+                                          );
+                                        },
                                       );
                                     },
                             label: Text(

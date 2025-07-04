@@ -87,7 +87,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         children: [
           //button
           SizedBox(
-            height: 80,
+            height: 70,
             width: double.infinity,
 
             child: Row(

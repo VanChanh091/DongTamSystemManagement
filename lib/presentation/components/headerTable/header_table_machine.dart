@@ -10,6 +10,10 @@ List<GridColumn> buildMachineColumns() {
     GridColumn(columnName: 'customerName', label: formatColumn("Tên KH")),
     GridColumn(columnName: 'dateShipping', label: formatColumn("Ngày YC Giao")),
     GridColumn(
+      columnName: 'dayStartProduction',
+      label: formatColumn("Ngày Sản Xuất"),
+    ), //
+    GridColumn(
       columnName: 'structure',
       label: formatColumn("Kết Cấu Đặt Hàng"),
     ),

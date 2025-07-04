@@ -60,18 +60,19 @@ class _OrderDialogState extends State<OrderDialog> {
   final sizeManufactureController = TextEditingController();
   final quantityCustomerController = TextEditingController();
   final quantityManufactureController = TextEditingController();
+  final numberChildController = TextEditingController();
   final priceController = TextEditingController();
   final discountController = TextEditingController();
   final profitController = TextEditingController();
-  final dateShippingController = TextEditingController();
   final vatController = TextEditingController();
   final instructSpecialController = TextEditingController();
   final dvtController = TextEditingController();
   final daoXaController = TextEditingController();
   late String typeDVT = "Kg";
   late String typeDaoXa = "Tề Gọn";
-  DateTime? dayReceive = DateTime.now();
+  final dateShippingController = TextEditingController();
   DateTime? dateShipping;
+  DateTime? dayReceive = DateTime.now();
   final customerIdController = TextEditingController();
   final productIdController = TextEditingController();
   final nameSpController = TextEditingController();
@@ -137,6 +138,7 @@ class _OrderDialogState extends State<OrderDialog> {
     quantityCustomerController.text = widget.order!.quantityCustomer.toString();
     quantityManufactureController.text =
         widget.order!.quantityManufacture.toString();
+    numberChildController.text = widget.order!.numberChild.toString();
     priceController.text = widget.order!.price.toString();
     discountController.text =
         widget.order!.discount?.toStringAsFixed(1) ?? '0.0';
@@ -393,6 +395,7 @@ class _OrderDialogState extends State<OrderDialog> {
       quantityCustomer: int.tryParse(quantityCustomerController.text) ?? 0,
       quantityManufacture:
           int.tryParse(quantityManufactureController.text) ?? 0,
+      numberChild: int.tryParse(numberChildController.text) ?? 0,
       acreage: totalAcreage,
       dvt: typeDVT,
       price: double.tryParse(priceController.text) ?? 0.0,
@@ -456,6 +459,7 @@ class _OrderDialogState extends State<OrderDialog> {
     sizeManufactureController.dispose();
     quantityCustomerController.dispose();
     quantityManufactureController.dispose();
+    numberChildController.dispose();
     dvtController.dispose();
     daoXaController.dispose();
     priceController.dispose();
@@ -811,7 +815,12 @@ class _OrderDialogState extends State<OrderDialog> {
               Symbols.box,
               readOnly: true,
             ),
-        'right': () => SizedBox(),
+        'right':
+            () => ValidationOrder.validateInput(
+              "Số con",
+              numberChildController,
+              Symbols.box,
+            ),
       },
       {
         'left':

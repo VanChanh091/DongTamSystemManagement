@@ -3,8 +3,8 @@ import 'package:dongtam/utils/helper/helper_model.dart';
 class AdminMachinePaperModel {
   final int machineId;
   final String machineName;
-  final int timeChangePaper;
-  final int timeChangeOrderId;
+  final int timeChangeSize;
+  final int timeChangeSameSize;
   final int speed2Layer;
   final int speed3Layer;
   final int speed4Layer;
@@ -17,8 +17,8 @@ class AdminMachinePaperModel {
   AdminMachinePaperModel({
     required this.machineId,
     required this.machineName,
-    required this.timeChangePaper,
-    required this.timeChangeOrderId,
+    required this.timeChangeSize,
+    required this.timeChangeSameSize,
     required this.speed2Layer,
     required this.speed3Layer,
     required this.speed4Layer,
@@ -33,8 +33,8 @@ class AdminMachinePaperModel {
     return AdminMachinePaperModel(
       machineId: json['machineId'],
       machineName: json['machineName'],
-      timeChangePaper: json['timeChangePaper'] ?? 0,
-      timeChangeOrderId: json['timeChangeOrderId'] ?? 0,
+      timeChangeSize: json['timeChangeSize'] ?? 0,
+      timeChangeSameSize: json['timeChangeSameSize'] ?? 0,
       speed2Layer: json['speed2Layer'] ?? 0,
       speed3Layer: json['speed3Layer'] ?? 0,
       speed4Layer: json['speed4Layer'] ?? 0,
@@ -49,8 +49,8 @@ class AdminMachinePaperModel {
   Map<String, dynamic> toJson() {
     return {
       "machineName": machineName,
-      "timeChangePaper": timeChangePaper,
-      "timeChangeOrderId": timeChangeOrderId,
+      "timeChangeSize": timeChangeSize,
+      "timeChangeSameSize": timeChangeSameSize,
       "speed2Layer": speed2Layer,
       "speed3Layer": speed3Layer,
       "speed4Layer": speed4Layer,

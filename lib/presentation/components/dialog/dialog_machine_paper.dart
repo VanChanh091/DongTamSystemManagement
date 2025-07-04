@@ -24,8 +24,8 @@ class _DialogMachinePaperState extends State<DialogMachinePaper> {
   late String machineName = widget.machine!.machineName;
 
   final machineNameController = TextEditingController();
-  final timeChangePaperController = TextEditingController();
-  final timeChangeOrderIdController = TextEditingController();
+  final timeChangeSizeController = TextEditingController();
+  final timeChangeSameSizeController = TextEditingController();
   final speed2LayerController = TextEditingController();
   final speed3LayerController = TextEditingController();
   final speed4LayerController = TextEditingController();
@@ -44,9 +44,9 @@ class _DialogMachinePaperState extends State<DialogMachinePaper> {
   void machineInitState() {
     originalMachineId = widget.machine!.machineId;
     machineNameController.text = widget.machine!.machineName;
-    timeChangePaperController.text = widget.machine!.timeChangePaper.toString();
-    timeChangeOrderIdController.text =
-        widget.machine!.timeChangeOrderId.toString();
+    timeChangeSizeController.text = widget.machine!.timeChangeSize.toString();
+    timeChangeSameSizeController.text =
+        widget.machine!.timeChangeSameSize.toString();
     speed2LayerController.text = widget.machine!.speed2Layer.toString();
     speed3LayerController.text = widget.machine!.speed3Layer.toString();
     speed4LayerController.text = widget.machine!.speed4Layer.toString();
@@ -64,8 +64,8 @@ class _DialogMachinePaperState extends State<DialogMachinePaper> {
     final updateMachine = AdminMachinePaperModel(
       machineId: 0,
       machineName: machineNameController.text,
-      timeChangePaper: int.tryParse(timeChangePaperController.text) ?? 0,
-      timeChangeOrderId: int.tryParse(timeChangeOrderIdController.text) ?? 0,
+      timeChangeSize: int.tryParse(timeChangeSizeController.text) ?? 0,
+      timeChangeSameSize: int.tryParse(timeChangeSameSizeController.text) ?? 0,
       speed2Layer: int.tryParse(speed2LayerController.text) ?? 0,
       speed3Layer: int.tryParse(speed3LayerController.text) ?? 0,
       speed4Layer: int.tryParse(speed4LayerController.text) ?? 0,
@@ -96,8 +96,8 @@ class _DialogMachinePaperState extends State<DialogMachinePaper> {
   void dispose() {
     super.dispose();
     machineNameController.dispose();
-    timeChangePaperController.dispose();
-    timeChangeOrderIdController.dispose();
+    timeChangeSizeController.dispose();
+    timeChangeSameSizeController.dispose();
     speed2LayerController.dispose();
     speed3LayerController.dispose();
     speed4LayerController.dispose();
@@ -139,7 +139,7 @@ class _DialogMachinePaperState extends State<DialogMachinePaper> {
                     SizedBox(height: 10),
                     validateInput(
                       "Thời gian đổi khổ",
-                      timeChangePaperController,
+                      timeChangeSizeController,
                       Symbols.time_auto_sharp,
                     ),
                     SizedBox(height: 10),
@@ -147,7 +147,7 @@ class _DialogMachinePaperState extends State<DialogMachinePaper> {
                     if (machineName != "Máy Quấn Cuồn") ...[
                       validateInput(
                         "Thời gian đổi mã hàng cùng khổ",
-                        timeChangeOrderIdController,
+                        timeChangeSameSizeController,
                         Symbols.time_auto_sharp,
                       ),
                       SizedBox(height: 10),

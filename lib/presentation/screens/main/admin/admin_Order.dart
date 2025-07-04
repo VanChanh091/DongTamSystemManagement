@@ -419,6 +419,11 @@ class _ManageOrderState extends State<AdminOrder> {
         order.quantityManufacture.toString(),
         unit: formatQuantity(order.product!.typeProduct),
       ),
+      _infoRow(
+        '📜 Số con:',
+        Order.formatCurrency(order.numberChild),
+        unit: "Con",
+      ),
       _infoRow('📐 Đơn vị tính:', order.dvt),
       _infoRow(
         '🌍 Diện tích:',

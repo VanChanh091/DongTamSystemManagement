@@ -36,6 +36,13 @@ class MachineDatasource extends DataGridSource {
                 : '',
       ),
       DataGridCell<String>(
+        columnName: "dayStartProduction",
+        value:
+            planning.dayStart != null
+                ? formatter.format(planning.dayStart!)
+                : '',
+      ),
+      DataGridCell<String>(
         columnName: 'structure',
         value: planning.formatterStructureOrder,
       ),
@@ -74,7 +81,10 @@ class MachineDatasource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: 'timeRunningProd',
-        value: Planning.formatTimeOfDay(planning.timeRunning),
+        value:
+            planning.timeRunning != null
+                ? Planning.formatTimeOfDay(planning.timeRunning!)
+                : '',
       ),
       DataGridCell<double>(
         columnName: 'dmPheLieu',
