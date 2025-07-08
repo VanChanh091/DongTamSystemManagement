@@ -19,7 +19,6 @@ class ProductionQueue extends StatefulWidget {
 class _ProductionQueueState extends State<ProductionQueue> {
   late Future<List<Planning>> futurePlanning;
   late MachineDatasource machineDatasource;
-  TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
   String machine = "Máy 1350";
   DateTime selectedDate = DateTime.now();
@@ -28,6 +27,13 @@ class _ProductionQueueState extends State<ProductionQueue> {
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
   final DataGridController dataGridController = DataGridController();
+  DateTime? dayStart = DateTime.now();
+  bool isLoading = false;
+
+  TextEditingController searchController = TextEditingController();
+  TextEditingController dayStartController = TextEditingController();
+  TextEditingController timeStartController = TextEditingController();
+  TextEditingController totalTimeWorkingController = TextEditingController();
 
   @override
   void initState() {
@@ -121,373 +127,495 @@ class _ProductionQueueState extends State<ProductionQueue> {
         children: [
           //button
           SizedBox(
-            height: 80,
+            height: 105,
             width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
-                //left button
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  child: Row(
-                    children: [
-                      //dropdown
-                      SizedBox(
-                        width: 160,
-                        child: DropdownButtonFormField<String>(
-                          value: searchType,
-                          items:
-                              [
-                                'Tất cả',
-                                'Mã Đơn Hàng',
-                                'Tên KH',
-                                "Sóng",
-                                'Khổ Cấp Giấy',
-                              ].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              searchType = value!;
-                              isTextFieldEnabled = searchType != 'Tất cả';
-
-                              if (!isTextFieldEnabled) {
-                                searchController.clear();
-                              }
-                            });
-                          },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.grey),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
-                        ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    //left button
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 10,
                       ),
-                      SizedBox(width: 10),
-
-                      // input
-                      SizedBox(
-                        width: 250,
-                        height: 50,
-                        child: TextField(
-                          controller: searchController,
-                          enabled: isTextFieldEnabled,
-                          onSubmitted: (_) => searchPlanning(),
-                          decoration: InputDecoration(
-                            hintText: 'Tìm kiếm...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-
-                      // find
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          searchPlanning();
-                        },
-                        label: Text(
-                          "Tìm kiếm",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Icons.search, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-
-                      // refresh
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            selectedPlanningIds.clear();
-                          });
-
-                          loadPlanning();
-                        },
-                        label: Text(
-                          "Tải lại",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Icons.refresh, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                ),
-
-                //right button
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  child: Row(
-                    children: [
-                      // nút lên xuống
-                      Row(
+                      child: Row(
                         children: [
-                          IconButton(
-                            icon: Icon(Icons.arrow_upward),
-                            // Nút hoạt động khi có ít nhất 1 hàng được chọn
-                            onPressed:
-                                selectedPlanningIds.isNotEmpty
-                                    ? () {
-                                      setState(() {
-                                        machineDatasource.moveRowUp(
-                                          selectedPlanningIds,
-                                        );
-                                      });
-                                    }
-                                    : null,
+                          //dropdown
+                          SizedBox(
+                            width: 160,
+                            child: DropdownButtonFormField<String>(
+                              value: searchType,
+                              items:
+                                  [
+                                    'Tất cả',
+                                    'Mã Đơn Hàng',
+                                    'Tên KH',
+                                    "Sóng",
+                                    'Khổ Cấp Giấy',
+                                  ].map((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  searchType = value!;
+                                  isTextFieldEnabled = searchType != 'Tất cả';
+
+                                  if (!isTextFieldEnabled) {
+                                    searchController.clear();
+                                  }
+                                });
+                              },
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.arrow_downward),
-                            // Nút hoạt động khi có ít nhất 1 hàng được chọn
-                            onPressed:
-                                selectedPlanningIds.isNotEmpty
-                                    ? () {
-                                      setState(() {
-                                        machineDatasource.moveRowDown(
-                                          selectedPlanningIds,
-                                        );
-                                      });
-                                    }
-                                    : null,
+                          SizedBox(width: 10),
+
+                          // input
+                          SizedBox(
+                            width: 250,
+                            height: 50,
+                            child: TextField(
+                              controller: searchController,
+                              enabled: isTextFieldEnabled,
+                              onSubmitted: (_) => searchPlanning(),
+                              decoration: InputDecoration(
+                                hintText: 'Tìm kiếm...',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                              ),
+                            ),
                           ),
+                          const SizedBox(width: 10),
+
+                          // find
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              searchPlanning();
+                            },
+                            label: Text(
+                              "Tìm kiếm",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon: Icon(Icons.search, color: Colors.white),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // refresh
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                selectedPlanningIds.clear();
+                              });
+
+                              loadPlanning();
+                            },
+                            label: Text(
+                              "Tải lại",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon: Icon(Icons.refresh, color: Colors.white),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
                         ],
                       ),
-                      SizedBox(width: 20),
+                    ),
 
-                      // save
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          try {
-                            final List<DataGridRow> visibleRows =
-                                machineDatasource.rows;
-
-                            final List<Map<String, dynamic>> updateIndex =
-                                visibleRows.asMap().entries.map((entry) {
-                                  final planningId =
-                                      entry.value
-                                          .getCells()
-                                          .firstWhere(
-                                            (cell) =>
-                                                cell.columnName == "planningId",
-                                          )
-                                          .value;
-
-                                  return {
-                                    "planningId": planningId,
-                                    "sortPlanning": entry.key + 1,
-                                  };
-                                }).toList();
-
-                            final result = await PlanningService()
-                                .updateIndexPlanning(updateIndex, machine);
-
-                            loadPlanning();
-
-                            if (result) {
-                              showSnackBarSuccess(
-                                context,
-                                "Cập nhật thành công",
-                              );
-                            }
-                          } catch (e) {
-                            showSnackBarError(context, "Lỗi cập nhật");
-                            print("Lỗi khi lưu: $e");
-                          }
-                        },
-                        label: Text(
-                          "Lưu",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Icons.save, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                    //right button
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 10,
                       ),
-
-                      const SizedBox(width: 10),
-
-                      //choose machine
-                      SizedBox(
-                        width: 175,
-                        child: DropdownButtonFormField<String>(
-                          value: machine,
-                          items:
-                              [
-                                'Máy 1350',
-                                "Máy 1900",
-                                "Máy 2 Lớp",
-                                "Máy Quấn Cuồn",
-                              ].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              changeMachine(value);
-                            }
-                          },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.grey),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-
-                      //popup menu
-                      PopupMenuButton<String>(
-                        icon: Icon(Icons.more_vert, color: Colors.black),
-                        color: Colors.white,
-                        onSelected: (value) async {
-                          if (value == 'change') {
-                            if (selectedPlanningIds.isEmpty) {
-                              showSnackBarError(
-                                context,
-                                "Chưa chọn kế hoạch cần chuyển máy",
-                              );
-                              return;
-                            }
-                            final planning = await futurePlanning;
-
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (_) => ChangeMachineDialog(
-                                    planning:
-                                        planning
-                                            .where(
-                                              (p) => selectedPlanningIds
-                                                  .contains(p.orderId),
-                                            )
-                                            .toList(),
-                                    onChangeMachine: loadPlanning,
-                                  ),
-                            );
-                          } else if (value == 'pause') {
-                            await handlePlanningAction(
-                              context: context,
-                              selectedPlanningIds: selectedPlanningIds,
-                              status: "pending",
-                              title: "Xác nhận dừng sản xuất",
-                              message:
-                                  "Bạn có chắc chắn muốn dừng sản xuất các kế hoạch đã chọn không?",
-                              successMessage: "Dừng sản xuất thành công",
-                              errorMessage: "Có lỗi xảy ra khi dừng sản xuất",
-                              onSuccess: loadPlanning,
-                            );
-                          } else if (value == 'acceptLack') {
-                            await handlePlanningAction(
-                              context: context,
-                              selectedPlanningIds: selectedPlanningIds,
-                              status: "complete",
-                              title: "Xác nhận thiếu số lượng",
-                              message:
-                                  "Bạn có chắc chắn muốn chấp nhận thiếu không?",
-                              successMessage: "Thực thi thành công",
-                              errorMessage: "Có lỗi xảy ra khi thực thi",
-                              onSuccess: loadPlanning,
-                            );
-                          } else if (value == 'exportPDF') {
-                            print("Xuất PDF");
-                          }
-                        },
-                        itemBuilder:
-                            (BuildContext context) => [
-                              PopupMenuItem<String>(
-                                value: 'change',
-                                child: ListTile(
-                                  leading: Icon(Symbols.construction),
-                                  title: Text('Chuyển Máy'),
-                                ),
+                      child: Row(
+                        children: [
+                          // nút lên xuống
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.arrow_upward),
+                                // Nút hoạt động khi có ít nhất 1 hàng được chọn
+                                onPressed:
+                                    selectedPlanningIds.isNotEmpty
+                                        ? () {
+                                          setState(() {
+                                            machineDatasource.moveRowUp(
+                                              selectedPlanningIds,
+                                            );
+                                          });
+                                        }
+                                        : null,
                               ),
-                              PopupMenuItem<String>(
-                                value: 'pause',
-                                child: ListTile(
-                                  leading: Icon(Symbols.pause_circle),
-                                  title: Text('Dừng Chạy Đơn'),
-                                ),
-                              ),
-                              PopupMenuItem<String>(
-                                value: 'acceptLack',
-                                child: ListTile(
-                                  leading: Icon(Icons.approval_outlined),
-                                  title: Text('Chấp Nhận Thiếu Đơn'),
-                                ),
-                              ),
-                              PopupMenuItem<String>(
-                                value: 'exportPDF',
-                                child: ListTile(
-                                  leading: Icon(Symbols.print),
-                                  title: Text('Xuất PDF'),
-                                ),
+                              IconButton(
+                                icon: Icon(Icons.arrow_downward),
+                                // Nút hoạt động khi có ít nhất 1 hàng được chọn
+                                onPressed:
+                                    selectedPlanningIds.isNotEmpty
+                                        ? () {
+                                          setState(() {
+                                            machineDatasource.moveRowDown(
+                                              selectedPlanningIds,
+                                            );
+                                          });
+                                        }
+                                        : null,
                               ),
                             ],
+                          ),
+                          SizedBox(width: 20),
+
+                          // save
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed:
+                                    isLoading
+                                        ? null
+                                        : () async {
+                                          setState(() => isLoading = true);
+
+                                          try {
+                                            final List<DataGridRow>
+                                            visibleRows =
+                                                machineDatasource.rows;
+
+                                            final List<Map<String, dynamic>>
+                                            updateIndex =
+                                                visibleRows.asMap().entries.map((
+                                                  entry,
+                                                ) {
+                                                  final planningId =
+                                                      entry.value
+                                                          .getCells()
+                                                          .firstWhere(
+                                                            (cell) =>
+                                                                cell.columnName ==
+                                                                "planningId",
+                                                          )
+                                                          .value;
+
+                                                  return {
+                                                    "planningId": planningId,
+                                                    "sortPlanning":
+                                                        entry.key + 1,
+                                                  };
+                                                }).toList();
+
+                                            final DateTime parsedDayStart =
+                                                DateFormat('dd/MM/yyyy').parse(
+                                                  dayStartController.text,
+                                                );
+
+                                            final List<String> timeParts =
+                                                timeStartController.text.split(
+                                                  ':',
+                                                );
+
+                                            final TimeOfDay parsedTimeStart =
+                                                TimeOfDay(
+                                                  hour: int.parse(timeParts[0]),
+                                                  minute: int.parse(
+                                                    timeParts[1],
+                                                  ),
+                                                );
+
+                                            final int parsedTotalTime =
+                                                int.tryParse(
+                                                  totalTimeWorkingController
+                                                      .text,
+                                                ) ??
+                                                0;
+
+                                            final result =
+                                                await PlanningService()
+                                                    .updateIndexWTimeRunning(
+                                                      machine,
+                                                      updateIndex,
+                                                      parsedDayStart,
+                                                      parsedTimeStart,
+                                                      parsedTotalTime,
+                                                    );
+
+                                            if (result) {
+                                              showSnackBarSuccess(
+                                                context,
+                                                "Cập nhật thành công",
+                                              );
+                                              loadPlanning();
+                                            }
+                                          } catch (e) {
+                                            showSnackBarError(
+                                              context,
+                                              "Lỗi cập nhật",
+                                            );
+                                            print("Lỗi khi lưu: $e");
+                                          } finally {
+                                            setState(() => isLoading = false);
+                                          }
+                                        },
+                                label: Text(
+                                  "Lưu",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                icon: Icon(Icons.save, color: Colors.white),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xff78D761),
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 15,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                              if (isLoading)
+                                Positioned(
+                                  right: 10,
+                                  child: SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(width: 10),
+
+                          //choose machine
+                          SizedBox(
+                            width: 175,
+                            child: DropdownButtonFormField<String>(
+                              value: machine,
+                              items:
+                                  [
+                                    'Máy 1350',
+                                    "Máy 1900",
+                                    "Máy 2 Lớp",
+                                    "Máy Quấn Cuồn",
+                                  ].map((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  changeMachine(value);
+                                }
+                              },
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+
+                          //popup menu
+                          PopupMenuButton<String>(
+                            icon: Icon(Icons.more_vert, color: Colors.black),
+                            color: Colors.white,
+                            onSelected: (value) async {
+                              if (value == 'change') {
+                                if (selectedPlanningIds.isEmpty) {
+                                  showSnackBarError(
+                                    context,
+                                    "Chưa chọn kế hoạch cần chuyển máy",
+                                  );
+                                  return;
+                                }
+                                final planning = await futurePlanning;
+
+                                showDialog(
+                                  context: context,
+                                  builder:
+                                      (_) => ChangeMachineDialog(
+                                        planning:
+                                            planning
+                                                .where(
+                                                  (p) => selectedPlanningIds
+                                                      .contains(p.orderId),
+                                                )
+                                                .toList(),
+                                        onChangeMachine: loadPlanning,
+                                      ),
+                                );
+                              } else if (value == 'pause') {
+                                await handlePlanningAction(
+                                  context: context,
+                                  selectedPlanningIds: selectedPlanningIds,
+                                  status: "pending",
+                                  title: "Xác nhận dừng sản xuất",
+                                  message:
+                                      "Bạn có chắc chắn muốn dừng sản xuất các kế hoạch đã chọn không?",
+                                  successMessage: "Dừng sản xuất thành công",
+                                  errorMessage:
+                                      "Có lỗi xảy ra khi dừng sản xuất",
+                                  onSuccess: loadPlanning,
+                                );
+                              } else if (value == 'acceptLack') {
+                                await handlePlanningAction(
+                                  context: context,
+                                  selectedPlanningIds: selectedPlanningIds,
+                                  status: "complete",
+                                  title: "Xác nhận thiếu số lượng",
+                                  message:
+                                      "Bạn có chắc chắn muốn chấp nhận thiếu không?",
+                                  successMessage: "Thực thi thành công",
+                                  errorMessage: "Có lỗi xảy ra khi thực thi",
+                                  onSuccess: loadPlanning,
+                                );
+                              } else if (value == 'exportPDF') {
+                                print("Xuất PDF");
+                              }
+                            },
+                            itemBuilder:
+                                (BuildContext context) => [
+                                  PopupMenuItem<String>(
+                                    value: 'change',
+                                    child: ListTile(
+                                      leading: Icon(Symbols.construction),
+                                      title: Text('Chuyển Máy'),
+                                    ),
+                                  ),
+                                  PopupMenuItem<String>(
+                                    value: 'pause',
+                                    child: ListTile(
+                                      leading: Icon(Symbols.pause_circle),
+                                      title: Text('Dừng Chạy Đơn'),
+                                    ),
+                                  ),
+                                  PopupMenuItem<String>(
+                                    value: 'acceptLack',
+                                    child: ListTile(
+                                      leading: Icon(Icons.approval_outlined),
+                                      title: Text('Chấp Nhận Thiếu Đơn'),
+                                    ),
+                                  ),
+                                  PopupMenuItem<String>(
+                                    value: 'exportPDF',
+                                    child: ListTile(
+                                      leading: Icon(Symbols.print),
+                                      title: Text('Xuất PDF'),
+                                    ),
+                                  ),
+                                ],
+                          ),
+                          SizedBox(width: 10),
+                        ],
                       ),
-                      SizedBox(width: 10),
+                    ),
+                  ],
+                ),
+
+                //set day and time for time running
+                SizedBox(height: 5),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Ngày bắt đầu
+                      _buildLabelAndUnderlineInput(
+                        label: "Ngày bắt đầu:",
+                        controller: dayStartController,
+                        width: 140,
+                        onTap: () async {
+                          final selected = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (selected != null) {
+                            dayStartController.text =
+                                "${selected.day.toString().padLeft(2, '0')}/"
+                                "${selected.month.toString().padLeft(2, '0')}/"
+                                "${selected.year}";
+                          }
+                        },
+                      ),
+                      SizedBox(width: 32),
+
+                      // Giờ bắt đầu
+                      _buildLabelAndUnderlineInput(
+                        label: "Giờ bắt đầu:",
+                        controller: timeStartController,
+                        width: 100,
+                      ),
+                      SizedBox(width: 32),
+
+                      // Tổng giờ làm
+                      _buildLabelAndUnderlineInput(
+                        label: "Tổng giờ làm:",
+                        controller: totalTimeWorkingController,
+                        width: 60,
+                        inputType: TextInputType.number,
+                      ),
                     ],
                   ),
                 ),
@@ -620,5 +748,39 @@ class _ProductionQueueState extends State<ProductionQueue> {
         showSnackBarError(context, errorMessage);
       }
     }
+  }
+
+  Widget _buildLabelAndUnderlineInput({
+    required String label,
+    required TextEditingController controller,
+    required double width,
+    TextInputType? inputType,
+    void Function()? onTap,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+        ),
+        SizedBox(width: 8),
+        SizedBox(
+          width: width,
+          child: TextFormField(
+            controller: controller,
+            keyboardType: inputType ?? TextInputType.text,
+            readOnly: false,
+            decoration: InputDecoration(
+              isDense: true,
+              border: UnderlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(vertical: 5),
+              hintText: '',
+            ),
+            onTap: onTap,
+          ),
+        ),
+      ],
+    );
   }
 }

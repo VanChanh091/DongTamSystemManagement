@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/paper_consumption_norm_model.dart';
+import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -20,6 +21,7 @@ class Planning {
   final String orderId;
   final Order? order;
   final PaperConsumptionNorm? paperConsumptionNorm;
+  final TimeOverflowPlanning? timeOverflowPlanning;
 
   Planning({
     required this.planningId,
@@ -43,7 +45,35 @@ class Planning {
     required this.orderId,
     this.order,
     this.paperConsumptionNorm,
+    this.timeOverflowPlanning,
   });
+
+  // Planning copyWith({DateTime? dayStart, TimeOfDay? timeRunning}) {
+  //   return Planning(
+  //     planningId: planningId,
+  //     dayStart: dayStart ?? this.dayStart,
+  //     timeRunning: timeRunning ?? this.timeRunning,
+  //     runningPlan: runningPlan,
+  //     ghepKho: ghepKho,
+  //     sortPlanning: sortPlanning,
+  //     lengthPaperPlanning: lengthPaperPlanning,
+  //     sizePaperPLaning: sizePaperPLaning,
+  //     dayReplace: dayReplace,
+  //     matEReplace: matEReplace,
+  //     matBReplace: matBReplace,
+  //     matCReplace: matCReplace,
+  //     songEReplace: songEReplace,
+  //     songBReplace: songBReplace,
+  //     songCReplace: songCReplace,
+  //     songE2Replace: songE2Replace,
+  //     chooseMachine: chooseMachine,
+  //     hasOverFlow: hasOverFlow,
+  //     orderId: orderId,
+  //     order: order,
+  //     paperConsumptionNorm: paperConsumptionNorm,
+  //     timeOverflowPlanning: timeOverflowPlanning,
+  //   );
+  // }
 
   String get formatterStructureOrder {
     final prefixes = ['', 'E', '', 'B', '', 'C', '', ''];
@@ -71,28 +101,6 @@ class Planning {
       }
     }
     return formattedParts.join('/');
-  }
-
-  static TimeOfDay parseTimeOfDay(dynamic timeValue) {
-    // Trường hợp đã là TimeOfDay → trả về luôn
-    if (timeValue is TimeOfDay) return timeValue;
-
-    // Trường hợp là chuỗi hợp lệ → parse
-    if (timeValue is String && timeValue.isNotEmpty) {
-      try {
-        final parts = timeValue.split(':');
-        if (parts.length >= 2) {
-          final hour = int.tryParse(parts[0]) ?? 0;
-          final minute = int.tryParse(parts[1]) ?? 0;
-          return TimeOfDay(hour: hour, minute: minute);
-        }
-      } catch (e) {
-        print('⚠️ Error parsing time: $e for $timeValue');
-      }
-    }
-
-    // Trả về mặc định nếu không parse được
-    return const TimeOfDay(hour: 0, minute: 0);
   }
 
   static String formatTimeOfDay(TimeOfDay time) {
@@ -127,12 +135,16 @@ class Planning {
           json['norm'] != null
               ? PaperConsumptionNorm.fromJson(json['norm'])
               : null,
+      timeOverflowPlanning:
+          json['timeOverFlow'] != null
+              ? TimeOverflowPlanning.fromJson(json['timeOverFlow'])
+              : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "dayStart": DateFormat('yyyy-MM-dd').format(dayStart!), //
+      "dayStart": DateFormat('yyyy-MM-dd').format(dayStart!),
       'runningPlan': runningPlan,
       'timeRunning': '${timeRunning!.hour}:${timeRunning!.minute}',
       'dayReplace': dayReplace,

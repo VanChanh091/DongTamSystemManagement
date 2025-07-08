@@ -3,6 +3,8 @@ import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_model.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class PlanningService {
   final Dio dioService = Dio(
@@ -83,6 +85,7 @@ class PlanningService {
       );
 
       final List<dynamic> planningData = response.data['data'];
+      // print(planningData);
       return planningData
           .map((json) => Planning.fromJson(json))
           .where(
@@ -244,16 +247,26 @@ class PlanningService {
   }
 
   //update index planning
-  Future<bool> updateIndexPlanning(
-    List<Map<String, dynamic>> updateIndex,
+  Future<bool> updateIndexWTimeRunning(
     String machine,
+    List<Map<String, dynamic>> updateIndex,
+    DateTime dayStart,
+    TimeOfDay timeStart,
+    int totalTimeWorking,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
 
-      await dioService.put(
-        "/api/planning/updateIndex",
-        data: {"updateIndex": updateIndex, 'machine': machine},
+      await dioService.post(
+        "/api/planning/updateIndex_TimeRunning",
+        queryParameters: {'machine': machine},
+        data: {
+          "updateIndex": updateIndex,
+          "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
+          "timeStart":
+              "${timeStart.hour.toString().padLeft(2, '0')}:${timeStart.minute.toString().padLeft(2, '0')}",
+          "totalTimeWorking": totalTimeWorking,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

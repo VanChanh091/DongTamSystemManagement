@@ -127,6 +127,37 @@ class MachineDatasource extends DataGridSource {
     return match != null ? int.parse(match.group(0)!) : 0;
   }
 
+  // void buildDataGridRows() {
+  //   planningDataGridRows = [];
+
+  //   final Set<int> addedOverflowPlanningIds = {};
+
+  //   for (final item in planning) {
+  //     planningDataGridRows.add(DataGridRow(cells: buildPlanningCells(item)));
+
+  //     // if (item.hasOverFlow == true &&
+  //     //     item.timeOverflowPlanning != null &&
+  //     //     !addedOverflowPlanningIds.contains(item.planningId)) {
+  //     //   final overflowClone = item.copyWith(
+  //     //     dayStart: item.timeOverflowPlanning?.overflowDayStart,
+  //     //     timeRunning: item.timeOverflowPlanning?.overflowTimeRunning,
+  //     //     // Bạn có thể bỏ isOverflow nếu không cần
+  //     //   );
+
+  //     //   planningDataGridRows.add(
+  //     //     DataGridRow(cells: buildPlanningCells(overflowClone)),
+  //     //   );
+
+  //     //   addedOverflowPlanningIds.add(item.planningId);
+  //     //   print(
+  //     //     "Adding overflow for planningId ${item.planningId} on ${item.timeOverflowPlanning?.overflowDayStart}",
+  //     //   );
+  //     // }
+  //   }
+
+  //   notifyListeners();
+  // }
+
   void buildDataGridRows() {
     planningDataGridRows =
         planning
@@ -242,28 +273,6 @@ class MachineDatasource extends DataGridSource {
     planning.insertAll(newInsertIndex, selectedItems);
 
     buildDataGridRows();
-  }
-
-  String formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = [
-      'canMang',
-      'xa',
-      'catKhe',
-      'be',
-      'dan_1_Manh',
-      'dan_2_Manh',
-      'dongGhimMotManh',
-      'dongGhimHaiManh',
-      'chongTham',
-    ];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? 'Có' : '';
-    }
-    return value?.toString() ?? '';
   }
 
   @override
