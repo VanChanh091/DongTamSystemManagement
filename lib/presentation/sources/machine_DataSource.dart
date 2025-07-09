@@ -17,6 +17,10 @@ class MachineDatasource extends DataGridSource {
     required this.selectedPlanningIds,
   }) {
     buildDataGridRows();
+
+    addColumnGroup(
+      ColumnGroup(name: 'dayStartProduction', sortGroupRows: false),
+    );
   }
 
   // Tạo danh sách cell cho từng hàng
@@ -126,37 +130,6 @@ class MachineDatasource extends DataGridSource {
     final match = RegExp(r'^\d+').firstMatch(loaiSong);
     return match != null ? int.parse(match.group(0)!) : 0;
   }
-
-  // void buildDataGridRows() {
-  //   planningDataGridRows = [];
-
-  //   final Set<int> addedOverflowPlanningIds = {};
-
-  //   for (final item in planning) {
-  //     planningDataGridRows.add(DataGridRow(cells: buildPlanningCells(item)));
-
-  //     // if (item.hasOverFlow == true &&
-  //     //     item.timeOverflowPlanning != null &&
-  //     //     !addedOverflowPlanningIds.contains(item.planningId)) {
-  //     //   final overflowClone = item.copyWith(
-  //     //     dayStart: item.timeOverflowPlanning?.overflowDayStart,
-  //     //     timeRunning: item.timeOverflowPlanning?.overflowTimeRunning,
-  //     //     // Bạn có thể bỏ isOverflow nếu không cần
-  //     //   );
-
-  //     //   planningDataGridRows.add(
-  //     //     DataGridRow(cells: buildPlanningCells(overflowClone)),
-  //     //   );
-
-  //     //   addedOverflowPlanningIds.add(item.planningId);
-  //     //   print(
-  //     //     "Adding overflow for planningId ${item.planningId} on ${item.timeOverflowPlanning?.overflowDayStart}",
-  //     //   );
-  //     // }
-  //   }
-
-  //   notifyListeners();
-  // }
 
   void buildDataGridRows() {
     planningDataGridRows =
@@ -276,6 +249,41 @@ class MachineDatasource extends DataGridSource {
   }
 
   @override
+  Widget? buildGroupCaptionCellWidget(
+    RowColumnIndex rowColumnIndex,
+    String groupName,
+  ) {
+    // Bắt ngày và số item, không phân biệt hoa thường
+    final regex = RegExp(
+      r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$',
+      caseSensitive: false,
+    );
+    final match = regex.firstMatch(groupName);
+
+    String displayDate = '';
+    String itemCount = '';
+
+    if (match != null) {
+      displayDate = match.group(1) ?? '';
+      final count = match.group(2) ?? '0';
+      itemCount = '$count đơn hàng';
+    }
+
+    return Container(
+      width: double.infinity,
+      color: Colors.grey.shade200,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        displayDate.isNotEmpty
+            ? '📅 Ngày sản xuất: $displayDate - $itemCount'
+            : '📅 Ngày sản xuất: Không xác định',
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      ),
+    );
+  }
+
+  @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
 
@@ -302,7 +310,6 @@ class MachineDatasource extends DataGridSource {
     }
 
     return DataGridRowAdapter(
-      // color: isSelected ? Colors.blue.withOpacity(0.3) : Colors.transparent,
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {

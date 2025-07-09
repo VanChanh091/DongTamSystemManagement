@@ -320,6 +320,18 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                     isLoading
                                         ? null
                                         : () async {
+                                          if (dayStartController.text.isEmpty ||
+                                              timeStartController
+                                                  .text
+                                                  .isEmpty ||
+                                              totalTimeWorkingController
+                                                  .text
+                                                  .isEmpty) {
+                                            showSnackBarError(
+                                              context,
+                                              "Vui lòng nhập đầy đủ ngày bắt đầu, giờ bắt đầu và tổng thời gian.",
+                                            );
+                                          }
                                           setState(() => isLoading = true);
 
                                           try {
@@ -435,6 +447,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                 ),
                             ],
                           ),
+
                           const SizedBox(width: 10),
 
                           //choose machine
@@ -583,7 +596,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                       _buildLabelAndUnderlineInput(
                         label: "Ngày bắt đầu:",
                         controller: dayStartController,
-                        width: 140,
+                        width: 120,
                         onTap: () async {
                           final selected = await showDatePicker(
                             context: context,
@@ -605,7 +618,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                       _buildLabelAndUnderlineInput(
                         label: "Giờ bắt đầu:",
                         controller: timeStartController,
-                        width: 100,
+                        width: 60,
                       ),
                       SizedBox(width: 32),
 
@@ -613,7 +626,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                       _buildLabelAndUnderlineInput(
                         label: "Tổng giờ làm:",
                         controller: totalTimeWorkingController,
-                        width: 60,
+                        width: 40,
                         inputType: TextInputType.number,
                       ),
                     ],
@@ -646,9 +659,9 @@ class _ProductionQueueState extends State<ProductionQueue> {
                 return SfDataGrid(
                   controller: dataGridController,
                   source: machineDatasource,
-                  columns: buildMachineColumns(),
+                  allowExpandCollapseGroup: true, // Bật grouping
+                  autoExpandGroups: true,
                   isScrollbarAlwaysShown: true,
-                  columnResizeMode: ColumnResizeMode.onResize,
                   columnWidthMode: ColumnWidthMode.auto,
                   navigationMode: GridNavigationMode.row,
                   selectionMode: SelectionMode.multiple,
@@ -658,10 +671,8 @@ class _ProductionQueueState extends State<ProductionQueue> {
                         final orderId = row.getCells()[0].value.toString();
                         if (selectedPlanningIds.contains(orderId)) {
                           selectedPlanningIds.remove(orderId);
-                          // print("❌ Unselected: $selectedPlanningIds");
                         } else {
                           selectedPlanningIds.add(orderId);
-                          // print("✅ Selected: $selectedPlanningIds");
                         }
                       }
 
@@ -670,6 +681,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                       machineDatasource.notifyListeners();
                     });
                   },
+                  columns: buildMachineColumns(),
                 );
               },
             ),
