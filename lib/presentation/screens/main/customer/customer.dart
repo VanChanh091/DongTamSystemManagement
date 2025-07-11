@@ -1,5 +1,6 @@
 import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
 import 'package:dongtam/service/customer_Service.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
@@ -611,19 +612,4 @@ class _CustomerPageState extends State<CustomerPage> {
       ),
     );
   }
-}
-
-Widget styleText(String text) {
-  return Text(
-    text,
-    style: TextStyle(
-      fontWeight: FontWeight.w700,
-      fontSize: 15,
-      color: Colors.white,
-    ),
-  );
-}
-
-Widget styleCell(double? width, String text) {
-  return SizedBox(width: width, child: Text(text, maxLines: 2));
 }

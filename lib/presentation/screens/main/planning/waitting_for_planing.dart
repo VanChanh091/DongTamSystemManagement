@@ -184,11 +184,3 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
     );
   }
 }
-
-Widget styleText(String text) {
-  return Text(text, style: TextStyle(fontWeight: FontWeight.bold));
-}
-
-Widget styleCell(double? width, String text) {
-  return SizedBox(width: width, child: Text(text, maxLines: 3));
-}

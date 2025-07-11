@@ -1,50 +1,34 @@
-import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
-import 'package:dongtam/service/product_Service.dart';
+import 'package:dongtam/data/models/admin/admin_wasteNorm_model.dart';
+import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class ProductPage extends StatefulWidget {
-  const ProductPage({super.key});
+class AdminWasteNorm extends StatefulWidget {
+  const AdminWasteNorm({super.key});
 
   @override
-  State<ProductPage> createState() => _ProductPageState();
+  State<AdminWasteNorm> createState() => _AdminWasteNormState();
 }
 
-class _ProductPageState extends State<ProductPage> {
-  late Future<List<Product>> futureProducts;
-  TextEditingController searchController = TextEditingController();
-  List<String> isSelected = [];
+class _AdminWasteNormState extends State<AdminWasteNorm> {
+  late Future<List<AdminWasteNormModel>> futureAdminWasteNorm;
+  int? selectedWasteNorm;
+  List<int> isSelected = [];
+  List<AdminWasteNormModel> updatedWasteNorms = [];
   bool selectedAll = false;
-  bool isTextFieldEnabled = false;
-  String searchType = "Tất cả";
 
   @override
   void initState() {
     super.initState();
-    futureProducts = ProductService().getAllProducts();
+    loadWasteNorm();
   }
 
-  void searchProduct() {
-    String keyword = searchController.text.trim().toLowerCase();
-
-    if (isTextFieldEnabled && keyword.isEmpty) return;
-
-    if (searchType == "Tất cả") {
-      setState(() {
-        futureProducts = ProductService().getAllProducts();
-      });
-    } else if (searchType == "Theo Mã") {
-      setState(() {
-        futureProducts = ProductService().getProductById(keyword);
-      });
-    } else if (searchType == "Theo Tên SP") {
-      setState(() {
-        futureProducts = ProductService().getProductByName(keyword);
-      });
-    }
+  void loadWasteNorm() {
+    setState(() {
+      futureAdminWasteNorm = AdminService().getAllWasteNorm();
+    });
   }
 
   @override
@@ -61,102 +45,7 @@ class _ProductPageState extends State<ProductPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //dropdown
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  child: Row(
-                    children: [
-                      //dropdown
-                      SizedBox(
-                        width: 170,
-                        child: DropdownButtonFormField<String>(
-                          value: searchType,
-                          items:
-                              ['Tất cả', "Theo Mã", "Theo Tên SP"].map((
-                                String value,
-                              ) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              searchType = value!;
-                              isTextFieldEnabled = searchType != 'Tất cả';
-
-                              if (!isTextFieldEnabled) {
-                                searchController.clear();
-                              }
-                            });
-                          },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.grey),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-
-                      // input
-                      SizedBox(
-                        width: 250,
-                        height: 50,
-                        child: TextField(
-                          controller: searchController,
-                          enabled: isTextFieldEnabled,
-                          onSubmitted: (_) => searchProduct(),
-                          decoration: InputDecoration(
-                            hintText: 'Tìm kiếm...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-
-                      // find
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          searchProduct();
-                        },
-                        label: Text(
-                          "Tìm kiếm",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Icons.search, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                ),
-
+                SizedBox(),
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Row(
@@ -165,7 +54,8 @@ class _ProductPageState extends State<ProductPage> {
                       ElevatedButton.icon(
                         onPressed: () {
                           setState(() {
-                            futureProducts = ProductService().getAllProducts();
+                            futureAdminWasteNorm =
+                                AdminService().getAllWasteNorm();
                           });
                         },
                         label: Text(
@@ -190,83 +80,36 @@ class _ProductPageState extends State<ProductPage> {
                       ),
                       const SizedBox(width: 10),
 
-                      //add
+                      // update
                       ElevatedButton.icon(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => ProductDialog(
-                                  product: null,
-                                  onProductAddOrUpdate: () {
-                                    setState(() {
-                                      futureProducts =
-                                          ProductService().getAllProducts();
-                                    });
-                                  },
-                                ),
+                        onPressed: () async {
+                          for (final item in updatedWasteNorms) {
+                            await AdminService()
+                                .updateWasteNorm(item.wasteNormId, {
+                                  "waveCrest": item.waveCrest,
+                                  "waveCrestSoft": item.waveCrestSoft,
+                                  "lossInProcess": item.lossInProcess,
+                                  "lossInSheetingAndSlitting":
+                                      item.lossInSheetingAndSlitting,
+                                  "machineName": item.machineName,
+                                });
+                          }
+
+                          loadWasteNorm();
+
+                          showSnackBarSuccess(
+                            context,
+                            'Đã cập nhật thành công',
                           );
                         },
                         label: Text(
-                          "Thêm mới",
+                          "Lưu Thay Đổi",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        icon: Icon(Icons.add, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff78D761),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-
-                      // update
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          if (isSelected.isEmpty) {
-                            showSnackBarError(
-                              context,
-                              'Vui lòng chọn sản phẩm cần sửa',
-                            );
-                            return;
-                          }
-
-                          String productId = isSelected.first;
-                          ProductService().getProductById(productId).then((
-                            product,
-                          ) {
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (_) => ProductDialog(
-                                    product: product.first,
-                                    onProductAddOrUpdate: () {
-                                      setState(() {
-                                        futureProducts =
-                                            ProductService().getAllProducts();
-                                      });
-                                    },
-                                  ),
-                            );
-                          });
-                        },
-                        label: Text(
-                          "Sửa",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: Icon(Symbols.construction, color: Colors.white),
+                        icon: Icon(Symbols.save, color: Colors.white),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xff78D761),
                           foregroundColor: Colors.white,
@@ -327,7 +170,7 @@ class _ProductPageState extends State<ProductPage> {
                                                       ],
                                                     )
                                                     : Text(
-                                                      'Bạn có chắc chắn muốn xoá ${isSelected.length} sản phẩm?',
+                                                      'Bạn có chắc chắn muốn xoá?',
                                                       style: TextStyle(
                                                         fontSize: 16,
                                                       ),
@@ -372,10 +215,10 @@ class _ProductPageState extends State<ProductPage> {
                                                             isDeleting = true;
                                                           });
 
-                                                          for (String id
+                                                          for (int id
                                                               in isSelected) {
-                                                            await ProductService()
-                                                                .deleteProduct(
+                                                            await AdminService()
+                                                                .deleteWasteNorm(
                                                                   id,
                                                                 );
                                                           }
@@ -388,9 +231,9 @@ class _ProductPageState extends State<ProductPage> {
 
                                                           setState(() {
                                                             isSelected.clear();
-                                                            futureProducts =
-                                                                ProductService()
-                                                                    .getAllProducts();
+                                                            futureAdminWasteNorm =
+                                                                AdminService()
+                                                                    .getAllWasteNorm();
                                                           });
 
                                                           Navigator.pop(
@@ -420,18 +263,18 @@ class _ProductPageState extends State<ProductPage> {
                                   );
                                 }
                                 : null,
-                        label: const Text(
-                          "Xoá",
+                        label: Text(
+                          "Xóa",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        icon: const Icon(Icons.delete, color: Colors.white),
+                        icon: Icon(Icons.delete, color: Colors.white),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xffEA4346),
+                          backgroundColor: Color(0xffEA4346),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 20,
                             vertical: 15,
                           ),
@@ -447,37 +290,23 @@ class _ProductPageState extends State<ProductPage> {
             ),
           ),
 
-          // table
+          //table
           Expanded(
             child: SizedBox(
               width: double.infinity,
-              child: FutureBuilder<List<Product>>(
-                future: futureProducts,
+              child: FutureBuilder<List<AdminWasteNormModel>>(
+                future: futureAdminWasteNorm,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
+                  } else if (snapshot.hasError) {
                     return Text("Error: ${snapshot.error}");
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('Không có dữ liệu'));
                   }
 
                   final data = snapshot.data!;
-
-                  // Sort the data by the numeric part of productId in ascending order
-                  data.sort((a, b) {
-                    final aNumeric =
-                        int.tryParse(
-                          a.productId.replaceAll(RegExp(r'[^0-9]'), ''),
-                        ) ??
-                        0;
-                    final bNumeric =
-                        int.tryParse(
-                          b.productId.replaceAll(RegExp(r'[^0-9]'), ''),
-                        ) ??
-                        0;
-                    return aNumeric.compareTo(bNumeric);
-                  });
+                  updatedWasteNorms = data;
 
                   return SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -512,7 +341,7 @@ class _ProductPageState extends State<ProductPage> {
                                   selectedAll = value!;
                                   if (selectedAll) {
                                     isSelected =
-                                        data.map((e) => e.productId).toList();
+                                        data.map((e) => e.wasteNormId).toList();
                                   } else {
                                     isSelected.clear();
                                   }
@@ -521,14 +350,14 @@ class _ProductPageState extends State<ProductPage> {
                             ),
                           ),
                         ),
-                        DataColumn(label: styleText("Mã Sản Phẩm")),
-                        DataColumn(label: styleText("Loại Sản Phẩm")),
-                        DataColumn(label: styleText("Tên Sản Phẩm")),
-                        DataColumn(label: styleText("Mã Khuôn")),
-                        DataColumn(label: styleText("Hình ảnh")),
+                        DataColumn(label: styleText("Vô Giấy Đầu Sóng")),
+                        DataColumn(label: styleText("Ra Giấy Đầu Mềm")),
+                        DataColumn(label: styleText("Hao phí Quá Trình Chạy")),
+                        DataColumn(label: styleText("Hao Phí Xả Tờ - Cắt Khổ")),
+                        DataColumn(label: styleText("Loại Máy")),
                       ],
                       rows: List<DataRow>.generate(data.length, (index) {
-                        final product = data[index];
+                        final wasteNorm = data[index];
                         return DataRow(
                           cells: [
                             DataCell(
@@ -557,14 +386,19 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                 ),
                                 child: Checkbox(
-                                  value: isSelected.contains(product.productId),
+                                  value: isSelected.contains(
+                                    wasteNorm.wasteNormId,
+                                  ),
                                   onChanged: (val) {
                                     setState(() {
                                       if (val == true) {
-                                        isSelected.add(product.productId);
+                                        isSelected.add(wasteNorm.wasteNormId);
                                       } else {
-                                        isSelected.remove(product.productId);
+                                        isSelected.remove(
+                                          wasteNorm.wasteNormId,
+                                        );
                                       }
+
                                       selectedAll =
                                           isSelected.length == data.length;
                                     });
@@ -572,96 +406,50 @@ class _ProductPageState extends State<ProductPage> {
                                 ),
                               ),
                             ),
-                            DataCell(styleCell(null, product.productId)),
-                            DataCell(styleCell(null, product.typeProduct)),
                             DataCell(
-                              styleCell(null, product.productName ?? ""),
+                              styleCellAdmin(wasteNorm.waveCrest.toString(), (
+                                value,
+                              ) {
+                                setState(() {
+                                  wasteNorm.waveCrest =
+                                      double.tryParse(value) ?? 0;
+                                });
+                              }),
                             ),
-                            DataCell(styleCell(null, product.maKhuon ?? "")),
                             DataCell(
-                              product.productImage != null &&
-                                      product.productImage!.isNotEmpty
-                                  ? TextButton(
-                                    onPressed: () {
-                                      print(
-                                        'Attempting to show image from URL: ${product.productImage}',
-                                      );
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: true,
-                                        builder: (_) {
-                                          return GestureDetector(
-                                            onTap:
-                                                () =>
-                                                    Navigator.of(context).pop(),
-                                            child: Scaffold(
-                                              backgroundColor: Colors.black54,
-                                              body: Center(
-                                                child: GestureDetector(
-                                                  onTap:
-                                                      () {}, // Ngăn không cho nhấn vào ảnh đóng dialog
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
-                                                    child: SizedBox(
-                                                      width: 800,
-                                                      height: 800,
-                                                      child: Image.network(
-                                                        product.productImage!,
-                                                        fit: BoxFit.contain,
-                                                        errorBuilder: (
-                                                          context,
-                                                          error,
-                                                          stackTrace,
-                                                        ) {
-                                                          print(
-                                                            'Image loading error: $error',
-                                                          );
-                                                          print(
-                                                            'StackTrace: $stackTrace',
-                                                          );
-                                                          return Container(
-                                                            width: 300,
-                                                            height: 300,
-                                                            color:
-                                                                Colors
-                                                                    .grey
-                                                                    .shade300,
-                                                            alignment:
-                                                                Alignment
-                                                                    .center,
-                                                            child: const Text(
-                                                              "Lỗi ảnh",
-                                                              style: TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .black,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: Text(
-                                      'Xem ảnh',
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  )
-                                  : const Text('Không có ảnh'),
+                              styleCellAdmin(
+                                wasteNorm.waveCrestSoft.toString(),
+                                (value) {
+                                  setState(() {
+                                    wasteNorm.waveCrestSoft =
+                                        double.tryParse(value) ?? 0;
+                                  });
+                                },
+                              ),
                             ),
+                            DataCell(
+                              styleCellAdmin(
+                                wasteNorm.lossInProcess.toString(),
+                                (value) {
+                                  setState(() {
+                                    wasteNorm.lossInProcess =
+                                        double.tryParse(value) ?? 0;
+                                  });
+                                },
+                              ),
+                            ),
+                            DataCell(
+                              styleCellAdmin(
+                                wasteNorm.lossInSheetingAndSlitting.toString(),
+                                (value) {
+                                  setState(() {
+                                    wasteNorm.lossInSheetingAndSlitting =
+                                        double.tryParse(value) ?? 0;
+                                  });
+                                },
+                              ),
+                            ),
+                            DataCell(Text(wasteNorm.machineName.toString())),
                           ],
                         );
                       }),

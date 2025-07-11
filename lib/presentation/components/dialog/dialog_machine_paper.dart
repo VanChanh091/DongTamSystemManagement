@@ -1,5 +1,5 @@
 import 'package:dongtam/data/models/admin/admin_machinePaper_model.dart';
-import 'package:dongtam/service/admin_Service.dart';
+import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
