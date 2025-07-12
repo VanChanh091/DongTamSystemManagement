@@ -40,7 +40,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
         children: [
           //button
           SizedBox(
-            height: 80,
+            height: 65,
             width: double.infinity,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -52,12 +52,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                     children: [
                       // refresh
                       ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            futureAdminWasteNorm =
-                                AdminService().getAllWasteNorm();
-                          });
-                        },
+                        onPressed: loadWasteNorm,
                         label: Text(
                           "Tải lại",
                           style: TextStyle(
@@ -83,7 +78,27 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                       // update
                       ElevatedButton.icon(
                         onPressed: () async {
-                          for (final item in updatedWasteNorms) {
+                          if (isSelected.isEmpty) {
+                            showSnackBarError(
+                              context,
+                              "Chưa chọn thông tin cần cập nhật",
+                            );
+                            return;
+                          }
+
+                          final dataToUpdate =
+                              updatedWasteNorms
+                                  .where(
+                                    (item) =>
+                                        isSelected.contains(item.wasteNormId),
+                                  )
+                                  .toList();
+
+                          for (final item in dataToUpdate) {
+                            print(
+                              '⏫ Updating wasteNormId: ${item.wasteNormId}',
+                            );
+
                             await AdminService()
                                 .updateWasteNorm(item.wasteNormId, {
                                   "waveCrest": item.waveCrest,
@@ -122,6 +137,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 10),
 
                       //delete customers
@@ -407,18 +423,19 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                               ),
                             ),
                             DataCell(
-                              styleCellAdmin(wasteNorm.waveCrest.toString(), (
-                                value,
-                              ) {
-                                setState(() {
-                                  wasteNorm.waveCrest =
-                                      double.tryParse(value) ?? 0;
-                                });
-                              }),
+                              styleCellAdmin(
+                                '${wasteNorm.waveCrest.toString()}m',
+                                (value) {
+                                  setState(() {
+                                    wasteNorm.waveCrest =
+                                        double.tryParse(value) ?? 0;
+                                  });
+                                },
+                              ),
                             ),
                             DataCell(
                               styleCellAdmin(
-                                wasteNorm.waveCrestSoft.toString(),
+                                '${wasteNorm.waveCrestSoft.toString()}m',
                                 (value) {
                                   setState(() {
                                     wasteNorm.waveCrestSoft =
@@ -429,7 +446,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                             ),
                             DataCell(
                               styleCellAdmin(
-                                wasteNorm.lossInProcess.toString(),
+                                '${wasteNorm.lossInProcess.toString()}%',
                                 (value) {
                                   setState(() {
                                     wasteNorm.lossInProcess =
@@ -440,7 +457,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                             ),
                             DataCell(
                               styleCellAdmin(
-                                wasteNorm.lossInSheetingAndSlitting.toString(),
+                                '${wasteNorm.lossInSheetingAndSlitting.toString()}m',
                                 (value) {
                                   setState(() {
                                     wasteNorm.lossInSheetingAndSlitting =

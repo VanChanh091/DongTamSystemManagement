@@ -1,12 +1,12 @@
 import 'package:dongtam/utils/helper/helper_model.dart';
 
 class AdminWaveCrestModel {
-  final int waveCrestCoefficientId;
-  final double? fluteE_1;
-  final double? fluteE_2;
-  final double? fluteB;
-  final double? fluteC;
-  final String machineName;
+  int waveCrestCoefficientId;
+  double? fluteE_1;
+  double? fluteE_2;
+  double? fluteB;
+  double? fluteC;
+  String machineName;
 
   AdminWaveCrestModel({
     required this.waveCrestCoefficientId,

@@ -1,18 +1,18 @@
 import 'package:dongtam/utils/helper/helper_model.dart';
 
 class AdminMachinePaperModel {
-  final int machineId;
-  final String machineName;
-  final int timeChangeSize;
-  final int timeChangeSameSize;
-  final int speed2Layer;
-  final int speed3Layer;
-  final int speed4Layer;
-  final int speed5Layer;
-  final int speed6Layer;
-  final int speed7Layer;
-  final int paperRollSpeed;
-  final double machinePerformance;
+  int machineId;
+  String machineName;
+  int timeChangeSize;
+  int timeChangeSameSize;
+  int speed2Layer;
+  int speed3Layer;
+  int speed4Layer;
+  int speed5Layer;
+  int speed6Layer;
+  int speed7Layer;
+  int paperRollSpeed;
+  double machinePerformance;
 
   AdminMachinePaperModel({
     required this.machineId,
