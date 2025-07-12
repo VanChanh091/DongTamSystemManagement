@@ -3,7 +3,6 @@ import 'package:dongtam/data/models/planning/paper_consumption_norm_model.dart';
 import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class Planning {
   final int planningId;
@@ -48,33 +47,6 @@ class Planning {
     this.timeOverflowPlanning,
   });
 
-  // Planning copyWith({DateTime? dayStart, TimeOfDay? timeRunning}) {
-  //   return Planning(
-  //     planningId: planningId,
-  //     dayStart: dayStart ?? this.dayStart,
-  //     timeRunning: timeRunning ?? this.timeRunning,
-  //     runningPlan: runningPlan,
-  //     ghepKho: ghepKho,
-  //     sortPlanning: sortPlanning,
-  //     lengthPaperPlanning: lengthPaperPlanning,
-  //     sizePaperPLaning: sizePaperPLaning,
-  //     dayReplace: dayReplace,
-  //     matEReplace: matEReplace,
-  //     matBReplace: matBReplace,
-  //     matCReplace: matCReplace,
-  //     songEReplace: songEReplace,
-  //     songBReplace: songBReplace,
-  //     songCReplace: songCReplace,
-  //     songE2Replace: songE2Replace,
-  //     chooseMachine: chooseMachine,
-  //     hasOverFlow: hasOverFlow,
-  //     orderId: orderId,
-  //     order: order,
-  //     paperConsumptionNorm: paperConsumptionNorm,
-  //     timeOverflowPlanning: timeOverflowPlanning,
-  //   );
-  // }
-
   String get formatterStructureOrder {
     final prefixes = ['', 'E', '', 'B', '', 'C', '', ''];
     final parts = [
@@ -112,9 +84,15 @@ class Planning {
   factory Planning.fromJson(Map<String, dynamic> json) {
     return Planning(
       planningId: json["planningId"] ?? 0,
-      dayStart: DateTime.parse(json['dayStart']),
+      dayStart:
+          json['dayStart'] != null && json['dayStart'] != ''
+              ? DateTime.tryParse(json['dayStart'])
+              : null,
+      timeRunning:
+          json['timeRunning'] != null && json['timeRunning'] != ''
+              ? parseTimeOfDay(json['timeRunning'])
+              : null,
       runningPlan: json['runningPlan'] ?? 0,
-      timeRunning: parseTimeOfDay(json['timeRunning']),
       dayReplace: json['dayReplace'] ?? "",
       matEReplace: json['matEReplace'] ?? "",
       matBReplace: json['matBReplace'] ?? "",
@@ -144,9 +122,7 @@ class Planning {
 
   Map<String, dynamic> toJson() {
     return {
-      "dayStart": DateFormat('yyyy-MM-dd').format(dayStart!),
       'runningPlan': runningPlan,
-      'timeRunning': '${timeRunning!.hour}:${timeRunning!.minute}',
       'dayReplace': dayReplace,
       'matEReplace': matEReplace,
       'matBReplace': matBReplace,

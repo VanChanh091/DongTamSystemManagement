@@ -12,7 +12,7 @@ List<GridColumn> buildMachineColumns() {
     GridColumn(
       columnName: 'dayStartProduction',
       label: formatColumn("Ngày Sản Xuất"),
-    ), //
+    ),
     GridColumn(
       columnName: 'structure',
       label: formatColumn("Kết Cấu Đặt Hàng"),

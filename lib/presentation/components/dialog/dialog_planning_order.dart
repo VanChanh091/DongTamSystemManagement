@@ -160,19 +160,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
     }
   }
 
-  String mapFluteToLayerType(String fluteText) {
-    final fluteNumber = int.tryParse(fluteText);
-
-    if (fluteNumber == null) return '2_LAYER';
-
-    if (fluteNumber == 2) return '2_LAYER';
-    if (fluteNumber == 3) return '3_LAYER';
-    if (fluteNumber == 4 || fluteNumber == 5) return '4_5_LAYER';
-    if (fluteNumber > 5) return 'MORE_5_LAYER';
-
-    return '2_LAYER';
-  }
-
   void submit() async {
     if (!formKey.currentState!.validate()) return;
 
@@ -213,8 +200,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     //add layerType into toJson
     final planningJson = newPlanning.toJson();
-    final layerType = mapFluteToLayerType(fluteController.text);
-    planningJson['layerType'] = layerType;
 
     try {
       await PlanningService().planningOrder(

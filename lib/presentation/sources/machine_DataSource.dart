@@ -7,6 +7,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class MachineDatasource extends DataGridSource {
   List<Planning> planning = [];
   List<String> selectedPlanningIds = [];
+  bool showGroup;
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -15,12 +16,15 @@ class MachineDatasource extends DataGridSource {
   MachineDatasource({
     required this.planning,
     required this.selectedPlanningIds,
+    required this.showGroup,
   }) {
     buildDataGridRows();
 
-    addColumnGroup(
-      ColumnGroup(name: 'dayStartProduction', sortGroupRows: false),
-    );
+    if (showGroup) {
+      addColumnGroup(
+        ColumnGroup(name: 'dayStartProduction', sortGroupRows: false),
+      );
+    }
   }
 
   // Tạo danh sách cell cho từng hàng
@@ -39,12 +43,12 @@ class MachineDatasource extends DataGridSource {
                 ? formatter.format(planning.order!.dateRequestShipping)
                 : '',
       ),
-      DataGridCell<String>(
+      DataGridCell<String?>(
         columnName: "dayStartProduction",
         value:
             planning.dayStart != null
                 ? formatter.format(planning.dayStart!)
-                : '',
+                : null,
       ),
       DataGridCell<String>(
         columnName: 'structure',
@@ -140,25 +144,6 @@ class MachineDatasource extends DataGridSource {
             .toList();
 
     notifyListeners();
-  }
-
-  void sortDataPlanning() {
-    planning.sort((a, b) {
-      int dateCompare = a.order!.dateRequestShipping.compareTo(
-        b.order!.dateRequestShipping,
-      );
-      if (dateCompare != 0) return dateCompare;
-
-      int ghepKhoCompare = (b.ghepKho ?? 0).compareTo(a.ghepKho ?? 0);
-      if (ghepKhoCompare != 0) return ghepKhoCompare;
-
-      int fluteA = extractFlute(a.order!.flute ?? "");
-      int fluteB = extractFlute(b.order!.flute ?? "");
-      int fluteCompare = fluteB.compareTo(fluteA);
-      if (fluteCompare != 0) return fluteCompare;
-
-      return a.planningId.compareTo(b.planningId);
-    });
   }
 
   // Di chuyển hàng lên

@@ -29,6 +29,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
   final DataGridController dataGridController = DataGridController();
   DateTime? dayStart = DateTime.now();
   bool isLoading = false;
+  bool showGroup = true;
 
   TextEditingController searchController = TextEditingController();
   TextEditingController dayStartController = TextEditingController();
@@ -447,8 +448,42 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                 ),
                             ],
                           ),
-
                           const SizedBox(width: 10),
+
+                          //group/unGroup
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                showGroup = !showGroup;
+                              });
+                            },
+                            label: Text(
+                              showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon:
+                                showGroup
+                                    ? Icon(Symbols.ungroup, color: Colors.white)
+                                    : Icon(
+                                      Symbols.ad_group,
+                                      color: Colors.white,
+                                    ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff78D761),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
 
                           //choose machine
                           SizedBox(
@@ -654,6 +689,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                 machineDatasource = MachineDatasource(
                   planning: data,
                   selectedPlanningIds: selectedPlanningIds,
+                  showGroup: showGroup,
                 );
 
                 return SfDataGrid(
