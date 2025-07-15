@@ -33,15 +33,16 @@ List<GridColumn> buildMachineColumns() {
       columnName: 'timeRunningProd',
       label: formatColumn("Thời Gian Chạy"),
     ),
-
-    //paper consumption norm
-    GridColumn(columnName: 'dmPheLieu', label: formatColumn("ĐM Phế Liệu")),
-    GridColumn(columnName: 'plDauC', label: formatColumn("PL Đầu C")),
-    GridColumn(columnName: 'plDauB', label: formatColumn("PL Đầu B")),
-    GridColumn(columnName: 'plDauE', label: formatColumn("PL Đầu E")),
-    GridColumn(columnName: 'plDay', label: formatColumn("PL Đáy")),
-    GridColumn(columnName: 'plDao', label: formatColumn("PL Dao")),
     GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
+    GridColumn(columnName: 'bottom', label: formatColumn("Đáy")),
+    GridColumn(columnName: 'fluteE', label: formatColumn("Sóng E")),
+    GridColumn(columnName: 'fluteB', label: formatColumn("Sóng B")),
+    GridColumn(columnName: 'fluteC', label: formatColumn("Sóng C")),
+    GridColumn(columnName: 'knife', label: formatColumn("Dao")),
+    GridColumn(
+      columnName: 'totalWasteLoss',
+      label: formatColumn("Tổng Hao Phí"),
+    ),
     GridColumn(columnName: 'index', label: formatColumn("Index")),
   ];
 }

@@ -1,5 +1,4 @@
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/paper_consumption_norm_model.dart';
 import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +15,15 @@ class Planning {
   final String? matEReplace, matBReplace, matCReplace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
   final String chooseMachine;
+  final double? bottom;
+  final double? fluteE;
+  final double? fluteB;
+  final double? fluteC;
+  final double? knife;
+  final double? totalLoss;
 
   final String orderId;
   final Order? order;
-  final PaperConsumptionNorm? paperConsumptionNorm;
   final TimeOverflowPlanning? timeOverflowPlanning;
 
   Planning({
@@ -39,11 +43,16 @@ class Planning {
     required this.sizePaperPLaning,
     required this.ghepKho,
     required this.chooseMachine,
+    this.bottom,
+    this.fluteE,
+    this.fluteB,
+    this.fluteC,
+    this.knife,
+    this.totalLoss,
     this.sortPlanning,
 
     required this.orderId,
     this.order,
-    this.paperConsumptionNorm,
     this.timeOverflowPlanning,
   });
 
@@ -105,14 +114,16 @@ class Planning {
       sizePaperPLaning: toDouble((json['sizePaperPLaning'])),
       ghepKho: json['ghepKho'] ?? "",
       chooseMachine: json['chooseMachine'] ?? "",
+      bottom: toDouble(json['bottom']),
+      fluteE: toDouble(json['fluteE']),
+      fluteB: toDouble(json['fluteB']),
+      fluteC: toDouble(json['fluteC']),
+      knife: toDouble(json['knife']),
+      totalLoss: toDouble(json['totalLoss']),
       sortPlanning: json['sortPlanning'] ?? 0,
 
       orderId: json['orderId'] ?? "",
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
-      paperConsumptionNorm:
-          json['norm'] != null
-              ? PaperConsumptionNorm.fromJson(json['norm'])
-              : null,
       timeOverflowPlanning:
           json['timeOverFlow'] != null
               ? TimeOverflowPlanning.fromJson(json['timeOverFlow'])
@@ -138,7 +149,6 @@ class Planning {
 
       'orderId': orderId,
       'order': order?.toJson(),
-      'paperConsumptionNorm': paperConsumptionNorm?.toJson(),
     };
   }
 }

@@ -1,5 +1,4 @@
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/paper_consumption_norm_model.dart';
 import 'package:dongtam/data/models/planning/planning_model.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
@@ -138,16 +137,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
     sizePaperPLaningController.text = sizeOrderController.text;
     runningPlanController.text = quantityOrderController.text;
     fluteController.text = extractNumbers(songController.text);
-
-    //Dinh Muc
-    dayController.text = extractNumbers(dayOrderController.text);
-    songEController.text = extractNumbers(songEOrderController.text);
-    songBController.text = extractNumbers(songBOrderController.text);
-    songCController.text = extractNumbers(songCOrderController.text);
-    songE2Controller.text = extractNumbers(songE2OrderController.text);
-    matEController.text = extractNumbers(matEOrderController.text);
-    matBController.text = extractNumbers(matBOrderController.text);
-    matCController.text = extractNumbers(matCOrderController.text);
   }
 
   /// Trích xuất số từ chuỗi văn bản
@@ -162,17 +151,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
   void submit() async {
     if (!formKey.currentState!.validate()) return;
-
-    final newPaperConsumptionNorm = PaperConsumptionNorm(
-      day: int.tryParse(dayController.text) ?? 0,
-      songE: int.tryParse(songEController.text) ?? 0,
-      matE: int.tryParse(matEController.text) ?? 0,
-      songB: int.tryParse(songBController.text) ?? 0,
-      matB: int.tryParse(matBController.text) ?? 0,
-      songC: int.tryParse(songCController.text) ?? 0,
-      matC: int.tryParse(matCController.text) ?? 0,
-      songE2: int.tryParse(matCController.text) ?? 0,
-    );
 
     final newPlanning = Planning(
       planningId: 0,
@@ -195,7 +173,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       orderId: widget.order!.orderId,
       order: widget.order,
-      paperConsumptionNorm: newPaperConsumptionNorm,
     );
 
     //add layerType into toJson
@@ -255,14 +232,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     runningPlanController.dispose();
     quantityPLanningsController.dispose();
     numberLayerPaperController.dispose();
-    //norm
-    dayController.dispose();
-    songEController.dispose();
-    matEController.dispose();
-    songBController.dispose();
-    matBController.dispose();
-    songCController.dispose();
-    matCController.dispose();
+
     // _debounce?.cancel();
   }
 
@@ -533,67 +503,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
       },
     ];
 
-    final List<Map<String, dynamic>> dinhMuc = [
-      {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Đáy (g)",
-              dayController,
-              Symbols.vertical_align_bottom,
-            ),
-
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Mặt E (g)",
-              matEController,
-              Symbols.vertical_align_center,
-            ),
-
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Mặt B (g)",
-              matBController,
-              Symbols.vertical_align_center,
-            ),
-
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Mặt C (g)",
-              matCController,
-              Symbols.vertical_align_bottom,
-            ),
-      },
-
-      {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Sóng E (g)",
-              songEController,
-              Symbols.airware,
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Sóng B (g)",
-              songBController,
-              Symbols.airware,
-            ),
-
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Sóng C (g)",
-              songCController,
-              Symbols.airware,
-            ),
-
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Sóng E2 (g)",
-              songE2Controller,
-              Symbols.airware,
-            ),
-      },
-    ];
-
     return StatefulBuilder(
       builder: (context, state) {
         return AlertDialog(
@@ -603,7 +512,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
           ),
           content: SizedBox(
             width: 1400,
-            height: 900,
+            height: 800,
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Form(
@@ -724,62 +633,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    //Định mức
-                    Text(
-                      "Định Mức",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xffF2E873),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: EdgeInsets.all(15),
-                      child: Column(
-                        children:
-                            dinhMuc.map((row) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 15),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child:
-                                          row['left'] is Function
-                                              ? row['left']()
-                                              : row['left'],
-                                    ),
-                                    SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['middle_1'] is Function
-                                              ? row['middle_1']()
-                                              : row['middle_1'],
-                                    ),
-                                    SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['middle_2'] is Function
-                                              ? row['middle_2']()
-                                              : row['middle_2'],
-                                    ),
-                                    SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['right'] is Function
-                                              ? row['right']()
-                                              : row['right'],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                      ),
-                    ),
                   ],
                 ),
               ),

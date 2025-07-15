@@ -341,15 +341,43 @@ class _OrderDialogState extends State<OrderDialog> {
           totalPricePaper,
         ).roundToDouble();
 
+    // helper: only add prefix if not empty and not already present
+    String addPrefixIfNeeded(String value, String prefix) {
+      value = value.trim().toUpperCase();
+      if (value.isEmpty) return '';
+      return value.startsWith(prefix) ? value : '$prefix$value';
+    }
+
+    // determine wave fields
+    late final String songEValue;
+    late final String songBValue;
+    late final String songCValue;
+    late final String songE2Value;
+
+    if (widget.order == null) {
+      // add mode
+      songEValue = addPrefixIfNeeded(songEController.text, 'E');
+      songBValue = addPrefixIfNeeded(songBController.text, 'B');
+      songCValue = addPrefixIfNeeded(songCController.text, 'C');
+      songE2Value = addPrefixIfNeeded(songE2Controller.text, 'E2');
+    } else {
+      // update mode
+      songEValue = addPrefixIfNeeded(songEController.text, 'E');
+      songBValue = addPrefixIfNeeded(songBController.text, 'B');
+      songCValue = addPrefixIfNeeded(songCController.text, 'C');
+      songE2Value = addPrefixIfNeeded(songE2Controller.text, 'E2');
+    }
+
+    // flute
     late String flutePaper = Order.flutePaper(
       dayController.text,
       matEController.text,
       matBController.text,
       matCController.text,
-      songEController.text,
-      songBController.text,
-      songCController.text,
-      songE2Controller.text,
+      songEValue,
+      songBValue,
+      songCValue,
+      songE2Value,
     );
 
     final newBox = Box(
@@ -381,10 +409,10 @@ class _OrderDialogState extends State<OrderDialog> {
       matE: matEController.text.toUpperCase(),
       matB: matBController.text.toUpperCase(),
       matC: matCController.text.toUpperCase(),
-      songE: songEController.text.toUpperCase(),
-      songB: songBController.text.toUpperCase(),
-      songC: songCController.text.toUpperCase(),
-      songE2: songE2Controller.text.toUpperCase(),
+      songE: songEValue,
+      songB: songBValue,
+      songC: songCValue,
+      songE2: songE2Value,
       lengthPaperCustomer:
           double.tryParse(lengthCustomerController.text) ?? 0.0,
       lengthPaperManufacture:
@@ -412,11 +440,9 @@ class _OrderDialogState extends State<OrderDialog> {
 
     try {
       if (widget.order == null) {
-        //add
         await OrderService().addOrders(newOrder.toJson());
         showSnackBarSuccess(context, "Lưu thành công");
       } else {
-        //update
         await OrderService().updateOrderById(
           originalOrderId,
           newOrder.toJson(),

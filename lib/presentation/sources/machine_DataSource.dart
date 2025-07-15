@@ -70,15 +70,18 @@ class MachineDatasource extends DataGridSource {
         columnName: 'daoXa',
         value: planning.order?.daoXa ?? '',
       ),
-      DataGridCell<double>(
+      DataGridCell<String>(
         columnName: 'length',
-        value: planning.lengthPaperPlanning,
+        value: '${planning.lengthPaperPlanning} cm',
       ),
-      DataGridCell<double>(
+      DataGridCell<String>(
         columnName: 'size',
-        value: planning.sizePaperPLaning,
+        value: '${planning.sizePaperPLaning} cm',
       ),
-      DataGridCell<int>(columnName: 'khoCapGiay', value: planning.ghepKho),
+      DataGridCell<String>(
+        columnName: 'khoCapGiay',
+        value: '${planning.ghepKho} cm',
+      ),
       DataGridCell<int>(
         columnName: 'quantity',
         value: planning.order?.quantityCustomer ?? 0,
@@ -94,33 +97,30 @@ class MachineDatasource extends DataGridSource {
                 ? Planning.formatTimeOfDay(planning.timeRunning!)
                 : '',
       ),
-      DataGridCell<double>(
-        columnName: 'dmPheLieu',
-        value: planning.paperConsumptionNorm?.totalConsumption ?? 0,
-      ),
-      DataGridCell<double>(
-        columnName: 'plDauC',
-        value: planning.paperConsumptionNorm?.DmSongC ?? 0,
-      ),
-      DataGridCell<double>(
-        columnName: 'plDauB',
-        value: planning.paperConsumptionNorm?.DmSongB ?? 0,
-      ),
-      DataGridCell<double>(
-        columnName: 'plDauE',
-        value: planning.paperConsumptionNorm?.DmSongE ?? 0,
-      ),
-      DataGridCell<double>(
-        columnName: 'plDay',
-        value: planning.paperConsumptionNorm?.DmDay ?? 0,
-      ),
-      DataGridCell<double>(
-        columnName: 'plDao',
-        value: planning.paperConsumptionNorm?.DmDao ?? 0,
-      ),
       DataGridCell<String>(
         columnName: 'totalPrice',
-        value: Order.formatCurrency(planning.order?.totalPrice ?? 0),
+        value: '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND',
+      ),
+      DataGridCell<String>(
+        columnName: 'bottom',
+        value: '${planning.bottom} kg',
+      ),
+      DataGridCell<String>(
+        columnName: 'fluteE',
+        value: planning.fluteE != 0 ? '${planning.fluteE} kg' : "0",
+      ),
+      DataGridCell<String>(
+        columnName: 'fluteB',
+        value: planning.fluteB != 0 ? '${planning.fluteB} kg' : "0",
+      ),
+      DataGridCell<String>(
+        columnName: 'fluteC',
+        value: planning.fluteC != 0 ? '${planning.fluteC} kg' : "0",
+      ),
+      DataGridCell<String>(columnName: 'knife', value: '${planning.knife} kg'),
+      DataGridCell<String>(
+        columnName: 'totalWasteLoss',
+        value: '${planning.totalLoss} kg',
       ),
       DataGridCell<int>(columnName: 'index', value: planning.sortPlanning),
     ];

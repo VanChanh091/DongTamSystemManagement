@@ -25,7 +25,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
   int currentPage = 1;
   int totalPages = 1;
-  int pageSize = 3; //change here
+  int pageSize = 30; //change here
 
   @override
   void initState() {

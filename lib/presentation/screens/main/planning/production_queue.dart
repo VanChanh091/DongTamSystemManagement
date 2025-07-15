@@ -29,7 +29,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
   final DataGridController dataGridController = DataGridController();
   DateTime? dayStart = DateTime.now();
   bool isLoading = false;
-  bool showGroup = true;
+  bool showGroup = false;
 
   TextEditingController searchController = TextEditingController();
   TextEditingController dayStartController = TextEditingController();
@@ -559,7 +559,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                   status: "pending",
                                   title: "Xác nhận dừng sản xuất",
                                   message:
-                                      "Bạn có chắc chắn muốn dừng sản xuất các kế hoạch đã chọn không?",
+                                      "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
                                   successMessage: "Dừng sản xuất thành công",
                                   errorMessage:
                                       "Có lỗi xảy ra khi dừng sản xuất",
@@ -572,7 +572,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                   status: "complete",
                                   title: "Xác nhận thiếu số lượng",
                                   message:
-                                      "Bạn có chắc chắn muốn chấp nhận thiếu không?",
+                                      "Bạn có chắc muốn chấp nhận thiếu không?",
                                   successMessage: "Thực thi thành công",
                                   errorMessage: "Có lỗi xảy ra khi thực thi",
                                   onSuccess: loadPlanning,
@@ -749,23 +749,49 @@ class _ProductionQueueState extends State<ProductionQueue> {
       showSnackBarError(context, "Chưa chọn kế hoạch cần thực hiện");
       return;
     }
-    // print('Selected planning IDs: $orderIdToPlanningId');
 
     bool confirm =
         await showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text(title),
-              content: Text(message),
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              content: Text(
+                message,
+                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("Huỷ"),
+                  child: const Text(
+                    "Huỷ",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
                 ),
-                TextButton(
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffEA4346),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text("Xác nhận"),
+                  child: Text(
+                    "Xác nhận",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             );
@@ -780,8 +806,6 @@ class _ProductionQueueState extends State<ProductionQueue> {
                 .map((orderId) => orderIdToPlanningId[orderId])
                 .whereType<int>()
                 .toList();
-
-        // print('Planning IDs to send: $planningIds');
 
         final success = await PlanningService().pauseOrAcceptLackQty(
           planningIds,

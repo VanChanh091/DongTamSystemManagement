@@ -101,22 +101,35 @@ class Order {
     return NumberFormat("#,###.##").format(value);
   }
 
+  // String get formatterStructureOrder {
+  //   final prefixes = ['', 'E', '', 'B', '', 'C', '', ''];
+  //   final parts = [day, songE, matE, songB, matB, songC, matC, songE2];
+  //   final formattedParts = <String>[];
+
+  //   for (int i = 0; i < parts.length; i++) {
+  //     final part = parts[i];
+  //     if (part != null && part.isNotEmpty) {
+  //       final prefix = prefixes[i];
+  //       if (!part.startsWith(prefix.replaceAll(r'[^A-Z]', ""))) {
+  //         formattedParts.add('$prefix$part');
+  //       } else {
+  //         formattedParts.add(part);
+  //       }
+  //     }
+  //   }
+  //   return formattedParts.join('/');
+  // }
+
   String get formatterStructureOrder {
-    final prefixes = ['', 'E', '', 'B', '', 'C', '', ''];
     final parts = [day, songE, matE, songB, matB, songC, matC, songE2];
     final formattedParts = <String>[];
 
-    for (int i = 0; i < parts.length; i++) {
-      final part = parts[i];
+    for (final part in parts) {
       if (part != null && part.isNotEmpty) {
-        final prefix = prefixes[i];
-        if (!part.startsWith(prefix.replaceAll(r'[^A-Z]', ""))) {
-          formattedParts.add('$prefix$part');
-        } else {
-          formattedParts.add(part);
-        }
+        formattedParts.add(part);
       }
     }
+
     return formattedParts.join('/');
   }
 
