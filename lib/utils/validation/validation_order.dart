@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class ValidationOrder {
-  static Widget checkboxForBox(String label, ValueNotifier<bool> notifier) {
+  static Widget checkboxForBox(
+    String label,
+    ValueNotifier<bool> notifier, {
+    bool enabled = true,
+  }) {
     return ValueListenableBuilder<bool>(
       valueListenable: notifier,
       builder: (context, checked, _) {
@@ -24,11 +28,14 @@ class ValidationOrder {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             value: checked,
-            onChanged: (bool? value) {
-              notifier.value = value ?? false;
-            },
+            onChanged:
+                enabled
+                    ? (bool? value) {
+                      notifier.value = value ?? false;
+                    }
+                    : null,
             controlAffinity: ListTileControlAffinity.leading,
-            tileColor: Colors.transparent, // không ảnh hưởng nền tile
+            tileColor: Colors.transparent,
             contentPadding: EdgeInsets.zero,
           ),
         );
@@ -43,6 +50,7 @@ class ValidationOrder {
     bool readOnly = false,
     bool checkId = false,
     VoidCallback? onTap,
+    bool enabled = true,
   }) {
     return StatefulBuilder(
       builder: (context, setState) {
@@ -51,10 +59,11 @@ class ValidationOrder {
         });
 
         final isFilled = controller.text.isEmpty;
+        final effectiveReadOnly = readOnly || !enabled;
 
         return TextFormField(
           controller: controller,
-          readOnly: readOnly,
+          readOnly: effectiveReadOnly,
           decoration: InputDecoration(
             labelText: label,
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
@@ -63,7 +72,7 @@ class ValidationOrder {
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             fillColor:
-                readOnly
+                effectiveReadOnly
                     ? Colors.grey.shade300
                     : (isFilled
                         ? Colors.white

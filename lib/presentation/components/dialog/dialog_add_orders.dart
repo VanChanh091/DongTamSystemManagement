@@ -79,6 +79,7 @@ class _OrderDialogState extends State<OrderDialog> {
   final typeProduct = TextEditingController();
   final customerNameController = TextEditingController();
   final customerCompanyController = TextEditingController();
+  ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
 
   //box
   final inMatTruocController = TextEditingController();
@@ -145,6 +146,8 @@ class _OrderDialogState extends State<OrderDialog> {
     profitController.text = widget.order!.profit.toStringAsFixed(1);
     vatController.text = widget.order!.vat.toString();
     instructSpecialController.text = widget.order!.instructSpecial.toString();
+
+    isBoxChecked = ValueNotifier<bool>(widget.order!.isBox);
 
     //dropdown
     typeDVT = widget.order!.dvt;
@@ -433,6 +436,8 @@ class _OrderDialogState extends State<OrderDialog> {
       dateRequestShipping: dateShipping ?? DateTime.now(),
       vat: int.tryParse(vatController.text) ?? 0,
       instructSpecial: instructSpecialController.text,
+      isBox: isBoxChecked.value,
+
       totalPrice: totalPriceOrder,
       box: newBox,
       status: 'pending',
@@ -502,6 +507,7 @@ class _OrderDialogState extends State<OrderDialog> {
     chongThamChecked = ValueNotifier<bool>(false);
     dongGhim1ManhChecked = ValueNotifier<bool>(false);
     dongGhim2ManhChecked = ValueNotifier<bool>(false);
+    isBoxChecked = ValueNotifier<bool>(false);
     dongGoiController.dispose();
     maKhuonController.dispose();
     customerIdController.removeListener(_onCustomerIdChanged);
@@ -814,69 +820,110 @@ class _OrderDialogState extends State<OrderDialog> {
       },
     ];
 
-    final List<Map<String, dynamic>> boxes = [
-      {
-        'left':
-            () => ValidationOrder.validateInput(
-              "Số màu in mặt trước",
-              inMatTruocController,
-              Symbols.print,
-            ),
-        'middle_1':
-            () => ValidationOrder.validateInput(
-              "Số màu in mặt sau",
-              inMatSauController,
-              Symbols.print,
-            ),
-        'middle_2':
-            () => ValidationOrder.validateInput(
-              "Cách Đóng gói",
-              dongGoiController,
-              Symbols.box,
-            ),
-        'middle_3':
-            () => ValidationOrder.validateInput(
-              "Mã Khuôn",
-              maKhuonController,
-              Symbols.box,
-              readOnly: true,
-            ),
-        'right':
-            () => ValidationOrder.validateInput(
-              "Số con",
-              numberChildController,
-              Symbols.box,
-            ),
-      },
-      {
-        'left':
-            () =>
-                ValidationOrder.checkboxForBox("Chống thấm", chongThamChecked),
-        'middle_1': () => ValidationOrder.checkboxForBox("Xả", xaChecked),
-        'middle_2':
-            () => ValidationOrder.checkboxForBox("Cắt khe", catKheChecked),
-        'middle_3':
-            () => ValidationOrder.checkboxForBox("Dán 1 mảnh", dan1ManhChecked),
-        'right':
-            () => ValidationOrder.checkboxForBox("Dán 2 mảnh", dan2ManhChecked),
-      },
-      {
-        'left':
-            () => ValidationOrder.checkboxForBox("Cán màng", canMangChecked),
-        'middle_1': () => ValidationOrder.checkboxForBox("Bế", beChecked),
-        'middle_2':
-            () => ValidationOrder.checkboxForBox(
-              "Đóng ghim 1 mảnh",
-              dongGhim1ManhChecked,
-            ),
-        'middle_3':
-            () => ValidationOrder.checkboxForBox(
-              "Đóng ghim 2 mảnh",
-              dongGhim2ManhChecked,
-            ),
-        'right': () => SizedBox(),
-      },
-    ];
+    List<Map<String, dynamic>> buildBoxes(bool isEnabled) {
+      return [
+        {
+          'left':
+              () => ValidationOrder.validateInput(
+                "Số màu in mặt trước",
+                inMatTruocController,
+                Symbols.print,
+                enabled: isEnabled,
+              ),
+          'middle_1':
+              () => ValidationOrder.validateInput(
+                "Số màu in mặt sau",
+                inMatSauController,
+                Symbols.print,
+                enabled: isEnabled,
+              ),
+          'middle_2':
+              () => ValidationOrder.validateInput(
+                "Cách Đóng gói",
+                dongGoiController,
+                Symbols.box,
+                enabled: isEnabled,
+              ),
+          'middle_3':
+              () => ValidationOrder.validateInput(
+                "Mã Khuôn",
+                maKhuonController,
+                Symbols.box,
+                readOnly: true,
+                enabled: isEnabled,
+              ),
+          'right':
+              () => ValidationOrder.validateInput(
+                "Số con",
+                numberChildController,
+                Symbols.box,
+              ),
+        },
+        {
+          'left':
+              () => ValidationOrder.checkboxForBox(
+                "Chống thấm",
+                chongThamChecked,
+                enabled: isEnabled,
+              ),
+          'middle_1':
+              () => ValidationOrder.checkboxForBox(
+                "Xả",
+                xaChecked,
+                enabled: isEnabled,
+              ),
+          'middle_2':
+              () => ValidationOrder.checkboxForBox(
+                "Cắt khe",
+                catKheChecked,
+                enabled: isEnabled,
+              ),
+          'middle_3':
+              () => ValidationOrder.checkboxForBox(
+                "Dán 1 mảnh",
+                dan1ManhChecked,
+                enabled: isEnabled,
+              ),
+          'right':
+              () => ValidationOrder.checkboxForBox(
+                "Dán 2 mảnh",
+                dan2ManhChecked,
+                enabled: isEnabled,
+              ),
+        },
+        {
+          'left':
+              () => ValidationOrder.checkboxForBox(
+                "Cán màng",
+                canMangChecked,
+                enabled: isEnabled,
+              ),
+          'middle_1':
+              () => ValidationOrder.checkboxForBox(
+                "Bế",
+                beChecked,
+                enabled: isEnabled,
+              ),
+          'middle_2':
+              () => ValidationOrder.checkboxForBox(
+                "Đóng ghim 1 mảnh",
+                dongGhim1ManhChecked,
+                enabled: isEnabled,
+              ),
+          'middle_3':
+              () => ValidationOrder.checkboxForBox(
+                "Đóng ghim 2 mảnh",
+                dongGhim2ManhChecked,
+                enabled: isEnabled,
+              ),
+          'right':
+              () => ValidationOrder.checkboxForBox(
+                "Làm thùng?",
+                isBoxChecked,
+              ), // checkbox chính luôn bật
+        },
+      ];
+    }
 
     return StatefulBuilder(
       builder: (context, state) {
@@ -1041,49 +1088,60 @@ class _OrderDialogState extends State<OrderDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ...boxes.map((row) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 15),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child:
-                                        row['left'] is Function
-                                            ? row['left']()
-                                            : row['left'],
-                                  ),
-                                  SizedBox(width: 30),
-                                  Expanded(
-                                    child:
-                                        row['middle_1'] is Function
-                                            ? row['middle_1']()
-                                            : row['middle_1'],
-                                  ),
-                                  SizedBox(width: 30),
-                                  Expanded(
-                                    child:
-                                        row['middle_2'] is Function
-                                            ? row['middle_2']()
-                                            : row['middle_2'],
-                                  ),
-                                  SizedBox(width: 30),
-                                  Expanded(
-                                    child:
-                                        row['middle_3'] is Function
-                                            ? row['middle_3']()
-                                            : row['middle_3'],
-                                  ),
-                                  SizedBox(width: 30),
-                                  Expanded(
-                                    child:
-                                        row['right'] is Function
-                                            ? row['right']()
-                                            : row['right'],
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
+                          ValueListenableBuilder<bool>(
+                            valueListenable: isBoxChecked,
+                            builder: (context, isEnabled, _) {
+                              final boxes = buildBoxes(isEnabled);
+                              return Column(
+                                children:
+                                    boxes.map((row) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 15,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  row['left'] is Function
+                                                      ? row['left']()
+                                                      : row['left'],
+                                            ),
+                                            SizedBox(width: 30),
+                                            Expanded(
+                                              child:
+                                                  row['middle_1'] is Function
+                                                      ? row['middle_1']()
+                                                      : row['middle_1'],
+                                            ),
+                                            SizedBox(width: 30),
+                                            Expanded(
+                                              child:
+                                                  row['middle_2'] is Function
+                                                      ? row['middle_2']()
+                                                      : row['middle_2'],
+                                            ),
+                                            SizedBox(width: 30),
+                                            Expanded(
+                                              child:
+                                                  row['middle_3'] is Function
+                                                      ? row['middle_3']()
+                                                      : row['middle_3'],
+                                            ),
+                                            SizedBox(width: 30),
+                                            Expanded(
+                                              child:
+                                                  row['right'] is Function
+                                                      ? row['right']()
+                                                      : row['right'],
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                              );
+                            },
+                          ),
 
                           Text(
                             'Hướng dẫn đặc biệt:',

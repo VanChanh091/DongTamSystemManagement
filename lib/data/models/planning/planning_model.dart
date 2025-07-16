@@ -4,23 +4,28 @@ import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
 
 class Planning {
-  final int planningId;
-  final DateTime? dayStart;
-  final TimeOfDay? timeRunning;
-  final int runningPlan;
+  //frontend
   final int? ghepKho;
-  final int? sortPlanning;
   final double lengthPaperPlanning, sizePaperPLaning;
   final String? dayReplace;
   final String? matEReplace, matBReplace, matCReplace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
   final String chooseMachine;
+
+  //backend
+  final int planningId;
+  final DateTime? dayStart;
+  final TimeOfDay? timeRunning;
+  final int runningPlan;
+  final int? sortPlanning;
   final double? bottom;
   final double? fluteE;
   final double? fluteB;
   final double? fluteC;
   final double? knife;
   final double? totalLoss;
+  final String? step;
+  final int? dependOnPlanningId;
 
   final String orderId;
   final Order? order;
@@ -50,6 +55,8 @@ class Planning {
     this.knife,
     this.totalLoss,
     this.sortPlanning,
+    this.step,
+    this.dependOnPlanningId,
 
     required this.orderId,
     this.order,
@@ -121,6 +128,8 @@ class Planning {
       knife: toDouble(json['knife']),
       totalLoss: toDouble(json['totalLoss']),
       sortPlanning: json['sortPlanning'] ?? 0,
+      step: json['step'] ?? "",
+      dependOnPlanningId: json['dependOnPlanningId'] ?? 0,
 
       orderId: json['orderId'] ?? "",
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
@@ -133,7 +142,6 @@ class Planning {
 
   Map<String, dynamic> toJson() {
     return {
-      'runningPlan': runningPlan,
       'dayReplace': dayReplace,
       'matEReplace': matEReplace,
       'matBReplace': matBReplace,

@@ -282,7 +282,6 @@ class _ProductionQueueState extends State<ProductionQueue> {
                             children: [
                               IconButton(
                                 icon: Icon(Icons.arrow_upward),
-                                // Nút hoạt động khi có ít nhất 1 hàng được chọn
                                 onPressed:
                                     selectedPlanningIds.isNotEmpty
                                         ? () {
@@ -296,7 +295,6 @@ class _ProductionQueueState extends State<ProductionQueue> {
                               ),
                               IconButton(
                                 icon: Icon(Icons.arrow_downward),
-                                // Nút hoạt động khi có ít nhất 1 hàng được chọn
                                 onPressed:
                                     selectedPlanningIds.isNotEmpty
                                         ? () {

@@ -18,6 +18,7 @@ class Order {
   final int numberChild;
   final int? vat;
   final DateTime dayReceiveOrder, dateRequestShipping;
+  final bool isBox;
 
   final String customerId, productId;
   final Customer? customer;
@@ -60,6 +61,8 @@ class Order {
     required this.status,
     this.rejectReason,
     required this.totalPrice,
+    required this.isBox,
+
     this.customer,
     this.box,
     this.product,
@@ -206,6 +209,7 @@ class Order {
       totalPrice: toDouble(json['totalPrice']),
       dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
       instructSpecial: json['instructSpecial'] ?? "",
+      isBox: json['isBox'] ?? false,
       status: json['status'] ?? "",
       rejectReason: json['rejectReason'] ?? "",
       customer:
@@ -251,6 +255,7 @@ class Order {
         'yyyy-MM-dd',
       ).format(dateRequestShipping),
       'instructSpecial': instructSpecial,
+      "isBox": isBox,
       'status': status,
       "rejectReason": rejectReason,
       'vat': vat,
