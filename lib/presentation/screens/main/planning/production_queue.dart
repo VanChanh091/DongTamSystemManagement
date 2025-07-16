@@ -49,9 +49,11 @@ class _ProductionQueueState extends State<ProductionQueue> {
       ) {
         orderIdToPlanningId.clear();
         for (var planning in planningList) {
-          orderIdToPlanningId[planning.orderId] = planning.planningId;
+          if (planning.step == 'paper') {
+            orderIdToPlanningId[planning.orderId] = planning.planningId;
+          }
         }
-
+        // print(orderIdToPlanningId);
         return planningList;
       });
     });

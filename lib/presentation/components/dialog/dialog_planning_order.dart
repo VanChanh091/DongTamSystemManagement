@@ -175,14 +175,11 @@ class _PLanningDialogState extends State<PLanningDialog> {
       order: widget.order,
     );
 
-    //add layerType into toJson
-    final planningJson = newPlanning.toJson();
-
     try {
       await PlanningService().planningOrder(
         originalOrderId,
         'planning',
-        planningJson,
+        newPlanning.toJson(),
       );
       showSnackBarSuccess(context, "Lưu thành công");
 
@@ -483,7 +480,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       {
         'left':
             () => ValidationPlanning.validateInput(
-              "Ghép khổ",
+              "Ghép Khổ",
               ghepKhoController,
               Symbols.layers,
             ),

@@ -33,6 +33,7 @@ class AdminService {
         ),
       );
       final data = response.data['data'] as List;
+
       return data.map((e) => Order.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to load orders: $e');

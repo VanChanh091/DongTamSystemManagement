@@ -155,12 +155,14 @@ class _ManageOrderState extends State<AdminOrder> {
                                     children: [
                                       rowOrder(),
                                       const SizedBox(height: 12),
-                                      rowBox(),
+                                      if (selectedOrder!.box != null) rowBox(),
                                     ],
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 16),
+
+                              //approved or reject
                               Row(
                                 children: [
                                   ElevatedButton.icon(

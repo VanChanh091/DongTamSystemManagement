@@ -10,13 +10,13 @@ class Planning {
   final String? dayReplace;
   final String? matEReplace, matBReplace, matCReplace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
+  final int runningPlan;
   final String chooseMachine;
 
-  //backend
+  //backend auto generate
   final int planningId;
   final DateTime? dayStart;
   final TimeOfDay? timeRunning;
-  final int runningPlan;
   final int? sortPlanning;
   final double? bottom;
   final double? fluteE;
@@ -91,6 +91,13 @@ class Planning {
     return formattedParts.join('/');
   }
 
+  String get formatStep {
+    if (step == "paper") {
+      return "Giấy Tấm";
+    }
+    return "Làm Thùng";
+  }
+
   static String formatTimeOfDay(TimeOfDay time) {
     final hour = time.hour.toString().padLeft(2, '0');
     final minute = time.minute.toString().padLeft(2, '0');
@@ -142,6 +149,7 @@ class Planning {
 
   Map<String, dynamic> toJson() {
     return {
+      'runningPlan': runningPlan,
       'dayReplace': dayReplace,
       'matEReplace': matEReplace,
       'matBReplace': matBReplace,

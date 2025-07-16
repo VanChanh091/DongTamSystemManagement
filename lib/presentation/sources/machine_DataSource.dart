@@ -27,7 +27,7 @@ class MachineDatasource extends DataGridSource {
     }
   }
 
-  // Tạo danh sách cell cho từng hàng
+  // create list cell for planning
   List<DataGridCell> buildPlanningCells(Planning planning) {
     return [
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
@@ -52,7 +52,10 @@ class MachineDatasource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: 'structure',
-        value: planning.formatterStructureOrder,
+        value:
+            planning.step == "paper"
+                ? planning.formatterStructureOrder
+                : "Làm Thùng",
       ),
       DataGridCell<String>(
         columnName: 'flute',
@@ -103,7 +106,7 @@ class MachineDatasource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: 'bottom',
-        value: '${planning.bottom} kg',
+        value: planning.bottom != 0 ? '${planning.bottom} kg' : "0",
       ),
       DataGridCell<String>(
         columnName: 'fluteE',
@@ -117,12 +120,72 @@ class MachineDatasource extends DataGridSource {
         columnName: 'fluteC',
         value: planning.fluteC != 0 ? '${planning.fluteC} kg' : "0",
       ),
-      DataGridCell<String>(columnName: 'knife', value: '${planning.knife} kg'),
+      DataGridCell<String>(
+        columnName: 'knife',
+        value: planning.knife != 0 ? '${planning.knife} kg' : "0",
+      ),
       DataGridCell<String>(
         columnName: 'totalWasteLoss',
-        value: '${planning.totalLoss} kg',
+        value: planning.totalLoss != 0 ? '${planning.totalLoss} kg' : "0",
       ),
-      DataGridCell<int>(columnName: 'index', value: planning.sortPlanning),
+    ];
+  }
+
+  // create list cell for box
+  List<DataGridCell> buildBoxCell(Planning planning) {
+    final isBoxStep = planning.step == 'box' && planning.order?.box != null;
+    final box = planning.order?.box;
+
+    return [
+      DataGridCell<int>(
+        columnName: 'inMatTruoc',
+        value: isBoxStep ? box!.inMatTruoc ?? 0 : 0,
+      ),
+      DataGridCell<int>(
+        columnName: 'inMatSau',
+        value: isBoxStep ? box!.inMatSau ?? 0 : 0,
+      ),
+      DataGridCell<bool>(
+        columnName: 'canMang',
+        value: isBoxStep ? box!.canMang ?? false : false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'xa',
+        value: isBoxStep ? box!.Xa ?? false : false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'catKhe',
+        value: isBoxStep ? box!.catKhe ?? false : false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'be',
+        value: isBoxStep ? box!.be ?? false : false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dan_1_Manh',
+        value: isBoxStep ? box!.dan_1_Manh ?? false : false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dan_2_Manh',
+        value: isBoxStep ? box!.dan_2_Manh ?? false : false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dongGhimMotManh',
+        value: isBoxStep ? box!.dongGhim1Manh ?? false : false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dongGhimHaiManh',
+        value: isBoxStep ? box!.dongGhim2Manh ?? false : false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'chongTham',
+        value: isBoxStep ? box!.chongTham ?? false : false,
+      ),
+      DataGridCell<String>(
+        columnName: 'dongGoi',
+        value: isBoxStep ? box!.dongGoi ?? '' : '',
+      ),
+      DataGridCell<int>(columnName: 'index', value: planning.sortPlanning ?? 0),
     ];
   }
 
@@ -139,7 +202,12 @@ class MachineDatasource extends DataGridSource {
     planningDataGridRows =
         planning
             .map<DataGridRow>(
-              (planning) => DataGridRow(cells: buildPlanningCells(planning)),
+              (planning) => DataGridRow(
+                cells: [
+                  ...buildPlanningCells(planning),
+                  ...buildBoxCell(planning),
+                ],
+              ),
             )
             .toList();
 
@@ -268,6 +336,29 @@ class MachineDatasource extends DataGridSource {
     );
   }
 
+  String formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = [
+      'canMang',
+      'xa',
+      'catKhe',
+      'be',
+      'dan_1_Manh',
+      'dan_2_Manh',
+      'dongGhimMotManh',
+      'dongGhimHaiManh',
+      'chongTham',
+    ];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? 'Có' : '';
+    }
+
+    return value?.toString() ?? '';
+  }
+
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
@@ -310,7 +401,7 @@ class MachineDatasource extends DataGridSource {
                 vertical: 4.0,
               ),
               child: Text(
-                dataCell.value?.toString() ?? "",
+                formatCellValueBool(dataCell),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,

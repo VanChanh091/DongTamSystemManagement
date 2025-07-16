@@ -36,10 +36,10 @@ class ValidationPlanning {
             filled: true,
           ),
           validator: (value) {
-            if ((label == "Thời gian chạy") &&
-                (value == null || value.isEmpty)) {
+            if ((label == "Ghép Khổ") && (value == null || value.isEmpty)) {
               return 'Không được để trống';
             }
+
             return null;
           },
           onTap: onTap,
