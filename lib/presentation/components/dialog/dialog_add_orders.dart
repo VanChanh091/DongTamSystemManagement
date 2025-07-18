@@ -101,14 +101,16 @@ class _OrderDialogState extends State<OrderDialog> {
     super.initState();
     if (widget.order != null) {
       orderInitState();
-      boxInitState();
+
+      if (widget.order!.box != null) {
+        boxInitState();
+      }
     }
     fetchAllCustomers();
     fetchAllProduct();
-
     addListenerForField();
 
-    //debounce customerId, productId
+    // debounce
     customerIdController.addListener(_onCustomerIdChanged);
     productIdController.addListener(_onProductIdChanged);
   }
@@ -162,29 +164,22 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   void boxInitState() {
-    inMatTruocController.text = widget.order!.box!.inMatTruoc.toString();
-    inMatSauController.text = widget.order!.box!.inMatSau.toString();
-    canMangChecked = ValueNotifier<bool>(widget.order!.box!.canMang ?? false);
-    xaChecked = ValueNotifier<bool>(widget.order!.box!.Xa ?? false);
-    catKheChecked = ValueNotifier<bool>(widget.order!.box!.catKhe ?? false);
-    beChecked = ValueNotifier<bool>(widget.order!.box!.be ?? false);
-    dan1ManhChecked = ValueNotifier<bool>(
-      widget.order!.box!.dan_1_Manh ?? false,
-    );
-    dan2ManhChecked = ValueNotifier<bool>(
-      widget.order!.box!.dan_2_Manh ?? false,
-    );
-    dongGhim1ManhChecked = ValueNotifier<bool>(
-      widget.order!.box!.dongGhim1Manh ?? false,
-    );
-    dongGhim2ManhChecked = ValueNotifier<bool>(
-      widget.order!.box!.dongGhim2Manh ?? false,
-    );
-    chongThamChecked = ValueNotifier<bool>(
-      widget.order!.box!.chongTham ?? false,
-    );
-    dongGoiController.text = widget.order!.box!.dongGoi ?? "";
-    maKhuonController.text = widget.order!.box!.maKhuon ?? "";
+    final box = widget.order!.box;
+    if (box == null) return;
+
+    inMatTruocController.text = box.inMatTruoc?.toString() ?? '';
+    inMatSauController.text = box.inMatSau?.toString() ?? '';
+    canMangChecked = ValueNotifier<bool>(box.canMang ?? false);
+    xaChecked = ValueNotifier<bool>(box.Xa ?? false);
+    catKheChecked = ValueNotifier<bool>(box.catKhe ?? false);
+    beChecked = ValueNotifier<bool>(box.be ?? false);
+    dan1ManhChecked = ValueNotifier<bool>(box.dan_1_Manh ?? false);
+    dan2ManhChecked = ValueNotifier<bool>(box.dan_2_Manh ?? false);
+    dongGhim1ManhChecked = ValueNotifier<bool>(box.dongGhim1Manh ?? false);
+    dongGhim2ManhChecked = ValueNotifier<bool>(box.dongGhim2Manh ?? false);
+    chongThamChecked = ValueNotifier<bool>(box.chongTham ?? false);
+    dongGoiController.text = box.dongGoi ?? "";
+    maKhuonController.text = box.maKhuon ?? "";
   }
 
   Future<void> getCustomerById(String customerId) async {

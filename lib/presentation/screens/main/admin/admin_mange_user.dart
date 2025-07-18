@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_permission_role.dart';
 import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -778,26 +779,6 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget styleText(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 17,
-        color: Colors.white,
-      ),
-    );
-  }
-
-  Widget styleCell(String text) {
-    return SizedBox(
-      child: Text(
-        text,
-        style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
       ),
     );
   }

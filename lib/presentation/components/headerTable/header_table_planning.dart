@@ -26,28 +26,11 @@ List<GridColumn> buildColumnPlanning() {
       columnName: 'qtyManufacture',
       label: formatColumn("Số Lượng (SX)"),
     ),
-
-    //Box
-    GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
-    GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
-    GridColumn(columnName: 'canMang', label: formatColumn("Cán Màng")),
-    GridColumn(columnName: 'xa', label: formatColumn("Xả")),
-    GridColumn(columnName: 'catKhe', label: formatColumn("Cắt Khe")),
-    GridColumn(columnName: 'be', label: formatColumn("Bế")),
-    GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
-    GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
     GridColumn(
-      columnName: 'dongGhimMotManh',
-      label: formatColumn("Đóng Ghim 1 Mảnh"),
+      columnName: 'instructSpecial',
+      label: formatColumn("HD Đặc Biệt"),
     ),
-    GridColumn(
-      columnName: 'dongGhimHaiManh',
-      label: formatColumn("Đóng Ghim 2 Mảnh"),
-    ),
-    GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
-    GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
-    GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
-    GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
+    GridColumn(columnName: 'haveMadeBox', label: formatColumn("Làm Thùng?")),
     GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
   ];
 }

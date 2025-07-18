@@ -591,14 +591,18 @@ class _CustomerPageState extends State<CustomerPage> {
                               ),
                             ),
 
-                            DataCell(styleCell(null, customer.customerId)),
-                            DataCell(styleCell(120, customer.customerName)),
-                            DataCell(styleCell(200, customer.companyName)),
-                            DataCell(styleCell(null, customer.companyAddress)),
-                            DataCell(styleCell(null, customer.shippingAddress)),
-                            DataCell(styleCell(null, customer.mst)),
-                            DataCell(styleCell(null, customer.phone)),
-                            DataCell(styleCell(55, customer.cskh)),
+                            DataCell(styleCell(customer.customerId)),
+                            DataCell(
+                              styleCell(width: 120, customer.customerName),
+                            ),
+                            DataCell(
+                              styleCell(width: 200, customer.companyName),
+                            ),
+                            DataCell(styleCell(customer.companyAddress)),
+                            DataCell(styleCell(customer.shippingAddress)),
+                            DataCell(styleCell(customer.mst)),
+                            DataCell(styleCell(customer.phone)),
+                            DataCell(styleCell(width: 55, customer.cskh)),
                           ],
                         );
                       }),

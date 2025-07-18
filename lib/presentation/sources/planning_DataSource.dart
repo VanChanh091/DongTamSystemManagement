@@ -53,60 +53,13 @@ class PlanningDataSource extends DataGridSource {
         columnName: 'qtyManufacture',
         value: order.quantityManufacture,
       ),
-    ];
-  }
-
-  List<DataGridCell> buildBoxCells(Order order) {
-    return [
-      DataGridCell<int>(
-        columnName: 'inMatTruoc',
-        value: order.box?.inMatTruoc ?? 0,
-      ),
-      DataGridCell<int>(
-        columnName: 'inMatSau',
-        value: order.box?.inMatSau ?? 0,
-      ),
-      DataGridCell<bool>(
-        columnName: 'canMang',
-        value: order.box?.canMang ?? false,
-      ),
-      DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa ?? false),
-      DataGridCell<bool>(
-        columnName: 'catKhe',
-        value: order.box?.catKhe ?? false,
-      ),
-      DataGridCell<bool>(columnName: 'be', value: order.box?.be ?? false),
-      DataGridCell<bool>(
-        columnName: 'dan_1_Manh',
-        value: order.box?.dan_1_Manh ?? false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dan_2_Manh',
-        value: order.box?.dan_2_Manh ?? false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dongGhimMotManh',
-        value: order.box?.dongGhim1Manh ?? false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dongGhimHaiManh',
-        value: order.box?.dongGhim2Manh ?? false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'chongTham',
-        value: order.box?.chongTham ?? false,
-      ),
       DataGridCell<String>(
-        columnName: 'dongGoi',
-        value: order.box?.dongGoi ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: 'maKhuon',
-        value: order.box?.maKhuon ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: 'HD_special',
+        columnName: 'instructSpecial',
         value: order.instructSpecial ?? "",
+      ),
+      DataGridCell<String>(
+        columnName: 'haveMadeBox',
+        value: order.formatIsBox(order.isBox),
       ),
       DataGridCell<String>(
         columnName: 'totalPrice',
@@ -189,9 +142,7 @@ class PlanningDataSource extends DataGridSource {
     orderDataGridRows =
         orders
             .map<DataGridRow>(
-              (order) => DataGridRow(
-                cells: [...buildOrderCells(order), ...buildBoxCells(order)],
-              ),
+              (order) => DataGridRow(cells: buildOrderCells(order)),
             )
             .toList();
 

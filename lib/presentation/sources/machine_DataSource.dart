@@ -128,64 +128,11 @@ class MachineDatasource extends DataGridSource {
         columnName: 'totalWasteLoss',
         value: planning.totalLoss != 0 ? '${planning.totalLoss} kg' : "0",
       ),
-    ];
-  }
-
-  // create list cell for box
-  List<DataGridCell> buildBoxCell(Planning planning) {
-    final isBoxStep = planning.step == 'box' && planning.order?.box != null;
-    final box = planning.order?.box;
-
-    return [
-      DataGridCell<int>(
-        columnName: 'inMatTruoc',
-        value: isBoxStep ? box!.inMatTruoc ?? 0 : 0,
-      ),
-      DataGridCell<int>(
-        columnName: 'inMatSau',
-        value: isBoxStep ? box!.inMatSau ?? 0 : 0,
-      ),
-      DataGridCell<bool>(
-        columnName: 'canMang',
-        value: isBoxStep ? box!.canMang ?? false : false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'xa',
-        value: isBoxStep ? box!.Xa ?? false : false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'catKhe',
-        value: isBoxStep ? box!.catKhe ?? false : false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'be',
-        value: isBoxStep ? box!.be ?? false : false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dan_1_Manh',
-        value: isBoxStep ? box!.dan_1_Manh ?? false : false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dan_2_Manh',
-        value: isBoxStep ? box!.dan_2_Manh ?? false : false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dongGhimMotManh',
-        value: isBoxStep ? box!.dongGhim1Manh ?? false : false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dongGhimHaiManh',
-        value: isBoxStep ? box!.dongGhim2Manh ?? false : false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'chongTham',
-        value: isBoxStep ? box!.chongTham ?? false : false,
-      ),
       DataGridCell<String>(
-        columnName: 'dongGoi',
-        value: isBoxStep ? box!.dongGoi ?? '' : '',
+        columnName: "haveMadeBox",
+        value: planning.order?.formatIsBox(planning.order!.isBox),
       ),
-      DataGridCell<int>(columnName: 'index', value: planning.sortPlanning ?? 0),
+      DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
     ];
   }
 
@@ -202,12 +149,7 @@ class MachineDatasource extends DataGridSource {
     planningDataGridRows =
         planning
             .map<DataGridRow>(
-              (planning) => DataGridRow(
-                cells: [
-                  ...buildPlanningCells(planning),
-                  ...buildBoxCell(planning),
-                ],
-              ),
+              (planning) => DataGridRow(cells: buildPlanningCells(planning)),
             )
             .toList();
 

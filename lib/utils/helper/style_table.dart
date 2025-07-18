@@ -1,5 +1,16 @@
 import 'package:flutter/material.dart';
 
+Widget styleText(String text) {
+  return Text(
+    text,
+    style: TextStyle(
+      fontWeight: FontWeight.w700,
+      fontSize: 16,
+      color: Colors.white,
+    ),
+  );
+}
+
 //editing on table, update a little data
 Widget styleCellAdmin(
   String text,
@@ -21,17 +32,9 @@ Widget styleCellAdmin(
   );
 }
 
-Widget styleText(String text) {
-  return Text(
-    text,
-    style: TextStyle(
-      fontWeight: FontWeight.w700,
-      fontSize: 15,
-      color: Colors.white,
-    ),
+Widget styleCell(String text, {double? width}) {
+  return SizedBox(
+    width: width,
+    child: Text(text, maxLines: 2, style: TextStyle(fontSize: 14)),
   );
-}
-
-Widget styleCell(double? width, String text) {
-  return SizedBox(width: width, child: Text(text, maxLines: 2));
 }

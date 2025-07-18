@@ -44,18 +44,7 @@ List<GridColumn> buildMachineColumns() {
       label: formatColumn("Tổng Hao Phí"),
     ),
 
-    GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
-    GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
-    GridColumn(columnName: 'canMang', label: formatColumn("Cán Màng")),
-    GridColumn(columnName: 'xa', label: formatColumn("Xả")),
-    GridColumn(columnName: 'catKhe', label: formatColumn("Cắt Khe")),
-    GridColumn(columnName: 'be', label: formatColumn("Bế")),
-    GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
-    GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 1 Mảnh")),
-    GridColumn(columnName: 'dongGhimMotManh', label: formatColumn("DG 1 Mảnh")),
-    GridColumn(columnName: 'dongGhimHaiManh', label: formatColumn("DG 2 Mảnh")),
-    GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
-    GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
+    GridColumn(columnName: 'haveMadeBox', label: formatColumn("Làm Thùng?")),
     GridColumn(columnName: 'index', label: formatColumn("Index")),
   ];
 }
