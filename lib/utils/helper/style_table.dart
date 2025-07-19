@@ -35,6 +35,6 @@ Widget styleCellAdmin(
 Widget styleCell(String text, {double? width}) {
   return SizedBox(
     width: width,
-    child: Text(text, maxLines: 2, style: TextStyle(fontSize: 14)),
+    child: Text(text, maxLines: 2, style: TextStyle(fontSize: 15)),
   );
 }

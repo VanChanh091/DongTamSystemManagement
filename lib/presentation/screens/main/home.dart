@@ -9,6 +9,7 @@ import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
 import 'package:dongtam/presentation/screens/main/planning/production_queue.dart';
 import 'package:dongtam/presentation/screens/main/planning/waitting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
+import 'package:dongtam/presentation/screens/main/report/report_production.dart';
 import 'package:dongtam/presentation/screens/main/user/user.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
@@ -38,6 +39,9 @@ class _HomePageState extends State<HomePage> {
     ProductPage(),
     WaitingForPlanning(),
     ProductionQueue(),
+    ReportProduction(),
+
+    //admin
     AdminOrder(),
     TopTabAdmin(),
     AdminMangeUser(),
@@ -67,6 +71,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  //index for screen
   Widget buildSidebar() {
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -87,6 +92,7 @@ class _HomePageState extends State<HomePage> {
                       if (_isHovered) _buildLogoSection(),
                       const SizedBox(height: 20),
                       Expanded(child: _buildMenuList()),
+                      // Notifications
                       _buildSidebarItem(
                         Icons.notifications,
                         notificationCount: newNotificationsCount,
@@ -108,7 +114,8 @@ class _HomePageState extends State<HomePage> {
                           );
                         },
                       ),
-                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 9),
+                      // Personal
+                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 10),
 
                       const Divider(color: Colors.white70),
                       _buildLogoutSection(),
@@ -162,11 +169,18 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          //dashboard
           _buildSidebarItem(Icons.dashboard, "Dashboard", index: 0),
+          //order
           _buildSidebarItem(Icons.shopping_cart, "Đơn Hàng", index: 1),
+          //customer
           _buildSidebarItem(Icons.person, "Khách Hàng", index: 2),
+          //product
           _buildSidebarItem(Icons.inventory, "Sản Phẩm", index: 3),
+          //planning
           _buildPlanningMenu(),
+          _buildSidebarItem(Icons.assignment, "Báo Cáo", index: 6),
+          //admin
           _buildApprovalMenu(),
         ],
       ),
@@ -227,7 +241,10 @@ class _HomePageState extends State<HomePage> {
         _isHovered
             ? ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              leading: const Icon(Icons.assignment, color: Colors.white),
+              leading: const Icon(
+                Icons.admin_panel_settings,
+                color: Colors.white,
+              ),
               title:
                   _isHovered
                       ? const Text(
@@ -253,12 +270,14 @@ class _HomePageState extends State<HomePage> {
             )
             : const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
-              child: Center(child: Icon(Icons.assignment, color: Colors.white)),
+              child: Center(
+                child: Icon(Icons.admin_panel_settings, color: Colors.white),
+              ),
             ),
         if (_isHovered && _isApprovalExpanded) ...[
-          _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 6),
-          _buildSubMenuItem(Icons.gif_box, "Định Mức và Máy Chạy", 7),
-          _buildSubMenuItem(Icons.person, "Người Dùng", 8),
+          _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 7),
+          _buildSubMenuItem(Icons.gif_box, "Định Mức và Máy Chạy", 8),
+          _buildSubMenuItem(Icons.person, "Người Dùng", 9),
         ],
       ],
     );

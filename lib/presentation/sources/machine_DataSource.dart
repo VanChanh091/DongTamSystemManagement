@@ -132,6 +132,7 @@ class MachineDatasource extends DataGridSource {
         columnName: "haveMadeBox",
         value: planning.order?.formatIsBox(planning.order!.isBox),
       ),
+      DataGridCell<String>(columnName: "status", value: planning.status ?? ""),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
     ];
   }
@@ -304,7 +305,6 @@ class MachineDatasource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
-
     final isSelected = selectedPlanningIds.contains(orderId);
 
     final sortPlanningCell = row.getCells().firstWhere(
@@ -312,19 +312,26 @@ class MachineDatasource extends DataGridSource {
       orElse: () => DataGridCell<int>(columnName: 'index', value: 0),
     );
 
+    final statusCell = row.getCells().firstWhere(
+      (cell) => cell.columnName == 'status',
+      orElse: () => DataGridCell<String>(columnName: 'status', value: ''),
+    );
+
     final sortPlanning = sortPlanningCell.value as int;
+    final status = statusCell.value.toString();
 
     Color backgroundColor;
+
     if (isSelected) {
       backgroundColor = Colors.blue.withOpacity(0.3);
+    } else if (sortPlanning > 0 && status == "lackQty") {
+      backgroundColor = Colors.red.withOpacity(
+        0.3,
+      ); // ❗ Đơn sắp xếp nhưng thiếu
+    } else if (sortPlanning == 0) {
+      backgroundColor = Colors.amberAccent.withOpacity(0.3); // ❗ Chưa sắp xếp
     } else {
-      switch (sortPlanning) {
-        case 0:
-          backgroundColor = Colors.amberAccent.withOpacity(0.4);
-          break;
-        default:
-          backgroundColor = Colors.transparent;
-      }
+      backgroundColor = Colors.transparent;
     }
 
     return DataGridRowAdapter(

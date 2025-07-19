@@ -26,6 +26,7 @@ class Planning {
   final double? totalLoss;
   final String? step;
   final int? dependOnPlanningId;
+  final String? status;
 
   final String orderId;
   final Order? order;
@@ -57,6 +58,7 @@ class Planning {
     this.sortPlanning,
     this.step,
     this.dependOnPlanningId,
+    this.status,
 
     required this.orderId,
     this.order,
@@ -136,6 +138,7 @@ class Planning {
       totalLoss: toDouble(json['totalLoss']),
       sortPlanning: json['sortPlanning'] ?? 0,
       step: json['step'] ?? "",
+      status: json['status'] ?? "",
       dependOnPlanningId: json['dependOnPlanningId'] ?? 0,
 
       orderId: json['orderId'] ?? "",
