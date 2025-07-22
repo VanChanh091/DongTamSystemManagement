@@ -7,12 +7,23 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class ReportDatasource extends DataGridSource {
   List<ReportProductionModel> report = [];
   String? selectedReportId;
+  bool showGroup;
 
   late List<DataGridRow> reportDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
 
-  ReportDatasource({required this.report, required this.selectedReportId}) {
+  ReportDatasource({
+    required this.report,
+    required this.selectedReportId,
+    required this.showGroup,
+  }) {
     buildDataGridRows();
+
+    if (showGroup) {
+      addColumnGroup(
+        ColumnGroup(name: 'dayCompletedOrd', sortGroupRows: false),
+      );
+    }
   }
 
   List<DataGridCell> buildReportCells(ReportProductionModel report) {
@@ -43,11 +54,8 @@ class ReportDatasource extends DataGridSource {
                 : null,
       ),
       DataGridCell<String>(
-        columnName: 'dayProduction',
-        value:
-            reportData.dayStart != null
-                ? formatter.format(reportData.dayStart!)
-                : null,
+        columnName: 'dayCompletedOrd',
+        value: formatter.format(report.dayCompleted),
       ),
       DataGridCell<String>(
         columnName: 'instructSpecial',
@@ -69,19 +77,15 @@ class ReportDatasource extends DataGridSource {
         columnName: 'runningForPlan',
         value: reportData.runningPlan,
       ),
+      DataGridCell<int>(columnName: 'qtyActually', value: report.qtyActually),
       DataGridCell<String>(
         columnName: 'totalPrice',
         value: '${Order.formatCurrency(reportData.order!.totalPrice)} VND',
       ),
-      DataGridCell<double>(columnName: 'bottom', value: reportData.bottom),
-      DataGridCell<double>(columnName: 'fluteE', value: reportData.fluteE),
-      DataGridCell<double>(columnName: 'fluteB', value: reportData.fluteB),
-      DataGridCell<double>(columnName: 'fluteC', value: reportData.fluteC),
       DataGridCell<double>(
         columnName: 'totalLoss',
         value: reportData.totalLoss,
       ),
-      DataGridCell<int>(columnName: 'qtyActually', value: report.qtyActually),
       DataGridCell<double>(
         columnName: 'wasteActually',
         value: report.qtyWasteNorm,
@@ -110,6 +114,41 @@ class ReportDatasource extends DataGridSource {
             .toList();
 
     notifyListeners();
+  }
+
+  @override
+  Widget? buildGroupCaptionCellWidget(
+    RowColumnIndex rowColumnIndex,
+    String groupName,
+  ) {
+    // Bắt ngày và số item, không phân biệt hoa thường
+    final regex = RegExp(
+      r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$',
+      caseSensitive: false,
+    );
+    final match = regex.firstMatch(groupName);
+
+    String displayDate = '';
+    String itemCount = '';
+
+    if (match != null) {
+      displayDate = match.group(1) ?? '';
+      final count = match.group(2) ?? '0';
+      itemCount = '$count đơn hàng';
+    }
+
+    return Container(
+      width: double.infinity,
+      color: Colors.grey.shade200,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        displayDate.isNotEmpty
+            ? '📅 Ngày hoàn thành: $displayDate - $itemCount'
+            : '📅 Ngày hoàn thành: Không xác định',
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      ),
+    );
   }
 
   @override

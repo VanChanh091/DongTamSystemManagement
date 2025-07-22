@@ -20,6 +20,7 @@ class _ReportProductionState extends State<ReportProduction> {
   TextEditingController searchController = TextEditingController();
   String? selectedReport;
   bool isTextFieldEnabled = false;
+  bool showGroup = true;
   String searchType = "Tất cả";
   String machine = "Máy 1350";
   DateTime? fromDate;
@@ -130,7 +131,7 @@ class _ReportProductionState extends State<ReportProduction> {
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child: Row(
                       children: [
-                        //dropdown
+                        // Dropdown
                         SizedBox(
                           width: 170,
                           child: DropdownButtonFormField<String>(
@@ -147,10 +148,16 @@ class _ReportProductionState extends State<ReportProduction> {
                             onChanged: (value) {
                               setState(() {
                                 searchType = value!;
-                                isTextFieldEnabled = searchType != 'Tất cả';
+                                isTextFieldEnabled =
+                                    searchType == 'Theo Quản Ca';
 
-                                if (!isTextFieldEnabled) {
+                                if (searchType != 'Theo Quản Ca') {
                                   searchController.clear();
+                                }
+
+                                if (searchType != 'Theo Ngày') {
+                                  fromDate = null;
+                                  toDate = null;
                                 }
                               });
                             },
@@ -170,32 +177,61 @@ class _ReportProductionState extends State<ReportProduction> {
                         ),
                         SizedBox(width: 10),
 
-                        // input
-                        SizedBox(
-                          width: 250,
-                          height: 50,
-                          child: TextField(
-                            controller: searchController,
-                            enabled: isTextFieldEnabled,
-                            onSubmitted: (_) => searchReport(),
-                            decoration: InputDecoration(
-                              hintText: 'Tìm kiếm...',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                        // Input hoặc Button chọn ngày tùy theo searchType
+                        if (searchType == 'Theo Quản Ca' ||
+                            searchType == 'Tất cả')
+                          SizedBox(
+                            width: 220,
+                            height: 50,
+                            child: TextField(
+                              controller: searchController,
+                              enabled: searchType == 'Theo Quản Ca',
+                              onSubmitted: (_) => searchReport(),
+                              decoration: InputDecoration(
+                                hintText: 'Tìm kiếm...',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
                               ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 10,
+                            ),
+                          )
+                        else if (searchType == 'Theo Ngày')
+                          SizedBox(
+                            width: 220,
+                            child: ElevatedButton.icon(
+                              onPressed: pickDateRange,
+                              icon: Icon(Icons.date_range, color: Colors.white),
+                              label: Text(
+                                fromDate != null && toDate != null
+                                    ? "${DateFormat('dd/MM/yyyy').format(fromDate!)} - ${DateFormat('dd/MM/yyyy').format(toDate!)}"
+                                    : "Ngày hoàn thành",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xff78D761),
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                  vertical: 15,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
 
-                        // find
+                        SizedBox(width: 10),
+
+                        // Nút tìm kiếm
                         ElevatedButton.icon(
-                          onPressed: () {
-                            searchReport();
-                          },
+                          onPressed: searchReport,
                           label: Text(
                             "Tìm kiếm",
                             style: TextStyle(
@@ -216,7 +252,6 @@ class _ReportProductionState extends State<ReportProduction> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
                       ],
                     ),
                   ),
@@ -226,33 +261,6 @@ class _ReportProductionState extends State<ReportProduction> {
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child: Row(
                       children: [
-                        // Nút chọn ngày
-                        ElevatedButton.icon(
-                          onPressed: pickDateRange,
-                          icon: Icon(Icons.date_range, color: Colors.white),
-                          label: Text(
-                            fromDate != null && toDate != null
-                                ? "${DateFormat('dd/MM/yyyy').format(fromDate!)} - ${DateFormat('dd/MM/yyyy').format(toDate!)}"
-                                : "Chọn ngày",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff78D761),
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-
                         //choose machine
                         SizedBox(
                           width: 175,
@@ -317,11 +325,14 @@ class _ReportProductionState extends State<ReportProduction> {
                     reportDatasource = ReportDatasource(
                       report: data,
                       selectedReportId: selectedReport,
+                      showGroup: showGroup,
                     );
 
                     return SfDataGrid(
                       source: reportDatasource,
                       columns: buildReportColumn(),
+                      allowExpandCollapseGroup: true, // Bật grouping
+                      autoExpandGroups: true,
                       isScrollbarAlwaysShown: true,
                       columnWidthMode: ColumnWidthMode.auto,
                     );

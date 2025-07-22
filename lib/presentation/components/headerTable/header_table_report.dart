@@ -19,8 +19,8 @@ List<GridColumn> buildReportColumn() {
       label: formatColumn('Ngày Giao Hàng'),
     ),
     GridColumn(
-      columnName: "dayProduction",
-      label: formatColumn('Ngày sản xuất'),
+      columnName: "dayCompletedOrd",
+      label: formatColumn('Ngày hoàn thành'),
     ),
     GridColumn(
       columnName: "instructSpecial",
@@ -33,16 +33,13 @@ List<GridColumn> buildReportColumn() {
       columnName: "runningForPlan",
       label: formatColumn('Kế Hoạch Chạy'),
     ),
+    GridColumn(columnName: "qtyActually", label: formatColumn('SL Thực Tế')),
     GridColumn(columnName: "totalPrice", label: formatColumn('Doanh Thu')),
-    GridColumn(columnName: "bottom", label: formatColumn('Đáy')),
-    GridColumn(columnName: "fluteE", label: formatColumn('Sóng E')),
-    GridColumn(columnName: "fluteB", label: formatColumn('Sóng B')),
-    GridColumn(columnName: "fluteC", label: formatColumn('Sóng C')),
+
     GridColumn(
       columnName: "totalLossWaste",
       label: formatColumn('Tổng Phế Liệu'),
     ),
-    GridColumn(columnName: "qtyActually", label: formatColumn('SL Thực Tế')),
     GridColumn(columnName: "wasteActually", label: formatColumn('PL Thực Tế')),
     GridColumn(columnName: "shiftManager", label: formatColumn('Quản Ca')),
     GridColumn(
