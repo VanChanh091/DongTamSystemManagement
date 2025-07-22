@@ -195,7 +195,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
         ),
       ),
       content: SizedBox(
-        width: 700,
+        width: 600,
         height: 550,
         child:
             isLoading

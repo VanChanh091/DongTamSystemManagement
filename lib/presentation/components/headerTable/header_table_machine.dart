@@ -45,7 +45,11 @@ List<GridColumn> buildMachineColumns() {
     ),
 
     GridColumn(columnName: 'haveMadeBox', label: formatColumn("Làm Thùng?")),
-    GridColumn(columnName: 'status', label: SizedBox()),
-    GridColumn(columnName: 'index', label: formatColumn("Index")),
+    GridColumn(columnName: 'status', label: SizedBox(), visible: false),
+    GridColumn(
+      columnName: 'index',
+      label: formatColumn("Index"),
+      visible: false,
+    ),
   ];
 }

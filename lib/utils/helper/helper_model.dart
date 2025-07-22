@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 double toDouble(dynamic val) {
+  if (val == null || val == '') return 0.0;
   if (val is int) return val.toDouble();
   if (val is double) return val;
+  if (val is String) return double.tryParse(val) ?? 0.0;
   return 0.0;
 }
 

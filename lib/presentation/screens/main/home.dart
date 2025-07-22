@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_Order.dart';
+import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
 import 'package:dongtam/presentation/screens/main/admin/top_tab_admin.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
@@ -288,7 +288,10 @@ class _HomePageState extends State<HomePage> {
     return _isHovered
         ? ListTile(
           leading: const Icon(Icons.logout, color: Colors.white),
-          title: const Text("Đăng xuất", style: TextStyle(color: Colors.white)),
+          title: const Text(
+            "Đăng xuất",
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          ),
           onTap: logout,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         )

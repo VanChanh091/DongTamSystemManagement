@@ -14,12 +14,15 @@ class ReportProductionService {
   );
 
   //get all report production
-  Future<List<ReportProductionModel>> getAllReportProduction() async {
+  Future<List<ReportProductionModel>> getReportProdByMachine(
+    String machine,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/report/',
+        queryParameters: {"machine": machine},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -38,13 +41,14 @@ class ReportProductionService {
   //get by shift management
   Future<List<ReportProductionModel>> getReportByShiftManagement(
     String name,
+    String machine,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/report/getByShiftManagement',
-        queryParameters: {'name': name},
+        queryParameters: {'name': name, "machine": machine},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -63,6 +67,7 @@ class ReportProductionService {
   Future<List<ReportProductionModel>> getReportByDayCompleted(
     DateTime fromDate,
     DateTime toDate,
+    String machine,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -72,6 +77,7 @@ class ReportProductionService {
         queryParameters: {
           'fromDate': DateFormat('yyyy-MM-dd').format(fromDate),
           'toDate': DateFormat('yyyy-MM-dd').format(toDate),
+          'machine': machine,
         },
         options: Options(
           headers: {

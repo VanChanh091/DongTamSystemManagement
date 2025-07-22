@@ -331,7 +331,7 @@ class _ManageOrderState extends State<AdminOrder> {
             selectedOrder = null;
           });
         },
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

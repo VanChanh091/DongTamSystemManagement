@@ -279,29 +279,6 @@ class MachineDatasource extends DataGridSource {
     );
   }
 
-  String formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = [
-      'canMang',
-      'xa',
-      'catKhe',
-      'be',
-      'dan_1_Manh',
-      'dan_2_Manh',
-      'dongGhimMotManh',
-      'dongGhimHaiManh',
-      'chongTham',
-    ];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? 'Có' : '';
-    }
-
-    return value?.toString() ?? '';
-  }
-
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
@@ -350,7 +327,7 @@ class MachineDatasource extends DataGridSource {
                 vertical: 4.0,
               ),
               child: Text(
-                formatCellValueBool(dataCell),
+                dataCell.value?.toString() ?? "",
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,

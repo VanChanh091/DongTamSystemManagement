@@ -25,9 +25,9 @@ class _ProductDialogState extends State<ProductDialog> {
   final formKey = GlobalKey<FormState>();
 
   final idController = TextEditingController();
-  final typeProductController = TextEditingController();
   final nameProductController = TextEditingController();
   final maKhuonController = TextEditingController();
+  final typeProductController = TextEditingController();
   String typeProduct = "Thùng/hộp";
   final List<String> itemsTypeProduct = [
     'Thùng/hộp',
@@ -110,7 +110,7 @@ class _ProductDialogState extends State<ProductDialog> {
     widget.onProductAddOrUpdate();
   }
 
-  static validateInput(
+  Widget validateInput(
     String label,
     TextEditingController controller,
     IconData icon, {

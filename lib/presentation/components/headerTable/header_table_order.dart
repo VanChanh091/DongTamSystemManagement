@@ -10,7 +10,10 @@ List<GridColumn> buildCommonColumns() {
       columnName: 'dateRequestShipping',
       label: formatColumn("Ngày YC Giao"),
     ),
-    GridColumn(columnName: 'customerName', label: formatColumn("Tên KH")),
+    GridColumn(
+      columnName: 'customerName',
+      label: formatColumn("Tên Khách Hàng"),
+    ),
     GridColumn(columnName: 'companyName', label: formatColumn("Tên Công Ty")),
     GridColumn(columnName: 'typeProduct', label: formatColumn("Loại SP")),
     GridColumn(columnName: 'productName', label: formatColumn("Tên SP")),

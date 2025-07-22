@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/planning/planning_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
+import 'package:intl/intl.dart';
 
 class ReportProductionModel {
   final int qtyActually;
@@ -29,7 +30,7 @@ class ReportProductionModel {
       dayCompleted: DateTime.parse(json['dayCompleted']),
       shiftProduction: json['shiftProduction'] ?? "",
       shiftManagement: json['shiftManagement'] ?? "",
-      note: json['note'],
+      note: json['note'] ?? "",
       planning:
           json['Planning'] != null ? Planning.fromJson(json['Planning']) : null,
     );
@@ -39,7 +40,7 @@ class ReportProductionModel {
     return {
       'qtyActually': qtyActually,
       'qtyWasteNorm': qtyWasteNorm,
-      'dayCompleted': dayCompleted.toIso8601String(),
+      'dayCompleted': DateFormat('yyyy-MM-dd').format(dayCompleted),
       'shiftProduction': shiftProduction,
       'shiftManagement': shiftManagement,
     };
