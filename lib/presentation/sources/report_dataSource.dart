@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportDatasource extends DataGridSource {
-  List<ReportProductionModel> report = [];
+  late List<ReportProductionModel> report;
   String? selectedReportId;
   bool showGroup;
 

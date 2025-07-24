@@ -62,14 +62,7 @@ class ProductService {
       );
 
       final List<dynamic> productsData = response.data['data'];
-      return productsData
-          .map((json) => Product.fromJson(json))
-          .where(
-            (product) => product.productId.toLowerCase().contains(
-              productId.toLowerCase(),
-            ),
-          )
-          .toList();
+      return productsData.map((json) => Product.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get productId: $e');
     }
@@ -94,14 +87,7 @@ class ProductService {
         ),
       );
       final List<dynamic> productsData = response.data['data'];
-      return productsData
-          .map((json) => Product.fromJson(json))
-          .where(
-            (product) => product.productName!.toLowerCase().contains(
-              productName.toLowerCase(),
-            ),
-          )
-          .toList();
+      return productsData.map((json) => Product.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get productId: $e');
     }

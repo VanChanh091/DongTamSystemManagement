@@ -24,7 +24,7 @@ class OrderService {
 
       final response = await dioService.get(
         "/api/order/accept-planning",
-        queryParameters: {"page": page, 'pageSize': pageSize},
+        queryParameters: {'page': page, 'pageSize': pageSize},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -33,11 +33,13 @@ class OrderService {
         ),
       );
       final data = response.data;
-      final orders = data['data'] as List;
-      final currentPage = data['currentPage'];
-      final totalPages = data['totalPages'];
+      final orders = data['data'] as List; //data
+      final currentPage = data['currentPage']; //page size
+      final totalPages = data['totalPages']; //page
 
-      // print('Current Page: $totalPages');
+      // print(
+      //   'orders: $orders - currentPage: $currentPage - totalPages: $totalPages',
+      // );
 
       // Trả về dữ liệu cùng với totalPages và currentPage
       return {
@@ -53,13 +55,18 @@ class OrderService {
   //get by customer name
   Future<Map<String, dynamic>> getOrderByCustomerName(
     String inputCustomerName,
+    int page,
+    int pageSize,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
-
       final response = await dioService.get(
         '/api/order/customerName',
-        queryParameters: {'name': inputCustomerName},
+        queryParameters: {
+          'name': inputCustomerName,
+          'page': page,
+          'pageSize': pageSize,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -89,13 +96,19 @@ class OrderService {
   //get by product name
   Future<Map<String, dynamic>> getOrderByProductName(
     String inputProductName,
+    int page,
+    int pageSize,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/productName',
-        queryParameters: {'productName': inputProductName},
+        queryParameters: {
+          'productName': inputProductName,
+          'page': page,
+          'pageSize': pageSize,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -123,13 +136,21 @@ class OrderService {
   }
 
   //get by QC box
-  Future<Map<String, dynamic>> getOrderByQcBox(String inputQcBox) async {
+  Future<Map<String, dynamic>> getOrderByQcBox(
+    String inputQcBox,
+    int page,
+    int pageSize,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/qcBox',
-        queryParameters: {'QcBox': inputQcBox},
+        queryParameters: {
+          'QcBox': inputQcBox,
+          'page': page,
+          'pageSize': pageSize,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -157,13 +178,17 @@ class OrderService {
   }
 
   //get by price
-  Future<Map<String, dynamic>> getOrderByPrice(double price) async {
+  Future<Map<String, dynamic>> getOrderByPrice(
+    double price,
+    int page,
+    int pageSize,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/order/price',
-        queryParameters: {'price': price},
+        queryParameters: {'price': price, 'page': page, 'pageSize': pageSize},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

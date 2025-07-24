@@ -5,9 +5,10 @@ import 'package:intl/intl.dart';
 
 class OrderDataSource extends DataGridSource {
   late List<DataGridRow> orderDataGridRows;
+  String? selectedOrderId;
+
   final formatter = DateFormat('dd/MM/yyyy');
   List<Order> orders;
-  String? selectedOrderId;
 
   OrderDataSource({required this.orders, this.selectedOrderId}) {
     buildDataCell();

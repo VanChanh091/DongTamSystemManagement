@@ -17,15 +17,16 @@ class OrderAcceptAndPlanning extends StatefulWidget {
 class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   late Future<Map<String, dynamic>> futureOrdersAccept;
   late OrderDataSource orderDataSource;
+  final formatter = DateFormat('dd/MM/yyyy');
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
   String? selectedOrderId;
   bool isTextFieldEnabled = false;
-  final formatter = DateFormat('dd/MM/yyyy');
+  bool isSearching = false;
 
   int currentPage = 1;
-  int totalPages = 1;
-  int pageSize = 30; //change here
+  int pageSize = 2;
+  int pageSizeSearch = 2;
 
   @override
   void initState() {
@@ -35,10 +36,28 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
   void loadOrders() {
     setState(() {
-      futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
-        currentPage,
-        pageSize,
-      );
+      if (isSearching) {
+        String keyword = searchController.text.trim().toLowerCase();
+
+        if (searchType == "Tên KH") {
+          futureOrdersAccept = OrderService().getOrderByCustomerName(
+            keyword,
+            currentPage,
+            pageSizeSearch,
+          );
+        } else if (searchType == "Tên SP") {
+          futureOrdersAccept = OrderService().getOrderByProductName(
+            keyword,
+            currentPage,
+            pageSizeSearch,
+          );
+        }
+      } else {
+        futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
+          currentPage,
+          pageSize,
+        );
+      }
     });
   }
 
@@ -47,7 +66,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
     if (isTextFieldEnabled && keyword.isEmpty) return;
 
+    currentPage = 1;
+
     if (searchType == "Tất cả") {
+      isSearching = false;
       setState(() {
         futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
           currentPage,
@@ -55,22 +77,42 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         );
       });
     } else if (searchType == "Tên KH") {
+      isSearching = true;
       setState(() {
-        futureOrdersAccept = OrderService().getOrderByCustomerName(keyword);
+        futureOrdersAccept = OrderService().getOrderByCustomerName(
+          keyword,
+          currentPage,
+          pageSizeSearch,
+        );
       });
     } else if (searchType == "Tên SP") {
+      isSearching = true;
       setState(() {
-        futureOrdersAccept = OrderService().getOrderByProductName(keyword);
+        futureOrdersAccept = OrderService().getOrderByProductName(
+          keyword,
+          currentPage,
+          pageSizeSearch,
+        );
       });
     } else if (searchType == "QC Thùng") {
+      isSearching = true;
       setState(() {
-        futureOrdersAccept = OrderService().getOrderByQcBox(keyword);
+        futureOrdersAccept = OrderService().getOrderByQcBox(
+          keyword,
+          currentPage,
+          pageSizeSearch,
+        );
       });
     } else if (searchType == "Đơn giá") {
+      isSearching = true;
       setState(() {
         try {
           final price = double.parse(keyword);
-          futureOrdersAccept = OrderService().getOrderByPrice(price);
+          futureOrdersAccept = OrderService().getOrderByPrice(
+            price,
+            currentPage,
+            pageSizeSearch,
+          );
         } catch (e) {
           showSnackBarError(context, 'Vui lòng nhập số hợp lệ cho đơn giá');
         }
@@ -91,7 +133,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
               height: 70,
               width: double.infinity,
               child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   //dropdown
                   Container(
@@ -270,6 +311,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            //previous
                             ElevatedButton(
                               onPressed:
                                   currentPage > 1
@@ -311,6 +353,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                               ),
                             ),
                             SizedBox(width: 20),
+                            //next
                             ElevatedButton(
                               onPressed:
                                   currentPage < totalPgs

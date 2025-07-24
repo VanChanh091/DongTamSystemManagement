@@ -1,22 +1,21 @@
 import 'package:dongtam/data/models/planning/planning_model.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_change_machine.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine.dart';
 import 'package:dongtam/presentation/sources/machine_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class ProductionQueue extends StatefulWidget {
-  const ProductionQueue({super.key});
+class BoxPrintingProduction extends StatefulWidget {
+  const BoxPrintingProduction({super.key});
 
   @override
-  State<ProductionQueue> createState() => _ProductionQueueState();
+  State<BoxPrintingProduction> createState() => _BoxPrintingProductionState();
 }
 
-class _ProductionQueueState extends State<ProductionQueue> {
+class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   late Future<List<Planning>> futurePlanning;
   late MachineDatasource machineDatasource;
   String searchType = "Tất cả";
@@ -48,7 +47,6 @@ class _ProductionQueueState extends State<ProductionQueue> {
         planningList,
       ) {
         orderIdToPlanningId.clear();
-        selectedPlanningIds.clear();
         for (var planning in planningList) {
           if (planning.step == 'paper') {
             orderIdToPlanningId[planning.orderId] = planning.planningId;
@@ -132,7 +130,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
           children: [
             //button
             SizedBox(
-              height: 105,
+              height: 70,
               width: double.infinity,
               child: Column(
                 children: [
@@ -140,107 +138,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       //left button
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 10,
-                        ),
-                        child: Row(
-                          children: [
-                            //dropdown
-                            SizedBox(
-                              width: 160,
-                              child: DropdownButtonFormField<String>(
-                                value: searchType,
-                                items:
-                                    [
-                                      'Tất cả',
-                                      'Mã Đơn Hàng',
-                                      'Tên KH',
-                                      "Sóng",
-                                      'Khổ Cấp Giấy',
-                                    ].map((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    searchType = value!;
-                                    isTextFieldEnabled = searchType != 'Tất cả';
-
-                                    if (!isTextFieldEnabled) {
-                                      searchController.clear();
-                                    }
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: Colors.grey),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 10),
-
-                            // input
-                            SizedBox(
-                              width: 250,
-                              height: 50,
-                              child: TextField(
-                                controller: searchController,
-                                enabled: isTextFieldEnabled,
-                                onSubmitted: (_) => searchPlanning(),
-                                decoration: InputDecoration(
-                                  hintText: 'Tìm kiếm...',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-
-                            // find
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                searchPlanning();
-                              },
-                              label: Text(
-                                "Tìm kiếm",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              icon: Icon(Icons.search, color: Colors.white),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff78D761),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 15,
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                          ],
-                        ),
-                      ),
+                      SizedBox(),
 
                       //right button
                       Container(
@@ -422,30 +320,70 @@ class _ProductionQueueState extends State<ProductionQueue> {
                             ),
                             const SizedBox(width: 10),
 
-                            //group/unGroup
+                            //report production
                             ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  showGroup = !showGroup;
-                                });
-                              },
+                              onPressed:
+                                  //turn on/turn off button
+                                  selectedPlanningIds.length == 1
+                                      ? () async {
+                                        try {
+                                          //get planning first
+                                          final String selectedOrderId =
+                                              selectedPlanningIds.first;
+                                          //get all planning
+                                          final planningList =
+                                              await futurePlanning;
+
+                                          // get planningId from orderId
+                                          final planningId =
+                                              orderIdToPlanningId[selectedOrderId];
+                                          if (planningId == null) {
+                                            showSnackBarError(
+                                              context,
+                                              "Không tìm thấy planningId cho orderId: $selectedOrderId",
+                                            );
+                                            return;
+                                          }
+
+                                          // find planning by planningId
+                                          final selectedPlanning = planningList
+                                              .firstWhere(
+                                                (p) =>
+                                                    p.planningId == planningId,
+                                                orElse:
+                                                    () =>
+                                                        throw Exception(
+                                                          "Không tìm thấy kế hoạch",
+                                                        ),
+                                              );
+
+                                          showDialog(
+                                            context: context,
+                                            builder:
+                                                (_) => DialogReportProduction(
+                                                  planningId:
+                                                      selectedPlanning
+                                                          .planningId,
+                                                  onReport: loadPlanning,
+                                                ),
+                                          );
+                                        } catch (e) {
+                                          print("Lỗi khi mở Dialog: $e");
+                                          showSnackBarError(
+                                            context,
+                                            "Đã xảy ra lỗi khi mở báo cáo.",
+                                          );
+                                        }
+                                      }
+                                      : null,
                               label: Text(
-                                showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                "Báo Cáo SX",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              icon:
-                                  showGroup
-                                      ? Icon(
-                                        Symbols.ungroup,
-                                        color: Colors.white,
-                                      )
-                                      : Icon(
-                                        Symbols.ad_group,
-                                        color: Colors.white,
-                                      ),
+                              icon: Icon(Icons.assignment, color: Colors.white),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xff78D761),
                                 foregroundColor: Colors.white,
@@ -458,7 +396,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
 
                             //choose machine
                             SizedBox(
@@ -497,141 +435,10 @@ class _ProductionQueueState extends State<ProductionQueue> {
                               ),
                             ),
                             SizedBox(width: 10),
-
-                            //popup menu
-                            PopupMenuButton<String>(
-                              icon: Icon(Icons.more_vert, color: Colors.black),
-                              color: Colors.white,
-                              onSelected: (value) async {
-                                if (value == 'change') {
-                                  if (selectedPlanningIds.isEmpty) {
-                                    showSnackBarError(
-                                      context,
-                                      "Chưa chọn kế hoạch cần chuyển máy",
-                                    );
-                                    return;
-                                  }
-                                  final planning = await futurePlanning;
-
-                                  showDialog(
-                                    context: context,
-                                    builder:
-                                        (_) => ChangeMachineDialog(
-                                          planning:
-                                              planning
-                                                  .where(
-                                                    (p) => selectedPlanningIds
-                                                        .contains(p.orderId),
-                                                  )
-                                                  .toList(),
-                                          onChangeMachine: loadPlanning,
-                                        ),
-                                  );
-                                } else if (value == 'pause') {
-                                  await handlePlanningAction(
-                                    context: context,
-                                    selectedPlanningIds: selectedPlanningIds,
-                                    status: "pending",
-                                    title: "Xác nhận dừng sản xuất",
-                                    message:
-                                        "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
-                                    successMessage: "Dừng sản xuất thành công",
-                                    errorMessage:
-                                        "Có lỗi xảy ra khi dừng sản xuất",
-                                    onSuccess: loadPlanning,
-                                  );
-                                } else if (value == 'acceptLack') {
-                                  await handlePlanningAction(
-                                    context: context,
-                                    selectedPlanningIds: selectedPlanningIds,
-                                    status: "complete",
-                                    title: "Xác nhận thiếu số lượng",
-                                    message:
-                                        "Bạn có chắc muốn chấp nhận thiếu không?",
-                                    successMessage: "Thực thi thành công",
-                                    errorMessage: "Có lỗi xảy ra khi thực thi",
-                                    onSuccess: loadPlanning,
-                                  );
-                                }
-                              },
-                              itemBuilder:
-                                  (BuildContext context) => [
-                                    PopupMenuItem<String>(
-                                      value: 'change',
-                                      child: ListTile(
-                                        leading: Icon(Symbols.construction),
-                                        title: Text('Chuyển Máy'),
-                                      ),
-                                    ),
-                                    PopupMenuItem<String>(
-                                      value: 'pause',
-                                      child: ListTile(
-                                        leading: Icon(Symbols.pause_circle),
-                                        title: Text('Dừng Chạy Đơn'),
-                                      ),
-                                    ),
-                                    PopupMenuItem<String>(
-                                      value: 'acceptLack',
-                                      child: ListTile(
-                                        leading: Icon(Icons.approval_outlined),
-                                        title: Text('Chấp Nhận Thiếu Đơn'),
-                                      ),
-                                    ),
-                                  ],
-                            ),
-                            SizedBox(width: 10),
                           ],
                         ),
                       ),
                     ],
-                  ),
-
-                  //set day and time for time running
-                  SizedBox(height: 5),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Ngày bắt đầu
-                        _buildLabelAndUnderlineInput(
-                          label: "Ngày bắt đầu:",
-                          controller: dayStartController,
-                          width: 120,
-                          onTap: () async {
-                            final selected = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(2100),
-                            );
-                            if (selected != null) {
-                              dayStartController.text =
-                                  "${selected.day.toString().padLeft(2, '0')}/"
-                                  "${selected.month.toString().padLeft(2, '0')}/"
-                                  "${selected.year}";
-                            }
-                          },
-                        ),
-                        SizedBox(width: 32),
-
-                        // Giờ bắt đầu
-                        _buildLabelAndUnderlineInput(
-                          label: "Giờ bắt đầu:",
-                          controller: timeStartController,
-                          width: 60,
-                        ),
-                        SizedBox(width: 32),
-
-                        // Tổng giờ làm
-                        _buildLabelAndUnderlineInput(
-                          label: "Tổng giờ làm:",
-                          controller: totalTimeWorkingController,
-                          width: 40,
-                          inputType: TextInputType.number,
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),
@@ -784,39 +591,5 @@ class _ProductionQueueState extends State<ProductionQueue> {
         showSnackBarError(context, errorMessage);
       }
     }
-  }
-
-  Widget _buildLabelAndUnderlineInput({
-    required String label,
-    required TextEditingController controller,
-    required double width,
-    TextInputType? inputType,
-    void Function()? onTap,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
-        SizedBox(width: 8),
-        SizedBox(
-          width: width,
-          child: TextFormField(
-            controller: controller,
-            keyboardType: inputType ?? TextInputType.text,
-            readOnly: false,
-            decoration: InputDecoration(
-              isDense: true,
-              border: UnderlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(vertical: 5),
-              hintText: '',
-            ),
-            onTap: onTap,
-          ),
-        ),
-      ],
-    );
   }
 }

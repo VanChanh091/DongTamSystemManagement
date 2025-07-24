@@ -14,6 +14,10 @@ List<GridColumn> buildMachineColumns() {
       label: formatColumn("Ngày Sản Xuất"),
     ),
     GridColumn(
+      columnName: 'dayCompletedProd',
+      label: formatColumn("Ngày Hoàn Thành"),
+    ),
+    GridColumn(
       columnName: 'structure',
       label: formatColumn("Kết Cấu Đặt Hàng"),
     ),
@@ -29,6 +33,7 @@ List<GridColumn> buildMachineColumns() {
       columnName: 'runningPlanProd',
       label: formatColumn("Kế Hoạch Chạy"),
     ),
+    GridColumn(columnName: 'qtyProduced', label: formatColumn("SL Sản Xuất")),
     GridColumn(
       columnName: 'timeRunningProd',
       label: formatColumn("Thời Gian Chạy"),
@@ -42,6 +47,15 @@ List<GridColumn> buildMachineColumns() {
     GridColumn(
       columnName: 'totalWasteLoss',
       label: formatColumn("Tổng Hao Phí"),
+    ),
+    GridColumn(columnName: 'qtyWasteNorm', label: formatColumn("PL Thực Tế")),
+    GridColumn(
+      columnName: 'shiftProduction',
+      label: formatColumn("Ca Sản Xuất"),
+    ),
+    GridColumn(
+      columnName: 'shiftManagement',
+      label: formatColumn("Trưởng Máy"),
     ),
 
     GridColumn(columnName: 'haveMadeBox', label: formatColumn("Làm Thùng?")),

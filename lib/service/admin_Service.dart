@@ -104,10 +104,7 @@ class AdminService {
         ),
       );
       final data = response.data['data'] as List;
-      return data
-          .map((json) => AdminMachinePaperModel.fromJson(json))
-          .where((machine) => machine.machineId == machineId)
-          .toList();
+      return data.map((json) => AdminMachinePaperModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to load paper factors: $e');
     }
@@ -198,12 +195,7 @@ class AdminService {
         ),
       );
       final List<dynamic> data = response.data['data'];
-      return data
-          .map((json) => UserAdminModel.fromJson(json))
-          .where(
-            (user) => user.fullName.toLowerCase().contains(name.toLowerCase()),
-          )
-          .toList();
+      return data.map((json) => UserAdminModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get user by name: $e');
     }
@@ -225,12 +217,7 @@ class AdminService {
         ),
       );
       final List<dynamic> data = response.data['data'];
-      return data
-          .map((json) => UserAdminModel.fromJson(json))
-          .where(
-            (user) => user.phone!.toLowerCase().contains(phone.toLowerCase()),
-          )
-          .toList();
+      return data.map((json) => UserAdminModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get user by name: $e');
     }
@@ -389,10 +376,7 @@ class AdminService {
         ),
       );
       final data = response.data['data'] as List;
-      return data
-          .map((json) => AdminWasteNormModel.fromJson(json))
-          .where((wasteNorm) => wasteNorm.wasteNormId == wasteNormId)
-          .toList();
+      return data.map((json) => AdminWasteNormModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to load paper factors: $e');
     }
@@ -483,10 +467,7 @@ class AdminService {
         ),
       );
       final data = response.data['data'] as List;
-      return data
-          .map((json) => AdminWaveCrestModel.fromJson(json))
-          .where((waveCrest) => waveCrest.waveCrestCoefficientId == waveCrestId)
-          .toList();
+      return data.map((json) => AdminWaveCrestModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to load paper factors: $e');
     }

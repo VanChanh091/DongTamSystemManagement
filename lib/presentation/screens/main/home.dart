@@ -5,6 +5,8 @@ import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
 import 'package:dongtam/presentation/screens/main/admin/top_tab_admin.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
+import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
+import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
 import 'package:dongtam/presentation/screens/main/planning/production_queue.dart';
 import 'package:dongtam/presentation/screens/main/planning/waitting_for_planing.dart';
@@ -15,6 +17,7 @@ import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:page_transition/page_transition.dart';
 
 class HomePage extends StatefulWidget {
@@ -29,6 +32,7 @@ class _HomePageState extends State<HomePage> {
   final SidebarController sidebarController = Get.put(SidebarController());
   bool _isHovered = false;
   bool _isPlanningExpanded = false;
+  bool _isManufactureExpanded = false;
   bool _isApprovalExpanded = false;
   int newNotificationsCount = 1;
 
@@ -37,10 +41,11 @@ class _HomePageState extends State<HomePage> {
     TopTabOrder(),
     CustomerPage(),
     ProductPage(),
-    WaitingForPlanning(),
-    ProductionQueue(),
+    //planning
+    WaitingForPlanning(), ProductionQueue(),
+    //manufacture
+    PaperProduction(), BoxPrintingProduction(),
     ReportProduction(),
-
     //admin
     AdminOrder(),
     TopTabAdmin(),
@@ -115,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                       // Personal
-                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 10),
+                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 12),
 
                       const Divider(color: Colors.white70),
                       _buildLogoutSection(),
@@ -179,7 +184,10 @@ class _HomePageState extends State<HomePage> {
           _buildSidebarItem(Icons.inventory, "Sản Phẩm", index: 3),
           //planning
           _buildPlanningMenu(),
-          _buildSidebarItem(Icons.assignment, "Báo Cáo", index: 6),
+          //manufacture
+          _buildManufactureMenu(),
+          //report
+          _buildSidebarItem(Icons.assignment, "Báo Cáo", index: 8),
           //admin
           _buildApprovalMenu(),
         ],
@@ -234,6 +242,51 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  //manufacture
+  Widget _buildManufactureMenu() {
+    return Column(
+      children: [
+        _isHovered
+            ? ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              leading: const Icon(Symbols.manufacturing, color: Colors.white),
+              title:
+                  _isHovered
+                      ? const Text(
+                        "Sản Xuất",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
+                      )
+                      : null,
+              trailing:
+                  _isHovered
+                      ? Icon(
+                        _isManufactureExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: Colors.white,
+                        size: 20,
+                      )
+                      : null,
+              onTap:
+                  () => setState(() {
+                    _isManufactureExpanded = !_isManufactureExpanded;
+                  }),
+            )
+            : const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: Icon(Symbols.manufacturing, color: Colors.white),
+              ),
+            ),
+        if (_isHovered && _isManufactureExpanded) ...[
+          _buildSubMenuItem(Symbols.article, "Giấy Tấm", 6),
+          _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", 7),
+        ],
+      ],
+    );
+  }
+
   //admin
   Widget _buildApprovalMenu() {
     return Column(
@@ -275,9 +328,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
         if (_isHovered && _isApprovalExpanded) ...[
-          _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 7),
-          _buildSubMenuItem(Icons.gif_box, "Định Mức và Máy Chạy", 8),
-          _buildSubMenuItem(Icons.person, "Người Dùng", 9),
+          _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 9),
+          _buildSubMenuItem(Icons.gif_box, "Định Mức và Máy Chạy", 10),
+          _buildSubMenuItem(Icons.person, "Người Dùng", 11),
         ],
       ],
     );

@@ -15,7 +15,7 @@ class ReportProduction extends StatefulWidget {
 }
 
 class _ReportProductionState extends State<ReportProduction> {
-  late Future<List<ReportProductionModel>> futureReportProduction;
+  late Future<Map<String, dynamic>> futureReportProduction;
   late ReportDatasource reportDatasource;
   TextEditingController searchController = TextEditingController();
   String? selectedReport;
@@ -25,6 +25,8 @@ class _ReportProductionState extends State<ReportProduction> {
   String machine = "Máy 1350";
   DateTime? fromDate;
   DateTime? toDate;
+
+  int currentPage = 1;
 
   @override
   void initState() {
@@ -36,6 +38,8 @@ class _ReportProductionState extends State<ReportProduction> {
     setState(() {
       futureReportProduction = ReportProductionService().getReportProdByMachine(
         machine,
+        currentPage,
+        45,
       );
     });
   }
@@ -53,23 +57,23 @@ class _ReportProductionState extends State<ReportProduction> {
     if (searchType == "Tất cả") {
       setState(() {
         futureReportProduction = ReportProductionService()
-            .getReportProdByMachine(machine);
+            .getReportProdByMachine(machine, currentPage, 45);
       });
     } else if (searchType == "Theo Quản Ca") {
       if (keyword.isEmpty) return;
-      setState(() {
-        futureReportProduction = ReportProductionService()
-            .getReportByShiftManagement(keyword, machine);
-      });
+      // setState(() {
+      //   futureReportProduction = ReportProductionService()
+      //       .getReportByShiftManagement(keyword, machine);
+      // });
     } else if (searchType == "Theo Ngày") {
       if (fromDate == null || toDate == null) {
         showSnackBarError(context, "Vui lòng chọn khoảng thời gian.");
         return;
       }
-      setState(() {
-        futureReportProduction = ReportProductionService()
-            .getReportByDayCompleted(fromDate!, toDate!, machine);
-      });
+      // setState(() {
+      //   futureReportProduction = ReportProductionService()
+      //       .getReportByDayCompleted(fromDate!, toDate!, machine);
+      // });
     }
   }
 
@@ -307,37 +311,125 @@ class _ReportProductionState extends State<ReportProduction> {
 
             // table
             Expanded(
-              child: SizedBox(
-                width: double.infinity,
-                child: FutureBuilder<List<ReportProductionModel>>(
-                  future: futureReportProduction,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text("Lỗi: ${snapshot.error}"));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('Không có dữ liệu'));
-                    }
+              child: FutureBuilder<Map<String, dynamic>>(
+                future: futureReportProduction,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("Lỗi: ${snapshot.error}"));
+                  } else if (!snapshot.hasData ||
+                      snapshot.data!['reports'].isEmpty) {
+                    return const Center(child: Text('Không có dữ liệu'));
+                  }
 
-                    final List<ReportProductionModel> data = snapshot.data!;
+                  final data = snapshot.data!;
+                  final report = data['reports'] as List<ReportProductionModel>;
+                  final currentPg = data['currentPage'];
+                  final totalPgs = data['totalPages'];
 
-                    reportDatasource = ReportDatasource(
-                      report: data,
-                      selectedReportId: selectedReport,
-                      showGroup: showGroup,
-                    );
+                  reportDatasource = ReportDatasource(
+                    report: report,
+                    selectedReportId: selectedReport,
+                    showGroup: showGroup,
+                  );
 
-                    return SfDataGrid(
-                      source: reportDatasource,
-                      columns: buildReportColumn(),
-                      allowExpandCollapseGroup: true, // Bật grouping
-                      autoExpandGroups: true,
-                      isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                    );
-                  },
-                ),
+                  return Column(
+                    children: [
+                      //table
+                      Expanded(
+                        child: SfDataGrid(
+                          source: reportDatasource,
+                          columns: buildReportColumn(),
+                          allowExpandCollapseGroup: true, // Bật grouping
+                          autoExpandGroups: true,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                        ),
+                      ),
+
+                      //paging
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed:
+                                  currentPage > 1
+                                      ? () {
+                                        setState(() {
+                                          currentPage--;
+                                          loadReportProduction();
+                                        });
+                                      }
+                                      : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xff78D761),
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 15,
+                                ),
+                                shadowColor: Colors.black.withOpacity(0.2),
+                                elevation: 5,
+                              ),
+                              child: Text(
+                                "Trang trước",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Trang: $currentPg / $totalPgs',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            ElevatedButton(
+                              onPressed:
+                                  currentPage < totalPgs
+                                      ? () {
+                                        setState(() {
+                                          currentPage++;
+                                          loadReportProduction();
+                                        });
+                                      }
+                                      : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xff78D761),
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 15,
+                                ),
+                                shadowColor: Colors.black.withOpacity(0.2),
+                                elevation: 5,
+                              ),
+                              child: Text(
+                                "Trang sau",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],

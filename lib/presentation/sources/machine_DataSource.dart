@@ -50,6 +50,13 @@ class MachineDatasource extends DataGridSource {
                 ? formatter.format(planning.dayStart!)
                 : null,
       ),
+      DataGridCell<String?>(
+        columnName: "dayCompletedProd",
+        value:
+            planning.dayCompleted != null
+                ? formatter.format(planning.dayCompleted!)
+                : null,
+      ),
       DataGridCell<String>(
         columnName: 'structure',
         value:
@@ -93,6 +100,7 @@ class MachineDatasource extends DataGridSource {
         columnName: "runningPlanProd",
         value: planning.runningPlan,
       ),
+      DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       DataGridCell<String>(
         columnName: 'timeRunningProd',
         value:
@@ -127,6 +135,18 @@ class MachineDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: 'totalWasteLoss',
         value: planning.totalLoss != 0 ? '${planning.totalLoss} kg' : "0",
+      ),
+      DataGridCell<String>(
+        columnName: 'qtyWasteNorm',
+        value: planning.qtyWasteNorm != 0 ? '${planning.qtyWasteNorm} kg' : "0",
+      ),
+      DataGridCell<String>(
+        columnName: 'shiftProduction',
+        value: planning.shiftProduction,
+      ),
+      DataGridCell<String>(
+        columnName: 'shiftManagement',
+        value: planning.shiftManagement,
       ),
       DataGridCell<String>(
         columnName: "haveMadeBox",

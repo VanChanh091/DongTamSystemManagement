@@ -85,15 +85,7 @@ class PlanningService {
       );
 
       final List<dynamic> planningData = response.data['data'];
-      // print(planningData);
-      return planningData
-          .map((json) => Planning.fromJson(json))
-          .where(
-            (planning) => planning.chooseMachine.toLowerCase().contains(
-              machine.toLowerCase(),
-            ),
-          )
-          .toList();
+      return planningData.map((json) => Planning.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get planning: $e');
     }

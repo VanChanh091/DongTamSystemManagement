@@ -5,17 +5,20 @@ import 'package:flutter/material.dart';
 
 class Planning {
   //frontend
+  final DateTime? dayStart, dayCompleted;
   final int? ghepKho;
   final double lengthPaperPlanning, sizePaperPLaning;
   final String? dayReplace;
   final String? matEReplace, matBReplace, matCReplace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
   final int runningPlan;
+  final int? qtyProduced;
+  final double? qtyWasteNorm;
   final String chooseMachine;
+  final String? shiftProduction, shiftManagement;
 
   //backend auto generate
   final int planningId;
-  final DateTime? dayStart;
   final TimeOfDay? timeRunning;
   final int? sortPlanning;
   final double? bottom;
@@ -59,6 +62,11 @@ class Planning {
     this.step,
     this.dependOnPlanningId,
     this.status,
+    this.dayCompleted,
+    this.qtyProduced,
+    this.qtyWasteNorm,
+    this.shiftManagement,
+    this.shiftProduction,
 
     required this.orderId,
     this.order,
@@ -140,6 +148,14 @@ class Planning {
       step: json['step'] ?? "",
       status: json['status'] ?? "",
       dependOnPlanningId: json['dependOnPlanningId'] ?? 0,
+      dayCompleted:
+          json['dayCompleted'] != null && json['dayCompleted'] != ''
+              ? DateTime.tryParse(json['dayCompleted'])
+              : null,
+      qtyProduced: json['qtyProduced'] ?? 0,
+      qtyWasteNorm: toDouble(json['qtyWasteNorm']),
+      shiftManagement: json['shiftManagement'] ?? "",
+      shiftProduction: json['shiftProduction'] ?? "",
 
       orderId: json['orderId'] ?? "",
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,

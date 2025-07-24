@@ -1,5 +1,4 @@
-import 'package:dongtam/data/models/report/report_production_model.dart';
-import 'package:dongtam/service/report_production_service.dart';
+import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +22,7 @@ class DialogReportProduction extends StatefulWidget {
 class _DialogReportProductionState extends State<DialogReportProduction> {
   final formKey = GlobalKey<FormState>();
 
-  final qtyActuallyController = TextEditingController();
+  final qtyProducedController = TextEditingController();
   final qtyWasteNormController = TextEditingController();
   final dayCompletedController = TextEditingController();
   DateTime? dayCompleted;
@@ -36,23 +35,31 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     if (!formKey.currentState!.validate()) return;
 
     try {
-      final reportProduction = ReportProductionModel(
-        qtyActually: int.tryParse(qtyActuallyController.text) ?? 0,
-        qtyWasteNorm: double.tryParse(qtyWasteNormController.text) ?? 0,
-        dayCompleted: dayCompleted ?? DateTime.now(),
-        shiftManagement: shiftManagementController.text,
-        shiftProduction: shiftProduction,
-      );
+      final int qtyProduced = int.tryParse(qtyProducedController.text) ?? 0;
+      final double qtyWasteNorm =
+          double.tryParse(qtyWasteNormController.text) ?? 0;
 
-      await ReportProductionService().createReportProduction(
+      final DateTime completedDate = dayCompleted ?? DateTime.now();
+
+      final Map<String, dynamic> reportData = {
+        "shiftManagement": shiftManagementController.text,
+        "shiftProduction": shiftProduction,
+      };
+
+      final success = await ManufactureService().createReportPaper(
         widget.planningId,
-        reportProduction.toJson(),
+        qtyProduced,
+        qtyWasteNorm,
+        completedDate,
+        reportData,
       );
 
-      showSnackBarSuccess(context, 'Báo cáo kế hoạch thành công');
+      if (success) {
+        showSnackBarSuccess(context, 'Báo cáo kế hoạch thành công');
 
-      widget.onReport();
-      Navigator.of(context).pop();
+        widget.onReport();
+        Navigator.of(context).pop();
+      }
     } catch (e) {
       print("Error: $e");
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
@@ -101,7 +108,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   @override
   void dispose() {
     super.dispose();
-    qtyActuallyController.dispose();
+    qtyProducedController.dispose();
     qtyWasteNormController.dispose();
     dayCompletedController.dispose();
     shiftManagementController.dispose();
@@ -130,7 +137,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                 SizedBox(height: 15),
                 validateInput(
                   "Số Lượng Thực tế",
-                  qtyActuallyController,
+                  qtyProducedController,
                   Symbols.production_quantity_limits,
                 ),
                 SizedBox(height: 15),

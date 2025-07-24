@@ -50,14 +50,7 @@ class CustomerService {
       );
 
       final List<dynamic> customersData = response.data['data'];
-      return customersData
-          .map((json) => Customer.fromJson(json))
-          .where(
-            (customer) => customer.customerId.toLowerCase().contains(
-              customerId.toLowerCase(),
-            ),
-          )
-          .toList();
+      return customersData.map((e) => Customer.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to get customerId: $e');
     }
@@ -79,14 +72,7 @@ class CustomerService {
       );
 
       final List<dynamic> customersData = response.data['data'];
-      return customersData
-          .map((json) => Customer.fromJson(json))
-          .where(
-            (customer) => customer.customerName.toLowerCase().contains(
-              customerName.toLowerCase(),
-            ),
-          )
-          .toList();
+      return customersData.map((e) => Customer.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to get customerName: $e');
     }
@@ -107,13 +93,7 @@ class CustomerService {
         ),
       );
       final List<dynamic> customersData = response.data['data'];
-      return customersData
-          .map((json) => Customer.fromJson(json))
-          .where(
-            (customer) =>
-                customer.cskh.toLowerCase().contains(nameCSKH.toLowerCase()),
-          )
-          .toList();
+      return customersData.map((e) => Customer.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to get customerName: $e');
     }

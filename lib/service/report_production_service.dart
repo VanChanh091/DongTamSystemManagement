@@ -14,15 +14,21 @@ class ReportProductionService {
   );
 
   //get all report production
-  Future<List<ReportProductionModel>> getReportProdByMachine(
+  Future<Map<String, dynamic>> getReportProdByMachine(
     String machine,
+    int page,
+    int pageSize,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/report/',
-        queryParameters: {"machine": machine},
+        queryParameters: {
+          "machine": machine,
+          "page": page,
+          "pageSize": pageSize,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -30,9 +36,17 @@ class ReportProductionService {
           },
         ),
       );
-      final data = response.data['data'] as List;
+      final data = response.data;
+      final reports = data['data'] as List; //data
+      final totalPages = data['totalPages']; //page size
+      final currentPage = data['currentPage']; //page
 
-      return data.map((e) => ReportProductionModel.fromJson(e)).toList();
+      return {
+        'reports':
+            reports.map((e) => ReportProductionModel.fromJson(e)).toList(),
+        "currentPage": currentPage,
+        "totalPages": totalPages,
+      };
     } catch (e) {
       throw Exception('Failed to load report production: $e');
     }
