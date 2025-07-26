@@ -39,24 +39,24 @@ class _ProductionQueueState extends State<ProductionQueue> {
   @override
   void initState() {
     super.initState();
-    loadPlanning();
+    loadPlanning(false);
   }
 
-  void loadPlanning() {
+  void loadPlanning(bool refresh) {
     setState(() {
-      futurePlanning = PlanningService().getPlanningByMachine(machine).then((
-        planningList,
-      ) {
-        orderIdToPlanningId.clear();
-        selectedPlanningIds.clear();
-        for (var planning in planningList) {
-          if (planning.step == 'paper') {
-            orderIdToPlanningId[planning.orderId] = planning.planningId;
-          }
-        }
-        print(orderIdToPlanningId);
-        return planningList;
-      });
+      futurePlanning = PlanningService()
+          .getPlanningByMachine(machine, refresh)
+          .then((planningList) {
+            orderIdToPlanningId.clear();
+            selectedPlanningIds.clear();
+            for (var planning in planningList) {
+              if (planning.step == 'paper') {
+                orderIdToPlanningId[planning.orderId] = planning.planningId;
+              }
+            }
+            // print(orderIdToPlanningId);
+            return planningList;
+          });
     });
   }
 
@@ -69,7 +69,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
 
     switch (searchType) {
       case 'Tất cả':
-        loadPlanning();
+        loadPlanning(false);
         break;
       case 'Mã Đơn Hàng':
         setState(() {
@@ -118,7 +118,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
-      loadPlanning();
+      loadPlanning(false);
     });
   }
 
@@ -315,25 +315,50 @@ class _ProductionQueueState extends State<ProductionQueue> {
 
                                               final List<Map<String, dynamic>>
                                               updateIndex =
-                                                  visibleRows.asMap().entries.map((
-                                                    entry,
-                                                  ) {
-                                                    final planningId =
-                                                        entry.value
-                                                            .getCells()
-                                                            .firstWhere(
-                                                              (cell) =>
-                                                                  cell.columnName ==
-                                                                  "planningId",
-                                                            )
-                                                            .value;
+                                                  visibleRows
+                                                      .asMap()
+                                                      .entries
+                                                      .where((entry) {
+                                                        // Lấy giá trị status từ row
+                                                        final status =
+                                                            entry.value
+                                                                .getCells()
+                                                                .firstWhere(
+                                                                  (cell) =>
+                                                                      cell.columnName ==
+                                                                      "status",
+                                                                  orElse:
+                                                                      () => DataGridCell(
+                                                                        columnName:
+                                                                            'status',
+                                                                        value:
+                                                                            null,
+                                                                      ),
+                                                                )
+                                                                .value;
 
-                                                    return {
-                                                      "planningId": planningId,
-                                                      "sortPlanning":
-                                                          entry.key + 1,
-                                                    };
-                                                  }).toList();
+                                                        return status !=
+                                                            'complete';
+                                                      })
+                                                      .map((entry) {
+                                                        final planningId =
+                                                            entry.value
+                                                                .getCells()
+                                                                .firstWhere(
+                                                                  (cell) =>
+                                                                      cell.columnName ==
+                                                                      "planningId",
+                                                                )
+                                                                .value;
+
+                                                        return {
+                                                          "planningId":
+                                                              planningId,
+                                                          "sortPlanning":
+                                                              entry.key + 1,
+                                                        };
+                                                      })
+                                                      .toList();
 
                                               final DateTime parsedDayStart =
                                                   DateFormat(
@@ -374,7 +399,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                                   context,
                                                   "Cập nhật thành công",
                                                 );
-                                                loadPlanning();
+                                                loadPlanning(true);
                                               }
                                             } catch (e) {
                                               showSnackBarError(
@@ -420,6 +445,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                   ),
                               ],
                             ),
+
                             const SizedBox(width: 10),
 
                             //group/unGroup
@@ -524,7 +550,8 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                                         .contains(p.orderId),
                                                   )
                                                   .toList(),
-                                          onChangeMachine: loadPlanning,
+                                          onChangeMachine:
+                                              () => loadPlanning(true),
                                         ),
                                   );
                                 } else if (value == 'pause') {
@@ -538,7 +565,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                     successMessage: "Dừng sản xuất thành công",
                                     errorMessage:
                                         "Có lỗi xảy ra khi dừng sản xuất",
-                                    onSuccess: loadPlanning,
+                                    onSuccess: () => loadPlanning(true),
                                   );
                                 } else if (value == 'acceptLack') {
                                   await handlePlanningAction(
@@ -550,7 +577,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                         "Bạn có chắc muốn chấp nhận thiếu không?",
                                     successMessage: "Thực thi thành công",
                                     errorMessage: "Có lỗi xảy ra khi thực thi",
-                                    onSuccess: loadPlanning,
+                                    onSuccess: () => loadPlanning(true),
                                   );
                                 }
                               },
@@ -692,7 +719,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: loadPlanning,
+        onPressed: () => loadPlanning(true),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

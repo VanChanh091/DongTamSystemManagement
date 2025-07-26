@@ -13,12 +13,13 @@ class CustomerService {
   );
 
   // get all
-  Future<List<Customer>> getAllCustomers() async {
+  Future<List<Customer>> getAllCustomers(bool refresh) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         "/api/customer/",
+        queryParameters: {'refresh': refresh},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

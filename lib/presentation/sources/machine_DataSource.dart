@@ -8,6 +8,7 @@ class MachineDatasource extends DataGridSource {
   List<Planning> planning = [];
   List<String> selectedPlanningIds = [];
   bool showGroup;
+  String? producingOrderId;
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -17,6 +18,7 @@ class MachineDatasource extends DataGridSource {
     required this.planning,
     required this.selectedPlanningIds,
     required this.showGroup,
+    this.producingOrderId,
   }) {
     buildDataGridRows();
 
@@ -317,16 +319,19 @@ class MachineDatasource extends DataGridSource {
     final sortPlanning = sortPlanningCell.value as int;
     final status = statusCell.value.toString();
 
-    Color backgroundColor;
+    final isProducing = orderId == producingOrderId;
 
+    Color backgroundColor;
     if (isSelected) {
       backgroundColor = Colors.blue.withOpacity(0.3);
+    } else if (isProducing) {
+      backgroundColor = Colors.orange.withOpacity(0.4);
     } else if (sortPlanning > 0 && status == "lackQty") {
-      backgroundColor = Colors.red.withOpacity(
-        0.3,
-      ); // ❗ Đơn sắp xếp nhưng thiếu
+      backgroundColor = Colors.red.withOpacity(0.4); // Thiếu số lượng
+    } else if (sortPlanning > 0 && status == "complete") {
+      backgroundColor = Colors.green.withOpacity(0.3); // Đã hoàn thành
     } else if (sortPlanning == 0) {
-      backgroundColor = Colors.amberAccent.withOpacity(0.3); // ❗ Chưa sắp xếp
+      backgroundColor = Colors.amberAccent.withOpacity(0.3); // Chưa sắp xếp
     } else {
       backgroundColor = Colors.transparent;
     }

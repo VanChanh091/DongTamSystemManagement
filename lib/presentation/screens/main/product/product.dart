@@ -24,7 +24,13 @@ class _ProductPageState extends State<ProductPage> {
   @override
   void initState() {
     super.initState();
-    futureProducts = ProductService().getAllProducts();
+    loadProduct(false);
+  }
+
+  void loadProduct(bool refresh) {
+    setState(() {
+      futureProducts = ProductService().getAllProducts(refresh);
+    });
   }
 
   void searchProduct() {
@@ -34,7 +40,7 @@ class _ProductPageState extends State<ProductPage> {
 
     if (searchType == "Tất cả") {
       setState(() {
-        futureProducts = ProductService().getAllProducts();
+        futureProducts = ProductService().getAllProducts(false);
       });
     } else if (searchType == "Theo Mã") {
       setState(() {
@@ -170,12 +176,8 @@ class _ProductPageState extends State<ProductPage> {
                               builder:
                                   (_) => ProductDialog(
                                     product: null,
-                                    onProductAddOrUpdate: () {
-                                      setState(() {
-                                        futureProducts =
-                                            ProductService().getAllProducts();
-                                      });
-                                    },
+                                    onProductAddOrUpdate:
+                                        () => loadProduct(false),
                                   ),
                             );
                           },
@@ -221,12 +223,8 @@ class _ProductPageState extends State<ProductPage> {
                                 builder:
                                     (_) => ProductDialog(
                                       product: product.first,
-                                      onProductAddOrUpdate: () {
-                                        setState(() {
-                                          futureProducts =
-                                              ProductService().getAllProducts();
-                                        });
-                                      },
+                                      onProductAddOrUpdate:
+                                          () => loadProduct(false),
                                     ),
                               );
                             });
@@ -367,7 +365,9 @@ class _ProductPageState extends State<ProductPage> {
                                                                   .clear();
                                                               futureProducts =
                                                                   ProductService()
-                                                                      .getAllProducts();
+                                                                      .getAllProducts(
+                                                                        false,
+                                                                      );
                                                             });
 
                                                             Navigator.pop(
@@ -663,7 +663,7 @@ class _ProductPageState extends State<ProductPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           setState(() {
-            futureProducts = ProductService().getAllProducts();
+            futureProducts = ProductService().getAllProducts(true);
           });
         },
         backgroundColor: Color(0xff78D761),

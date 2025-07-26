@@ -6,4 +6,8 @@ class SidebarController extends GetxController {
   void changePage(int index) {
     selectedIndex.value = index; // Cập nhật trang
   }
+
+  void reset() {
+    selectedIndex.value = 0;
+  }
 }

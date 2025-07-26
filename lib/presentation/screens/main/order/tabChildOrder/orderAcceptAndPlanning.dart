@@ -31,10 +31,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   @override
   void initState() {
     super.initState();
-    loadOrders();
+    loadOrders(false);
   }
 
-  void loadOrders() {
+  void loadOrders(bool refresh) {
     setState(() {
       if (isSearching) {
         String keyword = searchController.text.trim().toLowerCase();
@@ -56,6 +56,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
           currentPage,
           pageSize,
+          refresh,
         );
       }
     });
@@ -74,6 +75,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
           currentPage,
           pageSize,
+          false,
         );
       });
     } else if (searchType == "Tên KH") {
@@ -318,7 +320,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                       ? () {
                                         setState(() {
                                           currentPage--;
-                                          loadOrders();
+                                          loadOrders(false);
                                         });
                                       }
                                       : null,
@@ -360,7 +362,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                       ? () {
                                         setState(() {
                                           currentPage++;
-                                          loadOrders();
+                                          loadOrders(false);
                                         });
                                       }
                                       : null,
@@ -395,7 +397,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: loadOrders,
+        onPressed: () => loadOrders(true),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

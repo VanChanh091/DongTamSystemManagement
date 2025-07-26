@@ -56,6 +56,7 @@ class _HomePageState extends State<HomePage> {
   void logout() async {
     try {
       await authService.logout();
+      sidebarController.reset();
       showSnackBarSuccess(context, 'Đăng xuất thành công');
       Navigator.push(
         context,

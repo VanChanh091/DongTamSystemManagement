@@ -18,13 +18,18 @@ class OrderService {
   Future<Map<String, dynamic>> getOrderAcceptAndPlanning(
     int page,
     int pageSize,
+    bool refresh,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         "/api/order/accept-planning",
-        queryParameters: {'page': page, 'pageSize': pageSize},
+        queryParameters: {
+          'page': page,
+          'pageSize': pageSize,
+          'refresh': refresh,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -218,11 +223,12 @@ class OrderService {
   //===============================PENDING AND REJECT=====================================
 
   //get Order Pending And Reject
-  Future<List<Order>> getOrderPendingAndReject() async {
+  Future<List<Order>> getOrderPendingAndReject(bool refresh) async {
     try {
       final token = await SecureStorageService().getToken();
       final response = await dioService.get(
         "/api/order/pending-reject",
+        queryParameters: {'refresh': refresh},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

@@ -38,23 +38,23 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   @override
   void initState() {
     super.initState();
-    loadPlanning();
+    loadPlanning(false);
   }
 
-  void loadPlanning() {
+  void loadPlanning(bool refresh) {
     setState(() {
-      futurePlanning = PlanningService().getPlanningByMachine(machine).then((
-        planningList,
-      ) {
-        orderIdToPlanningId.clear();
-        for (var planning in planningList) {
-          if (planning.step == 'paper') {
-            orderIdToPlanningId[planning.orderId] = planning.planningId;
-          }
-        }
-        print(orderIdToPlanningId);
-        return planningList;
-      });
+      futurePlanning = PlanningService()
+          .getPlanningByMachine(machine, refresh)
+          .then((planningList) {
+            orderIdToPlanningId.clear();
+            for (var planning in planningList) {
+              if (planning.step == 'paper') {
+                orderIdToPlanningId[planning.orderId] = planning.planningId;
+              }
+            }
+            print(orderIdToPlanningId);
+            return planningList;
+          });
     });
   }
 
@@ -67,7 +67,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
     switch (searchType) {
       case 'Tất cả':
-        loadPlanning();
+        loadPlanning(false);
         break;
       case 'Mã Đơn Hàng':
         setState(() {
@@ -116,7 +116,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
-      loadPlanning();
+      loadPlanning(false);
     });
   }
 
@@ -272,7 +272,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                   context,
                                                   "Cập nhật thành công",
                                                 );
-                                                loadPlanning();
+                                                loadPlanning(true);
                                               }
                                             } catch (e) {
                                               showSnackBarError(
@@ -364,7 +364,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                   planningId:
                                                       selectedPlanning
                                                           .planningId,
-                                                  onReport: loadPlanning,
+                                                  onReport:
+                                                      () => loadPlanning(true),
                                                 ),
                                           );
                                         } catch (e) {
@@ -499,7 +500,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: loadPlanning,
+        onPressed: () => loadPlanning(true),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

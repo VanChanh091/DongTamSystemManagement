@@ -18,12 +18,13 @@ class PlanningService {
   //===============================PLANNING ORDER====================================
 
   //get status order
-  Future<List<Order>> getOrderAccept() async {
+  Future<List<Order>> getOrderAccept(bool refresh) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/planning/',
+        queryParameters: {'refresh': refresh},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -69,13 +70,16 @@ class PlanningService {
   //===============================PRODUCTION QUEUE====================================
 
   //get planning by machine
-  Future<List<Planning>> getPlanningByMachine(String machine) async {
+  Future<List<Planning>> getPlanningByMachine(
+    String machine,
+    bool refresh,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/planning/byMachine',
-        queryParameters: {'machine': machine},
+        queryParameters: {'machine': machine, 'refresh': refresh},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

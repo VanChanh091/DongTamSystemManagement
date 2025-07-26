@@ -22,12 +22,12 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   @override
   void initState() {
     super.initState();
-    loadOrders();
+    loadOrders(false);
   }
 
-  void loadOrders() {
+  void loadOrders(bool refresh) {
     setState(() {
-      futureOrdersAccept = PlanningService().getOrderAccept();
+      futureOrdersAccept = PlanningService().getOrderAccept(refresh);
     });
   }
 
@@ -71,7 +71,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                         builder:
                                             (_) => PLanningDialog(
                                               order: selectedOrder,
-                                              onPlanningOrder: loadOrders,
+                                              onPlanningOrder:
+                                                  () => loadOrders(false),
                                             ),
                                       );
                                     } catch (e) {
@@ -159,7 +160,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: loadOrders,
+        onPressed: () => loadOrders(true),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

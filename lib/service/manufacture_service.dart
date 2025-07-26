@@ -14,13 +14,17 @@ class ManufactureService {
   );
 
   //get planning paper
-  Future<List<Planning>> getPlanningPaper(String machine, String step) async {
+  Future<List<Planning>> getPlanningPaper(
+    String machine,
+    String step,
+    bool refresh,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/manufacture/planningPaper',
-        queryParameters: {"machine": machine, "step": step},
+        queryParameters: {"machine": machine, "step": step, 'refresh': refresh},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -43,18 +47,18 @@ class ManufactureService {
     DateTime dayCompleted,
     Map<String, dynamic> reportData,
   ) async {
+    final token = await SecureStorageService().getToken();
+
+    final Map<String, dynamic> data = {
+      "qtyProduced": qtyProduced,
+      "qtyWasteNorm": qtyWasteNorm,
+      "dayCompleted": DateFormat('yyyy-MM-dd').format(dayCompleted),
+      ...reportData,
+    };
+
     try {
-      final token = await SecureStorageService().getToken();
-
-      final Map<String, dynamic> data = {
-        "qtyProduced": qtyProduced,
-        "qtyWasteNorm": qtyWasteNorm,
-        "dayCompleted": DateFormat('yyyy-MM-dd').format(dayCompleted),
-        ...reportData,
-      };
-
       await dioService.post(
-        '/api/manufacture/addReportPaper',
+        '/api/manufacture/reportPaper',
         queryParameters: {"planningId": planningId},
         data: data,
         options: Options(
@@ -64,9 +68,20 @@ class ManufactureService {
           },
         ),
       );
+
       return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response?.statusCode;
+        final errorMsg = e.response?.data?['message'] ?? 'Unknown error';
+
+        // Chuyển lỗi lên submit() để xử lý theo mã lỗi
+        throw Exception("HTTP $statusCode: $errorMsg");
+      } else {
+        throw Exception("Network Error: ${e.message}");
+      }
     } catch (e) {
-      throw Exception('Failed to create report paper: $e');
+      throw Exception('Lỗi không xác định: $e');
     }
   }
 }

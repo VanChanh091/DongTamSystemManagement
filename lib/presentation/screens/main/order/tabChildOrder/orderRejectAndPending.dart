@@ -24,12 +24,12 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   @override
   void initState() {
     super.initState();
-    loadOrders();
+    loadOrders(false);
   }
 
-  void loadOrders() {
+  void loadOrders(bool refresh) {
     setState(() {
-      futureOrdersPending = OrderService().getOrderPendingAndReject();
+      futureOrdersPending = OrderService().getOrderPendingAndReject(refresh);
     });
   }
 
@@ -87,7 +87,8 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                   builder:
                                       (_) => OrderDialog(
                                         order: null,
-                                        onOrderAddOrUpdate: loadOrders,
+                                        onOrderAddOrUpdate:
+                                            () => loadOrders(true),
                                       ),
                                 );
                               },
@@ -135,7 +136,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                 (_) => OrderDialog(
                                                   order: selectedOrder,
                                                   onOrderAddOrUpdate:
-                                                      loadOrders,
+                                                      () => loadOrders(true),
                                                 ),
                                           );
                                         } catch (e) {
@@ -289,9 +290,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                                   ),
                                                                 );
 
-                                                                setState(() {
-                                                                  loadOrders();
-                                                                });
+                                                                loadOrders(
+                                                                  true,
+                                                                );
 
                                                                 Navigator.pop(
                                                                   context,
@@ -403,7 +404,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: loadOrders,
+        onPressed: () => loadOrders(true),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

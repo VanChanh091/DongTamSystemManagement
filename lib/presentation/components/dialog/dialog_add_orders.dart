@@ -272,7 +272,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
   Future<void> fetchAllCustomers() async {
     try {
-      allCustomers = await CustomerService().getAllCustomers();
+      allCustomers = await CustomerService().getAllCustomers(false);
     } catch (e) {
       print("Lỗi lấy danh sách khách hàng: $e");
     }
@@ -280,7 +280,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
   Future<void> fetchAllProduct() async {
     try {
-      allProducts = await ProductService().getAllProducts();
+      allProducts = await ProductService().getAllProducts(false);
     } catch (e) {
       print("Lỗi lấy danh sách khách hàng: $e");
     }

@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/sign_up.dart';
 import 'package:dongtam/presentation/screens/main/home.dart';
@@ -5,6 +6,7 @@ import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:page_transition/page_transition.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final AuthService authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final SidebarController sidebarController = Get.put(SidebarController());
 
   bool isObscureText = true;
 
@@ -29,6 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
     if (success) {
       showSnackBarSuccess(context, 'Đăng nhập thành công');
+
+      sidebarController.reset();
+
       Navigator.push(
         context,
         PageTransition(

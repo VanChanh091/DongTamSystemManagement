@@ -24,7 +24,13 @@ class _CustomerPageState extends State<CustomerPage> {
   @override
   void initState() {
     super.initState();
-    futureCustomer = CustomerService().getAllCustomers();
+    loadCustomer(false);
+  }
+
+  void loadCustomer(bool refresh) {
+    setState(() {
+      futureCustomer = CustomerService().getAllCustomers(refresh);
+    });
   }
 
   void searchCustomer() {
@@ -34,7 +40,7 @@ class _CustomerPageState extends State<CustomerPage> {
 
     if (searchType == "Tất cả") {
       setState(() {
-        futureCustomer = CustomerService().getAllCustomers();
+        futureCustomer = CustomerService().getAllCustomers(false);
       });
     } else if (searchType == "Theo Mã") {
       setState(() {
@@ -182,12 +188,8 @@ class _CustomerPageState extends State<CustomerPage> {
                               builder:
                                   (_) => CustomerDialog(
                                     customer: null,
-                                    onCustomerAddOrUpdate: () {
-                                      setState(() {
-                                        futureCustomer =
-                                            CustomerService().getAllCustomers();
-                                      });
-                                    },
+                                    onCustomerAddOrUpdate:
+                                        () => loadCustomer(false),
                                   ),
                             );
                           },
@@ -233,13 +235,8 @@ class _CustomerPageState extends State<CustomerPage> {
                                 builder:
                                     (_) => CustomerDialog(
                                       customer: product.first,
-                                      onCustomerAddOrUpdate: () {
-                                        setState(() {
-                                          futureCustomer =
-                                              CustomerService()
-                                                  .getAllCustomers();
-                                        });
-                                      },
+                                      onCustomerAddOrUpdate:
+                                          () => loadCustomer(false),
                                     ),
                               );
                             });
@@ -380,7 +377,9 @@ class _CustomerPageState extends State<CustomerPage> {
                                                                   .clear();
                                                               futureCustomer =
                                                                   CustomerService()
-                                                                      .getAllCustomers();
+                                                                      .getAllCustomers(
+                                                                        false,
+                                                                      );
                                                             });
 
                                                             Navigator.pop(
@@ -607,7 +606,7 @@ class _CustomerPageState extends State<CustomerPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           setState(() {
-            futureCustomer = CustomerService().getAllCustomers();
+            futureCustomer = CustomerService().getAllCustomers(true);
           });
         },
         backgroundColor: Color(0xff78D761),

@@ -16,7 +16,7 @@ class ProductService {
   );
 
   // get all
-  Future<List<Product>> getAllProducts() async {
+  Future<List<Product>> getAllProducts(bool refresh) async {
     try {
       final token = await SecureStorageService().getToken();
       if (token == null) {
@@ -25,6 +25,7 @@ class ProductService {
 
       final response = await dioService.get(
         "/api/product/",
+        queryParameters: {'refresh': refresh},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

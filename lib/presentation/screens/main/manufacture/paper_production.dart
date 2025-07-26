@@ -19,105 +19,44 @@ class PaperProduction extends StatefulWidget {
 class _PaperProductionState extends State<PaperProduction> {
   late Future<List<Planning>> futurePlanning;
   late MachineDatasource machineDatasource;
-  String searchType = "Tất cả";
   String machine = "Máy 1350";
-  DateTime selectedDate = DateTime.now();
-  bool isTextFieldEnabled = false;
   List<String> selectedPlanningIds = [];
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
   final DataGridController dataGridController = DataGridController();
   DateTime? dayStart = DateTime.now();
-  bool isLoading = false;
   bool showGroup = true;
-
-  TextEditingController searchController = TextEditingController();
-  TextEditingController dayStartController = TextEditingController();
-  TextEditingController timeStartController = TextEditingController();
-  TextEditingController totalTimeWorkingController = TextEditingController();
+  String? _producingOrderId;
 
   @override
   void initState() {
     super.initState();
-    loadPlanning();
+    loadPlanning(false);
   }
 
-  void loadPlanning() {
+  void loadPlanning(bool refresh) {
     setState(() {
       futurePlanning = ManufactureService()
-          .getPlanningPaper(machine, 'paper')
+          .getPlanningPaper(machine, 'paper', refresh)
           .then((planningList) {
             orderIdToPlanningId.clear();
+            selectedPlanningIds.clear();
             for (var planning in planningList) {
               if (planning.step == 'paper') {
                 orderIdToPlanningId[planning.orderId] = planning.planningId;
               }
             }
-            print(orderIdToPlanningId);
+            // print(orderIdToPlanningId);
             return planningList;
           });
     });
-  }
-
-  void searchPlanning() {
-    String keyword = searchController.text.trim().toLowerCase();
-
-    if (isTextFieldEnabled && keyword.isEmpty) {
-      return;
-    }
-
-    switch (searchType) {
-      case 'Tất cả':
-        loadPlanning();
-        break;
-      case 'Mã Đơn Hàng':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByOrderId(
-            keyword,
-            machine,
-          );
-        });
-        break;
-      case 'Tên KH':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByCustomerName(
-            keyword,
-            machine,
-          );
-        });
-        break;
-      case 'Sóng':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByFlute(
-            keyword,
-            machine,
-          );
-        });
-        break;
-      case 'Khổ Cấp Giấy':
-        setState(() {
-          try {
-            futurePlanning = PlanningService().getPlanningByGhepKho(
-              int.parse(keyword),
-              machine,
-            );
-          } catch (e) {
-            showSnackBarError(
-              context,
-              'Vui lòng nhập số hợp lệ cho khổ cấp giấy',
-            );
-          }
-        });
-        break;
-      default:
-    }
   }
 
   void changeMachine(String selectedMachine) {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
-      loadPlanning();
+      loadPlanning(true);
     });
   }
 
@@ -152,7 +91,7 @@ class _PaperProductionState extends State<PaperProduction> {
                             //report production
                             ElevatedButton.icon(
                               onPressed:
-                                  //turn on/turn off button
+                                  //turn on/off button
                                   selectedPlanningIds.length == 1
                                       ? () async {
                                         try {
@@ -193,7 +132,8 @@ class _PaperProductionState extends State<PaperProduction> {
                                                   planningId:
                                                       selectedPlanning
                                                           .planningId,
-                                                  onReport: loadPlanning,
+                                                  onReport:
+                                                      () => loadPlanning(true),
                                                 ),
                                           );
                                         } catch (e) {
@@ -213,6 +153,46 @@ class _PaperProductionState extends State<PaperProduction> {
                                 ),
                               ),
                               icon: Icon(Icons.assignment, color: Colors.white),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xff78D761),
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 15,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+
+                            //confirm production
+                            ElevatedButton.icon(
+                              onPressed:
+                                  //turn on/off button
+                                  selectedPlanningIds.length == 1
+                                      ? () async {
+                                        final selectedId =
+                                            selectedPlanningIds.first;
+
+                                        setState(() {
+                                          if (_producingOrderId == selectedId) {
+                                            _producingOrderId == null;
+                                          } else {
+                                            _producingOrderId = selectedId;
+                                          }
+                                          loadPlanning(false);
+                                        });
+                                      }
+                                      : null,
+                              label: Text(
+                                "Xác Nhận SX",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xff78D761),
                                 foregroundColor: Colors.white,
@@ -292,6 +272,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
+                    producingOrderId: _producingOrderId,
                   );
 
                   return SfDataGrid(
@@ -328,7 +309,7 @@ class _PaperProductionState extends State<PaperProduction> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: loadPlanning,
+        onPressed: () => loadPlanning(true),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

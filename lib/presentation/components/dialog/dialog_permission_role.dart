@@ -33,6 +33,10 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "accountant",
     "design",
     "production",
+    "Máy 1350",
+    "Máy 1900",
+    "Máy 2 Lớp",
+    "Máy Quấn Cuồn",
   ];
   final Map<String, String> permissionsLabels = {
     "sale": "Kinh doanh",
@@ -41,6 +45,10 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "accountant": "Kế toán",
     "design": "Thiết kế",
     "production": "Sản xuất",
+    "Máy 1350": "Máy 1350",
+    "Máy 1900": "Máy 1900",
+    "Máy 2 Lớp": "Máy 2 Lớp",
+    "Máy Quấn Cuồn": "Máy Quấn Cuồn",
   };
 
   late int originalUserId;
@@ -169,61 +177,72 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
               ),
 
               // Checkbox list permission
-              ValueListenableBuilder<String?>(
-                valueListenable: selectedOption,
-                builder: (context, value, _) {
-                  if (value != 'permission') return const SizedBox();
-                  return Column(
-                    children:
-                        permissions.map((perm) {
-                          return ValueListenableBuilder<bool>(
-                            valueListenable: permissionCheckStates[perm]!,
-                            builder: (context, checked, _) {
-                              return Theme(
-                                data: Theme.of(context).copyWith(
-                                  checkboxTheme: CheckboxThemeData(
-                                    fillColor:
-                                        MaterialStateProperty.resolveWith<
-                                          Color
-                                        >((states) {
-                                          if (states.contains(
-                                            MaterialState.selected,
-                                          )) {
-                                            return Colors.red;
-                                          }
-                                          return Colors.white;
-                                        }),
-                                    checkColor:
-                                        MaterialStateProperty.all<Color>(
-                                          Colors.white,
+              SizedBox(
+                height: 300,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: ValueListenableBuilder<String?>(
+                    valueListenable: selectedOption,
+                    builder: (context, value, _) {
+                      if (value != 'permission') return const SizedBox();
+                      return Column(
+                        children:
+                            permissions.map((perm) {
+                              return ValueListenableBuilder<bool>(
+                                valueListenable: permissionCheckStates[perm]!,
+                                builder: (context, checked, _) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      checkboxTheme: CheckboxThemeData(
+                                        fillColor:
+                                            MaterialStateProperty.resolveWith<
+                                              Color
+                                            >((states) {
+                                              if (states.contains(
+                                                MaterialState.selected,
+                                              )) {
+                                                return Colors.red;
+                                              }
+                                              return Colors.white;
+                                            }),
+                                        checkColor:
+                                            MaterialStateProperty.all<Color>(
+                                              Colors.white,
+                                            ),
+                                        side: BorderSide(
+                                          color: Colors.black,
+                                          width: 1,
                                         ),
-                                    side: BorderSide(
-                                      color: Colors.black,
-                                      width: 1,
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                child: CheckboxListTile(
-                                  title: Text(perm),
-                                  value: checked,
-                                  onChanged: (val) {
-                                    permissionCheckStates[perm]!.value =
-                                        val ?? false;
-                                  },
-                                  controlAffinity:
-                                      ListTileControlAffinity.leading,
-                                ),
+                                    child: CheckboxListTile(
+                                      title: Text(
+                                        permissionsLabels[perm] ?? perm,
+                                      ),
+                                      value: checked,
+                                      onChanged: (val) {
+                                        permissionCheckStates[perm]!.value =
+                                            val ?? false;
+                                      },
+                                      controlAffinity:
+                                          ListTileControlAffinity.leading,
+                                    ),
+                                  );
+                                },
                               );
-                            },
-                          );
-                        }).toList(),
-                  );
-                },
+                            }).toList(),
+                      );
+                    },
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
+
+      actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),

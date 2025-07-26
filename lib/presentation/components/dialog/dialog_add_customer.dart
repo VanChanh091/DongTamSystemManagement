@@ -50,7 +50,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
   Future<void> fetchAllCustomer() async {
     try {
-      allCustomers = await CustomerService().getAllCustomers();
+      allCustomers = await CustomerService().getAllCustomers(false);
     } catch (e) {
       print("Lỗi khi tải danh sách khách hàng: $e");
     } finally {

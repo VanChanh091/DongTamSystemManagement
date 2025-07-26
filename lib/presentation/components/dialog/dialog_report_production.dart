@@ -61,8 +61,14 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      print("Error: $e");
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      final message = e.toString();
+
+      if (message.contains('403')) {
+        showSnackBarError(context, 'Bạn không có quyền báo cáo máy này.');
+      } else {
+        print("Error: $e");
+        showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      }
     }
   }
 
@@ -76,7 +82,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     final isFilled = controller.text.isEmpty;
 
     return StatefulBuilder(
-      builder: (context, setSate) {
+      builder: (context, setState) {
         controller.addListener(() {
           setState(() {}); // cập nhật mỗi khi text thay đổi
         });
@@ -86,19 +92,43 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           readOnly: readOnly,
           decoration: InputDecoration(
             labelText: label,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             fillColor:
                 readOnly
                     ? Colors.grey.shade300
                     : (isFilled
                         ? Colors.white
-                        : Color.fromARGB(255, 148, 236, 154)),
+                        : const Color.fromARGB(255, 148, 236, 154)),
             filled: true,
           ),
+          validator: (value) {
+            final text = value?.trim() ?? "";
+
+            if (text.isEmpty) return "Vui lòng nhập $label";
+
+            if (label == "Số Lượng Sản Xuất") {
+              if (!RegExp(r'^\d+$').hasMatch(text)) {
+                return "Chỉ được nhập số nguyên dương";
+              }
+            } else if (label == "Phế Liệu Thực Tế") {
+              if (!RegExp(r'^\d+([.]\d+)?$').hasMatch(text)) {
+                return "Chỉ được nhập số thực, chỉ được dùng dấu chấm ";
+              }
+            } else if (label == "Trưởng Máy") {
+              if (!RegExp(r"^[a-zA-ZÀ-ỹ\s]+$").hasMatch(text)) {
+                return "Chỉ được chứa chữ cái và khoảng trắng";
+              }
+            }
+
+            return null;
+          },
           onTap: onTap,
         );
       },
@@ -136,7 +166,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
               children: [
                 SizedBox(height: 15),
                 validateInput(
-                  "Số Lượng Thực tế",
+                  "Số Lượng Sản Xuất",
                   qtyProducedController,
                   Symbols.production_quantity_limits,
                 ),
@@ -174,7 +204,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                 SizedBox(height: 15),
 
                 validateInput(
-                  "Quản Ca",
+                  "Trưởng Máy",
                   shiftManagementController,
                   Symbols.person,
                 ),
