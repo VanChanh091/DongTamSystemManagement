@@ -4,6 +4,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_machine
 import 'package:dongtam/presentation/sources/machine_dataSource.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/service/socket/socket_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +18,7 @@ class PaperProduction extends StatefulWidget {
 }
 
 class _PaperProductionState extends State<PaperProduction> {
+  final socketService = SocketService();
   late Future<List<Planning>> futurePlanning;
   late MachineDatasource machineDatasource;
   String machine = "Máy 1350";
@@ -31,7 +33,86 @@ class _PaperProductionState extends State<PaperProduction> {
   @override
   void initState() {
     super.initState();
+
+    registerSocket();
     loadPlanning(false);
+  }
+
+  Future<void> registerSocket() async {
+    await SocketService().connectToSocket(machine);
+
+    SocketService().on('planningUpdated', (data) {
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (ctx) => AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              contentPadding: const EdgeInsets.all(20),
+              titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
+
+              title: Center(
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.notifications_active,
+                      color: Colors.green,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Thông báo',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              content: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Đã có kế hoạch mới cho $machine.\nNhấn OK để cập nhật dữ liệu.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 17),
+                    ),
+                  ],
+                ),
+              ),
+
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    loadPlanning(true);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text('OK', style: TextStyle(fontSize: 16)),
+                ),
+              ],
+            ),
+      );
+    });
   }
 
   void loadPlanning(bool refresh) {
@@ -46,7 +127,7 @@ class _PaperProductionState extends State<PaperProduction> {
                 orderIdToPlanningId[planning.orderId] = planning.planningId;
               }
             }
-            // print(orderIdToPlanningId);
+            print(orderIdToPlanningId);
             return planningList;
           });
     });
@@ -58,6 +139,12 @@ class _PaperProductionState extends State<PaperProduction> {
       selectedPlanningIds.clear();
       loadPlanning(true);
     });
+  }
+
+  @override
+  void dispose() {
+    SocketService().disconnectSocket();
+    super.dispose();
   }
 
   @override
@@ -91,13 +178,14 @@ class _PaperProductionState extends State<PaperProduction> {
                             //report production
                             ElevatedButton.icon(
                               onPressed:
-                                  //turn on/off button
+                                  //turn on/off
                                   selectedPlanningIds.length == 1
                                       ? () async {
                                         try {
                                           //get planning first
                                           final String selectedOrderId =
                                               selectedPlanningIds.first;
+
                                           //get all planning
                                           final planningList =
                                               await futurePlanning;
@@ -170,7 +258,6 @@ class _PaperProductionState extends State<PaperProduction> {
                             //confirm production
                             ElevatedButton.icon(
                               onPressed:
-                                  //turn on/off button
                                   selectedPlanningIds.length == 1
                                       ? () async {
                                         final selectedId =
@@ -178,12 +265,15 @@ class _PaperProductionState extends State<PaperProduction> {
 
                                         setState(() {
                                           if (_producingOrderId == selectedId) {
-                                            _producingOrderId == null;
+                                            _producingOrderId = null;
                                           } else {
                                             _producingOrderId = selectedId;
                                           }
-                                          loadPlanning(false);
+
+                                          selectedPlanningIds.clear();
                                         });
+
+                                        loadPlanning(false);
                                       }
                                       : null,
                               label: Text(
