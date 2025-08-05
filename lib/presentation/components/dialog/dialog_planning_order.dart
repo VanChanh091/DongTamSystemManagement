@@ -1,5 +1,5 @@
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_model.dart';
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -72,6 +72,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final runningPlanController = TextEditingController();
   final quantityPLanningsController = TextEditingController();
   final numberLayerPaperController = TextEditingController();
+  ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
 
   //paper consumption norm
   final dayController = TextEditingController();
@@ -152,7 +153,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   void submit() async {
     if (!formKey.currentState!.validate()) return;
 
-    final newPlanning = Planning(
+    final newPlanning = PlanningPaper(
       planningId: 0,
       dayStart: DateTime.now(),
       runningPlan: int.tryParse(runningPlanController.text) ?? 0,
@@ -170,6 +171,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       sizePaperPLaning: double.tryParse(sizePaperPLaningController.text) ?? 0,
       ghepKho: int.tryParse(ghepKhoController.text) ?? 0,
       chooseMachine: chooseMachine,
+      hasBox: widget.order!.isBox,
 
       orderId: widget.order!.orderId,
       order: widget.order,

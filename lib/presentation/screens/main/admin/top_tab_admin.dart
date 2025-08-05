@@ -1,4 +1,6 @@
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/admin_machineBox.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/admin_machinePaper.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/admin_wasteBox.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/admin_wasteNorm.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/admin_waveCrest.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +16,7 @@ class _TopTabAdminState extends State<TopTabAdmin> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 5,
       child: Column(
         children: [
           Container(
@@ -24,8 +26,10 @@ class _TopTabAdminState extends State<TopTabAdmin> {
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
               tabs: [
-                Tab(text: "Thời Gian Máy Chạy"),
-                Tab(text: "Định Mức Phế Liệu"),
+                Tab(text: "Thời Gian Máy Sóng"),
+                Tab(text: "Thời Gian Làm Thùng"),
+                Tab(text: "Định Mức PL Giấy"),
+                Tab(text: "Định Mức PL Thùng"),
                 Tab(text: "Hệ Số Máy Sóng"),
               ],
             ),
@@ -34,7 +38,9 @@ class _TopTabAdminState extends State<TopTabAdmin> {
             child: TabBarView(
               children: [
                 AdminMachinePaper(),
+                AdminMachineBox(),
                 AdminWasteNorm(),
+                AdminWasteBox(),
                 AdminWaveCrest(),
               ],
             ),

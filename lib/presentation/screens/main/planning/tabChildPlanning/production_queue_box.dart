@@ -1,7 +1,6 @@
-import 'package:dongtam/data/models/planning/planning_model.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_change_machine.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_machine.dart';
-import 'package:dongtam/presentation/sources/machine_dataSource.dart';
+import 'package:dongtam/data/models/planning/planning_box_model.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_planning_box.dart';
+import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -9,18 +8,18 @@ import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class ProductionQueue extends StatefulWidget {
-  const ProductionQueue({super.key});
+class ProductionQueueBox extends StatefulWidget {
+  const ProductionQueueBox({super.key});
 
   @override
-  State<ProductionQueue> createState() => _ProductionQueueState();
+  State<ProductionQueueBox> createState() => _ProductionQueueBoxState();
 }
 
-class _ProductionQueueState extends State<ProductionQueue> {
-  late Future<List<Planning>> futurePlanning;
-  late MachineDatasource machineDatasource;
+class _ProductionQueueBoxState extends State<ProductionQueueBox> {
+  late Future<List<PlanningBox>> futurePlanning;
+  late MachineBoxDatasource machineBoxDatasource;
   String searchType = "Tất cả";
-  String machine = "Máy 1350";
+  String machine = "Máy In";
   DateTime selectedDate = DateTime.now();
   bool isTextFieldEnabled = false;
   List<String> selectedPlanningIds = [];
@@ -44,19 +43,17 @@ class _ProductionQueueState extends State<ProductionQueue> {
 
   void loadPlanning(bool refresh) {
     setState(() {
-      futurePlanning = PlanningService()
-          .getPlanningByMachine(machine, refresh)
-          .then((planningList) {
-            orderIdToPlanningId.clear();
-            selectedPlanningIds.clear();
-            for (var planning in planningList) {
-              if (planning.step == 'paper') {
-                orderIdToPlanningId[planning.orderId] = planning.planningId;
-              }
-            }
-            // print(orderIdToPlanningId);
-            return planningList;
-          });
+      futurePlanning = PlanningService().getPlanningBox(machine, refresh).then((
+        planningList,
+      ) {
+        orderIdToPlanningId.clear();
+        selectedPlanningIds.clear();
+        for (var planning in planningList) {
+          orderIdToPlanningId[planning.orderId] = planning.planningId;
+        }
+        // print(orderIdToPlanningId);
+        return planningList;
+      });
     });
   }
 
@@ -72,43 +69,10 @@ class _ProductionQueueState extends State<ProductionQueue> {
         loadPlanning(false);
         break;
       case 'Mã Đơn Hàng':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByOrderId(
-            keyword,
-            machine,
-          );
-        });
         break;
       case 'Tên KH':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByCustomerName(
-            keyword,
-            machine,
-          );
-        });
         break;
       case 'Sóng':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByFlute(
-            keyword,
-            machine,
-          );
-        });
-        break;
-      case 'Khổ Cấp Giấy':
-        setState(() {
-          try {
-            futurePlanning = PlanningService().getPlanningByGhepKho(
-              int.parse(keyword),
-              machine,
-            );
-          } catch (e) {
-            showSnackBarError(
-              context,
-              'Vui lòng nhập số hợp lệ cho khổ cấp giấy',
-            );
-          }
-        });
         break;
       default:
     }
@@ -259,7 +223,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                       selectedPlanningIds.isNotEmpty
                                           ? () {
                                             setState(() {
-                                              machineDatasource.moveRowUp(
+                                              machineBoxDatasource.moveRowUp(
                                                 selectedPlanningIds,
                                               );
                                             });
@@ -272,7 +236,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                       selectedPlanningIds.isNotEmpty
                                           ? () {
                                             setState(() {
-                                              machineDatasource.moveRowDown(
+                                              machineBoxDatasource.moveRowDown(
                                                 selectedPlanningIds,
                                               );
                                             });
@@ -311,7 +275,7 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                             try {
                                               final List<DataGridRow>
                                               visibleRows =
-                                                  machineDatasource.rows;
+                                                  machineBoxDatasource.rows;
 
                                               final List<Map<String, dynamic>>
                                               updateIndex =
@@ -347,12 +311,12 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                                                 .firstWhere(
                                                                   (cell) =>
                                                                       cell.columnName ==
-                                                                      "planningId",
+                                                                      "planningBoxId",
                                                                 )
                                                                 .value;
 
                                                         return {
-                                                          "planningId":
+                                                          "planningBoxId":
                                                               planningId,
                                                           "sortPlanning":
                                                               entry.key + 1,
@@ -386,12 +350,12 @@ class _ProductionQueueState extends State<ProductionQueue> {
 
                                               final result =
                                                   await PlanningService()
-                                                      .updateIndexWTimeRunning(
+                                                      .updateIndexWTimeRunningBox(
                                                         machine,
-                                                        updateIndex,
                                                         parsedDayStart,
                                                         parsedTimeStart,
                                                         parsedTotalTime,
+                                                        updateIndex,
                                                       );
 
                                               if (result) {
@@ -493,10 +457,13 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                 value: machine,
                                 items:
                                     [
-                                      'Máy 1350',
-                                      "Máy 1900",
-                                      "Máy 2 Lớp",
-                                      "Máy Quấn Cuồn",
+                                      'Máy In',
+                                      "Máy Bế",
+                                      "Máy Xả",
+                                      "Máy Dán",
+                                      "Máy Cắt Khe",
+                                      "Máy Cán Màng",
+                                      "Máy Đóng Ghim",
                                     ].map((String value) {
                                       return DropdownMenuItem<String>(
                                         value: value,
@@ -539,21 +506,21 @@ class _ProductionQueueState extends State<ProductionQueue> {
                                   }
                                   final planning = await futurePlanning;
 
-                                  showDialog(
-                                    context: context,
-                                    builder:
-                                        (_) => ChangeMachineDialog(
-                                          planning:
-                                              planning
-                                                  .where(
-                                                    (p) => selectedPlanningIds
-                                                        .contains(p.orderId),
-                                                  )
-                                                  .toList(),
-                                          onChangeMachine:
-                                              () => loadPlanning(true),
-                                        ),
-                                  );
+                                  // showDialog(
+                                  //   context: context,
+                                  //   builder:
+                                  //       (_) => ChangeMachineDialog(
+                                  //         planning:
+                                  //             planning
+                                  //                 .where(
+                                  //                   (p) => selectedPlanningIds
+                                  //                       .contains(p.orderId),
+                                  //                 )
+                                  //                 .toList(),
+                                  //         onChangeMachine:
+                                  //             () => loadPlanning(true),
+                                  //       ),
+                                  // );
                                 } else if (value == 'pause') {
                                   await handlePlanningAction(
                                     context: context,
@@ -677,24 +644,25 @@ class _ProductionQueueState extends State<ProductionQueue> {
                     return Center(child: Text("Không có đơn hàng nào"));
                   }
 
-                  final List<Planning> data = snapshot.data!;
+                  final List<PlanningBox> data = snapshot.data!;
 
-                  machineDatasource = MachineDatasource(
+                  machineBoxDatasource = MachineBoxDatasource(
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
+                    machine: machine,
                     showGroup: showGroup,
                   );
 
                   return SfDataGrid(
                     controller: dataGridController,
-                    source: machineDatasource,
+                    source: machineBoxDatasource,
                     allowExpandCollapseGroup: true, // Bật grouping
                     autoExpandGroups: true,
                     isScrollbarAlwaysShown: true,
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: buildMachineColumns(),
+                    columns: buildMachineBoxColumns(),
                     onSelectionChanged: (addedRows, removedRows) {
                       setState(() {
                         for (var row in addedRows) {
@@ -706,9 +674,9 @@ class _ProductionQueueState extends State<ProductionQueue> {
                           }
                         }
 
-                        machineDatasource.selectedPlanningIds =
+                        machineBoxDatasource.selectedPlanningIds =
                             selectedPlanningIds;
-                        machineDatasource.notifyListeners();
+                        machineBoxDatasource.notifyListeners();
                       });
                     },
                   );

@@ -3,19 +3,19 @@ import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
 
-class Planning {
+class PlanningPaper {
   //frontend
   final DateTime? dayStart, dayCompleted;
   final int? ghepKho;
   final double lengthPaperPlanning, sizePaperPLaning;
-  final String? dayReplace;
-  final String? matEReplace, matBReplace, matCReplace;
+  final String? dayReplace, matEReplace, matBReplace, matCReplace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
   final int runningPlan;
   final int? qtyProduced;
   final double? qtyWasteNorm;
   final String chooseMachine;
-  final String? shiftProduction, shiftManagement;
+  final String? shiftProduction;
+  final String? shiftManagement;
 
   //backend auto generate
   final int planningId;
@@ -27,15 +27,14 @@ class Planning {
   final double? fluteC;
   final double? knife;
   final double? totalLoss;
-  final String? step;
-  final int? dependOnPlanningId;
   final String? status;
+  final bool hasBox;
 
   final String orderId;
   final Order? order;
   final TimeOverflowPlanning? timeOverflowPlanning;
 
-  Planning({
+  PlanningPaper({
     required this.planningId,
     required this.runningPlan,
     this.timeRunning,
@@ -59,14 +58,13 @@ class Planning {
     this.knife,
     this.totalLoss,
     this.sortPlanning,
-    this.step,
-    this.dependOnPlanningId,
     this.status,
     this.dayCompleted,
     this.qtyProduced,
     this.qtyWasteNorm,
     this.shiftManagement,
     this.shiftProduction,
+    required this.hasBox,
 
     required this.orderId,
     this.order,
@@ -74,7 +72,6 @@ class Planning {
   });
 
   String get formatterStructureOrder {
-    final prefixes = ['', 'E', '', 'B', '', 'C', '', ''];
     final parts = [
       dayReplace,
       songEReplace,
@@ -87,25 +84,13 @@ class Planning {
     ];
     final formattedParts = <String>[];
 
-    for (int i = 0; i < parts.length; i++) {
-      final part = parts[i];
+    for (final part in parts) {
       if (part != null && part.isNotEmpty) {
-        final prefix = prefixes[i];
-        if (!part.startsWith(prefix.replaceAll(r'[^A-Z]', ""))) {
-          formattedParts.add('$prefix$part');
-        } else {
-          formattedParts.add(part);
-        }
+        formattedParts.add(part);
       }
     }
-    return formattedParts.join('/');
-  }
 
-  String get formatStep {
-    if (step == "paper") {
-      return "Giấy Tấm";
-    }
-    return "Làm Thùng";
+    return formattedParts.join('/');
   }
 
   static String formatTimeOfDay(TimeOfDay time) {
@@ -114,12 +99,16 @@ class Planning {
     return '$hour:$minute';
   }
 
-  factory Planning.fromJson(Map<String, dynamic> json) {
-    return Planning(
-      planningId: json["planningId"] ?? 0,
+  factory PlanningPaper.fromJson(Map<String, dynamic> json) {
+    return PlanningPaper(
+      planningId: json["planningId"],
       dayStart:
           json['dayStart'] != null && json['dayStart'] != ''
               ? DateTime.tryParse(json['dayStart'])
+              : null,
+      dayCompleted:
+          json['dayCompleted'] != null && json['dayCompleted'] != ''
+              ? DateTime.tryParse(json['dayCompleted'])
               : null,
       timeRunning:
           json['timeRunning'] != null && json['timeRunning'] != ''
@@ -145,17 +134,12 @@ class Planning {
       knife: toDouble(json['knife']),
       totalLoss: toDouble(json['totalLoss']),
       sortPlanning: json['sortPlanning'] ?? 0,
-      step: json['step'] ?? "",
       status: json['status'] ?? "",
-      dependOnPlanningId: json['dependOnPlanningId'] ?? 0,
-      dayCompleted:
-          json['dayCompleted'] != null && json['dayCompleted'] != ''
-              ? DateTime.tryParse(json['dayCompleted'])
-              : null,
       qtyProduced: json['qtyProduced'] ?? 0,
       qtyWasteNorm: toDouble(json['qtyWasteNorm']),
       shiftManagement: json['shiftManagement'] ?? "",
       shiftProduction: json['shiftProduction'] ?? "",
+      hasBox: json['hasBox'] ?? false,
 
       orderId: json['orderId'] ?? "",
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
@@ -181,6 +165,7 @@ class Planning {
       'sizePaperPLaning': sizePaperPLaning,
       'ghepKho': ghepKho,
       'chooseMachine': chooseMachine,
+      'hasBox': hasBox,
 
       'orderId': orderId,
       'order': order?.toJson(),

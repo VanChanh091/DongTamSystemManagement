@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
-import 'package:dongtam/data/models/planning/planning_model.dart';
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:intl/intl.dart';
 
@@ -14,7 +14,7 @@ class ManufactureService {
   );
 
   //get planning paper
-  Future<List<Planning>> getPlanningPaper(
+  Future<List<PlanningPaper>> getPlanningPaper(
     String machine,
     String step,
     bool refresh,
@@ -33,7 +33,7 @@ class ManufactureService {
         ),
       );
       final data = response.data['data'] as List;
-      return data.map((e) => Planning.fromJson(e)).toList();
+      return data.map((e) => PlanningPaper.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to load planning papers: $e');
     }

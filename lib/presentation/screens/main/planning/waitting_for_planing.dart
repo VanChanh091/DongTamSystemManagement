@@ -72,7 +72,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                             (_) => PLanningDialog(
                                               order: selectedOrder,
                                               onPlanningOrder:
-                                                  () => loadOrders(false),
+                                                  () => loadOrders(true),
                                             ),
                                       );
                                     } catch (e) {

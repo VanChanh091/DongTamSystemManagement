@@ -27,6 +27,7 @@ List<GridColumn> buildMachineColumns() {
     GridColumn(columnName: 'daoXa', label: formatColumn("Dao Xả")),
     GridColumn(columnName: 'length', label: formatColumn("Dài")),
     GridColumn(columnName: 'size', label: formatColumn("Khổ")),
+    GridColumn(columnName: 'child', label: formatColumn("Số Con")),
     GridColumn(columnName: 'khoCapGiay', label: formatColumn("Khổ Cấp Giấy")),
     GridColumn(columnName: 'quantity', label: formatColumn("Số Lượng")),
     GridColumn(

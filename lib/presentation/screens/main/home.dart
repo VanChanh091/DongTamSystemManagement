@@ -8,7 +8,7 @@ import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
-import 'package:dongtam/presentation/screens/main/planning/production_queue.dart';
+import 'package:dongtam/presentation/screens/main/planning/top_tab_planning.dart';
 import 'package:dongtam/presentation/screens/main/planning/waitting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/presentation/screens/main/report/report_production.dart';
@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
     CustomerPage(),
     ProductPage(),
     //planning
-    WaitingForPlanning(), ProductionQueue(),
+    WaitingForPlanning(), TopTabPlanning(),
     //manufacture
     PaperProduction(), BoxPrintingProduction(),
     ReportProduction(),

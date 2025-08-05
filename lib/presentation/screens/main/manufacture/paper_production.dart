@@ -1,7 +1,7 @@
-import 'package:dongtam/data/models/planning/planning_model.dart';
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_machine.dart';
-import 'package:dongtam/presentation/sources/machine_dataSource.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
+import 'package:dongtam/presentation/sources/machine_paper_dataSource.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/service/socket/socket_service.dart';
@@ -19,8 +19,8 @@ class PaperProduction extends StatefulWidget {
 
 class _PaperProductionState extends State<PaperProduction> {
   final socketService = SocketService();
-  late Future<List<Planning>> futurePlanning;
-  late MachineDatasource machineDatasource;
+  late Future<List<PlanningPaper>> futurePlanning;
+  late MachinePaperDatasource machinePaperDatasource;
   String machine = "Máy 1350";
   List<String> selectedPlanningIds = [];
   final formatter = DateFormat('dd/MM/yyyy');
@@ -123,9 +123,7 @@ class _PaperProductionState extends State<PaperProduction> {
             orderIdToPlanningId.clear();
             selectedPlanningIds.clear();
             for (var planning in planningList) {
-              if (planning.step == 'paper') {
-                orderIdToPlanningId[planning.orderId] = planning.planningId;
-              }
+              orderIdToPlanningId[planning.orderId] = planning.planningId;
             }
             print(orderIdToPlanningId);
             return planningList;
@@ -356,9 +354,9 @@ class _PaperProductionState extends State<PaperProduction> {
                     return Center(child: Text("Không có đơn hàng nào"));
                   }
 
-                  final List<Planning> data = snapshot.data!;
+                  final List<PlanningPaper> data = snapshot.data!;
 
-                  machineDatasource = MachineDatasource(
+                  machinePaperDatasource = MachinePaperDatasource(
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
@@ -367,7 +365,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
                   return SfDataGrid(
                     controller: dataGridController,
-                    source: machineDatasource,
+                    source: machinePaperDatasource,
                     allowExpandCollapseGroup: true, // Bật grouping
                     autoExpandGroups: true,
                     isScrollbarAlwaysShown: true,
@@ -386,9 +384,9 @@ class _PaperProductionState extends State<PaperProduction> {
                           }
                         }
 
-                        machineDatasource.selectedPlanningIds =
+                        machinePaperDatasource.selectedPlanningIds =
                             selectedPlanningIds;
-                        machineDatasource.notifyListeners();
+                        machinePaperDatasource.notifyListeners();
                       });
                     },
                   );

@@ -14,7 +14,7 @@ Widget styleText(String text) {
 //editing on table, update a little data
 Widget styleCellAdmin(
   String text,
-  ValueChanged<String> onChanged, {
+  ValueChanged<String>? onChanged, {
   double width = 100,
 }) {
   return SizedBox(

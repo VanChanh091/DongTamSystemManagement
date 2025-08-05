@@ -39,7 +39,6 @@ Widget formatColumn(String text, {double widthBorder = 0}) {
   return Container(
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      // color: Colors.amberAccent.shade200,
       color: Color(0xffcfa381),
       border: Border(right: BorderSide(color: Colors.grey.shade400, width: 1)),
     ),

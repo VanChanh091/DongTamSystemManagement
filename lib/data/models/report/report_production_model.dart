@@ -1,4 +1,4 @@
-import 'package:dongtam/data/models/planning/planning_model.dart';
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:intl/intl.dart';
 
@@ -10,7 +10,7 @@ class ReportProductionModel {
   final String shiftManagement;
   final String? note;
 
-  final Planning? planning;
+  final PlanningPaper? planning;
 
   ReportProductionModel({
     required this.qtyActually,
@@ -32,7 +32,9 @@ class ReportProductionModel {
       shiftManagement: json['shiftManagement'] ?? "",
       note: json['note'] ?? "",
       planning:
-          json['Planning'] != null ? Planning.fromJson(json['Planning']) : null,
+          json['Planning'] != null
+              ? PlanningPaper.fromJson(json['Planning'])
+              : null,
     );
   }
 

@@ -1,12 +1,12 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_model.dart';
+import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class MachineDatasource extends DataGridSource {
-  List<Planning> planning = [];
+class MachineBoxDatasource extends DataGridSource {
+  List<PlanningBox> planning = [];
   List<String> selectedPlanningIds = [];
+  String machine;
   bool showGroup;
   String? producingOrderId;
 
@@ -14,10 +14,11 @@ class MachineDatasource extends DataGridSource {
   final formatter = DateFormat('dd/MM/yyyy');
   bool hasSortedInitially = false;
 
-  MachineDatasource({
+  MachineBoxDatasource({
     required this.planning,
     required this.selectedPlanningIds,
     required this.showGroup,
+    required this.machine,
     this.producingOrderId,
   }) {
     buildDataGridRows();
@@ -29,14 +30,18 @@ class MachineDatasource extends DataGridSource {
     }
   }
 
-  // create list cell for planning
-  List<DataGridCell> buildPlanningCells(Planning planning) {
+  List<DataGridCell> buildPlanningCells(PlanningBox planning, String machine) {
+    final boxMachineTime = planning.getBoxMachineTimeByMachine(machine);
+
     return [
-      DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
-      DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
+      DataGridCell<String>(columnName: "orderId", value: planning.orderId),
+      DataGridCell<int>(
+        columnName: "planningBoxId",
+        value: planning.planningBoxId,
+      ),
       DataGridCell<String>(
-        columnName: 'customerName',
-        value: planning.order?.customer?.customerName ?? '',
+        columnName: "customerName",
+        value: planning.order?.customer?.customerName ?? "",
       ),
       DataGridCell<String>(
         columnName: "dateShipping",
@@ -45,134 +50,94 @@ class MachineDatasource extends DataGridSource {
                 ? formatter.format(planning.order!.dateRequestShipping)
                 : '',
       ),
-      DataGridCell<String?>(
+      DataGridCell<String>(
         columnName: "dayStartProduction",
         value:
             planning.dayStart != null
                 ? formatter.format(planning.dayStart!)
-                : null,
-      ),
-      DataGridCell<String?>(
-        columnName: "dayCompletedProd",
-        value:
-            planning.dayCompleted != null
-                ? formatter.format(planning.dayCompleted!)
-                : null,
-      ),
-      DataGridCell<String>(
-        columnName: 'structure',
-        value:
-            planning.step == "paper"
-                ? planning.formatterStructureOrder
-                : "Làm Thùng",
-      ),
-      DataGridCell<String>(
-        columnName: 'flute',
-        value: planning.order?.flute ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: 'QC_box',
-        value: planning.order?.QC_box ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: "HD_special",
-        value: planning.order?.instructSpecial ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: 'daoXa',
-        value: planning.order?.daoXa ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: 'length',
-        value: '${planning.lengthPaperPlanning} cm',
-      ),
-      DataGridCell<String>(
-        columnName: 'size',
-        value: '${planning.sizePaperPLaning} cm',
-      ),
-      DataGridCell<String>(
-        columnName: 'khoCapGiay',
-        value: '${planning.ghepKho} cm',
-      ),
-      DataGridCell<int>(
-        columnName: 'quantity',
-        value: planning.order?.quantityCustomer ?? 0,
-      ),
-      DataGridCell<int>(
-        columnName: "runningPlanProd",
-        value: planning.runningPlan,
-      ),
-      DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
-      DataGridCell<String>(
-        columnName: 'timeRunningProd',
-        value:
-            planning.timeRunning != null
-                ? Planning.formatTimeOfDay(planning.timeRunning!)
                 : '',
       ),
       DataGridCell<String>(
-        columnName: 'totalPrice',
-        value: '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND',
+        columnName: "dayCompletedProd",
+        value:
+            boxMachineTime?.dayCompleted != null
+                ? formatter.format(boxMachineTime!.dayCompleted!)
+                : '',
       ),
       DataGridCell<String>(
-        columnName: 'bottom',
-        value: planning.bottom != 0 ? '${planning.bottom} kg' : "0",
+        columnName: "structure",
+        value: planning.formatterStructureOrder,
       ),
       DataGridCell<String>(
-        columnName: 'fluteE',
-        value: planning.fluteE != 0 ? '${planning.fluteE} kg' : "0",
+        columnName: "flute",
+        value: planning.order?.flute ?? "",
       ),
       DataGridCell<String>(
-        columnName: 'fluteB',
-        value: planning.fluteB != 0 ? '${planning.fluteB} kg' : "0",
+        columnName: "QC_box",
+        value: planning.order?.QC_box ?? "",
       ),
       DataGridCell<String>(
-        columnName: 'fluteC',
-        value: planning.fluteC != 0 ? '${planning.fluteC} kg' : "0",
+        columnName: "length",
+        value: '${planning.length} cm',
+      ),
+      DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
+      DataGridCell<String>(
+        columnName: "runningPlanProd",
+        value: '${planning.runningPlan} cái',
       ),
       DataGridCell<String>(
-        columnName: 'knife',
-        value: planning.knife != 0 ? '${planning.knife} kg' : "0",
+        columnName: "qtyProduced",
+        value:
+            boxMachineTime?.qtyProduced != 0
+                ? '${boxMachineTime?.qtyProduced} cái'
+                : "0",
       ),
       DataGridCell<String>(
-        columnName: 'totalWasteLoss',
-        value: planning.totalLoss != 0 ? '${planning.totalLoss} kg' : "0",
+        columnName: "timeRunningProd",
+        value:
+            boxMachineTime?.timeRunning != null
+                ? PlanningBox.formatTimeOfDay(boxMachineTime!.timeRunning!)
+                : '',
       ),
       DataGridCell<String>(
-        columnName: 'qtyWasteNorm',
-        value: planning.qtyWasteNorm != 0 ? '${planning.qtyWasteNorm} kg' : "0",
+        columnName: "wasteLoss",
+        value:
+            boxMachineTime?.wasteBox != 0 && boxMachineTime?.wasteBox != null
+                ? '${boxMachineTime?.wasteBox} kg'
+                : "0",
       ),
       DataGridCell<String>(
-        columnName: 'shiftProduction',
-        value: planning.shiftProduction,
+        columnName: "rpWasteNorm",
+        value:
+            boxMachineTime?.rpWasteLoss != 0 &&
+                    boxMachineTime?.rpWasteLoss != null
+                ? '${boxMachineTime?.rpWasteLoss} kg'
+                : "0",
       ),
       DataGridCell<String>(
-        columnName: 'shiftManagement',
-        value: planning.shiftManagement,
+        columnName: "shiftManagement",
+        value: boxMachineTime?.shiftManagement ?? "",
       ),
       DataGridCell<String>(
-        columnName: "haveMadeBox",
-        value: planning.order?.formatIsBox(planning.order!.isBox),
+        columnName: "status",
+        value: boxMachineTime?.status ?? "",
       ),
-      DataGridCell<String>(columnName: "status", value: planning.status ?? ""),
-      DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
+      DataGridCell<int>(
+        columnName: "index",
+        value: boxMachineTime?.sortPlanning ?? 0,
+      ),
     ];
   }
 
   @override
   List<DataGridRow> get rows => planningDataGridRows;
 
-  int extractFlute(String loaiSong) {
-    //5BC => 5
-    final match = RegExp(r'^\d+').firstMatch(loaiSong);
-    return match != null ? int.parse(match.group(0)!) : 0;
-  }
-
   void buildDataGridRows() {
     planningDataGridRows =
         planning
             .map<DataGridRow>(
-              (planning) => DataGridRow(cells: buildPlanningCells(planning)),
+              (planning) =>
+                  DataGridRow(cells: buildPlanningCells(planning, machine)),
             )
             .toList();
 
@@ -183,7 +148,7 @@ class MachineDatasource extends DataGridSource {
   void moveRowUp(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
 
-    List<Planning> selectedItems =
+    List<PlanningBox> selectedItems =
         planning.where((p) => idsToMove.contains(p.orderId)).toList();
 
     selectedItems.sort(
@@ -200,7 +165,7 @@ class MachineDatasource extends DataGridSource {
 
     if (minCurrentIndex == 0) return;
 
-    List<Planning> itemsToRemove = [...selectedItems];
+    List<PlanningBox> itemsToRemove = [...selectedItems];
     itemsToRemove.sort(
       (a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)),
     );
@@ -218,7 +183,7 @@ class MachineDatasource extends DataGridSource {
   void moveRowDown(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
 
-    List<Planning> selectedItems =
+    List<PlanningBox> selectedItems =
         planning.where((p) => idsToMove.contains(p.orderId)).toList();
 
     selectedItems.sort(
@@ -235,14 +200,14 @@ class MachineDatasource extends DataGridSource {
 
     if (maxCurrentIndex == -1 || maxCurrentIndex == planning.length - 1) return;
 
-    Planning? elementAfterBlock;
+    PlanningBox? elementAfterBlock;
     if (maxCurrentIndex + 1 < planning.length) {
       elementAfterBlock = planning[maxCurrentIndex + 1];
     } else {
       return;
     }
 
-    List<Planning> itemsToRemove = [...selectedItems];
+    List<PlanningBox> itemsToRemove = [...selectedItems];
     itemsToRemove.sort(
       (a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)),
     );

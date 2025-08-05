@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
+import 'package:dongtam/data/models/admin/admin_machineBox_model.dart';
 import 'package:dongtam/data/models/admin/admin_machinePaper_model.dart';
 import 'package:dongtam/data/models/admin/admin_wasteNorm_model.dart';
+import 'package:dongtam/data/models/admin/admin_waste_box_model.dart';
 import 'package:dongtam/data/models/admin/admin_waveCrest_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
@@ -65,15 +67,15 @@ class AdminService {
     }
   }
 
-  //===============================Machine====================================
+  //===============================MACHINE PAPER====================================
 
   //get all machine
-  Future<List<AdminMachinePaperModel>> getAllMachine() async {
+  Future<List<AdminMachinePaperModel>> getAllMachinePaper() async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/admin/getAllMachine',
+        '/api/admin/getAllMachinePaper',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -89,12 +91,14 @@ class AdminService {
   }
 
   //get machine by Id
-  Future<List<AdminMachinePaperModel>> getMachineById(int machineId) async {
+  Future<List<AdminMachinePaperModel>> getMachinePaperById(
+    int machineId,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/admin/getMachineById',
+        '/api/admin/getMachinePaperById',
         queryParameters: {'machineId': machineId},
         options: Options(
           headers: {
@@ -111,7 +115,7 @@ class AdminService {
   }
 
   //update machine
-  Future<bool> updateMachine(
+  Future<bool> updateMachinePaper(
     int machineId,
     Map<String, dynamic> machineUpdate,
   ) async {
@@ -119,7 +123,7 @@ class AdminService {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
-        "/api/admin/updateMachineById",
+        "/api/admin/updateMachinePaper",
         queryParameters: {"machineId": machineId},
         data: machineUpdate,
         options: Options(
@@ -136,12 +140,103 @@ class AdminService {
   }
 
   //delete machine
-  Future<bool> deleteMachine(int machineId) async {
+  Future<bool> deleteMachinePaper(int machineId) async {
     try {
       final token = await SecureStorageService().getToken();
 
       await dioService.delete(
-        "/api/admin/deleteMachineById",
+        "/api/admin/deleteMachinePaper",
+        queryParameters: {"machineId": machineId},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      throw Exception('Failed to delete paper factor: $e');
+    }
+  }
+
+  //===============================MACHINE BOX====================================
+
+  //get all machine
+  Future<List<AdminMachineBoxModel>> getAllMachineBox() async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/admin/getAllMachineBox',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final data = response.data['data'] as List;
+      return data.map((e) => AdminMachineBoxModel.fromJson(e)).toList();
+    } catch (e) {
+      throw Exception('Failed to load paper factors: $e');
+    }
+  }
+
+  //get machine by Id
+  Future<List<AdminMachineBoxModel>> getMachineBoxById(int machineId) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/admin/getMachineBoxById',
+        queryParameters: {'machineId': machineId},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final data = response.data['data'] as List;
+      return data.map((json) => AdminMachineBoxModel.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Failed to load paper factors: $e');
+    }
+  }
+
+  //update machine
+  Future<bool> updateMachineBox(
+    int machineId,
+    Map<String, dynamic> machineUpdate,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/admin/updateMachineBox",
+        queryParameters: {"machineId": machineId},
+        data: machineUpdate,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      throw Exception('Failed to update paper factor: $e');
+    }
+  }
+
+  //delete machine
+  Future<bool> deleteMachineBox(int machineId) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.delete(
+        "/api/admin/deleteMachineBox",
         queryParameters: {"machineId": machineId},
         options: Options(
           headers: {
@@ -337,7 +432,7 @@ class AdminService {
     }
   }
 
-  //===============================WASTE NORM====================================
+  //===============================WASTE NORM PAPER====================================
 
   //get all waste norm
   Future<List<AdminWasteNormModel>> getAllWasteNorm() async {
@@ -414,6 +509,97 @@ class AdminService {
 
       await dioService.delete(
         "/api/admin/deleteWasteNormById",
+        queryParameters: {"wasteNormId": wasteNormId},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      throw Exception('Failed to delete paper factor: $e');
+    }
+  }
+
+  //===============================WASTE NORM BOX====================================
+
+  //get all waste box
+  Future<List<AdminWasteBoxModel>> getAllWasteBox() async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/admin/getAllWasteBox',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final data = response.data['data'] as List;
+      return data.map((e) => AdminWasteBoxModel.fromJson(e)).toList();
+    } catch (e) {
+      throw Exception('Failed to load paper factors: $e');
+    }
+  }
+
+  //get waste box by Id
+  Future<List<AdminWasteBoxModel>> getWasteBoxById(int wasteNormId) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/admin/getWasteBoxById',
+        queryParameters: {'wasteNormId': wasteNormId},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final data = response.data['data'] as List;
+      return data.map((json) => AdminWasteBoxModel.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Failed to load paper factors: $e');
+    }
+  }
+
+  //update waste box
+  Future<bool> updateWasteBoxById(
+    int wasteNormId,
+    Map<String, dynamic> wasteNormUpdate,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/admin/updateWasteBoxById",
+        queryParameters: {"wasteNormId": wasteNormId},
+        data: wasteNormUpdate,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      throw Exception('Failed to update paper factor: $e');
+    }
+  }
+
+  //delete waste box
+  Future<bool> deleteWasteBoxById(int wasteNormId) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.delete(
+        "/api/admin/deleteWasteBoxById",
         queryParameters: {"wasteNormId": wasteNormId},
         options: Options(
           headers: {

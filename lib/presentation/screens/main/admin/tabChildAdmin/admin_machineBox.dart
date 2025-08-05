@@ -1,22 +1,22 @@
-import 'package:dongtam/data/models/admin/admin_machinePaper_model.dart';
+import 'package:dongtam/data/models/admin/admin_machineBox_model.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class AdminMachinePaper extends StatefulWidget {
-  const AdminMachinePaper({super.key});
+class AdminMachineBox extends StatefulWidget {
+  const AdminMachineBox({super.key});
 
   @override
-  State<AdminMachinePaper> createState() => _AdminMachinePaperState();
+  State<AdminMachineBox> createState() => _AdminMachineBoxState();
 }
 
-class _AdminMachinePaperState extends State<AdminMachinePaper> {
-  late Future<List<AdminMachinePaperModel>> futureAdminMachine;
+class _AdminMachineBoxState extends State<AdminMachineBox> {
+  late Future<List<AdminMachineBoxModel>> futureAdminMachine;
   int? selectedMachine;
   List<int> isSelected = [];
-  List<AdminMachinePaperModel> updatedMachine = [];
+  List<AdminMachineBoxModel> updatedMachine = [];
   bool selectedAll = false;
 
   @override
@@ -27,7 +27,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
 
   void loadMachine() {
     setState(() {
-      futureAdminMachine = AdminService().getAllMachinePaper();
+      futureAdminMachine = AdminService().getAllMachineBox();
     });
   }
 
@@ -73,22 +73,12 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                             for (final item in dataToUpdate) {
                               print('⏫ Updating machineId: ${item.machineId}');
 
-                              await AdminService().updateMachinePaper(
-                                item.machineId,
-                                {
-                                  "timeChangeSize": item.timeChangeSize,
-                                  "timeChangeSameSize": item.timeChangeSameSize,
-                                  "speed2Layer": item.speed2Layer,
-                                  "speed3Layer": item.speed3Layer,
-                                  "speed4Layer": item.speed4Layer,
-                                  "speed5Layer": item.speed5Layer,
-                                  "speed6Layer": item.speed6Layer,
-                                  "speed7Layer": item.speed7Layer,
-                                  "paperRollSpeed": item.paperRollSpeed,
-                                  "machinePerformance": item.machinePerformance,
-                                  "machineName": item.machineName,
-                                },
-                              );
+                              await AdminService()
+                                  .updateMachineBox(item.machineId, {
+                                    "timeToProduct": item.timeToProduct,
+                                    "speedOfMachine": item.speedOfMachine,
+                                    "machineName": item.machineName,
+                                  });
                             }
 
                             loadMachine();
@@ -219,7 +209,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                                             for (int id
                                                                 in isSelected) {
                                                               await AdminService()
-                                                                  .deleteMachinePaper(
+                                                                  .deleteMachineBox(
                                                                     id,
                                                                   );
                                                             }
@@ -235,7 +225,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                                                   .clear();
                                                               futureAdminMachine =
                                                                   AdminService()
-                                                                      .getAllMachinePaper();
+                                                                      .getAllMachineBox();
                                                             });
 
                                                             Navigator.pop(
@@ -297,7 +287,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: FutureBuilder<List<AdminMachinePaperModel>>(
+                child: FutureBuilder<List<AdminMachineBoxModel>>(
                   future: futureAdminMachine,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -359,16 +349,8 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                               ),
                             ),
                           ),
-                          DataColumn(label: styleText("Tgian đổi khổ")),
-                          DataColumn(label: styleText("Tgian đổi cùng khổ")),
-                          DataColumn(label: styleText("Tốc độ 2 lớp")),
-                          DataColumn(label: styleText("Tốc độ 3 lớp")),
-                          DataColumn(label: styleText("Tốc độ 4 lớp")),
-                          DataColumn(label: styleText("Tốc độ 5 lớp")),
-                          DataColumn(label: styleText("Tốc độ 6 lớp")),
-                          DataColumn(label: styleText("Tốc độ 7 lớp")),
-                          DataColumn(label: styleText("Tốc độ quấn cuồn")),
-                          DataColumn(label: styleText("Hiệu suất")),
+                          DataColumn(label: styleText("Thời Gian Lên Bài")),
+                          DataColumn(label: styleText("Tốc Độ Máy")),
                           DataColumn(label: styleText("Loại Máy")),
                         ],
                         rows: List<DataRow>.generate(data.length, (index) {
@@ -421,10 +403,10 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${machine.timeChangeSize.toString()} phút',
+                                  '${machine.timeToProduct.toString()} phút',
                                   (value) {
                                     setState(() {
-                                      machine.timeChangeSize =
+                                      machine.timeToProduct =
                                           int.tryParse(value) ?? 0;
                                     });
                                   },
@@ -432,95 +414,13 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  machine.timeChangeSameSize == 0
+                                  machine.speedOfMachine == 0
                                       ? "0"
-                                      : '${machine.timeChangeSameSize.toString()} phút',
+                                      : '${machine.speedOfMachine.toString()} tờ/giờ',
                                   (value) {
                                     setState(() {
-                                      machine.timeChangeSameSize =
+                                      machine.speedOfMachine =
                                           int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed2Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed2Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed3Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed3Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed4Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed4Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed5Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed5Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed6Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed6Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed7Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed7Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  showText(machine.paperRollSpeed),
-                                  (value) {
-                                    setState(() {
-                                      machine.paperRollSpeed =
-                                          int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  '${machine.machinePerformance}%',
-                                  (value) {
-                                    setState(() {
-                                      machine.machinePerformance =
-                                          double.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),

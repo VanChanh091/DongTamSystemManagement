@@ -1,7 +1,7 @@
-import 'package:dongtam/data/models/planning/planning_model.dart';
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_machine.dart';
-import 'package:dongtam/presentation/sources/machine_dataSource.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
+import 'package:dongtam/presentation/sources/machine_paper_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +16,10 @@ class BoxPrintingProduction extends StatefulWidget {
 }
 
 class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
-  late Future<List<Planning>> futurePlanning;
-  late MachineDatasource machineDatasource;
+  late Future<List<PlanningPaper>> futurePlanning;
+  late MachinePaperDatasource machinePaperDatasource;
   String searchType = "Tất cả";
-  String machine = "Máy 1350";
+  String machine = "Máy In";
   DateTime selectedDate = DateTime.now();
   bool isTextFieldEnabled = false;
   List<String> selectedPlanningIds = [];
@@ -44,13 +44,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   void loadPlanning(bool refresh) {
     setState(() {
       futurePlanning = PlanningService()
-          .getPlanningByMachine(machine, refresh)
+          .getPlanningPaperByMachine(machine, refresh)
           .then((planningList) {
             orderIdToPlanningId.clear();
             for (var planning in planningList) {
-              if (planning.step == 'paper') {
-                orderIdToPlanningId[planning.orderId] = planning.planningId;
-              }
+              orderIdToPlanningId[planning.orderId] = planning.planningId;
             }
             print(orderIdToPlanningId);
             return planningList;
@@ -148,188 +146,17 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                         ),
                         child: Row(
                           children: [
-                            // nút lên xuống
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.arrow_upward),
-                                  onPressed:
-                                      selectedPlanningIds.isNotEmpty
-                                          ? () {
-                                            setState(() {
-                                              machineDatasource.moveRowUp(
-                                                selectedPlanningIds,
-                                              );
-                                            });
-                                          }
-                                          : null,
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.arrow_downward),
-                                  onPressed:
-                                      selectedPlanningIds.isNotEmpty
-                                          ? () {
-                                            setState(() {
-                                              machineDatasource.moveRowDown(
-                                                selectedPlanningIds,
-                                              );
-                                            });
-                                          }
-                                          : null,
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 20),
-
-                            // save
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed:
-                                      isLoading
-                                          ? null
-                                          : () async {
-                                            if (dayStartController
-                                                    .text
-                                                    .isEmpty ||
-                                                timeStartController
-                                                    .text
-                                                    .isEmpty ||
-                                                totalTimeWorkingController
-                                                    .text
-                                                    .isEmpty) {
-                                              showSnackBarError(
-                                                context,
-                                                "Vui lòng nhập đầy đủ ngày bắt đầu, giờ bắt đầu và tổng thời gian.",
-                                              );
-                                            }
-                                            setState(() => isLoading = true);
-
-                                            try {
-                                              final List<DataGridRow>
-                                              visibleRows =
-                                                  machineDatasource.rows;
-
-                                              final List<Map<String, dynamic>>
-                                              updateIndex =
-                                                  visibleRows.asMap().entries.map((
-                                                    entry,
-                                                  ) {
-                                                    final planningId =
-                                                        entry.value
-                                                            .getCells()
-                                                            .firstWhere(
-                                                              (cell) =>
-                                                                  cell.columnName ==
-                                                                  "planningId",
-                                                            )
-                                                            .value;
-
-                                                    return {
-                                                      "planningId": planningId,
-                                                      "sortPlanning":
-                                                          entry.key + 1,
-                                                    };
-                                                  }).toList();
-
-                                              final DateTime parsedDayStart =
-                                                  DateFormat(
-                                                    'dd/MM/yyyy',
-                                                  ).parse(
-                                                    dayStartController.text,
-                                                  );
-
-                                              final List<String> timeParts =
-                                                  timeStartController.text
-                                                      .split(':');
-
-                                              final TimeOfDay
-                                              parsedTimeStart = TimeOfDay(
-                                                hour: int.parse(timeParts[0]),
-                                                minute: int.parse(timeParts[1]),
-                                              );
-
-                                              final int parsedTotalTime =
-                                                  int.tryParse(
-                                                    totalTimeWorkingController
-                                                        .text,
-                                                  ) ??
-                                                  0;
-
-                                              final result =
-                                                  await PlanningService()
-                                                      .updateIndexWTimeRunning(
-                                                        machine,
-                                                        updateIndex,
-                                                        parsedDayStart,
-                                                        parsedTimeStart,
-                                                        parsedTotalTime,
-                                                      );
-
-                                              if (result) {
-                                                showSnackBarSuccess(
-                                                  context,
-                                                  "Cập nhật thành công",
-                                                );
-                                                loadPlanning(true);
-                                              }
-                                            } catch (e) {
-                                              showSnackBarError(
-                                                context,
-                                                "Lỗi cập nhật",
-                                              );
-                                              print("Lỗi khi lưu: $e");
-                                            } finally {
-                                              setState(() => isLoading = false);
-                                            }
-                                          },
-                                  label: Text(
-                                    "Lưu",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: Icon(Icons.save, color: Colors.white),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xff78D761),
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                                if (isLoading)
-                                  Positioned(
-                                    right: 10,
-                                    child: SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(width: 10),
-
                             //report production
                             ElevatedButton.icon(
                               onPressed:
-                                  //turn on/turn off button
+                                  //turn on/off
                                   selectedPlanningIds.length == 1
                                       ? () async {
                                         try {
                                           //get planning first
                                           final String selectedOrderId =
                                               selectedPlanningIds.first;
+
                                           //get all planning
                                           final planningList =
                                               await futurePlanning;
@@ -399,6 +226,49 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                             ),
                             const SizedBox(width: 10),
 
+                            //confirm production
+                            ElevatedButton.icon(
+                              // onPressed:
+                              //     selectedPlanningIds.length == 1
+                              //         ? () async {
+                              //           final selectedId =
+                              //               selectedPlanningIds.first;
+
+                              //           setState(() {
+                              //             if (_producingOrderId == selectedId) {
+                              //               _producingOrderId = null;
+                              //             } else {
+                              //               _producingOrderId = selectedId;
+                              //             }
+
+                              //             selectedPlanningIds.clear();
+                              //           });
+
+                              //           loadPlanning(false);
+                              //         }
+                              //         : null,
+                              onPressed: () {},
+                              label: Text(
+                                "Xác Nhận SX",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xff78D761),
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 15,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+
                             //choose machine
                             SizedBox(
                               width: 175,
@@ -406,10 +276,13 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                 value: machine,
                                 items:
                                     [
-                                      'Máy 1350',
-                                      "Máy 1900",
-                                      "Máy 2 Lớp",
-                                      "Máy Quấn Cuồn",
+                                      "Máy In",
+                                      "Máy Bế",
+                                      "Máy Dán",
+                                      "Máy Cắt Khe",
+                                      "Máy Cấn Lằn",
+                                      "Máy Cán Màng",
+                                      "Máy Đóng Ghim",
                                     ].map((String value) {
                                       return DropdownMenuItem<String>(
                                         value: value,
@@ -458,9 +331,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     return Center(child: Text("Không có đơn hàng nào"));
                   }
 
-                  final List<Planning> data = snapshot.data!;
+                  final List<PlanningPaper> data = snapshot.data!;
 
-                  machineDatasource = MachineDatasource(
+                  machinePaperDatasource = MachinePaperDatasource(
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
@@ -468,7 +341,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
                   return SfDataGrid(
                     controller: dataGridController,
-                    source: machineDatasource,
+                    source: machinePaperDatasource,
                     allowExpandCollapseGroup: true, // Bật grouping
                     autoExpandGroups: true,
                     isScrollbarAlwaysShown: true,
@@ -487,9 +360,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                           }
                         }
 
-                        machineDatasource.selectedPlanningIds =
+                        machinePaperDatasource.selectedPlanningIds =
                             selectedPlanningIds;
-                        machineDatasource.notifyListeners();
+                        machinePaperDatasource.notifyListeners();
                       });
                     },
                   );
