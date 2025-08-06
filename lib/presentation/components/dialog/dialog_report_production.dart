@@ -8,11 +8,13 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 class DialogReportProduction extends StatefulWidget {
   final int planningId;
   final VoidCallback onReport;
+  final bool isPaper;
 
   const DialogReportProduction({
     super.key,
     required this.planningId,
     required this.onReport,
+    this.isPaper = true,
   });
 
   @override
@@ -210,16 +212,18 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                 ),
                 SizedBox(height: 15),
 
-                ValidationOrder.dropdownForTypes(
-                  itemShiftProduction,
-                  shiftProduction,
-                  (value) {
-                    setState(() {
-                      shiftProduction = value!;
-                    });
-                  },
-                ),
-                SizedBox(height: 10),
+                if (widget.isPaper) ...[
+                  ValidationOrder.dropdownForTypes(
+                    itemShiftProduction,
+                    shiftProduction,
+                    (value) {
+                      setState(() {
+                        shiftProduction = value!;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 10),
+                ],
               ],
             ),
           ),

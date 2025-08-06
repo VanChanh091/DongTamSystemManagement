@@ -49,9 +49,9 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         orderIdToPlanningId.clear();
         selectedPlanningIds.clear();
         for (var planning in planningList) {
-          orderIdToPlanningId[planning.orderId] = planning.planningId;
+          orderIdToPlanningId[planning.orderId] = planning.planningBoxId;
         }
-        // print(orderIdToPlanningId);
+        print(orderIdToPlanningId);
         return planningList;
       });
     });
@@ -496,48 +496,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                               icon: Icon(Icons.more_vert, color: Colors.black),
                               color: Colors.white,
                               onSelected: (value) async {
-                                if (value == 'change') {
-                                  if (selectedPlanningIds.isEmpty) {
-                                    showSnackBarError(
-                                      context,
-                                      "Chưa chọn kế hoạch cần chuyển máy",
-                                    );
-                                    return;
-                                  }
-                                  final planning = await futurePlanning;
-
-                                  // showDialog(
-                                  //   context: context,
-                                  //   builder:
-                                  //       (_) => ChangeMachineDialog(
-                                  //         planning:
-                                  //             planning
-                                  //                 .where(
-                                  //                   (p) => selectedPlanningIds
-                                  //                       .contains(p.orderId),
-                                  //                 )
-                                  //                 .toList(),
-                                  //         onChangeMachine:
-                                  //             () => loadPlanning(true),
-                                  //       ),
-                                  // );
-                                } else if (value == 'pause') {
+                                if (value == 'acceptLack') {
                                   await handlePlanningAction(
                                     context: context,
                                     selectedPlanningIds: selectedPlanningIds,
-                                    status: "pending",
-                                    title: "Xác nhận dừng sản xuất",
-                                    message:
-                                        "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
-                                    successMessage: "Dừng sản xuất thành công",
-                                    errorMessage:
-                                        "Có lỗi xảy ra khi dừng sản xuất",
-                                    onSuccess: () => loadPlanning(true),
-                                  );
-                                } else if (value == 'acceptLack') {
-                                  await handlePlanningAction(
-                                    context: context,
-                                    selectedPlanningIds: selectedPlanningIds,
+                                    machine: machine,
                                     status: "complete",
                                     title: "Xác nhận thiếu số lượng",
                                     message:
@@ -551,24 +514,10 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                               itemBuilder:
                                   (BuildContext context) => [
                                     PopupMenuItem<String>(
-                                      value: 'change',
-                                      child: ListTile(
-                                        leading: Icon(Symbols.construction),
-                                        title: Text('Chuyển Máy'),
-                                      ),
-                                    ),
-                                    PopupMenuItem<String>(
-                                      value: 'pause',
-                                      child: ListTile(
-                                        leading: Icon(Symbols.pause_circle),
-                                        title: Text('Dừng Chạy Đơn'),
-                                      ),
-                                    ),
-                                    PopupMenuItem<String>(
                                       value: 'acceptLack',
                                       child: ListTile(
                                         leading: Icon(Icons.approval_outlined),
-                                        title: Text('Chấp Nhận Thiếu Đơn'),
+                                        title: Text('Chấp Nhận Thiếu SL'),
                                       ),
                                     ),
                                   ],
@@ -698,6 +647,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     required BuildContext context,
     required List<String> selectedPlanningIds,
     required String status,
+    required String machine,
     required String title,
     required String message,
     required String successMessage,
@@ -766,9 +716,10 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                 .whereType<int>()
                 .toList();
 
-        final success = await PlanningService().pauseOrAcceptLackQty(
+        final success = await PlanningService().acceptLackQtyBox(
           planningIds,
           status,
+          machine,
         );
 
         if (success) {

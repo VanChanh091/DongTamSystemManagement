@@ -81,9 +81,9 @@ class MachineBoxDatasource extends DataGridSource {
         value: '${planning.length} cm',
       ),
       DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
-      DataGridCell<String>(
+      DataGridCell<int>(
         columnName: "runningPlanProd",
-        value: '${planning.runningPlan} cái',
+        value: planning.runningPlan,
       ),
       DataGridCell<String>(
         columnName: "qtyProduced",

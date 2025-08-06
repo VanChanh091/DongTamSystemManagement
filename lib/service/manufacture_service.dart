@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
+import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:intl/intl.dart';
@@ -13,10 +14,11 @@ class ManufactureService {
     ),
   );
 
+  //===============================MANUFACTURE PAPER====================================
+
   //get planning paper
   Future<List<PlanningPaper>> getPlanningPaper(
     String machine,
-    String step,
     bool refresh,
   ) async {
     try {
@@ -24,7 +26,7 @@ class ManufactureService {
 
       final response = await dioService.get(
         '/api/manufacture/planningPaper',
-        queryParameters: {"machine": machine, "step": step, 'refresh': refresh},
+        queryParameters: {"machine": machine, 'refresh': refresh},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -61,6 +63,73 @@ class ManufactureService {
         '/api/manufacture/reportPaper',
         queryParameters: {"planningId": planningId},
         data: data,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response?.statusCode;
+        final errorMsg = e.response?.data?['message'] ?? 'Unknown error';
+
+        // Chuyển lỗi lên submit() để xử lý theo mã lỗi
+        throw Exception("HTTP $statusCode: $errorMsg");
+      } else {
+        throw Exception("Network Error: ${e.message}");
+      }
+    } catch (e) {
+      throw Exception('Lỗi không xác định: $e');
+    }
+  }
+
+  //===============================MANUFACTURE BOX====================================
+  //get planning paper
+  Future<List<PlanningBox>> getPlanningBox(String machine, bool refresh) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/manufacture/planningBox',
+        queryParameters: {"machine": machine, 'refresh': refresh},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final data = response.data['data'] as List;
+      return data.map((e) => PlanningBox.fromJson(e)).toList();
+    } catch (e) {
+      throw Exception('Failed to load planning box: $e');
+    }
+  }
+
+  //create report for planning
+  Future<bool> createReportBox(
+    int planningBoxId,
+    DateTime dayCompleted,
+    int qtyProduced,
+    double rpWasteLoss,
+    String shiftManagement,
+  ) async {
+    final token = await SecureStorageService().getToken();
+
+    try {
+      await dioService.post(
+        '/api/manufacture/reportPaper',
+        queryParameters: {"planningBoxId": planningBoxId},
+        data: {
+          "dayCompleted": dayCompleted,
+          "qtyProduced": qtyProduced,
+          "rpWasteLoss": rpWasteLoss,
+          "shiftManagement": shiftManagement,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

@@ -118,7 +118,7 @@ class _PaperProductionState extends State<PaperProduction> {
   void loadPlanning(bool refresh) {
     setState(() {
       futurePlanning = ManufactureService()
-          .getPlanningPaper(machine, 'paper', refresh)
+          .getPlanningPaper(machine, refresh)
           .then((planningList) {
             orderIdToPlanningId.clear();
             selectedPlanningIds.clear();

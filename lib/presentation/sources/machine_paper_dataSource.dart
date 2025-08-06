@@ -97,15 +97,15 @@ class MachinePaperDatasource extends DataGridSource {
       ),
       DataGridCell<int>(
         columnName: 'quantity',
-        value: planning.order?.quantityCustomer ?? 0,
+        value: planning.order?.quantityManufacture ?? 0,
       ),
       DataGridCell<int>(
-        columnName: "runningPlanProd",
+        columnName: "runningPlans",
         value: planning.runningPlan,
       ),
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       DataGridCell<String>(
-        columnName: 'timeRunningProd',
+        columnName: 'timeRunnings',
         value:
             planning.timeRunning != null
                 ? PlanningPaper.formatTimeOfDay(planning.timeRunning!)

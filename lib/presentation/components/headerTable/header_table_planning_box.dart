@@ -25,12 +25,12 @@ List<GridColumn> buildMachineBoxColumns() {
     GridColumn(columnName: 'length', label: formatColumn("Dài")),
     GridColumn(columnName: 'size', label: formatColumn("Khổ")),
     GridColumn(
-      columnName: 'runningPlanProd',
+      columnName: 'runningPlans',
       label: formatColumn("Kế Hoạch Chạy"),
     ),
     GridColumn(columnName: 'qtyProduced', label: formatColumn("SL Sản Xuất")),
     GridColumn(
-      columnName: 'timeRunningProd',
+      columnName: 'timeRunnings',
       label: formatColumn("Thời Gian Chạy"),
     ),
     GridColumn(columnName: 'wasteLoss', label: formatColumn("Phế Liệu")),

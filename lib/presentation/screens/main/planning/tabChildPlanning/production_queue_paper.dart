@@ -600,7 +600,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                       value: 'acceptLack',
                                       child: ListTile(
                                         leading: Icon(Icons.approval_outlined),
-                                        title: Text('Chấp Nhận Thiếu Đơn'),
+                                        title: Text('Chấp Nhận Thiếu SL'),
                                       ),
                                     ),
                                   ],

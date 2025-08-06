@@ -362,4 +362,34 @@ class PlanningService {
       throw Exception('Failed to update planning: $e');
     }
   }
+
+  //accept lack qty
+  Future<bool> acceptLackQtyBox(
+    List<int> planningBoxIds,
+    String newStatus,
+    String machine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/planning/acceptLackQtyBox",
+        data: {
+          "planningBoxIds": planningBoxIds,
+          "newStatus": newStatus,
+          "machine": machine,
+        },
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      throw Exception('Failed to pause machine: $e');
+    }
+  }
 }

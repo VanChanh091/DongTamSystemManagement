@@ -1,8 +1,10 @@
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
-import 'package:dongtam/presentation/sources/machine_paper_dataSource.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_planning_box.dart';
+import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
+import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/service/socket/socket_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -16,37 +18,110 @@ class BoxPrintingProduction extends StatefulWidget {
 }
 
 class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
-  late Future<List<PlanningPaper>> futurePlanning;
-  late MachinePaperDatasource machinePaperDatasource;
-  String searchType = "Tất cả";
+  final socketService = SocketService();
+  late Future<List<PlanningBox>> futurePlanning;
+  late MachineBoxDatasource machineBoxDatasource;
   String machine = "Máy In";
-  DateTime selectedDate = DateTime.now();
-  bool isTextFieldEnabled = false;
   List<String> selectedPlanningIds = [];
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
   final DataGridController dataGridController = DataGridController();
   DateTime? dayStart = DateTime.now();
-  bool isLoading = false;
   bool showGroup = true;
-
-  TextEditingController searchController = TextEditingController();
-  TextEditingController dayStartController = TextEditingController();
-  TextEditingController timeStartController = TextEditingController();
-  TextEditingController totalTimeWorkingController = TextEditingController();
+  String? _producingOrderId;
 
   @override
   void initState() {
     super.initState();
+
+    // registerSocket();
     loadPlanning(false);
+  }
+
+  Future<void> registerSocket() async {
+    await SocketService().connectToSocket(machine);
+
+    SocketService().on('planningUpdated', (data) {
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (ctx) => AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              contentPadding: const EdgeInsets.all(20),
+              titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
+
+              title: Center(
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.notifications_active,
+                      color: Colors.green,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Thông báo',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              content: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Đã có kế hoạch mới cho $machine.\nNhấn OK để cập nhật dữ liệu.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 17),
+                    ),
+                  ],
+                ),
+              ),
+
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    loadPlanning(true);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text('OK', style: TextStyle(fontSize: 16)),
+                ),
+              ],
+            ),
+      );
+    });
   }
 
   void loadPlanning(bool refresh) {
     setState(() {
-      futurePlanning = PlanningService()
-          .getPlanningPaperByMachine(machine, refresh)
+      futurePlanning = ManufactureService()
+          .getPlanningBox(machine, refresh)
           .then((planningList) {
             orderIdToPlanningId.clear();
+            selectedPlanningIds.clear();
             for (var planning in planningList) {
               orderIdToPlanningId[planning.orderId] = planning.planningId;
             }
@@ -56,66 +131,18 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     });
   }
 
-  void searchPlanning() {
-    String keyword = searchController.text.trim().toLowerCase();
-
-    if (isTextFieldEnabled && keyword.isEmpty) {
-      return;
-    }
-
-    switch (searchType) {
-      case 'Tất cả':
-        loadPlanning(false);
-        break;
-      case 'Mã Đơn Hàng':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByOrderId(
-            keyword,
-            machine,
-          );
-        });
-        break;
-      case 'Tên KH':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByCustomerName(
-            keyword,
-            machine,
-          );
-        });
-        break;
-      case 'Sóng':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByFlute(
-            keyword,
-            machine,
-          );
-        });
-        break;
-      case 'Khổ Cấp Giấy':
-        setState(() {
-          try {
-            futurePlanning = PlanningService().getPlanningByGhepKho(
-              int.parse(keyword),
-              machine,
-            );
-          } catch (e) {
-            showSnackBarError(
-              context,
-              'Vui lòng nhập số hợp lệ cho khổ cấp giấy',
-            );
-          }
-        });
-        break;
-      default:
-    }
-  }
-
   void changeMachine(String selectedMachine) {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
-      loadPlanning(false);
+      loadPlanning(true);
     });
+  }
+
+  @override
+  void dispose() {
+    SocketService().disconnectSocket();
+    super.dispose();
   }
 
   @override
@@ -193,6 +220,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                           .planningId,
                                                   onReport:
                                                       () => loadPlanning(true),
+                                                  isPaper: false,
                                                 ),
                                           );
                                         } catch (e) {
@@ -228,26 +256,25 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
                             //confirm production
                             ElevatedButton.icon(
-                              // onPressed:
-                              //     selectedPlanningIds.length == 1
-                              //         ? () async {
-                              //           final selectedId =
-                              //               selectedPlanningIds.first;
+                              onPressed:
+                                  selectedPlanningIds.length == 1
+                                      ? () async {
+                                        final selectedId =
+                                            selectedPlanningIds.first;
 
-                              //           setState(() {
-                              //             if (_producingOrderId == selectedId) {
-                              //               _producingOrderId = null;
-                              //             } else {
-                              //               _producingOrderId = selectedId;
-                              //             }
+                                        setState(() {
+                                          if (_producingOrderId == selectedId) {
+                                            _producingOrderId = null;
+                                          } else {
+                                            _producingOrderId = selectedId;
+                                          }
 
-                              //             selectedPlanningIds.clear();
-                              //           });
+                                          selectedPlanningIds.clear();
+                                        });
 
-                              //           loadPlanning(false);
-                              //         }
-                              //         : null,
-                              onPressed: () {},
+                                        loadPlanning(false);
+                                      }
+                                      : null,
                               label: Text(
                                 "Xác Nhận SX",
                                 style: TextStyle(
@@ -331,24 +358,26 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     return Center(child: Text("Không có đơn hàng nào"));
                   }
 
-                  final List<PlanningPaper> data = snapshot.data!;
+                  final List<PlanningBox> data = snapshot.data!;
 
-                  machinePaperDatasource = MachinePaperDatasource(
+                  machineBoxDatasource = MachineBoxDatasource(
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
+                    machine: machine,
+                    producingOrderId: _producingOrderId,
                   );
 
                   return SfDataGrid(
                     controller: dataGridController,
-                    source: machinePaperDatasource,
+                    source: machineBoxDatasource,
                     allowExpandCollapseGroup: true, // Bật grouping
                     autoExpandGroups: true,
                     isScrollbarAlwaysShown: true,
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: buildMachineColumns(),
+                    columns: buildMachineBoxColumns(),
                     onSelectionChanged: (addedRows, removedRows) {
                       setState(() {
                         for (var row in addedRows) {
@@ -360,9 +389,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                           }
                         }
 
-                        machinePaperDatasource.selectedPlanningIds =
+                        machineBoxDatasource.selectedPlanningIds =
                             selectedPlanningIds;
-                        machinePaperDatasource.notifyListeners();
+                        machineBoxDatasource.notifyListeners();
                       });
                     },
                   );
