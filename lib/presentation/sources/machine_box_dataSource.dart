@@ -53,8 +53,8 @@ class MachineBoxDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: "dayStartProduction",
         value:
-            planning.dayStart != null
-                ? formatter.format(planning.dayStart!)
+            boxMachineTime?.dayStart != null
+                ? formatter.format(boxMachineTime!.dayStart!)
                 : '',
       ),
       DataGridCell<String>(
@@ -99,24 +99,21 @@ class MachineBoxDatasource extends DataGridSource {
                 ? PlanningBox.formatTimeOfDay(boxMachineTime!.timeRunning!)
                 : '',
       ),
-      DataGridCell<String>(
+      DataGridCell<double>(
         columnName: "wasteLoss",
-        value:
-            boxMachineTime?.wasteBox != 0 && boxMachineTime?.wasteBox != null
-                ? '${boxMachineTime?.wasteBox} kg'
-                : "0",
+        value: boxMachineTime?.wasteBox,
       ),
-      DataGridCell<String>(
+      DataGridCell<double>(
         columnName: "rpWasteNorm",
-        value:
-            boxMachineTime?.rpWasteLoss != 0 &&
-                    boxMachineTime?.rpWasteLoss != null
-                ? '${boxMachineTime?.rpWasteLoss} kg'
-                : "0",
+        value: boxMachineTime?.rpWasteLoss,
       ),
       DataGridCell<String>(
         columnName: "shiftManagement",
         value: boxMachineTime?.shiftManagement ?? "",
+      ),
+      DataGridCell<String>(
+        columnName: "note",
+        value: planning.runningPlan == 0 ? "Chờ số lượng" : "",
       ),
       DataGridCell<String>(
         columnName: "status",
@@ -271,32 +268,42 @@ class MachineBoxDatasource extends DataGridSource {
     final orderId = row.getCells()[0].value.toString();
     final isSelected = selectedPlanningIds.contains(orderId);
 
+    //get sort planing
     final sortPlanningCell = row.getCells().firstWhere(
       (cell) => cell.columnName == 'index',
       orElse: () => DataGridCell<int>(columnName: 'index', value: 0),
     );
+    final sortPlanning = sortPlanningCell.value as int;
 
+    //get status
     final statusCell = row.getCells().firstWhere(
       (cell) => cell.columnName == 'status',
       orElse: () => DataGridCell<String>(columnName: 'status', value: ''),
     );
-
-    final sortPlanning = sortPlanningCell.value as int;
     final status = statusCell.value.toString();
+
+    //get running plan
+    final runningPlanCell = row.getCells().firstWhere(
+      (cell) => cell.columnName == 'runningPlanProd',
+      orElse: () => DataGridCell<int>(columnName: "runningPlanProd", value: 0),
+    );
+    final runningPlan = runningPlanCell.value as int;
 
     final isProducing = orderId == producingOrderId;
 
     Color backgroundColor;
     if (isSelected) {
-      backgroundColor = Colors.blue.withOpacity(0.3);
+      backgroundColor = Colors.blue.withOpacity(0.3); //selection row
     } else if (isProducing) {
-      backgroundColor = Colors.orange.withOpacity(0.4);
+      backgroundColor = Colors.orange.withOpacity(0.4); //confirm production
     } else if (sortPlanning > 0 && status == "lackQty") {
-      backgroundColor = Colors.red.withOpacity(0.4); // Thiếu số lượng
+      backgroundColor = Colors.red.withOpacity(0.4); //lack of qty
     } else if (sortPlanning > 0 && status == "complete") {
-      backgroundColor = Colors.green.withOpacity(0.3); // Đã hoàn thành
+      backgroundColor = Colors.green.withOpacity(0.3); //have completed
     } else if (sortPlanning == 0) {
-      backgroundColor = Colors.amberAccent.withOpacity(0.3); // Chưa sắp xếp
+      backgroundColor = Colors.amberAccent.withOpacity(0.3); //no sorting
+    } else if (runningPlan == 0) {
+      backgroundColor = Colors.pink.withOpacity(0.3); //check runningPlan
     } else {
       backgroundColor = Colors.transparent;
     }

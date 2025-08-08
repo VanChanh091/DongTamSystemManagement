@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class PlanningBox {
   final int planningBoxId;
-  final DateTime? dayStart;
+
   final int runningPlan;
   final String? day, matE, matB, matC, songE, songB, songC, songE2;
   final double length, size;
@@ -19,7 +19,6 @@ class PlanningBox {
 
   PlanningBox({
     required this.planningBoxId,
-    this.dayStart,
     required this.runningPlan,
     this.day,
     this.matE,
@@ -65,10 +64,6 @@ class PlanningBox {
   factory PlanningBox.fromJson(Map<String, dynamic> json) {
     return PlanningBox(
       planningBoxId: json['planningBoxId'],
-      dayStart:
-          json['dayStart'] != null && json['dayStart'] != ''
-              ? DateTime.tryParse(json['dayStart'])
-              : null,
       runningPlan: json['runningPlan'] ?? 0,
       day: json['day'] ?? "",
       matE: json['matE'] ?? "",
@@ -98,6 +93,6 @@ class PlanningBox {
   }
 
   Map<String, dynamic> toJson() {
-    return {"dayStart": dayStart, "planningId": planningId, "orderId": orderId};
+    return {"planningId": planningId, "orderId": orderId};
   }
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class BoxMachineTime {
   final int boxTimeId;
   final TimeOfDay? timeRunning;
-  final DateTime? dayCompleted;
+  final DateTime? dayCompleted, dayStart;
   final double? wasteBox, rpWasteLoss;
   final int? qtyProduced;
   final String machine;
@@ -15,6 +15,7 @@ class BoxMachineTime {
   BoxMachineTime({
     required this.boxTimeId,
     this.timeRunning,
+    this.dayStart,
     this.dayCompleted,
     this.wasteBox,
     this.rpWasteLoss,
@@ -38,6 +39,10 @@ class BoxMachineTime {
           json['timeRunning'] != null && json['timeRunning'] != ''
               ? parseTimeOfDay(json['timeRunning'])
               : null,
+      dayStart:
+          json['dayStart'] != null && json['dayStart'] != ''
+              ? DateTime.tryParse(json['dayStart'])
+              : null,
       dayCompleted:
           json['dayCompleted'] != null && json['dayCompleted'] != ''
               ? DateTime.tryParse(json['dayCompleted'])
@@ -54,6 +59,7 @@ class BoxMachineTime {
 
   Map<String, dynamic> toJson() {
     return {
+      "dayStart": dayStart,
       "dayCompleted": dayCompleted,
       "wasteBox": wasteBox,
       "qtyProduced": qtyProduced,

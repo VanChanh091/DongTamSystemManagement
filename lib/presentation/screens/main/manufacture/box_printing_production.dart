@@ -1,6 +1,6 @@
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_planning_box.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
 import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/planning_service.dart';
@@ -34,14 +34,14 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   void initState() {
     super.initState();
 
-    // registerSocket();
-    loadPlanning(false);
+    registerSocket();
+    loadPlanning(true);
   }
 
   Future<void> registerSocket() async {
     await SocketService().connectToSocket(machine);
 
-    SocketService().on('planningUpdated', (data) {
+    SocketService().on('planningBoxUpdated', (data) {
       if (!mounted) return;
 
       showDialog(
@@ -123,9 +123,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
             orderIdToPlanningId.clear();
             selectedPlanningIds.clear();
             for (var planning in planningList) {
-              orderIdToPlanningId[planning.orderId] = planning.planningId;
+              orderIdToPlanningId[planning.orderId] = planning.planningBoxId;
             }
-            print(orderIdToPlanningId);
+            // print('manufacture_box:$orderIdToPlanningId');
             return planningList;
           });
     });
@@ -189,12 +189,12 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                               await futurePlanning;
 
                                           // get planningId from orderId
-                                          final planningId =
+                                          final planningBoxId =
                                               orderIdToPlanningId[selectedOrderId];
-                                          if (planningId == null) {
+                                          if (planningBoxId == null) {
                                             showSnackBarError(
                                               context,
-                                              "Không tìm thấy planningId cho orderId: $selectedOrderId",
+                                              "Không tìm thấy planningBoxId cho orderId: $selectedOrderId",
                                             );
                                             return;
                                           }
@@ -203,7 +203,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                           final selectedPlanning = planningList
                                               .firstWhere(
                                                 (p) =>
-                                                    p.planningId == planningId,
+                                                    p.planningBoxId ==
+                                                    planningBoxId,
                                                 orElse:
                                                     () =>
                                                         throw Exception(
@@ -217,7 +218,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                 (_) => DialogReportProduction(
                                                   planningId:
                                                       selectedPlanning
-                                                          .planningId,
+                                                          .planningBoxId,
                                                   onReport:
                                                       () => loadPlanning(true),
                                                   isPaper: false,
@@ -306,8 +307,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                       "Máy In",
                                       "Máy Bế",
                                       "Máy Dán",
+                                      "Máy Xả",
                                       "Máy Cắt Khe",
-                                      "Máy Cấn Lằn",
                                       "Máy Cán Màng",
                                       "Máy Đóng Ghim",
                                     ].map((String value) {

@@ -9,9 +9,8 @@ import 'package:dongtam/presentation/screens/main/manufacture/box_printing_produ
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
 import 'package:dongtam/presentation/screens/main/planning/top_tab_planning.dart';
-import 'package:dongtam/presentation/screens/main/planning/waitting_for_planing.dart';
+import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
-import 'package:dongtam/presentation/screens/main/report/report_production.dart';
 import 'package:dongtam/presentation/screens/main/user/user.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
@@ -45,7 +44,6 @@ class _HomePageState extends State<HomePage> {
     WaitingForPlanning(), TopTabPlanning(),
     //manufacture
     PaperProduction(), BoxPrintingProduction(),
-    ReportProduction(),
     //admin
     AdminOrder(),
     TopTabAdmin(),
@@ -75,6 +73,57 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       newNotificationsCount = newCount;
     });
+  }
+
+  BoxDecoration _sidebarDecoration() {
+    return const BoxDecoration(
+      borderRadius: BorderRadius.only(
+        topRight: Radius.circular(12),
+        bottomRight: Radius.circular(12),
+      ),
+      color: Color(0xffcfa381),
+      boxShadow: [
+        BoxShadow(color: Colors.black26, offset: Offset(3, 0), blurRadius: 10),
+      ],
+    );
+  }
+
+  //logout
+  Widget _buildLogoutSection() {
+    return _isHovered
+        ? ListTile(
+          leading: const Icon(Icons.logout, color: Colors.white),
+          title: const Text(
+            "Đăng xuất",
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          ),
+          onTap: logout,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        )
+        : const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Center(child: Icon(Icons.logout, color: Colors.white)),
+        );
+  }
+
+  //logo
+  Widget _buildLogoSection() {
+    return Center(
+      child: Column(
+        children: [
+          Image.asset('assets/images/logoDT.png', width: 150, height: 150),
+          const SizedBox(height: 5),
+          const Text(
+            'Bao Bì Đồng Tâm',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   //index for screen
@@ -121,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                       // Personal
-                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 12),
+                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 11),
 
                       const Divider(color: Colors.white70),
                       _buildLogoutSection(),
@@ -132,39 +181,6 @@ class _HomePageState extends State<HomePage> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  BoxDecoration _sidebarDecoration() {
-    return const BoxDecoration(
-      borderRadius: BorderRadius.only(
-        topRight: Radius.circular(12),
-        bottomRight: Radius.circular(12),
-      ),
-      color: Color(0xffcfa381),
-      boxShadow: [
-        BoxShadow(color: Colors.black26, offset: Offset(3, 0), blurRadius: 10),
-      ],
-    );
-  }
-
-  //logo
-  Widget _buildLogoSection() {
-    return Center(
-      child: Column(
-        children: [
-          Image.asset('assets/images/logoDT.png', width: 150, height: 150),
-          const SizedBox(height: 5),
-          const Text(
-            'Bao Bì Đồng Tâm',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -187,8 +203,6 @@ class _HomePageState extends State<HomePage> {
           _buildPlanningMenu(),
           //manufacture
           _buildManufactureMenu(),
-          //report
-          _buildSidebarItem(Icons.assignment, "Báo Cáo", index: 8),
           //admin
           _buildApprovalMenu(),
         ],
@@ -329,30 +343,12 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
         if (_isHovered && _isApprovalExpanded) ...[
-          _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 9),
-          _buildSubMenuItem(Icons.gif_box, "Định Mức và Máy Chạy", 10),
-          _buildSubMenuItem(Icons.person, "Người Dùng", 11),
+          _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 8),
+          _buildSubMenuItem(Icons.gif_box, "Định Mức và Máy Chạy", 9),
+          _buildSubMenuItem(Icons.person, "Người Dùng", 10),
         ],
       ],
     );
-  }
-
-  //logout
-  Widget _buildLogoutSection() {
-    return _isHovered
-        ? ListTile(
-          leading: const Icon(Icons.logout, color: Colors.white),
-          title: const Text(
-            "Đăng xuất",
-            style: TextStyle(color: Colors.white, fontSize: 18),
-          ),
-          onTap: logout,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-        )
-        : const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: Center(child: Icon(Icons.logout, color: Colors.white)),
-        );
   }
 
   Widget _buildSidebarItem(

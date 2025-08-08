@@ -305,7 +305,10 @@ class PlanningService {
 
   //===============================PLANNING BOX====================================
 
-  Future<List<PlanningBox>> getPlanningBox(String machine, bool refresh) async {
+  Future<List<PlanningBox>> getPlanningMachineBox(
+    String machine,
+    bool refresh,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 

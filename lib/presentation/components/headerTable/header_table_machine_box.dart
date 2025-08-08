@@ -39,6 +39,7 @@ List<GridColumn> buildMachineBoxColumns() {
       columnName: 'shiftManagement',
       label: formatColumn("Trưởng Máy"),
     ),
+    GridColumn(columnName: 'note', label: formatColumn("Ghi Chú")),
     GridColumn(columnName: 'status', label: SizedBox(), visible: false),
     GridColumn(
       columnName: 'index',

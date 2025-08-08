@@ -1,5 +1,5 @@
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_planning_box.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
 import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
@@ -38,22 +38,22 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   @override
   void initState() {
     super.initState();
-    loadPlanning(false);
+    loadPlanning(true);
   }
 
   void loadPlanning(bool refresh) {
     setState(() {
-      futurePlanning = PlanningService().getPlanningBox(machine, refresh).then((
-        planningList,
-      ) {
-        orderIdToPlanningId.clear();
-        selectedPlanningIds.clear();
-        for (var planning in planningList) {
-          orderIdToPlanningId[planning.orderId] = planning.planningBoxId;
-        }
-        print(orderIdToPlanningId);
-        return planningList;
-      });
+      futurePlanning = PlanningService()
+          .getPlanningMachineBox(machine, refresh)
+          .then((planningList) {
+            orderIdToPlanningId.clear();
+            selectedPlanningIds.clear();
+            for (var planning in planningList) {
+              orderIdToPlanningId[planning.orderId] = planning.planningBoxId;
+            }
+            // print('production_box:$orderIdToPlanningId');
+            return planningList;
+          });
     });
   }
 

@@ -48,13 +48,24 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         "shiftProduction": shiftProduction,
       };
 
-      final success = await ManufactureService().createReportPaper(
-        widget.planningId,
-        qtyProduced,
-        qtyWasteNorm,
-        completedDate,
-        reportData,
-      );
+      bool success;
+      if (widget.isPaper == true) {
+        success = await ManufactureService().createReportPaper(
+          widget.planningId,
+          qtyProduced,
+          qtyWasteNorm,
+          completedDate,
+          reportData,
+        );
+      } else {
+        success = await ManufactureService().createReportBox(
+          widget.planningId,
+          completedDate,
+          qtyProduced,
+          qtyWasteNorm,
+          shiftManagementController.text,
+        );
+      }
 
       if (success) {
         showSnackBarSuccess(context, 'Báo cáo kế hoạch thành công');
@@ -153,7 +164,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Center(
-        child: Text(
+        child: const Text(
           "Báo Cáo Sản Xuất",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
@@ -168,7 +179,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
               children: [
                 SizedBox(height: 15),
                 validateInput(
-                  "Số Lượng Sản Xuất",
+                  "Số Lượng Đã Sản Xuất",
                   qtyProducedController,
                   Symbols.production_quantity_limits,
                 ),

@@ -270,7 +270,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
               : [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(
+                  child: const Text(
                     "Hủy",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,

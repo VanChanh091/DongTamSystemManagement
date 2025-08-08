@@ -35,13 +35,13 @@ class _PaperProductionState extends State<PaperProduction> {
     super.initState();
 
     registerSocket();
-    loadPlanning(false);
+    loadPlanning(true);
   }
 
   Future<void> registerSocket() async {
     await SocketService().connectToSocket(machine);
 
-    SocketService().on('planningUpdated', (data) {
+    SocketService().on('planningPaperUpdated', (data) {
       if (!mounted) return;
 
       showDialog(
@@ -125,7 +125,7 @@ class _PaperProductionState extends State<PaperProduction> {
             for (var planning in planningList) {
               orderIdToPlanningId[planning.orderId] = planning.planningId;
             }
-            print(orderIdToPlanningId);
+            // print('manufacture_paper:$orderIdToPlanningId');
             return planningList;
           });
     });
@@ -135,6 +135,9 @@ class _PaperProductionState extends State<PaperProduction> {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
+
+      SocketService().disconnectSocket();
+      registerSocket();
       loadPlanning(true);
     });
   }

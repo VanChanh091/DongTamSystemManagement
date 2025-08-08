@@ -938,14 +938,14 @@ class _OrderDialogState extends State<OrderDialog> {
                   children: [
                     //Order
                     SizedBox(height: 10),
-                    Text(
+                    const Text(
                       "Đơn Hàng",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
                         color: Color(0xffF2E873),
@@ -999,17 +999,17 @@ class _OrderDialogState extends State<OrderDialog> {
                             }).toList(),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     //structure
-                    Text(
+                    const Text(
                       "Kết Cấu",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
                         color: Color(0xffF2E873),
@@ -1063,17 +1063,17 @@ class _OrderDialogState extends State<OrderDialog> {
                             }).toList(),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     //box
-                    Text(
+                    const Text(
                       "Làm Thùng",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Container(
                       decoration: BoxDecoration(
                         color: Color(0xffF2E873),
@@ -1138,14 +1138,15 @@ class _OrderDialogState extends State<OrderDialog> {
                             },
                           ),
 
-                          Text(
+                          const Text(
                             'Hướng dẫn đặc biệt:',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
+
                           TextFormField(
                             controller: instructSpecialController,
                             decoration: InputDecoration(
@@ -1172,7 +1173,7 @@ class _OrderDialogState extends State<OrderDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(
+              child: const Text(
                 "Hủy",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,

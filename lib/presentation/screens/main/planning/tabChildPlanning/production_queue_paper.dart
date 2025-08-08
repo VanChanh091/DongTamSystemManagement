@@ -39,7 +39,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   @override
   void initState() {
     super.initState();
-    loadPlanning(false);
+    loadPlanning(true);
   }
 
   void loadPlanning(bool refresh) {
@@ -52,7 +52,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
             for (var planning in planningList) {
               orderIdToPlanningId[planning.orderId] = planning.planningId;
             }
-            // print(orderIdToPlanningId);
+            // print('production_paper:$orderIdToPlanningId');
             return planningList;
           });
     });

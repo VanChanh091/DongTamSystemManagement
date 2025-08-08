@@ -122,10 +122,10 @@ class ManufactureService {
 
     try {
       await dioService.post(
-        '/api/manufacture/reportPaper',
+        '/api/manufacture/reportBox',
         queryParameters: {"planningBoxId": planningBoxId},
         data: {
-          "dayCompleted": dayCompleted,
+          "dayCompleted": DateFormat('yyyy-MM-dd').format(dayCompleted),
           "qtyProduced": qtyProduced,
           "rpWasteLoss": rpWasteLoss,
           "shiftManagement": shiftManagement,
