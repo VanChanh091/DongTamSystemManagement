@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -85,12 +86,9 @@ class MachineBoxDatasource extends DataGridSource {
         columnName: "runningPlanProd",
         value: planning.runningPlan,
       ),
-      DataGridCell<String>(
+      DataGridCell<int>(
         columnName: "qtyProduced",
-        value:
-            boxMachineTime?.qtyProduced != 0
-                ? '${boxMachineTime?.qtyProduced} cái'
-                : "0",
+        value: boxMachineTime?.qtyProduced ?? 0,
       ),
       DataGridCell<String>(
         columnName: "timeRunningProd",
@@ -104,16 +102,31 @@ class MachineBoxDatasource extends DataGridSource {
         value: boxMachineTime?.wasteBox,
       ),
       DataGridCell<double>(
-        columnName: "rpWasteNorm",
+        columnName: "wasteNorm",
         value: boxMachineTime?.rpWasteLoss,
       ),
+      if (machine == "Máy In") ...[
+        DataGridCell<int>(
+          columnName: "inMatTruoc",
+          value: planning.order?.box?.inMatTruoc ?? 0,
+        ),
+        DataGridCell<int>(
+          columnName: "inMatSau",
+          value: planning.order?.box?.inMatSau ?? 0,
+        ),
+      ],
       DataGridCell<String>(
-        columnName: "shiftManagement",
+        columnName: "shiftManager",
         value: boxMachineTime?.shiftManagement ?? "",
       ),
       DataGridCell<String>(
         columnName: "note",
-        value: planning.runningPlan == 0 ? "Chờ số lượng" : "",
+        value:
+            planning.runningPlan == 0
+                ? "Chờ số lượng"
+                : (boxMachineTime?.qtyProduced ?? 0) < planning.runningPlan
+                ? "Thiếu số lượng"
+                : "",
       ),
       DataGridCell<String>(
         columnName: "status",
@@ -268,53 +281,47 @@ class MachineBoxDatasource extends DataGridSource {
     final orderId = row.getCells()[0].value.toString();
     final isSelected = selectedPlanningIds.contains(orderId);
 
-    //get sort planing
-    final sortPlanningCell = row.getCells().firstWhere(
-      (cell) => cell.columnName == 'index',
-      orElse: () => DataGridCell<int>(columnName: 'index', value: 0),
-    );
-    final sortPlanning = sortPlanningCell.value as int;
-
-    //get status
-    final statusCell = row.getCells().firstWhere(
-      (cell) => cell.columnName == 'status',
-      orElse: () => DataGridCell<String>(columnName: 'status', value: ''),
-    );
-    final status = statusCell.value.toString();
-
-    //get running plan
-    final runningPlanCell = row.getCells().firstWhere(
-      (cell) => cell.columnName == 'runningPlanProd',
-      orElse: () => DataGridCell<int>(columnName: "runningPlanProd", value: 0),
-    );
-    final runningPlan = runningPlanCell.value as int;
+    // Lấy giá trị các cột cần check
+    final sortPlanning = getCellValue<int>(row, 'index', 0);
+    final status = getCellValue<String>(row, 'status', "");
+    final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
+    final qtyProduced = getCellValue<int>(row, 'qtyProduced', 0);
 
     final isProducing = orderId == producingOrderId;
 
-    Color backgroundColor;
+    // Màu nền cho cả hàng
+    Color? rowColor;
     if (isSelected) {
-      backgroundColor = Colors.blue.withOpacity(0.3); //selection row
+      rowColor = Colors.blue.withOpacity(0.3); //selected row
     } else if (isProducing) {
-      backgroundColor = Colors.orange.withOpacity(0.4); //confirm production
-    } else if (sortPlanning > 0 && status == "lackQty") {
-      backgroundColor = Colors.red.withOpacity(0.4); //lack of qty
+      rowColor = Colors.orange.withOpacity(0.4); //confirm production
     } else if (sortPlanning > 0 && status == "complete") {
-      backgroundColor = Colors.green.withOpacity(0.3); //have completed
+      rowColor = Colors.green.withOpacity(0.3); //have completed
     } else if (sortPlanning == 0) {
-      backgroundColor = Colors.amberAccent.withOpacity(0.3); //no sorting
-    } else if (runningPlan == 0) {
-      backgroundColor = Colors.pink.withOpacity(0.3); //check runningPlan
-    } else {
-      backgroundColor = Colors.transparent;
+      rowColor = Colors.amberAccent.withOpacity(0.3); //no sorting
     }
 
     return DataGridRowAdapter(
-      color: backgroundColor,
+      color: rowColor, // chỉ set khi tô cả hàng
       cells:
           row.getCells().map<Widget>((dataCell) {
+            Color cellColor = Colors.transparent;
+
+            //tô màu cho qtyProduced
+            if (dataCell.columnName == 'qtyProduced' &&
+                qtyProduced < runningPlan) {
+              cellColor = Colors.red.withOpacity(0.5);
+            }
+
+            //tô màu cho runningPlanProd
+            if (dataCell.columnName == 'runningPlanProd' && runningPlan == 0) {
+              cellColor = Colors.red.withOpacity(0.5);
+            }
+
             return Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
+                color: cellColor, // màu ô riêng
                 border: Border(
                   right: BorderSide(color: Colors.grey.shade300, width: 1),
                 ),

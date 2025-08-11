@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -68,14 +69,6 @@ class MachinePaperDatasource extends DataGridSource {
         value: planning.order?.flute ?? '',
       ),
       DataGridCell<String>(
-        columnName: 'QC_box',
-        value: planning.order?.QC_box ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: "HD_special",
-        value: planning.order?.instructSpecial ?? '',
-      ),
-      DataGridCell<String>(
         columnName: 'daoXa',
         value: planning.order?.daoXa ?? '',
       ),
@@ -112,6 +105,10 @@ class MachinePaperDatasource extends DataGridSource {
                 : '',
       ),
       DataGridCell<String>(
+        columnName: "HD_special",
+        value: planning.order?.instructSpecial ?? '',
+      ),
+      DataGridCell<String>(
         columnName: 'totalPrice',
         value: '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND',
       ),
@@ -140,15 +137,15 @@ class MachinePaperDatasource extends DataGridSource {
         value: planning.totalLoss != 0 ? '${planning.totalLoss} kg' : "0",
       ),
       DataGridCell<String>(
-        columnName: 'qtyWasteNorm',
+        columnName: 'qtyWastes',
         value: planning.qtyWasteNorm != 0 ? '${planning.qtyWasteNorm} kg' : "0",
       ),
       DataGridCell<String>(
-        columnName: 'shiftProduction',
+        columnName: 'shiftProduct',
         value: planning.shiftProduction,
       ),
       DataGridCell<String>(
-        columnName: 'shiftManagement',
+        columnName: 'shiftManager',
         value: planning.shiftManagement,
       ),
       DataGridCell<String>(
@@ -307,43 +304,40 @@ class MachinePaperDatasource extends DataGridSource {
     final orderId = row.getCells()[0].value.toString();
     final isSelected = selectedPlanningIds.contains(orderId);
 
-    final sortPlanningCell = row.getCells().firstWhere(
-      (cell) => cell.columnName == 'index',
-      orElse: () => DataGridCell<int>(columnName: 'index', value: 0),
-    );
-
-    final statusCell = row.getCells().firstWhere(
-      (cell) => cell.columnName == 'status',
-      orElse: () => DataGridCell<String>(columnName: 'status', value: ''),
-    );
-
-    final sortPlanning = sortPlanningCell.value as int;
-    final status = statusCell.value.toString();
+    // Lấy giá trị các cột cần check
+    final sortPlanning = getCellValue<int>(row, 'index', 0);
+    final status = getCellValue<String>(row, 'status', "");
+    final runningPlan = getCellValue<int>(row, 'runningPlans', 0);
+    final qtyProduct = getCellValue<int>(row, 'qtyProduced', 0);
 
     final isProducing = orderId == producingOrderId;
 
-    Color backgroundColor;
+    Color? rowColor;
     if (isSelected) {
-      backgroundColor = Colors.blue.withOpacity(0.3);
+      rowColor = Colors.blue.withOpacity(0.3); //selected row
     } else if (isProducing) {
-      backgroundColor = Colors.orange.withOpacity(0.4);
-    } else if (sortPlanning > 0 && status == "lackQty") {
-      backgroundColor = Colors.red.withOpacity(0.4); // Thiếu số lượng
+      rowColor = Colors.orange.withOpacity(0.4); //confirm production
     } else if (sortPlanning > 0 && status == "complete") {
-      backgroundColor = Colors.green.withOpacity(0.3); // Đã hoàn thành
+      rowColor = Colors.green.withOpacity(0.3); //have completed
     } else if (sortPlanning == 0) {
-      backgroundColor = Colors.amberAccent.withOpacity(0.3); // Chưa sắp xếp
-    } else {
-      backgroundColor = Colors.transparent;
+      rowColor = Colors.amberAccent.withOpacity(0.3); //no sorting
     }
 
     return DataGridRowAdapter(
-      color: backgroundColor,
+      color: rowColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            Color cellColor = Colors.transparent;
+
+            if (dataCell.columnName == "qtyProduced" &&
+                qtyProduct < runningPlan) {
+              cellColor = Colors.red.withOpacity(0.5); //lack of qty
+            }
+
             return Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
+                color: cellColor,
                 border: Border(
                   right: BorderSide(color: Colors.grey.shade300, width: 1),
                 ),

@@ -82,6 +82,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
+
       loadPlanning(false);
     });
   }
@@ -611,7 +612,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: buildMachineBoxColumns(),
+                    columns: buildMachineBoxColumns(machine),
                     onSelectionChanged: (addedRows, removedRows) {
                       setState(() {
                         for (var row in addedRows) {

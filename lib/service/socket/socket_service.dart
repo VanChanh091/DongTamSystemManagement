@@ -72,7 +72,7 @@ class SocketService {
 
   void disconnectSocket() {
     if (_socket != null) {
-      print('❌ Disconnecting socket...$_currentRoom');
+      print('❌ Disconnecting socket $_currentRoom');
       _socket!.clearListeners();
       _socket!.disconnect();
       _socket = null;

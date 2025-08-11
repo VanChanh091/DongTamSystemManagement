@@ -135,6 +135,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
+
+      SocketService().disconnectSocket();
+      registerSocket();
       loadPlanning(true);
     });
   }
@@ -378,7 +381,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: buildMachineBoxColumns(),
+                    columns: buildMachineBoxColumns(machine),
                     onSelectionChanged: (addedRows, removedRows) {
                       setState(() {
                         for (var row in addedRows) {

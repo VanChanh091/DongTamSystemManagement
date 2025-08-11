@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-List<GridColumn> buildMachineBoxColumns() {
+List<GridColumn> buildMachineBoxColumns(String machine) {
   return [
     //planning
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
     GridColumn(columnName: 'planningBoxId', label: Container(), visible: false),
-    GridColumn(columnName: 'customerName', label: formatColumn("Tên KH")),
+    GridColumn(
+      columnName: 'customerName',
+      label: formatColumn("Tên Khách Hàng"),
+    ),
     GridColumn(columnName: 'dateShipping', label: formatColumn("Ngày YC Giao")),
     GridColumn(
       columnName: 'dayStartProduction',
@@ -21,7 +24,7 @@ List<GridColumn> buildMachineBoxColumns() {
       label: formatColumn("Kết Cấu Đặt Hàng"),
     ),
     GridColumn(columnName: 'flute', label: formatColumn("Sóng")),
-    GridColumn(columnName: 'QC_box', label: formatColumn("Quy cách")),
+    GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
     GridColumn(columnName: 'length', label: formatColumn("Dài")),
     GridColumn(columnName: 'size', label: formatColumn("Khổ")),
     GridColumn(
@@ -34,11 +37,12 @@ List<GridColumn> buildMachineBoxColumns() {
       label: formatColumn("Thời Gian Chạy"),
     ),
     GridColumn(columnName: 'wasteLoss', label: formatColumn("Phế Liệu")),
-    GridColumn(columnName: 'rpWasteNorm', label: formatColumn("PL Thực Tế")),
-    GridColumn(
-      columnName: 'shiftManagement',
-      label: formatColumn("Trưởng Máy"),
-    ),
+    GridColumn(columnName: 'wasteNorm', label: formatColumn("PL Thực Tế")),
+    if (machine == "Máy In") ...[
+      GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
+      GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
+    ],
+    GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
     GridColumn(columnName: 'note', label: formatColumn("Ghi Chú")),
     GridColumn(columnName: 'status', label: SizedBox(), visible: false),
     GridColumn(
