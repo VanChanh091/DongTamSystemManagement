@@ -27,7 +27,7 @@ List<GridColumn> buildMachineColumns() {
     GridColumn(columnName: 'size', label: formatColumn("Khổ")),
     GridColumn(columnName: 'child', label: formatColumn("Số Con")),
     GridColumn(columnName: 'khoCapGiay', label: formatColumn("Khổ Cấp Giấy")),
-    GridColumn(columnName: 'quantity', label: formatColumn("Số Lượng")),
+    GridColumn(columnName: 'quantityOrd', label: formatColumn("SL Đơn Hàng")),
     GridColumn(
       columnName: 'runningPlanProd',
       label: formatColumn("Kế Hoạch Chạy"),
@@ -52,7 +52,27 @@ List<GridColumn> buildMachineColumns() {
     GridColumn(columnName: 'shiftProduct', label: formatColumn("Ca Sản Xuất")),
     GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
 
-    GridColumn(columnName: 'haveMadeBox', label: formatColumn("Làm Thùng?")),
+    //box
+    GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
+    GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
+    GridColumn(columnName: 'canMang', label: formatColumn("Cán Màng")),
+    GridColumn(columnName: 'xa', label: formatColumn("Xả")),
+    GridColumn(columnName: 'catKhe', label: formatColumn("Cắt Khe")),
+    GridColumn(columnName: 'be', label: formatColumn("Bế")),
+    GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
+    GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
+    GridColumn(
+      columnName: 'dongGhimMotManh',
+      label: formatColumn("Đóng Ghim 1 Mảnh"),
+    ),
+    GridColumn(
+      columnName: 'dongGhimHaiManh',
+      label: formatColumn("Đóng Ghim 2 Mảnh"),
+    ),
+    GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
+    GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
+    GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
+
     GridColumn(columnName: 'status', label: SizedBox(), visible: false),
     GridColumn(
       columnName: 'index',

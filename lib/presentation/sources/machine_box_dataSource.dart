@@ -83,7 +83,11 @@ class MachineBoxDatasource extends DataGridSource {
       ),
       DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
       DataGridCell<int>(
-        columnName: "runningPlanProd",
+        columnName: "quantityOrd",
+        value: planning.order!.quantityCustomer,
+      ),
+      DataGridCell<int>(
+        columnName: "runningPlans",
         value: planning.runningPlan,
       ),
       DataGridCell<int>(
@@ -91,20 +95,27 @@ class MachineBoxDatasource extends DataGridSource {
         value: boxMachineTime?.qtyProduced ?? 0,
       ),
       DataGridCell<String>(
-        columnName: "timeRunningProd",
+        columnName: "timeRunnings",
         value:
             boxMachineTime?.timeRunning != null
                 ? PlanningBox.formatTimeOfDay(boxMachineTime!.timeRunning!)
                 : '',
       ),
-      DataGridCell<double>(
+      DataGridCell<String>(
         columnName: "wasteLoss",
-        value: boxMachineTime?.wasteBox,
+        value:
+            boxMachineTime!.wasteBox! > 0
+                ? '${boxMachineTime.wasteBox} Cái'
+                : "0",
       ),
-      DataGridCell<double>(
+      DataGridCell<String>(
         columnName: "wasteNorm",
-        value: boxMachineTime?.rpWasteLoss,
+        value:
+            boxMachineTime.rpWasteLoss! > 0
+                ? '${boxMachineTime.rpWasteLoss} Cái'
+                : "0",
       ),
+      //check machine is Máy In
       if (machine == "Máy In") ...[
         DataGridCell<int>(
           columnName: "inMatTruoc",
@@ -117,24 +128,21 @@ class MachineBoxDatasource extends DataGridSource {
       ],
       DataGridCell<String>(
         columnName: "shiftManager",
-        value: boxMachineTime?.shiftManagement ?? "",
+        value: boxMachineTime.shiftManagement ?? "",
       ),
       DataGridCell<String>(
         columnName: "note",
         value:
             planning.runningPlan == 0
                 ? "Chờ số lượng"
-                : (boxMachineTime?.qtyProduced ?? 0) < planning.runningPlan
+                : (boxMachineTime.qtyProduced ?? 0) < planning.runningPlan
                 ? "Thiếu số lượng"
                 : "",
       ),
-      DataGridCell<String>(
-        columnName: "status",
-        value: boxMachineTime?.status ?? "",
-      ),
+      DataGridCell<String>(columnName: "status", value: boxMachineTime.status),
       DataGridCell<int>(
         columnName: "index",
-        value: boxMachineTime?.sortPlanning ?? 0,
+        value: boxMachineTime.sortPlanning ?? 0,
       ),
     ];
   }

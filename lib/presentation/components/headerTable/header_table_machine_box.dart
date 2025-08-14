@@ -27,10 +27,8 @@ List<GridColumn> buildMachineBoxColumns(String machine) {
     GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
     GridColumn(columnName: 'length', label: formatColumn("Dài")),
     GridColumn(columnName: 'size', label: formatColumn("Khổ")),
-    GridColumn(
-      columnName: 'runningPlans',
-      label: formatColumn("Kế Hoạch Chạy"),
-    ),
+    GridColumn(columnName: 'quantityOrd', label: formatColumn("SL Đơn Hàng")),
+    GridColumn(columnName: 'runningPlans', label: formatColumn("SL Giấy Tấm")),
     GridColumn(columnName: 'qtyProduced', label: formatColumn("SL Sản Xuất")),
     GridColumn(
       columnName: 'timeRunnings',

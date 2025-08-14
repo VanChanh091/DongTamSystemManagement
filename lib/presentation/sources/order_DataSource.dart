@@ -174,7 +174,7 @@ class OrderDataSource extends DataGridSource {
   @override
   List<DataGridRow> get rows => orderDataGridRows;
 
-  String formatCellValueBool(DataGridCell dataCell) {
+  String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
     const boolColumns = [
@@ -292,7 +292,7 @@ class OrderDataSource extends DataGridSource {
                 vertical: 4.0,
               ),
               child: Text(
-                formatCellValueBool(dataCell),
+                _formatCellValueBool(dataCell),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,

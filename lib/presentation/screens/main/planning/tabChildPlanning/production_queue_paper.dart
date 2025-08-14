@@ -710,6 +710,20 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                         machinePaperDatasource.notifyListeners();
                       });
                     },
+                    tableSummaryRows: [
+                      GridTableSummaryRow(
+                        showSummaryInRow: false,
+                        title: "IN ẤN",
+                        columns: [
+                          GridSummaryColumn(
+                            name: "",
+                            columnName: "",
+                            summaryType: GridSummaryType.sum,
+                          ),
+                        ],
+                        position: GridTableSummaryRowPosition.bottom,
+                      ),
+                    ],
                   );
                 },
               ),
@@ -737,6 +751,11 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   }) async {
     if (selectedPlanningIds.isEmpty) {
       showSnackBarError(context, "Chưa chọn kế hoạch cần thực hiện");
+      return;
+    }
+
+    if (status == "complete") {
+      showSnackBarError(context, "Không thể chấp nhận đơn đã hoàn thành");
       return;
     }
 

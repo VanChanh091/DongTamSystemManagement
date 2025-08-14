@@ -31,7 +31,7 @@ class MachinePaperDatasource extends DataGridSource {
   }
 
   // create list cell for planning
-  List<DataGridCell> buildPlanningCells(PlanningPaper planning) {
+  List<DataGridCell> buildPlanningInfoCells(PlanningPaper planning) {
     return [
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
       DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
@@ -89,11 +89,11 @@ class MachinePaperDatasource extends DataGridSource {
         value: '${planning.ghepKho} cm',
       ),
       DataGridCell<int>(
-        columnName: 'quantity',
+        columnName: 'quantityOrd',
         value: planning.order?.quantityManufacture ?? 0,
       ),
       DataGridCell<int>(
-        columnName: "runningPlans",
+        columnName: "runningPlanProd",
         value: planning.runningPlan,
       ),
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
@@ -112,6 +112,11 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'totalPrice',
         value: '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND',
       ),
+    ];
+  }
+
+  List<DataGridCell> buildWasteNormCell(PlanningPaper planning) {
+    return [
       DataGridCell<String>(
         columnName: 'bottom',
         value: planning.bottom != 0 ? '${planning.bottom} kg' : "0",
@@ -148,9 +153,51 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'shiftManager',
         value: planning.shiftManagement,
       ),
+    ];
+  }
+
+  List<DataGridCell> buildBoxCell(PlanningPaper planning) {
+    final boxCell = planning.order!.box;
+    return [
+      DataGridCell<int>(
+        columnName: 'inMatTruoc',
+        value: boxCell?.inMatTruoc ?? 0,
+      ),
+      DataGridCell<int>(columnName: 'inMatSau', value: boxCell?.inMatSau ?? 0),
+      DataGridCell<bool>(
+        columnName: 'canMang',
+        value: boxCell?.canMang ?? false,
+      ),
+      DataGridCell<bool>(columnName: 'xa', value: boxCell?.Xa ?? false),
+      DataGridCell<bool>(columnName: 'catKhe', value: boxCell?.catKhe ?? false),
+      DataGridCell<bool>(columnName: 'be', value: boxCell?.be ?? false),
+      DataGridCell<bool>(
+        columnName: 'dan_1_Manh',
+        value: boxCell?.dan_1_Manh ?? false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dan_2_Manh',
+        value: boxCell?.dan_2_Manh ?? false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dongGhimMotManh',
+        value: boxCell?.dongGhim1Manh ?? false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'dongGhimHaiManh',
+        value: boxCell?.dongGhim2Manh ?? false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'chongTham',
+        value: boxCell?.chongTham ?? false,
+      ),
       DataGridCell<String>(
-        columnName: "haveMadeBox",
-        value: planning.order?.formatIsBox(planning.hasBox),
+        columnName: 'dongGoi',
+        value: boxCell?.dongGoi ?? "",
+      ),
+      DataGridCell<String>(
+        columnName: 'maKhuon',
+        value: boxCell?.maKhuon ?? "",
       ),
       DataGridCell<String>(columnName: "status", value: planning.status ?? ""),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
@@ -166,11 +213,40 @@ class MachinePaperDatasource extends DataGridSource {
     return match != null ? int.parse(match.group(0)!) : 0;
   }
 
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = [
+      'canMang',
+      'xa',
+      'catKhe',
+      'be',
+      'dan_1_Manh',
+      'dan_2_Manh',
+      'dongGhimMotManh',
+      'dongGhimHaiManh',
+      'chongTham',
+    ];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? 'Có' : '';
+    }
+
+    return value?.toString() ?? '';
+  }
+
   void buildDataGridRows() {
     planningDataGridRows =
         planning
             .map<DataGridRow>(
-              (planning) => DataGridRow(cells: buildPlanningCells(planning)),
+              (planning) => DataGridRow(
+                cells: [
+                  ...buildPlanningInfoCells(planning),
+                  ...buildWasteNormCell(planning),
+                  ...buildBoxCell(planning),
+                ],
+              ),
             )
             .toList();
 
@@ -307,8 +383,15 @@ class MachinePaperDatasource extends DataGridSource {
     // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);
     final status = getCellValue<String>(row, 'status', "");
-    final runningPlan = getCellValue<int>(row, 'runningPlans', 0);
+    final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
     final qtyProduct = getCellValue<int>(row, 'qtyProduced', 0);
+    final totalWasteLoss = getCellValue<String>(row, 'totalWasteLoss', "0");
+    final qtyWastes = getCellValue<String>(row, 'qtyWastes', "0");
+
+    // Chuyển từ "10 kg" -> 10.0
+    final totalWasteLossVal =
+        double.tryParse(totalWasteLoss.replaceAll(' kg', '')) ?? 0;
+    final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(' kg', '')) ?? 0;
 
     final isProducing = orderId == producingOrderId;
 
@@ -334,6 +417,11 @@ class MachinePaperDatasource extends DataGridSource {
               cellColor = Colors.red.withOpacity(0.5); //lack of qty
             }
 
+            if (dataCell.columnName == "qtyWastes" &&
+                qtyWastesVal > totalWasteLossVal) {
+              cellColor = Colors.red.withOpacity(0.5); //lack of qty
+            }
+
             return Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
@@ -347,7 +435,7 @@ class MachinePaperDatasource extends DataGridSource {
                 vertical: 4.0,
               ),
               child: Text(
-                dataCell.value?.toString() ?? "",
+                _formatCellValueBool(dataCell),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,

@@ -362,7 +362,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                             label: styleText("Hao phí Quá Trình Chạy"),
                           ),
                           DataColumn(
-                            label: styleText("Hao Phí Xả Tờ - Cắt Khổ"),
+                            label: styleText("Hao Phí Xả Tờ - Chia Khổ"),
                           ),
                           DataColumn(label: styleText("Loại Máy")),
                         ],

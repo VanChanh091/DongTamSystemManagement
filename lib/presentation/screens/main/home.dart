@@ -2,7 +2,8 @@ import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
-import 'package:dongtam/presentation/screens/main/admin/top_tab_admin.dart';
+import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_box.dart';
+import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
@@ -46,7 +47,8 @@ class _HomePageState extends State<HomePage> {
     PaperProduction(), BoxPrintingProduction(),
     //admin
     AdminOrder(),
-    TopTabAdmin(),
+    TopTabAdminPaper(),
+    TopTabAdminBox(),
     AdminMangeUser(),
     UserPage(),
   ];
@@ -170,7 +172,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                       // Personal
-                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 11),
+                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 12),
 
                       const Divider(color: Colors.white70),
                       _buildLogoutSection(),
@@ -344,8 +346,9 @@ class _HomePageState extends State<HomePage> {
             ),
         if (_isHovered && _isApprovalExpanded) ...[
           _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 8),
-          _buildSubMenuItem(Icons.gif_box, "Định Mức và Máy Chạy", 9),
-          _buildSubMenuItem(Icons.person, "Người Dùng", 10),
+          _buildSubMenuItem(Icons.gif_box, "Máy Sóng Và Phế Liệu", 9),
+          _buildSubMenuItem(Icons.gif_box, "In Ấn Và Phế Liệu", 10),
+          _buildSubMenuItem(Icons.person, "Người Dùng", 11),
         ],
       ],
     );
