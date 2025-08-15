@@ -29,17 +29,43 @@ List<GridColumn> buildMachineBoxColumns(String machine) {
     GridColumn(columnName: 'size', label: formatColumn("Khổ")),
     GridColumn(columnName: 'quantityOrd', label: formatColumn("SL Đơn Hàng")),
     GridColumn(columnName: 'runningPlans', label: formatColumn("SL Giấy Tấm")),
-    GridColumn(columnName: 'qtyProduced', label: formatColumn("SL Sản Xuất")),
     GridColumn(
       columnName: 'timeRunnings',
       label: formatColumn("Thời Gian Chạy"),
     ),
-    GridColumn(columnName: 'wasteLoss', label: formatColumn("Phế Liệu")),
-    GridColumn(columnName: 'wasteNorm', label: formatColumn("PL Thực Tế")),
+
+    //print
     if (machine == "Máy In") ...[
       GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
       GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
     ],
+    GridColumn(columnName: 'qtyPrinted', label: formatColumn("SL In")),
+
+    //can mang
+    GridColumn(columnName: 'qtyCanMang', label: formatColumn("SL Cán Màng")),
+    // GridColumn(columnName: 'wasteCanMang', label: formatColumn("Phế Liệu")),
+
+    //xa
+    GridColumn(columnName: 'qtyXa', label: formatColumn("SL Xả")),
+    // GridColumn(columnName: 'wasteNormXa', label: formatColumn("Phế Liệu")),
+
+    //cat khe
+    GridColumn(columnName: 'qtyCatKhe', label: formatColumn("SL Cắt Khe")),
+    // GridColumn(columnName: 'wasteCatKhe', label: formatColumn("Phế Liệu")),
+
+    //be
+    GridColumn(columnName: 'qtyBe', label: formatColumn("SL Bế")),
+    // GridColumn(columnName: 'wasteNormBe', label: formatColumn("Phế Liệu")),
+
+    //dan
+    GridColumn(columnName: 'qtyDan', label: formatColumn("SL Dán")),
+    // GridColumn(columnName: 'wasteDan', label: formatColumn("Phế Liệu")),
+
+    //dong ghim
+    GridColumn(columnName: 'qtyDongGhim', label: formatColumn("SL Đóng Ghim")),
+    // GridColumn(columnName: 'wasteDGhim', label: formatColumn("Phế Liệu")),
+    GridColumn(columnName: 'dmWasteLoss', label: formatColumn("DM Phế Liệu")),
+    GridColumn(columnName: 'wastePrint', label: formatColumn("PL Thực Tế")),
     GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
     GridColumn(columnName: 'note', label: formatColumn("Ghi Chú")),
     GridColumn(columnName: 'status', label: SizedBox(), visible: false),

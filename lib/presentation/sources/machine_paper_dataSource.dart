@@ -10,6 +10,7 @@ class MachinePaperDatasource extends DataGridSource {
   List<String> selectedPlanningIds = [];
   bool showGroup;
   String? producingOrderId;
+  bool isPlanningPaper;
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -20,6 +21,7 @@ class MachinePaperDatasource extends DataGridSource {
     required this.selectedPlanningIds,
     required this.showGroup,
     this.producingOrderId,
+    this.isPlanningPaper = false,
   }) {
     buildDataGridRows();
 
@@ -159,46 +161,54 @@ class MachinePaperDatasource extends DataGridSource {
   List<DataGridCell> buildBoxCell(PlanningPaper planning) {
     final boxCell = planning.order!.box;
     return [
-      DataGridCell<int>(
-        columnName: 'inMatTruoc',
-        value: boxCell?.inMatTruoc ?? 0,
-      ),
-      DataGridCell<int>(columnName: 'inMatSau', value: boxCell?.inMatSau ?? 0),
-      DataGridCell<bool>(
-        columnName: 'canMang',
-        value: boxCell?.canMang ?? false,
-      ),
-      DataGridCell<bool>(columnName: 'xa', value: boxCell?.Xa ?? false),
-      DataGridCell<bool>(columnName: 'catKhe', value: boxCell?.catKhe ?? false),
-      DataGridCell<bool>(columnName: 'be', value: boxCell?.be ?? false),
-      DataGridCell<bool>(
-        columnName: 'dan_1_Manh',
-        value: boxCell?.dan_1_Manh ?? false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dan_2_Manh',
-        value: boxCell?.dan_2_Manh ?? false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dongGhimMotManh',
-        value: boxCell?.dongGhim1Manh ?? false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'dongGhimHaiManh',
-        value: boxCell?.dongGhim2Manh ?? false,
-      ),
-      DataGridCell<bool>(
-        columnName: 'chongTham',
-        value: boxCell?.chongTham ?? false,
-      ),
-      DataGridCell<String>(
-        columnName: 'dongGoi',
-        value: boxCell?.dongGoi ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: 'maKhuon',
-        value: boxCell?.maKhuon ?? "",
-      ),
+      if (isPlanningPaper == true) ...[
+        DataGridCell<int>(
+          columnName: 'inMatTruoc',
+          value: boxCell?.inMatTruoc ?? 0,
+        ),
+        DataGridCell<int>(
+          columnName: 'inMatSau',
+          value: boxCell?.inMatSau ?? 0,
+        ),
+        DataGridCell<bool>(
+          columnName: 'chongTham',
+          value: boxCell?.chongTham ?? false,
+        ),
+        DataGridCell<bool>(
+          columnName: 'canMang',
+          value: boxCell?.canMang ?? false,
+        ),
+        DataGridCell<bool>(columnName: 'xa', value: boxCell?.Xa ?? false),
+        DataGridCell<bool>(
+          columnName: 'catKhe',
+          value: boxCell?.catKhe ?? false,
+        ),
+        DataGridCell<bool>(columnName: 'be', value: boxCell?.be ?? false),
+        DataGridCell<String>(
+          columnName: 'maKhuon',
+          value: boxCell?.maKhuon ?? "",
+        ),
+        DataGridCell<bool>(
+          columnName: 'dan_1_Manh',
+          value: boxCell?.dan_1_Manh ?? false,
+        ),
+        DataGridCell<bool>(
+          columnName: 'dan_2_Manh',
+          value: boxCell?.dan_2_Manh ?? false,
+        ),
+        DataGridCell<bool>(
+          columnName: 'dongGhimMotManh',
+          value: boxCell?.dongGhim1Manh ?? false,
+        ),
+        DataGridCell<bool>(
+          columnName: 'dongGhimHaiManh',
+          value: boxCell?.dongGhim2Manh ?? false,
+        ),
+        DataGridCell<String>(
+          columnName: 'dongGoi',
+          value: boxCell?.dongGoi ?? "",
+        ),
+      ],
       DataGridCell<String>(columnName: "status", value: planning.status ?? ""),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
     ];

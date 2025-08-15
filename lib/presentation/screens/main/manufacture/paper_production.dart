@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/machine_paper_dataSource.dart';
 import 'package:dongtam/service/manufacture_service.dart';
@@ -18,14 +19,15 @@ class PaperProduction extends StatefulWidget {
 }
 
 class _PaperProductionState extends State<PaperProduction> {
-  final socketService = SocketService();
   late Future<List<PlanningPaper>> futurePlanning;
   late MachinePaperDatasource machinePaperDatasource;
-  String machine = "Máy 1350";
-  List<String> selectedPlanningIds = [];
+  late List<GridColumn> columns;
+  final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
   final DataGridController dataGridController = DataGridController();
+  String machine = "Máy 1350";
+  List<String> selectedPlanningIds = [];
   DateTime? dayStart = DateTime.now();
   bool showGroup = true;
   String? _producingOrderId;
@@ -36,6 +38,8 @@ class _PaperProductionState extends State<PaperProduction> {
 
     registerSocket();
     loadPlanning(true);
+
+    columns = buildMachineColumns();
   }
 
   Future<void> registerSocket() async {
@@ -375,7 +379,34 @@ class _PaperProductionState extends State<PaperProduction> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: buildMachineColumns(),
+                    columns: columns,
+                    headerRowHeight: 40,
+                    rowHeight: 45,
+                    stackedHeaderRows: <StackedHeaderRow>[
+                      StackedHeaderRow(
+                        cells: [
+                          StackedHeaderCell(
+                            columnNames: [
+                              'quantityOrd',
+                              'runningPlanProd',
+                              'qtyProduced',
+                            ],
+                            child: formatColumn('Số Lượng'),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: [
+                              'bottom',
+                              'fluteE',
+                              'fluteB',
+                              'fluteC',
+                              'knife',
+                              'totalWasteLoss',
+                            ],
+                            child: formatColumn('Định Mức Phế Liệu'),
+                          ),
+                        ],
+                      ),
+                    ],
                     onSelectionChanged: (addedRows, removedRows) {
                       setState(() {
                         for (var row in addedRows) {

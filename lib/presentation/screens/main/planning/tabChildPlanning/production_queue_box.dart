@@ -18,14 +18,15 @@ class ProductionQueueBox extends StatefulWidget {
 class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   late Future<List<PlanningBox>> futurePlanning;
   late MachineBoxDatasource machineBoxDatasource;
+  late List<GridColumn> columns;
+  final formatter = DateFormat('dd/MM/yyyy');
+  final Map<String, int> orderIdToPlanningId = {};
+  final DataGridController dataGridController = DataGridController();
   String searchType = "Tất cả";
   String machine = "Máy In";
   DateTime selectedDate = DateTime.now();
   bool isTextFieldEnabled = false;
   List<String> selectedPlanningIds = [];
-  final formatter = DateFormat('dd/MM/yyyy');
-  final Map<String, int> orderIdToPlanningId = {};
-  final DataGridController dataGridController = DataGridController();
   DateTime? dayStart = DateTime.now();
   bool isLoading = false;
   bool showGroup = true;
@@ -39,6 +40,8 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   void initState() {
     super.initState();
     loadPlanning(true);
+
+    columns = buildMachineBoxColumns(machine);
   }
 
   void loadPlanning(bool refresh) {
@@ -612,7 +615,28 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: buildMachineBoxColumns(machine),
+                    columns: columns,
+                    headerRowHeight: 40,
+                    rowHeight: 45,
+                    stackedHeaderRows: <StackedHeaderRow>[
+                      StackedHeaderRow(
+                        cells: [
+                          StackedHeaderCell(
+                            columnNames: [
+                              'qtyPrinted',
+                              'qtyCanMang',
+                              'qtyXa',
+                              'qtyCatKhe',
+                              'qtyBe',
+                              'qtyDan',
+                              'qtyDongGhim',
+                            ],
+                            child: formatColumn('Các Công Đoạn'),
+                          ),
+                        ],
+                      ),
+                    ],
+
                     onSelectionChanged: (addedRows, removedRows) {
                       setState(() {
                         for (var row in addedRows) {

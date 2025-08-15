@@ -15,7 +15,8 @@ class PlanningBox {
   final String orderId;
   final Order? order;
   final TimeOverflowPlanning? timeOverflowPlanning;
-  final List<BoxMachineTime>? boxMachineTime;
+  final List<BoxMachineTime>? boxTimes;
+  final List<BoxMachineTime>? allBoxTimes;
 
   PlanningBox({
     required this.planningBoxId,
@@ -35,7 +36,8 @@ class PlanningBox {
     required this.orderId,
     this.order,
     this.timeOverflowPlanning,
-    this.boxMachineTime,
+    this.boxTimes,
+    this.allBoxTimes,
   });
 
   String get formatterStructureOrder {
@@ -58,7 +60,13 @@ class PlanningBox {
   }
 
   BoxMachineTime? getBoxMachineTimeByMachine(String machine) {
-    return boxMachineTime?.firstWhere((item) => item.machine == machine);
+    return boxTimes?.firstWhere((item) => item.machine == machine);
+  }
+
+  BoxMachineTime? getAllBoxMachineTime(String machine) {
+    if (allBoxTimes == null) return null;
+    final match = allBoxTimes!.where((item) => item.machine == machine);
+    return match.isNotEmpty ? match.first : null;
   }
 
   factory PlanningBox.fromJson(Map<String, dynamic> json) {
@@ -83,16 +91,18 @@ class PlanningBox {
           json['timeOverFlow'] != null
               ? TimeOverflowPlanning.fromJson(json['timeOverFlow'])
               : null,
-      boxMachineTime:
+      boxTimes:
           json['boxTimes'] != null
               ? List<BoxMachineTime>.from(
                 json['boxTimes'].map((x) => BoxMachineTime.fromJson(x)),
               )
               : [],
+      allBoxTimes:
+          json['allBoxTimes'] != null
+              ? List<BoxMachineTime>.from(
+                json['allBoxTimes'].map((x) => BoxMachineTime.fromJson(x)),
+              )
+              : [],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {"planningId": planningId, "orderId": orderId};
   }
 }

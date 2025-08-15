@@ -16,6 +16,8 @@ class WaitingForPlanning extends StatefulWidget {
 
 class WaitingForPlanningState extends State<WaitingForPlanning> {
   late Future<List<Order>> futureOrdersAccept;
+  late PlanningDataSource planningDataSource;
+  late List<GridColumn> columns;
   String? selectedOrderId;
   final formatter = DateFormat('dd/MM/yyyy');
 
@@ -23,6 +25,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   void initState() {
     super.initState();
     loadOrders(false);
+
+    columns = buildColumnPlanning();
   }
 
   void loadOrders(bool refresh) {
@@ -122,14 +126,14 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
                   final List<Order> data = snapshot.data!;
 
-                  final planningDataSource = PlanningDataSource(
+                  planningDataSource = PlanningDataSource(
                     orders: data,
                     selectedOrderId: selectedOrderId,
                   );
 
                   return SfDataGrid(
                     source: planningDataSource,
-                    columns: buildColumnPlanning(),
+                    columns: columns,
                     isScrollbarAlwaysShown: true,
                     columnWidthMode: ColumnWidthMode.auto,
                     selectionMode: SelectionMode.single,

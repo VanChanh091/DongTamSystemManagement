@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_change_machine.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/machine_paper_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
@@ -19,6 +20,7 @@ class ProductionQueuePaper extends StatefulWidget {
 class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   late Future<List<PlanningPaper>> futurePlanning;
   late MachinePaperDatasource machinePaperDatasource;
+  late List<GridColumn> columns;
   String searchType = "Tất cả";
   String machine = "Máy 1350";
   DateTime selectedDate = DateTime.now();
@@ -40,6 +42,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   void initState() {
     super.initState();
     loadPlanning(true);
+
+    columns = buildMachineColumns(isPlanningPaper: true);
   }
 
   void loadPlanning(bool refresh) {
@@ -682,6 +686,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
+                    isPlanningPaper: true,
                   );
 
                   return SfDataGrid(
@@ -693,7 +698,52 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: buildMachineColumns(),
+                    columns: columns,
+                    headerRowHeight: 40,
+                    rowHeight: 45,
+                    stackedHeaderRows: <StackedHeaderRow>[
+                      StackedHeaderRow(
+                        cells: [
+                          StackedHeaderCell(
+                            columnNames: [
+                              'quantityOrd',
+                              'runningPlanProd',
+                              'qtyProduced',
+                            ],
+                            child: formatColumn('Số Lượng'),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: [
+                              'bottom',
+                              'fluteE',
+                              'fluteB',
+                              'fluteC',
+                              'knife',
+                              'totalWasteLoss',
+                            ],
+                            child: formatColumn('Định Mức Phế Liệu'),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: [
+                              'inMatTruoc',
+                              'inMatSau',
+                              'canMang',
+                              'xa',
+                              'catKhe',
+                              'be',
+                              'dan_1_Manh',
+                              'dan_2_Manh',
+                              'dongGhimMotManh',
+                              'dongGhimHaiManh',
+                              'chongTham',
+                              'dongGoi',
+                              'maKhuon',
+                            ],
+                            child: formatColumn('Công Đoạn 2'),
+                          ),
+                        ],
+                      ),
+                    ],
                     onSelectionChanged: (addedRows, removedRows) {
                       setState(() {
                         for (var row in addedRows) {
@@ -710,20 +760,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                         machinePaperDatasource.notifyListeners();
                       });
                     },
-                    tableSummaryRows: [
-                      GridTableSummaryRow(
-                        showSummaryInRow: false,
-                        title: "IN ẤN",
-                        columns: [
-                          GridSummaryColumn(
-                            name: "",
-                            columnName: "",
-                            summaryType: GridSummaryType.sum,
-                          ),
-                        ],
-                        position: GridTableSummaryRowPosition.bottom,
-                      ),
-                    ],
                   );
                 },
               ),

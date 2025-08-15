@@ -17,6 +17,7 @@ class OrderAcceptAndPlanning extends StatefulWidget {
 class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   late Future<Map<String, dynamic>> futureOrdersAccept;
   late OrderDataSource orderDataSource;
+  late List<GridColumn> columns;
   final formatter = DateFormat('dd/MM/yyyy');
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
@@ -32,6 +33,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   void initState() {
     super.initState();
     loadOrders(false);
+
+    columns = buildOrderColumns();
   }
 
   void loadOrders(bool refresh) {
@@ -283,10 +286,36 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                       Expanded(
                         child: SfDataGrid(
                           source: orderDataSource,
-                          columns: buildCommonColumns(),
                           isScrollbarAlwaysShown: true,
                           selectionMode: SelectionMode.single,
                           columnWidthMode: ColumnWidthMode.auto,
+                          columns: columns,
+                          headerRowHeight: 40,
+                          rowHeight: 45,
+                          stackedHeaderRows: <StackedHeaderRow>[
+                            StackedHeaderRow(
+                              cells: [
+                                StackedHeaderCell(
+                                  columnNames: [
+                                    'inMatTruoc',
+                                    'inMatSau',
+                                    'canMang',
+                                    'xa',
+                                    'catKhe',
+                                    'be',
+                                    'dan_1_Manh',
+                                    'dan_2_Manh',
+                                    'dongGhimMotManh',
+                                    'dongGhimHaiManh',
+                                    'chongTham',
+                                    'dongGoi',
+                                    'maKhuon',
+                                  ],
+                                  child: formatColumn('Công Đoạn 2'),
+                                ),
+                              ],
+                            ),
+                          ],
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {
                               final selectedRow = addedRows.first;

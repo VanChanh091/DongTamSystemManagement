@@ -18,6 +18,8 @@ class OrderRejectAndPending extends StatefulWidget {
 
 class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   late Future<List<Order>> futureOrdersPending;
+  late OrderDataSource orderDataSource;
+  late List<GridColumn> columns;
   String? selectedOrderId;
   final formatter = DateFormat('dd/MM/yyyy');
 
@@ -25,6 +27,8 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   void initState() {
     super.initState();
     loadOrders(false);
+
+    columns = buildOrderColumns();
   }
 
   void loadOrders(bool refresh) {
@@ -365,7 +369,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
                   final List<Order> data = snapshot.data!;
 
-                  final orderDataSource = OrderDataSource(
+                  orderDataSource = OrderDataSource(
                     orders: data,
                     selectedOrderId: selectedOrderId,
                   );
@@ -374,6 +378,34 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     source: orderDataSource,
                     isScrollbarAlwaysShown: true,
                     selectionMode: SelectionMode.single,
+                    columnWidthMode: ColumnWidthMode.auto,
+                    columns: columns,
+                    headerRowHeight: 40,
+                    rowHeight: 45,
+                    stackedHeaderRows: <StackedHeaderRow>[
+                      StackedHeaderRow(
+                        cells: [
+                          StackedHeaderCell(
+                            columnNames: [
+                              'inMatTruoc',
+                              'inMatSau',
+                              'canMang',
+                              'xa',
+                              'catKhe',
+                              'be',
+                              'dan_1_Manh',
+                              'dan_2_Manh',
+                              'dongGhimMotManh',
+                              'dongGhimHaiManh',
+                              'chongTham',
+                              'dongGoi',
+                              'maKhuon',
+                            ],
+                            child: formatColumn('Công Đoạn 2'),
+                          ),
+                        ],
+                      ),
+                    ],
                     onSelectionChanged: (addedRows, removedRows) {
                       if (addedRows.isNotEmpty) {
                         final selectedRow = addedRows.first;
@@ -394,8 +426,6 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                         });
                       }
                     },
-                    columnWidthMode: ColumnWidthMode.auto,
-                    columns: buildCommonColumns(),
                   );
                 },
               ),

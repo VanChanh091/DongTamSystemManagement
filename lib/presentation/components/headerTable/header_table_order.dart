@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-List<GridColumn> buildCommonColumns() {
+List<GridColumn> buildOrderColumns() {
   return [
     //order
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
@@ -45,15 +45,18 @@ List<GridColumn> buildCommonColumns() {
     GridColumn(columnName: 'discount', label: formatColumn("Chiết Khẩu")),
     GridColumn(columnName: 'profit', label: formatColumn("Lợi Nhuận")),
     GridColumn(columnName: 'vat', label: formatColumn("VAT")),
+    GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
     GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh số")),
 
     //Box
     GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
     GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
+    GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
     GridColumn(columnName: 'canMang', label: formatColumn("Cán Màng")),
     GridColumn(columnName: 'xa', label: formatColumn("Xả")),
     GridColumn(columnName: 'catKhe', label: formatColumn("Cắt Khe")),
     GridColumn(columnName: 'be', label: formatColumn("Bế")),
+    GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
     GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
     GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
     GridColumn(
@@ -64,10 +67,8 @@ List<GridColumn> buildCommonColumns() {
       columnName: 'dongGhimHaiManh',
       label: formatColumn("Đóng Ghim 2 Mảnh"),
     ),
-    GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
     GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
-    GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
-    GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
+
     GridColumn(columnName: 'status', label: formatColumn("Trạng thái")),
     GridColumn(columnName: 'rejectReason', label: formatColumn("Lý do")),
   ];

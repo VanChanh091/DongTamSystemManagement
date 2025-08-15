@@ -97,6 +97,10 @@ class OrderDataSource extends DataGridSource {
       ),
       DataGridCell<String>(columnName: 'vat', value: '${order.vat ?? 0}%'),
       DataGridCell<String>(
+        columnName: 'HD_special',
+        value: order.instructSpecial ?? "",
+      ),
+      DataGridCell<String>(
         columnName: 'totalPrice',
         value: Order.formatCurrency(order.totalPrice),
       ),
@@ -114,6 +118,10 @@ class OrderDataSource extends DataGridSource {
         value: order.box?.inMatSau ?? 0,
       ),
       DataGridCell<bool>(
+        columnName: 'chongTham',
+        value: order.box?.chongTham ?? false,
+      ),
+      DataGridCell<bool>(
         columnName: 'canMang',
         value: order.box?.canMang ?? false,
       ),
@@ -123,6 +131,10 @@ class OrderDataSource extends DataGridSource {
         value: order.box?.catKhe ?? false,
       ),
       DataGridCell<bool>(columnName: 'be', value: order.box?.be ?? false),
+      DataGridCell<String>(
+        columnName: 'maKhuon',
+        value: order.box?.maKhuon ?? "",
+      ),
       DataGridCell<bool>(
         columnName: 'dan_1_Manh',
         value: order.box?.dan_1_Manh ?? false,
@@ -139,22 +151,11 @@ class OrderDataSource extends DataGridSource {
         columnName: 'dongGhimHaiManh',
         value: order.box?.dongGhim2Manh ?? false,
       ),
-      DataGridCell<bool>(
-        columnName: 'chongTham',
-        value: order.box?.chongTham ?? false,
-      ),
       DataGridCell<String>(
         columnName: 'dongGoi',
         value: order.box?.dongGoi ?? "",
       ),
-      DataGridCell<String>(
-        columnName: 'maKhuon',
-        value: order.box?.maKhuon ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: 'HD_special',
-        value: order.instructSpecial ?? "",
-      ),
+
       DataGridCell(columnName: 'status', value: formatStatus(order.status)),
       DataGridCell(columnName: 'rejectReason', value: order.rejectReason ?? ""),
     ];
