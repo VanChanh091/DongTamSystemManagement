@@ -3,7 +3,6 @@ import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:intl/intl.dart';
 
 class ManufactureService {
   final Dio dioService = Dio(
@@ -51,18 +50,28 @@ class ManufactureService {
   ) async {
     final token = await SecureStorageService().getToken();
 
-    final Map<String, dynamic> data = {
-      "qtyProduced": qtyProduced,
-      "qtyWasteNorm": qtyWasteNorm,
-      "dayCompleted": DateFormat('yyyy-MM-dd').format(dayCompleted),
-      ...reportData,
-    };
+    final now = DateTime.now();
+    final fullDateTime = DateTime(
+      dayCompleted.year,
+      dayCompleted.month,
+      dayCompleted.day,
+      now.hour,
+      now.minute,
+      now.second,
+    );
+
+    print('dateTime: ${fullDateTime.toIso8601String()}');
 
     try {
       await dioService.post(
         '/api/manufacture/reportPaper',
         queryParameters: {"planningId": planningId},
-        data: data,
+        data: {
+          "qtyProduced": qtyProduced,
+          "qtyWasteNorm": qtyWasteNorm,
+          "dayCompleted": fullDateTime.toIso8601String(),
+          ...reportData,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -120,12 +129,22 @@ class ManufactureService {
   ) async {
     final token = await SecureStorageService().getToken();
 
+    final now = DateTime.now();
+    final fullDateTime = DateTime(
+      dayCompleted.year,
+      dayCompleted.month,
+      dayCompleted.day,
+      now.hour,
+      now.minute,
+      now.second,
+    );
+
     try {
       await dioService.post(
         '/api/manufacture/reportBox',
         queryParameters: {"planningBoxId": planningBoxId},
         data: {
-          "dayCompleted": DateFormat('yyyy-MM-dd').format(dayCompleted),
+          "dayCompleted": fullDateTime.toIso8601String(),
           "qtyProduced": qtyProduced,
           "rpWasteLoss": rpWasteLoss,
           "shiftManagement": shiftManagement,

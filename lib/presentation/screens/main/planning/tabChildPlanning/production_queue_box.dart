@@ -631,7 +631,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                               'qtyDan',
                               'qtyDongGhim',
                             ],
-                            child: formatColumn('Các Công Đoạn'),
+                            child: formatColumn('Số Lượng Của Các Công Đoạn'),
                           ),
                         ],
                       ),

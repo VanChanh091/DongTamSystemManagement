@@ -39,33 +39,17 @@ List<GridColumn> buildMachineBoxColumns(String machine) {
       GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
       GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
     ],
-    GridColumn(columnName: 'qtyPrinted', label: formatColumn("SL In")),
+    GridColumn(columnName: 'qtyPrinted', label: formatColumn("In")),
 
-    //can mang
-    GridColumn(columnName: 'qtyCanMang', label: formatColumn("SL Cán Màng")),
-    // GridColumn(columnName: 'wasteCanMang', label: formatColumn("Phế Liệu")),
+    GridColumn(columnName: 'qtyCanMang', label: formatColumn("Cán Màng")),
+    GridColumn(columnName: 'qtyXa', label: formatColumn("Xả")),
+    GridColumn(columnName: 'qtyCatKhe', label: formatColumn("Cắt Khe")),
+    GridColumn(columnName: 'qtyBe', label: formatColumn("Bế")),
+    GridColumn(columnName: 'qtyDan', label: formatColumn("Dán")),
+    GridColumn(columnName: 'qtyDongGhim', label: formatColumn("Đóng Ghim")),
 
-    //xa
-    GridColumn(columnName: 'qtyXa', label: formatColumn("SL Xả")),
-    // GridColumn(columnName: 'wasteNormXa', label: formatColumn("Phế Liệu")),
-
-    //cat khe
-    GridColumn(columnName: 'qtyCatKhe', label: formatColumn("SL Cắt Khe")),
-    // GridColumn(columnName: 'wasteCatKhe', label: formatColumn("Phế Liệu")),
-
-    //be
-    GridColumn(columnName: 'qtyBe', label: formatColumn("SL Bế")),
-    // GridColumn(columnName: 'wasteNormBe', label: formatColumn("Phế Liệu")),
-
-    //dan
-    GridColumn(columnName: 'qtyDan', label: formatColumn("SL Dán")),
-    // GridColumn(columnName: 'wasteDan', label: formatColumn("Phế Liệu")),
-
-    //dong ghim
-    GridColumn(columnName: 'qtyDongGhim', label: formatColumn("SL Đóng Ghim")),
-    // GridColumn(columnName: 'wasteDGhim', label: formatColumn("Phế Liệu")),
-    GridColumn(columnName: 'dmWasteLoss', label: formatColumn("DM Phế Liệu")),
-    GridColumn(columnName: 'wastePrint', label: formatColumn("PL Thực Tế")),
+    GridColumn(columnName: 'dmWasteLoss', label: formatColumn("Định Mức PL")),
+    GridColumn(columnName: 'wasteActually', label: formatColumn("PL Thực Tế")),
     GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
     GridColumn(columnName: 'note', label: formatColumn("Ghi Chú")),
     GridColumn(columnName: 'status', label: SizedBox(), visible: false),
@@ -74,6 +58,13 @@ List<GridColumn> buildMachineBoxColumns(String machine) {
       label: formatColumn("Index"),
       visible: false,
     ),
+
+    // GridColumn(columnName: 'wasteCanMang', label: formatColumn("Phế Liệu")),
+    // GridColumn(columnName: 'wasteNormXa', label: formatColumn("Phế Liệu")),
+    // GridColumn(columnName: 'wasteCatKhe', label: formatColumn("Phế Liệu")),
+    // GridColumn(columnName: 'wasteNormBe', label: formatColumn("Phế Liệu")),
+    // GridColumn(columnName: 'wasteDan', label: formatColumn("Phế Liệu")),
+    // GridColumn(columnName: 'wasteDGhim', label: formatColumn("Phế Liệu")),
   ];
 }
 

@@ -14,6 +14,7 @@ class MachinePaperDatasource extends DataGridSource {
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
+  final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
   bool hasSortedInitially = false;
 
   MachinePaperDatasource({
@@ -59,7 +60,7 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: "dayCompletedProd",
         value:
             planning.dayCompleted != null
-                ? formatter.format(planning.dayCompleted!)
+                ? formatterDayCompleted.format(planning.dayCompleted!)
                 : null,
       ),
       DataGridCell<String>(
@@ -389,6 +390,7 @@ class MachinePaperDatasource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
     final isSelected = selectedPlanningIds.contains(orderId);
+    final isProducing = orderId == producingOrderId;
 
     // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);
@@ -402,8 +404,6 @@ class MachinePaperDatasource extends DataGridSource {
     final totalWasteLossVal =
         double.tryParse(totalWasteLoss.replaceAll(' kg', '')) ?? 0;
     final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(' kg', '')) ?? 0;
-
-    final isProducing = orderId == producingOrderId;
 
     Color? rowColor;
     if (isSelected) {

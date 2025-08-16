@@ -13,6 +13,7 @@ class MachineBoxDatasource extends DataGridSource {
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
+  final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
   bool hasSortedInitially = false;
 
   MachineBoxDatasource({
@@ -62,7 +63,7 @@ class MachineBoxDatasource extends DataGridSource {
         columnName: "dayCompletedProd",
         value:
             boxMachineTime?.dayCompleted != null
-                ? formatter.format(boxMachineTime!.dayCompleted!)
+                ? formatterDayCompleted.format(boxMachineTime!.dayCompleted!)
                 : '',
       ),
       DataGridCell<String>(
@@ -206,7 +207,7 @@ class MachineBoxDatasource extends DataGridSource {
                 : "0",
       ),
       DataGridCell<String>(
-        columnName: "wastePrint",
+        columnName: "wasteActually",
         value:
             (boxMachineTime.rpWasteLoss ?? 0) > 0
                 ? '${boxMachineTime.rpWasteLoss ?? 0} Cái'
@@ -378,14 +379,21 @@ class MachineBoxDatasource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
     final isSelected = selectedPlanningIds.contains(orderId);
+    final isProducing = orderId == producingOrderId;
 
     // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);
     final status = getCellValue<String>(row, 'status', "");
-    final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
-    final qtyProduced = getCellValue<int>(row, 'qtyProduced', 0);
+    final dmWasteLoss = getCellValue<String>(row, 'dmWasteLoss', "0");
+    final wasteActually = getCellValue<String>(row, 'wasteActually', "0");
+    // final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
+    // final qtyProduced = getCellValue<int>(row, 'qtyProduced', 0);
 
-    final isProducing = orderId == producingOrderId;
+    //Chuyển từ "10 cái" -> 10
+    final totalDmWasteLoss =
+        double.tryParse(dmWasteLoss.replaceAll(' Cái', '')) ?? 0;
+    final totalWasteActually =
+        double.tryParse(wasteActually.replaceAll(' Cái', '')) ?? 0;
 
     // Màu nền cho cả hàng
     Color? rowColor;
@@ -406,13 +414,8 @@ class MachineBoxDatasource extends DataGridSource {
             Color cellColor = Colors.transparent;
 
             //tô màu cho qtyProduced
-            if (dataCell.columnName == 'qtyProduced' &&
-                qtyProduced < runningPlan) {
-              cellColor = Colors.red.withOpacity(0.5);
-            }
-
-            //tô màu cho runningPlanProd
-            if (dataCell.columnName == 'runningPlanProd' && runningPlan == 0) {
+            if (dataCell.columnName == 'wasteActually' &&
+                totalWasteActually < totalDmWasteLoss) {
               cellColor = Colors.red.withOpacity(0.5);
             }
 

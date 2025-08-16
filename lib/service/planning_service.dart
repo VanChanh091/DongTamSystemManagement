@@ -90,6 +90,7 @@ class PlanningService {
       );
 
       final List<dynamic> planningData = response.data['data'];
+      // print('Planning Data: $planningData');
       return planningData.map((json) => PlanningPaper.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get planning: $e');
