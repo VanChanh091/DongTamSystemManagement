@@ -122,6 +122,7 @@ class ManufactureService {
   //create report for planning
   Future<bool> createReportBox(
     int planningBoxId,
+    String machine,
     DateTime dayCompleted,
     int qtyProduced,
     double rpWasteLoss,
@@ -142,7 +143,7 @@ class ManufactureService {
     try {
       await dioService.post(
         '/api/manufacture/reportBox',
-        queryParameters: {"planningBoxId": planningBoxId},
+        queryParameters: {"planningBoxId": planningBoxId, "machine": machine},
         data: {
           "dayCompleted": fullDateTime.toIso8601String(),
           "qtyProduced": qtyProduced,

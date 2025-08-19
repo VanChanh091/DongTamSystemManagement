@@ -27,7 +27,7 @@ class PlanningPaper {
   final double? fluteC;
   final double? knife;
   final double? totalLoss;
-  final String? status;
+  final String status;
   final bool hasBox;
 
   final String orderId;
@@ -58,7 +58,7 @@ class PlanningPaper {
     this.knife,
     this.totalLoss,
     this.sortPlanning,
-    this.status,
+    required this.status,
     this.dayCompleted,
     this.qtyProduced,
     this.qtyWasteNorm,

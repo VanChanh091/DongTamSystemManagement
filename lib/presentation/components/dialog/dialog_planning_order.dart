@@ -172,6 +172,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       ghepKho: int.tryParse(ghepKhoController.text) ?? 0,
       chooseMachine: chooseMachine,
       hasBox: widget.order!.isBox,
+      status: 'planning',
 
       orderId: widget.order!.orderId,
       order: widget.order,

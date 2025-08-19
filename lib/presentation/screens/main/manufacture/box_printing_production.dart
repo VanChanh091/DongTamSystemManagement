@@ -227,6 +227,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                           .planningBoxId,
                                                   onReport:
                                                       () => loadPlanning(true),
+                                                  machine: machine,
                                                   isPaper: false,
                                                 ),
                                           );
@@ -393,6 +394,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                           StackedHeaderCell(
                             columnNames: [
                               'qtyPrinted',
+                              'qtyCanLan',
                               'qtyCanMang',
                               'qtyXa',
                               'qtyCatKhe',
@@ -405,7 +407,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                         ],
                       ),
                     ],
-
                     onSelectionChanged: (addedRows, removedRows) {
                       setState(() {
                         for (var row in addedRows) {

@@ -21,6 +21,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   late List<GridColumn> columns;
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
+  final Map<String, String> orderIdToStatus = {};
   final DataGridController dataGridController = DataGridController();
   String searchType = "Tất cả";
   String machine = "Máy In";
@@ -53,8 +54,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
             selectedPlanningIds.clear();
             for (var planning in planningList) {
               orderIdToPlanningId[planning.orderId] = planning.planningBoxId;
+              orderIdToStatus[planning.orderId] =
+                  planning.boxTimes?.first.status ?? "";
             }
-            // print('production_box:$orderIdToPlanningId');
+            print('planningBoxId:$machine-$orderIdToPlanningId');
+            // print('status:$orderIdToStatus');
             return planningList;
           });
     });
@@ -681,6 +685,15 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   }) async {
     if (selectedPlanningIds.isEmpty) {
       showSnackBarError(context, "Chưa chọn kế hoạch cần thực hiện");
+      return;
+    }
+
+    final hasCompletedOrder = selectedPlanningIds.any(
+      (orderId) => orderIdToStatus[orderId] == "complete",
+    );
+
+    if (hasCompletedOrder) {
+      showSnackBarError(context, "Không thể chấp nhận đơn đã hoàn thành");
       return;
     }
 

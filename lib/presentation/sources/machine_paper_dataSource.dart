@@ -214,7 +214,7 @@ class MachinePaperDatasource extends DataGridSource {
           value: boxCell?.dongGoi ?? "",
         ),
       ],
-      DataGridCell<String>(columnName: "status", value: planning.status ?? ""),
+      DataGridCell<String>(columnName: "status", value: planning.status),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
     ];
   }
@@ -233,6 +233,7 @@ class MachinePaperDatasource extends DataGridSource {
 
     const boolColumns = [
       'canMang',
+      "canLanBox",
       'xa',
       'catKhe',
       'be',

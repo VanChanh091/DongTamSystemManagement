@@ -8,12 +8,14 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 class DialogReportProduction extends StatefulWidget {
   final int planningId;
   final VoidCallback onReport;
+  final String? machine;
   final bool isPaper;
 
   const DialogReportProduction({
     super.key,
     required this.planningId,
     required this.onReport,
+    this.machine,
     this.isPaper = true,
   });
 
@@ -60,6 +62,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       } else {
         success = await ManufactureService().createReportBox(
           widget.planningId,
+          widget.machine ?? "",
           completedDate,
           qtyProduced,
           qtyWasteNorm,

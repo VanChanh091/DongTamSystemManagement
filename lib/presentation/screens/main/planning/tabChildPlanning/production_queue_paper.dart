@@ -28,6 +28,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   List<String> selectedPlanningIds = [];
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
+  final Map<String, String> orderIdToStatus = {};
   final DataGridController dataGridController = DataGridController();
   DateTime? dayStart = DateTime.now();
   bool isLoading = false;
@@ -55,8 +56,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
             selectedPlanningIds.clear();
             for (var planning in planningList) {
               orderIdToPlanningId[planning.orderId] = planning.planningId;
+              orderIdToStatus[planning.orderId] = planning.status;
             }
-            // print('production_paper:$orderIdToPlanningId');
+            // print('planningId:$orderIdToPlanningId');
+            // print('status:$orderIdToStatus');
             return planningList;
           });
     });
@@ -791,10 +794,14 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       return;
     }
 
-    if (status == "complete") {
-      showSnackBarError(context, "Không thể chấp nhận đơn đã hoàn thành");
-      return;
-    }
+    // final hasCompletedOrder = selectedPlanningIds.any(
+    //   (orderId) => orderIdToStatus[orderId] == "complete",
+    // );
+
+    // if (hasCompletedOrder) {
+    //   showSnackBarError(context, "Không thể thao tác với đơn đã hoàn thành");
+    //   return;
+    // }
 
     bool confirm =
         await showDialog(

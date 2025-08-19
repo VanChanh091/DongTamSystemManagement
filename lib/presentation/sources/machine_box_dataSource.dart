@@ -336,8 +336,18 @@ class MachineBoxDatasource extends DataGridSource {
     final status = getCellValue<String>(row, 'status', "");
     final dmWasteLoss = getCellValue<String>(row, 'dmWasteLoss', "0");
     final wasteActually = getCellValue<String>(row, 'wasteActually', "0");
-    // final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
-    // final qtyProduced = getCellValue<int>(row, 'qtyProduced', 0);
+    final runningPlan = getCellValue<int>(row, 'runningPlans', 0);
+
+    final Map<String, String> machineColumnMap = {
+      'qtyPrinted': "Máy In",
+      'qtyCanLan': "Máy Cấn Lằn",
+      'qtyCanMang': "Máy Cán Màng",
+      'qtyXa': "Máy Xả",
+      'qtyCatKhe': "Máy Cắt Khe",
+      'qtyBe': "Máy Bế",
+      'qtyDan': "Máy Dán",
+      'qtyDongGhim': "Máy Đóng Ghim",
+    };
 
     //Chuyển từ "10 cái" -> 10
     final totalDmWasteLoss =
@@ -367,6 +377,16 @@ class MachineBoxDatasource extends DataGridSource {
             if (dataCell.columnName == 'wasteActually' &&
                 totalWasteActually < totalDmWasteLoss) {
               cellColor = Colors.red.withOpacity(0.5);
+            }
+
+            // Kiểm tra cột máy dựa vào map
+            final machineColumnName = machineColumnMap[dataCell.columnName];
+
+            if (machineColumnName != null && machineColumnName == machine) {
+              final qty = (dataCell.value is int) ? dataCell.value as int : 0;
+              if (qty < runningPlan) {
+                cellColor = Colors.red.withOpacity(0.5);
+              }
             }
 
             return Container(
