@@ -122,7 +122,11 @@ class OrderDataSource extends DataGridSource {
         value: order.box?.chongTham ?? false,
       ),
       DataGridCell<bool>(
-        columnName: 'canMang',
+        columnName: 'canLan',
+        value: order.box?.canLan ?? false,
+      ),
+      DataGridCell<bool>(
+        columnName: 'canLanBox',
         value: order.box?.canMang ?? false,
       ),
       DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa ?? false),

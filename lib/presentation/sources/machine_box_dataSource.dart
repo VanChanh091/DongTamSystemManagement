@@ -36,6 +36,7 @@ class MachineBoxDatasource extends DataGridSource {
     final boxMachineTime = planning.getBoxMachineTimeByMachine(machine);
 
     return [
+      //14 items
       DataGridCell<String>(columnName: "orderId", value: planning.orderId),
       DataGridCell<int>(
         columnName: "planningBoxId",
@@ -84,14 +85,17 @@ class MachineBoxDatasource extends DataGridSource {
       ),
       DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
       DataGridCell<int>(
+        columnName: 'child',
+        value: planning.order?.numberChild ?? 0,
+      ),
+      DataGridCell<int>(
         columnName: "quantityOrd",
-        value: planning.order!.quantityCustomer,
+        value: planning.order?.quantityCustomer ?? 0,
       ),
       DataGridCell<int>(
         columnName: "runningPlans",
         value: planning.runningPlan,
       ),
-
       DataGridCell<String>(
         columnName: "timeRunnings",
         value:
@@ -112,25 +116,26 @@ class MachineBoxDatasource extends DataGridSource {
     final mayCatKhe = planning.getAllBoxMachineTime("Máy Cắt Khe");
     final mayCanMang = planning.getAllBoxMachineTime("Máy Cán Màng");
     final mayDongGhim = planning.getAllBoxMachineTime("Máy Đóng Ghim");
-
+    final mayCanLan = planning.getAllBoxMachineTime("Máy Cấn Lằn");
     return [
       //check machine is Máy In
-      if (machine == "Máy In") ...[
-        DataGridCell<int>(
-          columnName: "inMatTruoc",
-          value: planning.order?.box?.inMatTruoc ?? 0,
-        ),
-        DataGridCell<int>(
-          columnName: "inMatSau",
-          value: planning.order?.box?.inMatSau ?? 0,
-        ),
-      ],
+      DataGridCell<int>(
+        columnName: "inMatTruoc",
+        value:
+            machine == "Máy In" ? (planning.order!.box!.inMatTruoc ?? 0) : null,
+      ),
+      DataGridCell<int>(
+        columnName: "inMatSau",
+        value: machine == "Máy In" ? planning.order!.box!.inMatSau ?? 0 : null,
+      ),
       DataGridCell<int>(
         columnName: "qtyPrinted",
         value: boxMachineTime?.qtyProduced ?? 0,
       ),
-
-      //can mang
+      DataGridCell<int>(
+        columnName: "qtyCanLan",
+        value: mayCanLan?.qtyProduced ?? 0,
+      ),
       DataGridCell<int>(
         columnName: "qtyCanMang",
         value: mayCanMang?.qtyProduced ?? 0,
@@ -142,63 +147,17 @@ class MachineBoxDatasource extends DataGridSource {
       //           ? '${mayCanMang?.rpWasteLoss ?? 0} Cái'
       //           : "0",
       // ),
-
-      //xa
       DataGridCell<int>(columnName: "qtyXa", value: mayXa?.qtyProduced ?? 0),
-      // DataGridCell<String>(
-      //   columnName: "wasteNormXa",
-      //   value:
-      //       (mayXa?.rpWasteLoss ?? 0) > 0
-      //           ? '${mayXa?.rpWasteLoss ?? 0} Cái'
-      //           : "0",
-      // ),
-
-      //cat khe
       DataGridCell<int>(
         columnName: "qtyCatKhe",
         value: mayCatKhe?.qtyProduced ?? 0,
       ),
-      // DataGridCell<String>(
-      //   columnName: "wasteCatKhe",
-      //   value:
-      //       (mayCatKhe?.rpWasteLoss ?? 0) > 0
-      //           ? '${mayCatKhe?.rpWasteLoss ?? 0} Cái'
-      //           : "0",
-      // ),
-
-      //be
       DataGridCell<int>(columnName: "qtyBe", value: mayBe?.qtyProduced ?? 0),
-      // DataGridCell<String>(
-      //   columnName: "wasteNormBe",
-      //   value:
-      //       (mayBe?.rpWasteLoss ?? 0) > 0
-      //           ? '${mayBe?.rpWasteLoss ?? 0} Cái'
-      //           : "0",
-      // ),
-
-      //dan
       DataGridCell<int>(columnName: "qtyDan", value: mayDan?.qtyProduced ?? 0),
-      // DataGridCell<String>(
-      //   columnName: "wasteDan",
-      //   value:
-      //       (mayDan?.rpWasteLoss ?? 0) > 0
-      //           ? '${mayDan?.rpWasteLoss ?? 0} Cái'
-      //           : "0",
-      // ),
-
-      //dong ghim
       DataGridCell<int>(
         columnName: "qtyDongGhim",
         value: mayDongGhim?.qtyProduced ?? 0,
       ),
-
-      // DataGridCell<String>(
-      //   columnName: "wasteDGhim",
-      //   value:
-      //       (mayDongGhim?.rpWasteLoss ?? 0) > 0
-      //           ? '${mayDongGhim?.rpWasteLoss ?? 0} Cái'
-      //           : "0",
-      // ),
       DataGridCell<String>(
         columnName: "dmWasteLoss",
         value:
@@ -216,15 +175,6 @@ class MachineBoxDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: "shiftManager",
         value: boxMachineTime.shiftManagement ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: "note",
-        value:
-            planning.runningPlan == 0
-                ? "Chờ số lượng"
-                : (boxMachineTime.qtyProduced ?? 0) < planning.runningPlan
-                ? "Thiếu số lượng"
-                : "",
       ),
       DataGridCell<String>(columnName: "status", value: boxMachineTime.status),
       DataGridCell<int>(

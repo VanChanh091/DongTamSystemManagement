@@ -3,7 +3,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildMachineBoxColumns(String machine) {
   return [
-    //planning
+    //planning - 14 columns
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
     GridColumn(columnName: 'planningBoxId', label: Container(), visible: false),
     GridColumn(
@@ -27,6 +27,7 @@ List<GridColumn> buildMachineBoxColumns(String machine) {
     GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
     GridColumn(columnName: 'length', label: formatColumn("Dài")),
     GridColumn(columnName: 'size', label: formatColumn("Khổ")),
+    GridColumn(columnName: 'child', label: formatColumn("Số Con")),
     GridColumn(columnName: 'quantityOrd', label: formatColumn("SL Đơn Hàng")),
     GridColumn(columnName: 'runningPlans', label: formatColumn("SL Giấy Tấm")),
     GridColumn(
@@ -40,18 +41,16 @@ List<GridColumn> buildMachineBoxColumns(String machine) {
       GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
     ],
     GridColumn(columnName: 'qtyPrinted', label: formatColumn("In")),
-
+    GridColumn(columnName: 'qtyCanLan', label: formatColumn("Cấn Lằn")),
     GridColumn(columnName: 'qtyCanMang', label: formatColumn("Cán Màng")),
     GridColumn(columnName: 'qtyXa', label: formatColumn("Xả")),
     GridColumn(columnName: 'qtyCatKhe', label: formatColumn("Cắt Khe")),
     GridColumn(columnName: 'qtyBe', label: formatColumn("Bế")),
     GridColumn(columnName: 'qtyDan', label: formatColumn("Dán")),
     GridColumn(columnName: 'qtyDongGhim', label: formatColumn("Đóng Ghim")),
-
     GridColumn(columnName: 'dmWasteLoss', label: formatColumn("Định Mức PL")),
     GridColumn(columnName: 'wasteActually', label: formatColumn("PL Thực Tế")),
     GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
-    GridColumn(columnName: 'note', label: formatColumn("Ghi Chú")),
     GridColumn(columnName: 'status', label: SizedBox(), visible: false),
     GridColumn(
       columnName: 'index',

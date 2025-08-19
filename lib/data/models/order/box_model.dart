@@ -1,6 +1,7 @@
 class Box {
   final int? inMatTruoc, inMatSau;
   final bool? canMang,
+      canLan,
       Xa,
       catKhe,
       be,
@@ -15,6 +16,7 @@ class Box {
     this.inMatTruoc,
     this.inMatSau,
     this.canMang,
+    this.canLan,
     this.Xa,
     this.catKhe,
     this.be,
@@ -32,6 +34,7 @@ class Box {
       inMatTruoc: json['inMatTruoc'] ?? 0,
       inMatSau: json['inMatSau'] ?? 0,
       canMang: json['canMang'] ?? false,
+      canLan: json['canLan'] ?? false,
       Xa: json['Xa'] ?? false,
       catKhe: json['catKhe'] ?? false,
       be: json['be'] ?? false,
@@ -50,6 +53,7 @@ class Box {
       'inMatTruoc': inMatTruoc,
       'inMatSau': inMatSau,
       'canMang': canMang,
+      'canLan': canLan,
       'Xa': Xa,
       'catKhe': catKhe,
       'be': be,

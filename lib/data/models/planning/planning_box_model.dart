@@ -14,7 +14,7 @@ class PlanningBox {
   final int planningId;
   final String orderId;
   final Order? order;
-  final TimeOverflowPlanning? timeOverflowPlanning;
+  final List<TimeOverflowPlanning>? timeOverflowPlanning;
   final List<BoxMachineTime>? boxTimes;
   final List<BoxMachineTime>? allBoxTimes;
 
@@ -60,6 +60,7 @@ class PlanningBox {
   }
 
   BoxMachineTime? getBoxMachineTimeByMachine(String machine) {
+    if (boxTimes == null) return null;
     return boxTimes?.firstWhere((item) => item.machine == machine);
   }
 
@@ -67,6 +68,11 @@ class PlanningBox {
     if (allBoxTimes == null) return null;
     final match = allBoxTimes!.where((item) => item.machine == machine);
     return match.isNotEmpty ? match.first : null;
+  }
+
+  TimeOverflowPlanning? getTimeOverflow(String machine) {
+    if (timeOverflowPlanning == null) return null;
+    return timeOverflowPlanning?.firstWhere((item) => item.machine == machine);
   }
 
   factory PlanningBox.fromJson(Map<String, dynamic> json) {
@@ -89,8 +95,12 @@ class PlanningBox {
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
       timeOverflowPlanning:
           json['timeOverFlow'] != null
-              ? TimeOverflowPlanning.fromJson(json['timeOverFlow'])
-              : null,
+              ? List<TimeOverflowPlanning>.from(
+                json['timeOverFlow'].map(
+                  (x) => TimeOverflowPlanning.fromJson(x),
+                ),
+              )
+              : [],
       boxTimes:
           json['boxTimes'] != null
               ? List<BoxMachineTime>.from(

@@ -52,6 +52,7 @@ List<GridColumn> buildOrderColumns() {
     GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
     GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
     GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
+    GridColumn(columnName: 'canLanBox', label: formatColumn("Cấn Lằn")),
     GridColumn(columnName: 'canMang', label: formatColumn("Cán Màng")),
     GridColumn(columnName: 'xa', label: formatColumn("Xả")),
     GridColumn(columnName: 'catKhe', label: formatColumn("Cắt Khe")),

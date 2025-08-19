@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class TimeOverflowPlanning {
   final DateTime? overflowDayStart;
   final TimeOfDay? overflowTimeRunning;
+  final String? machine;
   final int? sortPlanning;
 
   final int planningId;
@@ -12,6 +13,7 @@ class TimeOverflowPlanning {
     this.overflowDayStart,
     this.overflowTimeRunning,
     this.sortPlanning,
+    this.machine,
     required this.planningId,
   });
 
@@ -19,6 +21,7 @@ class TimeOverflowPlanning {
     return TimeOverflowPlanning(
       overflowDayStart: DateTime.parse(json['overflowDayStart']),
       overflowTimeRunning: parseTimeOfDay(json['overflowTimeRunning']),
+      machine: json['machine'] ?? "",
       sortPlanning: json['sortPlanning'] ?? 0,
       planningId: json['planningId'] ?? 0,
     );

@@ -141,7 +141,7 @@ class MachinePaperDatasource extends DataGridSource {
         value: planning.knife != 0 ? '${planning.knife} kg' : "0",
       ),
       DataGridCell<String>(
-        columnName: 'totalWasteLoss',
+        columnName: 'totalLoss',
         value: planning.totalLoss != 0 ? '${planning.totalLoss} kg' : "0",
       ),
       DataGridCell<String>(
@@ -174,6 +174,10 @@ class MachinePaperDatasource extends DataGridSource {
         DataGridCell<bool>(
           columnName: 'chongTham',
           value: boxCell?.chongTham ?? false,
+        ),
+        DataGridCell<bool>(
+          columnName: 'canLanBox',
+          value: boxCell?.canLan ?? false,
         ),
         DataGridCell<bool>(
           columnName: 'canMang',
@@ -397,12 +401,12 @@ class MachinePaperDatasource extends DataGridSource {
     final status = getCellValue<String>(row, 'status', "");
     final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
     final qtyProduct = getCellValue<int>(row, 'qtyProduced', 0);
-    final totalWasteLoss = getCellValue<String>(row, 'totalWasteLoss', "0");
+    final totalLoss = getCellValue<String>(row, 'totalLoss', "0");
     final qtyWastes = getCellValue<String>(row, 'qtyWastes', "0");
 
     // Chuyển từ "10 kg" -> 10.0
     final totalWasteLossVal =
-        double.tryParse(totalWasteLoss.replaceAll(' kg', '')) ?? 0;
+        double.tryParse(totalLoss.replaceAll(' kg', '')) ?? 0;
     final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(' kg', '')) ?? 0;
 
     Color? rowColor;

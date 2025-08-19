@@ -300,6 +300,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                     'inMatTruoc',
                                     'inMatSau',
                                     'canMang',
+                                    'canLanBox',
                                     'xa',
                                     'catKhe',
                                     'be',

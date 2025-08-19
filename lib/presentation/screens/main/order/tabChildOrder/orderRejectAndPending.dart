@@ -390,6 +390,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                               'inMatTruoc',
                               'inMatSau',
                               'canMang',
+                              'canLanBox',
                               'xa',
                               'catKhe',
                               'be',

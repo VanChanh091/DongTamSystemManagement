@@ -1,5 +1,5 @@
-import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/admin_machineBox.dart';
-import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/admin_wasteBox.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_machineBox.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_wasteBox.dart';
 import 'package:flutter/material.dart';
 
 class TopTabAdminBox extends StatefulWidget {

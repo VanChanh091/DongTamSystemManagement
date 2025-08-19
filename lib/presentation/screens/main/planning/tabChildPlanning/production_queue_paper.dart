@@ -719,7 +719,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               'fluteB',
                               'fluteC',
                               'knife',
-                              'totalWasteLoss',
+                              'totalLoss',
                             ],
                             child: formatColumn('Định Mức Phế Liệu'),
                           ),
@@ -727,6 +727,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                             columnNames: [
                               'inMatTruoc',
                               'inMatSau',
+                              'canLanBox',
                               'canMang',
                               'xa',
                               'catKhe',

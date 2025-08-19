@@ -85,8 +85,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
-
-      loadPlanning(false);
+      loadPlanning(true);
     });
   }
 
@@ -462,6 +461,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                 items:
                                     [
                                       'Máy In',
+                                      'Máy Cấn Lằn',
                                       "Máy Bế",
                                       "Máy Xả",
                                       "Máy Dán",
@@ -624,6 +624,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                           StackedHeaderCell(
                             columnNames: [
                               'qtyPrinted',
+                              'qtyCanLan',
                               'qtyCanMang',
                               'qtyXa',
                               'qtyCatKhe',
@@ -636,7 +637,6 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                         ],
                       ),
                     ],
-
                     onSelectionChanged: (addedRows, removedRows) {
                       setState(() {
                         for (var row in addedRows) {

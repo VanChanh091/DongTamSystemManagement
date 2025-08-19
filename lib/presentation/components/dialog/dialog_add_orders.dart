@@ -89,6 +89,7 @@ class _OrderDialogState extends State<OrderDialog> {
   ValueNotifier<bool> canMangChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> xaChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> catKheChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> canLanChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> beChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> dan1ManhChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> dan2ManhChecked = ValueNotifier<bool>(false);
@@ -170,6 +171,7 @@ class _OrderDialogState extends State<OrderDialog> {
     inMatTruocController.text = box.inMatTruoc?.toString() ?? '';
     inMatSauController.text = box.inMatSau?.toString() ?? '';
     canMangChecked = ValueNotifier<bool>(box.canMang ?? false);
+    canLanChecked = ValueNotifier<bool>(box.canLan ?? false);
     xaChecked = ValueNotifier<bool>(box.Xa ?? false);
     catKheChecked = ValueNotifier<bool>(box.catKhe ?? false);
     beChecked = ValueNotifier<bool>(box.be ?? false);
@@ -382,6 +384,7 @@ class _OrderDialogState extends State<OrderDialog> {
       inMatTruoc: int.tryParse(inMatTruocController.text) ?? 0,
       inMatSau: int.tryParse(inMatSauController.text) ?? 0,
       canMang: canMangChecked.value,
+      canLan: canLanChecked.value,
       Xa: xaChecked.value,
       catKhe: catKheChecked.value,
       be: beChecked.value,
@@ -494,6 +497,7 @@ class _OrderDialogState extends State<OrderDialog> {
     inMatTruocController.dispose();
     inMatSauController.dispose();
     canMangChecked = ValueNotifier<bool>(false);
+    canLanChecked = ValueNotifier<bool>(false);
     xaChecked = ValueNotifier<bool>(false);
     catKheChecked = ValueNotifier<bool>(false);
     beChecked = ValueNotifier<bool>(false);
@@ -901,21 +905,24 @@ class _OrderDialogState extends State<OrderDialog> {
               ),
           'middle_2':
               () => ValidationOrder.checkboxForBox(
+                "Cấn Lằn",
+                canLanChecked,
+                enabled: isEnabled,
+              ),
+
+          'middle_3':
+              () => ValidationOrder.checkboxForBox(
                 "Đóng ghim 1 mảnh",
                 dongGhim1ManhChecked,
                 enabled: isEnabled,
               ),
-          'middle_3':
+
+          'right':
               () => ValidationOrder.checkboxForBox(
                 "Đóng ghim 2 mảnh",
                 dongGhim2ManhChecked,
                 enabled: isEnabled,
               ),
-          'right':
-              () => ValidationOrder.checkboxForBox(
-                "Làm thùng?",
-                isBoxChecked,
-              ), // checkbox chính luôn bật
         },
       ];
     }
@@ -1066,14 +1073,31 @@ class _OrderDialogState extends State<OrderDialog> {
                     const SizedBox(height: 20),
 
                     //box
-                    const Text(
-                      "Làm Thùng",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                    Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            "Làm Thùng",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: SizedBox(
+                            width: 150, // chỉnh độ rộng hợp lý
+                            child: ValidationOrder.checkboxForBox(
+                              "Làm thùng?",
+                              isBoxChecked,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     Container(
                       decoration: BoxDecoration(
                         color: Color(0xffF2E873),
