@@ -35,11 +35,6 @@ List<GridColumn> buildMachineBoxColumns(String machine) {
       label: formatColumn("Thời Gian Chạy"),
     ),
 
-    //print
-    if (machine == "Máy In") ...[
-      GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
-      GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
-    ],
     GridColumn(columnName: 'qtyPrinted', label: formatColumn("In")),
     GridColumn(columnName: 'qtyCanLan', label: formatColumn("Cấn Lằn")),
     GridColumn(columnName: 'qtyCanMang', label: formatColumn("Cán Màng")),
@@ -48,6 +43,20 @@ List<GridColumn> buildMachineBoxColumns(String machine) {
     GridColumn(columnName: 'qtyBe', label: formatColumn("Bế")),
     GridColumn(columnName: 'qtyDan', label: formatColumn("Dán")),
     GridColumn(columnName: 'qtyDongGhim', label: formatColumn("Đóng Ghim")),
+
+    GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
+    GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
+    GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
+    GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
+    GridColumn(
+      columnName: 'dongGhim1Manh',
+      label: formatColumn("ĐGhim 1 Mảnh"),
+    ),
+    GridColumn(
+      columnName: 'dongGhim2Manh',
+      label: formatColumn("ĐGhim 2 Mảnh"),
+    ),
+
     GridColumn(columnName: 'dmWasteLoss', label: formatColumn("Định Mức PL")),
     GridColumn(columnName: 'wasteActually', label: formatColumn("PL Thực Tế")),
     GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),

@@ -57,7 +57,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
               orderIdToStatus[planning.orderId] =
                   planning.boxTimes?.first.status ?? "";
             }
-            print('planningBoxId:$machine-$orderIdToPlanningId');
+            // print('planningBoxId:$machine-$orderIdToPlanningId');
             // print('status:$orderIdToStatus');
             return planningList;
           });

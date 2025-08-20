@@ -117,17 +117,9 @@ class MachineBoxDatasource extends DataGridSource {
     final mayCanMang = planning.getAllBoxMachineTime("Máy Cán Màng");
     final mayDongGhim = planning.getAllBoxMachineTime("Máy Đóng Ghim");
     final mayCanLan = planning.getAllBoxMachineTime("Máy Cấn Lằn");
+
     return [
       //check machine is Máy In
-      DataGridCell<int>(
-        columnName: "inMatTruoc",
-        value:
-            machine == "Máy In" ? (planning.order!.box!.inMatTruoc ?? 0) : null,
-      ),
-      DataGridCell<int>(
-        columnName: "inMatSau",
-        value: machine == "Máy In" ? planning.order!.box!.inMatSau ?? 0 : null,
-      ),
       DataGridCell<int>(
         columnName: "qtyPrinted",
         value: boxMachineTime?.qtyProduced ?? 0,
@@ -158,6 +150,9 @@ class MachineBoxDatasource extends DataGridSource {
         columnName: "qtyDongGhim",
         value: mayDongGhim?.qtyProduced ?? 0,
       ),
+
+      ...buildChildBoxCells(planning, machine),
+
       DataGridCell<String>(
         columnName: "dmWasteLoss",
         value:
@@ -180,6 +175,42 @@ class MachineBoxDatasource extends DataGridSource {
       DataGridCell<int>(
         columnName: "index",
         value: boxMachineTime.sortPlanning ?? 0,
+      ),
+    ];
+  }
+
+  List<DataGridCell> buildChildBoxCells(PlanningBox planning, String machine) {
+    return [
+      DataGridCell<int>(
+        columnName: "inMatTruoc",
+        value:
+            machine == "Máy In" ? (planning.order!.box!.inMatTruoc ?? 0) : null,
+      ),
+      DataGridCell<int>(
+        columnName: "inMatSau",
+        value: machine == "Máy In" ? planning.order!.box!.inMatSau ?? 0 : null,
+      ),
+      DataGridCell<bool>(
+        columnName: "dan_1_Manh",
+        value: machine == "Máy Dán" ? planning.order!.box!.dan_1_Manh : false,
+      ),
+      DataGridCell<bool>(
+        columnName: "dan_2_Manh",
+        value: machine == "Máy Dán" ? planning.order!.box!.dan_2_Manh : false,
+      ),
+      DataGridCell<bool>(
+        columnName: "dongGhim1Manh",
+        value:
+            machine == "Máy Đóng Ghim"
+                ? planning.order!.box!.dongGhim1Manh
+                : false,
+      ),
+      DataGridCell<bool>(
+        columnName: "dongGhim2Manh",
+        value:
+            machine == "Máy Đóng Ghim"
+                ? planning.order!.box!.dongGhim2Manh
+                : false,
       ),
     ];
   }
@@ -288,6 +319,24 @@ class MachineBoxDatasource extends DataGridSource {
     planning.insertAll(newInsertIndex, selectedItems);
 
     buildDataGridRows();
+  }
+
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = [
+      'dan_1_Manh',
+      'dan_2_Manh',
+      'dongGhim1Manh',
+      'dongGhim2Manh',
+    ];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
+
+    return value?.toString() ?? '';
   }
 
   @override
@@ -402,7 +451,7 @@ class MachineBoxDatasource extends DataGridSource {
                 vertical: 4.0,
               ),
               child: Text(
-                dataCell.value?.toString() ?? "",
+                _formatCellValueBool(dataCell),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
