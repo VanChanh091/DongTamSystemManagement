@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_planning_order.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_planning.dart';
@@ -5,6 +6,7 @@ import 'package:dongtam/presentation/sources/planning_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class WaitingForPlanning extends StatefulWidget {
@@ -18,13 +20,19 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   late Future<List<Order>> futureOrdersAccept;
   late PlanningDataSource planningDataSource;
   late List<GridColumn> columns;
-  String? selectedOrderId;
+  final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
+  String? selectedOrderId;
 
   @override
   void initState() {
     super.initState();
-    loadOrders(false);
+
+    if (userController.hasPermission('plan')) {
+      loadOrders(true);
+    } else {
+      futureOrdersAccept = Future.error("NO_PERMISSION");
+    }
 
     columns = buildColumnPlanning();
   }
@@ -37,6 +45,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isPlan = userController.hasPermission("plan");
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -47,68 +57,80 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
             SizedBox(
               height: 70,
               width: double.infinity,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(),
+              child:
+                  isPlan
+                      ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(),
 
-                  //button
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                    child: Row(
-                      children: [
-                        //planning
-                        ElevatedButton.icon(
-                          onPressed:
-                              selectedOrderId == null
-                                  ? null
-                                  : () async {
-                                    try {
-                                      final order = await futureOrdersAccept;
-                                      final selectedOrder = order.firstWhere(
-                                        (order) =>
-                                            order.orderId == selectedOrderId,
-                                      );
-
-                                      showDialog(
-                                        context: context,
-                                        builder:
-                                            (_) => PLanningDialog(
-                                              order: selectedOrder,
-                                              onPlanningOrder:
-                                                  () => loadOrders(true),
-                                            ),
-                                      );
-                                    } catch (e) {
-                                      print("Không tìm thấy đơn hàng: $e");
-                                    }
-                                  },
-                          label: Text(
-                            "Lên kế hoạch",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          icon: Icon(Icons.add, color: Colors.white),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff78D761),
-                            foregroundColor: Colors.white,
+                          //button
+                          Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 15,
+                              vertical: 8,
+                              horizontal: 10,
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                            child: Row(
+                              children: [
+                                //planning
+                                ElevatedButton.icon(
+                                  onPressed:
+                                      selectedOrderId == null
+                                          ? null
+                                          : () async {
+                                            try {
+                                              final order =
+                                                  await futureOrdersAccept;
+                                              final selectedOrder = order
+                                                  .firstWhere(
+                                                    (order) =>
+                                                        order.orderId ==
+                                                        selectedOrderId,
+                                                  );
+
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => PLanningDialog(
+                                                      order: selectedOrder,
+                                                      onPlanningOrder:
+                                                          () =>
+                                                              loadOrders(true),
+                                                    ),
+                                              );
+                                            } catch (e) {
+                                              print(
+                                                "Không tìm thấy đơn hàng: $e",
+                                              );
+                                            }
+                                          },
+                                  label: Text(
+                                    "Lên kế hoạch",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  icon: Icon(Icons.add, color: Colors.white),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xff78D761),
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 15,
+                                      vertical: 15,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                        ],
+                      )
+                      : SizedBox.shrink(),
             ),
 
             // table
@@ -119,9 +141,40 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
+                    if (snapshot.error.toString().contains("NO_PERMISSION")) {
+                      return Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.lock_outline,
+                              color: Colors.redAccent,
+                              size: 35,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "Bạn không có quyền xem chức năng này",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 26,
+                                color: Colors.redAccent,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text("Không có đơn hàng nào"));
+                    return Center(
+                      child: Text(
+                        "Không có đơn hàng nào",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                      ),
+                    );
                   }
 
                   final List<Order> data = snapshot.data!;
@@ -163,11 +216,14 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => loadOrders(true),
-        backgroundColor: Color(0xff78D761),
-        child: const Icon(Icons.refresh, color: Colors.white),
-      ),
+      floatingActionButton:
+          isPlan
+              ? FloatingActionButton(
+                onPressed: () => loadOrders(true),
+                backgroundColor: Color(0xff78D761),
+                child: const Icon(Icons.refresh, color: Colors.white),
+              )
+              : null,
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
@@ -9,6 +10,7 @@ import 'package:dongtam/service/socket/socket_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class PaperProduction extends StatefulWidget {
@@ -22,6 +24,7 @@ class _PaperProductionState extends State<PaperProduction> {
   late Future<List<PlanningPaper>> futurePlanning;
   late MachinePaperDatasource machinePaperDatasource;
   late List<GridColumn> columns;
+  final userController = Get.find<UserController>();
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
@@ -184,7 +187,13 @@ class _PaperProductionState extends State<PaperProduction> {
                             ElevatedButton.icon(
                               onPressed:
                                   //turn on/off
-                                  selectedPlanningIds.length == 1
+                                  userController.hasAnyPermission([
+                                            "machine1350",
+                                            "machine1900",
+                                            "machine2Layer",
+                                            "MachineRollPaper",
+                                          ]) &&
+                                          selectedPlanningIds.length == 1
                                       ? () async {
                                         try {
                                           //get planning first

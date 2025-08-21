@@ -1,4 +1,5 @@
 import 'package:dongtam/data/controller/sidebar_controller.dart';
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
@@ -12,9 +13,9 @@ import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
 import 'package:dongtam/presentation/screens/main/planning/top_tab_planning.dart';
 import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
-import 'package:dongtam/presentation/screens/main/user/user.dart';
 import 'package:dongtam/service/auth_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -28,54 +29,81 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final AuthService authService = AuthService();
   final SidebarController sidebarController = Get.put(SidebarController());
+  final AuthService authService = AuthService();
+  final userController = Get.find<UserController>();
+
   bool _isHovered = false;
   bool _isPlanningExpanded = false;
   bool _isManufactureExpanded = false;
   bool _isApprovalExpanded = false;
-  int newNotificationsCount = 1;
+  // int newNotificationsCount = 1;
 
-  final List<Widget> pages = [
-    DashboardPage(),
-    TopTabOrder(),
-    CustomerPage(),
-    ProductPage(),
-    //planning
-    WaitingForPlanning(), TopTabPlanning(),
-    //manufacture
-    PaperProduction(), BoxPrintingProduction(),
-    //admin
-    AdminOrder(),
-    TopTabAdminPaper(),
-    TopTabAdminBox(),
-    AdminMangeUser(),
-    UserPage(),
-  ];
+  List<Widget> getPages() {
+    return [
+      DashboardPage(),
+      _buildPage(permission: 'sale', child: TopTabOrder()),
+      CustomerPage(),
+      ProductPage(),
+
+      // planning
+      _buildPage(permission: 'plan', child: WaitingForPlanning()),
+      _buildPage(permission: 'plan', child: TopTabPlanning()),
+
+      // manufacture
+      PaperProduction(),
+      BoxPrintingProduction(),
+
+      // admin
+      _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),
+      _buildPage(roles: ['admin'], child: TopTabAdminPaper()),
+      _buildPage(roles: ['admin'], child: TopTabAdminBox()),
+      _buildPage(roles: ['admin'], child: AdminMangeUser()),
+    ].whereType<Widget>().toList(); // lọc bỏ null
+  }
+
+  Widget? _buildPage({Widget? child, String? permission, List<String>? roles}) {
+    if (roles != null &&
+        roles.isNotEmpty &&
+        !roles.contains(userController.role.value)) {
+      return null;
+    }
+    if (permission != null && !userController.hasAnyPermission([permission])) {
+      return null;
+    }
+    return child;
+  }
 
   void logout() async {
     try {
+      final secureStorage = SecureStorageService();
+      await secureStorage.deleteToken();
+      await secureStorage.deleteRole();
+      await secureStorage.deletePermission();
+
       await authService.logout();
       sidebarController.reset();
+
       showSnackBarSuccess(context, 'Đăng xuất thành công');
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         PageTransition(
           type: PageTransitionType.fade,
           duration: Duration(milliseconds: 500),
           child: LoginScreen(),
         ),
+        (route) => false,
       );
     } catch (e) {
       print("Error logging out: $e");
     }
   }
 
-  void updateNotifications(int newCount) {
-    setState(() {
-      newNotificationsCount = newCount;
-    });
-  }
+  // void updateNotifications(int newCount) {
+  //   setState(() {
+  //     newNotificationsCount = newCount;
+  //   });
+  // }
 
   BoxDecoration _sidebarDecoration() {
     return const BoxDecoration(
@@ -130,6 +158,7 @@ class _HomePageState extends State<HomePage> {
 
   //index for screen
   Widget buildSidebar() {
+    final pages = getPages();
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -148,32 +177,7 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(height: 20),
                       if (_isHovered) _buildLogoSection(),
                       const SizedBox(height: 20),
-                      Expanded(child: _buildMenuList()),
-                      // Notifications
-                      _buildSidebarItem(
-                        Icons.notifications,
-                        notificationCount: newNotificationsCount,
-                        "Thông báo",
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => AlertDialog(
-                                  title: Text('Thông báo'),
-                                  content: Text('Bạn có 3 thông báo mới.'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: Text("Đóng"),
-                                    ),
-                                  ],
-                                ),
-                          );
-                        },
-                      ),
-                      // Personal
-                      _buildSidebarItem(Icons.person, "Cá Nhân", index: 12),
-
+                      Expanded(child: _buildMenuList(pages)),
                       const Divider(color: Colors.white70),
                       _buildLogoutSection(),
                     ],
@@ -187,108 +191,87 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildMenuList() {
+  Widget _buildMenuList(List<Widget> pages) {
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //dashboard
           _buildSidebarItem(Icons.dashboard, "Dashboard", index: 0),
-          //order
-          _buildSidebarItem(Icons.shopping_cart, "Đơn Hàng", index: 1),
-          //customer
+          if (pages.any((w) => w is TopTabOrder))
+            _buildSidebarItem(Icons.shopping_cart, "Đơn Hàng", index: 1),
           _buildSidebarItem(Icons.person, "Khách Hàng", index: 2),
-          //product
           _buildSidebarItem(Icons.inventory, "Sản Phẩm", index: 3),
-          //planning
-          _buildPlanningMenu(),
-          //manufacture
-          _buildManufactureMenu(),
-          //admin
-          _buildApprovalMenu(),
+          _buildPlanningMenu(pages),
+          _buildManufactureMenu(pages),
+          _buildApprovalMenu(pages),
         ],
       ),
     );
   }
 
   //planning
-  Widget _buildPlanningMenu() {
+  Widget _buildPlanningMenu(List<Widget> pages) {
+    if (!pages.any((w) => w is WaitingForPlanning)) return SizedBox.shrink();
     return Column(
       children: [
         _isHovered
             ? ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               leading: const Icon(Icons.schedule, color: Colors.white),
-              title:
-                  _isHovered
-                      ? const Text(
-                        "Kế Hoạch",
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                        overflow: TextOverflow.ellipsis,
-                      )
-                      : null,
-              trailing:
-                  _isHovered
-                      ? Icon(
-                        _isPlanningExpanded
-                            ? Icons.expand_less
-                            : Icons.expand_more,
-                        color: Colors.white,
-                        size: 20,
-                      )
-                      : null,
+              title: const Text(
+                "Kế Hoạch",
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              trailing: Icon(
+                _isPlanningExpanded ? Icons.expand_less : Icons.expand_more,
+                color: Colors.white,
+                size: 20,
+              ),
               onTap:
-                  () => setState(() {
-                    _isPlanningExpanded = !_isPlanningExpanded;
-                  }),
+                  () => setState(
+                    () => _isPlanningExpanded = !_isPlanningExpanded,
+                  ),
             )
             : const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
               child: Center(child: Icon(Icons.schedule, color: Colors.white)),
             ),
         if (_isHovered && _isPlanningExpanded) ...[
-          _buildSubMenuItem(Icons.outbox_rounded, "Chờ Lên Kế Hoạch", 4),
-          _buildSubMenuItem(
-            Icons.production_quantity_limits_outlined,
-            "Hàng Chờ Sản Xuất",
-            5,
-          ),
+          if (pages.any((w) => w is WaitingForPlanning))
+            _buildSubMenuItem(Icons.outbox_rounded, "Chờ Lên Kế Hoạch", 4),
+          if (pages.any((w) => w is TopTabPlanning))
+            _buildSubMenuItem(
+              Icons.production_quantity_limits_outlined,
+              "Hàng Chờ Sản Xuất",
+              5,
+            ),
         ],
       ],
     );
   }
 
   //manufacture
-  Widget _buildManufactureMenu() {
+  Widget _buildManufactureMenu(List<Widget> pages) {
     return Column(
       children: [
         _isHovered
             ? ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               leading: const Icon(Symbols.manufacturing, color: Colors.white),
-              title:
-                  _isHovered
-                      ? const Text(
-                        "Sản Xuất",
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                        overflow: TextOverflow.ellipsis,
-                      )
-                      : null,
-              trailing:
-                  _isHovered
-                      ? Icon(
-                        _isManufactureExpanded
-                            ? Icons.expand_less
-                            : Icons.expand_more,
-                        color: Colors.white,
-                        size: 20,
-                      )
-                      : null,
+              title: const Text(
+                "Sản Xuất",
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              trailing: Icon(
+                _isManufactureExpanded ? Icons.expand_less : Icons.expand_more,
+                color: Colors.white,
+                size: 20,
+              ),
               onTap:
-                  () => setState(() {
-                    _isManufactureExpanded = !_isManufactureExpanded;
-                  }),
+                  () => setState(
+                    () => _isManufactureExpanded = !_isManufactureExpanded,
+                  ),
             )
             : const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
@@ -297,7 +280,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
         if (_isHovered && _isManufactureExpanded) ...[
-          _buildSubMenuItem(Symbols.article, "Giấy Tấm", 6),
+          _buildSubMenuItem(Icons.article, "Giấy Tấm", 6),
           _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", 7),
         ],
       ],
@@ -305,7 +288,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   //admin
-  Widget _buildApprovalMenu() {
+  Widget _buildApprovalMenu(List<Widget> pages) {
+    if (!pages.any((w) => w is AdminOrder)) return const SizedBox.shrink();
     return Column(
       children: [
         _isHovered
@@ -315,28 +299,19 @@ class _HomePageState extends State<HomePage> {
                 Icons.admin_panel_settings,
                 color: Colors.white,
               ),
-              title:
-                  _isHovered
-                      ? const Text(
-                        "Quản Lý",
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                        overflow: TextOverflow.ellipsis,
-                      )
-                      : null,
-              trailing:
-                  _isHovered
-                      ? Icon(
-                        _isApprovalExpanded
-                            ? Icons.expand_less
-                            : Icons.expand_more,
-                        color: Colors.white,
-                        size: 20,
-                      )
-                      : null,
+              title: const Text(
+                "Quản Lý",
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              trailing: Icon(
+                _isApprovalExpanded ? Icons.expand_less : Icons.expand_more,
+                color: Colors.white,
+                size: 20,
+              ),
               onTap:
-                  () => setState(() {
-                    _isApprovalExpanded = !_isApprovalExpanded;
-                  }),
+                  () => setState(
+                    () => _isApprovalExpanded = !_isApprovalExpanded,
+                  ),
             )
             : const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
@@ -345,58 +320,31 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
         if (_isHovered && _isApprovalExpanded) ...[
-          _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 8),
-          _buildSubMenuItem(Icons.gif_box, "Máy Sóng Và Phế Liệu", 9),
-          _buildSubMenuItem(Icons.gif_box, "In Ấn Và Phế Liệu", 10),
-          _buildSubMenuItem(Icons.person, "Người Dùng", 11),
+          if (pages.any((w) => w is AdminOrder))
+            _buildSubMenuItem(Icons.pending_actions, "Chờ Duyệt", 8),
+          if (pages.any((w) => w is TopTabAdminPaper))
+            _buildSubMenuItem(Icons.gif_box, "Máy Sóng Và Phế Liệu", 9),
+          if (pages.any((w) => w is TopTabAdminBox))
+            _buildSubMenuItem(Icons.gif_box, "In Ấn Và Phế Liệu", 10),
+          if (pages.any((w) => w is AdminMangeUser))
+            _buildSubMenuItem(Icons.person, "Người Dùng", 11),
         ],
       ],
     );
   }
 
-  Widget _buildSidebarItem(
-    IconData icon,
-    String title, {
-    int? index,
-    int? notificationCount,
-    VoidCallback? onTap,
-  }) {
+  Widget _buildSidebarItem(IconData icon, String title, {int? index}) {
     return _isHovered
         ? ListTile(
           contentPadding: EdgeInsets.symmetric(horizontal: 16),
-          leading: Stack(
-            children: [
-              Icon(icon, color: Colors.white),
-              if (notificationCount != null && notificationCount > 0)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      notificationCount > 9 ? "9+" : "$notificationCount",
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          leading: Icon(icon, color: Colors.white),
           title: Text(
             title,
             style: TextStyle(color: Colors.white, fontSize: 18),
           ),
-          onTap:
-              onTap ??
-              () {
-                if (index != null) {
-                  sidebarController.selectedIndex.value = index;
-                  sidebarController.changePage(index);
-                }
-              },
+          onTap: () {
+            if (index != null) sidebarController.changePage(index);
+          },
         )
         : Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -411,7 +359,6 @@ class _HomePageState extends State<HomePage> {
       contentPadding: EdgeInsets.only(left: _isHovered ? 32 : 16),
       title: Text(title, style: TextStyle(color: Colors.white, fontSize: 16)),
       onTap: () {
-        sidebarController.selectedIndex.value = index;
         sidebarController.changePage(index);
       },
     );
@@ -424,11 +371,10 @@ class _HomePageState extends State<HomePage> {
 
       body: Row(
         children: [
-          // side bar
           buildSidebar(),
-          // main
           Expanded(
             child: Obx(() {
+              final pages = getPages();
               final index = sidebarController.selectedIndex.value;
               if (index < 0 || index >= pages.length) {
                 return Center(child: Text("Trang không tồn tại"));

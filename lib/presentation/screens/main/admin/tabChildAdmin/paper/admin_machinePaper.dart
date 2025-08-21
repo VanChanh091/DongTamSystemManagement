@@ -1,8 +1,10 @@
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/admin/admin_machinePaper_model.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class AdminMachinePaper extends StatefulWidget {
@@ -14,6 +16,7 @@ class AdminMachinePaper extends StatefulWidget {
 
 class _AdminMachinePaperState extends State<AdminMachinePaper> {
   late Future<List<AdminMachinePaperModel>> futureAdminMachine;
+  final userController = Get.find<UserController>();
   int? selectedMachine;
   List<int> isSelected = [];
   List<AdminMachinePaperModel> updatedMachine = [];
@@ -22,7 +25,12 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
   @override
   void initState() {
     super.initState();
-    loadMachine();
+
+    if (userController.hasAnyRole(["admin"])) {
+      loadMachine();
+    } else {
+      futureAdminMachine = Future.error("NO_PERMISSION");
+    }
   }
 
   void loadMachine() {
@@ -33,6 +41,8 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isAccept = userController.hasAnyRole(["admin"]);
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -43,254 +53,286 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
             SizedBox(
               height: 65,
               width: double.infinity,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                    child: Row(
-                      children: [
-                        // update
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            if (isSelected.isEmpty) {
-                              showSnackBarError(
-                                context,
-                                "Chưa chọn thông tin cần cập nhật",
-                              );
-                              return;
-                            }
-
-                            final dataToUpdate =
-                                updatedMachine
-                                    .where(
-                                      (item) =>
-                                          isSelected.contains(item.machineId),
-                                    )
-                                    .toList();
-
-                            for (final item in dataToUpdate) {
-                              print('⏫ Updating machineId: ${item.machineId}');
-
-                              await AdminService().updateMachinePaper(
-                                item.machineId,
-                                {
-                                  "timeChangeSize": item.timeChangeSize,
-                                  "timeChangeSameSize": item.timeChangeSameSize,
-                                  "speed2Layer": item.speed2Layer,
-                                  "speed3Layer": item.speed3Layer,
-                                  "speed4Layer": item.speed4Layer,
-                                  "speed5Layer": item.speed5Layer,
-                                  "speed6Layer": item.speed6Layer,
-                                  "speed7Layer": item.speed7Layer,
-                                  "paperRollSpeed": item.paperRollSpeed,
-                                  "machinePerformance": item.machinePerformance,
-                                  "machineName": item.machineName,
-                                },
-                              );
-                            }
-
-                            loadMachine();
-
-                            showSnackBarSuccess(
-                              context,
-                              'Đã cập nhật thành công',
-                            );
-                          },
-                          label: Text(
-                            "Lưu Thay Đổi",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          icon: Icon(Symbols.save, color: Colors.white),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff78D761),
-                            foregroundColor: Colors.white,
+              child:
+                  isAccept
+                      ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(),
+                          Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 15,
+                              vertical: 8,
+                              horizontal: 10,
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
+                            child: Row(
+                              children: [
+                                // update
+                                ElevatedButton.icon(
+                                  onPressed: () async {
+                                    if (isSelected.isEmpty) {
+                                      showSnackBarError(
+                                        context,
+                                        "Chưa chọn thông tin cần cập nhật",
+                                      );
+                                      return;
+                                    }
 
-                        const SizedBox(width: 10),
-
-                        //delete customers
-                        ElevatedButton.icon(
-                          onPressed:
-                              isSelected.isNotEmpty
-                                  ? () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        bool isDeleting = false;
-
-                                        return StatefulBuilder(
-                                          builder: (context, setStateDialog) {
-                                            return AlertDialog(
-                                              backgroundColor: Colors.white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
+                                    final dataToUpdate =
+                                        updatedMachine
+                                            .where(
+                                              (item) => isSelected.contains(
+                                                item.machineId,
                                               ),
-                                              title: Row(
-                                                children: const [
-                                                  Icon(
-                                                    Icons.warning_amber_rounded,
-                                                    color: Colors.red,
-                                                    size: 30,
-                                                  ),
-                                                  SizedBox(width: 8),
-                                                  Text(
-                                                    "Xác nhận xoá",
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              content:
-                                                  isDeleting
-                                                      ? Row(
-                                                        children: const [
-                                                          CircularProgressIndicator(
-                                                            strokeWidth: 2,
-                                                          ),
-                                                          SizedBox(width: 12),
-                                                          Text("Đang xoá..."),
-                                                        ],
-                                                      )
-                                                      : Text(
-                                                        'Bạn có chắc chắn muốn xoá?',
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                        ),
-                                                      ),
-                                              actions:
-                                                  isDeleting
-                                                      ? []
-                                                      : [
-                                                        TextButton(
-                                                          onPressed:
-                                                              () =>
-                                                                  Navigator.pop(
-                                                                    context,
-                                                                  ),
-                                                          child: const Text(
-                                                            "Huỷ",
-                                                            style: TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors
-                                                                      .black54,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        ElevatedButton(
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor:
-                                                                const Color(
-                                                                  0xffEA4346,
-                                                                ),
-                                                            foregroundColor:
-                                                                Colors.white,
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    8,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                          onPressed: () async {
-                                                            setStateDialog(() {
-                                                              isDeleting = true;
-                                                            });
+                                            )
+                                            .toList();
 
-                                                            for (int id
-                                                                in isSelected) {
-                                                              await AdminService()
-                                                                  .deleteMachinePaper(
-                                                                    id,
-                                                                  );
-                                                            }
+                                    for (final item in dataToUpdate) {
+                                      print(
+                                        '⏫ Updating machineId: ${item.machineId}',
+                                      );
 
-                                                            await Future.delayed(
-                                                              const Duration(
-                                                                seconds: 1,
-                                                              ),
-                                                            );
+                                      await AdminService().updateMachinePaper(
+                                        item.machineId,
+                                        {
+                                          "timeChangeSize": item.timeChangeSize,
+                                          "timeChangeSameSize":
+                                              item.timeChangeSameSize,
+                                          "speed2Layer": item.speed2Layer,
+                                          "speed3Layer": item.speed3Layer,
+                                          "speed4Layer": item.speed4Layer,
+                                          "speed5Layer": item.speed5Layer,
+                                          "speed6Layer": item.speed6Layer,
+                                          "speed7Layer": item.speed7Layer,
+                                          "paperRollSpeed": item.paperRollSpeed,
+                                          "machinePerformance":
+                                              item.machinePerformance,
+                                          "machineName": item.machineName,
+                                        },
+                                      );
+                                    }
 
-                                                            setState(() {
-                                                              isSelected
-                                                                  .clear();
-                                                              futureAdminMachine =
-                                                                  AdminService()
-                                                                      .getAllMachinePaper();
-                                                            });
+                                    loadMachine();
 
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-
-                                                            // Optional: Show success toast
-                                                            showSnackBarSuccess(
-                                                              context,
-                                                              'Xoá thành công',
-                                                            );
-                                                          },
-                                                          child: const Text(
-                                                            "Xoá",
-                                                            style: TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                            );
-                                          },
-                                        );
-                                      },
+                                    showSnackBarSuccess(
+                                      context,
+                                      'Đã cập nhật thành công',
                                     );
-                                  }
-                                  : null,
-                          label: Text(
-                            "Xóa",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                                  },
+                                  label: Text(
+                                    "Lưu Thay Đổi",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  icon: Icon(Symbols.save, color: Colors.white),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xff78D761),
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 15,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(width: 10),
+
+                                //delete customers
+                                ElevatedButton.icon(
+                                  onPressed:
+                                      isSelected.isNotEmpty
+                                          ? () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                bool isDeleting = false;
+
+                                                return StatefulBuilder(
+                                                  builder: (
+                                                    context,
+                                                    setStateDialog,
+                                                  ) {
+                                                    return AlertDialog(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                      ),
+                                                      title: Row(
+                                                        children: const [
+                                                          Icon(
+                                                            Icons
+                                                                .warning_amber_rounded,
+                                                            color: Colors.red,
+                                                            size: 30,
+                                                          ),
+                                                          SizedBox(width: 8),
+                                                          Text(
+                                                            "Xác nhận xoá",
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      content:
+                                                          isDeleting
+                                                              ? Row(
+                                                                children: const [
+                                                                  CircularProgressIndicator(
+                                                                    strokeWidth:
+                                                                        2,
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 12,
+                                                                  ),
+                                                                  Text(
+                                                                    "Đang xoá...",
+                                                                  ),
+                                                                ],
+                                                              )
+                                                              : Text(
+                                                                'Bạn có chắc chắn muốn xoá?',
+                                                                style:
+                                                                    TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                    ),
+                                                              ),
+                                                      actions:
+                                                          isDeleting
+                                                              ? []
+                                                              : [
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () => Navigator.pop(
+                                                                        context,
+                                                                      ),
+                                                                  child: const Text(
+                                                                    "Huỷ",
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      color:
+                                                                          Colors
+                                                                              .black54,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                ElevatedButton(
+                                                                  style: ElevatedButton.styleFrom(
+                                                                    backgroundColor:
+                                                                        const Color(
+                                                                          0xffEA4346,
+                                                                        ),
+                                                                    foregroundColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            8,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  onPressed: () async {
+                                                                    setStateDialog(
+                                                                      () {
+                                                                        isDeleting =
+                                                                            true;
+                                                                      },
+                                                                    );
+
+                                                                    for (int id
+                                                                        in isSelected) {
+                                                                      await AdminService()
+                                                                          .deleteMachinePaper(
+                                                                            id,
+                                                                          );
+                                                                    }
+
+                                                                    await Future.delayed(
+                                                                      const Duration(
+                                                                        seconds:
+                                                                            1,
+                                                                      ),
+                                                                    );
+
+                                                                    setState(() {
+                                                                      isSelected
+                                                                          .clear();
+                                                                      futureAdminMachine =
+                                                                          AdminService()
+                                                                              .getAllMachinePaper();
+                                                                    });
+
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    );
+
+                                                                    // Optional: Show success toast
+                                                                    showSnackBarSuccess(
+                                                                      context,
+                                                                      'Xoá thành công',
+                                                                    );
+                                                                  },
+                                                                  child: const Text(
+                                                                    "Xoá",
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                            );
+                                          }
+                                          : null,
+                                  label: Text(
+                                    "Xóa",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  icon: Icon(Icons.delete, color: Colors.white),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xffEA4346),
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 15,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          icon: Icon(Icons.delete, color: Colors.white),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xffEA4346),
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                        ],
+                      )
+                      : SizedBox.shrink(),
             ),
 
             //table
@@ -301,11 +343,42 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                   future: futureAdminMachine,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Text("Error: ${snapshot.error}");
+                      if (snapshot.error.toString().contains("NO_PERMISSION")) {
+                        return Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.lock_outline,
+                                color: Colors.redAccent,
+                                size: 35,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Bạn không có quyền xem chức năng này",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 26,
+                                  color: Colors.redAccent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return Center(child: Text("Lỗi: ${snapshot.error}"));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('Không có dữ liệu'));
+                      return Center(
+                        child: Text(
+                          "Không có đơn hàng nào",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                        ),
+                      );
                     }
 
                     final data = snapshot.data!;
@@ -543,11 +616,14 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: loadMachine,
-        backgroundColor: Color(0xff78D761),
-        child: const Icon(Icons.refresh, color: Colors.white),
-      ),
+      floatingActionButton:
+          isAccept
+              ? FloatingActionButton(
+                onPressed: loadMachine,
+                backgroundColor: Color(0xff78D761),
+                child: const Icon(Icons.refresh, color: Colors.white),
+              )
+              : null,
     );
   }
 

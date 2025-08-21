@@ -34,8 +34,13 @@ class PlanningService {
         ),
       );
       final data = response.data['data'] as List;
-      // print('Data: $data');
+
       return data.map((e) => Order.fromJson(e)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
     } catch (e) {
       throw Exception('Failed to load orders: $e');
     }
@@ -92,12 +97,17 @@ class PlanningService {
       final List<dynamic> planningData = response.data['data'];
       // print('Planning Data: $planningData');
       return planningData.map((json) => PlanningPaper.fromJson(json)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
     } catch (e) {
       throw Exception('Failed to get planning: $e');
     }
   }
 
-  // Get planning by customer name
+  //get planning by customer name
   Future<List<PlanningPaper>> getPlanningByCustomerName(
     String customerName,
     String machine,
@@ -117,14 +127,7 @@ class PlanningService {
       );
 
       final List<dynamic> planningData = response.data['data'];
-      return planningData
-          .map((json) => PlanningPaper.fromJson(json))
-          .where(
-            (p) => p.order!.customer!.customerName.toLowerCase().contains(
-              customerName.toLowerCase(),
-            ),
-          )
-          .toList();
+      return planningData.map((json) => PlanningPaper.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get planning by customerName: $e');
     }
@@ -150,10 +153,7 @@ class PlanningService {
       );
 
       final List<dynamic> planningData = response.data['data'];
-      return planningData
-          .map((json) => PlanningPaper.fromJson(json))
-          .where((p) => p.orderId.toLowerCase().contains(orderId.toLowerCase()))
-          .toList();
+      return planningData.map((json) => PlanningPaper.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get planning by orderId: $e');
     }
@@ -179,12 +179,7 @@ class PlanningService {
       );
 
       final List<dynamic> planningData = response.data['data'];
-      return planningData
-          .map((json) => PlanningPaper.fromJson(json))
-          .where(
-            (p) => p.order!.flute!.toLowerCase().contains(flute.toLowerCase()),
-          )
-          .toList();
+      return planningData.map((json) => PlanningPaper.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get planning by flute: $e');
     }
@@ -210,10 +205,7 @@ class PlanningService {
       );
 
       final List<dynamic> planningData = response.data['data'];
-      return planningData
-          .map((json) => PlanningPaper.fromJson(json))
-          .where((p) => p.ghepKho == ghepKho)
-          .toList();
+      return planningData.map((json) => PlanningPaper.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get planning by ghepKho: $e');
     }
@@ -327,6 +319,11 @@ class PlanningService {
       final List<dynamic> planningData = response.data['data'];
       // print(planningData);
       return planningData.map((json) => PlanningBox.fromJson(json)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
     } catch (e) {
       throw Exception('Failed to get planning: $e');
     }
@@ -394,6 +391,104 @@ class PlanningService {
       return true;
     } catch (e) {
       throw Exception('Failed to pause machine: $e');
+    }
+  }
+
+  //get planning by orderId
+  Future<List<PlanningBox>> getOrderIdBox(
+    String orderId,
+    String machine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/planning/getOrderIdBox',
+        queryParameters: {'machine': machine, 'orderId': orderId},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final List<dynamic> planningData = response.data['data'];
+      return planningData.map((json) => PlanningBox.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Failed to get planning by orderId: $e');
+    }
+  }
+
+  //get planning by customer name
+  Future<List<PlanningBox>> getCusNameBox(
+    String customerName,
+    String machine,
+  ) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/planning/getCusNameBox',
+        queryParameters: {'customerName': customerName, 'machine': machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final List<dynamic> planningData = response.data['data'];
+      return planningData.map((json) => PlanningBox.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Failed to get planning by customerName: $e');
+    }
+  }
+
+  //get planning by flute
+  Future<List<PlanningBox>> getFluteBox(String flute, String machine) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/planning/getFluteBox',
+        queryParameters: {'flute': flute, 'machine': machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final List<dynamic> planningData = response.data['data'];
+      return planningData.map((json) => PlanningBox.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Failed to get planning by flute: $e');
+    }
+  }
+
+  //get planning by ghepKho
+  Future<List<PlanningBox>> getQcBox(String QC_box, String machine) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/planning/getQcBox',
+        queryParameters: {'QC_box': QC_box, 'machine': machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final List<dynamic> planningData = response.data['data'];
+      return planningData.map((json) => PlanningBox.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Failed to get planning by QC_box: $e');
     }
   }
 }

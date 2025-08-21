@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
@@ -8,6 +9,7 @@ import 'package:dongtam/service/socket/socket_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class BoxPrintingProduction extends StatefulWidget {
@@ -21,6 +23,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   late Future<List<PlanningBox>> futurePlanning;
   late MachineBoxDatasource machineBoxDatasource;
   late List<GridColumn> columns;
+  final userController = Get.find<UserController>();
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
@@ -183,7 +186,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                             ElevatedButton.icon(
                               onPressed:
                                   //turn on/off
-                                  selectedPlanningIds.length == 1
+                                  userController.hasPermission(
+                                            "step2Production",
+                                          ) &&
+                                          selectedPlanningIds.length == 1
                                       ? () async {
                                         try {
                                           //get planning first

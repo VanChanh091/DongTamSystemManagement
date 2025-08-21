@@ -33,10 +33,12 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "accountant",
     "design",
     "production",
-    "Máy 1350",
-    "Máy 1900",
-    "Máy 2 Lớp",
-    "Máy Quấn Cuồn",
+    "machine1350",
+    "machine1900",
+    "machine2Layer",
+    "MachineRollPaper",
+    "step2Production",
+    "read",
   ];
   final Map<String, String> permissionsLabels = {
     "sale": "Kinh doanh",
@@ -45,10 +47,12 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "accountant": "Kế toán",
     "design": "Thiết kế",
     "production": "Sản xuất",
-    "Máy 1350": "Máy 1350",
-    "Máy 1900": "Máy 1900",
-    "Máy 2 Lớp": "Máy 2 Lớp",
-    "Máy Quấn Cuồn": "Máy Quấn Cuồn",
+    "machine1350": "Máy 1350",
+    "machine1900": "Máy 1900",
+    "machine2Layer": "Máy 2 Lớp",
+    "MachineRollPaper": "Máy Quấn Cuồn",
+    "step2Production": "Công Đoạn 2",
+    "read": "Chỉ đọc",
   };
 
   late int originalUserId;

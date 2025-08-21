@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/service/product_Service.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -5,6 +6,7 @@ import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:get/get.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
@@ -15,6 +17,7 @@ class ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   late Future<List<Product>> futureProducts;
+  final userController = Get.find<UserController>();
   TextEditingController searchController = TextEditingController();
   List<String> isSelected = [];
   bool selectedAll = false;
@@ -166,260 +169,290 @@ class _ProductPageState extends State<ProductPage> {
 
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                    child: Row(
-                      children: [
-                        //add
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (_) => ProductDialog(
-                                    product: null,
-                                    onProductAddOrUpdate:
-                                        () => loadProduct(false),
-                                  ),
-                            );
-                          },
-                          label: Text(
-                            "Thêm mới",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          icon: Icon(Icons.add, color: Colors.white),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff78D761),
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-
-                        // update
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            if (isSelected.isEmpty) {
-                              showSnackBarError(
-                                context,
-                                'Vui lòng chọn sản phẩm cần sửa',
-                              );
-                              return;
-                            }
-
-                            String productId = isSelected.first;
-                            ProductService().getProductById(productId).then((
-                              product,
-                            ) {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (_) => ProductDialog(
-                                      product: product.first,
-                                      onProductAddOrUpdate:
-                                          () => loadProduct(false),
-                                    ),
-                              );
-                            });
-                          },
-                          label: Text(
-                            "Sửa",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          icon: Icon(Symbols.construction, color: Colors.white),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff78D761),
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-
-                        //delete customers
-                        ElevatedButton.icon(
-                          onPressed:
-                              isSelected.isNotEmpty
-                                  ? () {
+                    child:
+                        userController.hasPermission("sale")
+                            ? Row(
+                              children: [
+                                //add
+                                ElevatedButton.icon(
+                                  onPressed: () {
                                     showDialog(
                                       context: context,
-                                      builder: (context) {
-                                        bool isDeleting = false;
-
-                                        return StatefulBuilder(
-                                          builder: (context, setStateDialog) {
-                                            return AlertDialog(
-                                              backgroundColor: Colors.white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                              ),
-                                              title: Row(
-                                                children: const [
-                                                  Icon(
-                                                    Icons.warning_amber_rounded,
-                                                    color: Colors.red,
-                                                    size: 30,
-                                                  ),
-                                                  SizedBox(width: 8),
-                                                  Text(
-                                                    "Xác nhận xoá",
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              content:
-                                                  isDeleting
-                                                      ? Row(
-                                                        children: const [
-                                                          CircularProgressIndicator(
-                                                            strokeWidth: 2,
-                                                          ),
-                                                          SizedBox(width: 12),
-                                                          Text("Đang xoá..."),
-                                                        ],
-                                                      )
-                                                      : Text(
-                                                        'Bạn có chắc chắn muốn xoá ${isSelected.length} sản phẩm?',
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                        ),
-                                                      ),
-                                              actions:
-                                                  isDeleting
-                                                      ? []
-                                                      : [
-                                                        TextButton(
-                                                          onPressed:
-                                                              () =>
-                                                                  Navigator.pop(
-                                                                    context,
-                                                                  ),
-                                                          child: const Text(
-                                                            "Huỷ",
-                                                            style: TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors
-                                                                      .black54,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        ElevatedButton(
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor:
-                                                                const Color(
-                                                                  0xffEA4346,
-                                                                ),
-                                                            foregroundColor:
-                                                                Colors.white,
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    8,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                          onPressed: () async {
-                                                            setStateDialog(() {
-                                                              isDeleting = true;
-                                                            });
-
-                                                            for (String id
-                                                                in isSelected) {
-                                                              await ProductService()
-                                                                  .deleteProduct(
-                                                                    id,
-                                                                  );
-                                                            }
-
-                                                            await Future.delayed(
-                                                              const Duration(
-                                                                seconds: 1,
-                                                              ),
-                                                            );
-
-                                                            setState(() {
-                                                              isSelected
-                                                                  .clear();
-                                                              futureProducts =
-                                                                  ProductService()
-                                                                      .getAllProducts(
-                                                                        false,
-                                                                      );
-                                                            });
-
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-
-                                                            // Optional: Show success toast
-                                                            showSnackBarSuccess(
-                                                              context,
-                                                              'Xoá thành công',
-                                                            );
-                                                          },
-                                                          child: const Text(
-                                                            "Xoá",
-                                                            style: TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                            );
-                                          },
-                                        );
-                                      },
+                                      builder:
+                                          (_) => ProductDialog(
+                                            product: null,
+                                            onProductAddOrUpdate:
+                                                () => loadProduct(false),
+                                          ),
                                     );
-                                  }
-                                  : null,
-                          label: const Text(
-                            "Xoá",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          icon: const Icon(Icons.delete, color: Colors.white),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xffEA4346),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                                  },
+                                  label: Text(
+                                    "Thêm mới",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  icon: Icon(Icons.add, color: Colors.white),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xff78D761),
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 15,
+                                      vertical: 15,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+
+                                // update
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    if (isSelected.isEmpty) {
+                                      showSnackBarError(
+                                        context,
+                                        'Vui lòng chọn sản phẩm cần sửa',
+                                      );
+                                      return;
+                                    }
+
+                                    String productId = isSelected.first;
+                                    ProductService()
+                                        .getProductById(productId)
+                                        .then((product) {
+                                          showDialog(
+                                            context: context,
+                                            builder:
+                                                (_) => ProductDialog(
+                                                  product: product.first,
+                                                  onProductAddOrUpdate:
+                                                      () => loadProduct(false),
+                                                ),
+                                          );
+                                        });
+                                  },
+                                  label: Text(
+                                    "Sửa",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  icon: Icon(
+                                    Symbols.construction,
+                                    color: Colors.white,
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xff78D761),
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 15,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+
+                                //delete customers
+                                ElevatedButton.icon(
+                                  onPressed:
+                                      isSelected.isNotEmpty
+                                          ? () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                bool isDeleting = false;
+
+                                                return StatefulBuilder(
+                                                  builder: (
+                                                    context,
+                                                    setStateDialog,
+                                                  ) {
+                                                    return AlertDialog(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                      ),
+                                                      title: Row(
+                                                        children: const [
+                                                          Icon(
+                                                            Icons
+                                                                .warning_amber_rounded,
+                                                            color: Colors.red,
+                                                            size: 30,
+                                                          ),
+                                                          SizedBox(width: 8),
+                                                          Text(
+                                                            "Xác nhận xoá",
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      content:
+                                                          isDeleting
+                                                              ? Row(
+                                                                children: const [
+                                                                  CircularProgressIndicator(
+                                                                    strokeWidth:
+                                                                        2,
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 12,
+                                                                  ),
+                                                                  Text(
+                                                                    "Đang xoá...",
+                                                                  ),
+                                                                ],
+                                                              )
+                                                              : Text(
+                                                                'Bạn có chắc chắn muốn xoá ${isSelected.length} sản phẩm?',
+                                                                style:
+                                                                    TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                    ),
+                                                              ),
+                                                      actions:
+                                                          isDeleting
+                                                              ? []
+                                                              : [
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () => Navigator.pop(
+                                                                        context,
+                                                                      ),
+                                                                  child: const Text(
+                                                                    "Huỷ",
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      color:
+                                                                          Colors
+                                                                              .black54,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                ElevatedButton(
+                                                                  style: ElevatedButton.styleFrom(
+                                                                    backgroundColor:
+                                                                        const Color(
+                                                                          0xffEA4346,
+                                                                        ),
+                                                                    foregroundColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            8,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  onPressed: () async {
+                                                                    setStateDialog(
+                                                                      () {
+                                                                        isDeleting =
+                                                                            true;
+                                                                      },
+                                                                    );
+
+                                                                    for (String
+                                                                        id
+                                                                        in isSelected) {
+                                                                      await ProductService()
+                                                                          .deleteProduct(
+                                                                            id,
+                                                                          );
+                                                                    }
+
+                                                                    await Future.delayed(
+                                                                      const Duration(
+                                                                        seconds:
+                                                                            1,
+                                                                      ),
+                                                                    );
+
+                                                                    setState(() {
+                                                                      isSelected
+                                                                          .clear();
+                                                                      futureProducts =
+                                                                          ProductService().getAllProducts(
+                                                                            false,
+                                                                          );
+                                                                    });
+
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    );
+
+                                                                    // Optional: Show success toast
+                                                                    showSnackBarSuccess(
+                                                                      context,
+                                                                      'Xoá thành công',
+                                                                    );
+                                                                  },
+                                                                  child: const Text(
+                                                                    "Xoá",
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                            );
+                                          }
+                                          : null,
+                                  label: const Text(
+                                    "Xoá",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xffEA4346),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 15,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                            : SizedBox.shrink(),
                   ),
                 ],
               ),

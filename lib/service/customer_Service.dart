@@ -115,10 +115,7 @@ class CustomerService {
         ),
       );
       final List<dynamic> customersData = response.data['data'];
-      return customersData
-          .map((json) => Customer.fromJson(json))
-          .where((customer) => customer.phone.contains(phone))
-          .toList();
+      return customersData.map((json) => Customer.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to get customerName: $e');
     }

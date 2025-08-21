@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:dongtam/constant/appInfo.dart';
+import 'package:get/get.dart';
 
 class AuthService {
   final Dio dioService = Dio(
@@ -51,8 +54,23 @@ class AuthService {
 
       if (response.statusCode == 201) {
         String token = response.data['token'];
-        print('Token lấy từ storage: $token');
+
+        //get user object
+        final user = response.data['user'] as Map<String, dynamic>;
+        String role = user['role'];
+        List<String> permissions = List<String>.from(user['permissions']);
+
         await secureStorage.saveToken(token);
+        await secureStorage.saveRole(role);
+        await secureStorage.savePermission(jsonEncode(permissions));
+
+        final userController = Get.find<UserController>();
+        userController.role.value = role;
+        userController.permissions.value = permissions;
+
+        print("Login successful, role: $role");
+        print("Login successful, permission: $permissions");
+
         return true;
       } else {
         return false;
@@ -123,7 +141,12 @@ class AuthService {
           "newPassword": newPassword,
           "confirmNewPW": confirmNewPW,
         },
-        options: Options(headers: {"Authorization": "Bearer $token"}),
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+            'Content-Type': 'application/json',
+          },
+        ),
       );
 
       return response.statusCode == 201;

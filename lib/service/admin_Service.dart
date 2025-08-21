@@ -85,6 +85,11 @@ class AdminService {
       );
       final data = response.data['data'] as List;
       return data.map((e) => AdminMachinePaperModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
     } catch (e) {
       throw Exception('Failed to load paper factors: $e');
     }
@@ -178,6 +183,11 @@ class AdminService {
       );
       final data = response.data['data'] as List;
       return data.map((e) => AdminMachineBoxModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
     } catch (e) {
       throw Exception('Failed to load paper factors: $e');
     }
@@ -269,6 +279,11 @@ class AdminService {
       );
       final List<dynamic> data = response.data['data'];
       return data.map((e) => UserAdminModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
     } catch (e) {
       throw Exception('Failed to load users: $e');
     }
@@ -450,6 +465,11 @@ class AdminService {
       );
       final data = response.data['data'] as List;
       return data.map((e) => AdminWasteNormModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
     } catch (e) {
       throw Exception('Failed to load paper factors: $e');
     }
@@ -541,6 +561,11 @@ class AdminService {
       );
       final data = response.data['data'] as List;
       return data.map((e) => AdminWasteBoxModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
     } catch (e) {
       throw Exception('Failed to load paper factors: $e');
     }
@@ -632,6 +657,11 @@ class AdminService {
       );
       final data = response.data['data'] as List;
       return data.map((e) => AdminWaveCrestModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
     } catch (e) {
       throw Exception('Failed to load paper factors: $e');
     }

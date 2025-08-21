@@ -47,6 +47,12 @@ class UserAdminModel {
       "accountant": "Kế toán",
       "design": "Thiết kế",
       "production": "Sản xuất",
+      "machine1350": "Máy 1350",
+      "machine1900": "Máy 1900",
+      "machine2Layer": "Máy 2 Lớp",
+      "MachineRollPaper": "Máy Quấn Cuồn",
+      "step2Production": "Công Đoạn 2",
+      "read": "Chỉ đọc",
     };
 
     return permissions
