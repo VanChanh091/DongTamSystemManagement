@@ -274,7 +274,7 @@ class OrderService {
 
       await dioService.put(
         "/api/order/orders",
-        queryParameters: {'id': orderId},
+        queryParameters: {'orderId': orderId},
         data: orderUpdated,
         options: Options(
           headers: {

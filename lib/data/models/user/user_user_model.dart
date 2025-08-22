@@ -1,5 +1,5 @@
 class UserUserModel {
-  final String fullName, email, password, role;
+  final String? fullName, email, password, role;
   final String? sex, phone, avatar;
   final List<String> permissions;
 
@@ -17,13 +17,13 @@ class UserUserModel {
   //change JSON from api to object User
   factory UserUserModel.fromJson(Map<String, dynamic> json) {
     return UserUserModel(
-      fullName: json['fullName'],
-      email: json['email'],
-      password: json['password'],
+      fullName: json['fullName'] ?? "",
+      email: json['email'] ?? "",
+      password: json['password'] ?? "",
       sex: json['sex'] ?? "",
       phone: json['phone'] ?? "",
-      role: json['role'],
       avatar: json['avatar'] ?? "",
+      role: json['role'],
       permissions: List<String>.from(json['permissions'] ?? []),
     );
   }

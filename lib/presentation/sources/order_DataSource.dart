@@ -48,7 +48,7 @@ class OrderDataSource extends DataGridSource {
         value: order.formatterStructureOrder,
       ),
       DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
-      DataGridCell<String>(columnName: 'daoXa', value: order.daoXa),
+      DataGridCell<String>(columnName: 'daoXaOrd', value: order.daoXa),
       DataGridCell<String>(
         columnName: 'lengthCus',
         value: Order.formatCurrency(order.lengthPaperCustomer),
@@ -88,11 +88,11 @@ class OrderDataSource extends DataGridSource {
         value: Order.formatCurrency(order.pricePaper),
       ),
       DataGridCell<String>(
-        columnName: 'discount',
+        columnName: 'discounts',
         value: Order.formatCurrency(order.discount ?? 0),
       ),
       DataGridCell<String>(
-        columnName: 'profit',
+        columnName: 'profitOrd',
         value: Order.formatCurrency(order.profit),
       ),
       DataGridCell<String>(columnName: 'vat', value: '${order.vat ?? 0}%'),

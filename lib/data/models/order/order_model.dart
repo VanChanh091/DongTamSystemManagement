@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
+import 'package:dongtam/data/models/user/user_user_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:intl/intl.dart';
 
@@ -24,6 +25,7 @@ class Order {
   final Customer? customer;
   final Product? product;
   final Box? box;
+  final UserUserModel? user;
 
   Order({
     required this.orderId,
@@ -66,6 +68,7 @@ class Order {
     this.customer,
     this.box,
     this.product,
+    this.user,
   });
 
   //Acreage (m2) = lengthPaper * paperSize / 10000 * quantity
@@ -202,6 +205,7 @@ class Order {
       product:
           json['Product'] != null ? Product.fromJson(json['Product']) : null,
       box: json['box'] != null ? Box.fromJson(json['box']) : null,
+      user: json['User'] != null ? UserUserModel.fromJson(json['User']) : null,
     );
   }
 

@@ -10,6 +10,10 @@ void main() async {
 
   //get token from secure storage
   SecureStorageService secureStorage = SecureStorageService();
+  await secureStorage.deleteToken();
+  await secureStorage.deleteRole();
+  await secureStorage.deletePermission();
+
   String? token = await secureStorage.getToken();
 
   //get role and permissions
