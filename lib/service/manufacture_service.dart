@@ -60,8 +60,6 @@ class ManufactureService {
       now.second,
     );
 
-    print('dateTime: ${fullDateTime.toIso8601String()}');
-
     try {
       await dioService.post(
         '/api/manufacture/reportPaper',
@@ -91,6 +89,27 @@ class ManufactureService {
       } else {
         throw Exception("Network Error: ${e.message}");
       }
+    } catch (e) {
+      throw Exception('Lỗi không xác định: $e');
+    }
+  }
+
+  Future<bool> confirmProducingPaper(int planningId) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.post(
+        '/api/manufacture/producingPaper',
+        queryParameters: {"planningId": planningId},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
     } catch (e) {
       throw Exception('Lỗi không xác định: $e');
     }
@@ -169,6 +188,27 @@ class ManufactureService {
       } else {
         throw Exception("Network Error: ${e.message}");
       }
+    } catch (e) {
+      throw Exception('Lỗi không xác định: $e');
+    }
+  }
+
+  Future<bool> confirmProducingBox(int planningBoxId, String machine) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.post(
+        '/api/manufacture/producingBox',
+        queryParameters: {"planningBoxId": planningBoxId, "machine": machine},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return true;
     } catch (e) {
       throw Exception('Lỗi không xác định: $e');
     }

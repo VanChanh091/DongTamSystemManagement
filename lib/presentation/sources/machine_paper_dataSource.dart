@@ -9,7 +9,6 @@ class MachinePaperDatasource extends DataGridSource {
   List<PlanningPaper> planning = [];
   List<String> selectedPlanningIds = [];
   bool showGroup;
-  String? producingOrderId;
   bool isPlanningPaper;
 
   late List<DataGridRow> planningDataGridRows;
@@ -21,7 +20,6 @@ class MachinePaperDatasource extends DataGridSource {
     required this.planning,
     required this.selectedPlanningIds,
     required this.showGroup,
-    this.producingOrderId,
     this.isPlanningPaper = false,
   }) {
     buildDataGridRows();
@@ -395,7 +393,6 @@ class MachinePaperDatasource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
     final isSelected = selectedPlanningIds.contains(orderId);
-    final isProducing = orderId == producingOrderId;
 
     // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);
@@ -413,7 +410,7 @@ class MachinePaperDatasource extends DataGridSource {
     Color? rowColor;
     if (isSelected) {
       rowColor = Colors.blue.withOpacity(0.3); //selected row
-    } else if (isProducing) {
+    } else if (sortPlanning > 0 && status == "producing") {
       rowColor = Colors.orange.withOpacity(0.4); //confirm production
     } else if (sortPlanning > 0 && status == "complete") {
       rowColor = Colors.green.withOpacity(0.3); //have completed

@@ -33,7 +33,6 @@ class _PaperProductionState extends State<PaperProduction> {
   List<String> selectedPlanningIds = [];
   DateTime? dayStart = DateTime.now();
   bool showGroup = true;
-  String? _producingOrderId;
 
   @override
   void initState() {
@@ -274,20 +273,49 @@ class _PaperProductionState extends State<PaperProduction> {
                               onPressed:
                                   selectedPlanningIds.length == 1
                                       ? () async {
-                                        final selectedId =
+                                        //get planning first
+                                        final String selectedOrderId =
                                             selectedPlanningIds.first;
 
-                                        setState(() {
-                                          if (_producingOrderId == selectedId) {
-                                            _producingOrderId = null;
-                                          } else {
-                                            _producingOrderId = selectedId;
-                                          }
+                                        //get all planning
+                                        final planningList =
+                                            await futurePlanning;
 
-                                          selectedPlanningIds.clear();
-                                        });
+                                        // get planningId from orderId
+                                        final planningId =
+                                            orderIdToPlanningId[selectedOrderId];
+                                        if (planningId == null) {
+                                          showSnackBarError(
+                                            context,
+                                            "Không tìm thấy planningId cho orderId: $selectedOrderId",
+                                          );
+                                          return;
+                                        }
 
-                                        loadPlanning(false);
+                                        // find planning by planningId
+                                        final selectedPlanning = planningList
+                                            .firstWhere(
+                                              (p) => p.planningId == planningId,
+                                              orElse:
+                                                  () =>
+                                                      throw Exception(
+                                                        "Không tìm thấy kế hoạch",
+                                                      ),
+                                            );
+
+                                        try {
+                                          await ManufactureService()
+                                              .confirmProducingPaper(
+                                                selectedPlanning.planningId,
+                                              );
+
+                                          loadPlanning(true);
+                                        } catch (e) {
+                                          showSnackBarError(
+                                            context,
+                                            "Có lỗi khi xác nhận SX: $e",
+                                          );
+                                        }
                                       }
                                       : null,
                               label: Text(
@@ -376,7 +404,6 @@ class _PaperProductionState extends State<PaperProduction> {
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
-                    producingOrderId: _producingOrderId,
                   );
 
                   return SfDataGrid(

@@ -9,7 +9,6 @@ class MachineBoxDatasource extends DataGridSource {
   List<String> selectedPlanningIds = [];
   String machine;
   bool showGroup;
-  String? producingOrderId;
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -21,7 +20,6 @@ class MachineBoxDatasource extends DataGridSource {
     required this.selectedPlanningIds,
     required this.showGroup,
     required this.machine,
-    this.producingOrderId,
   }) {
     buildDataGridRows();
 
@@ -378,7 +376,6 @@ class MachineBoxDatasource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
     final isSelected = selectedPlanningIds.contains(orderId);
-    final isProducing = orderId == producingOrderId;
 
     // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);
@@ -408,7 +405,7 @@ class MachineBoxDatasource extends DataGridSource {
     Color? rowColor;
     if (isSelected) {
       rowColor = Colors.blue.withOpacity(0.3); //selected row
-    } else if (isProducing) {
+    } else if (sortPlanning > 0 && status == "producing") {
       rowColor = Colors.orange.withOpacity(0.4); //confirm production
     } else if (sortPlanning > 0 && status == "complete") {
       rowColor = Colors.green.withOpacity(0.3); //have completed

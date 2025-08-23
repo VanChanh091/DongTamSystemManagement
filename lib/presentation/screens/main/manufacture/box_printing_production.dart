@@ -32,7 +32,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   List<String> selectedPlanningIds = [];
   DateTime? dayStart = DateTime.now();
   bool showGroup = true;
-  String? _producingOrderId;
 
   @override
   void initState() {
@@ -273,20 +272,52 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                               onPressed:
                                   selectedPlanningIds.length == 1
                                       ? () async {
-                                        final selectedId =
+                                        //get planning first
+                                        final String selectedOrderId =
                                             selectedPlanningIds.first;
 
-                                        setState(() {
-                                          if (_producingOrderId == selectedId) {
-                                            _producingOrderId = null;
-                                          } else {
-                                            _producingOrderId = selectedId;
-                                          }
+                                        //get all planning
+                                        final planningList =
+                                            await futurePlanning;
 
-                                          selectedPlanningIds.clear();
-                                        });
+                                        // get planningId from orderId
+                                        final planningBoxId =
+                                            orderIdToPlanningId[selectedOrderId];
+                                        if (planningBoxId == null) {
+                                          showSnackBarError(
+                                            context,
+                                            "Không tìm thấy planningBoxId cho orderId: $selectedOrderId",
+                                          );
+                                          return;
+                                        }
 
-                                        loadPlanning(false);
+                                        // find planning by planningId
+                                        final selectedPlanning = planningList
+                                            .firstWhere(
+                                              (p) =>
+                                                  p.planningBoxId ==
+                                                  planningBoxId,
+                                              orElse:
+                                                  () =>
+                                                      throw Exception(
+                                                        "Không tìm thấy kế hoạch",
+                                                      ),
+                                            );
+
+                                        try {
+                                          await ManufactureService()
+                                              .confirmProducingBox(
+                                                selectedPlanning.planningBoxId,
+                                                machine,
+                                              );
+
+                                          loadPlanning(true);
+                                        } catch (e) {
+                                          showSnackBarError(
+                                            context,
+                                            "Có lỗi khi xác nhận SX: $e",
+                                          );
+                                        }
                                       }
                                       : null,
                               label: Text(
@@ -379,7 +410,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
                     machine: machine,
-                    producingOrderId: _producingOrderId,
                   );
 
                   return SfDataGrid(
