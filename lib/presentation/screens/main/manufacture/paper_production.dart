@@ -31,6 +31,7 @@ class _PaperProductionState extends State<PaperProduction> {
   final DataGridController dataGridController = DataGridController();
   String machine = "Máy 1350";
   List<String> selectedPlanningIds = [];
+  List<PlanningPaper> planningList = [];
   DateTime? dayStart = DateTime.now();
   bool showGroup = true;
 
@@ -131,7 +132,7 @@ class _PaperProductionState extends State<PaperProduction> {
             for (var planning in planningList) {
               orderIdToPlanningId[planning.orderId] = planning.planningId;
             }
-            // print('manufacture_paper:$orderIdToPlanningId');
+            print('manufacture_paper:$orderIdToPlanningId');
             return planningList;
           });
     });
@@ -146,6 +147,26 @@ class _PaperProductionState extends State<PaperProduction> {
       registerSocket();
       loadPlanning(true);
     });
+  }
+
+  bool canExecuteAction({
+    required List<String> selectedPlanningIds,
+    required Map<String, int?> orderIdToPlanningId,
+    required List<PlanningPaper> planningList,
+  }) {
+    if (selectedPlanningIds.length != 1) return false;
+
+    final String selectedOrderId = selectedPlanningIds.first;
+    final planningId = orderIdToPlanningId[selectedOrderId];
+    if (planningId == null) return false;
+
+    final selectedPlanning = planningList.firstWhere(
+      (p) => p.planningId == planningId,
+      orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+    );
+
+    // disable nếu đã complete
+    return selectedPlanning.status != "complete";
   }
 
   @override
@@ -185,25 +206,24 @@ class _PaperProductionState extends State<PaperProduction> {
                             //report production
                             ElevatedButton.icon(
                               onPressed:
-                                  //turn on/off
                                   userController.hasAnyPermission([
                                             "machine1350",
                                             "machine1900",
                                             "machine2Layer",
                                             "MachineRollPaper",
                                           ]) &&
-                                          selectedPlanningIds.length == 1
+                                          canExecuteAction(
+                                            selectedPlanningIds:
+                                                selectedPlanningIds,
+                                            orderIdToPlanningId:
+                                                orderIdToPlanningId,
+                                            planningList: planningList,
+                                          )
                                       ? () async {
                                         try {
-                                          //get planning first
                                           final String selectedOrderId =
                                               selectedPlanningIds.first;
 
-                                          //get all planning
-                                          final planningList =
-                                              await futurePlanning;
-
-                                          // get planningId from orderId
                                           final planningId =
                                               orderIdToPlanningId[selectedOrderId];
                                           if (planningId == null) {
@@ -214,7 +234,6 @@ class _PaperProductionState extends State<PaperProduction> {
                                             return;
                                           }
 
-                                          // find planning by planningId
                                           final selectedPlanning = planningList
                                               .firstWhere(
                                                 (p) =>
@@ -271,7 +290,19 @@ class _PaperProductionState extends State<PaperProduction> {
                             //confirm production
                             ElevatedButton.icon(
                               onPressed:
-                                  selectedPlanningIds.length == 1
+                                  userController.hasAnyPermission([
+                                            "machine1350",
+                                            "machine1900",
+                                            "machine2Layer",
+                                            "MachineRollPaper",
+                                          ]) &&
+                                          canExecuteAction(
+                                            selectedPlanningIds:
+                                                selectedPlanningIds,
+                                            orderIdToPlanningId:
+                                                orderIdToPlanningId,
+                                            planningList: planningList,
+                                          )
                                       ? () async {
                                         //get planning first
                                         final String selectedOrderId =
@@ -399,6 +430,7 @@ class _PaperProductionState extends State<PaperProduction> {
                   }
 
                   final List<PlanningPaper> data = snapshot.data!;
+                  planningList = data;
 
                   machinePaperDatasource = MachinePaperDatasource(
                     planning: data,

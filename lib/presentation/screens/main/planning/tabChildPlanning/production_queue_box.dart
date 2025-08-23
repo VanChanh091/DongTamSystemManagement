@@ -535,10 +535,10 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                         items:
                                             [
                                               'Máy In',
-                                              'Máy Cấn Lằn',
                                               "Máy Bế",
                                               "Máy Xả",
                                               "Máy Dán",
+                                              'Máy Cấn Lằn',
                                               "Máy Cắt Khe",
                                               "Máy Cán Màng",
                                               "Máy Đóng Ghim",

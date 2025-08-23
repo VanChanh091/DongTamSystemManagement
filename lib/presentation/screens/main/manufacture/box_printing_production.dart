@@ -30,6 +30,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   final DataGridController dataGridController = DataGridController();
   String machine = "Máy In";
   List<String> selectedPlanningIds = [];
+  List<PlanningBox> planningList = [];
   DateTime? dayStart = DateTime.now();
   bool showGroup = true;
 
@@ -188,14 +189,43 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                   userController.hasPermission(
                                             "step2Production",
                                           ) &&
-                                          selectedPlanningIds.length == 1
+                                          selectedPlanningIds.length == 1 &&
+                                          (() {
+                                            final String selectedOrderId =
+                                                selectedPlanningIds.first;
+                                            final planningBoxId =
+                                                orderIdToPlanningId[selectedOrderId];
+                                            if (planningBoxId == null) {
+                                              return false;
+                                            }
+
+                                            final selectedPlanning =
+                                                planningList.firstWhere(
+                                                  (p) =>
+                                                      p.planningBoxId ==
+                                                      planningBoxId,
+                                                  orElse:
+                                                      () =>
+                                                          throw Exception(
+                                                            "Không tìm thấy kế hoạch",
+                                                          ),
+                                                );
+
+                                            // Nếu không tìm thấy hoặc đã complete thì disable
+                                            return !(selectedPlanning
+                                                    .boxTimes!
+                                                    .isNotEmpty &&
+                                                selectedPlanning
+                                                        .boxTimes!
+                                                        .first
+                                                        .status ==
+                                                    "complete");
+                                          })()
                                       ? () async {
                                         try {
-                                          //get planning first
                                           final String selectedOrderId =
                                               selectedPlanningIds.first;
 
-                                          //get all planning
                                           final planningList =
                                               await futurePlanning;
 
@@ -348,10 +378,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                 value: machine,
                                 items:
                                     [
-                                      "Máy In",
+                                      'Máy In',
                                       "Máy Bế",
-                                      "Máy Dán",
                                       "Máy Xả",
+                                      "Máy Dán",
+                                      'Máy Cấn Lằn',
                                       "Máy Cắt Khe",
                                       "Máy Cán Màng",
                                       "Máy Đóng Ghim",
@@ -404,6 +435,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                   }
 
                   final List<PlanningBox> data = snapshot.data!;
+                  planningList = data;
 
                   machineBoxDatasource = MachineBoxDatasource(
                     planning: data,

@@ -421,7 +421,7 @@ class MachineBoxDatasource extends DataGridSource {
 
             //tô màu cho qtyProduced
             if (dataCell.columnName == 'wasteActually' &&
-                totalWasteActually < totalDmWasteLoss) {
+                totalWasteActually > totalDmWasteLoss) {
               cellColor = Colors.red.withOpacity(0.5);
             }
 
