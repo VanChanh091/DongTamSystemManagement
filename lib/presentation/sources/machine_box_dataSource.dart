@@ -107,46 +107,54 @@ class MachineBoxDatasource extends DataGridSource {
   List<DataGridCell> buildBoxCells(PlanningBox planning, String machine) {
     final boxMachineTime = planning.getBoxMachineTimeByMachine(machine);
 
-    //get order box time
-    final mayXa = planning.getAllBoxMachineTime("Máy Xả");
-    final mayBe = planning.getAllBoxMachineTime("Máy Bế");
-    final mayDan = planning.getAllBoxMachineTime("Máy Dán");
-    final mayCatKhe = planning.getAllBoxMachineTime("Máy Cắt Khe");
-    final mayCanMang = planning.getAllBoxMachineTime("Máy Cán Màng");
-    final mayDongGhim = planning.getAllBoxMachineTime("Máy Đóng Ghim");
-    final mayCanLan = planning.getAllBoxMachineTime("Máy Cấn Lằn");
+    /// Hàm dùng chung lấy qtyProduced
+    String getQtyProduced(String machineName, {bool blankIfMissing = true}) {
+      //check boxTimes theo machine
+      final bt = planning.getBoxMachineTimeByMachine(machineName);
+      if (bt != null && (bt.qtyProduced ?? 0) > 0) {
+        return bt.qtyProduced.toString();
+      }
+      //check allBoxTimes
+      final all = planning.getAllBoxMachineTime(machineName);
+      if (all != null && (all.qtyProduced ?? 0) > 0) {
+        return all.qtyProduced.toString();
+      }
+
+      return blankIfMissing ? "" : "0";
+    }
 
     return [
-      //check machine is Máy In
-      DataGridCell<int>(
+      DataGridCell<String>(
         columnName: "qtyPrinted",
-        value: boxMachineTime?.qtyProduced ?? 0,
+        value: getQtyProduced("Máy In"),
       ),
-      DataGridCell<int>(
+      DataGridCell<String>(
         columnName: "qtyCanLan",
-        value: mayCanLan?.qtyProduced ?? 0,
+        value: getQtyProduced("Máy Cấn Lằn"),
       ),
-      DataGridCell<int>(
+      DataGridCell<String>(
         columnName: "qtyCanMang",
-        value: mayCanMang?.qtyProduced ?? 0,
+        value: getQtyProduced("Máy Cán Màng"),
       ),
-      // DataGridCell<String>(
-      //   columnName: "wasteCanMang",
-      //   value:
-      //       (mayCanMang?.rpWasteLoss ?? 0) > 0
-      //           ? '${mayCanMang?.rpWasteLoss ?? 0} Cái'
-      //           : "0",
-      // ),
-      DataGridCell<int>(columnName: "qtyXa", value: mayXa?.qtyProduced ?? 0),
-      DataGridCell<int>(
+      DataGridCell<String>(
+        columnName: "qtyXa",
+        value: getQtyProduced("Máy Xả"),
+      ),
+      DataGridCell<String>(
         columnName: "qtyCatKhe",
-        value: mayCatKhe?.qtyProduced ?? 0,
+        value: getQtyProduced("Máy Cắt Khe"),
       ),
-      DataGridCell<int>(columnName: "qtyBe", value: mayBe?.qtyProduced ?? 0),
-      DataGridCell<int>(columnName: "qtyDan", value: mayDan?.qtyProduced ?? 0),
-      DataGridCell<int>(
+      DataGridCell<String>(
+        columnName: "qtyBe",
+        value: getQtyProduced("Máy Bế"),
+      ),
+      DataGridCell<String>(
+        columnName: "qtyDan",
+        value: getQtyProduced("Máy Dán"),
+      ),
+      DataGridCell<String>(
         columnName: "qtyDongGhim",
-        value: mayDongGhim?.qtyProduced ?? 0,
+        value: getQtyProduced("Máy Đóng Ghim"),
       ),
 
       ...buildChildBoxCells(planning, machine),
@@ -154,25 +162,25 @@ class MachineBoxDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: "dmWasteLoss",
         value:
-            boxMachineTime!.wasteBox! > 0
-                ? '${boxMachineTime.wasteBox} Cái'
+            (boxMachineTime?.wasteBox ?? 0) > 0
+                ? '${boxMachineTime!.wasteBox} Cái'
                 : "0",
       ),
       DataGridCell<String>(
         columnName: "wasteActually",
         value:
-            (boxMachineTime.rpWasteLoss ?? 0) > 0
-                ? '${boxMachineTime.rpWasteLoss ?? 0} Cái'
+            (boxMachineTime?.rpWasteLoss ?? 0) > 0
+                ? '${boxMachineTime!.rpWasteLoss} Cái'
                 : "0",
       ),
       DataGridCell<String>(
         columnName: "shiftManager",
-        value: boxMachineTime.shiftManagement ?? "",
+        value: boxMachineTime?.shiftManagement ?? "",
       ),
-      DataGridCell<String>(columnName: "status", value: boxMachineTime.status),
+      DataGridCell<String>(columnName: "status", value: boxMachineTime?.status),
       DataGridCell<int>(
         columnName: "index",
-        value: boxMachineTime.sortPlanning ?? 0,
+        value: boxMachineTime?.sortPlanning ?? 0,
       ),
     ];
   }

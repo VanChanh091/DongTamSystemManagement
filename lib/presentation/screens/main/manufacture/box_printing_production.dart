@@ -213,13 +213,15 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
                                             // Nếu không tìm thấy hoặc đã complete thì disable
                                             return !(selectedPlanning
-                                                    .boxTimes!
-                                                    .isNotEmpty &&
-                                                selectedPlanning
                                                         .boxTimes!
-                                                        .first
-                                                        .status ==
-                                                    "complete");
+                                                        .isNotEmpty &&
+                                                    selectedPlanning
+                                                            .boxTimes!
+                                                            .first
+                                                            .status ==
+                                                        "complete") &&
+                                                selectedPlanning.runningPlan >
+                                                    0;
                                           })()
                                       ? () async {
                                         try {
@@ -295,6 +297,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                 ),
                               ),
                             ),
+
                             const SizedBox(width: 10),
 
                             //confirm production

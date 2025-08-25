@@ -59,20 +59,29 @@ class PlanningBox {
     return '$hour:$minute';
   }
 
-  BoxMachineTime? getBoxMachineTimeByMachine(String machine) {
-    if (boxTimes == null) return null;
-    return boxTimes?.firstWhere((item) => item.machine == machine);
+  BoxMachineTime? _findByMachine(List<BoxMachineTime>? list, String machine) {
+    if (list == null) return null;
+    try {
+      return list.firstWhere((item) => item.machine == machine);
+    } catch (e) {
+      return null;
+    }
   }
 
-  BoxMachineTime? getAllBoxMachineTime(String machine) {
-    if (allBoxTimes == null) return null;
-    final match = allBoxTimes!.where((item) => item.machine == machine);
-    return match.isNotEmpty ? match.first : null;
-  }
+  BoxMachineTime? getBoxMachineTimeByMachine(String machine) =>
+      _findByMachine(boxTimes, machine);
+  BoxMachineTime? getAllBoxMachineTime(String machine) =>
+      _findByMachine(allBoxTimes, machine);
 
   TimeOverflowPlanning? getTimeOverflow(String machine) {
     if (timeOverflowPlanning == null) return null;
-    return timeOverflowPlanning?.firstWhere((item) => item.machine == machine);
+    try {
+      return timeOverflowPlanning?.firstWhere(
+        (item) => item.machine == machine,
+      );
+    } catch (e) {
+      return null;
+    }
   }
 
   factory PlanningBox.fromJson(Map<String, dynamic> json) {
