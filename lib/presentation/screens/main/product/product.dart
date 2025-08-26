@@ -467,10 +467,18 @@ class _ProductPageState extends State<ProductPage> {
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (snapshot.hasError) {
+                    } else if (snapshot.hasError) {
                       return Text("Error: ${snapshot.error}");
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "Không có đơn hàng nào",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                        ),
+                      );
                     }
 
                     final data = snapshot.data!;

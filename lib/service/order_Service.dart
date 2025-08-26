@@ -19,6 +19,7 @@ class OrderService {
     int page,
     int pageSize,
     bool refresh,
+    bool ownOnly,
   ) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -29,6 +30,7 @@ class OrderService {
           'page': page,
           'pageSize': pageSize,
           'refresh': refresh,
+          'ownOnly': ownOnly,
         },
         options: Options(
           headers: {
@@ -39,8 +41,8 @@ class OrderService {
       );
       final data = response.data;
       final orders = data['data'] as List; //data
-      final currentPage = data['currentPage']; //page size
-      final totalPages = data['totalPages']; //page
+      final currentPage = data['currentPage']; //page
+      final totalPages = data['totalPages']; //page size
 
       // print(
       //   'orders: $orders - currentPage: $currentPage - totalPages: $totalPages',
@@ -223,12 +225,15 @@ class OrderService {
   //===============================PENDING AND REJECT=====================================
 
   //get Order Pending And Reject
-  Future<List<Order>> getOrderPendingAndReject(bool refresh) async {
+  Future<List<Order>> getOrderPendingAndReject(
+    bool refresh,
+    bool ownOnly,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
       final response = await dioService.get(
         "/api/order/pending-reject",
-        queryParameters: {'refresh': refresh},
+        queryParameters: {'refresh': refresh, 'ownOnly': ownOnly},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

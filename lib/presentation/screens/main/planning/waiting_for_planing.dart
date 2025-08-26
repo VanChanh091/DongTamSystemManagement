@@ -139,7 +139,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                 future: futureOrdersAccept,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     if (snapshot.error.toString().contains("NO_PERMISSION")) {
                       return Center(
@@ -166,7 +166,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                     }
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(
+                    return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
                         style: TextStyle(

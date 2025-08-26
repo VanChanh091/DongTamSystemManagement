@@ -430,11 +430,19 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                 future: futurePlanning,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text("Không có đơn hàng nào"));
+                    return const Center(
+                      child: Text(
+                        "Không có đơn hàng nào",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                      ),
+                    );
                   }
 
                   final List<PlanningBox> data = snapshot.data!;

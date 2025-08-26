@@ -1,5 +1,7 @@
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:intl/intl.dart';
 
@@ -7,6 +9,7 @@ class OrderDataSource extends DataGridSource {
   late List<DataGridRow> orderDataGridRows;
   String? selectedOrderId;
 
+  final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
   List<Order> orders;
 
@@ -159,6 +162,24 @@ class OrderDataSource extends DataGridSource {
         columnName: 'dongGoi',
         value: order.box?.dongGoi ?? "",
       ),
+      ...userController.hasAnyRole(['admin', 'manager'])
+          ? [
+            DataGridCell(
+              columnName: 'staffOrder',
+              value: () {
+                final fullName = order.user?.fullName ?? ""; //Nguyễn Văn Chánh
+                final parts = fullName.trim().split(
+                  " ",
+                ); //["Nguyễn", "Văn", "Chánh"]
+                if (parts.length >= 2) {
+                  return parts.sublist(parts.length - 2).join(" "); //Văn Chánh
+                } else {
+                  return fullName;
+                }
+              }(),
+            ),
+          ]
+          : [],
 
       DataGridCell(columnName: 'status', value: formatStatus(order.status)),
       DataGridCell(columnName: 'rejectReason', value: order.rejectReason ?? ""),

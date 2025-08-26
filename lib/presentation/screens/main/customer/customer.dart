@@ -66,6 +66,8 @@ class _CustomerPageState extends State<CustomerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isSale = userController.hasPermission("sale");
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -182,7 +184,7 @@ class _CustomerPageState extends State<CustomerPage> {
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child:
-                        userController.hasPermission("sale")
+                        isSale
                             ? Row(
                               children: [
                                 //add
@@ -223,7 +225,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                 // update
                                 ElevatedButton.icon(
                                   onPressed:
-                                      userController.hasPermission("sale")
+                                      isSale
                                           ? () {
                                             if (isSelected.isEmpty) {
                                               showSnackBarError(
@@ -281,8 +283,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                 //delete customers
                                 ElevatedButton.icon(
                                   onPressed:
-                                      userController.hasPermission("sale") &&
-                                              isSelected.isNotEmpty
+                                      isSale && isSelected.isNotEmpty
                                           ? () {
                                             showDialog(
                                               context: context,
@@ -487,7 +488,15 @@ class _CustomerPageState extends State<CustomerPage> {
                     } else if (snapshot.hasError) {
                       return Text("Error: ${snapshot.error}");
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('Không có dữ liệu'));
+                      return const Center(
+                        child: Text(
+                          "Không có đơn hàng nào",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                        ),
+                      );
                     }
 
                     final data = snapshot.data!;

@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_orders.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
@@ -6,6 +7,7 @@ import 'package:dongtam/service/order_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -21,24 +23,31 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   late OrderDataSource orderDataSource;
   late List<GridColumn> columns;
   String? selectedOrderId;
+  bool isSeenOrder = false;
+  final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
 
   @override
   void initState() {
     super.initState();
-    loadOrders(false);
+    loadOrders(false, isSeenOrder);
 
     columns = buildOrderColumns();
   }
 
-  void loadOrders(bool refresh) {
+  void loadOrders(bool refresh, bool ownOnly) {
     setState(() {
-      futureOrdersPending = OrderService().getOrderPendingAndReject(refresh);
+      futureOrdersPending = OrderService().getOrderPendingAndReject(
+        refresh,
+        ownOnly,
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isManager = userController.hasAnyRole(['manager']);
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -49,11 +58,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
             SizedBox(
               height: 70,
               width: double.infinity,
-
               child: Column(
                 children: [
                   SizedBox(height: 10),
-
                   Row(
                     children: [
                       Expanded(
@@ -83,7 +90,44 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // nút thêm
+                            //see all/see only
+                            isManager
+                                ? SizedBox(
+                                  width: 140,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        isSeenOrder = !isSeenOrder;
+                                      });
+
+                                      loadOrders(true, isSeenOrder);
+                                    },
+                                    label: Text(
+                                      isSeenOrder
+                                          ? "Xem Tất Cả"
+                                          : "Đơn Bản Thân",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xff78D761),
+                                      foregroundColor: Colors.white,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 15,
+                                        vertical: 15,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                : SizedBox.shrink(),
+                            const SizedBox(width: 10),
+
+                            //add
                             ElevatedButton.icon(
                               onPressed: () {
                                 showDialog(
@@ -92,7 +136,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                       (_) => OrderDialog(
                                         order: null,
                                         onOrderAddOrUpdate:
-                                            () => loadOrders(true),
+                                            () => loadOrders(true, isSeenOrder),
                                       ),
                                 );
                               },
@@ -118,7 +162,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                             ),
                             const SizedBox(width: 10),
 
-                            // nút sửa
+                            //update
                             ElevatedButton.icon(
                               onPressed:
                                   selectedOrderId == null
@@ -140,7 +184,10 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                 (_) => OrderDialog(
                                                   order: selectedOrder,
                                                   onOrderAddOrUpdate:
-                                                      () => loadOrders(true),
+                                                      () => loadOrders(
+                                                        true,
+                                                        isSeenOrder,
+                                                      ),
                                                 ),
                                           );
                                         } catch (e) {
@@ -172,7 +219,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                             ),
                             const SizedBox(width: 10),
 
-                            // nút xóa
+                            //delete
                             ElevatedButton.icon(
                               onPressed:
                                   selectedOrderId == null
@@ -296,6 +343,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
                                                                 loadOrders(
                                                                   true,
+                                                                  isSeenOrder,
                                                                 );
 
                                                                 Navigator.pop(
@@ -360,11 +408,19 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                 future: futureOrdersPending,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text("Không có đơn hàng nào"));
+                    return const Center(
+                      child: Text(
+                        "Không có đơn hàng nào",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                      ),
+                    );
                   }
 
                   final List<Order> data = snapshot.data!;
@@ -435,7 +491,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadOrders(true),
+        onPressed: () => loadOrders(true, isSeenOrder),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

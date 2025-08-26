@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
 import 'package:dongtam/presentation/sources/order_dataSource.dart';
@@ -5,6 +6,7 @@ import 'package:dongtam/service/order_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class OrderAcceptAndPlanning extends StatefulWidget {
@@ -18,12 +20,14 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   late Future<Map<String, dynamic>> futureOrdersAccept;
   late OrderDataSource orderDataSource;
   late List<GridColumn> columns;
+  final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
   String? selectedOrderId;
   bool isTextFieldEnabled = false;
   bool isSearching = false;
+  bool isSeenOrder = false;
 
   int currentPage = 1;
   int pageSize = 2;
@@ -32,12 +36,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   @override
   void initState() {
     super.initState();
-    loadOrders(false);
+    loadOrders(false, isSeenOrder);
 
     columns = buildOrderColumns();
   }
 
-  void loadOrders(bool refresh) {
+  void loadOrders(bool refresh, bool ownOnly) {
     setState(() {
       if (isSearching) {
         String keyword = searchController.text.trim().toLowerCase();
@@ -60,6 +64,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
           currentPage,
           pageSize,
           refresh,
+          ownOnly,
         );
       }
     });
@@ -78,6 +83,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
           currentPage,
           pageSize,
+          false,
           false,
         );
       });
@@ -127,6 +133,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isManager = userController.hasAnyRole(['manager']);
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -139,7 +147,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
               width: double.infinity,
               child: Row(
                 children: [
-                  //dropdown
+                  //left button
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child: Row(
@@ -235,6 +243,41 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                           ),
                         ),
                         const SizedBox(width: 10),
+
+                        //see all/see only
+                        isManager
+                            ? SizedBox(
+                              width: 140,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    isSeenOrder = !isSeenOrder;
+                                  });
+
+                                  loadOrders(true, isSeenOrder);
+                                },
+                                label: Text(
+                                  isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xff78D761),
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 15,
+                                    vertical: 15,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            )
+                            : SizedBox.shrink(),
+                        const SizedBox(width: 10),
                       ],
                     ),
                   ),
@@ -261,13 +304,21 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                 future: futureOrdersAccept,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData ||
                       //get data from paging
                       snapshot.data!['orders'].isEmpty) {
-                    return Center(child: Text("Không có đơn hàng nào"));
+                    return const Center(
+                      child: Text(
+                        "Không có đơn hàng nào",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                      ),
+                    );
                   }
 
                   final data = snapshot.data!;
@@ -350,7 +401,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                       ? () {
                                         setState(() {
                                           currentPage--;
-                                          loadOrders(false);
+                                          loadOrders(false, isSeenOrder);
                                         });
                                       }
                                       : null,
@@ -392,7 +443,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                       ? () {
                                         setState(() {
                                           currentPage++;
-                                          loadOrders(false);
+                                          loadOrders(false, isSeenOrder);
                                         });
                                       }
                                       : null,
@@ -427,7 +478,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadOrders(true),
+        onPressed: () => loadOrders(true, isSeenOrder),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

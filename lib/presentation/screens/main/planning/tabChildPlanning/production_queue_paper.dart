@@ -755,7 +755,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                 future: futurePlanning,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     if (snapshot.error.toString().contains("NO_PERMISSION")) {
                       return Center(
@@ -782,7 +782,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     }
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(
+                    return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
                         style: TextStyle(

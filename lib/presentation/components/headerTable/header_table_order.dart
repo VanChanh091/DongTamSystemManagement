@@ -1,7 +1,11 @@
+import 'package:dongtam/data/controller/userController.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildOrderColumns() {
+  final userController = Get.find<UserController>();
+
   return [
     //order
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
@@ -69,6 +73,14 @@ List<GridColumn> buildOrderColumns() {
       label: formatColumn("Đóng Ghim 2 Mảnh"),
     ),
     GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
+    ...userController.hasAnyRole(['admin', 'manager'])
+        ? [
+          GridColumn(
+            columnName: 'staffOrder',
+            label: formatColumn("Nhân Viên"),
+          ),
+        ]
+        : [],
 
     GridColumn(columnName: 'status', label: formatColumn("Trạng thái")),
     GridColumn(columnName: 'rejectReason', label: formatColumn("Lý do")),

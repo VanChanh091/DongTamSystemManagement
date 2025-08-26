@@ -601,10 +601,10 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                   future: futureUserAdmin,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
                       if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                        return Center(
+                        return const Center(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -613,7 +613,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                 color: Colors.redAccent,
                                 size: 35,
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 "Bạn không có quyền xem chức năng này",
                                 style: TextStyle(
@@ -628,7 +628,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                       }
                       return Center(child: Text("Lỗi: ${snapshot.error}"));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
+                      return const Center(
                         child: Text(
                           "Không có đơn hàng nào",
                           style: TextStyle(
