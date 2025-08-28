@@ -9,8 +9,8 @@ class AuthService {
   final Dio dioService = Dio(
     BaseOptions(
       baseUrl: AppInfo.BASE_URL,
-      connectTimeout: Duration(seconds: 10),
-      receiveTimeout: Duration(seconds: 10),
+      connectTimeout: Duration(seconds: 5),
+      receiveTimeout: Duration(seconds: 5),
     ),
   );
 

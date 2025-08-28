@@ -1,12 +1,17 @@
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/screens/main/home.dart';
+import 'package:dongtam/service/config_service.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  //load config ip
+  final config = await loadConfig();
+  Get.put<Map<String, dynamic>>(config, tag: "AppConfig");
 
   //get token from secure storage
   SecureStorageService secureStorage = SecureStorageService();
