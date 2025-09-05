@@ -433,6 +433,11 @@ class MachineBoxDatasource extends DataGridSource {
               cellColor = Colors.red.withOpacity(0.5);
             }
 
+            //tô màu cho sl giấy tấm
+            if (dataCell.columnName == 'runningPlans' && runningPlan == 0) {
+              cellColor = Colors.red.withOpacity(0.5);
+            }
+
             // Kiểm tra cột máy dựa vào map
             final machineColumnName = machineColumnMap[dataCell.columnName];
 

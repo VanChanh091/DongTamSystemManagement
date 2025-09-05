@@ -129,13 +129,13 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
             if (text.isEmpty) return "Vui lòng nhập $label";
 
-            if (label == "Số Lượng Sản Xuất") {
+            if (label == "Số Lượng Đã Sản Xuất") {
               if (!RegExp(r'^\d+$').hasMatch(text)) {
                 return "Chỉ được nhập số nguyên dương";
               }
             } else if (label == "Phế Liệu Thực Tế") {
               if (!RegExp(r'^\d+([.]\d+)?$').hasMatch(text)) {
-                return "Chỉ được nhập số thực, chỉ được dùng dấu chấm ";
+                return "Chỉ được nhập số thực, chỉ được dùng dấu chấm";
               }
             } else if (label == "Trưởng Máy") {
               if (!RegExp(r"^[a-zA-ZÀ-ỹ\s]+$").hasMatch(text)) {

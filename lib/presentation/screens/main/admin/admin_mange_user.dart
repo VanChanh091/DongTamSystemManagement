@@ -630,7 +630,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(
                         child: Text(
-                          "Không có đơn hàng nào",
+                          "Không có người dùng nào",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,

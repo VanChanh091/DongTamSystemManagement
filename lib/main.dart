@@ -1,31 +1,32 @@
-import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/screens/main/home.dart';
-import 'package:dongtam/service/config_service.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import 'package:dongtam/presentation/splashScreen/splashScreenDT.dart';
+import 'package:window_manager/window_manager.dart';
+
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  //load config ip
-  final config = await loadConfig();
-  Get.put<Map<String, dynamic>>(config, tag: "AppConfig");
+  // Khởi tạo window_manager
+  await windowManager.ensureInitialized();
 
-  //get token from secure storage
-  SecureStorageService secureStorage = SecureStorageService();
-  await secureStorage.deleteToken();
-  await secureStorage.deleteRole();
-  await secureStorage.deletePermission();
+  // Set fullscreen
+  windowManager.waitUntilReadyToShow(
+    const WindowOptions(center: true),
+    () async {
+      await windowManager.maximize(); // mở cửa sổ maximize
+      await windowManager.show(); // hiển thị cửa sổ
+      await windowManager.focus(); // focus vào cửa sổ
+    },
+  );
 
-  String? token = await secureStorage.getToken();
-
-  //get role and permissions
-  final userController = Get.put(UserController());
-  await userController.loadUserData();
-
-  runApp(MyApp(isLoggedIn: token != null));
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SplashScreenDT(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

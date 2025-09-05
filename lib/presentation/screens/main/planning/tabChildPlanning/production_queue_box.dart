@@ -328,6 +328,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                           machineBoxDatasource
                                                               .rows;
 
+                                                      // 1️⃣ Lấy các đơn chưa complete và gán sortPlanning
                                                       final List<
                                                         Map<String, dynamic>
                                                       >
@@ -336,7 +337,6 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                               .asMap()
                                                               .entries
                                                               .where((entry) {
-                                                                // Lấy giá trị status từ row
                                                                 final status =
                                                                     entry.value
                                                                         .getCells()
@@ -383,6 +383,56 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                               })
                                                               .toList();
 
+                                                      // 2️⃣ Lấy 1 đơn complete cuối cùng (để BE tính timeRunning, không update sortPlanning)
+                                                      DataGridRow?
+                                                      lastCompleteRow;
+
+                                                      for (var row
+                                                          in visibleRows
+                                                              .reversed) {
+                                                        final status =
+                                                            row
+                                                                .getCells()
+                                                                .firstWhere(
+                                                                  (cell) =>
+                                                                      cell.columnName ==
+                                                                      "status",
+                                                                  orElse:
+                                                                      () => DataGridCell(
+                                                                        columnName:
+                                                                            'status',
+                                                                        value:
+                                                                            null,
+                                                                      ),
+                                                                )
+                                                                .value;
+
+                                                        if (status ==
+                                                            'complete') {
+                                                          lastCompleteRow = row;
+                                                          break;
+                                                        }
+                                                      }
+
+                                                      if (lastCompleteRow !=
+                                                          null) {
+                                                        final planningBoxId =
+                                                            lastCompleteRow
+                                                                .getCells()
+                                                                .firstWhere(
+                                                                  (cell) =>
+                                                                      cell.columnName ==
+                                                                      "planningBoxId",
+                                                                )
+                                                                .value;
+
+                                                        updateIndex.add({
+                                                          "planningBoxId":
+                                                              planningBoxId,
+                                                        });
+                                                      }
+
+                                                      // 3️⃣ Parse ngày, giờ, tổng thời gian
                                                       final DateTime
                                                       parsedDayStart =
                                                           DateFormat(
@@ -416,6 +466,18 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                                 .text,
                                                           ) ??
                                                           0;
+
+                                                      // 4️⃣ Gửi xuống BE
+                                                      // print(
+                                                      //   "=== Các đơn sẽ gửi xuống BE ===",
+                                                      // );
+                                                      // for (var item
+                                                      //     in updateIndex) {
+                                                      //   print(item);
+                                                      // }
+                                                      // print(
+                                                      //   "================================",
+                                                      // );
 
                                                       final result =
                                                           await PlanningService()
@@ -633,6 +695,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                   label: "Ngày bắt đầu:",
                                   controller: dayStartController,
                                   width: 120,
+                                  readOnly: true,
                                   onTap: () async {
                                     final selected = await showDatePicker(
                                       context: context,
@@ -895,6 +958,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     required double width,
     TextInputType? inputType,
     void Function()? onTap,
+    bool readOnly = false,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -909,7 +973,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
           child: TextFormField(
             controller: controller,
             keyboardType: inputType ?? TextInputType.text,
-            readOnly: false,
+            readOnly: readOnly,
             decoration: InputDecoration(
               isDense: true,
               border: UnderlineInputBorder(),

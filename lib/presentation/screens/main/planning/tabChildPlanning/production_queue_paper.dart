@@ -337,7 +337,9 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                         context,
                                                         "Vui lòng nhập đầy đủ ngày bắt đầu, giờ bắt đầu và tổng thời gian.",
                                                       );
+                                                      return;
                                                     }
+
                                                     setState(
                                                       () => isLoading = true,
                                                     );
@@ -348,6 +350,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                           machinePaperDatasource
                                                               .rows;
 
+                                                      // 1️⃣ Lấy các đơn chưa complete và gán sortPlanning
                                                       final List<
                                                         Map<String, dynamic>
                                                       >
@@ -356,7 +359,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                               .asMap()
                                                               .entries
                                                               .where((entry) {
-                                                                // Lấy giá trị status từ row
                                                                 final status =
                                                                     entry.value
                                                                         .getCells()
@@ -403,6 +405,56 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                               })
                                                               .toList();
 
+                                                      // 2️⃣ Lấy 1 đơn complete cuối cùng (để BE tính timeRunning, không update sortPlanning)
+                                                      DataGridRow?
+                                                      lastCompleteRow;
+
+                                                      for (var row
+                                                          in visibleRows
+                                                              .reversed) {
+                                                        final status =
+                                                            row
+                                                                .getCells()
+                                                                .firstWhere(
+                                                                  (cell) =>
+                                                                      cell.columnName ==
+                                                                      "status",
+                                                                  orElse:
+                                                                      () => DataGridCell(
+                                                                        columnName:
+                                                                            'status',
+                                                                        value:
+                                                                            null,
+                                                                      ),
+                                                                )
+                                                                .value;
+
+                                                        if (status ==
+                                                            'complete') {
+                                                          lastCompleteRow = row;
+                                                          break;
+                                                        }
+                                                      }
+
+                                                      if (lastCompleteRow !=
+                                                          null) {
+                                                        final planningId =
+                                                            lastCompleteRow
+                                                                .getCells()
+                                                                .firstWhere(
+                                                                  (cell) =>
+                                                                      cell.columnName ==
+                                                                      "planningId",
+                                                                )
+                                                                .value;
+
+                                                        updateIndex.add({
+                                                          "planningId":
+                                                              planningId,
+                                                        });
+                                                      }
+
+                                                      // 3️⃣ Parse ngày, giờ, tổng thời gian
                                                       final DateTime
                                                       parsedDayStart =
                                                           DateFormat(
@@ -417,7 +469,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                           timeStartController
                                                               .text
                                                               .split(':');
-
                                                       final TimeOfDay
                                                       parsedTimeStart =
                                                           TimeOfDay(
@@ -436,6 +487,18 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                                 .text,
                                                           ) ??
                                                           0;
+
+                                                      // 4️⃣ Gửi xuống BE
+                                                      // print(
+                                                      //   "=== Các đơn sẽ gửi xuống BE ===",
+                                                      // );
+                                                      // for (var item
+                                                      //     in updateIndex) {
+                                                      //   print(item);
+                                                      // }
+                                                      // print(
+                                                      //   "================================",
+                                                      // );
 
                                                       final result =
                                                           await PlanningService()
@@ -709,6 +772,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                   label: "Ngày bắt đầu:",
                                   controller: dayStartController,
                                   width: 120,
+                                  readOnly: true,
                                   onTap: () async {
                                     final selected = await showDatePicker(
                                       context: context,
@@ -994,6 +1058,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     required double width,
     TextInputType? inputType,
     void Function()? onTap,
+    bool readOnly = false,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1008,7 +1073,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
           child: TextFormField(
             controller: controller,
             keyboardType: inputType ?? TextInputType.text,
-            readOnly: false,
+            readOnly: readOnly,
             decoration: InputDecoration(
               isDense: true,
               border: UnderlineInputBorder(),
