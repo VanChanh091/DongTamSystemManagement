@@ -11,22 +11,19 @@ void main() async {
   // Khởi tạo window_manager
   await windowManager.ensureInitialized();
 
-  // Set fullscreen
-  windowManager.waitUntilReadyToShow(
-    const WindowOptions(center: true),
-    () async {
-      await windowManager.maximize(); // mở cửa sổ maximize
-      await windowManager.show(); // hiển thị cửa sổ
-      await windowManager.focus(); // focus vào cửa sổ
-    },
-  );
-
   runApp(
     const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreenDT(),
     ),
   );
+
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    await windowManager.maximize(); // mở cửa sổ maximize
+    await Future.delayed(const Duration(milliseconds: 200)); // cho chắc
+    await windowManager.show(); // hiển thị cửa sổ
+    await windowManager.focus(); // focus vào cửa sổ
+  });
 }
 
 class MyApp extends StatelessWidget {

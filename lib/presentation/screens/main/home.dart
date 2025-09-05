@@ -423,10 +423,41 @@ class _HomePageState extends State<HomePage> {
             child: Obx(() {
               final pages = getPages();
               final index = sidebarController.selectedIndex.value;
+
+              // Xác định trang hiện tại
+              Widget page;
               if (index < 0 || index >= pages.length) {
-                return Center(child: Text("Trang không tồn tại"));
+                page = Center(
+                  key: ValueKey(
+                    'not_found',
+                  ), // key để AnimatedSwitcher nhận biết thay đổi
+                  child: Text("Trang không tồn tại"),
+                );
+              } else {
+                page = Container(
+                  key: ValueKey(index), // key duy nhất cho mỗi trang
+                  child: pages[index],
+                );
               }
-              return pages[index];
+
+              // AnimatedSwitcher cho hiệu ứng chuyển trang
+              return AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  // Kết hợp slide + fade
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: Offset(1, 0), // từ phải sang trái
+                        end: Offset(0, 0),
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: page,
+              );
             }),
           ),
         ],

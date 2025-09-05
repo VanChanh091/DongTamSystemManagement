@@ -29,9 +29,15 @@ class _MyAppLauncherState extends State<MyAppLauncher> {
     final config = await loadConfig();
     Get.put<Map<String, dynamic>>(config, tag: "AppConfig");
 
+    //get token from secure storage
     SecureStorageService secureStorage = SecureStorageService();
+    await secureStorage.deleteToken();
+    await secureStorage.deleteRole();
+    await secureStorage.deletePermission();
+
     String? token = await secureStorage.getToken();
 
+    //get role and permissions
     final userController = Get.put(UserController());
     await userController.loadUserData();
 
