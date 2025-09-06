@@ -108,7 +108,6 @@ class _SplashScreenDTState extends State<SplashScreenDT>
                     parent: animation,
                     curve: Curves.easeInOut,
                   );
-
                   return FadeTransition(
                     opacity: curvedAnimation,
                     child: ScaleTransition(

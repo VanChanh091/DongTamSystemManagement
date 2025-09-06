@@ -1,5 +1,6 @@
 import 'package:dongtam/data/controller/userController.dart';
-import 'package:dongtam/main.dart';
+import 'package:dongtam/presentation/screens/auth/login.dart';
+import 'package:dongtam/presentation/screens/main/home.dart';
 import 'package:dongtam/service/config_service.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,6 @@ class _MyAppLauncherState extends State<MyAppLauncher> {
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    return MyApp(isLoggedIn: _isLoggedIn);
+    return _isLoggedIn ? HomePage() : LoginScreen();
   }
 }

@@ -643,12 +643,12 @@ class _ProductPageState extends State<ProductPage> {
                                                             error,
                                                             stackTrace,
                                                           ) {
-                                                            print(
-                                                              'Image loading error: $error',
-                                                            );
-                                                            print(
-                                                              'StackTrace: $stackTrace',
-                                                            );
+                                                            // print(
+                                                            //   'Image loading error: $error',
+                                                            // );
+                                                            // print(
+                                                            //   'StackTrace: $stackTrace',
+                                                            // );
                                                             return Container(
                                                               width: 300,
                                                               height: 300,

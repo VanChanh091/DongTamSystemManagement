@@ -428,9 +428,7 @@ class _HomePageState extends State<HomePage> {
               Widget page;
               if (index < 0 || index >= pages.length) {
                 page = Center(
-                  key: ValueKey(
-                    'not_found',
-                  ), // key để AnimatedSwitcher nhận biết thay đổi
+                  key: ValueKey('not_found'),
                   child: Text("Trang không tồn tại"),
                 );
               } else {
@@ -442,16 +440,22 @@ class _HomePageState extends State<HomePage> {
 
               // AnimatedSwitcher cho hiệu ứng chuyển trang
               return AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 400),
                 transitionBuilder: (child, animation) {
-                  // Kết hợp slide + fade
+                  final offsetAnimation = Tween<Offset>(
+                    begin: const Offset(0.05, 0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOut, // cong mượt hơn
+                    ),
+                  );
+
                   return FadeTransition(
                     opacity: animation,
                     child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: Offset(1, 0), // từ phải sang trái
-                        end: Offset(0, 0),
-                      ).animate(animation),
+                      position: offsetAnimation,
                       child: child,
                     ),
                   );
