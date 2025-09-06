@@ -1,6 +1,7 @@
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/service/product_Service.dart';
+import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -138,29 +139,12 @@ class _ProductPageState extends State<ProductPage> {
                         const SizedBox(width: 10),
 
                         // find
-                        ElevatedButton.icon(
+                        AnimatedButton(
                           onPressed: () {
                             searchProduct();
                           },
-                          label: Text(
-                            "Tìm kiếm",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          icon: Icon(Icons.search, color: Colors.white),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff78D761),
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
+                          label: "Tìm kiếm",
+                          icon: Icons.search,
                         ),
                         const SizedBox(width: 10),
                       ],
@@ -174,7 +158,7 @@ class _ProductPageState extends State<ProductPage> {
                             ? Row(
                               children: [
                                 //add
-                                ElevatedButton.icon(
+                                AnimatedButton(
                                   onPressed: () {
                                     showDialog(
                                       context: context,
@@ -186,30 +170,13 @@ class _ProductPageState extends State<ProductPage> {
                                           ),
                                     );
                                   },
-                                  label: Text(
-                                    "Thêm mới",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: Icon(Icons.add, color: Colors.white),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xff78D761),
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 15,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Thêm mới",
+                                  icon: Icons.add,
                                 ),
                                 const SizedBox(width: 10),
 
                                 // update
-                                ElevatedButton.icon(
+                                AnimatedButton(
                                   onPressed: () {
                                     if (isSelected.isEmpty) {
                                       showSnackBarError(
@@ -234,33 +201,13 @@ class _ProductPageState extends State<ProductPage> {
                                           );
                                         });
                                   },
-                                  label: Text(
-                                    "Sửa",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: Icon(
-                                    Symbols.construction,
-                                    color: Colors.white,
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xff78D761),
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Sửa",
+                                  icon: Symbols.construction,
                                 ),
                                 const SizedBox(width: 10),
 
                                 //delete customers
-                                ElevatedButton.icon(
+                                AnimatedButton(
                                   onPressed:
                                       isSelected.isNotEmpty
                                           ? () {
@@ -427,28 +374,9 @@ class _ProductPageState extends State<ProductPage> {
                                             );
                                           }
                                           : null,
-                                  label: const Text(
-                                    "Xoá",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xffEA4346),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Xoá",
+                                  icon: Icons.delete,
+                                  backgroundColor: const Color(0xffEA4346),
                                 ),
                               ],
                             )

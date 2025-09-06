@@ -5,6 +5,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_machine
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/machine_paper_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -238,34 +239,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                     const SizedBox(width: 10),
 
                                     // find
-                                    ElevatedButton.icon(
-                                      onPressed: () {
-                                        searchPlanning();
-                                      },
-                                      label: Text(
-                                        "Tìm kiếm",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      icon: Icon(
-                                        Icons.search,
-                                        color: Colors.white,
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color(0xff78D761),
-                                        foregroundColor: Colors.white,
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 15,
-                                          vertical: 15,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
+                                    AnimatedButton(
+                                      onPressed: () => searchPlanning(),
+                                      label: "Tìm kiếm",
+                                      icon: Icons.search,
                                     ),
                                     const SizedBox(width: 10),
                                   ],
@@ -319,7 +296,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                     Stack(
                                       alignment: Alignment.center,
                                       children: [
-                                        ElevatedButton.icon(
+                                        AnimatedButton(
                                           onPressed:
                                               isLoading
                                                   ? null
@@ -529,30 +506,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                       );
                                                     }
                                                   },
-                                          label: Text(
-                                            "Lưu",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          icon: Icon(
-                                            Icons.save,
-                                            color: Colors.white,
-                                          ),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Color(0xff78D761),
-                                            foregroundColor: Colors.white,
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 20,
-                                              vertical: 15,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                          ),
+                                          label: "Lưu",
+                                          icon: Icons.save,
                                         ),
+
                                         if (isLoading)
                                           Positioned(
                                             right: 10,
@@ -567,46 +524,21 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                           ),
                                       ],
                                     ),
-
                                     const SizedBox(width: 10),
 
                                     //group/unGroup
-                                    ElevatedButton.icon(
+                                    AnimatedButton(
                                       onPressed: () {
                                         setState(() {
                                           showGroup = !showGroup;
                                         });
                                       },
-                                      label: Text(
-                                        showGroup ? 'Tắt nhóm' : 'Bật nhóm',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                                      label:
+                                          showGroup ? 'Tắt nhóm' : 'Bật nhóm',
                                       icon:
                                           showGroup
-                                              ? Icon(
-                                                Symbols.ungroup,
-                                                color: Colors.white,
-                                              )
-                                              : Icon(
-                                                Symbols.ad_group,
-                                                color: Colors.white,
-                                              ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color(0xff78D761),
-                                        foregroundColor: Colors.white,
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                          vertical: 15,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
+                                              ? Symbols.ungroup
+                                              : Symbols.ad_group,
                                     ),
                                     SizedBox(width: 10),
 

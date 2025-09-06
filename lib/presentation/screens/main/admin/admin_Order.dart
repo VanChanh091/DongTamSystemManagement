@@ -1,5 +1,6 @@
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -182,14 +183,11 @@ class _ManageOrderState extends State<AdminOrder> {
                                       ),
                                       const SizedBox(height: 16),
 
-                                      //approved or reject
+                                      //approve or reject
                                       Row(
                                         children: [
-                                          ElevatedButton.icon(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  Colors.green.shade600,
-                                            ),
+                                          //approve
+                                          AnimatedButton(
                                             onPressed: () async {
                                               await AdminService()
                                                   .updateStatusOrder(
@@ -206,27 +204,13 @@ class _ManageOrderState extends State<AdminOrder> {
                                                 selectedOrder = null;
                                               });
                                             },
-
-                                            icon: const Icon(
-                                              Icons.check,
-                                              color: Colors.white,
-                                            ),
-                                            label: Text(
-                                              'Duyệt',
-                                              style: GoogleFonts.inter(
-                                                color: Colors.white,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                            label: 'Duyệt',
+                                            icon: Icons.check,
                                           ),
                                           const SizedBox(width: 12),
-                                          //form reject order
-                                          ElevatedButton.icon(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  Colors.red.shade600,
-                                            ),
+
+                                          //reject
+                                          AnimatedButton(
                                             onPressed: () {
                                               final TextEditingController
                                               reasonController =
@@ -337,19 +321,10 @@ class _ManageOrderState extends State<AdminOrder> {
                                                 },
                                               );
                                             },
-
-                                            icon: const Icon(
-                                              Icons.close,
-                                              color: Colors.white,
-                                            ),
-                                            label: Text(
-                                              'Từ chối',
-                                              style: GoogleFonts.inter(
-                                                color: Colors.white,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                            label: 'Từ chối',
+                                            icon: Icons.close,
+                                            backgroundColor:
+                                                Colors.red.shade600,
                                           ),
                                         ],
                                       ),

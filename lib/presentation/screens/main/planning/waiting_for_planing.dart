@@ -4,6 +4,7 @@ import 'package:dongtam/presentation/components/dialog/dialog_planning_order.dar
 import 'package:dongtam/presentation/components/headerTable/header_table_planning.dart';
 import 'package:dongtam/presentation/sources/planning_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -73,7 +74,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                             child: Row(
                               children: [
                                 //planning
-                                ElevatedButton.icon(
+                                AnimatedButton(
                                   onPressed:
                                       selectedOrderId == null
                                           ? null
@@ -104,25 +105,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                               );
                                             }
                                           },
-                                  label: Text(
-                                    "Lên kế hoạch",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: Icon(Icons.add, color: Colors.white),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xff78D761),
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 15,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Lên kế hoạch",
+                                  icon: Icons.add,
                                 ),
                                 const SizedBox(width: 10),
                               ],

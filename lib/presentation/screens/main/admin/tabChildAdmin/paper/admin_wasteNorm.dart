@@ -1,6 +1,7 @@
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/admin/admin_wasteNorm_model.dart';
 import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +59,10 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                       ? Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          //left
                           SizedBox(),
+
+                          //right
                           Container(
                             padding: EdgeInsets.symmetric(
                               vertical: 8,
@@ -67,7 +71,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                             child: Row(
                               children: [
                                 // update
-                                ElevatedButton.icon(
+                                AnimatedButton(
                                   onPressed: () async {
                                     if (isSelected.isEmpty) {
                                       showSnackBarError(
@@ -109,31 +113,13 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                       'Đã cập nhật thành công',
                                     );
                                   },
-                                  label: Text(
-                                    "Lưu Thay Đổi",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: Icon(Symbols.save, color: Colors.white),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xff78D761),
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Lưu Thay Đổi",
+                                  icon: Symbols.save,
                                 ),
-
                                 const SizedBox(width: 10),
 
                                 //delete customers
-                                ElevatedButton.icon(
+                                AnimatedButton(
                                   onPressed:
                                       isSelected.isNotEmpty
                                           ? () {
@@ -298,25 +284,9 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                             );
                                           }
                                           : null,
-                                  label: Text(
-                                    "Xóa",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: Icon(Icons.delete, color: Colors.white),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xffEA4346),
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Xóa",
+                                  icon: Icons.delete,
+                                  backgroundColor: Color(0xffEA4346),
                                 ),
                               ],
                             ),

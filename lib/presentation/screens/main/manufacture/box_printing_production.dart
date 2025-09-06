@@ -6,6 +6,7 @@ import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/service/socket/socket_service.dart';
+import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -183,9 +184,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                         child: Row(
                           children: [
                             //report production
-                            ElevatedButton.icon(
+                            AnimatedButton(
                               onPressed:
-                                  //turn on/off
                                   userController.hasPermission(
                                             "step2Production",
                                           ) &&
@@ -277,31 +277,13 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                         }
                                       }
                                       : null,
-                              label: Text(
-                                "Báo Cáo SX",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              icon: Icon(Icons.assignment, color: Colors.white),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff78D761),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
+                              label: "Báo Cáo SX",
+                              icon: Icons.assignment,
                             ),
-
                             const SizedBox(width: 10),
 
                             //confirm production
-                            ElevatedButton.icon(
+                            AnimatedButton(
                               onPressed:
                                   selectedPlanningIds.length == 1
                                       ? () async {
@@ -353,24 +335,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                         }
                                       }
                                       : null,
-                              label: Text(
-                                "Xác Nhận SX",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff78D761),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
+                              label: "Xác Nhận SX",
+                              icon: null,
                             ),
                             const SizedBox(width: 10),
 

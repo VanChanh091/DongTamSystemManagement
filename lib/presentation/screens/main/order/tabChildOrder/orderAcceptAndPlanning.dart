@@ -3,6 +3,7 @@ import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
 import 'package:dongtam/presentation/sources/order_dataSource.dart';
 import 'package:dongtam/service/order_Service.dart';
+import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -218,29 +219,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         const SizedBox(width: 10),
 
                         // find
-                        ElevatedButton.icon(
+                        AnimatedButton(
                           onPressed: () {
                             searchOrders();
                           },
-                          label: Text(
-                            "Tìm kiếm",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          icon: Icon(Icons.search, color: Colors.white),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff78D761),
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
+                          label: "Tìm kiếm",
+                          icon: Icons.search,
                         ),
                         const SizedBox(width: 10),
 
@@ -248,7 +232,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         isManager
                             ? SizedBox(
                               width: 140,
-                              child: ElevatedButton.icon(
+                              child: AnimatedButton(
                                 onPressed: () {
                                   setState(() {
                                     isSeenOrder = !isSeenOrder;
@@ -256,24 +240,9 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
                                   loadOrders(true, isSeenOrder);
                                 },
-                                label: Text(
-                                  isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xff78D761),
-                                  foregroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 15,
-                                    vertical: 15,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
+                                label:
+                                    isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
+                                icon: null,
                               ),
                             )
                             : SizedBox.shrink(),

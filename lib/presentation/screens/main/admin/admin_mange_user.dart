@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_permission_role.dart';
 import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -163,29 +164,12 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                 const SizedBox(width: 10),
 
                                 // find
-                                ElevatedButton.icon(
+                                AnimatedButton(
                                   onPressed: () {
                                     searchUser();
                                   },
-                                  label: Text(
-                                    "Tìm kiếm",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: Icon(Icons.search, color: Colors.white),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xff78D761),
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 15,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Tìm kiếm",
+                                  icon: Icons.search,
                                 ),
                                 const SizedBox(width: 10),
                               ],
@@ -201,7 +185,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                             child: Row(
                               children: [
                                 //permission/role
-                                ElevatedButton.icon(
+                                AnimatedButton(
                                   onPressed: () async {
                                     if (selectedUserIds.isEmpty) {
                                       showSnackBarError(
@@ -240,33 +224,13 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                           ),
                                     );
                                   },
-                                  label: Text(
-                                    "Phân Quyền/Vai Trò",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: Icon(
-                                    Symbols.graph_5,
-                                    color: Colors.white,
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xff78D761),
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Phân Quyền/Vai Trò",
+                                  icon: Symbols.graph_5,
                                 ),
                                 const SizedBox(width: 10),
 
                                 //reset password
-                                ElevatedButton.icon(
+                                AnimatedButton(
                                   onPressed: () async {
                                     if (selectedUserIds.isEmpty) {
                                       showSnackBarError(
@@ -370,33 +334,13 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                       }
                                     }
                                   },
-                                  label: const Text(
-                                    "Đặt lại mật khẩu",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: const Icon(
-                                    Symbols.lock_reset,
-                                    color: Colors.white,
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xff78D761),
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Đặt lại mật khẩu",
+                                  icon: Symbols.lock_reset,
                                 ),
                                 SizedBox(width: 10),
 
-                                //delete customers
-                                ElevatedButton.icon(
+                                //delete user
+                                AnimatedButton(
                                   onPressed:
                                       selectedUserIds.isNotEmpty
                                           ? () {
@@ -561,28 +505,9 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                             );
                                           }
                                           : null,
-                                  label: const Text(
-                                    "Xoá",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xffEA4346),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
+                                  label: "Xoá",
+                                  icon: Icons.delete,
+                                  backgroundColor: Color(0xffEA4346),
                                 ),
                                 SizedBox(width: 10),
                               ],

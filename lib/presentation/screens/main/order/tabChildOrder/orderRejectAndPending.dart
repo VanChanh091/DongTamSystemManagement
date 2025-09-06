@@ -4,6 +4,7 @@ import 'package:dongtam/presentation/components/dialog/dialog_add_orders.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
 import 'package:dongtam/presentation/sources/order_dataSource.dart';
 import 'package:dongtam/service/order_Service.dart';
+import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -94,7 +95,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                             isManager
                                 ? SizedBox(
                                   width: 140,
-                                  child: ElevatedButton.icon(
+                                  child: AnimatedButton(
                                     onPressed: () {
                                       setState(() {
                                         isSeenOrder = !isSeenOrder;
@@ -102,33 +103,18 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
                                       loadOrders(true, isSeenOrder);
                                     },
-                                    label: Text(
-                                      isSeenOrder
-                                          ? "Xem Tất Cả"
-                                          : "Đơn Bản Thân",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xff78D761),
-                                      foregroundColor: Colors.white,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 15,
-                                        vertical: 15,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
+                                    label:
+                                        isSeenOrder
+                                            ? "Xem Tất Cả"
+                                            : "Đơn Bản Thân",
+                                    icon: null,
                                   ),
                                 )
                                 : SizedBox.shrink(),
                             const SizedBox(width: 10),
 
                             //add
-                            ElevatedButton.icon(
+                            AnimatedButton(
                               onPressed: () {
                                 showDialog(
                                   context: context,
@@ -140,30 +126,13 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                       ),
                                 );
                               },
-                              label: Text(
-                                "Thêm mới",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              icon: Icon(Icons.add, color: Colors.white),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff78D761),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 15,
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
+                              label: "Thêm mới",
+                              icon: Icons.add,
                             ),
                             const SizedBox(width: 10),
 
                             //update
-                            ElevatedButton.icon(
+                            AnimatedButton(
                               onPressed:
                                   selectedOrderId == null
                                       ? null
@@ -194,33 +163,13 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                           print("Không tìm thấy đơn hàng: $e");
                                         }
                                       },
-                              label: Text(
-                                "Sửa",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              icon: Icon(
-                                Symbols.construction,
-                                color: Colors.white,
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff78D761),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 15,
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
+                              label: "Sửa",
+                              icon: Symbols.construction,
                             ),
                             const SizedBox(width: 10),
 
                             //delete
-                            ElevatedButton.icon(
+                            AnimatedButton(
                               onPressed:
                                   selectedOrderId == null
                                       ? null
@@ -373,25 +322,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                           },
                                         );
                                       },
-                              label: Text(
-                                "Xóa",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              icon: Icon(Icons.delete, color: Colors.white),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xffEA4346),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
+                              label: "Xóa",
+                              icon: Icons.delete,
+                              backgroundColor: Color(0xffEA4346),
                             ),
                           ],
                         ),
