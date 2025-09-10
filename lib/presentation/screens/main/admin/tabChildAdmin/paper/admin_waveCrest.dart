@@ -494,7 +494,12 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                   });
                                 }),
                               ),
-                              DataCell(Text(waveCrest.machineName.toString())),
+                              DataCell(
+                                styleCellAdmin(
+                                  waveCrest.machineName.toString(),
+                                  null,
+                                ),
+                              ),
                             ],
                           );
                         }),

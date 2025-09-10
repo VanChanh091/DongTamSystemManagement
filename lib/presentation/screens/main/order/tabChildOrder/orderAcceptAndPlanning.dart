@@ -31,8 +31,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   bool isSeenOrder = false;
 
   int currentPage = 1;
-  int pageSize = 2;
-  int pageSizeSearch = 2;
+  int pageSize = 30;
+  int pageSizeSearch = 20;
 
   @override
   void initState() {
@@ -134,7 +134,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isManager = userController.hasAnyRole(['manager']);
+    final bool isManager = userController.hasAnyRole(['manager', 'admin']);
 
     return Scaffold(
       body: Container(
@@ -231,14 +231,14 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         //see all/see only
                         isManager
                             ? SizedBox(
-                              width: 140,
+                              width: 150,
                               child: AnimatedButton(
                                 onPressed: () {
                                   setState(() {
                                     isSeenOrder = !isSeenOrder;
                                   });
 
-                                  loadOrders(true, isSeenOrder);
+                                  loadOrders(false, isSeenOrder);
                                 },
                                 label:
                                     isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
@@ -250,7 +250,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                       ],
                     ),
                   ),
-                  SizedBox(width: 25),
+                  SizedBox(width: 15),
 
                   //button
                   Center(

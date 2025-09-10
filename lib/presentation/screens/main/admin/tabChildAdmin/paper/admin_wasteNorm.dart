@@ -499,7 +499,12 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                   },
                                 ),
                               ),
-                              DataCell(Text(wasteNorm.machineName.toString())),
+                              DataCell(
+                                styleCellAdmin(
+                                  wasteNorm.machineName.toString(),
+                                  null,
+                                ),
+                              ),
                             ],
                           );
                         }),

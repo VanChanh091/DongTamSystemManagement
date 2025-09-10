@@ -47,7 +47,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isManager = userController.hasAnyRole(['manager']);
+    final bool isManager = userController.hasAnyRole(['manager', 'admin']);
 
     return Scaffold(
       body: Container(
@@ -94,14 +94,14 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                             //see all/see only
                             isManager
                                 ? SizedBox(
-                                  width: 140,
+                                  width: 150,
                                   child: AnimatedButton(
                                     onPressed: () {
                                       setState(() {
                                         isSeenOrder = !isSeenOrder;
                                       });
 
-                                      loadOrders(true, isSeenOrder);
+                                      loadOrders(false, isSeenOrder);
                                     },
                                     label:
                                         isSeenOrder
