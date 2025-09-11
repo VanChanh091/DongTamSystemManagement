@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildUserColumns() {

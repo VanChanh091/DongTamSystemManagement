@@ -41,15 +41,18 @@ class ValidationCustomer {
           if (value != withoutDiacritics) {
             return "Mã khách hàng không được có dấu tiếng Việt";
           }
-          if (checkId && value.length > 6) {
-            return 'Mã khách hàng chỉ được tối đa 6 ký tự';
+          if (checkId && value.length > 10) {
+            return 'Mã khách hàng chỉ được tối đa 10 ký tự';
           }
         }
 
-        if (label == "SDT" && value != null && value.isNotEmpty) {
-          if (!RegExp(r'^\d+$').hasMatch(value)) {
+        if (label == "SDT" && value != null && value.trim().isNotEmpty) {
+          final trimmed = value.trim();
+          if (!RegExp(r'^\d+$').hasMatch(trimmed)) {
             return 'Số điện thoại chỉ được chứa chữ số';
           }
+          // gán lại giá trị đã trim vào controller để lưu luôn
+          controller.text = trimmed;
         }
 
         if (label == "MST" && value != null && value.trim().isNotEmpty) {
@@ -62,7 +65,7 @@ class ValidationCustomer {
                   return false;
                 }
 
-                final customerMst = c.mst.trim();
+                final customerMst = c.mst.replaceAll(RegExp(r'\s+'), '');
                 if (customerMst.isEmpty) return false;
 
                 return customerMst == trimmed;
@@ -73,9 +76,7 @@ class ValidationCustomer {
             return 'Mã số thuế đã tồn tại';
           }
 
-          if (!RegExp(r'^\d+$').hasMatch(trimmed)) {
-            return 'Mã số thuế chỉ được chứa chữ số';
-          }
+          controller.text = trimmed;
         }
 
         return null;

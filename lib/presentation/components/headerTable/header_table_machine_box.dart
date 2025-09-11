@@ -1,3 +1,4 @@
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -74,23 +75,4 @@ List<GridColumn> buildMachineBoxColumns(String machine) {
     // GridColumn(columnName: 'wasteDan', label: formatColumn("Phế Liệu")),
     // GridColumn(columnName: 'wasteDGhim', label: formatColumn("Phế Liệu")),
   ];
-}
-
-Widget formatColumn(String text, {double widthBorder = 0}) {
-  return Container(
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: Color(0xffcfa381),
-      border: Border(right: BorderSide(color: Colors.grey.shade400, width: 1)),
-    ),
-    width: widthBorder,
-    child: Text(
-      text,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 15,
-        color: Colors.white,
-      ),
-    ),
-  );
 }

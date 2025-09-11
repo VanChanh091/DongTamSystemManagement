@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildColumnPlanning() {
@@ -33,23 +33,4 @@ List<GridColumn> buildColumnPlanning() {
     GridColumn(columnName: 'haveMadeBox', label: formatColumn("Làm Thùng?")),
     GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
   ];
-}
-
-Widget formatColumn(String text, {double widthBorder = 0}) {
-  return Container(
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: Color(0xffcfa381),
-      border: Border(right: BorderSide(color: Colors.grey.shade400, width: 1)),
-    ),
-    width: widthBorder,
-    child: Text(
-      text,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 15,
-        color: Colors.white,
-      ),
-    ),
-  );
 }

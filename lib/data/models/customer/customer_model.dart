@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Customer {
   final String customerId;
   final String customerName;
@@ -7,6 +9,8 @@ class Customer {
   final String mst;
   final String phone;
   final String cskh;
+  final String? contactPerson;
+  final DateTime? dayCreated;
 
   Customer({
     required this.customerId,
@@ -17,6 +21,8 @@ class Customer {
     required this.mst,
     required this.phone,
     required this.cskh,
+    this.contactPerson,
+    this.dayCreated,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) {
@@ -29,6 +35,11 @@ class Customer {
       mst: json['mst'] ?? "",
       phone: json['phone'] ?? "",
       cskh: json['cskh'] ?? "",
+      contactPerson: json['contactPerson'] ?? "",
+      dayCreated:
+          json['dayCreated'] != null && json['dayCreated'].toString().isNotEmpty
+              ? DateTime.tryParse(json['dayCreated'].toString())
+              : null,
     );
   }
 
@@ -42,6 +53,8 @@ class Customer {
       'mst': mst,
       'phone': phone,
       'cskh': cskh,
+      "contactPerson": contactPerson,
+      "dayCreated": DateFormat('yyyy-MM-dd').format(dayCreated!),
     };
   }
 }

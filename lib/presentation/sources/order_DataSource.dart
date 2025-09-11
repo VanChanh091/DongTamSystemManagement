@@ -6,12 +6,12 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:intl/intl.dart';
 
 class OrderDataSource extends DataGridSource {
-  late List<DataGridRow> orderDataGridRows;
+  List<Order> orders;
   String? selectedOrderId;
 
+  late List<DataGridRow> orderDataGridRows;
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
-  List<Order> orders;
 
   OrderDataSource({required this.orders, this.selectedOrderId}) {
     buildDataCell();

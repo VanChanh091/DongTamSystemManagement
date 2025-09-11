@@ -28,6 +28,7 @@ class CustomerService {
         ),
       );
       final data = response.data['data'] as List;
+      // print(data)
 
       return data.map((e) => Customer.fromJson(e)).toList();
     } catch (e) {

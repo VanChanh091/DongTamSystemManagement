@@ -70,9 +70,9 @@ class _OrderDialogState extends State<OrderDialog> {
   final daoXaController = TextEditingController();
   late String typeDVT = "Kg";
   late String typeDaoXa = "Tề Gọn";
-  final dateShippingController = TextEditingController();
-  DateTime? dateShipping;
-  DateTime? dayReceive = DateTime.now();
+  final dateShippingController = TextEditingController(); //ngày giao
+  DateTime? dateShipping; //ngày giao
+  DateTime? dayReceive = DateTime.now(); //ngày nhận
   final customerIdController = TextEditingController();
   final productIdController = TextEditingController();
   final nameSpController = TextEditingController();

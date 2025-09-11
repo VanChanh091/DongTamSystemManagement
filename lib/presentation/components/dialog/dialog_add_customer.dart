@@ -2,7 +2,10 @@ import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_Service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_customer.dart';
+import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class CustomerDialog extends StatefulWidget {
   final Customer? customer;
@@ -31,21 +34,33 @@ class _CustomerDialogState extends State<CustomerDialog> {
   final _mstController = TextEditingController();
   final _phoneController = TextEditingController();
   final _cskhController = TextEditingController();
+  final _contactPersonController = TextEditingController();
+  final _dayCreatedController = TextEditingController();
+  DateTime? dayCreated;
 
   @override
   void initState() {
     super.initState();
     if (widget.customer != null) {
-      _idController.text = widget.customer!.customerId;
-      _nameController.text = widget.customer!.customerName;
-      _companyNameController.text = widget.customer!.companyName;
-      _companyAddressController.text = widget.customer!.companyAddress;
-      _shippingAddressController.text = widget.customer!.shippingAddress;
-      _mstController.text = widget.customer!.mst;
-      _phoneController.text = widget.customer!.phone;
-      _cskhController.text = widget.customer!.cskh;
+      customerInitState();
     }
     fetchAllCustomer();
+  }
+
+  void customerInitState() {
+    _idController.text = widget.customer!.customerId;
+    _nameController.text = widget.customer!.customerName;
+    _companyNameController.text = widget.customer!.companyName;
+    _companyAddressController.text = widget.customer!.companyAddress;
+    _shippingAddressController.text = widget.customer!.shippingAddress;
+    _mstController.text = widget.customer!.mst;
+    _phoneController.text = widget.customer!.phone;
+    _cskhController.text = widget.customer!.cskh;
+    _contactPersonController.text = widget.customer?.contactPerson ?? "";
+    _contactPersonController.text = widget.customer?.contactPerson ?? "";
+
+    dayCreated = widget.customer?.dayCreated;
+    _dayCreatedController.text = DateFormat('dd/MM/yyyy').format(dayCreated!);
   }
 
   Future<void> fetchAllCustomer() async {
@@ -143,6 +158,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
       mst: _mstController.text,
       phone: _phoneController.text,
       cskh: _cskhController.text,
+      contactPerson: _contactPersonController.text,
+      dayCreated: dayCreated ?? DateTime.now(),
     );
 
     try {
@@ -178,6 +195,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _mstController.dispose();
     _phoneController.dispose();
     _cskhController.dispose();
+    _contactPersonController.dispose();
+    _dayCreatedController.dispose();
     super.dispose();
   }
 
@@ -196,7 +215,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       ),
       content: SizedBox(
         width: 600,
-        height: 550,
+        height: 700,
         child:
             isLoading
                 ? Center(child: CircularProgressIndicator())
@@ -213,30 +232,35 @@ class _CustomerDialogState extends State<CustomerDialog> {
                           readOnly: isEdit,
                           checkId: !isEdit,
                         ),
+
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
                           "Tên khách hàng",
                           _nameController,
                           Icons.person,
                         ),
+
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
                           "Tên công ty",
                           _companyNameController,
                           Icons.business,
                         ),
+
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
                           "Địa chỉ công ty",
                           _companyAddressController,
                           Icons.location_city,
                         ),
+
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
                           "Địa chỉ giao hàng",
                           _shippingAddressController,
                           Icons.local_shipping,
                         ),
+
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
                           "MST",
@@ -245,12 +269,46 @@ class _CustomerDialogState extends State<CustomerDialog> {
                           allCustomers: allCustomers,
                           currentCustomerId: widget.customer?.customerId,
                         ),
+
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
                           "SDT",
                           _phoneController,
                           Icons.phone,
                         ),
+
+                        const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "Người Liên Hệ",
+                          _contactPersonController,
+                          Icons.person,
+                        ),
+
+                        const SizedBox(height: 15),
+                        ValidationOrder.validateInput(
+                          "Ngày tạo KH",
+                          _dayCreatedController,
+                          Symbols.calendar_month,
+                          readOnly: true,
+                          onTap: () async {
+                            DateTime baseDate = dayCreated ?? DateTime.now();
+                            DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: baseDate,
+                              lastDate: DateTime(2100),
+                            );
+                            if (pickedDate != null) {
+                              setState(() {
+                                dayCreated = pickedDate;
+                                _dayCreatedController.text = DateFormat(
+                                  'dd/MM/yyyy',
+                                ).format(pickedDate);
+                              });
+                            }
+                          },
+                        ),
+
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
                           "CSKH",

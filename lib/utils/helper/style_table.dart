@@ -38,3 +38,23 @@ Widget styleCell(String text, {double? width}) {
     child: Text(text, maxLines: 2, style: TextStyle(fontSize: 15)),
   );
 }
+
+Widget formatColumn(String text, {double widthBorder = 0}) {
+  return Container(
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      // color: Colors.amberAccent.shade200,
+      color: Color(0xffcfa381),
+      border: Border(right: BorderSide(color: Colors.grey.shade400, width: 1)),
+    ),
+    width: widthBorder,
+    child: Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+        color: Colors.white,
+      ),
+    ),
+  );
+}
