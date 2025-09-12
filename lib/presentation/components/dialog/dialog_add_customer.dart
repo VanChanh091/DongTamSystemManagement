@@ -65,7 +65,12 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
   Future<void> fetchAllCustomer() async {
     try {
-      allCustomers = await CustomerService().getAllCustomers(false);
+      final result = await CustomerService().getAllCustomers(
+        refresh: false,
+        noPaging: true,
+      );
+
+      allCustomers = result['customers'] as List<Customer>;
     } catch (e) {
       print("Lỗi khi tải danh sách khách hàng: $e");
     } finally {

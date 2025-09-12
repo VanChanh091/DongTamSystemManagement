@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
@@ -195,11 +196,19 @@ class _ManageOrderState extends State<AdminOrder> {
                                                     'accept',
                                                     "",
                                                   );
+
                                               showSnackBarSuccess(
                                                 context,
                                                 'Phê duyệt thành công',
                                               );
                                               await _loadOrders();
+
+                                              //gọi controller để cập nhật badge
+                                              final badgesController =
+                                                  Get.find<BadgesController>();
+                                              await badgesController
+                                                  .fetchPendingApprovals();
+
                                               setState(() {
                                                 selectedOrder = null;
                                               });

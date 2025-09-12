@@ -107,6 +107,7 @@ class _OrderDialogState extends State<OrderDialog> {
         boxInitState();
       }
     }
+
     fetchAllCustomers();
     fetchAllProduct();
     addListenerForField();
@@ -186,12 +187,16 @@ class _OrderDialogState extends State<OrderDialog> {
 
   Future<void> getCustomerById(String customerId) async {
     try {
-      final customers = await CustomerService().getCustomerById(customerId);
+      final result = await CustomerService().getCustomerById(
+        customerId: customerId,
+      );
 
       if (customerId != lastSearchedCustomerId) return;
 
-      if (customers.isNotEmpty) {
-        final customer = customers.first;
+      final customerData = result['customers'] as List<Customer>;
+
+      if (customerData.isNotEmpty) {
+        final customer = customerData.first;
         if (mounted) {
           setState(() {
             customerNameController.text = customer.customerName;
@@ -274,7 +279,12 @@ class _OrderDialogState extends State<OrderDialog> {
 
   Future<void> fetchAllCustomers() async {
     try {
-      allCustomers = await CustomerService().getAllCustomers(false);
+      final result = await CustomerService().getAllCustomers(
+        refresh: false,
+        noPaging: true,
+      );
+
+      allCustomers = result['customers'] as List<Customer>;
     } catch (e) {
       print("Lỗi lấy danh sách khách hàng: $e");
     }
@@ -534,8 +544,16 @@ class _OrderDialogState extends State<OrderDialog> {
               controller: customerIdController,
               labelText: "Mã Khách Hàng",
               icon: Symbols.badge,
-              suggestionsCallback:
-                  (pattern) => CustomerService().getCustomerById(pattern),
+              suggestionsCallback: (pattern) async {
+                final result = await CustomerService().getCustomerById(
+                  customerId: pattern,
+                );
+                if (result['customers'] != null &&
+                    result['customers'] is List<Customer>) {
+                  return result['customers'] as List<Customer>;
+                }
+                return [];
+              },
               displayStringForItem: (customer) => customer.customerId,
               itemBuilder: (context, customer) {
                 return ListTile(
@@ -622,7 +640,7 @@ class _OrderDialogState extends State<OrderDialog> {
               itemBuilder: (context, product) {
                 return ListTile(
                   title: Text(product.productId),
-                  subtitle: Text(product.productId),
+                  subtitle: Text(product.productName ?? ""),
                 );
               },
               onSelected: (product) {

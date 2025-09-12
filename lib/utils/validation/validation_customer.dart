@@ -10,7 +10,7 @@ class ValidationCustomer {
     bool readOnly = false,
     bool checkId = false,
     List<Customer>? allCustomers,
-    String? currentCustomerId, // 👈 thêm dòng này
+    String? currentCustomerId,
   }) {
     return TextFormField(
       controller: controller,
@@ -26,6 +26,12 @@ class ValidationCustomer {
         filled: true,
       ),
       validator: (value) {
+        if (value != null) {
+          // xoá khoảng trắng 2 đầu + dấu xuống dòng
+          value = value.trim().replaceAll(RegExp(r'[\r\n]+'), ' ');
+          controller.text = value;
+        }
+
         if ((label == 'Mã khách hàng' ||
                 label == "Tên khách hàng" ||
                 label == "Tên công ty" ||
@@ -36,8 +42,8 @@ class ValidationCustomer {
           return 'Vui lòng nhập $label';
         }
 
-        if (label == 'Mã khách hàng') {
-          final withoutDiacritics = removeDiacritics(value!);
+        if (label == 'Mã khách hàng' && value != null) {
+          final withoutDiacritics = removeDiacritics(value);
           if (value != withoutDiacritics) {
             return "Mã khách hàng không được có dấu tiếng Việt";
           }
@@ -46,17 +52,14 @@ class ValidationCustomer {
           }
         }
 
-        if (label == "SDT" && value != null && value.trim().isNotEmpty) {
-          final trimmed = value.trim();
-          if (!RegExp(r'^\d+$').hasMatch(trimmed)) {
+        if (label == "SDT" && value != null && value.isNotEmpty) {
+          if (!RegExp(r'^\d+$').hasMatch(value)) {
             return 'Số điện thoại chỉ được chứa chữ số';
           }
-          // gán lại giá trị đã trim vào controller để lưu luôn
-          controller.text = trimmed;
         }
 
-        if (label == "MST" && value != null && value.trim().isNotEmpty) {
-          final trimmed = value.trim();
+        if (label == "MST" && value != null && value.isNotEmpty) {
+          final trimmed = value.replaceAll(RegExp(r'\s+'), '');
 
           final isDuplicate =
               allCustomers?.any((c) {

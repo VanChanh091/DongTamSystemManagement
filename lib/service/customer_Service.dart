@@ -13,13 +13,23 @@ class CustomerService {
   );
 
   // get all
-  Future<List<Customer>> getAllCustomers(bool refresh) async {
+  Future<Map<String, dynamic>> getAllCustomers({
+    bool refresh = false,
+    int? page,
+    int? pageSize,
+    bool noPaging = false,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         "/api/customer/",
-        queryParameters: {'refresh': refresh},
+        queryParameters: {
+          'page': page,
+          'pageSize': pageSize,
+          'refresh': refresh,
+          'noPaging': noPaging,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -27,22 +37,46 @@ class CustomerService {
           },
         ),
       );
-      final data = response.data['data'] as List;
-      // print(data)
+      final data = response.data;
+      final customers = data['data'] as List; //data
 
-      return data.map((e) => Customer.fromJson(e)).toList();
+      // Luôn parse list customers
+      final parsedCustomers =
+          customers.map((e) => Customer.fromJson(e)).toList();
+
+      if (noPaging) {
+        return {'customers': parsedCustomers};
+      } else {
+        final totalPages = data['totalPages']; //page size
+        final currentPage = data['currentPage']; //page
+
+        return {
+          'customers': parsedCustomers,
+          "totalPages": totalPages,
+          "currentPage": currentPage,
+        };
+      }
     } catch (e) {
       throw Exception('Failed to load customers: $e');
     }
   }
 
   // get by id
-  Future<List<Customer>> getCustomerById(String customerId) async {
+  Future<Map<String, dynamic>> getCustomerById({
+    String customerId = "",
+    int page = 1,
+    int pageSize = 10,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/customer/$customerId',
+        '/api/customer/byCustomerId',
+        queryParameters: {
+          'customerId': customerId,
+          'page': page,
+          'pageSize': pageSize,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -51,20 +85,36 @@ class CustomerService {
         ),
       );
 
-      final List<dynamic> customersData = response.data['data'];
-      return customersData.map((e) => Customer.fromJson(e)).toList();
+      final data = response.data;
+      final customers = data['data'] as List; //data
+      final totalPages = data['totalPages'] ?? 1;
+      final currentPage = data['currentPage'] ?? 1;
+
+      final filteredCustomer =
+          customers.map((json) => Customer.fromJson(json)).toList();
+
+      return {
+        'customers': filteredCustomer,
+        'totalPages': totalPages,
+        'currentPage': currentPage,
+      };
     } catch (e) {
       throw Exception('Failed to get customerId: $e');
     }
   }
 
   // get by name
-  Future<List<Customer>> getCustomerByName(String customerName) async {
+  Future<Map<String, dynamic>> getCustomerByName(
+    String name,
+    int page,
+    int pageSize,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/customer/byName/$customerName',
+        '/api/customer/byName',
+        queryParameters: {'name': name, 'page': page, 'pageSize': pageSize},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -73,20 +123,36 @@ class CustomerService {
         ),
       );
 
-      final List<dynamic> customersData = response.data['data'];
-      return customersData.map((e) => Customer.fromJson(e)).toList();
+      final data = response.data;
+      final customers = data['data'] as List; //data
+      final totalPages = data['totalPages'] ?? 1;
+      final currentPage = data['currentPage'] ?? 1;
+
+      final filteredCustomer =
+          customers.map((json) => Customer.fromJson(json)).toList();
+
+      return {
+        'customers': filteredCustomer,
+        'totalPages': totalPages,
+        'currentPage': currentPage,
+      };
     } catch (e) {
       throw Exception('Failed to get customerName: $e');
     }
   }
 
   // get by cskh
-  Future<List<Customer>> getCustomerByCSKH(String nameCSKH) async {
+  Future<Map<String, dynamic>> getCustomerByCSKH(
+    String cskh,
+    int page,
+    int pageSize,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/customer/cskh/$nameCSKH',
+        '/api/customer/byCskh',
+        queryParameters: {'cskh': cskh, 'page': page, 'pageSize': pageSize},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -94,20 +160,37 @@ class CustomerService {
           },
         ),
       );
-      final List<dynamic> customersData = response.data['data'];
-      return customersData.map((e) => Customer.fromJson(e)).toList();
+
+      final data = response.data;
+      final customers = data['data'] as List; //data
+      final totalPages = data['totalPages'] ?? 1;
+      final currentPage = data['currentPage'] ?? 1;
+
+      final filteredCustomer =
+          customers.map((json) => Customer.fromJson(json)).toList();
+
+      return {
+        'customers': filteredCustomer,
+        'totalPages': totalPages,
+        'currentPage': currentPage,
+      };
     } catch (e) {
       throw Exception('Failed to get customerName: $e');
     }
   }
 
-  // get by cskh
-  Future<List<Customer>> getCustomerByPhone(String phone) async {
+  // get by phone
+  Future<Map<String, dynamic>> getCustomerByPhone(
+    String phone,
+    int page,
+    int pageSize,
+  ) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/customer/phone/$phone',
+        '/api/customer/byPhone',
+        queryParameters: {'phone': phone, 'page': page, 'pageSize': pageSize},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -115,8 +198,20 @@ class CustomerService {
           },
         ),
       );
-      final List<dynamic> customersData = response.data['data'];
-      return customersData.map((json) => Customer.fromJson(json)).toList();
+
+      final data = response.data;
+      final customers = data['data'] as List; //data
+      final totalPages = data['totalPages'] ?? 1;
+      final currentPage = data['currentPage'] ?? 1;
+
+      final filteredCustomer =
+          customers.map((json) => Customer.fromJson(json)).toList();
+
+      return {
+        'customers': filteredCustomer,
+        'totalPages': totalPages,
+        'currentPage': currentPage,
+      };
     } catch (e) {
       throw Exception('Failed to get customerName: $e');
     }
@@ -151,7 +246,8 @@ class CustomerService {
     try {
       final token = await SecureStorageService().getToken();
       await dioService.put(
-        "/api/customer/$customerId",
+        "/api/customer/customerUp",
+        queryParameters: {"customerId": customerId},
         data: updateCustomer,
         options: Options(
           headers: {
@@ -172,7 +268,8 @@ class CustomerService {
       final token = await SecureStorageService().getToken();
 
       await dioService.delete(
-        '/api/customer/$customerId',
+        "/api/customer/customerDel",
+        queryParameters: {"customerId": customerId},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

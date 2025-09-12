@@ -26,6 +26,18 @@ class CustomerDatasource extends DataGridSource {
         columnName: "customerName",
         value: customer.customerName,
       ),
+      DataGridCell<String>(columnName: "phone", value: customer.phone),
+      DataGridCell<String>(
+        columnName: "contactPerson",
+        value: customer.contactPerson ?? "",
+      ),
+      DataGridCell<String>(
+        columnName: "dayCreatedCus",
+        value:
+            customer.dayCreated != null
+                ? formatter.format(customer.dayCreated!)
+                : "",
+      ),
       DataGridCell<String>(
         columnName: "companyName",
         value: customer.companyName,
@@ -37,18 +49,6 @@ class CustomerDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: "shippingAddress",
         value: customer.shippingAddress,
-      ),
-      DataGridCell<String>(columnName: "phone", value: customer.phone),
-      DataGridCell<String>(
-        columnName: "contactPerson",
-        value: customer.contactPerson ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: "dayCreated",
-        value:
-            customer.dayCreated != null
-                ? formatter.format(customer.dayCreated!)
-                : "",
       ),
       DataGridCell<String>(columnName: "CSKH", value: customer.cskh),
     ];

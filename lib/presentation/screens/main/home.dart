@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
@@ -29,8 +30,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final SidebarController sidebarController = Get.put(SidebarController());
   final AuthService authService = AuthService();
+  final sidebarController = Get.put(SidebarController());
+  final badgesController = Get.put(BadgesController());
   final userController = Get.find<UserController>();
 
   bool _isHovered = false;
@@ -269,18 +271,32 @@ class _HomePageState extends State<HomePage> {
         adminPaperIndex == -1 &&
         adminBoxIndex == -1 &&
         manageUserIndex == -1) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
+
+    final badgesController = Get.find<BadgesController>();
 
     return Column(
       children: [
         _isHovered
             ? ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              leading: const Icon(
-                Icons.admin_panel_settings,
-                color: Colors.white,
-              ),
+              leading: Obx(() {
+                final count = badgesController.numberBadges.value;
+                if (count == 0) {
+                  return const Icon(
+                    Icons.admin_panel_settings,
+                    color: Colors.white,
+                  );
+                }
+                return Badge.count(
+                  count: count,
+                  child: const Icon(
+                    Icons.admin_panel_settings,
+                    color: Colors.white,
+                  ),
+                );
+              }),
               title: const Text(
                 "Quản Lý",
                 style: TextStyle(color: Colors.white, fontSize: 18),
@@ -291,14 +307,30 @@ class _HomePageState extends State<HomePage> {
                 size: 20,
               ),
               onTap:
-                  () => setState(
-                    () => _isApprovalExpanded = !_isApprovalExpanded,
-                  ),
+                  () => setState(() {
+                    _isApprovalExpanded = !_isApprovalExpanded;
+                  }),
             )
-            : const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
+            : Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: Center(
-                child: Icon(Icons.admin_panel_settings, color: Colors.white),
+                child: Obx(() {
+                  final count = badgesController.numberBadges.value;
+                  if (count == 0) {
+                    return const Icon(
+                      Icons.admin_panel_settings,
+                      color: Colors.white,
+                    );
+                  }
+                  return Badge(
+                    smallSize: 8, // chấm đỏ nhỏ
+                    backgroundColor: Colors.red,
+                    child: const Icon(
+                      Icons.admin_panel_settings,
+                      color: Colors.white,
+                    ),
+                  );
+                }),
               ),
             ),
         if (_isHovered && _isApprovalExpanded) ...[
@@ -307,6 +339,16 @@ class _HomePageState extends State<HomePage> {
               Icons.pending_actions,
               "Chờ Duyệt",
               adminOrderIndex,
+              leadingWrapper: Obx(() {
+                final count = badgesController.numberBadges.value;
+                if (count == 0) {
+                  return const Icon(Icons.pending_actions, color: Colors.white);
+                }
+                return Badge.count(
+                  count: count,
+                  child: const Icon(Icons.pending_actions, color: Colors.white),
+                );
+              }),
             ),
           if (adminPaperIndex != -1)
             _buildSubMenuItem(
@@ -348,13 +390,21 @@ class _HomePageState extends State<HomePage> {
         );
   }
 
-  Widget _buildSubMenuItem(IconData icon, String title, int index) {
-    if (index == -1) return SizedBox.shrink();
+  Widget _buildSubMenuItem(
+    IconData icon,
+    String title,
+    int index, {
+    Widget? leadingWrapper,
+  }) {
+    if (index == -1) return const SizedBox.shrink();
 
     return ListTile(
-      leading: Icon(icon, color: Colors.white),
+      leading: leadingWrapper ?? Icon(icon, color: Colors.white),
       contentPadding: EdgeInsets.only(left: _isHovered ? 32 : 16),
-      title: Text(title, style: TextStyle(color: Colors.white, fontSize: 16)),
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white, fontSize: 16),
+      ),
       onTap: () {
         sidebarController.changePage(index);
       },

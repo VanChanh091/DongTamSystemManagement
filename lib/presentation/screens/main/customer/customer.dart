@@ -19,27 +19,36 @@ class CustomerPage extends StatefulWidget {
 }
 
 class _CustomerPageState extends State<CustomerPage> {
-  late Future<List<Customer>> futureCustomer;
+  late Future<Map<String, dynamic>> futureCustomer;
   late CustomerDatasource customerDatasource;
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
   TextEditingController searchController = TextEditingController();
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
+  bool isSearching = false; //dùng để phân trang cho tìm kiếm
   String searchType = "Tất cả";
   String? selectedCustomerId;
+
+  int currentPage = 1;
+  int pageSize = 3;
+  int pageSizeSearch = 20;
 
   @override
   void initState() {
     super.initState();
-    loadCustomer(true);
+    loadCustomer(false);
 
     columns = buildCustomerColumn();
   }
 
   void loadCustomer(bool refresh) {
     setState(() {
-      futureCustomer = CustomerService().getAllCustomers(refresh);
+      futureCustomer = CustomerService().getAllCustomers(
+        refresh: refresh,
+        page: currentPage,
+        pageSize: pageSize,
+      );
     });
   }
 
@@ -48,25 +57,43 @@ class _CustomerPageState extends State<CustomerPage> {
 
     if (isTextFieldEnabled && keyword.isEmpty) return;
 
+    currentPage = 1;
+
     if (searchType == "Tất cả") {
-      setState(() {
-        futureCustomer = CustomerService().getAllCustomers(false);
-      });
+      isSearching = false;
+      loadCustomer(false);
     } else if (searchType == "Theo Mã") {
       setState(() {
-        futureCustomer = CustomerService().getCustomerById(keyword);
+        futureCustomer = CustomerService().getCustomerById(
+          customerId: keyword,
+          page: currentPage,
+          pageSize: pageSizeSearch,
+        );
       });
     } else if (searchType == "Theo Tên KH") {
+      isSearching = true;
       setState(() {
-        futureCustomer = CustomerService().getCustomerByName(keyword);
+        futureCustomer = CustomerService().getCustomerByName(
+          keyword,
+          currentPage,
+          pageSizeSearch,
+        );
       });
     } else if (searchType == "Theo CSKH") {
       setState(() {
-        futureCustomer = CustomerService().getCustomerByCSKH(keyword);
+        futureCustomer = CustomerService().getCustomerByCSKH(
+          keyword,
+          currentPage,
+          pageSizeSearch,
+        );
       });
     } else if (searchType == "Theo SDT") {
       setState(() {
-        futureCustomer = CustomerService().getCustomerByPhone(keyword);
+        futureCustomer = CustomerService().getCustomerByPhone(
+          keyword,
+          currentPage,
+          pageSizeSearch,
+        );
       });
     }
   }
@@ -187,7 +214,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                           (_) => CustomerDialog(
                                             customer: null,
                                             onCustomerAddOrUpdate:
-                                                () => loadCustomer(false),
+                                                () => loadCustomer(true),
                                           ),
                                     );
                                   },
@@ -212,15 +239,27 @@ class _CustomerPageState extends State<CustomerPage> {
 
                                             CustomerService()
                                                 .getCustomerById(
-                                                  selectedCustomerId!,
+                                                  customerId:
+                                                      selectedCustomerId!,
                                                 )
-                                                .then((product) {
+                                                .then((result) {
+                                                  final customers =
+                                                      result['customers']
+                                                          as List<Customer>;
+                                                  if (customers.isEmpty) {
+                                                    showSnackBarError(
+                                                      context,
+                                                      'Không tìm thấy khách hàng',
+                                                    );
+                                                    return;
+                                                  }
+
                                                   showDialog(
                                                     context: context,
                                                     builder:
                                                         (_) => CustomerDialog(
                                                           customer:
-                                                              product.first,
+                                                              customers.first,
                                                           onCustomerAddOrUpdate:
                                                               () =>
                                                                   loadCustomer(
@@ -266,7 +305,8 @@ class _CustomerPageState extends State<CustomerPage> {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  } else if (!snapshot.hasData ||
+                      snapshot.data!['customers'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có khách hàng nào",
@@ -278,44 +318,139 @@ class _CustomerPageState extends State<CustomerPage> {
                     );
                   }
 
-                  final List<Customer> data = snapshot.data!;
+                  final data = snapshot.data!;
+                  final customers = data['customers'] as List<Customer>;
+                  final currentPg = data['currentPage'];
+                  final totalPgs = data['totalPages'];
 
                   customerDatasource = CustomerDatasource(
-                    customer: data,
+                    customer: customers,
                     selectedCustomerId: selectedCustomerId,
                   );
 
-                  return SfDataGrid(
-                    source: customerDatasource,
-                    columns: columns,
-                    isScrollbarAlwaysShown: true,
-                    columnWidthMode: ColumnWidthMode.auto,
-                    selectionMode: SelectionMode.single,
-                    onSelectionChanged: (addedRows, removedRows) {
-                      if (addedRows.isNotEmpty) {
-                        final selectedRow = addedRows.first;
-                        final customerId =
-                            selectedRow
-                                .getCells()
-                                .firstWhere(
-                                  (cell) => cell.columnName == 'customerId',
-                                )
-                                .value
-                                .toString();
+                  return Column(
+                    children: [
+                      //table
+                      Expanded(
+                        child: SfDataGrid(
+                          source: customerDatasource,
+                          columns: columns,
+                          rowHeight: 45,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.single,
+                          onSelectionChanged: (addedRows, removedRows) {
+                            if (addedRows.isNotEmpty) {
+                              final selectedRow = addedRows.first;
+                              final customerId =
+                                  selectedRow
+                                      .getCells()
+                                      .firstWhere(
+                                        (cell) =>
+                                            cell.columnName == 'customerId',
+                                      )
+                                      .value
+                                      .toString();
 
-                        final selectedCustomer = data.firstWhere(
-                          (customer) => customer.customerId == customerId,
-                        );
+                              final selectedCustomer = customers.firstWhere(
+                                (customer) => customer.customerId == customerId,
+                              );
 
-                        setState(() {
-                          selectedCustomerId = selectedCustomer.customerId;
-                        });
-                      } else {
-                        setState(() {
-                          selectedCustomerId = null;
-                        });
-                      }
-                    },
+                              setState(() {
+                                selectedCustomerId =
+                                    selectedCustomer.customerId;
+                              });
+                            } else {
+                              setState(() {
+                                selectedCustomerId = null;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+
+                      // Nút chuyển trang
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            //previous
+                            ElevatedButton(
+                              onPressed:
+                                  currentPage > 1
+                                      ? () {
+                                        setState(() {
+                                          currentPage--;
+                                          loadCustomer(false);
+                                        });
+                                      }
+                                      : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xff78D761),
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 15,
+                                ),
+                                shadowColor: Colors.black.withOpacity(0.2),
+                                elevation: 5,
+                              ),
+                              child: Text(
+                                "Trang trước",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Trang: $currentPg / $totalPgs',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            //next
+                            ElevatedButton(
+                              onPressed:
+                                  currentPage < totalPgs
+                                      ? () {
+                                        setState(() {
+                                          currentPage++;
+                                          loadCustomer(false);
+                                        });
+                                      }
+                                      : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xff78D761),
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 15,
+                                ),
+                                shadowColor: Colors.black.withOpacity(0.2),
+                                elevation: 5,
+                              ),
+                              child: Text(
+                                "Trang sau",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -324,11 +459,7 @@ class _CustomerPageState extends State<CustomerPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          setState(() {
-            futureCustomer = CustomerService().getAllCustomers(true);
-          });
-        },
+        onPressed: () => loadCustomer(true),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
@@ -410,9 +541,8 @@ class _CustomerPageState extends State<CustomerPage> {
 
                             setState(() {
                               selectedCustomerId = null;
-                              futureCustomer = CustomerService()
-                                  .getAllCustomers(false);
                             });
+                            loadCustomer(true);
 
                             Navigator.pop(context);
                             showSnackBarSuccess(context, 'Xoá thành công');

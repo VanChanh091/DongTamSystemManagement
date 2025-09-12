@@ -28,7 +28,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   String searchType = "Tất cả";
   String? selectedOrderId;
   bool isTextFieldEnabled = false;
-  bool isSearching = false;
+  bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool isSeenOrder = false;
 
   int currentPage = 1;
