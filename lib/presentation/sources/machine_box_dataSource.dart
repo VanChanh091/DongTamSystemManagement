@@ -373,7 +373,7 @@ class MachineBoxDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày sản xuất: $displayDate - $itemCount'
+            ? '📅 Ngày sản xuất: $displayDate – $itemCount'
             : '📅 Ngày sản xuất: Không xác định',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),

@@ -1,12 +1,13 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_orders.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
 import 'package:dongtam/presentation/sources/order_dataSource.dart';
-import 'package:dongtam/service/order_Service.dart';
+import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -26,8 +27,10 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   late List<GridColumn> columns;
   String? selectedOrderId;
   bool isSeenOrder = false;
-  final userController = Get.find<UserController>();
+
   final formatter = DateFormat('dd/MM/yyyy');
+  final userController = Get.find<UserController>();
+  final badgesController = Get.find<BadgesController>();
 
   @override
   void initState() {
@@ -283,6 +286,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                                     .deleteOrder(
                                                                       selectedOrderId!,
                                                                     );
+
+                                                                badgesController
+                                                                    .fetchPendingApprovals();
 
                                                                 await Future.delayed(
                                                                   const Duration(

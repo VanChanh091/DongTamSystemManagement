@@ -5,10 +5,10 @@ import 'package:dongtam/presentation/components/headerTable/header_table_machine
 import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/service/socket/socket_service.dart';
+import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -46,83 +46,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     columns = buildMachineBoxColumns(machine);
   }
 
-  Future<void> registerSocket() async {
-    await SocketService().connectToSocket(machine);
-
-    SocketService().on('planningBoxUpdated', (data) {
-      if (!mounted) return;
-
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder:
-            (ctx) => AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              contentPadding: const EdgeInsets.all(20),
-              titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
-
-              title: Center(
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.notifications_active,
-                      color: Colors.green,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Thông báo',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              content: SizedBox(
-                width: 400,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Đã có kế hoạch mới cho $machine.\nNhấn OK để cập nhật dữ liệu.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 17),
-                    ),
-                  ],
-                ),
-              ),
-
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    loadPlanning(true);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: const Text('OK', style: TextStyle(fontSize: 16)),
-                ),
-              ],
-            ),
-      );
-    });
-  }
-
   void loadPlanning(bool refresh) {
     setState(() {
       futurePlanning = ManufactureService()
@@ -139,20 +62,115 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     });
   }
 
-  void changeMachine(String selectedMachine) {
-    setState(() {
-      machine = selectedMachine;
-      selectedPlanningIds.clear();
+  String _machineRoomName(String machineName) =>
+      'machine_${machineName.toLowerCase().replaceAll(' ', '_')}';
 
-      SocketService().disconnectSocket();
-      registerSocket();
-      loadPlanning(true);
+  void _onPlanningPaperUpdated(dynamic data) {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (ctx) => AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            contentPadding: const EdgeInsets.all(20),
+            titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
+
+            title: Center(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.notifications_active,
+                    color: Colors.green,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Thông báo',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            content: SizedBox(
+              width: 400,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Đã có kế hoạch mới cho $machine.\nNhấn OK để cập nhật dữ liệu.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 17),
+                  ),
+                ],
+              ),
+            ),
+
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  loadPlanning(true);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 12,
+                  ),
+                ),
+                child: const Text('OK', style: TextStyle(fontSize: 16)),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> registerSocket() async {
+    socketService.joinMachineRoom(machine);
+
+    socketService.off('planningPaperUpdated');
+    socketService.on('planningPaperUpdated', _onPlanningPaperUpdated);
+  }
+
+  Future<void> changeMachine(String machineName) async {
+    // room cũ
+    final oldRoom = _machineRoomName(machine);
+
+    // cập nhật state trước (UI)
+    setState(() {
+      machine = machineName;
+      selectedPlanningIds.clear();
     });
+
+    // rời room cũ (server cần xử lý leave-room)
+    await socketService.leaveRoom(oldRoom);
+
+    // gỡ listener cũ
+    socketService.off('planningPaperUpdated');
+
+    // join room mới và đăng ký listener
+    await socketService.joinMachineRoom(machineName);
+    socketService.on('planningPaperUpdated', _onPlanningPaperUpdated);
+
+    // load data cho máy mới
+    loadPlanning(true);
   }
 
   @override
   void dispose() {
-    SocketService().disconnectSocket();
+    final room = _machineRoomName(machine);
+    socketService.leaveRoom(room);
+    socketService.off('planningPaperUpdated');
     super.dispose();
   }
 

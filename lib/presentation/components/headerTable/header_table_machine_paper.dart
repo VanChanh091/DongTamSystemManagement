@@ -2,7 +2,10 @@ import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/widgets.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-List<GridColumn> buildMachineColumns({bool isPlanningPaper = false}) {
+List<GridColumn> buildMachineColumns({
+  bool isShowPlanningPaper = false,
+  bool hasBox = false,
+}) {
   return [
     //planning
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
@@ -50,7 +53,7 @@ List<GridColumn> buildMachineColumns({bool isPlanningPaper = false}) {
     GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
 
     //box
-    if (isPlanningPaper == true) ...[
+    if (isShowPlanningPaper == true) ...[
       GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
       GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
       GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
@@ -71,6 +74,10 @@ List<GridColumn> buildMachineColumns({bool isPlanningPaper = false}) {
         label: formatColumn("Đóng Ghim 2 Mảnh"),
       ),
       GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
+    ],
+
+    if (hasBox == true) ...[
+      GridColumn(columnName: 'hasMadeBox', label: formatColumn("Làm Thùng?")),
     ],
 
     GridColumn(columnName: 'status', label: SizedBox(), visible: false),

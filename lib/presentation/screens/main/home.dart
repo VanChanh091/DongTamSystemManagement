@@ -14,8 +14,10 @@ import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
 import 'package:dongtam/presentation/screens/main/planning/top_tab_planning.dart';
 import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
-import 'package:dongtam/service/auth_Service.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/presentation/screens/main/report/top_tab_report.dart';
+import 'package:dongtam/service/auth_service.dart';
+import 'package:dongtam/socket/socket_service.dart';
+import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,6 +33,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final AuthService authService = AuthService();
+  final socketService = SocketService();
   final sidebarController = Get.put(SidebarController());
   final badgesController = Get.put(BadgesController());
   final userController = Get.find<UserController>();
@@ -40,10 +43,18 @@ class _HomePageState extends State<HomePage> {
   bool _isManufactureExpanded = false;
   bool _isApprovalExpanded = false;
 
+  @override
+  void initState() {
+    super.initState();
+    SocketService().connectSocket();
+  }
+
   // build danh sách pages dựa vào quyền/role
   List<Widget> getPages() {
     return [
+      //dashboard
       DashboardPage(),
+
       _buildPage(permission: 'sale', child: TopTabOrder()),
       CustomerPage(),
       ProductPage(),
@@ -55,6 +66,9 @@ class _HomePageState extends State<HomePage> {
       // manufacture
       PaperProduction(),
       BoxPrintingProduction(),
+
+      //report
+      TopTabReport(),
 
       // admin
       _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),
@@ -120,10 +134,13 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: [
                       const SizedBox(height: 20),
+                      //logo DT
                       if (_isHovered) _buildLogoSection(),
                       const SizedBox(height: 20),
+                      //menu
                       Expanded(child: _buildMenuList(pages)),
                       const Divider(color: Colors.white70),
+                      //logo logout
                       _buildLogoutSection(),
                     ],
                   ),
@@ -164,6 +181,11 @@ class _HomePageState extends State<HomePage> {
           ),
           _buildPlanningMenu(pages),
           _buildManufactureMenu(pages),
+          _buildSidebarItem(
+            Symbols.assignment,
+            "Báo Cáo",
+            index: pages.indexWhere((w) => w is TopTabReport),
+          ),
           _buildApprovalMenu(pages),
         ],
       ),
@@ -433,7 +455,10 @@ class _HomePageState extends State<HomePage> {
             "Đăng xuất",
             style: TextStyle(color: Colors.white, fontSize: 18),
           ),
-          onTap: logout,
+          onTap: () {
+            logout();
+            socketService.disconnect();
+          },
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         )
         : const Padding(
@@ -442,7 +467,7 @@ class _HomePageState extends State<HomePage> {
         );
   }
 
-  //logo
+  //logo DT
   Widget _buildLogoSection() {
     return Center(
       child: Column(

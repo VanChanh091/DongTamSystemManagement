@@ -1,147 +1,69 @@
-import 'package:dongtam/data/controller/userController.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
-import 'package:dongtam/presentation/sources/order_dataSource.dart';
-import 'package:dongtam/service/order_service.dart';
+import 'package:dongtam/data/models/report/report_planning_paper.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_reportPaper.dart';
+import 'package:dongtam/presentation/sources/report_paper_dataSource.dart';
+import 'package:dongtam/service/report_planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class OrderAcceptAndPlanning extends StatefulWidget {
-  const OrderAcceptAndPlanning({super.key});
+class ReportPlanningPaper extends StatefulWidget {
+  const ReportPlanningPaper({super.key});
 
   @override
-  State<OrderAcceptAndPlanning> createState() => _OrderAcceptAndPlanningState();
+  State<ReportPlanningPaper> createState() => _ReportPlanningPaperState();
 }
 
-class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
-  late Future<Map<String, dynamic>> futureOrdersAccept;
-  late OrderDataSource orderDataSource;
+class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
+  late Future<Map<String, dynamic>> futureReportPaper;
+  late ReportPaperDatasource reportPaperDatasource;
   late List<GridColumn> columns;
-  final userController = Get.find<UserController>();
-  final formatter = DateFormat('dd/MM/yyyy');
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
-  String? selectedOrderId;
+  String machine = "Máy 1350";
+  int? selectedReportId;
   bool isTextFieldEnabled = false;
-  bool isSearching = false; //dùng để phân trang cho tìm kiếm
-  bool isSeenOrder = false;
 
   int currentPage = 1;
-  int pageSize = 30;
+  int pageSize = 3;
   int pageSizeSearch = 20;
 
   @override
   void initState() {
     super.initState();
-    loadOrders(false, isSeenOrder);
+    loadReportPaper(true);
 
-    columns = buildOrderColumns();
+    columns = buildReportPaperColumn();
   }
 
-  void loadOrders(bool refresh, bool ownOnly) {
+  void loadReportPaper(bool refresh) {
     setState(() {
-      if (isSearching) {
-        String keyword = searchController.text.trim().toLowerCase();
-
-        if (searchType == "Tên KH") {
-          futureOrdersAccept = OrderService().getOrderByCustomerName(
-            keyword,
-            currentPage,
-            pageSizeSearch,
-          );
-        } else if (searchType == "Tên SP") {
-          futureOrdersAccept = OrderService().getOrderByProductName(
-            keyword,
-            currentPage,
-            pageSizeSearch,
-          );
-        }
-      } else {
-        futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
-          currentPage,
-          pageSize,
-          refresh,
-          ownOnly,
-        );
-      }
+      futureReportPaper = ReportPlanningService().getReportPaper(
+        machine,
+        currentPage,
+        pageSize,
+        refresh,
+      );
     });
   }
 
-  void searchOrders() {
-    String keyword = searchController.text.trim().toLowerCase();
+  void searchReportPaper() {}
 
-    if (isTextFieldEnabled && keyword.isEmpty) return;
-
-    currentPage = 1;
-
-    if (searchType == "Tất cả") {
-      isSearching = false;
-      setState(() {
-        futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
-          currentPage,
-          pageSize,
-          false,
-          false,
-        );
-      });
-    } else if (searchType == "Tên KH") {
-      isSearching = true;
-      setState(() {
-        futureOrdersAccept = OrderService().getOrderByCustomerName(
-          keyword,
-          currentPage,
-          pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Tên SP") {
-      isSearching = true;
-      setState(() {
-        futureOrdersAccept = OrderService().getOrderByProductName(
-          keyword,
-          currentPage,
-          pageSizeSearch,
-        );
-      });
-    } else if (searchType == "QC Thùng") {
-      isSearching = true;
-      setState(() {
-        futureOrdersAccept = OrderService().getOrderByQcBox(
-          keyword,
-          currentPage,
-          pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Đơn giá") {
-      isSearching = true;
-      setState(() {
-        try {
-          final price = double.parse(keyword);
-          futureOrdersAccept = OrderService().getOrderByPrice(
-            price,
-            currentPage,
-            pageSizeSearch,
-          );
-        } catch (e) {
-          showSnackBarError(context, 'Vui lòng nhập số hợp lệ cho đơn giá');
-        }
-      });
-    }
+  void changeMachine(String selectedMachine) {
+    setState(() {
+      machine = selectedMachine;
+      selectedReportId = null;
+      loadReportPaper(true);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isManager = userController.hasAnyRole(['manager', 'admin']);
-
     return Scaffold(
       body: Container(
         color: Colors.white,
-        padding: EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             //button
@@ -149,24 +71,25 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
               height: 70,
               width: double.infinity,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   //left button
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child: Row(
                       children: [
-                        // dropdown
+                        //dropdown
                         SizedBox(
-                          width: 140,
+                          width: 160,
                           child: DropdownButtonFormField<String>(
                             value: searchType,
                             items:
                                 [
                                   'Tất cả',
-                                  "Tên KH",
-                                  "Tên SP",
-                                  "QC Thùng",
-                                  'Đơn giá',
+                                  'Mã Đơn Hàng',
+                                  'Tên KH',
+                                  "Sóng",
+                                  'Khổ Cấp Giấy',
                                 ].map((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
@@ -206,7 +129,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                           child: TextField(
                             controller: searchController,
                             enabled: isTextFieldEnabled,
-                            onSubmitted: (_) => searchOrders(),
+                            onSubmitted: (_) => searchReportPaper(),
                             decoration: InputDecoration(
                               hintText: 'Tìm kiếm...',
                               border: OutlineInputBorder(
@@ -222,68 +145,78 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
                         // find
                         AnimatedButton(
-                          onPressed: () {
-                            searchOrders();
-                          },
+                          onPressed: () => searchReportPaper(),
                           label: "Tìm kiếm",
                           icon: Icons.search,
                         ),
                         const SizedBox(width: 10),
-
-                        //see all/see only
-                        isManager
-                            ? SizedBox(
-                              width: 150,
-                              child: AnimatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isSeenOrder = !isSeenOrder;
-                                  });
-
-                                  loadOrders(false, isSeenOrder);
-                                },
-                                label:
-                                    isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
-                                icon: null,
-                              ),
-                            )
-                            : SizedBox.shrink(),
-                        const SizedBox(width: 10),
                       ],
                     ),
                   ),
-                  SizedBox(width: 15),
 
-                  //button
-                  Center(
-                    child: Text(
-                      "ĐƠN HÀNG ĐÃ DUYỆT/CHỜ LÊN KẾ HOẠCH",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                        color: Color(0xffcfa381),
-                      ),
+                  //right button
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    child: Row(
+                      children: [
+                        //choose machine
+                        SizedBox(
+                          width: 175,
+                          child: DropdownButtonFormField<String>(
+                            value: machine,
+                            items:
+                                [
+                                  'Máy 1350',
+                                  "Máy 1900",
+                                  "Máy 2 Lớp",
+                                  "Máy Quấn Cuồn",
+                                ].map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                changeMachine(value);
+                              }
+                            },
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.grey),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
 
-            // table
+            //table
             Expanded(
-              child: FutureBuilder<Map<String, dynamic>>(
-                future: futureOrdersAccept,
+              child: FutureBuilder(
+                future: futureReportPaper,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData ||
-                      //get data from paging
-                      snapshot.data!['orders'].isEmpty) {
+                      snapshot.data!['reportPapers'].isEmpty) {
                     return const Center(
                       child: Text(
-                        "Không có đơn hàng nào",
+                        "Không có báo cáo nào",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
@@ -293,14 +226,14 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                   }
 
                   final data = snapshot.data!;
-                  final orders = data['orders'] as List<Order>;
-                  final currentPg =
-                      data['currentPage']; //current page of response
-                  final totalPgs = data['totalPages']; //total  page of response
+                  final reportPapers =
+                      data['reportPapers'] as List<ReportPaperModel>;
+                  final currentPg = data['currentPage'];
+                  final totalPgs = data['totalPages'];
 
-                  orderDataSource = OrderDataSource(
-                    orders: orders,
-                    selectedOrderId: selectedOrderId,
+                  reportPaperDatasource = ReportPaperDatasource(
+                    reportPapers: reportPapers,
+                    selectedReportId: selectedReportId,
                   );
 
                   return Column(
@@ -308,11 +241,13 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                       //table
                       Expanded(
                         child: SfDataGrid(
-                          source: orderDataSource,
-                          isScrollbarAlwaysShown: true,
-                          selectionMode: SelectionMode.single,
-                          columnWidthMode: ColumnWidthMode.auto,
+                          source: reportPaperDatasource,
                           columns: columns,
+                          isScrollbarAlwaysShown: true,
+                          allowExpandCollapseGroup: true, // Bật grouping
+                          autoExpandGroups: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.single,
                           headerRowHeight: 40,
                           rowHeight: 45,
                           stackedHeaderRows: <StackedHeaderRow>[
@@ -320,10 +255,30 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                               cells: [
                                 StackedHeaderCell(
                                   columnNames: [
+                                    'quantityOrd',
+                                    'runningPlanProd',
+                                    'qtyProduced',
+                                    'qtyReported',
+                                  ],
+                                  child: formatColumn('Số Lượng'),
+                                ),
+                                StackedHeaderCell(
+                                  columnNames: [
+                                    'bottom',
+                                    'fluteE',
+                                    'fluteB',
+                                    'fluteC',
+                                    'knife',
+                                    'totalLoss',
+                                  ],
+                                  child: formatColumn('Định Mức Phế Liệu'),
+                                ),
+                                StackedHeaderCell(
+                                  columnNames: [
                                     'inMatTruoc',
                                     'inMatSau',
-                                    'canMang',
                                     'canLanBox',
+                                    'canMang',
                                     'xa',
                                     'catKhe',
                                     'be',
@@ -343,17 +298,28 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {
                               final selectedRow = addedRows.first;
-                              final orderId =
-                                  selectedRow.getCells()[0].value.toString();
-                              final selectedOrder = orders.firstWhere(
-                                (order) => order.orderId == orderId,
+                              final reportPaperId =
+                                  selectedRow
+                                      .getCells()
+                                      .firstWhere(
+                                        (cell) =>
+                                            cell.columnName == 'reportPaperId',
+                                      )
+                                      .value
+                                      .toString();
+
+                              final selectedReport = reportPapers.firstWhere(
+                                (report) =>
+                                    report.reportPaperId.toString() ==
+                                    reportPaperId,
                               );
+
                               setState(() {
-                                selectedOrderId = selectedOrder.orderId;
+                                selectedReportId = selectedReport.reportPaperId;
                               });
                             } else {
                               setState(() {
-                                selectedOrderId = null;
+                                selectedReportId = null;
                               });
                             }
                           },
@@ -367,13 +333,13 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadOrders(false, isSeenOrder);
+                            loadReportPaper(false);
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadOrders(false, isSeenOrder);
+                            loadReportPaper(false);
                           });
                         },
                       ),
@@ -386,7 +352,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadOrders(true, isSeenOrder),
+        onPressed: () => loadReportPaper(true),
         backgroundColor: Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

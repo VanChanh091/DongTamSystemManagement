@@ -1,9 +1,9 @@
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
-import 'package:dongtam/service/product_Service.dart';
+import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';

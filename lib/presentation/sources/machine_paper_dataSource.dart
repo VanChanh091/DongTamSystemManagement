@@ -9,7 +9,8 @@ class MachinePaperDatasource extends DataGridSource {
   List<PlanningPaper> planning = [];
   List<String> selectedPlanningIds = [];
   bool showGroup;
-  bool isPlanningPaper;
+  bool isShowPlanningPaper;
+  bool hasBox;
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -20,7 +21,8 @@ class MachinePaperDatasource extends DataGridSource {
     required this.planning,
     required this.selectedPlanningIds,
     required this.showGroup,
-    this.isPlanningPaper = false,
+    this.isShowPlanningPaper = false,
+    this.hasBox = false,
   }) {
     buildDataGridRows();
 
@@ -160,7 +162,7 @@ class MachinePaperDatasource extends DataGridSource {
   List<DataGridCell> buildBoxCell(PlanningPaper planning) {
     final boxCell = planning.order!.box;
     return [
-      if (isPlanningPaper == true) ...[
+      if (isShowPlanningPaper == true) ...[
         DataGridCell<int>(
           columnName: 'inMatTruoc',
           value: boxCell?.inMatTruoc ?? 0,
@@ -212,6 +214,9 @@ class MachinePaperDatasource extends DataGridSource {
           value: boxCell?.dongGoi ?? "",
         ),
       ],
+      if (hasBox == true) ...[
+        DataGridCell<bool>(columnName: 'hasMadeBox', value: planning.hasBox),
+      ],
       DataGridCell<String>(columnName: "status", value: planning.status),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
     ];
@@ -240,6 +245,7 @@ class MachinePaperDatasource extends DataGridSource {
       'dongGhimMotManh',
       'dongGhimHaiManh',
       'chongTham',
+      "hasMadeBox",
     ];
 
     if (boolColumns.contains(dataCell.columnName)) {
@@ -382,7 +388,7 @@ class MachinePaperDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày sản xuất: $displayDate - $itemCount'
+            ? '📅 Ngày sản xuất: $displayDate – $itemCount'
             : '📅 Ngày sản xuất: Không xác định',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),

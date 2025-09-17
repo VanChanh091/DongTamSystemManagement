@@ -1,16 +1,18 @@
 import 'dart:async';
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
-import 'package:dongtam/service/customer_Service.dart';
-import 'package:dongtam/service/order_Service.dart';
-import 'package:dongtam/service/product_Service.dart';
+import 'package:dongtam/service/customer_service.dart';
+import 'package:dongtam/service/order_service.dart';
+import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -27,6 +29,7 @@ class OrderDialog extends StatefulWidget {
 
 class _OrderDialogState extends State<OrderDialog> {
   final formKey = GlobalKey<FormState>();
+  final badgesController = Get.find<BadgesController>();
   Timer? _customerIdDebounce;
   Timer? _productIdDebounce;
   String lastSearchedCustomerId = "";
@@ -454,14 +457,19 @@ class _OrderDialogState extends State<OrderDialog> {
     try {
       if (widget.order == null) {
         await OrderService().addOrders(newOrder.toJson());
+
         showSnackBarSuccess(context, "Lưu thành công");
       } else {
         await OrderService().updateOrderById(
           originalOrderId,
           newOrder.toJson(),
         );
+
         showSnackBarSuccess(context, 'Cập nhật thành công');
       }
+
+      //fetch lại badge sau khi add/update
+      badgesController.fetchPendingApprovals();
 
       widget.onOrderAddOrUpdate();
       Navigator.of(context).pop();

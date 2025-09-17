@@ -1,6 +1,6 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
-import 'package:dongtam/service/customer_Service.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/service/customer_service.dart';
+import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_customer.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';

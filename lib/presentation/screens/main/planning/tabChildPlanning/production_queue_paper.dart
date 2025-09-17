@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_change_machine.dart';
@@ -6,7 +7,7 @@ import 'package:dongtam/presentation/sources/machine_paper_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -24,18 +25,19 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   late Future<List<PlanningPaper>> futurePlanning;
   late MachinePaperDatasource machinePaperDatasource;
   late List<GridColumn> columns;
-  String searchType = "Tất cả";
-  String machine = "Máy 1350";
-  DateTime selectedDate = DateTime.now();
-  bool isTextFieldEnabled = false;
-  List<String> selectedPlanningIds = [];
+  final DataGridController dataGridController = DataGridController();
+  final badgesController = Get.find<BadgesController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
   final Map<String, String> orderIdToStatus = {};
-  final DataGridController dataGridController = DataGridController();
+  List<String> selectedPlanningIds = [];
+  String searchType = "Tất cả";
+  String machine = "Máy 1350";
+  DateTime selectedDate = DateTime.now();
   DateTime? dayStart = DateTime.now();
   bool isLoading = false;
+  bool isTextFieldEnabled = false;
   bool showGroup = true;
 
   TextEditingController searchController = TextEditingController();
@@ -53,7 +55,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       futurePlanning = Future.error("NO_PERMISSION");
     }
 
-    columns = buildMachineColumns(isPlanningPaper: true);
+    columns = buildMachineColumns(isShowPlanningPaper: true);
   }
 
   void loadPlanning(bool refresh) {
@@ -132,7 +134,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
-      loadPlanning(false);
+      loadPlanning(true);
     });
   }
 
@@ -633,7 +635,12 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 "Dừng sản xuất thành công",
                                             errorMessage:
                                                 "Có lỗi xảy ra khi dừng sản xuất",
-                                            onSuccess: () => loadPlanning(true),
+                                            onSuccess:
+                                                () => {
+                                                  loadPlanning(true),
+                                                  badgesController
+                                                      .fetchPendingApprovals(),
+                                                },
                                           );
                                         } else if (value == 'acceptLack') {
                                           await handlePlanningAction(
@@ -795,7 +802,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
-                    isPlanningPaper: true,
+                    isShowPlanningPaper: true,
                   );
 
                   return SfDataGrid(

@@ -2,9 +2,10 @@ import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_customer.dart';
 import 'package:dongtam/presentation/sources/customer_dataSource.dart';
-import 'package:dongtam/service/customer_Service.dart';
+import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/pagination_controls.dart';
+import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:get/get.dart';
@@ -370,85 +371,21 @@ class _CustomerPageState extends State<CustomerPage> {
                       ),
 
                       // Nút chuyển trang
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            //previous
-                            ElevatedButton(
-                              onPressed:
-                                  currentPage > 1
-                                      ? () {
-                                        setState(() {
-                                          currentPage--;
-                                          loadCustomer(false);
-                                        });
-                                      }
-                                      : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff78D761),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 15,
-                                ),
-                                shadowColor: Colors.black.withOpacity(0.2),
-                                elevation: 5,
-                              ),
-                              child: Text(
-                                "Trang trước",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 20),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Trang: $currentPg / $totalPgs',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 20),
-                            //next
-                            ElevatedButton(
-                              onPressed:
-                                  currentPage < totalPgs
-                                      ? () {
-                                        setState(() {
-                                          currentPage++;
-                                          loadCustomer(false);
-                                        });
-                                      }
-                                      : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff78D761),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 15,
-                                ),
-                                shadowColor: Colors.black.withOpacity(0.2),
-                                elevation: 5,
-                              ),
-                              child: Text(
-                                "Trang sau",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      PaginationControls(
+                        currentPage: currentPg,
+                        totalPages: totalPgs,
+                        onPrevious: () {
+                          setState(() {
+                            currentPage--;
+                            loadCustomer(false);
+                          });
+                        },
+                        onNext: () {
+                          setState(() {
+                            currentPage++;
+                            loadCustomer(false);
+                          });
+                        },
                       ),
                     ],
                   );

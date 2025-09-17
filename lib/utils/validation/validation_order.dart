@@ -81,7 +81,7 @@ class ValidationOrder {
           ),
           validator: (value) {
             if ((label == "Mã Đơn Hàng" ||
-                    label == "Ngày nhận đơn hàng" ||
+                    label == "Ngày yêu cầu giao" ||
                     label == "Số lượng (KH)" ||
                     label == "Dài khách đặt (cm)" ||
                     label == "Khổ khách đặt (cm)" ||

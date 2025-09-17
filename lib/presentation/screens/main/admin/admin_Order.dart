@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
@@ -19,6 +19,8 @@ class AdminOrder extends StatefulWidget {
 class _ManageOrderState extends State<AdminOrder> {
   List<dynamic> orders = [];
   Order? selectedOrder;
+
+  final badgesController = Get.find<BadgesController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
 
@@ -203,10 +205,8 @@ class _ManageOrderState extends State<AdminOrder> {
                                               );
                                               await _loadOrders();
 
-                                              //gọi controller để cập nhật badge
-                                              final badgesController =
-                                                  Get.find<BadgesController>();
-                                              await badgesController
+                                              //cập nhật lại badge
+                                              badgesController
                                                   .fetchPendingApprovals();
 
                                               setState(() {
@@ -310,7 +310,13 @@ class _ManageOrderState extends State<AdminOrder> {
                                                               context,
                                                               "Từ chối phê duyệt thành công",
                                                             );
+
                                                             await _loadOrders();
+
+                                                            //cập nhật lại badge
+                                                            badgesController
+                                                                .fetchPendingApprovals();
+
                                                             setState(() {
                                                               selectedOrder =
                                                                   null;
