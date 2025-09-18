@@ -140,10 +140,6 @@ class ReportPaperDatasource extends DataGridSource {
         columnName: 'shiftManager',
         value: reportPaper.shiftManagement,
       ),
-      DataGridCell<String>(
-        columnName: 'chooseMachine',
-        value: planningPaper.chooseMachine,
-      ),
       DataGridCell<bool>(
         columnName: 'hasMadeBox',
         value: reportPaper.planningPaper!.hasBox,
@@ -210,7 +206,7 @@ class ReportPaperDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày báo cáo: $displayDate – $itemCount'
+            ? '📅 Ngày báo cáo: $displayDate  $itemCount'
             : '📅 Ngày báo cáo: Không xác định',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
@@ -238,6 +234,11 @@ class ReportPaperDatasource extends DataGridSource {
       cells:
           row.getCells().map<Widget>((dataCell) {
             Color cellColor = Colors.transparent;
+
+            if (dataCell.columnName == 'qtyReported' ||
+                dataCell.columnName == 'qtyWasteRp') {
+              cellColor = Colors.amberAccent.withOpacity(0.3);
+            }
 
             return Container(
               alignment: Alignment.center,

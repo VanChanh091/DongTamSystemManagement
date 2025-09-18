@@ -4,6 +4,7 @@ import 'package:dongtam/presentation/sources/report_box_datasource.dart';
 import 'package:dongtam/service/report_planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -47,7 +48,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     });
   }
 
-  void searchReportBox() {}
+  void searchReportPaper() {}
 
   void changeMachine(String selectedMachine) {
     setState(() {
@@ -128,7 +129,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                           child: TextField(
                             controller: searchController,
                             enabled: isTextFieldEnabled,
-                            onSubmitted: (_) => searchReportBox(),
+                            onSubmitted: (_) => searchReportPaper(),
                             decoration: InputDecoration(
                               hintText: 'Tìm kiếm...',
                               border: OutlineInputBorder(
@@ -144,7 +145,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
                         // find
                         AnimatedButton(
-                          onPressed: () => searchReportBox(),
+                          onPressed: () => searchReportPaper(),
                           label: "Tìm kiếm",
                           icon: Icons.search,
                         ),
@@ -237,6 +238,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                   reportBoxDatasource = ReportBoxDatasource(
                     reportPapers: reportBoxes,
                     selectedReportId: selectedReportId,
+                    machine: machine,
                   );
 
                   return Column(
@@ -254,7 +256,24 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                           headerRowHeight: 40,
                           rowHeight: 45,
                           stackedHeaderRows: <StackedHeaderRow>[
-                            StackedHeaderRow(cells: [   ],
+                            StackedHeaderRow(
+                              cells: [
+                                StackedHeaderCell(
+                                  columnNames: [
+                                    'qtyPrinted',
+                                    'qtyCanLan',
+                                    'qtyCanMang',
+                                    'qtyXa',
+                                    'qtyCatKhe',
+                                    'qtyBe',
+                                    'qtyDan',
+                                    'qtyDongGhim',
+                                  ],
+                                  child: formatColumn(
+                                    'Báo Cáo Số Lượng Các Công Đoạn',
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                           onSelectionChanged: (addedRows, removedRows) {

@@ -53,7 +53,6 @@ List<GridColumn> buildReportPaperColumn() {
     GridColumn(columnName: 'qtyWasteRp', label: formatColumn("PL Báo Cáo")),
     GridColumn(columnName: 'shiftProduct', label: formatColumn("Ca Sản Xuất")),
     GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
-    GridColumn(columnName: 'chooseMachine', label: formatColumn("Loại Máy")),
 
     //box
     GridColumn(columnName: 'hasMadeBox', label: formatColumn("Làm Thùng?")),

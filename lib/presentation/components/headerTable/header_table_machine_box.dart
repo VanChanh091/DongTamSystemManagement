@@ -4,7 +4,6 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildMachineBoxColumns(String machine) {
   return [
-    //planning - 14 columns
     GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
     GridColumn(columnName: 'planningBoxId', label: Container(), visible: false),
     GridColumn(

@@ -59,6 +59,7 @@ class PlanningBox {
     return '$hour:$minute';
   }
 
+  //get data of box time machine
   BoxMachineTime? _findByMachine(List<BoxMachineTime>? list, String machine) {
     if (list == null) return null;
     try {
@@ -68,8 +69,11 @@ class PlanningBox {
     }
   }
 
+  //get one box
   BoxMachineTime? getBoxMachineTimeByMachine(String machine) =>
       _findByMachine(boxTimes, machine);
+
+  //get all box
   BoxMachineTime? getAllBoxMachineTime(String machine) =>
       _findByMachine(allBoxTimes, machine);
 

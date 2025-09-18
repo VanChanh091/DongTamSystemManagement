@@ -427,7 +427,7 @@ class MachineBoxDatasource extends DataGridSource {
           row.getCells().map<Widget>((dataCell) {
             Color cellColor = Colors.transparent;
 
-            //tô màu cho qtyProduced
+            //tô màu cho waste loss
             if (dataCell.columnName == 'wasteActually' &&
                 totalWasteActually > totalDmWasteLoss) {
               cellColor = Colors.red.withOpacity(0.5);
@@ -441,7 +441,9 @@ class MachineBoxDatasource extends DataGridSource {
             // Kiểm tra cột máy dựa vào map
             final machineColumnName = machineColumnMap[dataCell.columnName];
 
-            if (machineColumnName != null && machineColumnName == machine) {
+            if (machineColumnName != null &&
+                machineColumnName == machine &&
+                status != "complete") {
               final qty = (dataCell.value is int) ? dataCell.value as int : 0;
               if (qty < runningPlan) {
                 cellColor = Colors.red.withOpacity(0.5);
