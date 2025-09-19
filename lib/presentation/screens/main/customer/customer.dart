@@ -5,7 +5,7 @@ import 'package:dongtam/presentation/sources/customer_dataSource.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
-import 'package:dongtam/utils/helper/show_snack_bar.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:get/get.dart';
@@ -32,7 +32,7 @@ class _CustomerPageState extends State<CustomerPage> {
   String? selectedCustomerId;
 
   int currentPage = 1;
-  int pageSize = 3;
+  int pageSize = 25;
   int pageSizeSearch = 20;
 
   @override
@@ -144,9 +144,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                 searchType = value!;
                                 isTextFieldEnabled = searchType != 'Tất cả';
 
-                                if (!isTextFieldEnabled) {
-                                  searchController.clear();
-                                }
+                                searchController.clear();
                               });
                             },
                             decoration: InputDecoration(
@@ -228,47 +226,66 @@ class _CustomerPageState extends State<CustomerPage> {
                                 AnimatedButton(
                                   onPressed:
                                       isSale
-                                          ? () {
-                                            if (selectedCustomerId == null ||
-                                                selectedCustomerId!.isEmpty) {
+                                          ? () async {
+                                            try {
+                                              if (selectedCustomerId == null ||
+                                                  selectedCustomerId!.isEmpty) {
+                                                showSnackBarError(
+                                                  context,
+                                                  'Vui lòng chọn sản phẩm cần sửa',
+                                                );
+                                                return;
+                                              }
+
+                                              final result =
+                                                  await CustomerService()
+                                                      .getCustomerById(
+                                                        customerId:
+                                                            selectedCustomerId!,
+                                                      );
+
+                                              // Defensive null checks
+                                              if (result['customers'] == null) {
+                                                showSnackBarError(
+                                                  context,
+                                                  'Dữ liệu trả về không hợp lệ',
+                                                );
+                                                return;
+                                              }
+
+                                              final customers =
+                                                  result['customers']
+                                                      as List<Customer>? ??
+                                                  [];
+
+                                              if (customers.isEmpty) {
+                                                showSnackBarError(
+                                                  context,
+                                                  'Không tìm thấy khách hàng',
+                                                );
+                                                return;
+                                              }
+
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => CustomerDialog(
+                                                      customer: customers.first,
+                                                      onCustomerAddOrUpdate:
+                                                          () => loadCustomer(
+                                                            false,
+                                                          ),
+                                                    ),
+                                              );
+                                            } catch (e, st) {
+                                              debugPrint(
+                                                "❌ Error in getCustomerById: $e\n$st",
+                                              );
                                               showSnackBarError(
                                                 context,
-                                                'Vui lòng chọn sản phẩm cần sửa',
+                                                'Có lỗi xảy ra, vui lòng thử lại sau',
                                               );
-                                              return;
                                             }
-
-                                            CustomerService()
-                                                .getCustomerById(
-                                                  customerId:
-                                                      selectedCustomerId!,
-                                                )
-                                                .then((result) {
-                                                  final customers =
-                                                      result['customers']
-                                                          as List<Customer>;
-                                                  if (customers.isEmpty) {
-                                                    showSnackBarError(
-                                                      context,
-                                                      'Không tìm thấy khách hàng',
-                                                    );
-                                                    return;
-                                                  }
-
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (_) => CustomerDialog(
-                                                          customer:
-                                                              customers.first,
-                                                          onCustomerAddOrUpdate:
-                                                              () =>
-                                                                  loadCustomer(
-                                                                    false,
-                                                                  ),
-                                                        ),
-                                                  );
-                                                });
                                           }
                                           : null,
                                   label: "Sửa",

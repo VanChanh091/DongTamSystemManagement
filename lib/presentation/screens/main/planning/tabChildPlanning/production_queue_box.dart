@@ -5,7 +5,7 @@ import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/helper/show_snack_bar.dart';
+import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -170,9 +170,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                             isTextFieldEnabled =
                                                 searchType != 'Tất cả';
 
-                                            if (!isTextFieldEnabled) {
-                                              searchController.clear();
-                                            }
+                                            searchController.clear();
                                           });
                                         },
                                         decoration: InputDecoration(

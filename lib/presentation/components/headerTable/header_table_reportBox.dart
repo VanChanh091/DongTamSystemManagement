@@ -16,6 +16,7 @@ List<GridColumn> buildReportBoxColumn() {
       label: formatColumn("Ngày Sản Xuất"),
     ),
     GridColumn(columnName: 'dayReported', label: formatColumn("Ngày Báo Cáo")),
+    GridColumn(columnName: 'dateTimeRp', label: Container(), visible: false),
     GridColumn(
       columnName: 'structure',
       label: formatColumn("Kết Cấu Đặt Hàng"),

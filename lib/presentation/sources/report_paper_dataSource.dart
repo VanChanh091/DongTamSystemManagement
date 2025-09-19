@@ -15,8 +15,7 @@ class ReportPaperDatasource extends DataGridSource {
 
   ReportPaperDatasource({required this.reportPapers, this.selectedReportId}) {
     buildDataGridRows();
-
-    addColumnGroup(ColumnGroup(name: 'dayReported', sortGroupRows: false));
+    addColumnGroup(ColumnGroup(name: 'dateTimeRp', sortGroupRows: false));
   }
 
   List<DataGridCell> buildReportInfoCells(ReportPaperModel reportPaper) {
@@ -44,6 +43,10 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<String?>(
         columnName: "dayReported",
         value: formatterDayReported.format(reportPaper.dayReport),
+      ),
+      DataGridCell<String?>(
+        columnName: "dateTimeRp",
+        value: formatter.format(reportPaper.dayReport),
       ),
       DataGridCell<String>(
         columnName: 'structure',

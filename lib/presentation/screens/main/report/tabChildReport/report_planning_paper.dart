@@ -6,6 +6,7 @@ import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportPlanningPaper extends StatefulWidget {
@@ -20,10 +21,12 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   late ReportPaperDatasource reportPaperDatasource;
   late List<GridColumn> columns;
   TextEditingController searchController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
   String searchType = "Tất cả";
   String machine = "Máy 1350";
   int? selectedReportId;
   bool isTextFieldEnabled = false;
+  bool isSearching = false;
 
   int currentPage = 1;
   int pageSize = 3;
@@ -48,14 +51,74 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     });
   }
 
-  void searchReportPaper() {}
-
   void changeMachine(String selectedMachine) {
     setState(() {
       machine = selectedMachine;
       selectedReportId = null;
       loadReportPaper(true);
     });
+  }
+
+  void searchReportPaper() {
+    String keyword = searchController.text.trim().toLowerCase();
+    String date = dateController.text.trim().toLowerCase();
+    if (isTextFieldEnabled && keyword.isEmpty) return;
+
+    currentPage = 1;
+    if (searchType == "Tất cả") {
+      isSearching = false;
+      loadReportPaper(false);
+    } else if (searchType == 'Tên KH') {
+      isSearching = true;
+      setState(() {
+        futureReportPaper = ReportPlanningService().getRPByCustomerName(
+          keyword: keyword,
+          machine: machine,
+          page: currentPage,
+          pageSize: pageSize,
+        );
+      });
+    } else if (searchType == "Ngày Báo Cáo") {
+      isSearching = true;
+      setState(() {
+        futureReportPaper = ReportPlanningService().getRPByDayReported(
+          keyword: date,
+          machine: machine,
+          page: currentPage,
+          pageSize: pageSize,
+        );
+      });
+    } else if (searchType == "SL Báo Cáo") {
+      isSearching = true;
+      setState(() {
+        futureReportPaper = ReportPlanningService().getRPByQtyReported(
+          keyword: keyword,
+          machine: machine,
+          page: currentPage,
+          pageSize: pageSize,
+        );
+      });
+    } else if (searchType == "Ghép Khổ") {
+      isSearching = true;
+      setState(() {
+        futureReportPaper = ReportPlanningService().getRPByGhepKho(
+          keyword: keyword,
+          machine: machine,
+          page: currentPage,
+          pageSize: pageSize,
+        );
+      });
+    } else if (searchType == "Quản Ca") {
+      isSearching = true;
+      setState(() {
+        futureReportPaper = ReportPlanningService().getRPByShiftManagement(
+          keyword: keyword,
+          machine: machine,
+          page: currentPage,
+          pageSize: pageSize,
+        );
+      });
+    }
   }
 
   @override
@@ -86,10 +149,11 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                             items:
                                 [
                                   'Tất cả',
-                                  'Mã Đơn Hàng',
                                   'Tên KH',
-                                  "Sóng",
-                                  'Khổ Cấp Giấy',
+                                  "Ngày Báo Cáo",
+                                  "SL Báo Cáo",
+                                  "Ghép Khổ",
+                                  "Quản Ca",
                                 ].map((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
@@ -101,9 +165,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                 searchType = value!;
                                 isTextFieldEnabled = searchType != 'Tất cả';
 
-                                if (!isTextFieldEnabled) {
-                                  searchController.clear();
-                                }
+                                searchController.clear();
                               });
                             },
                             decoration: InputDecoration(
@@ -122,25 +184,74 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                         ),
                         SizedBox(width: 10),
 
-                        // input
-                        SizedBox(
-                          width: 250,
-                          height: 50,
-                          child: TextField(
-                            controller: searchController,
-                            enabled: isTextFieldEnabled,
-                            onSubmitted: (_) => searchReportPaper(),
-                            decoration: InputDecoration(
-                              hintText: 'Tìm kiếm...',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                        //date picker or input
+                        searchType == 'Ngày Báo Cáo'
+                            ? SizedBox(
+                              width: 250,
+                              height: 50,
+                              child: InkWell(
+                                onTap: () async {
+                                  final now = DateTime.now();
+
+                                  DateTime? picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: now,
+                                    firstDate: now,
+                                    lastDate: DateTime(2100),
+                                  );
+
+                                  if (picked != null) {
+                                    final displayDate = DateFormat(
+                                      'dd/MM/yyyy',
+                                    ).format(picked);
+
+                                    setState(() {
+                                      dateController.text =
+                                          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+
+                                      searchController.text = displayDate;
+                                    });
+                                  }
+                                },
+                                child: IgnorePointer(
+                                  child: TextField(
+                                    controller: searchController,
+                                    decoration: InputDecoration(
+                                      hintText: 'Chọn ngày...',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      suffixIcon: const Icon(
+                                        Icons.calendar_today,
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 10,
+                            )
+                            : SizedBox(
+                              width: 250,
+                              height: 50,
+                              child: TextField(
+                                controller: searchController,
+                                enabled: isTextFieldEnabled,
+                                onSubmitted: (_) => searchReportPaper(),
+                                decoration: InputDecoration(
+                                  hintText: 'Tìm kiếm...',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
+
                         const SizedBox(width: 10),
 
                         // find
@@ -149,6 +260,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                           label: "Tìm kiếm",
                           icon: Icons.search,
                         ),
+
                         const SizedBox(width: 10),
                       ],
                     ),
