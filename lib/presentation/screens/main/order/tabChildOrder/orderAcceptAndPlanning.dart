@@ -5,6 +5,7 @@ import 'package:dongtam/presentation/sources/order_dataSource.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -50,24 +51,30 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         String keyword = searchController.text.trim().toLowerCase();
 
         if (searchType == "Tên KH") {
-          futureOrdersAccept = OrderService().getOrderByCustomerName(
-            keyword,
-            currentPage,
-            pageSizeSearch,
+          futureOrdersAccept = ensureMinLoading(
+            OrderService().getOrderByCustomerName(
+              keyword,
+              currentPage,
+              pageSizeSearch,
+            ),
           );
         } else if (searchType == "Tên SP") {
-          futureOrdersAccept = OrderService().getOrderByProductName(
-            keyword,
-            currentPage,
-            pageSizeSearch,
+          futureOrdersAccept = ensureMinLoading(
+            OrderService().getOrderByProductName(
+              keyword,
+              currentPage,
+              pageSizeSearch,
+            ),
           );
         }
       } else {
-        futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
-          currentPage,
-          pageSize,
-          refresh,
-          ownOnly,
+        futureOrdersAccept = ensureMinLoading(
+          OrderService().getOrderAcceptAndPlanning(
+            currentPage,
+            pageSize,
+            refresh,
+            ownOnly,
+          ),
         );
       }
     });
@@ -273,7 +280,16 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                 future: futureOrdersAccept,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: SizedBox(
+                        height: 400,
+                        child: buildShimmerSkeletonTable(
+                          context: context,
+                          rowCount: 10,
+                        ),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData ||

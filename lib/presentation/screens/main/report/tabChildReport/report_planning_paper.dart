@@ -4,6 +4,7 @@ import 'package:dongtam/presentation/sources/report_paper_dataSource.dart';
 import 'package:dongtam/service/report_planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -35,6 +36,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   @override
   void initState() {
     super.initState();
+
     loadReportPaper(true);
 
     columns = buildReportPaperColumn();
@@ -42,11 +44,13 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
 
   void loadReportPaper(bool refresh) {
     setState(() {
-      futureReportPaper = ReportPlanningService().getReportPaper(
-        machine,
-        currentPage,
-        pageSize,
-        refresh,
+      futureReportPaper = ensureMinLoading(
+        ReportPlanningService().getReportPaper(
+          machine,
+          currentPage,
+          pageSize,
+          refresh,
+        ),
       );
     });
   }
@@ -321,7 +325,16 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                 future: futureReportPaper,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: SizedBox(
+                        height: 400,
+                        child: buildShimmerSkeletonTable(
+                          context: context,
+                          rowCount: 10,
+                        ),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData ||
@@ -347,6 +360,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                     reportPapers: reportPapers,
                     selectedReportId: selectedReportId,
                   );
+
+                  reportPaperDatasource.notifyListeners();
 
                   return Column(
                     children: [

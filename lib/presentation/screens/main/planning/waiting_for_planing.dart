@@ -5,6 +5,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_plannin
 import 'package:dongtam/presentation/sources/planning_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -40,7 +41,9 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
   void loadOrders(bool refresh) {
     setState(() {
-      futureOrdersAccept = PlanningService().getOrderAccept(refresh);
+      futureOrdersAccept = ensureMinLoading(
+        PlanningService().getOrderAccept(refresh),
+      );
     });
   }
 
@@ -123,7 +126,16 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                 future: futureOrdersAccept,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: SizedBox(
+                        height: 400,
+                        child: buildShimmerSkeletonTable(
+                          context: context,
+                          rowCount: 10,
+                        ),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     if (snapshot.error.toString().contains("NO_PERMISSION")) {
                       return Center(

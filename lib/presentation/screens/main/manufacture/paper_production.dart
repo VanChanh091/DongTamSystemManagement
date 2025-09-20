@@ -7,6 +7,7 @@ import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -48,17 +49,19 @@ class _PaperProductionState extends State<PaperProduction> {
 
   void loadPlanning(bool refresh) {
     setState(() {
-      futurePlanning = ManufactureService()
-          .getPlanningPaper(machine, refresh)
-          .then((planningList) {
-            orderIdToPlanningId.clear();
-            selectedPlanningIds.clear();
-            for (var planning in planningList) {
-              orderIdToPlanningId[planning.orderId] = planning.planningId;
-            }
-            // print('manufacture_paper:$orderIdToPlanningId');
-            return planningList;
-          });
+      futurePlanning = ensureMinLoading(
+        ManufactureService().getPlanningPaper(machine, refresh).then((
+          planningList,
+        ) {
+          orderIdToPlanningId.clear();
+          selectedPlanningIds.clear();
+          for (var planning in planningList) {
+            orderIdToPlanningId[planning.orderId] = planning.planningId;
+          }
+          // print('manufacture_paper:$orderIdToPlanningId');
+          return planningList;
+        }),
+      );
     });
   }
 
@@ -407,7 +410,16 @@ class _PaperProductionState extends State<PaperProduction> {
                 future: futurePlanning,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: SizedBox(
+                        height: 400,
+                        child: buildShimmerSkeletonTable(
+                          context: context,
+                          rowCount: 10,
+                        ),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/userController.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,9 @@ class _ProductPageState extends State<ProductPage> {
 
   void loadProduct(bool refresh) {
     setState(() {
-      futureProducts = ProductService().getAllProducts(refresh);
+      futureProducts = ensureMinLoading(
+        ProductService().getAllProducts(refresh),
+      );
     });
   }
 
@@ -392,7 +395,16 @@ class _ProductPageState extends State<ProductPage> {
                   future: futureProducts,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: SizedBox(
+                          height: 400,
+                          child: buildShimmerSkeletonTable(
+                            context: context,
+                            rowCount: 10,
+                          ),
+                        ),
+                      );
                     } else if (snapshot.hasError) {
                       return Text("Error: ${snapshot.error}");
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

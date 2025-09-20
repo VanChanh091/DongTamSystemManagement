@@ -4,6 +4,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_machine
 import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -57,20 +58,22 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
   void loadPlanning(bool refresh) {
     setState(() {
-      futurePlanning = PlanningService()
-          .getPlanningMachineBox(machine, refresh)
-          .then((planningList) {
-            orderIdToPlanningId.clear();
-            selectedPlanningIds.clear();
-            for (var planning in planningList) {
-              orderIdToPlanningId[planning.orderId] = planning.planningBoxId;
-              orderIdToStatus[planning.orderId] =
-                  planning.boxTimes?.first.status ?? "";
-            }
-            // print('planningBoxId:$machine-$orderIdToPlanningId');
-            // print('status:$orderIdToStatus');
-            return planningList;
-          });
+      futurePlanning = ensureMinLoading(
+        PlanningService().getPlanningMachineBox(machine, refresh).then((
+          planningList,
+        ) {
+          orderIdToPlanningId.clear();
+          selectedPlanningIds.clear();
+          for (var planning in planningList) {
+            orderIdToPlanningId[planning.orderId] = planning.planningBoxId;
+            orderIdToStatus[planning.orderId] =
+                planning.boxTimes?.first.status ?? "";
+          }
+          // print('planningBoxId:$machine-$orderIdToPlanningId');
+          // print('status:$orderIdToStatus');
+          return planningList;
+        }),
+      );
     });
   }
 
@@ -673,7 +676,16 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                 future: futurePlanning,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: SizedBox(
+                        height: 400,
+                        child: buildShimmerSkeletonTable(
+                          context: context,
+                          rowCount: 10,
+                        ),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     if (snapshot.error.toString().contains("NO_PERMISSION")) {
                       return Center(

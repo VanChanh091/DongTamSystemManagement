@@ -5,6 +5,7 @@ import 'package:dongtam/presentation/sources/customer_dataSource.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
@@ -45,10 +46,12 @@ class _CustomerPageState extends State<CustomerPage> {
 
   void loadCustomer(bool refresh) {
     setState(() {
-      futureCustomer = CustomerService().getAllCustomers(
-        refresh: refresh,
-        page: currentPage,
-        pageSize: pageSize,
+      futureCustomer = ensureMinLoading(
+        CustomerService().getAllCustomers(
+          refresh: refresh,
+          page: currentPage,
+          pageSize: pageSize,
+        ),
       );
     });
   }
@@ -320,7 +323,16 @@ class _CustomerPageState extends State<CustomerPage> {
                 future: futureCustomer,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: SizedBox(
+                        height: 400,
+                        child: buildShimmerSkeletonTable(
+                          context: context,
+                          rowCount: 10,
+                        ),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData ||

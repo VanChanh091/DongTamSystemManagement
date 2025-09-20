@@ -6,6 +6,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_order.d
 import 'package:dongtam/presentation/sources/order_dataSource.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -42,9 +43,8 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
   void loadOrders(bool refresh, bool ownOnly) {
     setState(() {
-      futureOrdersPending = OrderService().getOrderPendingAndReject(
-        refresh,
-        ownOnly,
+      futureOrdersPending = ensureMinLoading(
+        OrderService().getOrderPendingAndReject(refresh, ownOnly),
       );
     });
   }
@@ -348,7 +348,16 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                 future: futureOrdersPending,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: SizedBox(
+                        height: 400,
+                        child: buildShimmerSkeletonTable(
+                          context: context,
+                          rowCount: 10,
+                        ),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
