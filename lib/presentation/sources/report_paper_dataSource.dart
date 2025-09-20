@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -75,13 +76,17 @@ class ReportPaperDatasource extends DataGridSource {
         columnName: "runningPlanProd",
         value: planningPaper.runningPlan,
       ),
-      DataGridCell<int>(
-        columnName: "qtyProduced",
-        value: planningPaper.qtyProduced ?? 0,
-      ),
+      // DataGridCell<int>(
+      //   columnName: "qtyProduced",
+      //   value: planningPaper.qtyProduced ?? 0,
+      // ),
       DataGridCell<int>(
         columnName: "qtyReported",
         value: reportPaper.qtyProduced,
+      ),
+      DataGridCell<int>(
+        columnName: "LackOfQty",
+        value: planningPaper.runningPlan - reportPaper.qtyProduced,
       ),
       DataGridCell<String>(
         columnName: 'timeRunningProd',
@@ -225,6 +230,9 @@ class ReportPaperDatasource extends DataGridSource {
             .value;
     final isSelected = selectedReportId == reportPaperId;
 
+    //get data column value
+    final lackOfQty = getCellValue<int>(row, 'LackOfQty', 0);
+
     Color backgroundColor;
     if (isSelected) {
       backgroundColor = Colors.blue.withOpacity(0.3);
@@ -238,9 +246,8 @@ class ReportPaperDatasource extends DataGridSource {
           row.getCells().map<Widget>((dataCell) {
             Color cellColor = Colors.transparent;
 
-            if (dataCell.columnName == 'qtyReported' ||
-                dataCell.columnName == 'qtyWasteRp') {
-              cellColor = Colors.amberAccent.withOpacity(0.3);
+            if (dataCell.columnName == 'LackOfQty' && lackOfQty > 0) {
+              cellColor = Colors.red.withOpacity(0.5);
             }
 
             return Container(

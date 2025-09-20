@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/report/report_planning_box.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -96,6 +97,7 @@ class ReportBoxDatasource extends DataGridSource {
 
   List<DataGridCell> buildBoxCells(ReportBoxModel reportBox, String machine) {
     final planningCell = reportBox.planningBox!;
+    final planningBoxCell = reportBox.planningBox!;
     final boxMachineTime = planningCell.getBoxMachineTimeByMachine(machine);
 
     /// Hàm dùng chung lấy qtyProduced
@@ -146,6 +148,13 @@ class ReportBoxDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: "qtyDongGhim",
         value: getQtyProduced("Máy Đóng Ghim"),
+      ),
+
+      DataGridCell<int>(
+        columnName: "lackOfQty",
+        value:
+            planningBoxCell.runningPlan -
+            (int.tryParse(getQtyProduced(machine, blankIfMissing: false)) ?? 0),
       ),
 
       ...buildChildBoxCells(planningCell, machine),
@@ -290,6 +299,9 @@ class ReportBoxDatasource extends DataGridSource {
       'qtyDongGhim': "Máy Đóng Ghim",
     };
 
+    //get data column value
+    final lackOfQty = getCellValue<int>(row, 'lackOfQty', 0);
+
     Color backgroundColor;
     if (isSelected) {
       backgroundColor = Colors.blue.withOpacity(0.3);
@@ -302,6 +314,10 @@ class ReportBoxDatasource extends DataGridSource {
       cells:
           row.getCells().map<Widget>((dataCell) {
             Color cellColor = Colors.transparent;
+
+            if (dataCell.columnName == 'lackOfQty' && lackOfQty > 0) {
+              cellColor = Colors.red.withOpacity(0.5);
+            }
 
             //hight color for qtyProduct reported
             final machineColumnName = machineColumnMap[dataCell.columnName];

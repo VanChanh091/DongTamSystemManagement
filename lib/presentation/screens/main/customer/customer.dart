@@ -39,20 +39,58 @@ class _CustomerPageState extends State<CustomerPage> {
   @override
   void initState() {
     super.initState();
-    loadCustomer(false);
+    loadCustomer(true);
 
     columns = buildCustomerColumn();
   }
 
   void loadCustomer(bool refresh) {
     setState(() {
-      futureCustomer = ensureMinLoading(
-        CustomerService().getAllCustomers(
-          refresh: refresh,
-          page: currentPage,
-          pageSize: pageSize,
-        ),
-      );
+      if (isSearching) {
+        String keyword = searchController.text.trim().toLowerCase();
+
+        if (searchType == "Theo Mã") {
+          futureCustomer = ensureMinLoading(
+            CustomerService().getCustomerById(
+              customerId: keyword,
+              page: currentPage,
+              pageSize: pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "Theo Tên KH") {
+          futureCustomer = ensureMinLoading(
+            CustomerService().getCustomerByName(
+              keyword,
+              currentPage,
+              pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "Theo CSKH") {
+          futureCustomer = ensureMinLoading(
+            CustomerService().getCustomerByCSKH(
+              keyword,
+              currentPage,
+              pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "Theo SDT") {
+          futureCustomer = ensureMinLoading(
+            CustomerService().getCustomerByPhone(
+              keyword,
+              currentPage,
+              pageSizeSearch,
+            ),
+          );
+        }
+      } else {
+        futureCustomer = ensureMinLoading(
+          CustomerService().getAllCustomers(
+            refresh: refresh,
+            page: currentPage,
+            pageSize: pageSize,
+          ),
+        );
+      }
     });
   }
 
@@ -64,9 +102,15 @@ class _CustomerPageState extends State<CustomerPage> {
     currentPage = 1;
 
     if (searchType == "Tất cả") {
-      isSearching = false;
-      loadCustomer(false);
+      setState(() {
+        futureCustomer = CustomerService().getAllCustomers(
+          refresh: false,
+          page: currentPage,
+          pageSize: pageSize,
+        );
+      });
     } else if (searchType == "Theo Mã") {
+      isSearching = true;
       setState(() {
         futureCustomer = CustomerService().getCustomerById(
           customerId: keyword,
@@ -84,6 +128,7 @@ class _CustomerPageState extends State<CustomerPage> {
         );
       });
     } else if (searchType == "Theo CSKH") {
+      isSearching = true;
       setState(() {
         futureCustomer = CustomerService().getCustomerByCSKH(
           keyword,
@@ -92,6 +137,7 @@ class _CustomerPageState extends State<CustomerPage> {
         );
       });
     } else if (searchType == "Theo SDT") {
+      isSearching = true;
       setState(() {
         futureCustomer = CustomerService().getCustomerByPhone(
           keyword,

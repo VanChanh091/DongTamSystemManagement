@@ -7,7 +7,6 @@ import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -34,13 +33,13 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   bool isSeenOrder = false;
 
   int currentPage = 1;
-  int pageSize = 30;
+  int pageSize = 25;
   int pageSizeSearch = 20;
 
   @override
   void initState() {
     super.initState();
-    loadOrders(false, isSeenOrder);
+    loadOrders(true, isSeenOrder);
 
     columns = buildOrderColumns();
   }
@@ -53,27 +52,43 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         if (searchType == "Tên KH") {
           futureOrdersAccept = ensureMinLoading(
             OrderService().getOrderByCustomerName(
-              keyword,
-              currentPage,
-              pageSizeSearch,
+              inputCustomerName: keyword,
+              page: currentPage,
+              pageSize: pageSizeSearch,
             ),
           );
         } else if (searchType == "Tên SP") {
           futureOrdersAccept = ensureMinLoading(
             OrderService().getOrderByProductName(
-              keyword,
-              currentPage,
-              pageSizeSearch,
+              inputProductName: keyword,
+              page: currentPage,
+              pageSize: pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "QC Thùng") {
+          futureOrdersAccept = ensureMinLoading(
+            OrderService().getOrderByQcBox(
+              inputQcBox: keyword,
+              page: currentPage,
+              pageSize: pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "Đơn giá") {
+          futureOrdersAccept = ensureMinLoading(
+            OrderService().getOrderByPrice(
+              price: keyword,
+              page: currentPage,
+              pageSize: pageSizeSearch,
             ),
           );
         }
       } else {
         futureOrdersAccept = ensureMinLoading(
           OrderService().getOrderAcceptAndPlanning(
-            currentPage,
-            pageSize,
-            refresh,
-            ownOnly,
+            page: currentPage,
+            pageSize: pageSize,
+            refresh: refresh,
+            ownOnly: ownOnly,
           ),
         );
       }
@@ -82,61 +97,53 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
   void searchOrders() {
     String keyword = searchController.text.trim().toLowerCase();
-
     if (isTextFieldEnabled && keyword.isEmpty) return;
 
     currentPage = 1;
-
     if (searchType == "Tất cả") {
-      isSearching = false;
       setState(() {
         futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
-          currentPage,
-          pageSize,
-          false,
-          false,
+          page: currentPage,
+          pageSize: pageSize,
+          refresh: false,
+          ownOnly: false,
         );
       });
     } else if (searchType == "Tên KH") {
       isSearching = true;
       setState(() {
         futureOrdersAccept = OrderService().getOrderByCustomerName(
-          keyword,
-          currentPage,
-          pageSizeSearch,
+          inputCustomerName: keyword,
+          page: currentPage,
+          pageSize: pageSizeSearch,
         );
       });
     } else if (searchType == "Tên SP") {
       isSearching = true;
       setState(() {
         futureOrdersAccept = OrderService().getOrderByProductName(
-          keyword,
-          currentPage,
-          pageSizeSearch,
+          inputProductName: keyword,
+          page: currentPage,
+          pageSize: pageSizeSearch,
         );
       });
     } else if (searchType == "QC Thùng") {
       isSearching = true;
       setState(() {
         futureOrdersAccept = OrderService().getOrderByQcBox(
-          keyword,
-          currentPage,
-          pageSizeSearch,
+          inputQcBox: keyword,
+          page: currentPage,
+          pageSize: pageSizeSearch,
         );
       });
     } else if (searchType == "Đơn giá") {
       isSearching = true;
       setState(() {
-        try {
-          final price = double.parse(keyword);
-          futureOrdersAccept = OrderService().getOrderByPrice(
-            price,
-            currentPage,
-            pageSizeSearch,
-          );
-        } catch (e) {
-          showSnackBarError(context, 'Vui lòng nhập số hợp lệ cho đơn giá');
-        }
+        futureOrdersAccept = OrderService().getOrderByPrice(
+          price: keyword,
+          page: currentPage,
+          pageSize: pageSizeSearch,
+        );
       });
     }
   }

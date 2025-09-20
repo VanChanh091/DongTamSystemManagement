@@ -15,12 +15,12 @@ class OrderService {
   //===============================ACCEPT AND PLANNING====================================
 
   //get Order Accept And Planning
-  Future<Map<String, dynamic>> getOrderAcceptAndPlanning(
-    int page,
-    int pageSize,
-    bool refresh,
-    bool ownOnly,
-  ) async {
+  Future<Map<String, dynamic>> getOrderAcceptAndPlanning({
+    int page = 1,
+    int pageSize = 20,
+    bool refresh = false,
+    bool ownOnly = false,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -60,11 +60,11 @@ class OrderService {
   }
 
   //get by customer name
-  Future<Map<String, dynamic>> getOrderByCustomerName(
-    String inputCustomerName,
-    int page,
-    int pageSize,
-  ) async {
+  Future<Map<String, dynamic>> getOrderByCustomerName({
+    String inputCustomerName = "",
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
       final response = await dioService.get(
@@ -101,11 +101,11 @@ class OrderService {
   }
 
   //get by product name
-  Future<Map<String, dynamic>> getOrderByProductName(
-    String inputProductName,
-    int page,
-    int pageSize,
-  ) async {
+  Future<Map<String, dynamic>> getOrderByProductName({
+    String inputProductName = "",
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -143,11 +143,11 @@ class OrderService {
   }
 
   //get by QC box
-  Future<Map<String, dynamic>> getOrderByQcBox(
-    String inputQcBox,
-    int page,
-    int pageSize,
-  ) async {
+  Future<Map<String, dynamic>> getOrderByQcBox({
+    String inputQcBox = "",
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -185,11 +185,11 @@ class OrderService {
   }
 
   //get by price
-  Future<Map<String, dynamic>> getOrderByPrice(
-    double price,
-    int page,
-    int pageSize,
-  ) async {
+  Future<Map<String, dynamic>> getOrderByPrice({
+    String price = "",
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -225,10 +225,10 @@ class OrderService {
   //===============================PENDING AND REJECT=====================================
 
   //get Order Pending And Reject
-  Future<List<Order>> getOrderPendingAndReject(
-    bool refresh,
-    bool ownOnly,
-  ) async {
+  Future<List<Order>> getOrderPendingAndReject({
+    bool refresh = false,
+    bool ownOnly = false,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
       final response = await dioService.get(

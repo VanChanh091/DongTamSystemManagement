@@ -42,6 +42,7 @@ List<GridColumn> buildReportBoxColumn() {
     GridColumn(columnName: 'qtyBe', label: formatColumn("Bế")),
     GridColumn(columnName: 'qtyDan', label: formatColumn("Dán")),
     GridColumn(columnName: 'qtyDongGhim', label: formatColumn("Đóng Ghim")),
+    GridColumn(columnName: 'lackOfQty', label: formatColumn("Thiếu/Đủ SL")),
 
     //box
     GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),

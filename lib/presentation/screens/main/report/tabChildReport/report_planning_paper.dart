@@ -30,37 +30,78 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   bool isSearching = false;
 
   int currentPage = 1;
-  int pageSize = 3;
+  int pageSize = 25;
   int pageSizeSearch = 20;
 
   @override
   void initState() {
     super.initState();
-
     loadReportPaper(true);
 
     columns = buildReportPaperColumn();
   }
 
   void loadReportPaper(bool refresh) {
-    setState(() {
+    if (isSearching) {
+      String keyword = searchController.text.trim().toLowerCase();
+      String date = dateController.text.trim().toLowerCase();
+
+      if (searchType == 'Tên KH') {
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getRPByCustomerName(
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
+      } else if (searchType == "Ngày Báo Cáo") {
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getRPByDayReported(
+            keyword: date,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
+      } else if (searchType == "SL Báo Cáo") {
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getRPByQtyReported(
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
+      } else if (searchType == "Ghép Khổ") {
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getRPByGhepKho(
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
+      } else if (searchType == "Quản Ca") {
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getRPByShiftManagement(
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
+      }
+    } else {
       futureReportPaper = ensureMinLoading(
         ReportPlanningService().getReportPaper(
-          machine,
-          currentPage,
-          pageSize,
-          refresh,
+          machine: machine,
+          page: currentPage,
+          pageSize: pageSize,
+          refresh: refresh,
         ),
       );
-    });
-  }
-
-  void changeMachine(String selectedMachine) {
-    setState(() {
-      machine = selectedMachine;
-      selectedReportId = null;
-      loadReportPaper(true);
-    });
+    }
   }
 
   void searchReportPaper() {
@@ -70,8 +111,13 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
 
     currentPage = 1;
     if (searchType == "Tất cả") {
-      isSearching = false;
-      loadReportPaper(false);
+      setState(() {
+        futureReportPaper = ReportPlanningService().getReportPaper(
+          machine: machine,
+          page: currentPage,
+          pageSize: pageSize,
+        );
+      });
     } else if (searchType == 'Tên KH') {
       isSearching = true;
       setState(() {
@@ -79,7 +125,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
           keyword: keyword,
           machine: machine,
           page: currentPage,
-          pageSize: pageSize,
+          pageSize: pageSizeSearch,
         );
       });
     } else if (searchType == "Ngày Báo Cáo") {
@@ -89,7 +135,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
           keyword: date,
           machine: machine,
           page: currentPage,
-          pageSize: pageSize,
+          pageSize: pageSizeSearch,
         );
       });
     } else if (searchType == "SL Báo Cáo") {
@@ -99,7 +145,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
           keyword: keyword,
           machine: machine,
           page: currentPage,
-          pageSize: pageSize,
+          pageSize: pageSizeSearch,
         );
       });
     } else if (searchType == "Ghép Khổ") {
@@ -109,7 +155,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
           keyword: keyword,
           machine: machine,
           page: currentPage,
-          pageSize: pageSize,
+          pageSize: pageSizeSearch,
         );
       });
     } else if (searchType == "Quản Ca") {
@@ -119,10 +165,18 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
           keyword: keyword,
           machine: machine,
           page: currentPage,
-          pageSize: pageSize,
+          pageSize: pageSizeSearch,
         );
       });
     }
+  }
+
+  void changeMachine(String selectedMachine) {
+    setState(() {
+      machine = selectedMachine;
+      selectedReportId = null;
+      loadReportPaper(true);
+    });
   }
 
   @override
@@ -200,7 +254,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                   DateTime? picked = await showDatePicker(
                                     context: context,
                                     initialDate: now,
-                                    firstDate: now,
+                                    firstDate: DateTime(2020),
                                     lastDate: DateTime(2100),
                                   );
 
@@ -384,8 +438,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                   columnNames: [
                                     'quantityOrd',
                                     'runningPlanProd',
-                                    'qtyProduced',
                                     'qtyReported',
+                                    'LackOfQty',
                                   ],
                                   child: formatColumn('Số Lượng'),
                                 ),

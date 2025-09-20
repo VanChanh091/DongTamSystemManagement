@@ -154,7 +154,7 @@ Widget buildShimmerSkeletonTable({
 
 Future<T> ensureMinLoading<T>(
   Future<T> future, {
-  Duration minDuration = const Duration(milliseconds: 500),
+  Duration minDuration = const Duration(milliseconds: 300),
 }) async {
   final results = await Future.wait([future, Future.delayed(minDuration)]);
   return results.first as T;

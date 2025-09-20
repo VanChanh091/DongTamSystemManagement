@@ -44,7 +44,10 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   void loadOrders(bool refresh, bool ownOnly) {
     setState(() {
       futureOrdersPending = ensureMinLoading(
-        OrderService().getOrderPendingAndReject(refresh, ownOnly),
+        OrderService().getOrderPendingAndReject(
+          refresh: refresh,
+          ownOnly: ownOnly,
+        ),
       );
     });
   }
