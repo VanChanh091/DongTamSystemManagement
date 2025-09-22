@@ -37,7 +37,7 @@ List<GridColumn> buildReportPaperColumn() {
     //   label: formatColumn("SL Đã Sản Xuất"),
     // ),
     GridColumn(columnName: 'qtyReported', label: formatColumn("SL Báo Cáo")),
-    GridColumn(columnName: 'LackOfQty', label: formatColumn("Thiếu/Đủ SL")),
+    GridColumn(columnName: 'lackOfQty', label: formatColumn("Thiếu/Đủ SL")),
     GridColumn(
       columnName: 'timeRunningProd',
       label: formatColumn("Thời Gian Chạy"),

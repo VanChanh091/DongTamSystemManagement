@@ -5,6 +5,7 @@ class ReportPaperModel {
   final int? reportPaperId;
   final DateTime dayReport;
   final int qtyProduced;
+  final int lackOfQty;
   final double qtyWasteNorm;
   final String shiftProduction;
   final String shiftManagement;
@@ -16,6 +17,7 @@ class ReportPaperModel {
     this.reportPaperId,
     required this.dayReport,
     required this.qtyProduced,
+    required this.lackOfQty,
     required this.qtyWasteNorm,
     required this.shiftProduction,
     required this.shiftManagement,
@@ -29,6 +31,7 @@ class ReportPaperModel {
       reportPaperId: json['reportPaperId'] ?? 0,
       dayReport: DateTime.parse(json['dayReport']),
       qtyProduced: json['qtyProduced'] ?? 0,
+      lackOfQty: json['lackOfQty'] ?? 0,
       qtyWasteNorm: toDouble(json['qtyWasteNorm']),
       shiftProduction: json['shiftProduction'] ?? "",
       shiftManagement: json['shiftManagement'] ?? "",

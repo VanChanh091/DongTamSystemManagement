@@ -5,6 +5,7 @@ class ReportBoxModel {
   final int? reportBoxId;
   final DateTime dayReport;
   final int qtyProduced;
+  final int lackOfQty;
   final double wasteLoss;
   final String shiftManagement;
 
@@ -15,6 +16,7 @@ class ReportBoxModel {
     this.reportBoxId,
     required this.dayReport,
     required this.qtyProduced,
+    required this.lackOfQty,
     required this.wasteLoss,
     required this.shiftManagement,
     required this.planningBoxId,
@@ -26,6 +28,7 @@ class ReportBoxModel {
       reportBoxId: json['reportBoxId'] ?? 0,
       dayReport: DateTime.parse(json['dayReport']),
       qtyProduced: json['qtyProduced'] ?? 0,
+      lackOfQty: json['lackOfQty'] ?? 0,
       wasteLoss: toDouble(json['wasteLoss']),
       shiftManagement: json['shiftManagement'] ?? "",
       planningBoxId: json['planningBoxId'] ?? 0,

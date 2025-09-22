@@ -1,7 +1,6 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
-import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -84,10 +83,7 @@ class ReportPaperDatasource extends DataGridSource {
         columnName: "qtyReported",
         value: reportPaper.qtyProduced,
       ),
-      DataGridCell<int>(
-        columnName: "LackOfQty",
-        value: planningPaper.runningPlan - reportPaper.qtyProduced,
-      ),
+      DataGridCell<int>(columnName: "lackOfQty", value: reportPaper.lackOfQty),
       DataGridCell<String>(
         columnName: 'timeRunningProd',
         value: PlanningPaper.formatTimeOfDay(planningPaper.timeRunning!),
@@ -230,9 +226,6 @@ class ReportPaperDatasource extends DataGridSource {
             .value;
     final isSelected = selectedReportId == reportPaperId;
 
-    //get data column value
-    final lackOfQty = getCellValue<int>(row, 'LackOfQty', 0);
-
     Color backgroundColor;
     if (isSelected) {
       backgroundColor = Colors.blue.withOpacity(0.3);
@@ -246,8 +239,35 @@ class ReportPaperDatasource extends DataGridSource {
           row.getCells().map<Widget>((dataCell) {
             Color cellColor = Colors.transparent;
 
-            if (dataCell.columnName == 'LackOfQty' && lackOfQty > 0) {
-              cellColor = Colors.red.withOpacity(0.5);
+            if (dataCell.columnName == "lackOfQty") {
+              final int value = dataCell.value ?? 0;
+              final String display =
+                  value < 0 ? "+${value.abs()}" : value.toString();
+
+              Color textColor = Colors.black;
+
+              if (value > 0) {
+                textColor = Colors.redAccent;
+              } else if (value < 0) {
+                textColor = Colors.green;
+              }
+
+              return Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(color: Colors.grey.shade300, width: 1),
+                  ),
+                ),
+                child: Text(
+                  display,
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: value < 0 ? FontWeight.w600 : FontWeight.w400,
+                  ),
+                ),
+              );
             }
 
             return Container(
