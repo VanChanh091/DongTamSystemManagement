@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/report/report_planning_box.dart';
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
+import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:diacritic/diacritic.dart';
 
 class ReportPlanningService {
   final Dio dioService = Dio(
@@ -271,5 +276,139 @@ class ReportPlanningService {
       fromJson: (json) => ReportBoxModel.fromJson(json),
       dataKey: 'reportBoxes',
     );
+  }
+
+  //============================EXPORT EXCEL=================================
+
+  //export paper
+  Future<File?> exportExcelReportPaper({
+    DateTime? fromDate,
+    DateTime? toDate,
+    List<int>? reportPaperId,
+    required String machine,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final Map<String, dynamic> body = {"machine": machine};
+
+      if (reportPaperId != null && reportPaperId.isNotEmpty) {
+        body["reportPaperId"] = reportPaperId;
+      } else if (fromDate != null && toDate != null) {
+        body["fromDate"] = fromDate.toIso8601String();
+        body["toDate"] = toDate.toIso8601String();
+      }
+
+      final response = await dioService.post(
+        "/api/report/exportExcelPaper",
+        data: body,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final bytes = response.data as List<int>;
+
+        // Cho người dùng chọn thư mục lưu
+        final dirPath = await FilePicker.platform.getDirectoryPath();
+        if (dirPath == null) {
+          print("Người dùng đã hủy chọn thư mục");
+          return null;
+        }
+
+        final now = DateTime.now();
+        final fileName =
+            "report-paper-${now.toIso8601String().split('T')[0]}.xlsx";
+        final file = File("$dirPath/$fileName");
+
+        await file.writeAsBytes(bytes, flush: true);
+        return file;
+      } else {
+        print("Export failed: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Error exportExcelReportPaper: $e");
+      return null;
+    }
+  }
+
+  //export box
+  Future<File?> exportExcelReportBox({
+    DateTime? fromDate,
+    DateTime? toDate,
+    List<int>? reportBoxId,
+    required String machine,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final Map<String, dynamic> body = {"machine": machine};
+
+      if (reportBoxId != null && reportBoxId.isNotEmpty) {
+        body["reportBoxId"] = reportBoxId;
+      } else if (fromDate != null && toDate != null) {
+        body["fromDate"] = fromDate.toIso8601String();
+        body["toDate"] = toDate.toIso8601String();
+      }
+
+      final response = await dioService.post(
+        "/api/report/exportExcelBox",
+        data: body,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final bytes = response.data as List<int>;
+
+        // Cho người dùng chọn thư mục lưu
+        final dirPath = await FilePicker.platform.getDirectoryPath();
+        if (dirPath == null) {
+          print("Người dùng đã hủy chọn thư mục");
+          return null;
+        }
+
+        final now = DateTime.now();
+        final safeMachine = makeSafeFileName(machine);
+        final fileName =
+            "report-paper-${safeMachine.toLowerCase()}-${now.toIso8601String().split('T')[0]}.xlsx";
+        final file = File("$dirPath/$fileName");
+
+        await file.writeAsBytes(bytes, flush: true);
+
+        await file.writeAsBytes(bytes, flush: true);
+        return file;
+      } else {
+        print("Export failed: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Error exportExcelReportPaper: $e");
+      return null;
+    }
+  }
+
+  String makeSafeFileName(String input) {
+    // bỏ dấu tiếng Việt
+    var result = removeDiacritics(input);
+
+    // thay khoảng trắng bằng "_"
+    result = result.replaceAll(RegExp(r'\s+'), '_');
+
+    // loại bỏ ký tự đặc biệt ngoài a-zA-Z0-9_
+    result = result.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '');
+
+    return result;
   }
 }

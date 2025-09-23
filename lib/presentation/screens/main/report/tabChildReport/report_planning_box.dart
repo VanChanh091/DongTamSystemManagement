@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/report/report_planning_box.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_option_exportExcel.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_reportBox.dart';
 import 'package:dongtam/presentation/sources/report_box_datasource.dart';
 import 'package:dongtam/service/report_planning_service.dart';
@@ -25,7 +26,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   TextEditingController dateController = TextEditingController();
   String searchType = "Tất cả";
   String machine = "Máy In";
-  int? selectedReportId;
+  List<int> selectedReportId = [];
   bool isTextFieldEnabled = false;
   bool isSearching = false;
 
@@ -175,7 +176,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   void changeMachine(String selectedMachine) {
     setState(() {
       machine = selectedMachine;
-      selectedReportId = null;
+      selectedReportId.clear();
       loadReportBox(true);
     });
   }
@@ -328,6 +329,28 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child: Row(
                       children: [
+                        //export excel
+                        AnimatedButton(
+                          onPressed: () async {
+                            print(selectedReportId);
+
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (_) => DialogSelectExportExcel(
+                                    selectedReportId: selectedReportId,
+                                    onPlanningIdsOrRangeDate:
+                                        () => loadReportBox(true),
+                                    machine: machine,
+                                    isBox: true,
+                                  ),
+                            );
+                          },
+                          label: "Xuất Excel",
+                          icon: Icons.search,
+                        ),
+                        const SizedBox(width: 10),
+
                         //choose machine
                         SizedBox(
                           width: 175,
@@ -455,32 +478,27 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                             ),
                           ],
                           onSelectionChanged: (addedRows, removedRows) {
-                            if (addedRows.isNotEmpty) {
-                              final selectedRow = addedRows.first;
-                              final reportPaperId =
-                                  selectedRow
-                                      .getCells()
-                                      .firstWhere(
-                                        (cell) =>
-                                            cell.columnName == 'reportBoxId',
-                                      )
-                                      .value
-                                      .toString();
+                            setState(() {
+                              for (var row in addedRows) {
+                                final reportPaperId =
+                                    row
+                                        .getCells()
+                                        .firstWhere(
+                                          (cell) =>
+                                              cell.columnName == 'reportBoxId',
+                                        )
+                                        .value;
+                                if (selectedReportId.contains(reportPaperId)) {
+                                  selectedReportId.remove(reportPaperId);
+                                } else {
+                                  selectedReportId.add(reportPaperId);
+                                }
+                              }
 
-                              final selectedReport = reportBoxes.firstWhere(
-                                (report) =>
-                                    report.reportBoxId.toString() ==
-                                    reportPaperId,
-                              );
-
-                              setState(() {
-                                selectedReportId = selectedReport.reportBoxId;
-                              });
-                            } else {
-                              setState(() {
-                                selectedReportId = null;
-                              });
-                            }
+                              reportBoxDatasource.selectedReportId =
+                                  selectedReportId;
+                              reportBoxDatasource.notifyListeners();
+                            });
                           },
                         ),
                       ),

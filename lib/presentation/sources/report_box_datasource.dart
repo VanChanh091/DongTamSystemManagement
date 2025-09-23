@@ -6,7 +6,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportBoxDatasource extends DataGridSource {
   List<ReportBoxModel> reportPapers = [];
-  int? selectedReportId;
+  List<int>? selectedReportId;
   String machine;
 
   late List<DataGridRow> reportDataGridRows;
@@ -278,7 +278,7 @@ class ReportBoxDatasource extends DataGridSource {
             .getCells()
             .firstWhere((cell) => cell.columnName == 'reportBoxId')
             .value;
-    final isSelected = selectedReportId == reportPaperId;
+    final isSelected = selectedReportId?.contains(reportPaperId);
 
     final Map<String, String> machineColumnMap = {
       'qtyPrinted': "Máy In",
@@ -292,7 +292,7 @@ class ReportBoxDatasource extends DataGridSource {
     };
 
     Color backgroundColor;
-    if (isSelected) {
+    if (isSelected == true) {
       backgroundColor = Colors.blue.withOpacity(0.3);
     } else {
       backgroundColor = Colors.transparent;

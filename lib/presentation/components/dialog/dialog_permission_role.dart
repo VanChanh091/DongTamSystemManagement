@@ -60,9 +60,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
   late List<String> chosenPermissions;
   late String chosenRole;
 
-  ValueNotifier<String?> selectedOption = ValueNotifier<String?>(
-    null,
-  ); // role or permission
+  ValueNotifier<String?> selectedOption = ValueNotifier<String?>(null);
   Map<String, ValueNotifier<bool>> permissionCheckStates = {};
 
   @override

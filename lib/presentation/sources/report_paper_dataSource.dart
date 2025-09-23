@@ -7,7 +7,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportPaperDatasource extends DataGridSource {
   List<ReportPaperModel> reportPapers = [];
-  int? selectedReportId;
+  List<int>? selectedReportId;
 
   late List<DataGridRow> reportDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -224,10 +224,10 @@ class ReportPaperDatasource extends DataGridSource {
             .getCells()
             .firstWhere((cell) => cell.columnName == 'reportPaperId')
             .value;
-    final isSelected = selectedReportId == reportPaperId;
+    final isSelected = selectedReportId?.contains(reportPaperId);
 
     Color backgroundColor;
-    if (isSelected) {
+    if (isSelected == true) {
       backgroundColor = Colors.blue.withOpacity(0.3);
     } else {
       backgroundColor = Colors.transparent;

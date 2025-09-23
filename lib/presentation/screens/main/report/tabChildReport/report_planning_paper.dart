@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_option_exportExcel.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_reportPaper.dart';
 import 'package:dongtam/presentation/sources/report_paper_dataSource.dart';
 import 'package:dongtam/service/report_planning_service.dart';
@@ -25,7 +26,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   TextEditingController dateController = TextEditingController();
   String searchType = "Tất cả";
   String machine = "Máy 1350";
-  int? selectedReportId;
+  List<int> selectedReportId = [];
   bool isTextFieldEnabled = false;
   bool isSearching = false;
 
@@ -174,7 +175,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   void changeMachine(String selectedMachine) {
     setState(() {
       machine = selectedMachine;
-      selectedReportId = null;
+      selectedReportId.clear();
       loadReportPaper(true);
     });
   }
@@ -309,7 +310,6 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                 ),
                               ),
                             ),
-
                         const SizedBox(width: 10),
 
                         // find
@@ -318,7 +318,6 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                           label: "Tìm kiếm",
                           icon: Icons.search,
                         ),
-
                         const SizedBox(width: 10),
                       ],
                     ),
@@ -329,6 +328,25 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child: Row(
                       children: [
+                        //export excel
+                        AnimatedButton(
+                          onPressed: () async {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (_) => DialogSelectExportExcel(
+                                    selectedReportId: selectedReportId,
+                                    onPlanningIdsOrRangeDate:
+                                        () => loadReportPaper(true),
+                                    machine: machine,
+                                  ),
+                            );
+                          },
+                          label: "Xuất Excel",
+                          icon: Icons.search,
+                        ),
+                        const SizedBox(width: 10),
+
                         //choose machine
                         SizedBox(
                           width: 175,
@@ -428,7 +446,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                           allowExpandCollapseGroup: true, // Bật grouping
                           autoExpandGroups: true,
                           columnWidthMode: ColumnWidthMode.auto,
-                          selectionMode: SelectionMode.single,
+                          navigationMode: GridNavigationMode.row,
+                          selectionMode: SelectionMode.multiple,
                           headerRowHeight: 40,
                           rowHeight: 45,
                           stackedHeaderRows: <StackedHeaderRow>[
@@ -477,32 +496,28 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                             ),
                           ],
                           onSelectionChanged: (addedRows, removedRows) {
-                            if (addedRows.isNotEmpty) {
-                              final selectedRow = addedRows.first;
-                              final reportPaperId =
-                                  selectedRow
-                                      .getCells()
-                                      .firstWhere(
-                                        (cell) =>
-                                            cell.columnName == 'reportPaperId',
-                                      )
-                                      .value
-                                      .toString();
+                            setState(() {
+                              for (var row in addedRows) {
+                                final reportPaperId =
+                                    row
+                                        .getCells()
+                                        .firstWhere(
+                                          (cell) =>
+                                              cell.columnName ==
+                                              'reportPaperId',
+                                        )
+                                        .value;
+                                if (selectedReportId.contains(reportPaperId)) {
+                                  selectedReportId.remove(reportPaperId);
+                                } else {
+                                  selectedReportId.add(reportPaperId);
+                                }
+                              }
 
-                              final selectedReport = reportPapers.firstWhere(
-                                (report) =>
-                                    report.reportPaperId.toString() ==
-                                    reportPaperId,
-                              );
-
-                              setState(() {
-                                selectedReportId = selectedReport.reportPaperId;
-                              });
-                            } else {
-                              setState(() {
-                                selectedReportId = null;
-                              });
-                            }
+                              reportPaperDatasource.selectedReportId =
+                                  selectedReportId;
+                              reportPaperDatasource.notifyListeners();
+                            });
                           },
                         ),
                       ),
