@@ -32,7 +32,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
   int currentPage = 1;
   int pageSize = 25;
-  int pageSizeSearch = 1;
+  int pageSizeSearch = 20;
 
   @override
   void initState() {
@@ -43,66 +43,77 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   }
 
   void loadReportBox(bool refresh) {
-    if (isSearching) {
-      String keyword = searchController.text.trim().toLowerCase();
-      String date = dateController.text.trim().toLowerCase();
+    setState(() {
+      if (isSearching) {
+        String keyword = searchController.text.trim().toLowerCase();
+        String date = dateController.text.trim().toLowerCase();
 
-      if (searchType == 'Tên KH') {
+        if (searchType == 'Tên KH') {
+          futureReportBox = ensureMinLoading(
+            ReportPlanningService().getRBByCustomerName(
+              keyword: keyword,
+              machine: machine,
+              page: currentPage,
+              pageSize: pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "Theo Mã ĐH") {
+          futureReportBox = ensureMinLoading(
+            ReportPlanningService().getRBByOrderId(
+              keyword: keyword,
+              machine: machine,
+              page: currentPage,
+              pageSize: pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "Ngày Báo Cáo") {
+          futureReportBox = ensureMinLoading(
+            ReportPlanningService().getRBByDayReported(
+              keyword: date,
+              machine: machine,
+              page: currentPage,
+              pageSize: pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "SL Báo Cáo") {
+          futureReportBox = ensureMinLoading(
+            ReportPlanningService().getRBByQtyReported(
+              keyword: keyword,
+              machine: machine,
+              page: currentPage,
+              pageSize: pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "QC Thùng") {
+          futureReportBox = ensureMinLoading(
+            ReportPlanningService().getRBByQcBox(
+              keyword: keyword,
+              machine: machine,
+              page: currentPage,
+              pageSize: pageSizeSearch,
+            ),
+          );
+        } else if (searchType == "Quản Ca") {
+          futureReportBox = ensureMinLoading(
+            ReportPlanningService().getRBByShiftManagement(
+              keyword: keyword,
+              machine: machine,
+              page: currentPage,
+              pageSize: pageSizeSearch,
+            ),
+          );
+        }
+      } else {
         futureReportBox = ensureMinLoading(
-          ReportPlanningService().getRBByCustomerName(
-            keyword: keyword,
+          ReportPlanningService().getReportBox(
             machine: machine,
             page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else if (searchType == "Ngày Báo Cáo") {
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getRBByDayReported(
-            keyword: date,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else if (searchType == "SL Báo Cáo") {
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getRBByQtyReported(
-            keyword: keyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else if (searchType == "QC Thùng") {
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getRBByQcBox(
-            keyword: keyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else if (searchType == "Quản Ca") {
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getRBByShiftManagement(
-            keyword: keyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
+            pageSize: pageSize,
+            refresh: refresh,
           ),
         );
       }
-    } else {
-      futureReportBox = ensureMinLoading(
-        ReportPlanningService().getReportBox(
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSize,
-          refresh: refresh,
-        ),
-      );
-    }
+    });
   }
 
   void searchReportPaper() {
@@ -118,6 +129,16 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
           page: currentPage,
           pageSize: pageSize,
           refresh: false,
+        );
+      });
+    } else if (searchType == "Theo Mã ĐH") {
+      isSearching = true;
+      setState(() {
+        futureReportBox = ReportPlanningService().getRBByOrderId(
+          keyword: keyword,
+          machine: machine,
+          page: currentPage,
+          pageSize: pageSizeSearch,
         );
       });
     } else if (searchType == 'Tên KH') {
@@ -209,6 +230,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                             items:
                                 [
                                   'Tất cả',
+                                  "Theo Mã ĐH",
                                   'Tên KH',
                                   "Ngày Báo Cáo",
                                   "SL Báo Cáo",
@@ -332,8 +354,6 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                         //export excel
                         AnimatedButton(
                           onPressed: () async {
-                            print(selectedReportId);
-
                             showDialog(
                               context: context,
                               builder:

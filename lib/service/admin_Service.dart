@@ -406,7 +406,10 @@ class AdminService {
   }
 
   //reset password
-  Future<bool> resetUserPassword(List<int> userIds, String newPassword) async {
+  Future<bool> resetUserPassword({
+    required List<int> userIds,
+    String newPassword = '12345678',
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 

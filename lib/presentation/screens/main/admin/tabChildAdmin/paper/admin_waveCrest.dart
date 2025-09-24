@@ -60,7 +60,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           //left
-                          SizedBox(),
+                          const SizedBox(),
 
                           //right
                           Container(
@@ -176,7 +176,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                                                   ),
                                                                 ],
                                                               )
-                                                              : Text(
+                                                              : const Text(
                                                                 'Bạn có chắc chắn muốn xoá?',
                                                                 style:
                                                                     TextStyle(
@@ -292,7 +292,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                           ),
                         ],
                       )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
             ),
 
             //table
@@ -303,10 +303,10 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                   future: futureAdminWaveCrest,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
                       if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                        return Center(
+                        return const Center(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -315,7 +315,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                 color: Colors.redAccent,
                                 size: 35,
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 "Bạn không có quyền xem chức năng này",
                                 style: TextStyle(
@@ -330,7 +330,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                       }
                       return Center(child: Text("Lỗi: ${snapshot.error}"));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
+                      return const Center(
                         child: Text(
                           "Không có đơn hàng nào",
                           style: TextStyle(
@@ -348,7 +348,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
+                        headingRowColor: const WidgetStatePropertyAll(
                           Color(0xffcfa381),
                         ),
                         columns: [
@@ -516,7 +516,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
           isAccept
               ? FloatingActionButton(
                 onPressed: loadWaveCrest,
-                backgroundColor: Color(0xff78D761),
+                backgroundColor: const Color(0xff78D761),
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

@@ -200,6 +200,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                         context,
                                         "Chỉ được cập nhật mỗi lần 1 user",
                                       );
+                                      return;
                                     }
 
                                     final users = await futureUserAdmin;
@@ -306,21 +307,18 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                     );
 
                                     if (confirm == true) {
-                                      const newPassword = "123456";
-
                                       try {
                                         await Future.delayed(
                                           const Duration(milliseconds: 500),
                                         );
 
                                         await AdminService().resetUserPassword(
-                                          selectedUserIds,
-                                          newPassword,
+                                          userIds: selectedUserIds,
                                         );
 
                                         showSnackBarSuccess(
                                           context,
-                                          "Đặt lại mật khẩu thành công. Mật khẩu mặc định là 123456",
+                                          "Đặt lại mật khẩu thành công. Mật khẩu mặc định là 12345678",
                                         );
 
                                         setState(() {

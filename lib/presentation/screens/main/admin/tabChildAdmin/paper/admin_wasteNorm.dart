@@ -60,11 +60,11 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           //left
-                          SizedBox(),
+                          const SizedBox(),
 
                           //right
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               vertical: 8,
                               horizontal: 10,
                             ),
@@ -142,8 +142,8 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                               16,
                                                             ),
                                                       ),
-                                                      title: Row(
-                                                        children: const [
+                                                      title: const Row(
+                                                        children: [
                                                           Icon(
                                                             Icons
                                                                 .warning_amber_rounded,
@@ -163,8 +163,8 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                       ),
                                                       content:
                                                           isDeleting
-                                                              ? Row(
-                                                                children: const [
+                                                              ? const Row(
+                                                                children: [
                                                                   CircularProgressIndicator(
                                                                     strokeWidth:
                                                                         2,
@@ -177,7 +177,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                                   ),
                                                                 ],
                                                               )
-                                                              : Text(
+                                                              : const Text(
                                                                 'Bạn có chắc chắn muốn xoá?',
                                                                 style:
                                                                     TextStyle(
@@ -286,14 +286,14 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                           : null,
                                   label: "Xóa",
                                   icon: Icons.delete,
-                                  backgroundColor: Color(0xffEA4346),
+                                  backgroundColor: const Color(0xffEA4346),
                                 ),
                               ],
                             ),
                           ),
                         ],
                       )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
             ),
 
             //table
@@ -304,10 +304,10 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                   future: futureAdminWasteNorm,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
                       if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                        return Center(
+                        return const Center(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -316,7 +316,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                 color: Colors.redAccent,
                                 size: 35,
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 "Bạn không có quyền xem chức năng này",
                                 style: TextStyle(
@@ -331,7 +331,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                       }
                       return Center(child: Text("Lỗi: ${snapshot.error}"));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
+                      return const Center(
                         child: Text(
                           "Không có đơn hàng nào",
                           style: TextStyle(
@@ -349,7 +349,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
+                        headingRowColor: const WidgetStatePropertyAll(
                           Color(0xffcfa381),
                         ),
                         columns: [
@@ -521,7 +521,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
           isAccept
               ? FloatingActionButton(
                 onPressed: loadWasteNorm,
-                backgroundColor: Color(0xff78D761),
+                backgroundColor: const Color(0xff78D761),
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

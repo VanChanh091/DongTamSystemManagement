@@ -7,7 +7,7 @@ class ValidationAuth {
   }
 
   static String? validateEmail(String? value) {
-    final RegExp emailRegex = RegExp(r'^[\w.-]+@gmail\.com$');
+    final RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (value == null || value.trim().isEmpty) {
       return "Email không được để trống";
     }

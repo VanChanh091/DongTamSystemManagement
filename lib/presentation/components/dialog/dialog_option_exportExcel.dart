@@ -28,14 +28,28 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
   DateTimeRange? selectedRange;
 
   Future<void> pickDateRange(BuildContext context) async {
-    final now = DateTime.now();
+    final size = MediaQuery.of(context).size;
+
     final DateTimeRange? result = await showDateRangePicker(
       context: context,
-      firstDate: DateTime(now.year - 1),
-      lastDate: DateTime(now.year + 1),
-      initialDateRange:
-          selectedRange ??
-          DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+      initialDateRange: selectedRange,
+      builder: (context, child) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: size.width * 0.4,
+              maxHeight: size.height * 0.8,
+            ),
+            child: Material(
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
+              child: child!,
+            ),
+          ),
+        );
+      },
     );
 
     if (result != null) {
@@ -117,23 +131,50 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
+              const SizedBox(height: 10),
               if (value == 'date')
                 Column(
                   children: [
-                    OutlinedButton.icon(
-                      onPressed: () => pickDateRange(context),
-                      icon: const Icon(Icons.date_range),
-                      label: Text(
-                        selectedRange == null
-                            ? "Chọn khoảng thời gian"
-                            : "${selectedRange!.start.day}/${selectedRange!.start.month}/${selectedRange!.start.year} - "
-                                "${selectedRange!.end.day}/${selectedRange!.end.month}/${selectedRange!.end.year}",
+                    SizedBox(
+                      width: 250,
+                      height: 50,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          side: BorderSide(
+                            color: Colors.blue.shade400,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () => pickDateRange(context),
+                        icon: Icon(
+                          Icons.date_range,
+                          color: Colors.blue.shade400,
+                        ),
+                        label: Text(
+                          selectedRange == null
+                              ? "Chọn khoảng thời gian"
+                              : "${selectedRange!.start.day}/${selectedRange!.start.month}/${selectedRange!.start.year} - "
+                                  "${selectedRange!.end.day}/${selectedRange!.end.month}/${selectedRange!.end.year}",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.blue.shade700,
+                          ),
+                        ),
                       ),
                     ),
+                    SizedBox(height: 5),
                     if (selectedRange == null)
                       const Text(
                         "Chưa chọn khoảng thời gian",
-                        style: TextStyle(color: Colors.red, fontSize: 12),
+                        style: TextStyle(color: Colors.red, fontSize: 13),
                       ),
                   ],
                 ),
@@ -149,7 +190,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
             "Hủy",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 18,
+              fontSize: 17,
               color: Colors.red,
             ),
           ),
@@ -167,7 +208,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
             "Xác nhận",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 18,
+              fontSize: 17,
               color: Colors.white,
             ),
           ),

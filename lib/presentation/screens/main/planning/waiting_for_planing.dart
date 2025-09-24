@@ -44,6 +44,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
       futureOrdersAccept = ensureMinLoading(
         PlanningService().getOrderAccept(refresh),
       );
+      selectedOrderId = null;
     });
   }
 

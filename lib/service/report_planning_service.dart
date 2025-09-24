@@ -148,6 +148,28 @@ class ReportPlanningService {
     );
   }
 
+  //get by orderId
+  Future<Map<String, dynamic>> getRPByOrderId({
+    required String keyword,
+    required String machine,
+    required int page,
+    required int pageSize,
+    bool refresh = false,
+  }) async {
+    return HelperService().fetchPaginatedData<ReportPaperModel>(
+      endpoint: "report/reportPaper/getOrderId",
+      queryParameters: {
+        'orderId': keyword,
+        'machine': machine,
+        'page': page,
+        'pageSize': pageSize,
+        'refresh': refresh,
+      },
+      fromJson: (json) => ReportPaperModel.fromJson(json),
+      dataKey: 'reportPapers',
+    );
+  }
+
   //============================REPORT PAPER=================================
   Future<Map<String, dynamic>> getReportBox({
     required String machine,
@@ -278,6 +300,28 @@ class ReportPlanningService {
     );
   }
 
+  //get by shiftManagement
+  Future<Map<String, dynamic>> getRBByOrderId({
+    required String keyword,
+    required String machine,
+    required int page,
+    required int pageSize,
+    bool refresh = false,
+  }) async {
+    return HelperService().fetchPaginatedData<ReportBoxModel>(
+      endpoint: "report/reportBox/getOrderId",
+      queryParameters: {
+        'orderId': keyword,
+        'machine': machine,
+        'page': page,
+        'pageSize': pageSize,
+        'refresh': refresh,
+      },
+      fromJson: (json) => ReportBoxModel.fromJson(json),
+      dataKey: 'reportBoxes',
+    );
+  }
+
   //============================EXPORT EXCEL=================================
 
   //export paper
@@ -322,8 +366,9 @@ class ReportPlanningService {
         }
 
         final now = DateTime.now();
+        final safeMachine = makeSafeFileName(machine);
         final fileName =
-            "report-paper-${now.toIso8601String().split('T')[0]}.xlsx";
+            "report-paper-${safeMachine.toLowerCase()}-${now.toIso8601String().split('T')[0]}.xlsx";
         final file = File("$dirPath/$fileName");
 
         await file.writeAsBytes(bytes, flush: true);
@@ -382,7 +427,7 @@ class ReportPlanningService {
         final now = DateTime.now();
         final safeMachine = makeSafeFileName(machine);
         final fileName =
-            "report-paper-${safeMachine.toLowerCase()}-${now.toIso8601String().split('T')[0]}.xlsx";
+            "report-box-${safeMachine.toLowerCase()}-${now.toIso8601String().split('T')[0]}.xlsx";
         final file = File("$dirPath/$fileName");
 
         await file.writeAsBytes(bytes, flush: true);
