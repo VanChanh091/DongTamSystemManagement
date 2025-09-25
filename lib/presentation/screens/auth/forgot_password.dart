@@ -104,11 +104,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     return Scaffold(
       body: Center(
         child: Container(
-          decoration: BoxDecoration(color: Color(0xffcfa381)),
+          decoration: const BoxDecoration(color: Color(0xffcfa381)),
           child: Row(
             children: [
               //logo & 4 steps change password
-              StepItems(),
+              const StepItems(),
 
               //change password
               Expanded(
@@ -125,17 +125,17 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           mainAxisSize: MainAxisSize.max,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(height: 50),
-                            Center(
+                            const SizedBox(height: 50),
+                            const Center(
                               child: Icon(
                                 Icons.lock,
                                 size: 50,
                                 color: Colors.yellow,
                               ),
                             ),
-                            SizedBox(height: 15),
+                            const SizedBox(height: 15),
 
-                            Center(
+                            const Center(
                               child: Text(
                                 "Thiết lập lại mật khẩu",
                                 style: TextStyle(
@@ -145,9 +145,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
 
-                            Center(
+                            const Center(
                               child: Text(
                                 "Thiết lập lại mật khẩu của bạn\n"
                                 "Chúng tôi sẽ gửi mã xác nhận đến email của bạn",
@@ -159,7 +159,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
 
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +171,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                       labelText: "Email",
                                       filled: true,
                                       fillColor: Colors.white,
-                                      prefixIcon: Icon(Icons.mail),
+                                      prefixIcon: const Icon(Icons.mail),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -181,7 +181,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                             ValidationAuth.validateEmail(value),
                                   ),
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Container(
                                   height: 47,
                                   decoration: BoxDecoration(
@@ -208,7 +208,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               ],
                             ),
 
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
 
                             //enter code otp
                             Center(
@@ -216,7 +216,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 controller: otpController,
                                 decoration: InputDecoration(
                                   labelText: "Mã xác nhận",
-                                  prefixIcon: Icon(Icons.code),
+                                  prefixIcon: const Icon(Icons.code),
                                   filled: true,
                                   fillColor: Colors.white,
                                   border: OutlineInputBorder(
@@ -231,7 +231,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 },
                               ),
                             ),
-                            SizedBox(height: 25),
+                            const SizedBox(height: 25),
 
                             Center(
                               child: SizedBox(
@@ -249,7 +249,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                       verifyOTP();
                                     }
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     "Xác nhận",
                                     style: TextStyle(
                                       fontSize: 20,

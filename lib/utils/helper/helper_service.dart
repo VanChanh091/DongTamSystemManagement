@@ -46,7 +46,7 @@ class HelperService {
         'currentPage': data['currentPage'] ?? 1,
       };
     } catch (e) {
-      throw Exception('Failed to get customerName: $e');
+      throw Exception('Failed to get data: $e');
     }
   }
 }

@@ -167,7 +167,7 @@ class _ProductDialogState extends State<ProductDialog> {
       title: Center(
         child: Text(
           isEdit ? "Cập nhật sản phẩm" : "Thêm sản phẩm",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
       content: SizedBox(
@@ -178,7 +178,7 @@ class _ProductDialogState extends State<ProductDialog> {
             key: formKey,
             child: Column(
               children: [
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 validateInput(
                   "Mã Sản Phẩm",
                   idController,
@@ -187,7 +187,7 @@ class _ProductDialogState extends State<ProductDialog> {
                   checkId: !isEdit,
                 ),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 ValidationOrder.dropdownForTypes(
                   itemsTypeProduct,
                   typeProduct,
@@ -198,35 +198,38 @@ class _ProductDialogState extends State<ProductDialog> {
                   },
                 ),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 validateInput(
                   "Tên sản phẩm",
                   nameProductController,
                   Icons.production_quantity_limits,
                 ),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 validateInput("Mã khuôn", maKhuonController, Icons.code),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 ElevatedButton.icon(
                   onPressed: pickImage,
-                  icon: Icon(Icons.upload),
-                  label: Text(
+                  icon: const Icon(Icons.upload),
+                  label: const Text(
                     "Chọn ảnh sản phẩm",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 15,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),
                 if (pickedProductImage != null) ...[
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   Image.memory(
                     pickedProductImage!,
                     width: 350,
@@ -234,7 +237,7 @@ class _ProductDialogState extends State<ProductDialog> {
                     fit: BoxFit.contain,
                   ),
                 ] else if (productImageUrl != null) ...[
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   Image.network(
                     productImageUrl!,
                     width: 350,
@@ -250,12 +253,12 @@ class _ProductDialogState extends State<ProductDialog> {
           ),
         ),
       ),
-      actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(
+          child: const Text(
             "Hủy",
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -268,14 +271,14 @@ class _ProductDialogState extends State<ProductDialog> {
           onPressed: submit,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
           ),
           child: Text(
             isEdit ? "Cập nhật" : "Thêm",
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
               color: Colors.white,

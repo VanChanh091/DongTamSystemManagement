@@ -22,14 +22,14 @@ class _TopTabReportState extends State<TopTabReport> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
-              tabs: [
+              tabs: const [
                 Tab(text: "Báo Cáo Giấy Tấm"),
                 Tab(text: "Báo Cáo SX Thùng"),
               ],
             ),
           ),
           Expanded(
-            child: TabBarView(
+            child: const TabBarView(
               children: [ReportPlanningPaper(), ReportPlanningBox()],
             ),
           ),

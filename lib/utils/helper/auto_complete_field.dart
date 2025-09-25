@@ -81,7 +81,10 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(widget.icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             fillColor:
                 isFilled
@@ -106,7 +109,7 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
         );
       },
 
-      constraints: BoxConstraints(maxHeight: 200),
+      constraints: const BoxConstraints(maxHeight: 200),
       emptyBuilder:
           (context) => const Padding(
             padding: EdgeInsets.all(8.0),

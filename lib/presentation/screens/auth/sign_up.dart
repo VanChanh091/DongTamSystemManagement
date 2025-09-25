@@ -100,7 +100,7 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       body: Center(
         child: Container(
-          decoration: BoxDecoration(color: Color(0xffcfa381)),
+          decoration: const BoxDecoration(color: Color(0xffcfa381)),
           child: Row(
             children: [
               //logo
@@ -132,22 +132,22 @@ class _SignUpState extends State<SignUp> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              SizedBox(height: 20),
-                              Text(
+                              const SizedBox(height: 20),
+                              const Text(
                                 "Đăng ký",
                                 style: TextStyle(
                                   fontSize: 30,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 40),
+                              const SizedBox(height: 40),
 
                               // name
                               TextFormField(
                                 controller: fullNameController,
                                 decoration: InputDecoration(
                                   labelText: "Họ và tên",
-                                  prefixIcon: Icon(Icons.person),
+                                  prefixIcon: const Icon(Icons.person),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -156,7 +156,7 @@ class _SignUpState extends State<SignUp> {
                                     (value) =>
                                         ValidationAuth.validateFullName(value),
                               ),
-                              SizedBox(height: 22),
+                              const SizedBox(height: 22),
 
                               // email + OTP
                               Row(
@@ -167,7 +167,7 @@ class _SignUpState extends State<SignUp> {
                                       controller: emailController,
                                       decoration: InputDecoration(
                                         labelText: "Email",
-                                        prefixIcon: Icon(Icons.mail),
+                                        prefixIcon: const Icon(Icons.mail),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
                                             10,
@@ -181,7 +181,7 @@ class _SignUpState extends State<SignUp> {
                                               ),
                                     ),
                                   ),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   Container(
                                     height: 47,
                                     decoration: BoxDecoration(
@@ -209,7 +209,7 @@ class _SignUpState extends State<SignUp> {
                                 ],
                               ),
 
-                              SizedBox(height: 22),
+                              const SizedBox(height: 22),
 
                               // password
                               TextFormField(
@@ -217,7 +217,7 @@ class _SignUpState extends State<SignUp> {
                                 obscureText: isObscureText,
                                 decoration: InputDecoration(
                                   labelText: "Mật khẩu",
-                                  prefixIcon: Icon(Icons.lock),
+                                  prefixIcon: const Icon(Icons.lock),
                                   suffixIcon: IconButton(
                                     onPressed: () {
                                       setState(() {
@@ -238,7 +238,7 @@ class _SignUpState extends State<SignUp> {
                                     (value) =>
                                         ValidationAuth.validatePassword(value),
                               ),
-                              SizedBox(height: 22),
+                              const SizedBox(height: 22),
 
                               // confirm password
                               TextFormField(
@@ -246,7 +246,7 @@ class _SignUpState extends State<SignUp> {
                                 controller: confirmPWController,
                                 decoration: InputDecoration(
                                   labelText: "Nhập lại mật khẩu",
-                                  prefixIcon: Icon(Icons.lock),
+                                  prefixIcon: const Icon(Icons.lock),
                                   suffixIcon: IconButton(
                                     onPressed: () {
                                       setState(() {
@@ -270,14 +270,14 @@ class _SignUpState extends State<SignUp> {
                                           value,
                                         ),
                               ),
-                              SizedBox(height: 22),
+                              const SizedBox(height: 22),
 
                               // otp
                               TextFormField(
                                 controller: otpController,
                                 decoration: InputDecoration(
                                   labelText: "Nhập mã xác nhận",
-                                  prefixIcon: Icon(Icons.verified),
+                                  prefixIcon: const Icon(Icons.verified),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -289,7 +289,7 @@ class _SignUpState extends State<SignUp> {
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 60),
+                              const SizedBox(height: 60),
 
                               // submit
                               SizedBox(
@@ -307,7 +307,7 @@ class _SignUpState extends State<SignUp> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     "Đăng ký",
                                     style: TextStyle(
                                       fontSize: 20,
@@ -317,13 +317,13 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
 
                               // Sign in
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text("Bạn đã có tài khoản?"),
+                                  const Text("Bạn đã có tài khoản?"),
                                   TextButton(
                                     onPressed: () {
                                       Navigator.push(

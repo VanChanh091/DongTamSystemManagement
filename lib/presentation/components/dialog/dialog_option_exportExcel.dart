@@ -186,7 +186,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(
+          child: const Text(
             "Hủy",
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -199,12 +199,12 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
           onPressed: submit,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: Text(
+          child: const Text(
             "Xác nhận",
             style: TextStyle(
               fontWeight: FontWeight.bold,

@@ -64,7 +64,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
 
                           //right
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               vertical: 8,
                               horizontal: 10,
                             ),
@@ -141,8 +141,8 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                                               16,
                                                             ),
                                                       ),
-                                                      title: Row(
-                                                        children: const [
+                                                      title: const Row(
+                                                        children: [
                                                           Icon(
                                                             Icons
                                                                 .warning_amber_rounded,
@@ -162,8 +162,8 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                                       ),
                                                       content:
                                                           isDeleting
-                                                              ? Row(
-                                                                children: const [
+                                                              ? const Row(
+                                                                children: [
                                                                   CircularProgressIndicator(
                                                                     strokeWidth:
                                                                         2,
@@ -370,7 +370,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                   checkColor: MaterialStateProperty.all<Color>(
                                     Colors.white,
                                   ),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                     color: Colors.black,
                                     width: 1,
                                   ),
@@ -425,7 +425,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                           MaterialStateProperty.all<Color>(
                                             Colors.white,
                                           ),
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                         color: Colors.black,
                                         width: 1,
                                       ),

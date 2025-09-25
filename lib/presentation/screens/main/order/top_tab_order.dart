@@ -18,7 +18,7 @@ class _TopTabOrderState extends State<TopTabOrder> {
         children: [
           Container(
             color: Colors.white,
-            child: TabBar(
+            child: const TabBar(
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
@@ -29,7 +29,7 @@ class _TopTabOrderState extends State<TopTabOrder> {
             ),
           ),
           Expanded(
-            child: TabBarView(
+            child: const TabBarView(
               children: [OrderAcceptAndPlanning(), OrderRejectAndPending()],
             ),
           ),

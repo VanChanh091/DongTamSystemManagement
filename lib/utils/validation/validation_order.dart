@@ -19,13 +19,13 @@ class ValidationOrder {
                 return Colors.white; // nền trắng khi không chọn
               }),
               checkColor: MaterialStateProperty.all<Color>(Colors.white),
-              side: BorderSide(color: Colors.black, width: 1),
+              side: const BorderSide(color: Colors.black, width: 1),
             ),
           ),
           child: CheckboxListTile(
             title: Text(
               label,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             value: checked,
             onChanged:
@@ -69,7 +69,10 @@ class ValidationOrder {
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             fillColor:
                 effectiveReadOnly
@@ -119,10 +122,13 @@ class ValidationOrder {
               value: value,
               child: Row(
                 children: [
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text(
                     value,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
@@ -134,12 +140,12 @@ class ValidationOrder {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey),
+          borderSide: const BorderSide(color: Colors.grey),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
-      icon: Icon(Icons.arrow_drop_down, color: Colors.black),
-      style: TextStyle(fontSize: 16, color: Colors.black),
+      icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+      style: const TextStyle(fontSize: 16, color: Colors.black),
       dropdownColor: Colors.white,
       borderRadius: BorderRadius.circular(12),
     );

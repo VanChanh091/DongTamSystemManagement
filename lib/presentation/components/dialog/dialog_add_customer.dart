@@ -215,7 +215,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       title: Center(
         child: Text(
           isEdit ? "Cập nhật khách hàng" : "Thêm khách hàng",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
       content: SizedBox(
@@ -223,7 +223,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
         height: 700,
         child:
             isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
                   child: Form(
                     key: formKey,
@@ -325,7 +325,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
                   ),
                 ),
       ),
-      actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actionsAlignment: MainAxisAlignment.spaceBetween,
       actions:
           isLoading
@@ -346,14 +346,17 @@ class _CustomerDialogState extends State<CustomerDialog> {
                   onPressed: submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
                     isEdit ? "Cập nhật" : "Thêm",
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       color: Colors.white,

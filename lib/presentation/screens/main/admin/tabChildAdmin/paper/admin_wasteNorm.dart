@@ -371,7 +371,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                   checkColor: MaterialStateProperty.all<Color>(
                                     Colors.white,
                                   ),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                     color: Colors.black,
                                     width: 1,
                                   ),
@@ -428,7 +428,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                           MaterialStateProperty.all<Color>(
                                             Colors.white,
                                           ),
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                         color: Colors.black,
                                         width: 1,
                                       ),

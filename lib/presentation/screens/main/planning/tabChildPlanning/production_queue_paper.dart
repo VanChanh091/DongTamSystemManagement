@@ -148,7 +148,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     return Scaffold(
       body: Container(
         color: Colors.white,
-        padding: EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             //button
@@ -164,7 +164,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                             children: [
                               //left button
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   vertical: 8,
                                   horizontal: 10,
                                 ),
@@ -204,18 +204,19 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             borderRadius: BorderRadius.circular(
                                               10,
                                             ),
-                                            borderSide: BorderSide(
+                                            borderSide: const BorderSide(
                                               color: Colors.grey,
                                             ),
                                           ),
-                                          contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
 
                                     // input
                                     SizedBox(
@@ -254,7 +255,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
                               //right button
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   vertical: 8,
                                   horizontal: 10,
                                 ),
@@ -264,7 +265,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                     Row(
                                       children: [
                                         IconButton(
-                                          icon: Icon(Icons.arrow_upward),
+                                          icon: const Icon(Icons.arrow_upward),
                                           onPressed:
                                               selectedPlanningIds.isNotEmpty
                                                   ? () {
@@ -278,7 +279,9 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   : null,
                                         ),
                                         IconButton(
-                                          icon: Icon(Icons.arrow_downward),
+                                          icon: const Icon(
+                                            Icons.arrow_downward,
+                                          ),
                                           onPressed:
                                               selectedPlanningIds.isNotEmpty
                                                   ? () {
@@ -293,7 +296,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(width: 20),
+                                    const SizedBox(width: 20),
 
                                     // save
                                     Stack(
@@ -514,7 +517,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         ),
 
                                         if (isLoading)
-                                          Positioned(
+                                          const Positioned(
                                             right: 10,
                                             child: SizedBox(
                                               width: 18,
@@ -543,7 +546,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               ? Symbols.ungroup
                                               : Symbols.ad_group,
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
 
                                     //choose machine
                                     SizedBox(
@@ -574,22 +577,23 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             borderRadius: BorderRadius.circular(
                                               10,
                                             ),
-                                            borderSide: BorderSide(
+                                            borderSide: const BorderSide(
                                               color: Colors.grey,
                                             ),
                                           ),
-                                          contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
 
                                     //popup menu
                                     PopupMenuButton<String>(
-                                      icon: Icon(
+                                      icon: const Icon(
                                         Icons.more_vert,
                                         color: Colors.black,
                                       ),
@@ -662,7 +666,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                       },
                                       itemBuilder:
                                           (BuildContext context) => [
-                                            PopupMenuItem<String>(
+                                            const PopupMenuItem<String>(
                                               value: 'change',
                                               child: ListTile(
                                                 leading: Icon(
@@ -671,7 +675,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 title: Text('Chuyển Máy'),
                                               ),
                                             ),
-                                            PopupMenuItem<String>(
+                                            const PopupMenuItem<String>(
                                               value: 'pause',
                                               child: ListTile(
                                                 leading: Icon(
@@ -680,7 +684,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 title: Text('Dừng Chạy Đơn'),
                                               ),
                                             ),
-                                            PopupMenuItem<String>(
+                                            const PopupMenuItem<String>(
                                               value: 'acceptLack',
                                               child: ListTile(
                                                 leading: Icon(
@@ -693,7 +697,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             ),
                                           ],
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                   ],
                                 ),
                               ),
@@ -701,7 +705,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                           ),
 
                           //set day and time for time running
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Padding(
                             padding: const EdgeInsets.only(left: 12),
                             child: Row(
@@ -728,7 +732,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                     }
                                   },
                                 ),
-                                SizedBox(width: 32),
+                                const SizedBox(width: 32),
 
                                 // Giờ bắt đầu
                                 _buildLabelAndUnderlineInput(
@@ -736,7 +740,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                   controller: timeStartController,
                                   width: 60,
                                 ),
-                                SizedBox(width: 32),
+                                const SizedBox(width: 32),
 
                                 // Tổng giờ làm
                                 _buildLabelAndUnderlineInput(
@@ -750,7 +754,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                           ),
                         ],
                       )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
             ),
 
             // table
@@ -771,7 +775,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     );
                   } else if (snapshot.hasError) {
                     if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                      return Center(
+                      return const Center(
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -780,7 +784,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               color: Colors.redAccent,
                               size: 35,
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Text(
                               "Bạn không có quyền xem chức năng này",
                               style: TextStyle(
@@ -898,7 +902,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
           isPlan
               ? FloatingActionButton(
                 onPressed: () => loadPlanning(true),
-                backgroundColor: Color(0xff78D761),
+                backgroundColor: const Color(0xff78D761),
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,
@@ -940,11 +944,17 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
               ),
               title: Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
               ),
               content: Text(
                 message,
-                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 15,
+                ),
               ),
               actions: [
                 TextButton(
@@ -967,7 +977,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     ),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(
+                  child: const Text(
                     "Xác nhận",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
@@ -1014,9 +1024,9 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       children: [
         Text(
           label,
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         SizedBox(
           width: width,
           child: TextFormField(
@@ -1026,7 +1036,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
             decoration: InputDecoration(
               isDense: true,
               border: UnderlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(vertical: 5),
+              contentPadding: const EdgeInsets.symmetric(vertical: 5),
               hintText: '',
             ),
             onTap: onTap,

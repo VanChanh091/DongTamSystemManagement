@@ -50,7 +50,7 @@ class _ResetPasswordState extends State<ResetPassword> {
           child: Row(
             children: [
               //step items
-              StepItems(),
+              const StepItems(),
 
               //enter code
               Expanded(
@@ -62,17 +62,17 @@ class _ResetPasswordState extends State<ResetPassword> {
                       padding: EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          SizedBox(height: 70),
-                          Center(
+                          const SizedBox(height: 70),
+                          const Center(
                             child: Icon(
                               Icons.keyboard,
                               size: 50,
                               color: Colors.yellow,
                             ),
                           ),
-                          SizedBox(height: 15),
+                          const SizedBox(height: 15),
 
-                          Center(
+                          const Center(
                             child: Text(
                               "Tạo mật khẩu mới",
                               style: TextStyle(
@@ -82,9 +82,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                          Center(
+                          const Center(
                             child: Text(
                               "Vui lòng chọn một mật khẩu mới chưa từng sử dụng trước đó.\n"
                               "Yêu cầu tối thiểu 8 ký tự, bao gồm chữ và số",
@@ -96,7 +96,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 30),
+                          const SizedBox(height: 30),
 
                           Center(
                             child: SizedBox(
@@ -109,7 +109,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                   hintText: "Nhập mật khẩu mới",
                                   filled: true,
                                   fillColor: Colors.white,
-                                  prefixIcon: Icon(Icons.lock),
+                                  prefixIcon: const Icon(Icons.lock),
                                   suffixIcon: IconButton(
                                     onPressed: () {
                                       setState(() {
@@ -129,7 +129,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
 
                           Center(
                             child: SizedBox(
@@ -162,7 +162,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 25),
+                          const SizedBox(height: 25),
 
                           Center(
                             child: SizedBox(
@@ -178,7 +178,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                 onPressed: () {
                                   changePassword();
                                 },
-                                child: Text(
+                                child: const Text(
                                   "Xác nhận",
                                   style: TextStyle(
                                     fontSize: 20,
@@ -189,7 +189,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                         ],
                       ),
                     ),

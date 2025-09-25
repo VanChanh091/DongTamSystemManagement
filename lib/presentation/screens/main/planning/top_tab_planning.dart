@@ -22,14 +22,14 @@ class _TopTabPlanningState extends State<TopTabPlanning> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
-              tabs: [
+              tabs: const [
                 Tab(text: "Kế Hoạch SX Giấy Tấm"),
                 Tab(text: "Kế Hoạch SX Thùng"),
               ],
             ),
           ),
           Expanded(
-            child: TabBarView(
+            child: const TabBarView(
               children: [ProductionQueuePaper(), ProductionQueueBox()],
             ),
           ),

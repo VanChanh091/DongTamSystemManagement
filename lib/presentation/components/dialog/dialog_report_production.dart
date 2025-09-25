@@ -180,20 +180,20 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
             key: formKey,
             child: Column(
               children: [
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 validateInput(
                   "Số Lượng Đã Sản Xuất",
                   qtyProducedController,
                   Symbols.production_quantity_limits,
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
 
                 validateInput(
                   "Phế Liệu Thực Tế",
                   qtyWasteNormController,
                   Symbols.box,
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
 
                 validateInput(
                   "Ngày Hoàn Thành",
@@ -217,14 +217,14 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                     }
                   },
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
 
                 validateInput(
                   "Trưởng Máy",
                   shiftManagementController,
                   Symbols.person,
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
 
                 if (widget.isPaper) ...[
                   ValidationOrder.dropdownForTypes(
@@ -236,19 +236,19 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                       });
                     },
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                 ],
               ],
             ),
           ),
         ),
       ),
-      actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(
+          child: const Text(
             "Hủy",
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -261,12 +261,12 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           onPressed: submit,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: Text(
+          child: const Text(
             "Xác nhận",
             style: TextStyle(
               fontWeight: FontWeight.bold,

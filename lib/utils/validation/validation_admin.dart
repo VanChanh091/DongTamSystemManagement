@@ -25,7 +25,10 @@ class ValidationAdmin {
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             fillColor:
                 readOnly

@@ -350,7 +350,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
+                        headingRowColor: const WidgetStatePropertyAll(
                           Color(0xffcfa381),
                         ),
                         columns: [
@@ -372,7 +372,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                   checkColor: MaterialStateProperty.all<Color>(
                                     Colors.white,
                                   ),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                     color: Colors.black,
                                     width: 1,
                                   ),
@@ -424,7 +424,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                           MaterialStateProperty.all<Color>(
                                             Colors.white,
                                           ),
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                         color: Colors.black,
                                         width: 1,
                                       ),

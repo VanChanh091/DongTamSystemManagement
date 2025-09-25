@@ -80,21 +80,21 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       "Chuyển máy",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
                     // Danh sách Order đã chọn
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.only(bottom: 15),
+                      padding: const EdgeInsets.all(10),
+                      margin: const EdgeInsets.only(bottom: 15),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(8),
@@ -104,14 +104,14 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               "Đơn hàng cần chuyển máy:",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
                             ...widget.planning.map(
                               (p) => Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -119,13 +119,13 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                                 ),
                                 child: Row(
                                   children: [
-                                    Text(
+                                    const Text(
                                       "- Mã đơn hàng: ",
                                       style: TextStyle(fontSize: 16),
                                     ),
                                     Text(
                                       p.orderId,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                         color: Colors.red,
@@ -143,8 +143,8 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                     // Dropdown chọn máy
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.only(bottom: 15),
+                      padding: const EdgeInsets.all(10),
+                      margin: const EdgeInsets.only(bottom: 15),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(8),
@@ -153,14 +153,14 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Chọn máy cần chuyển',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
                           ),
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
                           ValidationOrder.dropdownForTypes(
                             machineList,
                             chooseMachine,
@@ -173,19 +173,22 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
             ),
           ),
 
-          actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          actionsPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(
+              child: const Text(
                 "Hủy",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -198,12 +201,15 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
               onPressed: submit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: Text(
+              child: const Text(
                 "Chuyển",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,

@@ -351,7 +351,7 @@ class _ManageOrderState extends State<AdminOrder> {
                   ],
                 )
                 : Center(
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
@@ -359,7 +359,7 @@ class _ManageOrderState extends State<AdminOrder> {
                         color: Colors.redAccent,
                         size: 35,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         "Bạn không có quyền xem chức năng này",
                         style: TextStyle(
@@ -518,7 +518,7 @@ class _ManageOrderState extends State<AdminOrder> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   '📄 Thông tin đơn hàng',
                   style: TextStyle(
                     fontSize: 20,
@@ -528,7 +528,7 @@ class _ManageOrderState extends State<AdminOrder> {
                 ),
                 Text(
                   'Nhân Viên: ${order.user!.fullName}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.redAccent,
@@ -609,7 +609,7 @@ class _ManageOrderState extends State<AdminOrder> {
                 Expanded(
                   flex: 2,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

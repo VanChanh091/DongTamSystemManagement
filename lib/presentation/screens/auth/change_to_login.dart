@@ -16,11 +16,11 @@ class _ChangeToLoginState extends State<ChangeToLogin> {
     return Scaffold(
       body: Center(
         child: Container(
-          decoration: BoxDecoration(color: Color(0xffcfa381)),
+          decoration: const BoxDecoration(color: Color(0xffcfa381)),
           child: Row(
             children: [
               //step items
-              StepItems(),
+              const StepItems(),
 
               //enter code
               Expanded(
@@ -32,17 +32,17 @@ class _ChangeToLoginState extends State<ChangeToLogin> {
                       padding: EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          SizedBox(height: 70),
-                          Center(
+                          const SizedBox(height: 70),
+                          const Center(
                             child: Icon(
                               Icons.check_circle,
                               size: 50,
                               color: Colors.green,
                             ),
                           ),
-                          SizedBox(height: 15),
+                          const SizedBox(height: 15),
 
-                          Center(
+                          const Center(
                             child: Text(
                               "Đổi mật khẩu thành công",
                               style: TextStyle(
@@ -52,9 +52,9 @@ class _ChangeToLoginState extends State<ChangeToLogin> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                          Center(
+                          const Center(
                             child: Text(
                               "Mật khẩu của bạn đã thay đổi thành công\n"
                               "Nhấn vào nút bên dưới để đăng nhập",
@@ -66,7 +66,7 @@ class _ChangeToLoginState extends State<ChangeToLogin> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 30),
+                          const SizedBox(height: 30),
 
                           Center(
                             child: SizedBox(
@@ -89,7 +89,7 @@ class _ChangeToLoginState extends State<ChangeToLogin> {
                                     ),
                                   );
                                 },
-                                child: Text(
+                                child: const Text(
                                   "Xác nhận",
                                   style: TextStyle(
                                     fontSize: 20,
@@ -100,7 +100,7 @@ class _ChangeToLoginState extends State<ChangeToLogin> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                         ],
                       ),
                     ),

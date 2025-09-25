@@ -219,7 +219,10 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                 children: [
                   //left button
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 10,
+                    ),
                     child: Row(
                       children: [
                         //dropdown
@@ -255,16 +258,18 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.grey),
+                                borderSide: const BorderSide(
+                                  color: Colors.grey,
+                                ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 8,
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
 
                         //date picker or input
                         searchType == 'Ngày Báo Cáo'
@@ -348,7 +353,10 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
                   //right button
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 10,
+                    ),
                     child: Row(
                       children: [
                         //export excel
@@ -402,16 +410,18 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.grey),
+                                borderSide: const BorderSide(
+                                  color: Colors.grey,
+                                ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 8,
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                       ],
                     ),
                   ),
@@ -550,7 +560,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadReportBox(true),
-        backgroundColor: Color(0xff78D761),
+        backgroundColor: const Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

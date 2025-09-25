@@ -85,14 +85,14 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
             actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
 
             title: Center(
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(
                     Icons.notifications_active,
                     color: Colors.green,
                     size: 28,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     'Thông báo',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -108,7 +108,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                   Text(
                     'Đã có kế hoạch mới cho $machine.\nNhấn OK để cập nhật dữ liệu.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 17),
+                    style: const TextStyle(fontSize: 17),
                   ),
                 ],
               ),
@@ -182,7 +182,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     return Scaffold(
       body: Container(
         color: Colors.white,
-        padding: EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             //button
@@ -195,11 +195,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       //left button
-                      SizedBox(),
+                      const SizedBox(),
 
                       //right button
                       Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           vertical: 8,
                           horizontal: 10,
                         ),
@@ -393,16 +393,18 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                   fillColor: Colors.white,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: Colors.grey),
+                                    borderSide: const BorderSide(
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                                  contentPadding: EdgeInsets.symmetric(
+                                  contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 12,
                                     vertical: 8,
                                   ),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                           ],
                         ),
                       ),
@@ -508,7 +510,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadPlanning(true),
-        backgroundColor: Color(0xff78D761),
+        backgroundColor: const Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
@@ -540,11 +542,17 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
               ),
               title: Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
               ),
               content: Text(
                 message,
-                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 15,
+                ),
               ),
               actions: [
                 TextButton(
@@ -567,7 +575,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     ),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(
+                  child: const Text(
                     "Xác nhận",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),

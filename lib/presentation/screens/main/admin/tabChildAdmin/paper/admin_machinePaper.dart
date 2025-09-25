@@ -64,7 +64,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
 
                           //right
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               vertical: 8,
                               horizontal: 10,
                             ),
@@ -380,7 +380,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                   checkColor: MaterialStateProperty.all<Color>(
                                     Colors.white,
                                   ),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                     color: Colors.black,
                                     width: 1,
                                   ),
@@ -437,7 +437,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                           MaterialStateProperty.all<Color>(
                                             Colors.white,
                                           ),
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                         color: Colors.black,
                                         width: 1,
                                       ),

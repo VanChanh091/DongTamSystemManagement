@@ -87,7 +87,7 @@ Widget buildShimmerSkeletonTable({
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Container(
               height: headerHeight,
@@ -115,7 +115,7 @@ Widget buildShimmerSkeletonTable({
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Container(
               height: rowHeight,

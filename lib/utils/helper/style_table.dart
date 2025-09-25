@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 Widget styleText(String text) {
   return Text(
     text,
-    style: TextStyle(
+    style: const TextStyle(
       fontWeight: FontWeight.w700,
       fontSize: 16,
       color: Colors.white,
@@ -35,7 +35,7 @@ Widget styleCellAdmin(
 Widget styleCell(String text, {double? width}) {
   return SizedBox(
     width: width,
-    child: Text(text, maxLines: 2, style: TextStyle(fontSize: 15)),
+    child: Text(text, maxLines: 2, style: const TextStyle(fontSize: 15)),
   );
 }
 
@@ -50,7 +50,7 @@ Widget formatColumn(String text, {double widthBorder = 0}) {
     width: widthBorder,
     child: Text(
       text,
-      style: TextStyle(
+      style: const TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 15,
         color: Colors.white,

@@ -46,6 +46,7 @@ class PaginationControls extends StatelessWidget {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 20),
+
           // Next
           ElevatedButton(
             onPressed: currentPage < totalPages ? onNext : null,

@@ -970,7 +970,7 @@ class _OrderDialogState extends State<OrderDialog> {
                 child: Column(
                   children: [
                     //Order
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     const Text(
                       "Đơn Hàng",
                       style: TextStyle(
@@ -981,10 +981,10 @@ class _OrderDialogState extends State<OrderDialog> {
                     const SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
-                        color: Color(0xffF2E873),
+                        color: const Color(0xffF2E873),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(15),
                       child: Column(
                         children:
                             orders.map((row) {
@@ -998,28 +998,28 @@ class _OrderDialogState extends State<OrderDialog> {
                                               ? row['left']()
                                               : row['left'],
                                     ),
-                                    SizedBox(width: 30),
+                                    const SizedBox(width: 30),
                                     Expanded(
                                       child:
                                           row['middle_1'] is Function
                                               ? row['middle_1']()
                                               : row['middle_1'],
                                     ),
-                                    SizedBox(width: 30),
+                                    const SizedBox(width: 30),
                                     Expanded(
                                       child:
                                           row['middle_2'] is Function
                                               ? row['middle_2']()
                                               : row['middle_2'],
                                     ),
-                                    SizedBox(width: 30),
+                                    const SizedBox(width: 30),
                                     Expanded(
                                       child:
                                           row['middle_3'] is Function
                                               ? row['middle_3']()
                                               : row['middle_3'],
                                     ),
-                                    SizedBox(width: 30),
+                                    const SizedBox(width: 30),
                                     Expanded(
                                       child:
                                           row['right'] is Function
@@ -1045,10 +1045,10 @@ class _OrderDialogState extends State<OrderDialog> {
                     const SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
-                        color: Color(0xffF2E873),
+                        color: const Color(0xffF2E873),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(15),
                       child: Column(
                         children:
                             structure.map((row) {
@@ -1062,28 +1062,28 @@ class _OrderDialogState extends State<OrderDialog> {
                                               ? row['left']()
                                               : row['left'],
                                     ),
-                                    SizedBox(width: 30),
+                                    const SizedBox(width: 30),
                                     Expanded(
                                       child:
                                           row['middle_1'] is Function
                                               ? row['middle_1']()
                                               : row['middle_1'],
                                     ),
-                                    SizedBox(width: 30),
+                                    const SizedBox(width: 30),
                                     Expanded(
                                       child:
                                           row['middle_2'] is Function
                                               ? row['middle_2']()
                                               : row['middle_2'],
                                     ),
-                                    SizedBox(width: 30),
+                                    const SizedBox(width: 30),
                                     Expanded(
                                       child:
                                           row['middle_3'] is Function
                                               ? row['middle_3']()
                                               : row['middle_3'],
                                     ),
-                                    SizedBox(width: 30),
+                                    const SizedBox(width: 30),
                                     Expanded(
                                       child:
                                           row['right'] is Function
@@ -1103,7 +1103,7 @@ class _OrderDialogState extends State<OrderDialog> {
                       children: [
                         Align(
                           alignment: Alignment.center,
-                          child: Text(
+                          child: const Text(
                             "Làm Thùng",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -1126,10 +1126,10 @@ class _OrderDialogState extends State<OrderDialog> {
                     const SizedBox(height: 15),
                     Container(
                       decoration: BoxDecoration(
-                        color: Color(0xffF2E873),
+                        color: const Color(0xffF2E873),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(15),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1152,28 +1152,28 @@ class _OrderDialogState extends State<OrderDialog> {
                                                       ? row['left']()
                                                       : row['left'],
                                             ),
-                                            SizedBox(width: 30),
+                                            const SizedBox(width: 30),
                                             Expanded(
                                               child:
                                                   row['middle_1'] is Function
                                                       ? row['middle_1']()
                                                       : row['middle_1'],
                                             ),
-                                            SizedBox(width: 30),
+                                            const SizedBox(width: 30),
                                             Expanded(
                                               child:
                                                   row['middle_2'] is Function
                                                       ? row['middle_2']()
                                                       : row['middle_2'],
                                             ),
-                                            SizedBox(width: 30),
+                                            const SizedBox(width: 30),
                                             Expanded(
                                               child:
                                                   row['middle_3'] is Function
                                                       ? row['middle_3']()
                                                       : row['middle_3'],
                                             ),
-                                            SizedBox(width: 30),
+                                            const SizedBox(width: 30),
                                             Expanded(
                                               child:
                                                   row['right'] is Function
@@ -1218,7 +1218,10 @@ class _OrderDialogState extends State<OrderDialog> {
               ),
             ),
           ),
-          actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          actionsPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
@@ -1236,14 +1239,17 @@ class _OrderDialogState extends State<OrderDialog> {
               onPressed: submit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
               child: Text(
                 isEdit ? "Cập nhật" : "Thêm",
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                   color: Colors.white,

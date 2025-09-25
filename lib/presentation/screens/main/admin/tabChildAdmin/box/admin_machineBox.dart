@@ -60,11 +60,11 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           //left
-                          SizedBox(),
+                          const SizedBox(),
 
                           //right
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               vertical: 8,
                               horizontal: 10,
                             ),
@@ -141,8 +141,8 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                               16,
                                                             ),
                                                       ),
-                                                      title: Row(
-                                                        children: const [
+                                                      title: const Row(
+                                                        children: [
                                                           Icon(
                                                             Icons
                                                                 .warning_amber_rounded,
@@ -162,8 +162,8 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                       ),
                                                       content:
                                                           isDeleting
-                                                              ? Row(
-                                                                children: const [
+                                                              ? const Row(
+                                                                children: [
                                                                   CircularProgressIndicator(
                                                                     strokeWidth:
                                                                         2,
@@ -176,7 +176,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                                   ),
                                                                 ],
                                                               )
-                                                              : Text(
+                                                              : const Text(
                                                                 'Bạn có chắc chắn muốn xoá?',
                                                                 style:
                                                                     TextStyle(
@@ -292,7 +292,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                           ),
                         ],
                       )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
             ),
 
             //table
@@ -303,10 +303,10 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                   future: futureAdminMachine,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
                       if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                        return Center(
+                        return const Center(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -315,7 +315,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                 color: Colors.redAccent,
                                 size: 35,
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 "Bạn không có quyền xem chức năng này",
                                 style: TextStyle(
@@ -330,7 +330,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                       }
                       return Center(child: Text("Lỗi: ${snapshot.error}"));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
+                      return const Center(
                         child: Text(
                           "Không có đơn hàng nào",
                           style: TextStyle(
@@ -348,7 +348,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
+                        headingRowColor: const WidgetStatePropertyAll(
                           Color(0xffcfa381),
                         ),
                         columns: [
@@ -370,7 +370,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                   checkColor: MaterialStateProperty.all<Color>(
                                     Colors.white,
                                   ),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                     color: Colors.black,
                                     width: 1,
                                   ),
@@ -419,7 +419,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                           MaterialStateProperty.all<Color>(
                                             Colors.white,
                                           ),
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                         color: Colors.black,
                                         width: 1,
                                       ),
@@ -490,7 +490,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
           isAccept
               ? FloatingActionButton(
                 onPressed: loadMachine,
-                backgroundColor: Color(0xff78D761),
+                backgroundColor: const Color(0xff78D761),
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

@@ -167,7 +167,10 @@ class _CustomerPageState extends State<CustomerPage> {
                 children: [
                   //left button
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 10,
+                    ),
                     child: Row(
                       children: [
                         //dropdown
@@ -201,16 +204,18 @@ class _CustomerPageState extends State<CustomerPage> {
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.grey),
+                                borderSide: const BorderSide(
+                                  color: Colors.grey,
+                                ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 8,
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
 
                         //input
                         SizedBox(
@@ -340,7 +345,6 @@ class _CustomerPageState extends State<CustomerPage> {
                                   label: "Sửa",
                                   icon: Symbols.construction,
                                 ),
-
                                 const SizedBox(width: 10),
 
                                 //delete customers
@@ -353,11 +357,11 @@ class _CustomerPageState extends State<CustomerPage> {
                                           : null,
                                   label: "Xóa",
                                   icon: Icons.delete,
-                                  backgroundColor: Color(0xffEA4346),
+                                  backgroundColor: const Color(0xffEA4346),
                                 ),
                               ],
                             )
-                            : SizedBox.shrink(),
+                            : const SizedBox.shrink(),
                   ),
                 ],
               ),
@@ -472,7 +476,7 @@ class _CustomerPageState extends State<CustomerPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadCustomer(true),
-        backgroundColor: Color(0xff78D761),
+        backgroundColor: const Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
@@ -491,8 +495,8 @@ class _CustomerPageState extends State<CustomerPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              title: Row(
-                children: const [
+              title: const Row(
+                children: [
                   Icon(
                     Icons.warning_amber_rounded,
                     color: Colors.red,
@@ -507,8 +511,8 @@ class _CustomerPageState extends State<CustomerPage> {
               ),
               content:
                   isDeleting
-                      ? Row(
-                        children: const [
+                      ? const Row(
+                        children: [
                           CircularProgressIndicator(strokeWidth: 2),
                           SizedBox(width: 12),
                           Text("Đang xoá..."),
@@ -535,7 +539,7 @@ class _CustomerPageState extends State<CustomerPage> {
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xffEA4346),
+                            backgroundColor: const Color(0xffEA4346),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),

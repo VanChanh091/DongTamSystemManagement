@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart' as p;
 
+//config to get prod or dev ip
 Future<Map<String, dynamic>> loadConfig() async {
   if (kReleaseMode) {
     final exeDir = File(Platform.resolvedExecutable).parent.path;

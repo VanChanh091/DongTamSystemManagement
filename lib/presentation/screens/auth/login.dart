@@ -85,15 +85,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisSize: MainAxisSize.max,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(height: 20),
-                            Text(
+                            const SizedBox(height: 20),
+                            const Text(
                               "Đăng nhập",
                               style: TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 70),
+                            const SizedBox(height: 70),
 
                             // Email
                             TextFormField(
@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                               decoration: InputDecoration(
                                 labelText: 'Email',
-                                prefixIcon: Icon(Icons.email),
+                                prefixIcon: const Icon(Icons.email),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   (value) =>
                                       ValidationAuth.validateEmail(value),
                             ),
-                            SizedBox(height: 25),
+                            const SizedBox(height: 25),
 
                             // Password
                             TextFormField(
@@ -128,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               decoration: InputDecoration(
                                 labelText: 'Password',
                                 hintText: 'Nhập mật khẩu',
-                                prefixIcon: Icon(Icons.lock),
+                                prefixIcon: const Icon(Icons.lock),
                                 suffixIcon: IconButton(
                                   onPressed: () {
                                     setState(() {
@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   (value) =>
                                       ValidationAuth.validatePassword(value),
                             ),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
 
                             // Quên mật khẩu
                             Align(
@@ -174,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 35),
+                            const SizedBox(height: 35),
 
                             // Nút đăng nhập
                             SizedBox(
@@ -192,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: Text(
+                                child: const Text(
                                   "Đăng nhập",
                                   style: TextStyle(
                                     color: Colors.white,
@@ -202,13 +202,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
 
                             // Đăng ký
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text("Bạn chưa có tài khoản?"),
+                                const Text("Bạn chưa có tài khoản?"),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.push(

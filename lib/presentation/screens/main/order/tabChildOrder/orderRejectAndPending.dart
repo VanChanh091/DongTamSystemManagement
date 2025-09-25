@@ -59,7 +59,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
     return Scaffold(
       body: Container(
         color: Colors.white,
-        padding: EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             //button
@@ -68,11 +68,11 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
               width: double.infinity,
               child: Column(
                 children: [
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       Expanded(
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             SizedBox(),
@@ -91,7 +91,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
                       // Các nút bên phải
                       Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           vertical: 8,
                           horizontal: 10,
                         ),
@@ -117,7 +117,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                     icon: null,
                                   ),
                                 )
-                                : SizedBox.shrink(),
+                                : const SizedBox.shrink(),
                             const SizedBox(width: 10),
 
                             //add
@@ -232,7 +232,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                               ),
                                                             ],
                                                           )
-                                                          : Text(
+                                                          : const Text(
                                                             'Bạn có chắc chắn muốn xoá đơn hàng này?',
                                                             style: TextStyle(
                                                               fontSize: 16,
@@ -248,7 +248,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                                       Navigator.pop(
                                                                         context,
                                                                       ),
-                                                              child: Text(
+                                                              child: const Text(
                                                                 "Huỷ",
                                                                 style: TextStyle(
                                                                   fontSize: 16,
@@ -334,7 +334,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                       },
                               label: "Xóa",
                               icon: Icons.delete,
-                              backgroundColor: Color(0xffEA4346),
+                              backgroundColor: const Color(0xffEA4346),
                             ),
                           ],
                         ),
@@ -444,7 +444,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadOrders(true, isSeenOrder),
-        backgroundColor: Color(0xff78D761),
+        backgroundColor: const Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

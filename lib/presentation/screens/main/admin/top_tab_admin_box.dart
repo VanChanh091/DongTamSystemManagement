@@ -22,14 +22,16 @@ class _TopTabAdminState extends State<TopTabAdminBox> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
-              tabs: [
+              tabs: const [
                 Tab(text: "Thời Gian Làm Thùng"),
                 Tab(text: "Định Mức PL Thùng"),
               ],
             ),
           ),
           Expanded(
-            child: TabBarView(children: [AdminMachineBox(), AdminWasteBox()]),
+            child: const TabBarView(
+              children: [AdminMachineBox(), AdminWasteBox()],
+            ),
           ),
         ],
       ),

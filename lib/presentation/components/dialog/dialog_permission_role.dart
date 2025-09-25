@@ -211,7 +211,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                                             MaterialStateProperty.all<Color>(
                                               Colors.white,
                                             ),
-                                        side: BorderSide(
+                                        side: const BorderSide(
                                           color: Colors.black,
                                           width: 1,
                                         ),
@@ -243,12 +243,12 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
         ),
       ),
 
-      actionsPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(
+          child: const Text(
             "Huỷ",
             style: TextStyle(
               fontSize: 16,

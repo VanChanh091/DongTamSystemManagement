@@ -55,7 +55,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
     return Scaffold(
       body: Container(
         color: Colors.white,
-        padding: EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             //button
@@ -67,11 +67,11 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                       ? Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(),
+                          const SizedBox(),
 
                           //button
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               vertical: 8,
                               horizontal: 10,
                             ),
@@ -118,7 +118,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                           ),
                         ],
                       )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
             ),
 
             // table
@@ -139,7 +139,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                     );
                   } else if (snapshot.hasError) {
                     if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                      return Center(
+                      return const Center(
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -148,7 +148,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                               color: Colors.redAccent,
                               size: 35,
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Text(
                               "Bạn không có quyền xem chức năng này",
                               style: TextStyle(
@@ -217,7 +217,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
           isPlan
               ? FloatingActionButton(
                 onPressed: () => loadOrders(true),
-                backgroundColor: Color(0xff78D761),
+                backgroundColor: const Color(0xff78D761),
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

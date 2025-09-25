@@ -23,7 +23,7 @@ class _TopTabAdminPaperState extends State<TopTabAdminPaper> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
-              tabs: [
+              tabs: const [
                 Tab(text: "Thời Gian Máy Sóng"),
                 Tab(text: "Định Mức PL Giấy"),
                 Tab(text: "Hệ Số Máy Sóng"),
@@ -32,7 +32,7 @@ class _TopTabAdminPaperState extends State<TopTabAdminPaper> {
           ),
           Expanded(
             child: TabBarView(
-              children: [
+              children: const [
                 AdminMachinePaper(),
                 AdminWasteNorm(),
                 AdminWaveCrest(),

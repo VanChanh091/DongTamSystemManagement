@@ -89,7 +89,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                         children: [
                           //left button
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               vertical: 8,
                               horizontal: 10,
                             ),
@@ -132,14 +132,15 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                           color: Colors.grey,
                                         ),
                                       ),
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
-                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
 
                                 // input
                                 SizedBox(
@@ -178,7 +179,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
 
                           //right button
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               vertical: 8,
                               horizontal: 10,
                             ),
@@ -250,7 +251,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                               borderRadius:
                                                   BorderRadius.circular(16),
                                             ),
-                                            title: Text(
+                                            title: const Text(
                                               "Xác nhận đặt lại",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
@@ -258,7 +259,9 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                             ),
                                             content: Text(
                                               "Bạn có muốn mặt lại mật khẩu cho ${selectedUserIds.length} người dùng?",
-                                              style: TextStyle(fontSize: 16),
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                              ),
                                             ),
                                             actions: [
                                               TextButton(
@@ -267,7 +270,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                       context,
                                                       false,
                                                     ),
-                                                child: Text(
+                                                child: const Text(
                                                   "Huỷ",
                                                   style: TextStyle(
                                                     fontSize: 16,
@@ -294,7 +297,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                       context,
                                                       true,
                                                     ),
-                                                child: Text(
+                                                child: const Text(
                                                   "Xác nhận",
                                                   style: TextStyle(
                                                     fontSize: 16,
@@ -335,7 +338,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                   label: "Đặt lại mật khẩu",
                                   icon: Symbols.lock_reset,
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
 
                                 //delete user
                                 AnimatedButton(
@@ -361,8 +364,8 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                               16,
                                                             ),
                                                       ),
-                                                      title: Row(
-                                                        children: const [
+                                                      title: const Row(
+                                                        children: [
                                                           Icon(
                                                             Icons
                                                                 .warning_amber_rounded,
@@ -399,7 +402,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                               : Text(
                                                                 'Bạn có chắc chắn muốn xoá ${selectedUserIds.length} người dùng này?',
                                                                 style:
-                                                                    TextStyle(
+                                                                    const TextStyle(
                                                                       fontSize:
                                                                           16,
                                                                     ),
@@ -413,7 +416,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                                       () => Navigator.pop(
                                                                         context,
                                                                       ),
-                                                                  child: Text(
+                                                                  child: const Text(
                                                                     "Huỷ",
                                                                     style: TextStyle(
                                                                       fontSize:
@@ -507,13 +510,13 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                   icon: Icons.delete,
                                   backgroundColor: Color(0xffEA4346),
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                               ],
                             ),
                           ),
                         ],
                       )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
             ),
 
             // table
@@ -568,7 +571,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
+                        headingRowColor: const WidgetStatePropertyAll(
                           Color(0xFFCFA381),
                         ),
                         columns: [
@@ -590,7 +593,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                   checkColor: MaterialStateProperty.all<Color>(
                                     Colors.white,
                                   ),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                     color: Colors.black,
                                     width: 1,
                                   ),
@@ -643,7 +646,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                           MaterialStateProperty.all<Color>(
                                             Colors.white,
                                           ),
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                         color: Colors.black,
                                         width: 1,
                                       ),
@@ -761,9 +764,9 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                           },
                                         );
                                       },
-                                      child: Text(
+                                      child: const Text(
                                         'Xem ảnh',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.blue,
                                           decoration: TextDecoration.underline,
                                         ),
@@ -791,7 +794,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                     futureUserAdmin = AdminService().getAllUsers();
                   });
                 },
-                backgroundColor: Color(0xff78D761),
+                backgroundColor: const Color(0xff78D761),
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

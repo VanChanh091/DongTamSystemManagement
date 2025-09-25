@@ -6,9 +6,9 @@ class StepItems extends StatelessWidget {
   List<Widget> _buildSteps(String title, String description) {
     return [
       Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      SizedBox(height: 10),
+      const SizedBox(height: 10),
       Text(description, style: TextStyle(fontSize: 16)),
-      SizedBox(height: 20),
+      const SizedBox(height: 20),
     ];
   }
 
@@ -34,7 +34,7 @@ class StepItems extends StatelessWidget {
                   height: 100,
                   width: 100,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 ..._buildSteps(
                   "1. Thiết lập lại mật khẩu của bạn",

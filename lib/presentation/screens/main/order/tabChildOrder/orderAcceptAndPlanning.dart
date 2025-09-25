@@ -155,7 +155,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
     return Scaffold(
       body: Container(
         color: Colors.white,
-        padding: EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             //button
@@ -166,7 +166,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                 children: [
                   //left button
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 10,
+                    ),
                     child: Row(
                       children: [
                         // dropdown
@@ -200,16 +203,18 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.grey),
+                                borderSide: const BorderSide(
+                                  color: Colors.grey,
+                                ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 8,
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
 
                         // input
                         SizedBox(
@@ -259,16 +264,16 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                 icon: null,
                               ),
                             )
-                            : SizedBox.shrink(),
+                            : const SizedBox.shrink(),
                         const SizedBox(width: 10),
                       ],
                     ),
                   ),
-                  SizedBox(width: 15),
+                  const SizedBox(width: 15),
 
                   //button
                   Center(
-                    child: Text(
+                    child: const Text(
                       "ĐƠN HÀNG ĐÃ DUYỆT/CHỜ LÊN KẾ HOẠCH",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -408,7 +413,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadOrders(true, isSeenOrder),
-        backgroundColor: Color(0xff78D761),
+        backgroundColor: const Color(0xff78D761),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
