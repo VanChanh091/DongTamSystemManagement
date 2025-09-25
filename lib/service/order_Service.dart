@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class OrderService {
@@ -21,42 +22,17 @@ class OrderService {
     bool refresh = false,
     bool ownOnly = false,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        "/api/order/accept-planning",
-        queryParameters: {
-          'page': page,
-          'pageSize': pageSize,
-          'refresh': refresh,
-          'ownOnly': ownOnly,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data;
-      final orders = data['data'] as List; //data
-      final currentPage = data['currentPage']; //page
-      final totalPages = data['totalPages']; //page size
-
-      // print(
-      //   'orders: $orders - currentPage: $currentPage - totalPages: $totalPages',
-      // );
-
-      // Trả về dữ liệu cùng với totalPages và currentPage
-      return {
-        'orders': orders.map((e) => Order.fromJson(e)).toList(),
-        'currentPage': currentPage,
-        'totalPages': totalPages,
-      };
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
-    }
+    return HelperService().fetchPaginatedData<Order>(
+      endpoint: "order/accept-planning",
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        'refresh': refresh,
+        'ownOnly': ownOnly,
+      },
+      fromJson: (json) => Order.fromJson(json),
+      dataKey: 'orders',
+    );
   }
 
   //get by customer name
@@ -65,39 +41,16 @@ class OrderService {
     int page = 1,
     int pageSize = 20,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-      final response = await dioService.get(
-        '/api/order/customerName',
-        queryParameters: {
-          'name': inputCustomerName,
-          'page': page,
-          'pageSize': pageSize,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final data = response.data;
-      final List<dynamic> orderData = data['data'];
-
-      final filteredOrders =
-          orderData.map((json) => Order.fromJson(json)).toList();
-      final totalPages = data['totalPages'] ?? 1;
-      final currentPage = data['currentPage'] ?? 1;
-
-      return {
-        'orders': filteredOrders,
-        'totalPages': totalPages,
-        'currentPage': currentPage,
-      };
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
-    }
+    return HelperService().fetchPaginatedData<Order>(
+      endpoint: "order/customerName",
+      queryParameters: {
+        'name': inputCustomerName,
+        'page': page,
+        'pageSize': pageSize,
+      },
+      fromJson: (json) => Order.fromJson(json),
+      dataKey: 'orders',
+    );
   }
 
   //get by product name
@@ -106,40 +59,16 @@ class OrderService {
     int page = 1,
     int pageSize = 20,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/order/productName',
-        queryParameters: {
-          'productName': inputProductName,
-          'page': page,
-          'pageSize': pageSize,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final data = response.data;
-      final List<dynamic> orderData = data['data'];
-
-      final filteredOrders =
-          orderData.map((json) => Order.fromJson(json)).toList();
-      final totalPages = data['totalPages'] ?? 1;
-      final currentPage = data['currentPage'] ?? 1;
-
-      return {
-        'orders': filteredOrders,
-        'totalPages': totalPages,
-        'currentPage': currentPage,
-      };
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
-    }
+    return HelperService().fetchPaginatedData<Order>(
+      endpoint: "order/productName",
+      queryParameters: {
+        'productName': inputProductName,
+        'page': page,
+        'pageSize': pageSize,
+      },
+      fromJson: (json) => Order.fromJson(json),
+      dataKey: 'orders',
+    );
   }
 
   //get by QC box
@@ -148,40 +77,16 @@ class OrderService {
     int page = 1,
     int pageSize = 20,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/order/qcBox',
-        queryParameters: {
-          'QcBox': inputQcBox,
-          'page': page,
-          'pageSize': pageSize,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final data = response.data;
-      final List<dynamic> orderData = data['data'];
-
-      final filteredOrders =
-          orderData.map((json) => Order.fromJson(json)).toList();
-      final totalPages = data['totalPages'] ?? 1;
-      final currentPage = data['currentPage'] ?? 1;
-
-      return {
-        'orders': filteredOrders,
-        'totalPages': totalPages,
-        'currentPage': currentPage,
-      };
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
-    }
+    return HelperService().fetchPaginatedData<Order>(
+      endpoint: "order/qcBox",
+      queryParameters: {
+        'QcBox': inputQcBox,
+        'page': page,
+        'pageSize': pageSize,
+      },
+      fromJson: (json) => Order.fromJson(json),
+      dataKey: 'orders',
+    );
   }
 
   //get by price
@@ -190,36 +95,12 @@ class OrderService {
     int page = 1,
     int pageSize = 20,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/order/price',
-        queryParameters: {'price': price, 'page': page, 'pageSize': pageSize},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final data = response.data;
-      final List<dynamic> orderData = data['data'];
-
-      final filteredOrders =
-          orderData.map((json) => Order.fromJson(json)).toList();
-      final totalPages = data['totalPages'] ?? 1;
-      final currentPage = data['currentPage'] ?? 1;
-
-      return {
-        'orders': filteredOrders,
-        'totalPages': totalPages,
-        'currentPage': currentPage,
-      };
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
-    }
+    return HelperService().fetchPaginatedData<Order>(
+      endpoint: "order/price",
+      queryParameters: {'price': price, 'page': page, 'pageSize': pageSize},
+      fromJson: (json) => Order.fromJson(json),
+      dataKey: 'orders',
+    );
   }
 
   //===============================PENDING AND REJECT=====================================
@@ -229,23 +110,11 @@ class OrderService {
     bool refresh = false,
     bool ownOnly = false,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-      final response = await dioService.get(
-        "/api/order/pending-reject",
-        queryParameters: {'refresh': refresh, 'ownOnly': ownOnly},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data['data'] as List;
-      return data.map((e) => Order.fromJson(e)).toList();
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
-    }
+    return HelperService().fetchingData<Order>(
+      endpoint: "order/pending-reject",
+      queryParameters: {'refresh': refresh, 'ownOnly': ownOnly},
+      fromJson: (json) => Order.fromJson(json),
+    );
   }
 
   //add order

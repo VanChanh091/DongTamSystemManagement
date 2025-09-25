@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
@@ -17,81 +18,29 @@ class ProductService {
 
   // get all
   Future<List<Product>> getAllProducts(bool refresh) async {
-    try {
-      final token = await SecureStorageService().getToken();
-      if (token == null) {
-        throw Exception('Token not found');
-      }
-
-      final response = await dioService.get(
-        "/api/product/",
-        queryParameters: {'refresh': refresh},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-            'User-Agent': 'Mozilla/5.0',
-          },
-        ),
-      );
-
-      final data = response.data['data'] as List;
-
-      return data.map((e) => Product.fromJson(e)).toList();
-    } catch (e) {
-      throw Exception('Failed to load products: $e');
-    }
+    return HelperService().fetchingData<Product>(
+      endpoint: "product",
+      queryParameters: {'refresh': refresh},
+      fromJson: (json) => Product.fromJson(json),
+    );
   }
 
   //get by id
   Future<List<Product>> getProductById(String productId) async {
-    try {
-      final token = await SecureStorageService().getToken();
-      if (token == null) {
-        throw Exception('Token not found');
-      }
-
-      final response = await dioService.get(
-        '/api/product/productId',
-        queryParameters: {"id": productId},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final List<dynamic> productsData = response.data['data'];
-      return productsData.map((json) => Product.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to get productId: $e');
-    }
+    return HelperService().fetchingData<Product>(
+      endpoint: "product/productId",
+      queryParameters: {"id": productId},
+      fromJson: (json) => Product.fromJson(json),
+    );
   }
 
   //get by name
   Future<List<Product>> getProductByName(String productName) async {
-    try {
-      final token = await SecureStorageService().getToken();
-      if (token == null) {
-        throw Exception('Token not found');
-      }
-
-      final response = await dioService.get(
-        '/api/product/productName',
-        queryParameters: {'name': productName},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final List<dynamic> productsData = response.data['data'];
-      return productsData.map((json) => Product.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to get productId: $e');
-    }
+    return HelperService().fetchingData<Product>(
+      endpoint: "product/productName",
+      queryParameters: {'name': productName},
+      fromJson: (json) => Product.fromJson(json),
+    );
   }
 
   //add product

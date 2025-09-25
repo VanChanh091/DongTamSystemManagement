@@ -7,6 +7,7 @@ import 'package:dongtam/data/models/admin/admin_waste_box_model.dart';
 import 'package:dongtam/data/models/admin/admin_waveCrest_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
+import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class AdminService {
@@ -99,24 +100,11 @@ class AdminService {
   Future<List<AdminMachinePaperModel>> getMachinePaperById(
     int machineId,
   ) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/admin/getMachinePaperById',
-        queryParameters: {'machineId': machineId},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data['data'] as List;
-      return data.map((json) => AdminMachinePaperModel.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
-    }
+    return HelperService().fetchingData<AdminMachinePaperModel>(
+      endpoint: "admin/getMachinePaperById",
+      queryParameters: {'machineId': machineId},
+      fromJson: (json) => AdminMachinePaperModel.fromJson(json),
+    );
   }
 
   //update machine
@@ -195,24 +183,11 @@ class AdminService {
 
   //get machine by Id
   Future<List<AdminMachineBoxModel>> getMachineBoxById(int machineId) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/admin/getMachineBoxById',
-        queryParameters: {'machineId': machineId},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data['data'] as List;
-      return data.map((json) => AdminMachineBoxModel.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
-    }
+    return HelperService().fetchingData<AdminMachineBoxModel>(
+      endpoint: "admin/getMachineBoxById",
+      queryParameters: {'machineId': machineId},
+      fromJson: (json) => AdminMachineBoxModel.fromJson(json),
+    );
   }
 
   //update machine
@@ -291,72 +266,31 @@ class AdminService {
 
   //get user by name
   Future<List<UserAdminModel>> getUserByName(String name) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/admin/getUserByName',
-        queryParameters: {"name": name},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final List<dynamic> data = response.data['data'];
-      return data.map((json) => UserAdminModel.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to get user by name: $e');
-    }
+    return HelperService().fetchingData<UserAdminModel>(
+      endpoint: "admin/getUserByName",
+      queryParameters: {"name": name},
+      fromJson: (json) => UserAdminModel.fromJson(json),
+    );
   }
 
   //get user by phone
   Future<List<UserAdminModel>> getUserByPhone(String phone) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/admin/getUserByPhone',
-        queryParameters: {"phone": phone},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final List<dynamic> data = response.data['data'];
-      return data.map((json) => UserAdminModel.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to get user by name: $e');
-    }
+    return HelperService().fetchingData<UserAdminModel>(
+      endpoint: "admin/getUserByPhone",
+      queryParameters: {"phone": phone},
+      fromJson: (json) => UserAdminModel.fromJson(json),
+    );
   }
 
   //get user by permission
   Future<List<UserAdminModel>> getUserByPermission(
     List<String> permissions,
   ) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/admin/getUserByPermission',
-        queryParameters: {'permission': permissions},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final List<dynamic> data = response.data['data'];
-
-      return data.map((json) => UserAdminModel.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to get users by permission: $e');
-    }
+    return HelperService().fetchingData<UserAdminModel>(
+      endpoint: "admin/getUserByPermission",
+      queryParameters: {'permission': permissions},
+      fromJson: (json) => UserAdminModel.fromJson(json),
+    );
   }
 
   //update role
@@ -480,24 +414,11 @@ class AdminService {
 
   //get waste norm by Id
   Future<List<AdminWasteNormModel>> getWasteNormById(int wasteNormId) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/admin/getWasteNormById',
-        queryParameters: {'wasteNormId': wasteNormId},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data['data'] as List;
-      return data.map((json) => AdminWasteNormModel.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
-    }
+    return HelperService().fetchingData<AdminWasteNormModel>(
+      endpoint: "admin/getWasteNormById",
+      queryParameters: {'wasteNormId': wasteNormId},
+      fromJson: (json) => AdminWasteNormModel.fromJson(json),
+    );
   }
 
   //update waste norm
@@ -576,24 +497,11 @@ class AdminService {
 
   //get waste box by Id
   Future<List<AdminWasteBoxModel>> getWasteBoxById(int wasteNormId) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/admin/getWasteBoxById',
-        queryParameters: {'wasteNormId': wasteNormId},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data['data'] as List;
-      return data.map((json) => AdminWasteBoxModel.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
-    }
+    return HelperService().fetchingData<AdminWasteBoxModel>(
+      endpoint: "admin/getWasteBoxById",
+      queryParameters: {'wasteNormId': wasteNormId},
+      fromJson: (json) => AdminWasteBoxModel.fromJson(json),
+    );
   }
 
   //update waste box
@@ -672,24 +580,11 @@ class AdminService {
 
   //get wave crest by Id
   Future<List<AdminWaveCrestModel>> getWaveCrestById(int waveCrestId) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/admin/getWaveCrestById',
-        queryParameters: {'waveCrestId': waveCrestId},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data['data'] as List;
-      return data.map((json) => AdminWaveCrestModel.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
-    }
+    return HelperService().fetchingData<AdminWaveCrestModel>(
+      endpoint: "admin/getWaveCrestById",
+      queryParameters: {'waveCrestId': waveCrestId},
+      fromJson: (json) => AdminWaveCrestModel.fromJson(json),
+    );
   }
 
   //update wave crest

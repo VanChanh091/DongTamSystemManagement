@@ -16,7 +16,7 @@ class HelperService {
     required String endpoint,
     required Map<String, dynamic> queryParameters,
     required T Function(Map<String, dynamic>) fromJson,
-    String dataKey = 'items',
+    required String dataKey,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -46,7 +46,36 @@ class HelperService {
         'currentPage': data['currentPage'] ?? 1,
       };
     } catch (e) {
-      throw Exception('Failed to get data: $e');
+      throw Exception('Failed to load data from $endpoint: $e');
+    }
+  }
+
+  Future<List<T>> fetchingData<T>({
+    required String endpoint,
+    required Map<String, dynamic> queryParameters,
+    required T Function(Map<String, dynamic>) fromJson,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/$endpoint',
+        queryParameters: queryParameters,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final data = response.data['data'] as List;
+
+      return data
+          .map((json) => fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to load data from $endpoint: $e');
     }
   }
 }

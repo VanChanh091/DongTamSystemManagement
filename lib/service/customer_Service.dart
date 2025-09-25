@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
+import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class CustomerService {
@@ -19,47 +20,17 @@ class CustomerService {
     int? pageSize,
     bool noPaging = false,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        "/api/customer/",
-        queryParameters: {
-          'page': page,
-          'pageSize': pageSize,
-          'refresh': refresh,
-          'noPaging': noPaging,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final data = response.data;
-      final customers = data['data'] as List; //data
-
-      // Luôn parse list customers
-      final parsedCustomers =
-          customers.map((e) => Customer.fromJson(e)).toList();
-
-      if (noPaging) {
-        return {'customers': parsedCustomers};
-      } else {
-        final totalPages = data['totalPages']; //page size
-        final currentPage = data['currentPage']; //page
-
-        return {
-          'customers': parsedCustomers,
-          "totalPages": totalPages,
-          "currentPage": currentPage,
-        };
-      }
-    } catch (e) {
-      throw Exception('Failed to load customers: $e');
-    }
+    return HelperService().fetchPaginatedData<Customer>(
+      endpoint: "customer",
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        'refresh': refresh,
+        'noPaging': noPaging,
+      },
+      fromJson: (json) => Customer.fromJson(json),
+      dataKey: 'customers',
+    );
   }
 
   // get by id
@@ -68,40 +39,16 @@ class CustomerService {
     int page = 1,
     int pageSize = 10,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/customer/byCustomerId',
-        queryParameters: {
-          'customerId': customerId,
-          'page': page,
-          'pageSize': pageSize,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final data = response.data;
-      final customers = data['data'] as List; //data
-      final totalPages = data['totalPages'] ?? 1;
-      final currentPage = data['currentPage'] ?? 1;
-
-      final filteredCustomer =
-          customers.map((json) => Customer.fromJson(json)).toList();
-
-      return {
-        'customers': filteredCustomer,
-        'totalPages': totalPages,
-        'currentPage': currentPage,
-      };
-    } catch (e) {
-      throw Exception('Failed to get customerId: $e');
-    }
+    return HelperService().fetchPaginatedData<Customer>(
+      endpoint: 'customer/byCustomerId',
+      queryParameters: {
+        'customerId': customerId,
+        'page': page,
+        'pageSize': pageSize,
+      },
+      fromJson: (json) => Customer.fromJson(json),
+      dataKey: 'customers',
+    );
   }
 
   // get by name
@@ -110,36 +57,12 @@ class CustomerService {
     int page,
     int pageSize,
   ) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/customer/byName',
-        queryParameters: {'name': name, 'page': page, 'pageSize': pageSize},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final data = response.data;
-      final customers = data['data'] as List; //data
-      final totalPages = data['totalPages'] ?? 1;
-      final currentPage = data['currentPage'] ?? 1;
-
-      final filteredCustomer =
-          customers.map((json) => Customer.fromJson(json)).toList();
-
-      return {
-        'customers': filteredCustomer,
-        'totalPages': totalPages,
-        'currentPage': currentPage,
-      };
-    } catch (e) {
-      throw Exception('Failed to get customerName: $e');
-    }
+    return HelperService().fetchPaginatedData<Customer>(
+      endpoint: 'customer/byName',
+      queryParameters: {'name': name, 'page': page, 'pageSize': pageSize},
+      fromJson: (json) => Customer.fromJson(json),
+      dataKey: 'customers',
+    );
   }
 
   // get by cskh
@@ -148,36 +71,12 @@ class CustomerService {
     int page,
     int pageSize,
   ) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/customer/byCskh',
-        queryParameters: {'cskh': cskh, 'page': page, 'pageSize': pageSize},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final data = response.data;
-      final customers = data['data'] as List; //data
-      final totalPages = data['totalPages'] ?? 1;
-      final currentPage = data['currentPage'] ?? 1;
-
-      final filteredCustomer =
-          customers.map((json) => Customer.fromJson(json)).toList();
-
-      return {
-        'customers': filteredCustomer,
-        'totalPages': totalPages,
-        'currentPage': currentPage,
-      };
-    } catch (e) {
-      throw Exception('Failed to get customerName: $e');
-    }
+    return HelperService().fetchPaginatedData<Customer>(
+      endpoint: 'customer/byCskh',
+      queryParameters: {'cskh': cskh, 'page': page, 'pageSize': pageSize},
+      fromJson: (json) => Customer.fromJson(json),
+      dataKey: 'customers',
+    );
   }
 
   // get by phone
@@ -186,36 +85,12 @@ class CustomerService {
     int page,
     int pageSize,
   ) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/customer/byPhone',
-        queryParameters: {'phone': phone, 'page': page, 'pageSize': pageSize},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      final data = response.data;
-      final customers = data['data'] as List; //data
-      final totalPages = data['totalPages'] ?? 1;
-      final currentPage = data['currentPage'] ?? 1;
-
-      final filteredCustomer =
-          customers.map((json) => Customer.fromJson(json)).toList();
-
-      return {
-        'customers': filteredCustomer,
-        'totalPages': totalPages,
-        'currentPage': currentPage,
-      };
-    } catch (e) {
-      throw Exception('Failed to get customerName: $e');
-    }
+    return HelperService().fetchPaginatedData<Customer>(
+      endpoint: 'customer/byPhone',
+      queryParameters: {'phone': phone, 'page': page, 'pageSize': pageSize},
+      fromJson: (json) => Customer.fromJson(json),
+      dataKey: 'customers',
+    );
   }
 
   // add customer

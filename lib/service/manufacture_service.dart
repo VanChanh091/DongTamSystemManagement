@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dongtam/constant/appInfo.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class ManufactureService {
@@ -20,24 +21,11 @@ class ManufactureService {
     String machine,
     bool refresh,
   ) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/manufacture/planningPaper',
-        queryParameters: {"machine": machine, 'refresh': refresh},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data['data'] as List;
-      return data.map((e) => PlanningPaper.fromJson(e)).toList();
-    } catch (e) {
-      throw Exception('Failed to load planning papers: $e');
-    }
+    return HelperService().fetchingData<PlanningPaper>(
+      endpoint: "manufacture/planningPaper",
+      queryParameters: {"machine": machine, 'refresh': refresh},
+      fromJson: (json) => PlanningPaper.fromJson(json),
+    );
   }
 
   //create report for planning
@@ -118,24 +106,11 @@ class ManufactureService {
   //===============================MANUFACTURE BOX====================================
   //get planning paper
   Future<List<PlanningBox>> getPlanningBox(String machine, bool refresh) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/manufacture/planningBox',
-        queryParameters: {"machine": machine, 'refresh': refresh},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      final data = response.data['data'] as List;
-      return data.map((e) => PlanningBox.fromJson(e)).toList();
-    } catch (e) {
-      throw Exception('Failed to load planning box: $e');
-    }
+    return HelperService().fetchingData<PlanningBox>(
+      endpoint: "manufacture/planningBox",
+      queryParameters: {"machine": machine, 'refresh': refresh},
+      fromJson: (json) => PlanningBox.fromJson(json),
+    );
   }
 
   //create report for planning
