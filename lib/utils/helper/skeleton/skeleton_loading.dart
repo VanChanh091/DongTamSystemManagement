@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Simple shimmer implementation (không cần package ngoài).
 class SkeletonLoading extends StatefulWidget {
   final Widget child;
   final Duration period;

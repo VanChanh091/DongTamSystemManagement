@@ -1,0 +1,29 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: ["main"] # chạy khi push lên main
+  pull_request:
+    branches: ["main"] # chạy khi có PR vào main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # tạo 1 máy ảo Ubuntu mới nhất để chạy pipeline.
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3 # Tải source code của repo từ GitHub vào máy ảo.
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.32.5" # Dùng action flutter-action để cài đặt Flutter vào máy ảo.
+
+      - name: Install dependencies
+        run: flutter pub get # Cài các package trong pubspec.yaml
+
+      - name: Analyze code
+        run: flutter analyze # Chạy static analysis → check code style, warning, error compile.
+
+      - name: Run tests
+        run: flutter test # Chạy test trong thư mục test/
