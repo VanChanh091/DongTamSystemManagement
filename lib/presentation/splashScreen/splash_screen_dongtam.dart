@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/splashScreen/myAppLauncher.dart';
+import 'package:dongtam/presentation/splashScreen/my_app_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 

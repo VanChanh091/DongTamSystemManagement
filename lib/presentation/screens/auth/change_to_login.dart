@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/components/step_Items.dart';
+import 'package:dongtam/presentation/components/step_items.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';

@@ -1,11 +1,12 @@
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_planning_order.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_planning.dart';
-import 'package:dongtam/presentation/sources/planning_dataSource.dart';
+import 'package:dongtam/presentation/sources/planning_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -93,6 +94,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                                         selectedOrderId,
                                                   );
 
+                                              if (!context.mounted) return;
+
                                               showDialog(
                                                 context: context,
                                                 builder:
@@ -103,9 +106,11 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                                               loadOrders(true),
                                                     ),
                                               );
-                                            } catch (e) {
-                                              print(
-                                                "Không tìm thấy đơn hàng: $e",
+                                            } catch (e, s) {
+                                              AppLogger.e(
+                                                "Lỗi không tìm thấy đơn hàng",
+                                                error: e,
+                                                stackTrace: s,
                                               );
                                             }
                                           },

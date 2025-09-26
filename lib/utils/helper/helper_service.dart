@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:dongtam/constant/appInfo.dart';
+import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class HelperService {

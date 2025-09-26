@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -108,16 +109,19 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
           updatedPermissions,
         );
       }
+      if (!mounted) return;
 
       if (success) {
         showSnackBarSuccess(context, 'Cập nhật thành công!');
         await Future.delayed(Duration(milliseconds: 500));
       }
 
+      if (!mounted) return;
       widget.onPermissionOrRole();
       Navigator.of(context).pop();
-    } catch (e) {
-      print("Error: $e");
+    } catch (e, s) {
+      if (!mounted) return;
+      AppLogger.e("Lỗi khi lưu role/permission", error: e, stackTrace: s);
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }
   }
@@ -197,18 +201,18 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                                     data: Theme.of(context).copyWith(
                                       checkboxTheme: CheckboxThemeData(
                                         fillColor:
-                                            MaterialStateProperty.resolveWith<
+                                            WidgetStateProperty.resolveWith<
                                               Color
                                             >((states) {
                                               if (states.contains(
-                                                MaterialState.selected,
+                                                WidgetState.selected,
                                               )) {
                                                 return Colors.red;
                                               }
                                               return Colors.white;
                                             }),
                                         checkColor:
-                                            MaterialStateProperty.all<Color>(
+                                            WidgetStateProperty.all<Color>(
                                               Colors.white,
                                             ),
                                         side: const BorderSide(

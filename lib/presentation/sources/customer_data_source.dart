@@ -81,7 +81,7 @@ class CustomerDatasource extends DataGridSource {
 
     Color backgroundColor;
     if (selectedCustomerId == customerId) {
-      backgroundColor = Colors.blue.withOpacity(0.3);
+      backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
       backgroundColor = Colors.transparent;
     }

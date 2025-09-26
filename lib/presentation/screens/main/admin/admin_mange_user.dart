@@ -1,9 +1,10 @@
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_permission_role.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -205,11 +206,25 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                     }
 
                                     final users = await futureUserAdmin;
-                                    // For example, pick the first selected user
+
+                                    if (!mounted) {
+                                      // Dùng AppLogger để ghi lại rằng widget đã bị hủy
+                                      AppLogger.w(
+                                        'Widget AdminMangeUser disposed before user data loaded.',
+                                      );
+                                      return;
+                                    }
                                     final selectedUser = users.firstWhere(
                                       (u) => selectedUserIds.contains(u.userId),
-                                      orElse: () => users.first,
+                                      orElse: () {
+                                        AppLogger.e(
+                                          'Selected user not found after loading list.',
+                                        );
+                                        return users.first;
+                                      },
                                     );
+
+                                    if (!context.mounted) return;
 
                                     showDialog(
                                       context: context,
@@ -229,12 +244,14 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                   label: "Phân Quyền/Vai Trò",
                                   icon: Symbols.graph_5,
                                 ),
+
                                 const SizedBox(width: 10),
 
                                 //reset password
                                 AnimatedButton(
                                   onPressed: () async {
                                     if (selectedUserIds.isEmpty) {
+                                      if (!mounted) return;
                                       showSnackBarError(
                                         context,
                                         "Chưa chọn người dùng cần đặt lại mật khẩu",
@@ -319,6 +336,8 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                           userIds: selectedUserIds,
                                         );
 
+                                        if (!context.mounted) return;
+
                                         showSnackBarSuccess(
                                           context,
                                           "Đặt lại mật khẩu thành công. Mật khẩu mặc định là 12345678",
@@ -331,6 +350,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                           selectedAll = false;
                                         });
                                       } catch (e) {
+                                        if (!context.mounted) return;
                                         showSnackBarError(context, "Lỗi: $e");
                                       }
                                     }
@@ -469,6 +489,11 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                                       ),
                                                                     );
 
+                                                                    if (!context
+                                                                        .mounted) {
+                                                                      return;
+                                                                    }
+
                                                                     setState(() {
                                                                       selectedUserIds
                                                                           .clear();
@@ -579,18 +604,15 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor:
-                                      MaterialStateProperty.resolveWith<Color>((
-                                        states,
-                                      ) {
-                                        if (states.contains(
-                                          MaterialState.selected,
-                                        )) {
-                                          return Colors.red;
-                                        }
-                                        return Colors.white;
-                                      }),
-                                  checkColor: MaterialStateProperty.all<Color>(
+                                  fillColor: WidgetStateProperty.resolveWith<
+                                    Color
+                                  >((states) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return Colors.red;
+                                    }
+                                    return Colors.white;
+                                  }),
+                                  checkColor: WidgetStateProperty.all<Color>(
                                     Colors.white,
                                   ),
                                   side: const BorderSide(
@@ -632,18 +654,18 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
                                       fillColor:
-                                          MaterialStateProperty.resolveWith<
+                                          WidgetStateProperty.resolveWith<
                                             Color
                                           >((states) {
                                             if (states.contains(
-                                              MaterialState.selected,
+                                              WidgetState.selected,
                                             )) {
                                               return Colors.red;
                                             }
                                             return Colors.white;
                                           }),
                                       checkColor:
-                                          MaterialStateProperty.all<Color>(
+                                          WidgetStateProperty.all<Color>(
                                             Colors.white,
                                           ),
                                       side: const BorderSide(
@@ -693,9 +715,9 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                 user.avatar != null && user.avatar!.isNotEmpty
                                     ? TextButton(
                                       onPressed: () {
-                                        print(
-                                          'Attempting to show image from URL: ${user.avatar}',
-                                        );
+                                        // print(
+                                        //   'Attempting to show image from URL: ${user.avatar}',
+                                        // );
                                         showDialog(
                                           context: context,
                                           barrierDismissible: true,
@@ -728,11 +750,11 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                             error,
                                                             stackTrace,
                                                           ) {
-                                                            print(
-                                                              'Image loading error: $error',
-                                                            );
-                                                            print(
-                                                              'StackTrace: $stackTrace',
+                                                            AppLogger.e(
+                                                              "Lỗi khi tải hình ảnh",
+                                                              error: error,
+                                                              stackTrace:
+                                                                  stackTrace,
                                                             );
                                                             return Container(
                                                               width: 300,

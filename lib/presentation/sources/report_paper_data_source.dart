@@ -184,14 +184,14 @@ class ReportPaperDatasource extends DataGridSource {
   @override
   Widget? buildGroupCaptionCellWidget(
     RowColumnIndex rowColumnIndex,
-    String groupName,
+    String summaryValue,
   ) {
     // Bắt ngày và số item, không phân biệt hoa thường
     final regex = RegExp(
       r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$',
       caseSensitive: false,
     );
-    final match = regex.firstMatch(groupName);
+    final match = regex.firstMatch(summaryValue);
 
     String displayDate = '';
     String itemCount = '';
@@ -228,7 +228,7 @@ class ReportPaperDatasource extends DataGridSource {
 
     Color backgroundColor;
     if (isSelected == true) {
-      backgroundColor = Colors.blue.withOpacity(0.3);
+      backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
       backgroundColor = Colors.transparent;
     }

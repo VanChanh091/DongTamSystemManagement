@@ -1,4 +1,4 @@
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -285,14 +285,14 @@ class OrderDataSource extends DataGridSource {
     // Chọn màu nền theo status
     Color backgroundColor;
     if (selectedOrderId == orderId) {
-      backgroundColor = Colors.blue.withOpacity(0.3);
+      backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
       switch (status) {
         case 'từ chối':
-          backgroundColor = Colors.red.withOpacity(0.4);
+          backgroundColor = Colors.red.withValues(alpha: 0.4);
           break;
         case 'chấp nhận':
-          backgroundColor = Colors.amberAccent.withOpacity(0.4);
+          backgroundColor = Colors.amberAccent.withValues(alpha: 0.4);
           break;
         case 'đã lên kế hoạch':
           backgroundColor = Colors.white;

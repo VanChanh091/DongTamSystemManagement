@@ -1,5 +1,5 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
@@ -102,8 +102,8 @@ class _ManageOrderState extends State<AdminOrder> {
                                         borderRadius: BorderRadius.circular(10),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.1,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.1,
                                             ),
                                             blurRadius: 8,
                                             offset: const Offset(1, 2),
@@ -198,6 +198,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                                     'accept',
                                                     "",
                                                   );
+                                              if (!context.mounted) return;
 
                                               showSnackBarSuccess(
                                                 context,
@@ -305,6 +306,10 @@ class _ManageOrderState extends State<AdminOrder> {
                                                                   reasonController
                                                                       .text,
                                                                 );
+                                                            if (!context
+                                                                .mounted) {
+                                                              return;
+                                                            }
 
                                                             showSnackBarSuccess(
                                                               context,

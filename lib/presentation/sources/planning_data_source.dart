@@ -157,7 +157,7 @@ class PlanningDataSource extends DataGridSource {
 
     Color backgroundColor = Colors.transparent;
     if (selectedOrderId == orderId) {
-      backgroundColor = Colors.blue.withOpacity(0.3);
+      backgroundColor = Colors.blue.withValues(alpha: 0.3);
     }
 
     return DataGridRowAdapter(

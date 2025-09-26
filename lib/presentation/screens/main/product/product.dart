@@ -1,4 +1,4 @@
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
@@ -199,6 +199,7 @@ class _ProductPageState extends State<ProductPage> {
                                     ProductService()
                                         .getProductById(productId)
                                         .then((product) {
+                                          if (!context.mounted) return;
                                           showDialog(
                                             context: context,
                                             builder:
@@ -345,6 +346,11 @@ class _ProductPageState extends State<ProductPage> {
                                                                       ),
                                                                     );
 
+                                                                    if (!context
+                                                                        .mounted) {
+                                                                      return;
+                                                                    }
+
                                                                     setState(() {
                                                                       isSelected
                                                                           .clear();
@@ -456,18 +462,15 @@ class _ProductPageState extends State<ProductPage> {
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor:
-                                      MaterialStateProperty.resolveWith<Color>((
-                                        states,
-                                      ) {
-                                        if (states.contains(
-                                          MaterialState.selected,
-                                        )) {
-                                          return Colors.red;
-                                        }
-                                        return Colors.white;
-                                      }),
-                                  checkColor: MaterialStateProperty.all<Color>(
+                                  fillColor: WidgetStateProperty.resolveWith<
+                                    Color
+                                  >((states) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return Colors.red;
+                                    }
+                                    return Colors.white;
+                                  }),
+                                  checkColor: WidgetStateProperty.all<Color>(
                                     Colors.white,
                                   ),
                                   side: const BorderSide(
@@ -507,18 +510,18 @@ class _ProductPageState extends State<ProductPage> {
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
                                       fillColor:
-                                          MaterialStateProperty.resolveWith<
+                                          WidgetStateProperty.resolveWith<
                                             Color
                                           >((states) {
                                             if (states.contains(
-                                              MaterialState.selected,
+                                              WidgetState.selected,
                                             )) {
                                               return Colors.red;
                                             }
                                             return Colors.white;
                                           }),
                                       checkColor:
-                                          MaterialStateProperty.all<Color>(
+                                          WidgetStateProperty.all<Color>(
                                             Colors.white,
                                           ),
                                       side: const BorderSide(
@@ -554,9 +557,9 @@ class _ProductPageState extends State<ProductPage> {
                                         product.productImage!.isNotEmpty
                                     ? TextButton(
                                       onPressed: () {
-                                        print(
-                                          'Attempting to show image from URL: ${product.productImage}',
-                                        );
+                                        // print(
+                                        //   'Attempting to show image from URL: ${product.productImage}',
+                                        // );
                                         showDialog(
                                           context: context,
                                           barrierDismissible: true,

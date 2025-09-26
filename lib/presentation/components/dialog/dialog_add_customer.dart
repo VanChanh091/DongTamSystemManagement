@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_customer.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -71,8 +72,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
       );
 
       allCustomers = result['customers'] as List<Customer>;
-    } catch (e) {
-      print("Lỗi khi tải danh sách khách hàng: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
     } finally {
       setState(() {
         isLoading = false;
@@ -171,7 +172,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       if (widget.customer == null) {
         // add
         await CustomerService().addCustomer(newCustomer.toJson());
-
+        if (!mounted) return; // check context
         showSnackBarSuccess(context, "Thêm thành công");
       } else {
         // update
@@ -179,13 +180,16 @@ class _CustomerDialogState extends State<CustomerDialog> {
           newCustomer.customerId,
           newCustomer.toJson(),
         );
+        if (!mounted) return;
         showSnackBarSuccess(context, "Cập nhật thành công");
       }
 
+      if (!mounted) return;
       widget.onCustomerAddOrUpdate();
       Navigator.of(context).pop();
-    } catch (e) {
-      print("Error: $e");
+    } catch (e, s) {
+      if (!mounted) return;
+      AppLogger.e("Lỗi khi thêm/sửa khách hàng", error: e, stackTrace: s);
       showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }

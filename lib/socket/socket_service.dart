@@ -1,6 +1,7 @@
-import 'package:dongtam/constant/appInfo.dart';
+import 'package:dongtam/constant/app_info.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SocketService {
   // Singleton pattern
@@ -8,12 +9,12 @@ class SocketService {
   factory SocketService() => _instance;
   SocketService._internal();
 
-  IO.Socket? _socket;
+  io.Socket? _socket;
   bool _isConnected = false;
 
   bool get isConnected => _isConnected;
 
-  IO.Socket get socket {
+  io.Socket get socket {
     if (_socket == null) throw Exception("Socket chưa được khởi tạo");
     return _socket!;
   }
@@ -21,15 +22,15 @@ class SocketService {
   /// Connect 1 lần (global). Safe to call multiple lần.
   Future<void> connectSocket() async {
     if (_socket != null && _socket!.connected) {
-      print('⚠️ Socket already connected');
+      AppLogger.i("⚠️ Socket already connected");
       return;
     }
 
     final token = await SecureStorageService().getToken();
 
-    _socket = IO.io(
+    _socket = io.io(
       AppInfo.BASE_URL,
-      IO.OptionBuilder()
+      io.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
           .setAuth({'token': token})
@@ -38,10 +39,11 @@ class SocketService {
     );
 
     // errors
-    _socket!.onConnectError((err) => print('❌ Connect error: $err'));
-    _socket!.onError((err) => print('❌ Socket error: $err'));
+    _socket!.onConnectError(
+      (err) => AppLogger.e("❌ Connect error", error: err),
+    );
+    _socket!.onError((err) => AppLogger.e("❌ Socket error", error: err));
     _socket!.onDisconnect((reason) {
-      // print('❌ Socket disconnected: $reason');
       _isConnected = false;
     });
 
@@ -49,7 +51,6 @@ class SocketService {
 
     _socket!.onConnect((_) {
       _isConnected = true;
-      // print('✅ Global socket connected');
     });
   }
 
@@ -58,14 +59,14 @@ class SocketService {
     final room = 'machine_${machineName.toLowerCase().replaceAll(' ', '_')}';
     if (_socket == null || !_socket!.connected) await connectSocket();
     _socket!.emit('join-machine', room);
-    print('➡️ join-machine $room');
+    AppLogger.i("➡️ join-machine $room");
   }
 
   /// Leave a room (server must implement socket.on("leave-room", ...))
   Future<void> leaveRoom(String roomName) async {
     if (_socket == null || !_socket!.connected) return;
     _socket!.emit('leave-room', roomName);
-    print('❌ leave-room $roomName');
+    AppLogger.i("❌ leave-room $roomName");
   }
 
   /// Register event listener (ensure not duplicated)
@@ -82,7 +83,7 @@ class SocketService {
   /// Disconnect socket fully
   void disconnect() {
     if (_socket == null) return;
-    print('❌ Disconnecting global socket');
+    AppLogger.i("❌ Disconnecting global socket");
     _socket!.clearListeners();
     _socket!.disconnect();
     _socket = null;

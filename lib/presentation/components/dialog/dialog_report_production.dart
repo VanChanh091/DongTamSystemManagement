@@ -1,4 +1,5 @@
 import 'package:dongtam/service/manufacture_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
@@ -69,20 +70,21 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           shiftManagementController.text,
         );
       }
+      if (!mounted) return;
 
       if (success) {
         showSnackBarSuccess(context, 'Báo cáo kế hoạch thành công');
-
         widget.onReport();
         Navigator.of(context).pop();
       }
-    } catch (e) {
+    } catch (e, s) {
+      if (!mounted) return;
       final message = e.toString();
 
       if (message.contains('403')) {
         showSnackBarError(context, 'Bạn không có quyền báo cáo máy này.');
       } else {
-        print("Error: $e");
+        AppLogger.e("Lỗi khi bá cáo sản xuất", error: e, stackTrace: s);
         showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
       }
     }

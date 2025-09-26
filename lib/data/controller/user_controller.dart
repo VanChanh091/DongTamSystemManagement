@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:get/get.dart';
 
@@ -21,8 +22,13 @@ class UserController extends GetxController {
       } else {
         permissions.clear();
       }
-    } catch (e) {
-      print("Error loading user data: $e");
+
+      // Log tổng quan một lần
+      AppLogger.i(
+        "User data loaded → role: $role, permissions: ${permissions.length}",
+      );
+    } catch (e, s) {
+      AppLogger.e("Error loading user data", error: e, stackTrace: s);
     }
   }
 
@@ -47,5 +53,6 @@ class UserController extends GetxController {
   void clearUser() {
     role.value = "";
     permissions.clear();
+    AppLogger.i("User cleared");
   }
 }

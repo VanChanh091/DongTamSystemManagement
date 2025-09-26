@@ -16,7 +16,6 @@ class BadgesController extends GetxController {
       final orders = await AdminService().getOrderByStatus();
       numberBadges.value = orders.length;
     } catch (e) {
-      print("❌ Lỗi khi lấy số đơn chờ duyệt: $e");
       numberBadges.value = 0;
     }
   }

@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:dongtam/constant/appInfo.dart';
+import 'package:dongtam/constant/app_info.dart';
 import 'package:get/get.dart';
 
 class AuthService {
@@ -26,7 +27,7 @@ class AuthService {
     String otp,
   ) async {
     try {
-      final response = await dioService.post(
+      await dioService.post(
         "/auth/register",
         data: {
           "fullName": fullName,
@@ -37,9 +38,9 @@ class AuthService {
         },
       );
 
-      return response.statusCode == 201;
-    } catch (e) {
-      print("Error register: $e");
+      return true;
+    } catch (e, s) {
+      AppLogger.e("error register", error: e, stackTrace: s);
       return false;
     }
   }
@@ -68,15 +69,15 @@ class AuthService {
         userController.role.value = role;
         userController.permissions.value = permissions;
 
-        print("Login successful, role: $role");
-        print("Login successful, permission: $permissions");
+        AppLogger.i("Login successful, role: $role");
+        AppLogger.i("Login successful, permission: $permissions");
 
         return true;
       } else {
         return false;
       }
-    } catch (e) {
-      print("Error login: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tải đăng nhập", error: e, stackTrace: s);
       return false;
     }
   }
@@ -105,8 +106,8 @@ class AuthService {
       } else {
         return false;
       }
-    } catch (e) {
-      print("Error send otp: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi gửi otp", error: e, stackTrace: s);
       return false;
     }
   }
@@ -120,8 +121,8 @@ class AuthService {
       );
 
       return response.statusCode == 201;
-    } catch (e) {
-      print("Error verify otp: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi xác thực otp", error: e, stackTrace: s);
       return false;
     }
   }
@@ -150,8 +151,8 @@ class AuthService {
       );
 
       return response.statusCode == 201;
-    } catch (e) {
-      print("Error change password: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi thay đổi password", error: e, stackTrace: s);
       return false;
     }
   }

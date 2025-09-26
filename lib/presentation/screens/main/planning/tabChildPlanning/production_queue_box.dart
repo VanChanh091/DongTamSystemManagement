@@ -1,11 +1,12 @@
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
-import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
+import 'package:dongtam/presentation/sources/machine_box_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -471,6 +472,9 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                                 updateIndex,
                                                               );
 
+                                                      if (!context.mounted) {
+                                                        return;
+                                                      }
                                                       if (result) {
                                                         showSnackBarSuccess(
                                                           context,
@@ -478,12 +482,20 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                         );
                                                         loadPlanning(true);
                                                       }
-                                                    } catch (e) {
+                                                    } catch (e, s) {
+                                                      if (!context.mounted) {
+                                                        return;
+                                                      }
                                                       showSnackBarError(
                                                         context,
                                                         "Lỗi cập nhật",
                                                       );
-                                                      print("Lỗi khi lưu: $e");
+
+                                                      AppLogger.e(
+                                                        "Lỗi khi lưu",
+                                                        error: e,
+                                                        stackTrace: s,
+                                                      );
                                                     } finally {
                                                       setState(
                                                         () => isLoading = false,
@@ -895,11 +907,14 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
           machine,
         );
 
+        if (!context.mounted) return;
+
         if (success) {
           showSnackBarSuccess(context, successMessage);
           onSuccess();
         }
       } catch (e) {
+        if (!context.mounted) return;
         showSnackBarError(context, errorMessage);
       }
     }

@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/splashScreen/splashScreenDT.dart';
+import 'package:dongtam/presentation/splashScreen/splash_screen_dongtam.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'package:flutter/material.dart';

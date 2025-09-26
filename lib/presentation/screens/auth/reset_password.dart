@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/components/step_Items.dart';
+import 'package:dongtam/presentation/components/step_items.dart';
 import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
@@ -26,6 +26,8 @@ class _ResetPasswordState extends State<ResetPassword> {
       passwordController.text,
       confirmPwController.text,
     );
+    if (!mounted) return;
+
     if (success) {
       showSnackBarSuccess(context, 'Đổi mật khẩu thành công');
       Navigator.push(

@@ -1,14 +1,15 @@
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
-import 'package:dongtam/presentation/sources/machine_box_dataSource.dart';
+import 'package:dongtam/presentation/sources/machine_box_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -253,6 +254,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                           final planningList =
                                               await futurePlanning;
 
+                                          if (!context.mounted) return;
+
                                           // get planningId from orderId
                                           final planningBoxId =
                                               orderIdToPlanningId[selectedOrderId];
@@ -290,8 +293,13 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                   isPaper: false,
                                                 ),
                                           );
-                                        } catch (e) {
-                                          print("Lỗi khi mở Dialog: $e");
+                                        } catch (e, s) {
+                                          if (!context.mounted) return;
+                                          AppLogger.e(
+                                            "Lỗi khi mở dialog",
+                                            error: e,
+                                            stackTrace: s,
+                                          );
                                           showSnackBarError(
                                             context,
                                             "Đã xảy ra lỗi khi mở báo cáo.",
@@ -321,6 +329,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                         final planningBoxId =
                                             orderIdToPlanningId[selectedOrderId];
                                         if (planningBoxId == null) {
+                                          if (!context.mounted) return;
                                           showSnackBarError(
                                             context,
                                             "Không tìm thấy planningBoxId cho orderId: $selectedOrderId",
@@ -350,6 +359,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
                                           loadPlanning(true);
                                         } catch (e) {
+                                          if (!context.mounted) return;
                                           showSnackBarError(
                                             context,
                                             "Có lỗi khi xác nhận SX: $e",
@@ -598,12 +608,14 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
           planningIds,
           status,
         );
+        if (!context.mounted) return;
 
         if (success) {
           showSnackBarSuccess(context, successMessage);
           onSuccess();
         }
       } catch (e) {
+        if (!context.mounted) return;
         showSnackBarError(context, errorMessage);
       }
     }

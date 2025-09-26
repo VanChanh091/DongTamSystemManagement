@@ -1,5 +1,5 @@
-import 'package:dongtam/data/controller/userController.dart';
-import 'package:dongtam/data/models/admin/admin_wasteNorm_model.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
+import 'package:dongtam/data/models/admin/admin_wave_crest_model.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -8,19 +8,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class AdminWasteNorm extends StatefulWidget {
-  const AdminWasteNorm({super.key});
+class AdminWaveCrest extends StatefulWidget {
+  const AdminWaveCrest({super.key});
 
   @override
-  State<AdminWasteNorm> createState() => _AdminWasteNormState();
+  State<AdminWaveCrest> createState() => AdminWaveCrestState();
 }
 
-class _AdminWasteNormState extends State<AdminWasteNorm> {
-  late Future<List<AdminWasteNormModel>> futureAdminWasteNorm;
+class AdminWaveCrestState extends State<AdminWaveCrest> {
+  late Future<List<AdminWaveCrestModel>> futureAdminWaveCrest;
   final userController = Get.find<UserController>();
-  int? selectedWasteNorm;
+  int? selectedWaveCrest;
   List<int> isSelected = [];
-  List<AdminWasteNormModel> updatedWasteNorms = [];
+  List<AdminWaveCrestModel> updatedWaveCrest = [];
   bool selectedAll = false;
 
   @override
@@ -28,15 +28,15 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
     super.initState();
 
     if (userController.hasAnyRole(["admin"])) {
-      loadWasteNorm();
+      loadWaveCrest();
     } else {
-      futureAdminWasteNorm = Future.error("NO_PERMISSION");
+      futureAdminWaveCrest = Future.error("NO_PERMISSION");
     }
   }
 
-  void loadWasteNorm() {
+  void loadWaveCrest() {
     setState(() {
-      futureAdminWasteNorm = AdminService().getAllWasteNorm();
+      futureAdminWaveCrest = AdminService().getAllWaveCrest();
     });
   }
 
@@ -82,32 +82,34 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                     }
 
                                     final dataToUpdate =
-                                        updatedWasteNorms
+                                        updatedWaveCrest
                                             .where(
                                               (item) => isSelected.contains(
-                                                item.wasteNormId,
+                                                item.waveCrestCoefficientId,
                                               ),
                                             )
                                             .toList();
 
                                     for (final item in dataToUpdate) {
-                                      print(
-                                        '⏫ Updating wasteNormId: ${item.wasteNormId}',
-                                      );
+                                      // print(
+                                      //   '⏫ Updating waveCrestId: ${item.waveCrestCoefficientId}',
+                                      // );
 
-                                      await AdminService()
-                                          .updateWasteNorm(item.wasteNormId, {
-                                            "waveCrest": item.waveCrest,
-                                            "waveCrestSoft": item.waveCrestSoft,
-                                            "lossInProcess": item.lossInProcess,
-                                            "lossInSheetingAndSlitting":
-                                                item.lossInSheetingAndSlitting,
-                                            "machineName": item.machineName,
-                                          });
+                                      await AdminService().updateWaveCrest(
+                                        item.waveCrestCoefficientId,
+                                        {
+                                          "fluteE_1": item.fluteE_1,
+                                          "fluteE_2": item.fluteE_2,
+                                          "fluteB": item.fluteB,
+                                          "fluteC": item.fluteC,
+                                          "machineName": item.machineName,
+                                        },
+                                      );
                                     }
 
-                                    loadWasteNorm();
+                                    if (!context.mounted) return;
 
+                                    loadWaveCrest();
                                     showSnackBarSuccess(
                                       context,
                                       'Đã cập nhật thành công',
@@ -235,7 +237,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                                     for (int id
                                                                         in isSelected) {
                                                                       await AdminService()
-                                                                          .deleteWasteNorm(
+                                                                          .deleteWaveCrest(
                                                                             id,
                                                                           );
                                                                     }
@@ -247,12 +249,17 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                                       ),
                                                                     );
 
+                                                                    if (!context
+                                                                        .mounted) {
+                                                                      return;
+                                                                    }
+
                                                                     setState(() {
                                                                       isSelected
                                                                           .clear();
-                                                                      futureAdminWasteNorm =
+                                                                      futureAdminWaveCrest =
                                                                           AdminService()
-                                                                              .getAllWasteNorm();
+                                                                              .getAllWaveCrest();
                                                                     });
 
                                                                     Navigator.pop(
@@ -286,7 +293,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                           : null,
                                   label: "Xóa",
                                   icon: Icons.delete,
-                                  backgroundColor: const Color(0xffEA4346),
+                                  backgroundColor: Color(0xffEA4346),
                                 ),
                               ],
                             ),
@@ -300,8 +307,8 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: FutureBuilder<List<AdminWasteNormModel>>(
-                  future: futureAdminWasteNorm,
+                child: FutureBuilder<List<AdminWaveCrestModel>>(
+                  future: futureAdminWaveCrest,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -343,7 +350,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                     }
 
                     final data = snapshot.data!;
-                    updatedWasteNorms = data;
+                    updatedWaveCrest = data;
 
                     return SingleChildScrollView(
                       scrollDirection: Axis.vertical,
@@ -357,18 +364,15 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor:
-                                      MaterialStateProperty.resolveWith<Color>((
-                                        states,
-                                      ) {
-                                        if (states.contains(
-                                          MaterialState.selected,
-                                        )) {
-                                          return Colors.red;
-                                        }
-                                        return Colors.white;
-                                      }),
-                                  checkColor: MaterialStateProperty.all<Color>(
+                                  fillColor: WidgetStateProperty.resolveWith<
+                                    Color
+                                  >((states) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return Colors.red;
+                                    }
+                                    return Colors.white;
+                                  }),
+                                  checkColor: WidgetStateProperty.all<Color>(
                                     Colors.white,
                                   ),
                                   side: const BorderSide(
@@ -385,7 +389,9 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                     if (selectedAll) {
                                       isSelected =
                                           data
-                                              .map((e) => e.wasteNormId)
+                                              .map(
+                                                (e) => e.waveCrestCoefficientId,
+                                              )
                                               .toList();
                                     } else {
                                       isSelected.clear();
@@ -395,18 +401,14 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                               ),
                             ),
                           ),
-                          DataColumn(label: styleText("Vô Giấy Đầu Sóng")),
-                          DataColumn(label: styleText("Ra Giấy Đầu Mềm")),
-                          DataColumn(
-                            label: styleText("Hao phí Quá Trình Chạy"),
-                          ),
-                          DataColumn(
-                            label: styleText("Hao Phí Xả Tờ - Chia Khổ"),
-                          ),
+                          DataColumn(label: styleText("Đầu E1")),
+                          DataColumn(label: styleText("Đầu E2")),
+                          DataColumn(label: styleText("Đầu B")),
+                          DataColumn(label: styleText("Đầu C")),
                           DataColumn(label: styleText("Loại Máy")),
                         ],
                         rows: List<DataRow>.generate(data.length, (index) {
-                          final wasteNorm = data[index];
+                          final waveCrest = data[index];
                           return DataRow(
                             cells: [
                               DataCell(
@@ -414,18 +416,18 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
                                       fillColor:
-                                          MaterialStateProperty.resolveWith<
+                                          WidgetStateProperty.resolveWith<
                                             Color
                                           >((states) {
                                             if (states.contains(
-                                              MaterialState.selected,
+                                              WidgetState.selected,
                                             )) {
                                               return Colors.red;
                                             }
                                             return Colors.white;
                                           }),
                                       checkColor:
-                                          MaterialStateProperty.all<Color>(
+                                          WidgetStateProperty.all<Color>(
                                             Colors.white,
                                           ),
                                       side: const BorderSide(
@@ -436,15 +438,17 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                   ),
                                   child: Checkbox(
                                     value: isSelected.contains(
-                                      wasteNorm.wasteNormId,
+                                      waveCrest.waveCrestCoefficientId,
                                     ),
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
-                                          isSelected.add(wasteNorm.wasteNormId);
+                                          isSelected.add(
+                                            waveCrest.waveCrestCoefficientId,
+                                          );
                                         } else {
                                           isSelected.remove(
-                                            wasteNorm.wasteNormId,
+                                            waveCrest.waveCrestCoefficientId,
                                           );
                                         }
 
@@ -456,52 +460,48 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                 ),
                               ),
                               DataCell(
-                                styleCellAdmin(
-                                  '${wasteNorm.waveCrest.toString()}m',
-                                  (value) {
-                                    setState(() {
-                                      wasteNorm.waveCrest =
-                                          double.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
+                                styleCellAdmin(waveCrest.fluteE_1.toString(), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    waveCrest.fluteE_1 =
+                                        double.tryParse(value) ?? 0;
+                                  });
+                                }),
+                              ),
+                              DataCell(
+                                styleCellAdmin(waveCrest.fluteE_2.toString(), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    waveCrest.fluteE_2 =
+                                        double.tryParse(value) ?? 0;
+                                  });
+                                }),
+                              ),
+                              DataCell(
+                                styleCellAdmin(waveCrest.fluteB.toString(), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    waveCrest.fluteB =
+                                        double.tryParse(value) ?? 0;
+                                  });
+                                }),
+                              ),
+                              DataCell(
+                                styleCellAdmin(waveCrest.fluteC.toString(), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    waveCrest.fluteC =
+                                        double.tryParse(value) ?? 0;
+                                  });
+                                }),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${wasteNorm.waveCrestSoft.toString()}m',
-                                  (value) {
-                                    setState(() {
-                                      wasteNorm.waveCrestSoft =
-                                          double.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  '${wasteNorm.lossInProcess.toString()}%',
-                                  (value) {
-                                    setState(() {
-                                      wasteNorm.lossInProcess =
-                                          double.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  '${wasteNorm.lossInSheetingAndSlitting.toString()}m',
-                                  (value) {
-                                    setState(() {
-                                      wasteNorm.lossInSheetingAndSlitting =
-                                          double.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  wasteNorm.machineName.toString(),
+                                  waveCrest.machineName.toString(),
                                   null,
                                 ),
                               ),
@@ -520,7 +520,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
       floatingActionButton:
           isAccept
               ? FloatingActionButton(
-                onPressed: loadWasteNorm,
+                onPressed: loadWaveCrest,
                 backgroundColor: const Color(0xff78D761),
                 child: const Icon(Icons.refresh, color: Colors.white),
               )

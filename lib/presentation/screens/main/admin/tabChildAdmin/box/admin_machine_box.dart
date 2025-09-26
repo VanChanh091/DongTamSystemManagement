@@ -1,5 +1,5 @@
-import 'package:dongtam/data/controller/userController.dart';
-import 'package:dongtam/data/models/admin/admin_waveCrest_model.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
+import 'package:dongtam/data/models/admin/admin_machine_box_model.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -8,19 +8,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class AdminWaveCrest extends StatefulWidget {
-  const AdminWaveCrest({super.key});
+class AdminMachineBox extends StatefulWidget {
+  const AdminMachineBox({super.key});
 
   @override
-  State<AdminWaveCrest> createState() => AdminWaveCrestState();
+  State<AdminMachineBox> createState() => _AdminMachineBoxState();
 }
 
-class AdminWaveCrestState extends State<AdminWaveCrest> {
-  late Future<List<AdminWaveCrestModel>> futureAdminWaveCrest;
+class _AdminMachineBoxState extends State<AdminMachineBox> {
+  late Future<List<AdminMachineBoxModel>> futureAdminMachine;
   final userController = Get.find<UserController>();
-  int? selectedWaveCrest;
+  int? selectedMachine;
   List<int> isSelected = [];
-  List<AdminWaveCrestModel> updatedWaveCrest = [];
+  List<AdminMachineBoxModel> updatedMachine = [];
   bool selectedAll = false;
 
   @override
@@ -28,15 +28,15 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
     super.initState();
 
     if (userController.hasAnyRole(["admin"])) {
-      loadWaveCrest();
+      loadMachine();
     } else {
-      futureAdminWaveCrest = Future.error("NO_PERMISSION");
+      futureAdminMachine = Future.error("NO_PERMISSION");
     }
   }
 
-  void loadWaveCrest() {
+  void loadMachine() {
     setState(() {
-      futureAdminWaveCrest = AdminService().getAllWaveCrest();
+      futureAdminMachine = AdminService().getAllMachineBox();
     });
   }
 
@@ -73,7 +73,10 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                 // update
                                 AnimatedButton(
                                   onPressed: () async {
+                                    final localContext = context;
+
                                     if (isSelected.isEmpty) {
+                                      if (!mounted) return;
                                       showSnackBarError(
                                         context,
                                         "Chưa chọn thông tin cần cập nhật",
@@ -82,33 +85,34 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                     }
 
                                     final dataToUpdate =
-                                        updatedWaveCrest
+                                        updatedMachine
                                             .where(
                                               (item) => isSelected.contains(
-                                                item.waveCrestCoefficientId,
+                                                item.machineId,
                                               ),
                                             )
                                             .toList();
 
                                     for (final item in dataToUpdate) {
-                                      print(
-                                        '⏫ Updating waveCrestId: ${item.waveCrestCoefficientId}',
-                                      );
+                                      // print(
+                                      //   '⏫ Updating machineId: ${item.machineId}',
+                                      // );
 
-                                      await AdminService().updateWaveCrest(
-                                        item.waveCrestCoefficientId,
+                                      await AdminService().updateMachineBox(
+                                        item.machineId,
                                         {
-                                          "fluteE_1": item.fluteE_1,
-                                          "fluteE_2": item.fluteE_2,
-                                          "fluteB": item.fluteB,
-                                          "fluteC": item.fluteC,
+                                          "timeToProduct": item.timeToProduct,
+                                          "speedOfMachine": item.speedOfMachine,
                                           "machineName": item.machineName,
                                         },
                                       );
                                     }
-                                    loadWaveCrest();
+
+                                    if (!context.mounted) return;
+                                    loadMachine();
+
                                     showSnackBarSuccess(
-                                      context,
+                                      localContext,
                                       'Đã cập nhật thành công',
                                     );
                                   },
@@ -234,7 +238,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                                                     for (int id
                                                                         in isSelected) {
                                                                       await AdminService()
-                                                                          .deleteWaveCrest(
+                                                                          .deleteMachineBox(
                                                                             id,
                                                                           );
                                                                     }
@@ -246,12 +250,17 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                                                       ),
                                                                     );
 
+                                                                    if (!context
+                                                                        .mounted) {
+                                                                      return;
+                                                                    }
+
                                                                     setState(() {
                                                                       isSelected
                                                                           .clear();
-                                                                      futureAdminWaveCrest =
+                                                                      futureAdminMachine =
                                                                           AdminService()
-                                                                              .getAllWaveCrest();
+                                                                              .getAllMachineBox();
                                                                     });
 
                                                                     Navigator.pop(
@@ -299,8 +308,8 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: FutureBuilder<List<AdminWaveCrestModel>>(
-                  future: futureAdminWaveCrest,
+                child: FutureBuilder<List<AdminMachineBoxModel>>(
+                  future: futureAdminMachine,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -342,7 +351,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                     }
 
                     final data = snapshot.data!;
-                    updatedWaveCrest = data;
+                    updatedMachine = data;
 
                     return SingleChildScrollView(
                       scrollDirection: Axis.vertical,
@@ -356,18 +365,15 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor:
-                                      MaterialStateProperty.resolveWith<Color>((
-                                        states,
-                                      ) {
-                                        if (states.contains(
-                                          MaterialState.selected,
-                                        )) {
-                                          return Colors.red;
-                                        }
-                                        return Colors.white;
-                                      }),
-                                  checkColor: MaterialStateProperty.all<Color>(
+                                  fillColor: WidgetStateProperty.resolveWith<
+                                    Color
+                                  >((states) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return Colors.red;
+                                    }
+                                    return Colors.white;
+                                  }),
+                                  checkColor: WidgetStateProperty.all<Color>(
                                     Colors.white,
                                   ),
                                   side: const BorderSide(
@@ -383,11 +389,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                     selectedAll = value!;
                                     if (selectedAll) {
                                       isSelected =
-                                          data
-                                              .map(
-                                                (e) => e.waveCrestCoefficientId,
-                                              )
-                                              .toList();
+                                          data.map((e) => e.machineId).toList();
                                     } else {
                                       isSelected.clear();
                                     }
@@ -396,14 +398,12 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                               ),
                             ),
                           ),
-                          DataColumn(label: styleText("Đầu E1")),
-                          DataColumn(label: styleText("Đầu E2")),
-                          DataColumn(label: styleText("Đầu B")),
-                          DataColumn(label: styleText("Đầu C")),
+                          DataColumn(label: styleText("Thời Gian Lên Bài")),
+                          DataColumn(label: styleText("Tốc Độ Máy")),
                           DataColumn(label: styleText("Loại Máy")),
                         ],
                         rows: List<DataRow>.generate(data.length, (index) {
-                          final waveCrest = data[index];
+                          final machine = data[index];
                           return DataRow(
                             cells: [
                               DataCell(
@@ -411,18 +411,18 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
                                       fillColor:
-                                          MaterialStateProperty.resolveWith<
+                                          WidgetStateProperty.resolveWith<
                                             Color
                                           >((states) {
                                             if (states.contains(
-                                              MaterialState.selected,
+                                              WidgetState.selected,
                                             )) {
                                               return Colors.red;
                                             }
                                             return Colors.white;
                                           }),
                                       checkColor:
-                                          MaterialStateProperty.all<Color>(
+                                          WidgetStateProperty.all<Color>(
                                             Colors.white,
                                           ),
                                       side: const BorderSide(
@@ -433,18 +433,14 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                   ),
                                   child: Checkbox(
                                     value: isSelected.contains(
-                                      waveCrest.waveCrestCoefficientId,
+                                      machine.machineId,
                                     ),
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
-                                          isSelected.add(
-                                            waveCrest.waveCrestCoefficientId,
-                                          );
+                                          isSelected.add(machine.machineId);
                                         } else {
-                                          isSelected.remove(
-                                            waveCrest.waveCrestCoefficientId,
-                                          );
+                                          isSelected.remove(machine.machineId);
                                         }
 
                                         selectedAll =
@@ -455,48 +451,32 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                 ),
                               ),
                               DataCell(
-                                styleCellAdmin(waveCrest.fluteE_1.toString(), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    waveCrest.fluteE_1 =
-                                        double.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(waveCrest.fluteE_2.toString(), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    waveCrest.fluteE_2 =
-                                        double.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(waveCrest.fluteB.toString(), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    waveCrest.fluteB =
-                                        double.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(waveCrest.fluteC.toString(), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    waveCrest.fluteC =
-                                        double.tryParse(value) ?? 0;
-                                  });
-                                }),
+                                styleCellAdmin(
+                                  '${machine.timeToProduct.toString()} phút',
+                                  (value) {
+                                    setState(() {
+                                      machine.timeToProduct =
+                                          int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  waveCrest.machineName.toString(),
+                                  machine.speedOfMachine == 0
+                                      ? "0"
+                                      : '${machine.speedOfMachine.toString()} tờ/giờ',
+                                  (value) {
+                                    setState(() {
+                                      machine.speedOfMachine =
+                                          int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  machine.machineName.toString(),
                                   null,
                                 ),
                               ),
@@ -515,11 +495,15 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
       floatingActionButton:
           isAccept
               ? FloatingActionButton(
-                onPressed: loadWaveCrest,
+                onPressed: loadMachine,
                 backgroundColor: const Color(0xff78D761),
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,
     );
+  }
+
+  String showText(dynamic text) {
+    return text == 0 ? "0" : '$text m/phút';
   }
 }

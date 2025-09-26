@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:file_picker/file_picker.dart';
@@ -89,6 +90,7 @@ class _ProductDialogState extends State<ProductDialog> {
           newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
+        if (!mounted) return; // check context
         showSnackBarSuccess(context, 'Thêm thành công');
       } else {
         // Update existing product
@@ -97,13 +99,16 @@ class _ProductDialogState extends State<ProductDialog> {
           newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
+        if (!mounted) return;
         showSnackBarSuccess(context, 'Cập nhật thành công');
       }
 
+      if (!mounted) return;
       widget.onProductAddOrUpdate();
       Navigator.of(context).pop();
-    } catch (e) {
-      print("Error: $e");
+    } catch (e, s) {
+      if (!mounted) return;
+      AppLogger.e("Lỗi khi thêm/sửa sản phẩm", error: e, stackTrace: s);
       showSnackBarError(context, 'Lỗi: không thể lưu dữ liệu');
     }
 

@@ -1,4 +1,5 @@
 import 'package:dongtam/service/report_planning_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -80,6 +81,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
           reportBoxId: widget.selectedReportId,
           machine: widget.machine,
         );
+        if (!mounted) return; // check context
       } else {
         await ReportPlanningService().exportExcelReportPaper(
           fromDate: selectedRange?.start,
@@ -87,13 +89,16 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
           reportPaperId: widget.selectedReportId,
           machine: widget.machine,
         );
+        if (!mounted) return; // check context
       }
-
       showSnackBarSuccess(context, "Lưu thành công");
+
+      if (!mounted) return; // check context
       widget.onPlanningIdsOrRangeDate();
       Navigator.of(context).pop();
-    } catch (e) {
-      print("Error: $e");
+    } catch (e, s) {
+      if (!mounted) return; // check context
+      AppLogger.e("Lỗi khi xuất báo cáo", error: e, stackTrace: s);
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }
   }

@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:dongtam/constant/appInfo.dart';
-import 'package:dongtam/data/models/admin/admin_machineBox_model.dart';
-import 'package:dongtam/data/models/admin/admin_machinePaper_model.dart';
-import 'package:dongtam/data/models/admin/admin_wasteNorm_model.dart';
+import 'package:dongtam/constant/app_info.dart';
+import 'package:dongtam/data/models/admin/admin_machine_box_model.dart';
+import 'package:dongtam/data/models/admin/admin_machine_paper_model.dart';
+import 'package:dongtam/data/models/admin/admin_waste_norm_model.dart';
 import 'package:dongtam/data/models/admin/admin_waste_box_model.dart';
-import 'package:dongtam/data/models/admin/admin_waveCrest_model.dart';
+import 'package:dongtam/data/models/admin/admin_wave_crest_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';

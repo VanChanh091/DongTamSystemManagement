@@ -1,6 +1,6 @@
-import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_machinePaper.dart';
-import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_wasteNorm.dart';
-import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_waveCrest.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_machine_paper.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_waste_norm.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_wave_crest.dart';
 import 'package:flutter/material.dart';
 
 class TopTabAdminPaper extends StatefulWidget {

@@ -28,7 +28,7 @@ class PaginationControls extends StatelessWidget {
               backgroundColor: const Color(0xff78D761),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              shadowColor: Colors.black.withOpacity(0.2),
+              shadowColor: Colors.black.withValues(alpha: 0.2),
               elevation: 5,
             ),
             child: const Text(
@@ -54,7 +54,7 @@ class PaginationControls extends StatelessWidget {
               backgroundColor: const Color(0xff78D761),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              shadowColor: Colors.black.withOpacity(0.2),
+              shadowColor: Colors.black.withValues(alpha: 0.2),
               elevation: 5,
             ),
             child: const Text(

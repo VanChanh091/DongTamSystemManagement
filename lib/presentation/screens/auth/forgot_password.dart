@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:dongtam/presentation/components/step_Items.dart';
+import 'package:dongtam/presentation/components/step_items.dart';
 import 'package:dongtam/presentation/screens/auth/reset_password.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
@@ -27,14 +27,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   @override
   void initState() {
     super.initState();
-  }
-
-  Future<void> fetchAllUser() async {
-    try {
-      // authService.getal
-    } catch (e) {
-      print("Lỗi lấy danh sách user: $e");
-    }
   }
 
   void startTimer() {
@@ -65,6 +57,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
     bool success = await authService.sendOTP(emailController.text);
 
+    if (!mounted) return;
+
     if (success) {
       showSnackBarSuccess(context, 'Đã gửi OTP');
       startTimer();
@@ -78,6 +72,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       emailController.text,
       otpController.text,
     );
+    if (!mounted) return;
     if (success) {
       showSnackBarSuccess(context, 'Xác thực OTP thành công');
       Navigator.push(

@@ -10,6 +10,7 @@ import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:get/get.dart';
@@ -216,8 +217,8 @@ class _OrderDialogState extends State<OrderDialog> {
           showSnackBarError(context, 'Không tìm thấy khách hàng');
         }
       }
-    } catch (e) {
-      print("Error: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tìm khách hàng", error: e, stackTrace: s);
     }
   }
 
@@ -247,8 +248,8 @@ class _OrderDialogState extends State<OrderDialog> {
           showSnackBarError(context, "Không tìm thấy sản phẩm");
         }
       }
-    } catch (e) {
-      print("Error: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tìm sản phẩm", error: e, stackTrace: s);
     }
   }
 
@@ -288,16 +289,16 @@ class _OrderDialogState extends State<OrderDialog> {
       );
 
       allCustomers = result['customers'] as List<Customer>;
-    } catch (e) {
-      print("Lỗi lấy danh sách khách hàng: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
     }
   }
 
   Future<void> fetchAllProduct() async {
     try {
       allProducts = await ProductService().getAllProducts(false);
-    } catch (e) {
-      print("Lỗi lấy danh sách khách hàng: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tải danh sách sản phẩm", error: e, stackTrace: s);
     }
   }
 
@@ -457,24 +458,26 @@ class _OrderDialogState extends State<OrderDialog> {
     try {
       if (widget.order == null) {
         await OrderService().addOrders(newOrder.toJson());
-
+        if (!mounted) return; // check context
         showSnackBarSuccess(context, "Lưu thành công");
       } else {
         await OrderService().updateOrderById(
           originalOrderId,
           newOrder.toJson(),
         );
-
+        if (!mounted) return; // check context
         showSnackBarSuccess(context, 'Cập nhật thành công');
       }
 
       //fetch lại badge sau khi add/update
       badgesController.fetchPendingApprovals();
 
+      if (!mounted) return; // check context
       widget.onOrderAddOrUpdate();
       Navigator.of(context).pop();
-    } catch (e) {
-      print("Error: $e");
+    } catch (e, s) {
+      if (!mounted) return; // check context
+      AppLogger.e("Lỗi khi thêm/sửa đơn hàng", error: e, stackTrace: s);
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }
   }

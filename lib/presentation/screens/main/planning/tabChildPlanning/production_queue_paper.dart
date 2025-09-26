@@ -1,13 +1,14 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_change_machine.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
-import 'package:dongtam/presentation/sources/machine_paper_dataSource.dart';
+import 'package:dongtam/presentation/sources/machine_paper_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -493,6 +494,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                                 parsedTotalTime,
                                                               );
 
+                                                      if (!context.mounted) {
+                                                        return;
+                                                      }
+
                                                       if (result) {
                                                         showSnackBarSuccess(
                                                           context,
@@ -500,12 +505,16 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                         );
                                                         loadPlanning(true);
                                                       }
-                                                    } catch (e) {
+                                                    } catch (e, s) {
                                                       showSnackBarError(
                                                         context,
                                                         "Lỗi cập nhật",
                                                       );
-                                                      print("Lỗi khi lưu: $e");
+                                                      AppLogger.e(
+                                                        "Lỗi khi lưu",
+                                                        error: e,
+                                                        stackTrace: s,
+                                                      );
                                                     } finally {
                                                       setState(
                                                         () => isLoading = false,
@@ -608,6 +617,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             return;
                                           }
                                           final planning = await futurePlanning;
+
+                                          if (!context.mounted) return;
 
                                           showDialog(
                                             context: context,
@@ -1001,11 +1012,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
           status,
         );
 
+        if (!context.mounted) return;
         if (success) {
           showSnackBarSuccess(context, successMessage);
           onSuccess();
         }
       } catch (e) {
+        if (!context.mounted) return;
         showSnackBarError(context, errorMessage);
       }
     }

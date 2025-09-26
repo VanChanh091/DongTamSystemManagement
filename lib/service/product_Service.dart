@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart';
-import 'package:dongtam/constant/appInfo.dart';
+import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'dart:convert';

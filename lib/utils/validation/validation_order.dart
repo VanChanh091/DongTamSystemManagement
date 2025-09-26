@@ -12,13 +12,13 @@ class ValidationOrder {
         return Theme(
           data: Theme.of(context).copyWith(
             checkboxTheme: CheckboxThemeData(
-              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-                if (states.contains(MaterialState.selected)) {
+              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                if (states.contains(WidgetState.selected)) {
                   return Colors.red; // nền trắng khi chọn
                 }
                 return Colors.white; // nền trắng khi không chọn
               }),
-              checkColor: MaterialStateProperty.all<Color>(Colors.white),
+              checkColor: WidgetStateProperty.all<Color>(Colors.white),
               side: const BorderSide(color: Colors.black, width: 1),
             ),
           ),

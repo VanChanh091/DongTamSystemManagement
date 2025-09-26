@@ -1,5 +1,5 @@
-import 'package:dongtam/data/controller/userController.dart';
-import 'package:dongtam/data/models/admin/admin_machineBox_model.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
+import 'package:dongtam/data/models/admin/admin_machine_paper_model.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -8,19 +8,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class AdminMachineBox extends StatefulWidget {
-  const AdminMachineBox({super.key});
+class AdminMachinePaper extends StatefulWidget {
+  const AdminMachinePaper({super.key});
 
   @override
-  State<AdminMachineBox> createState() => _AdminMachineBoxState();
+  State<AdminMachinePaper> createState() => _AdminMachinePaperState();
 }
 
-class _AdminMachineBoxState extends State<AdminMachineBox> {
-  late Future<List<AdminMachineBoxModel>> futureAdminMachine;
+class _AdminMachinePaperState extends State<AdminMachinePaper> {
+  late Future<List<AdminMachinePaperModel>> futureAdminMachine;
   final userController = Get.find<UserController>();
   int? selectedMachine;
   List<int> isSelected = [];
-  List<AdminMachineBoxModel> updatedMachine = [];
+  List<AdminMachinePaperModel> updatedMachine = [];
   bool selectedAll = false;
 
   @override
@@ -36,7 +36,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
 
   void loadMachine() {
     setState(() {
-      futureAdminMachine = AdminService().getAllMachineBox();
+      futureAdminMachine = AdminService().getAllMachinePaper();
     });
   }
 
@@ -91,19 +91,31 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                             .toList();
 
                                     for (final item in dataToUpdate) {
-                                      print(
-                                        '⏫ Updating machineId: ${item.machineId}',
-                                      );
+                                      // print(
+                                      //   '⏫ Updating machineId: ${item.machineId}',
+                                      // );
 
-                                      await AdminService().updateMachineBox(
+                                      await AdminService().updateMachinePaper(
                                         item.machineId,
                                         {
-                                          "timeToProduct": item.timeToProduct,
-                                          "speedOfMachine": item.speedOfMachine,
+                                          "timeChangeSize": item.timeChangeSize,
+                                          "timeChangeSameSize":
+                                              item.timeChangeSameSize,
+                                          "speed2Layer": item.speed2Layer,
+                                          "speed3Layer": item.speed3Layer,
+                                          "speed4Layer": item.speed4Layer,
+                                          "speed5Layer": item.speed5Layer,
+                                          "speed6Layer": item.speed6Layer,
+                                          "speed7Layer": item.speed7Layer,
+                                          "paperRollSpeed": item.paperRollSpeed,
+                                          "machinePerformance":
+                                              item.machinePerformance,
                                           "machineName": item.machineName,
                                         },
                                       );
                                     }
+
+                                    if (!context.mounted) return;
 
                                     loadMachine();
 
@@ -234,7 +246,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                                     for (int id
                                                                         in isSelected) {
                                                                       await AdminService()
-                                                                          .deleteMachineBox(
+                                                                          .deleteMachinePaper(
                                                                             id,
                                                                           );
                                                                     }
@@ -246,12 +258,17 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                                       ),
                                                                     );
 
+                                                                    if (!context
+                                                                        .mounted) {
+                                                                      return;
+                                                                    }
+
                                                                     setState(() {
                                                                       isSelected
                                                                           .clear();
                                                                       futureAdminMachine =
                                                                           AdminService()
-                                                                              .getAllMachineBox();
+                                                                              .getAllMachinePaper();
                                                                     });
 
                                                                     Navigator.pop(
@@ -285,7 +302,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                           : null,
                                   label: "Xóa",
                                   icon: Icons.delete,
-                                  backgroundColor: Color(0xffEA4346),
+                                  backgroundColor: const Color(0xffEA4346),
                                 ),
                               ],
                             ),
@@ -299,7 +316,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: FutureBuilder<List<AdminMachineBoxModel>>(
+                child: FutureBuilder<List<AdminMachinePaperModel>>(
                   future: futureAdminMachine,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -356,18 +373,15 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor:
-                                      MaterialStateProperty.resolveWith<Color>((
-                                        states,
-                                      ) {
-                                        if (states.contains(
-                                          MaterialState.selected,
-                                        )) {
-                                          return Colors.red;
-                                        }
-                                        return Colors.white;
-                                      }),
-                                  checkColor: MaterialStateProperty.all<Color>(
+                                  fillColor: WidgetStateProperty.resolveWith<
+                                    Color
+                                  >((states) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return Colors.red;
+                                    }
+                                    return Colors.white;
+                                  }),
+                                  checkColor: WidgetStateProperty.all<Color>(
                                     Colors.white,
                                   ),
                                   side: const BorderSide(
@@ -392,8 +406,16 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                               ),
                             ),
                           ),
-                          DataColumn(label: styleText("Thời Gian Lên Bài")),
-                          DataColumn(label: styleText("Tốc Độ Máy")),
+                          DataColumn(label: styleText("Tgian đổi khổ")),
+                          DataColumn(label: styleText("Tgian đổi cùng khổ")),
+                          DataColumn(label: styleText("Tốc độ 2 lớp")),
+                          DataColumn(label: styleText("Tốc độ 3 lớp")),
+                          DataColumn(label: styleText("Tốc độ 4 lớp")),
+                          DataColumn(label: styleText("Tốc độ 5 lớp")),
+                          DataColumn(label: styleText("Tốc độ 6 lớp")),
+                          DataColumn(label: styleText("Tốc độ 7 lớp")),
+                          DataColumn(label: styleText("Tốc độ quấn cuồn")),
+                          DataColumn(label: styleText("Hiệu suất")),
                           DataColumn(label: styleText("Loại Máy")),
                         ],
                         rows: List<DataRow>.generate(data.length, (index) {
@@ -405,18 +427,18 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
                                       fillColor:
-                                          MaterialStateProperty.resolveWith<
+                                          WidgetStateProperty.resolveWith<
                                             Color
                                           >((states) {
                                             if (states.contains(
-                                              MaterialState.selected,
+                                              WidgetState.selected,
                                             )) {
                                               return Colors.red;
                                             }
                                             return Colors.white;
                                           }),
                                       checkColor:
-                                          MaterialStateProperty.all<Color>(
+                                          WidgetStateProperty.all<Color>(
                                             Colors.white,
                                           ),
                                       side: const BorderSide(
@@ -446,10 +468,10 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${machine.timeToProduct.toString()} phút',
+                                  '${machine.timeChangeSize.toString()} phút',
                                   (value) {
                                     setState(() {
-                                      machine.timeToProduct =
+                                      machine.timeChangeSize =
                                           int.tryParse(value) ?? 0;
                                     });
                                   },
@@ -457,13 +479,95 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  machine.speedOfMachine == 0
+                                  machine.timeChangeSameSize == 0
                                       ? "0"
-                                      : '${machine.speedOfMachine.toString()} tờ/giờ',
+                                      : '${machine.timeChangeSameSize.toString()} phút',
                                   (value) {
                                     setState(() {
-                                      machine.speedOfMachine =
+                                      machine.timeChangeSameSize =
                                           int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(showText(machine.speed2Layer), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    machine.speed2Layer =
+                                        int.tryParse(value) ?? 0;
+                                  });
+                                }),
+                              ),
+                              DataCell(
+                                styleCellAdmin(showText(machine.speed3Layer), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    machine.speed3Layer =
+                                        int.tryParse(value) ?? 0;
+                                  });
+                                }),
+                              ),
+                              DataCell(
+                                styleCellAdmin(showText(machine.speed4Layer), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    machine.speed4Layer =
+                                        int.tryParse(value) ?? 0;
+                                  });
+                                }),
+                              ),
+                              DataCell(
+                                styleCellAdmin(showText(machine.speed5Layer), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    machine.speed5Layer =
+                                        int.tryParse(value) ?? 0;
+                                  });
+                                }),
+                              ),
+                              DataCell(
+                                styleCellAdmin(showText(machine.speed6Layer), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    machine.speed6Layer =
+                                        int.tryParse(value) ?? 0;
+                                  });
+                                }),
+                              ),
+                              DataCell(
+                                styleCellAdmin(showText(machine.speed7Layer), (
+                                  value,
+                                ) {
+                                  setState(() {
+                                    machine.speed7Layer =
+                                        int.tryParse(value) ?? 0;
+                                  });
+                                }),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  showText(machine.paperRollSpeed),
+                                  (value) {
+                                    setState(() {
+                                      machine.paperRollSpeed =
+                                          int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  '${machine.machinePerformance}%',
+                                  (value) {
+                                    setState(() {
+                                      machine.machinePerformance =
+                                          double.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),

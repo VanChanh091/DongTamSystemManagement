@@ -1,5 +1,5 @@
-import 'package:dongtam/presentation/screens/main/order/tabChildOrder/orderAcceptAndPlanning.dart';
-import 'package:dongtam/presentation/screens/main/order/tabChildOrder/orderRejectAndPending.dart';
+import 'package:dongtam/presentation/screens/main/order/tabChildOrder/order_accept_planning.dart';
+import 'package:dongtam/presentation/screens/main/order/tabChildOrder/order_reject_pending.dart';
 import 'package:flutter/material.dart';
 
 class TopTabOrder extends StatefulWidget {

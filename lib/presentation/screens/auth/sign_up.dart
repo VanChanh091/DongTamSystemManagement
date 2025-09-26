@@ -57,6 +57,7 @@ class _SignUpState extends State<SignUp> {
     }
 
     bool success = await authService.sendOTP(emailController.text);
+    if (!mounted) return;
 
     if (success) {
       showSnackBarSuccess(context, "Đã gửi OTP");
@@ -79,6 +80,7 @@ class _SignUpState extends State<SignUp> {
       confirmPWController.text,
       otpController.text,
     );
+    if (!mounted) return;
 
     if (success) {
       showSnackBarSuccess(context, 'Đăng ký thành công');

@@ -238,14 +238,14 @@ class ReportBoxDatasource extends DataGridSource {
   @override
   Widget? buildGroupCaptionCellWidget(
     RowColumnIndex rowColumnIndex,
-    String groupName,
+    String summaryValue,
   ) {
     // Bắt ngày và số item, không phân biệt hoa thường
     final regex = RegExp(
       r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$',
       caseSensitive: false,
     );
-    final match = regex.firstMatch(groupName);
+    final match = regex.firstMatch(summaryValue);
 
     String displayDate = '';
     String itemCount = '';
@@ -293,7 +293,7 @@ class ReportBoxDatasource extends DataGridSource {
 
     Color backgroundColor;
     if (isSelected == true) {
-      backgroundColor = Colors.blue.withOpacity(0.3);
+      backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
       backgroundColor = Colors.transparent;
     }
@@ -341,13 +341,13 @@ class ReportBoxDatasource extends DataGridSource {
               final qtyStr = dataCell.value?.toString() ?? "0";
               final qty = int.tryParse(qtyStr) ?? 0;
               if (qty > 0) {
-                cellColor = Colors.amberAccent.withOpacity(0.3);
+                cellColor = Colors.amberAccent.withValues(alpha: 0.3);
               }
             }
 
             //highlight color for waste reported
             if (dataCell.columnName == 'wasteLossRp') {
-              cellColor = Colors.amberAccent.withOpacity(0.3);
+              cellColor = Colors.amberAccent.withValues(alpha: 0.3);
             }
 
             return Container(

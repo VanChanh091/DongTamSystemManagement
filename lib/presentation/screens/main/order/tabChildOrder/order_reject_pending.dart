@@ -1,13 +1,14 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_orders.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
-import 'package:dongtam/presentation/sources/order_dataSource.dart';
+import 'package:dongtam/presentation/sources/order_data_source.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -154,6 +155,8 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                     selectedOrderId,
                                               );
 
+                                          if (!context.mounted) return;
+
                                           showDialog(
                                             context: context,
                                             builder:
@@ -166,8 +169,12 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                       ),
                                                 ),
                                           );
-                                        } catch (e) {
-                                          print("Không tìm thấy đơn hàng: $e");
+                                        } catch (e, s) {
+                                          AppLogger.e(
+                                            "Lỗi không tìm thấy đơn hàng",
+                                            error: e,
+                                            stackTrace: s,
+                                          );
                                         }
                                       },
                               label: "Sửa",
@@ -299,6 +306,11 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                                         500,
                                                                   ),
                                                                 );
+
+                                                                if (!context
+                                                                    .mounted) {
+                                                                  return;
+                                                                }
 
                                                                 loadOrders(
                                                                   true,

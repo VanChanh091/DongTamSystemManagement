@@ -30,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
       emailController.text,
       passwordController.text,
     );
+    if (!mounted) return;
 
     if (success) {
       showSnackBarSuccess(context, 'Đăng nhập thành công');

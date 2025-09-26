@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/sidebar_controller.dart';
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
@@ -17,6 +17,7 @@ import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/presentation/screens/main/report/top_tab_report.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
@@ -100,7 +101,9 @@ class _HomePageState extends State<HomePage> {
       await authService.logout();
       sidebarController.reset();
 
+      if (!mounted) return;
       showSnackBarSuccess(context, 'Đăng xuất thành công');
+
       Navigator.pushAndRemoveUntil(
         context,
         PageTransition(
@@ -110,8 +113,8 @@ class _HomePageState extends State<HomePage> {
         ),
         (route) => false,
       );
-    } catch (e) {
-      print("Error logging out: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi đăng xuất", error: e, stackTrace: s);
     }
   }
 

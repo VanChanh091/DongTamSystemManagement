@@ -1,3 +1,4 @@
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 
 double toDouble(dynamic val) {
@@ -21,8 +22,12 @@ TimeOfDay parseTimeOfDay(dynamic timeValue) {
         final minute = int.tryParse(parts[1]) ?? 0;
         return TimeOfDay(hour: hour, minute: minute);
       }
-    } catch (e) {
-      print('⚠️ Error parsing time: $e for $timeValue');
+    } catch (e, s) {
+      AppLogger.e(
+        "⚠️ Error parsing time for $timeValue",
+        error: e,
+        stackTrace: s,
+      );
     }
   }
 

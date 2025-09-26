@@ -363,14 +363,14 @@ class MachinePaperDatasource extends DataGridSource {
   @override
   Widget? buildGroupCaptionCellWidget(
     RowColumnIndex rowColumnIndex,
-    String groupName,
+    String summaryValue,
   ) {
     // Bắt ngày và số item, không phân biệt hoa thường
     final regex = RegExp(
       r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$',
       caseSensitive: false,
     );
-    final match = regex.firstMatch(groupName);
+    final match = regex.firstMatch(summaryValue);
 
     String displayDate = '';
     String itemCount = '';
@@ -415,13 +415,13 @@ class MachinePaperDatasource extends DataGridSource {
 
     Color? rowColor;
     if (isSelected) {
-      rowColor = Colors.blue.withOpacity(0.3); //selected row
+      rowColor = Colors.blue.withValues(alpha: 0.3); //selected row
     } else if (sortPlanning > 0 && status == "producing") {
-      rowColor = Colors.orange.withOpacity(0.4); //confirm production
+      rowColor = Colors.orange.withValues(alpha: 0.4); //confirm production
     } else if (sortPlanning > 0 && status == "complete") {
-      rowColor = Colors.green.withOpacity(0.3); //have completed
+      rowColor = Colors.green.withValues(alpha: 0.3); //have completed
     } else if (sortPlanning == 0) {
-      rowColor = Colors.amberAccent.withOpacity(0.3); //no sorting
+      rowColor = Colors.amberAccent.withValues(alpha: 0.3); //no sorting
     }
 
     return DataGridRowAdapter(
@@ -432,12 +432,12 @@ class MachinePaperDatasource extends DataGridSource {
 
             if (dataCell.columnName == "qtyProduced" &&
                 qtyProduct < runningPlan) {
-              cellColor = Colors.red.withOpacity(0.5); //lack of qty
+              cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
             }
 
             if (dataCell.columnName == "qtyWastes" &&
                 qtyWastesVal > totalWasteLossVal) {
-              cellColor = Colors.red.withOpacity(0.5); //lack of qty
+              cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
             }
 
             return Container(

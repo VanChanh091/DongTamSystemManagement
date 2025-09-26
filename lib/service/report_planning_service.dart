@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:dongtam/constant/appInfo.dart';
+import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/data/models/report/report_planning_box.dart';
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:diacritic/diacritic.dart';
@@ -361,7 +362,6 @@ class ReportPlanningService {
         // Cho người dùng chọn thư mục lưu
         final dirPath = await FilePicker.platform.getDirectoryPath();
         if (dirPath == null) {
-          print("Người dùng đã hủy chọn thư mục");
           return null;
         }
 
@@ -374,11 +374,10 @@ class ReportPlanningService {
         await file.writeAsBytes(bytes, flush: true);
         return file;
       } else {
-        print("Export failed: ${response.statusCode}");
         return null;
       }
-    } catch (e) {
-      print("Error exportExcelReportPaper: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi xuất báo cáo giấy tấm", error: e, stackTrace: s);
       return null;
     }
   }
@@ -420,7 +419,6 @@ class ReportPlanningService {
         // Cho người dùng chọn thư mục lưu
         final dirPath = await FilePicker.platform.getDirectoryPath();
         if (dirPath == null) {
-          print("Người dùng đã hủy chọn thư mục");
           return null;
         }
 
@@ -435,11 +433,10 @@ class ReportPlanningService {
         await file.writeAsBytes(bytes, flush: true);
         return file;
       } else {
-        print("Export failed: ${response.statusCode}");
         return null;
       }
-    } catch (e) {
-      print("Error exportExcelReportPaper: $e");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi xuất báo cáo thùng", error: e, stackTrace: s);
       return null;
     }
   }

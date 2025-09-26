@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:dongtam/utils/validation/validation_planning.dart';
@@ -184,12 +185,15 @@ class _PLanningDialogState extends State<PLanningDialog> {
         'planning',
         newPlanning.toJson(),
       );
+      if (!mounted) return;
       showSnackBarSuccess(context, "Lưu thành công");
 
+      if (!mounted) return;
       widget.onPlanningOrder();
       Navigator.of(context).pop();
-    } catch (e) {
-      print("Error: $e");
+    } catch (e, s) {
+      if (!mounted) return;
+      AppLogger.e("Lỗi khi lên kế hoạch cho đơn hàng", error: e, stackTrace: s);
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }
   }

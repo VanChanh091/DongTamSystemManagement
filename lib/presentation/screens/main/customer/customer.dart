@@ -1,11 +1,12 @@
-import 'package:dongtam/data/controller/userController.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_customer.dart';
-import 'package:dongtam/presentation/sources/customer_dataSource.dart';
+import 'package:dongtam/presentation/sources/customer_data_source.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
@@ -281,22 +282,24 @@ class _CustomerPageState extends State<CustomerPage> {
                                   onPressed:
                                       isSale
                                           ? () async {
-                                            try {
-                                              if (selectedCustomerId == null ||
-                                                  selectedCustomerId!.isEmpty) {
-                                                showSnackBarError(
-                                                  context,
-                                                  'Vui lòng chọn sản phẩm cần sửa',
-                                                );
-                                                return;
-                                              }
+                                            if (selectedCustomerId == null ||
+                                                selectedCustomerId!.isEmpty) {
+                                              showSnackBarError(
+                                                context,
+                                                'Vui lòng chọn sản phẩm cần sửa',
+                                              );
+                                              return;
+                                            }
 
+                                            try {
                                               final result =
                                                   await CustomerService()
                                                       .getCustomerById(
                                                         customerId:
                                                             selectedCustomerId!,
                                                       );
+
+                                              if (!context.mounted) return;
 
                                               // Defensive null checks
                                               if (result['customers'] == null) {
@@ -331,9 +334,10 @@ class _CustomerPageState extends State<CustomerPage> {
                                                           ),
                                                     ),
                                               );
-                                            } catch (e, st) {
-                                              debugPrint(
-                                                "❌ Error in getCustomerById: $e\n$st",
+                                            } catch (e, s) {
+                                              AppLogger.e(
+                                                "Error in getCustomerById: $e",
+                                                stackTrace: s,
                                               );
                                               showSnackBarError(
                                                 context,
@@ -345,6 +349,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                   label: "Sửa",
                                   icon: Symbols.construction,
                                 ),
+
                                 const SizedBox(width: 10),
 
                                 //delete customers
@@ -559,6 +564,8 @@ class _CustomerPageState extends State<CustomerPage> {
                               selectedCustomerId = null;
                             });
                             loadCustomer(true);
+
+                            if (!context.mounted) return;
 
                             Navigator.pop(context);
                             showSnackBarSuccess(context, 'Xoá thành công');
