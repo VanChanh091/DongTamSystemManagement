@@ -7,6 +7,7 @@ import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -47,6 +48,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
       if (isSearching) {
         String keyword = searchController.text.trim().toLowerCase();
         String date = dateController.text.trim().toLowerCase();
+
+        AppLogger.d("loadReportBox | search keyword=$keyword | date=$date");
 
         if (searchType == 'Tên KH') {
           futureReportBox = ensureMinLoading(
@@ -119,7 +122,16 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   void searchReportPaper() {
     String keyword = searchController.text.trim().toLowerCase();
     String date = dateController.text.trim().toLowerCase();
-    if (isTextFieldEnabled && keyword.isEmpty) return;
+    AppLogger.i(
+      "searchReportBox => searchType=$searchType | keyword=$keyword | date=$date | machine=$machine",
+    );
+
+    if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w(
+        "searchReportBox => searchType=$searchType nhưng keyword rỗng",
+      );
+      return;
+    }
 
     currentPage = 1;
     if (searchType == "Tất cả") {
@@ -195,6 +207,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   }
 
   void changeMachine(String selectedMachine) {
+    AppLogger.i("changeMachine | from=$machine -> to=$selectedMachine");
     setState(() {
       machine = selectedMachine;
       selectedReportId.clear();
@@ -368,7 +381,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                   (_) => DialogSelectExportExcel(
                                     selectedReportId: selectedReportId,
                                     onPlanningIdsOrRangeDate:
-                                        () => loadReportBox(true),
+                                        () => loadReportBox(false),
                                     machine: machine,
                                     isBox: true,
                                   ),

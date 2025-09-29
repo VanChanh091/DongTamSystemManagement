@@ -122,54 +122,58 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   void orderInitState() {
-    originalOrderId = widget.order!.orderId;
-    orderIdController.text = widget.order!.orderId;
-    customerIdController.text = widget.order!.customerId;
-    productIdController.text = widget.order!.productId;
-    qcBoxController.text = widget.order!.QC_box.toString();
-    canLanController.text = widget.order!.canLan.toString();
-    dayController.text = widget.order!.day.toString();
-    matEController.text = widget.order!.matE.toString();
-    matBController.text = widget.order!.matB.toString();
-    matCController.text = widget.order!.matC.toString();
-    songEController.text = widget.order!.songE.toString();
-    songBController.text = widget.order!.songB.toString();
-    songCController.text = widget.order!.songC.toString();
-    songE2Controller.text = widget.order!.songE2.toString();
-    lengthCustomerController.text = widget.order!.lengthPaperCustomer
-        .toStringAsFixed(1);
-    lengthManufactureController.text = widget.order!.lengthPaperManufacture
-        .toStringAsFixed(1);
-    sizeCustomerController.text = widget.order!.paperSizeCustomer
-        .toStringAsFixed(1);
-    sizeManufactureController.text = widget.order!.paperSizeManufacture
-        .toStringAsFixed(1);
-    quantityCustomerController.text = widget.order!.quantityCustomer.toString();
-    quantityManufactureController.text =
-        widget.order!.quantityManufacture.toString();
-    numberChildController.text = widget.order!.numberChild.toString();
-    priceController.text = widget.order!.price.toString();
-    discountController.text =
-        widget.order!.discount?.toStringAsFixed(1) ?? '0.0';
-    profitController.text = widget.order!.profit.toStringAsFixed(1);
-    vatController.text = widget.order!.vat.toString();
-    instructSpecialController.text = widget.order!.instructSpecial.toString();
+    final order = widget.order!;
+    AppLogger.i("Khởi tạo form với orderId=${order.orderId}");
 
-    isBoxChecked = ValueNotifier<bool>(widget.order!.isBox);
+    originalOrderId = order.orderId;
+    orderIdController.text = order.orderId;
+    customerIdController.text = order.customerId;
+    productIdController.text = order.productId;
+    qcBoxController.text = order.QC_box.toString();
+    canLanController.text = order.canLan.toString();
+    dayController.text = order.day.toString();
+    matEController.text = order.matE.toString();
+    matBController.text = order.matB.toString();
+    matCController.text = order.matC.toString();
+    songEController.text = order.songE.toString();
+    songBController.text = order.songB.toString();
+    songCController.text = order.songC.toString();
+    songE2Controller.text = order.songE2.toString();
+    lengthCustomerController.text = order.lengthPaperCustomer.toStringAsFixed(
+      1,
+    );
+    lengthManufactureController.text = order.lengthPaperManufacture
+        .toStringAsFixed(1);
+    sizeCustomerController.text = order.paperSizeCustomer.toStringAsFixed(1);
+    sizeManufactureController.text = order.paperSizeManufacture.toStringAsFixed(
+      1,
+    );
+    quantityCustomerController.text = order.quantityCustomer.toString();
+    quantityManufactureController.text = order.quantityManufacture.toString();
+    numberChildController.text = order.numberChild.toString();
+    priceController.text = order.price.toString();
+    discountController.text = order.discount?.toStringAsFixed(1) ?? '0.0';
+    profitController.text = order.profit.toStringAsFixed(1);
+    vatController.text = order.vat.toString();
+    instructSpecialController.text = order.instructSpecial.toString();
+
+    isBoxChecked = ValueNotifier<bool>(order.isBox);
 
     //dropdown
-    typeDVT = widget.order!.dvt;
-    typeDaoXa = widget.order!.daoXa;
+    typeDVT = order.dvt;
+    typeDaoXa = order.daoXa;
 
     //date
-    dayReceive = widget.order!.dayReceiveOrder;
-    dateShipping = widget.order!.dateRequestShipping;
+    dayReceive = order.dayReceiveOrder;
+    dateShipping = order.dateRequestShipping;
     dateShippingController.text = DateFormat(
       'dd/MM/yyyy',
     ).format(dateShipping!);
   }
 
   void boxInitState() {
+    AppLogger.i("Khởi tạo form với orderId=${widget.order!.box!.boxId}");
+
     final box = widget.order!.box;
     if (box == null) return;
 
@@ -201,6 +205,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
       if (customerData.isNotEmpty) {
         final customer = customerData.first;
+
         if (mounted) {
           setState(() {
             customerNameController.text = customer.customerName;
@@ -208,6 +213,7 @@ class _OrderDialogState extends State<OrderDialog> {
           });
         }
       } else {
+        AppLogger.w("Không tìm thấy khách hàng với id=$customerId");
         if (mounted) {
           setState(() {
             customerNameController.clear();
@@ -218,18 +224,22 @@ class _OrderDialogState extends State<OrderDialog> {
         }
       }
     } catch (e, s) {
-      AppLogger.e("Lỗi khi tìm khách hàng", error: e, stackTrace: s);
+      AppLogger.e(
+        "Lỗi khi tìm khách hàng id=$customerId",
+        error: e,
+        stackTrace: s,
+      );
     }
   }
 
   Future<void> getProductById(String productId) async {
     try {
       final products = await ProductService().getProductById(productId);
-
       if (productId != lastSearchedProductId) return;
 
       if (products.isNotEmpty) {
         final product = products.first;
+
         if (mounted) {
           setState(() {
             typeProduct.text = product.typeProduct;
@@ -238,6 +248,7 @@ class _OrderDialogState extends State<OrderDialog> {
           });
         }
       } else {
+        AppLogger.w("Không tìm thấy khách hàng với id=$productId");
         if (mounted) {
           setState(() {
             nameSpController.clear();
@@ -249,7 +260,11 @@ class _OrderDialogState extends State<OrderDialog> {
         }
       }
     } catch (e, s) {
-      AppLogger.e("Lỗi khi tìm sản phẩm", error: e, stackTrace: s);
+      AppLogger.e(
+        "Lỗi khi tìm sản phẩm id=$productId",
+        error: e,
+        stackTrace: s,
+      );
     }
   }
 
@@ -261,6 +276,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
     _customerIdDebounce = Timer(Duration(milliseconds: 800), () {
       if (input.isNotEmpty) {
+        AppLogger.i("Trigger search customerId=$input");
         lastSearchedCustomerId = input;
         getCustomerById(input);
       }
@@ -275,6 +291,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
     _productIdDebounce = Timer(Duration(milliseconds: 800), () {
       if (input.isNotEmpty) {
+        AppLogger.i("Trigger search productId=$input");
         lastSearchedProductId = input;
         getProductById(input);
       }
@@ -289,6 +306,7 @@ class _OrderDialogState extends State<OrderDialog> {
       );
 
       allCustomers = result['customers'] as List<Customer>;
+      AppLogger.i("Fetch thành công tất cả khách hàng");
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
     }
@@ -297,6 +315,7 @@ class _OrderDialogState extends State<OrderDialog> {
   Future<void> fetchAllProduct() async {
     try {
       allProducts = await ProductService().getAllProducts(false);
+      AppLogger.i("Fetch thành công tất cả sản phẩm");
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách sản phẩm", error: e, stackTrace: s);
     }
@@ -309,6 +328,9 @@ class _OrderDialogState extends State<OrderDialog> {
   ) {
     fieldController.addListener(() {
       if (fieldController.text != fieldControllerReplace.text) {
+        AppLogger.i(
+          "Đồng bộ field '${fieldController.text}' → '${fieldControllerReplace.text}'",
+        );
         fieldControllerReplace.text = fieldController.text;
       }
     });
@@ -331,7 +353,10 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   void submit() async {
-    if (!formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) {
+      AppLogger.w("Form không hợp lệ, dừng submit");
+      return;
+    }
     final prefix = orderIdController.text.toUpperCase();
 
     double totalAcreage =
@@ -457,14 +482,18 @@ class _OrderDialogState extends State<OrderDialog> {
 
     try {
       if (widget.order == null) {
+        AppLogger.i("Thêm đơn hàng mới: ${newOrder.orderId}");
         await OrderService().addOrders(newOrder.toJson());
+
         if (!mounted) return; // check context
         showSnackBarSuccess(context, "Lưu thành công");
       } else {
+        AppLogger.i("Cập nhật đơn hàng: ${newOrder.orderId}");
         await OrderService().updateOrderById(
           originalOrderId,
           newOrder.toJson(),
         );
+
         if (!mounted) return; // check context
         showSnackBarSuccess(context, 'Cập nhật thành công');
       }
@@ -472,11 +501,11 @@ class _OrderDialogState extends State<OrderDialog> {
       //fetch lại badge sau khi add/update
       badgesController.fetchPendingApprovals();
 
-      if (!mounted) return; // check context
+      if (!mounted) return;
       widget.onOrderAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e, s) {
-      if (!mounted) return; // check context
+      if (!mounted) return;
       AppLogger.e("Lỗi khi thêm/sửa đơn hàng", error: e, stackTrace: s);
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }

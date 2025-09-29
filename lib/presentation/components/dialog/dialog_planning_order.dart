@@ -94,33 +94,34 @@ class _PLanningDialogState extends State<PLanningDialog> {
   }
 
   void orderInitState() {
-    originalOrderId = widget.order!.orderId;
-    orderIdController.text = widget.order!.orderId;
-    customerNameController.text = widget.order!.customer!.customerName;
-    companyNameController.text = widget.order!.customer!.companyName;
-    dayOrderController.text = widget.order!.day.toString();
-    matEOrderController.text = widget.order!.matE.toString();
-    matBOrderController.text = widget.order!.matB.toString();
-    matCOrderController.text = widget.order!.matC.toString();
-    songEOrderController.text = widget.order!.songE.toString();
-    songBOrderController.text = widget.order!.songB.toString();
-    songCOrderController.text = widget.order!.songC.toString();
-    songE2OrderController.text = widget.order!.songE2.toString();
-    songController.text = widget.order!.flute.toString();
-    qcBoxController.text = widget.order!.QC_box.toString();
-    instructSpecialController.text = widget.order!.instructSpecial.toString();
-    daoXaOrderController.text = widget.order!.daoXa.toString();
-    lengthOrderController.text = widget.order!.lengthPaperManufacture
-        .toStringAsFixed(1);
-    sizeOrderController.text = widget.order!.paperSizeManufacture
-        .toStringAsFixed(1);
-    quantityOrderController.text = widget.order!.quantityManufacture.toString();
-    totalPriceOrderController.text = widget.order!.totalPrice.toStringAsFixed(
+    final order = widget.order!;
+    AppLogger.i("Khởi tạo form với orderId=${order.orderId}");
+
+    originalOrderId = order.orderId;
+    orderIdController.text = order.orderId;
+    customerNameController.text = order.customer!.customerName;
+    companyNameController.text = order.customer!.companyName;
+    dayOrderController.text = order.day.toString();
+    matEOrderController.text = order.matE.toString();
+    matBOrderController.text = order.matB.toString();
+    matCOrderController.text = order.matC.toString();
+    songEOrderController.text = order.songE.toString();
+    songBOrderController.text = order.songB.toString();
+    songCOrderController.text = order.songC.toString();
+    songE2OrderController.text = order.songE2.toString();
+    songController.text = order.flute.toString();
+    qcBoxController.text = order.QC_box.toString();
+    instructSpecialController.text = order.instructSpecial.toString();
+    daoXaOrderController.text = order.daoXa.toString();
+    lengthOrderController.text = order.lengthPaperManufacture.toStringAsFixed(
       1,
     );
+    sizeOrderController.text = order.paperSizeManufacture.toStringAsFixed(1);
+    quantityOrderController.text = order.quantityManufacture.toString();
+    totalPriceOrderController.text = order.totalPrice.toStringAsFixed(1);
 
     //date
-    dateShipping = widget.order!.dateRequestShipping;
+    dateShipping = order.dateRequestShipping;
     dateShippingController.text = DateFormat(
       'dd/MM/yyyy',
     ).format(dateShipping!);
@@ -152,7 +153,10 @@ class _PLanningDialogState extends State<PLanningDialog> {
   }
 
   void submit() async {
-    if (!formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) {
+      AppLogger.w("Form không hợp lệ, dừng submit");
+      return;
+    }
 
     final newPlanning = PlanningPaper(
       planningId: 0,
@@ -180,11 +184,13 @@ class _PLanningDialogState extends State<PLanningDialog> {
     );
 
     try {
+      AppLogger.i("Lên kế hoạch cho 1 đơn hàng mới: $originalOrderId");
       await PlanningService().planningOrder(
         originalOrderId,
         'planning',
         newPlanning.toJson(),
       );
+
       if (!mounted) return;
       showSnackBarSuccess(context, "Lưu thành công");
 

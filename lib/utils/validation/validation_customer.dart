@@ -40,6 +40,8 @@ class ValidationCustomer {
                 label == "Tên công ty" ||
                 label == "Địa chỉ công ty" ||
                 label == "Địa chỉ giao hàng" ||
+                label == "Hạn Mức Công Nợ" ||
+                label == "Hạn Thanh Toán" ||
                 label == "CSKH") &&
             (value == null || value.isEmpty)) {
           return 'Vui lòng nhập $label';
@@ -60,6 +62,12 @@ class ValidationCustomer {
             return 'Số điện thoại chỉ được chứa chữ số';
           }
         }
+
+        // if (label == "Hạn Mức Công Nợ" && value != null && value.isNotEmpty) {
+        //   if (!RegExp(r'^\d+$').hasMatch(value)) {
+        //     return 'Hạn Mức Công Nợ chỉ được chứa chữ số';
+        //   }
+        // }
 
         if (label == "MST" && value != null && value.isNotEmpty) {
           final trimmed = value.replaceAll(RegExp(r'\s+'), '');

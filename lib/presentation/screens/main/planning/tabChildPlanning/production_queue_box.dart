@@ -80,8 +80,12 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
   void searchPlanning() {
     String keyword = searchController.text.trim().toLowerCase();
+    AppLogger.i(
+      "searchBox => searchType=$searchType | keyword=$keyword | machine=$machine",
+    );
 
     if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w("searchBox => searchType=$searchType nhưng keyword rỗng");
       return;
     }
 
@@ -114,6 +118,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   }
 
   void changeMachine(String selectedMachine) {
+    AppLogger.i("changeMachineBox | from=$machine -> to=$selectedMachine");
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();

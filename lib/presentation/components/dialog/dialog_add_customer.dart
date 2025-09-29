@@ -26,7 +26,9 @@ class _CustomerDialogState extends State<CustomerDialog> {
   final formKey = GlobalKey<FormState>();
   List<Customer> allCustomers = [];
   bool isLoading = true;
+  final List<String> itemRating = ["Xấu", "Bình Thường", "Tốt", "VIP"];
 
+  late String typeRating = "Bình Thường";
   final _idController = TextEditingController();
   final _nameController = TextEditingController();
   final _companyNameController = TextEditingController();
@@ -37,7 +39,11 @@ class _CustomerDialogState extends State<CustomerDialog> {
   final _cskhController = TextEditingController();
   final _contactPersonController = TextEditingController();
   final _dayCreatedController = TextEditingController();
+  final _debtLimitController = TextEditingController();
+  final _timePaymentController = TextEditingController();
+  final _rateCustomerController = TextEditingController();
   DateTime? dayCreated;
+  DateTime? timePayment;
 
   @override
   void initState() {
@@ -49,19 +55,27 @@ class _CustomerDialogState extends State<CustomerDialog> {
   }
 
   void customerInitState() {
-    _idController.text = widget.customer!.customerId;
-    _nameController.text = widget.customer!.customerName;
-    _companyNameController.text = widget.customer!.companyName;
-    _companyAddressController.text = widget.customer!.companyAddress;
-    _shippingAddressController.text = widget.customer!.shippingAddress;
-    _mstController.text = widget.customer!.mst;
-    _phoneController.text = widget.customer!.phone;
-    _cskhController.text = widget.customer!.cskh;
-    _contactPersonController.text = widget.customer?.contactPerson ?? "";
-    _contactPersonController.text = widget.customer?.contactPerson ?? "";
+    final customer = widget.customer!;
+    AppLogger.i("Khởi tạo form với customerId=${customer.customerId}");
 
-    dayCreated = widget.customer?.dayCreated;
-    _dayCreatedController.text = DateFormat('dd/MM/yyyy').format(dayCreated!);
+    _idController.text = customer.customerId;
+    _nameController.text = customer.customerName;
+    _companyNameController.text = customer.companyName;
+    _companyAddressController.text = customer.companyAddress;
+    _shippingAddressController.text = customer.shippingAddress;
+    _mstController.text = customer.mst;
+    _phoneController.text = customer.phone;
+    _cskhController.text = customer.cskh;
+    _contactPersonController.text = customer.contactPerson ?? "";
+
+    _debtLimitController.text = widget.customer!.debtLimit?.toString() ?? "0";
+    _rateCustomerController.text = customer.rateCustomer ?? "";
+
+    timePayment = customer.timePayment;
+    _timePaymentController.text =
+        (timePayment != null)
+            ? DateFormat('dd/MM/yyyy').format(timePayment!)
+            : "";
   }
 
   Future<void> fetchAllCustomer() async {
@@ -82,7 +96,10 @@ class _CustomerDialogState extends State<CustomerDialog> {
   }
 
   void submit() async {
-    if (!formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) {
+      AppLogger.w("Form không hợp lệ, dừng submit");
+      return;
+    }
 
     if (widget.customer == null && _phoneController.text.isNotEmpty) {
       final isPhoneExist = allCustomers.any(
@@ -90,6 +107,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       );
 
       if (isPhoneExist) {
+        AppLogger.w("Số điện thoại đã tồn tại: ${_phoneController.text}");
         final shouldContinue = await showDialog<bool>(
           context: context,
           builder:
@@ -166,16 +184,22 @@ class _CustomerDialogState extends State<CustomerDialog> {
       cskh: _cskhController.text,
       contactPerson: _contactPersonController.text,
       dayCreated: dayCreated ?? DateTime.now(),
+      debtLimit: double.tryParse(_debtLimitController.text) ?? 0.0,
+      timePayment: timePayment ?? DateTime.now(),
+      rateCustomer: typeRating,
     );
 
     try {
       if (widget.customer == null) {
         // add
+        AppLogger.i("Thêm khách hàng mới: ${newCustomer.customerId}");
         await CustomerService().addCustomer(newCustomer.toJson());
+
         if (!mounted) return; // check context
         showSnackBarSuccess(context, "Thêm thành công");
       } else {
         // update
+        AppLogger.i("Cập nhật khách hàng: ${newCustomer.customerId}");
         await CustomerService().updateCustomer(
           newCustomer.customerId,
           newCustomer.toJson(),
@@ -188,8 +212,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
       widget.onCustomerAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e, s) {
+      if (widget.customer == null) {
+        AppLogger.e("Lỗi khi thêm khách hàng", error: e, stackTrace: s);
+      } else {
+        AppLogger.e("Lỗi khi sửa khách hàng", error: e, stackTrace: s);
+      }
+
       if (!mounted) return;
-      AppLogger.e("Lỗi khi thêm/sửa khách hàng", error: e, stackTrace: s);
       showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }
@@ -206,6 +235,9 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _cskhController.dispose();
     _contactPersonController.dispose();
     _dayCreatedController.dispose();
+    _debtLimitController.dispose();
+    _timePaymentController.dispose();
+    _rateCustomerController.dispose();
     super.dispose();
   }
 
@@ -294,23 +326,29 @@ class _CustomerDialogState extends State<CustomerDialog> {
                         ),
 
                         const SizedBox(height: 15),
+                        ValidationCustomer.validateInput(
+                          "Hạn Mức Công Nợ",
+                          _debtLimitController,
+                          Icons.money,
+                        ),
+
+                        const SizedBox(height: 15),
                         ValidationOrder.validateInput(
-                          "Ngày tạo KH",
-                          _dayCreatedController,
+                          "Hạn Thanh Toán",
+                          _timePaymentController,
                           Symbols.calendar_month,
                           readOnly: true,
                           onTap: () async {
-                            DateTime baseDate = dayCreated ?? DateTime.now();
                             DateTime? pickedDate = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
-                              firstDate: baseDate,
+                              firstDate: DateTime.now(),
                               lastDate: DateTime(2100),
                             );
                             if (pickedDate != null) {
                               setState(() {
-                                dayCreated = pickedDate;
-                                _dayCreatedController.text = DateFormat(
+                                timePayment = pickedDate;
+                                _timePaymentController.text = DateFormat(
                                   'dd/MM/yyyy',
                                 ).format(pickedDate);
                               });
@@ -323,6 +361,17 @@ class _CustomerDialogState extends State<CustomerDialog> {
                           "CSKH",
                           _cskhController,
                           Icons.support_agent,
+                        ),
+
+                        const SizedBox(height: 15),
+                        ValidationOrder.dropdownForTypes(
+                          itemRating,
+                          typeRating,
+                          (value) {
+                            setState(() {
+                              typeRating = value!;
+                            });
+                          },
                         ),
                       ],
                     ),

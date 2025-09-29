@@ -49,6 +49,7 @@ class _CustomerPageState extends State<CustomerPage> {
     setState(() {
       if (isSearching) {
         String keyword = searchController.text.trim().toLowerCase();
+        AppLogger.i("loadCustomer: isSearching=true, keyword='$keyword'");
 
         if (searchType == "Theo Mã") {
           futureCustomer = ensureMinLoading(
@@ -97,12 +98,16 @@ class _CustomerPageState extends State<CustomerPage> {
 
   void searchCustomer() {
     String keyword = searchController.text.trim().toLowerCase();
+    AppLogger.i("searchCustomer: searchType=$searchType, keyword='$keyword'");
 
-    if (isTextFieldEnabled && keyword.isEmpty) return;
+    if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w("searchCustomer: search bị bỏ qua vì keyword trống");
+      return;
+    }
 
     currentPage = 1;
-
     if (searchType == "Tất cả") {
+      AppLogger.i("searchCustomer: tìm tất cả KH");
       setState(() {
         futureCustomer = CustomerService().getAllCustomers(
           refresh: false,
@@ -111,6 +116,7 @@ class _CustomerPageState extends State<CustomerPage> {
         );
       });
     } else if (searchType == "Theo Mã") {
+      AppLogger.i("searchCustomer: tìm Theo Mã = $keyword");
       isSearching = true;
       setState(() {
         futureCustomer = CustomerService().getCustomerById(
@@ -120,6 +126,7 @@ class _CustomerPageState extends State<CustomerPage> {
         );
       });
     } else if (searchType == "Theo Tên KH") {
+      AppLogger.i("searchCustomer: tìm Theo Tên KH = $keyword");
       isSearching = true;
       setState(() {
         futureCustomer = CustomerService().getCustomerByName(
@@ -129,6 +136,7 @@ class _CustomerPageState extends State<CustomerPage> {
         );
       });
     } else if (searchType == "Theo CSKH") {
+      AppLogger.i("searchCustomer: tìm Theo CSKH = $keyword");
       isSearching = true;
       setState(() {
         futureCustomer = CustomerService().getCustomerByCSKH(
@@ -138,6 +146,7 @@ class _CustomerPageState extends State<CustomerPage> {
         );
       });
     } else if (searchType == "Theo SDT") {
+      AppLogger.i("searchCustomer: tìm Theo SDT = $keyword");
       isSearching = true;
       setState(() {
         futureCustomer = CustomerService().getCustomerByPhone(
@@ -419,11 +428,12 @@ class _CustomerPageState extends State<CustomerPage> {
                       Expanded(
                         child: SfDataGrid(
                           source: customerDatasource,
-                          columns: columns,
-                          rowHeight: 45,
                           isScrollbarAlwaysShown: true,
                           columnWidthMode: ColumnWidthMode.auto,
                           selectionMode: SelectionMode.single,
+                          columns: columns,
+                          headerRowHeight: 40,
+                          rowHeight: 45,
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {
                               final selectedRow = addedRows.first;

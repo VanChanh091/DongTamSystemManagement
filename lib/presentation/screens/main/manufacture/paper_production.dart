@@ -49,6 +49,7 @@ class _PaperProductionState extends State<PaperProduction> {
   }
 
   void loadPlanning(bool refresh) {
+    AppLogger.i("Loading all data manufacture paper");
     setState(() {
       futurePlanning = ensureMinLoading(
         ManufactureService().getPlanningPaper(machine, refresh).then((
@@ -71,6 +72,7 @@ class _PaperProductionState extends State<PaperProduction> {
       'machine_${machineName.toLowerCase().replaceAll(' ', '_')}';
 
   Future<void> registerSocket() async {
+    AppLogger.i("registerSocket: join room machine=$machine");
     socketService.joinMachineRoom(machine);
 
     socketService.off('planningPaperUpdated');
@@ -79,6 +81,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
   void _onPlanningPaperUpdated(dynamic data) {
     if (!mounted) return;
+    AppLogger.i("_onPlanningPaperUpdated: machine=$machine, data=$data");
 
     showDialog(
       context: context,
@@ -149,6 +152,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
   Future<void> changeMachine(String machineName) async {
     final oldRoom = _machineRoomName(machine);
+    AppLogger.i("changeMachine: from=$oldRoom to=$machineName");
 
     // cập nhật state trước (UI)
     setState(() {
@@ -163,6 +167,8 @@ class _PaperProductionState extends State<PaperProduction> {
 
     // join room mới và đăng ký listener
     await socketService.joinMachineRoom(machineName);
+    AppLogger.i("changeMachine: joined newRoom=$machineName");
+
     socketService.on('planningPaperUpdated', _onPlanningPaperUpdated);
 
     loadPlanning(true);

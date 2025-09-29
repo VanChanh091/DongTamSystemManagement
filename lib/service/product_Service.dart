@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:dongtam/utils/helper/helper_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/app_info.dart';
@@ -78,7 +79,8 @@ class ProductService {
       );
 
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to add product", error: e, stackTrace: s);
       throw Exception('Failed to add product: $e');
     }
   }
@@ -118,7 +120,8 @@ class ProductService {
       );
 
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to update product", error: e, stackTrace: s);
       throw Exception('Failed to update product: $e');
     }
   }
@@ -141,7 +144,8 @@ class ProductService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to delete product", error: e, stackTrace: s);
       throw Exception('Failed to delete product: $e');
     }
   }

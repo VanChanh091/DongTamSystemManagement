@@ -34,7 +34,7 @@ class _ManageOrderState extends State<AdminOrder> {
   }
 
   Future<void> _loadOrders() async {
-    final fetchedOrders = await AdminService().getOrderByStatus();
+    final fetchedOrders = await AdminService().getOrderByPendingStatus();
     setState(() {
       orders = fetchedOrders;
     });

@@ -244,7 +244,6 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                   label: "Phân Quyền/Vai Trò",
                                   icon: Symbols.graph_5,
                                 ),
-
                                 const SizedBox(width: 10),
 
                                 //reset password

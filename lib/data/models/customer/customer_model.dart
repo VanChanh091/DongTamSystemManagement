@@ -1,3 +1,4 @@
+import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:intl/intl.dart';
 
 class Customer {
@@ -11,6 +12,9 @@ class Customer {
   final String cskh;
   final String? contactPerson;
   final DateTime? dayCreated;
+  final double? debtLimit;
+  final DateTime? timePayment;
+  final String? rateCustomer;
 
   Customer({
     required this.customerId,
@@ -23,6 +27,9 @@ class Customer {
     required this.cskh,
     this.contactPerson,
     this.dayCreated,
+    required this.debtLimit,
+    this.timePayment,
+    required this.rateCustomer,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) {
@@ -40,6 +47,13 @@ class Customer {
           json['dayCreated'] != null && json['dayCreated'].toString().isNotEmpty
               ? DateTime.tryParse(json['dayCreated'].toString())
               : null,
+      debtLimit: toDouble(json['debtLimit']),
+      timePayment:
+          json['timePayment'] != null &&
+                  json['timePayment'].toString().isNotEmpty
+              ? DateTime.tryParse(json['timePayment'].toString())
+              : null,
+      rateCustomer: json['rateCustomer'] ?? "",
     );
   }
 
@@ -55,6 +69,9 @@ class Customer {
       'cskh': cskh,
       "contactPerson": contactPerson,
       "dayCreated": DateFormat('yyyy-MM-dd').format(dayCreated!),
+      "debtLimit": debtLimit,
+      "timePayment": DateFormat('yyyy-MM-dd').format(timePayment!),
+      "rateCustomer": rateCustomer,
     };
   }
 }

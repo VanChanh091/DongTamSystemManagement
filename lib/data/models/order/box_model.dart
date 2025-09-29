@@ -1,4 +1,5 @@
 class Box {
+  final int? boxId;
   final int? inMatTruoc, inMatSau;
   final bool? canMang,
       canLan,
@@ -13,6 +14,7 @@ class Box {
   final String? dongGoi, maKhuon;
 
   Box({
+    this.boxId,
     this.inMatTruoc,
     this.inMatSau,
     this.canMang,
@@ -31,6 +33,7 @@ class Box {
 
   factory Box.fromJson(Map<String, dynamic> json) {
     return Box(
+      boxId: json['boxId'] ?? 0,
       inMatTruoc: json['inMatTruoc'] ?? 0,
       inMatSau: json['inMatSau'] ?? 0,
       canMang: json['canMang'] ?? false,

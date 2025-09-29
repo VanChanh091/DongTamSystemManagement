@@ -13,7 +13,7 @@ class BadgesController extends GetxController {
   // Hàm gọi API để lấy số đơn chờ duyệt
   Future<void> fetchPendingApprovals() async {
     try {
-      final orders = await AdminService().getOrderByStatus();
+      final orders = await AdminService().getOrderByPendingStatus();
       numberBadges.value = orders.length;
     } catch (e) {
       numberBadges.value = 0;

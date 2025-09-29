@@ -73,6 +73,7 @@ flutter:
   assets:
     - assets/images/logoDT.png
     - assets/images/logoSplashScreen.png
+    - assets/images/logoDT_noBackground.png
     - assets/images/background_DT.png
     - assets/config/config.prod.json
     - assets/config/config.dev.json

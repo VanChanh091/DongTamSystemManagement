@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -39,6 +40,17 @@ class CustomerDatasource extends DataGridSource {
                 : "",
       ),
       DataGridCell<String>(
+        columnName: "debtLimitCustomer",
+        value: Order.formatCurrency(customer.debtLimit ?? 0),
+      ),
+      DataGridCell<String>(
+        columnName: "termPaymentCost",
+        value:
+            customer.timePayment != null
+                ? formatter.format(customer.timePayment!)
+                : "",
+      ),
+      DataGridCell<String>(
         columnName: "companyName",
         value: customer.companyName,
       ),
@@ -51,6 +63,10 @@ class CustomerDatasource extends DataGridSource {
         value: customer.shippingAddress,
       ),
       DataGridCell<String>(columnName: "CSKH", value: customer.cskh),
+      DataGridCell<String>(
+        columnName: "rateCustomer",
+        value: customer.rateCustomer ?? "",
+      ),
     ];
   }
 

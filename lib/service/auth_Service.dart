@@ -38,6 +38,7 @@ class AuthService {
         },
       );
 
+      AppLogger.i("Register successful for email=$email");
       return true;
     } catch (e, s) {
       AppLogger.e("error register", error: e, stackTrace: s);
@@ -69,11 +70,13 @@ class AuthService {
         userController.role.value = role;
         userController.permissions.value = permissions;
 
-        AppLogger.i("Login successful, role: $role");
-        AppLogger.i("Login successful, permission: $permissions");
+        AppLogger.i("Login successful, role: $role, permission: $permissions");
 
         return true;
       } else {
+        AppLogger.w(
+          "Login failed for email=$email, status=${response.statusCode}",
+        );
         return false;
       }
     } catch (e, s) {
@@ -102,8 +105,10 @@ class AuthService {
 
       if (response.statusCode == 201) {
         response.data['otp'];
+        AppLogger.i("OTP sent successfully to $email");
         return true;
       } else {
+        AppLogger.w("Failed to send OTP for $email");
         return false;
       }
     } catch (e, s) {
@@ -120,6 +125,9 @@ class AuthService {
         data: {"email": email, "otpInput": otp},
       );
 
+      AppLogger.i(
+        "Verify OTP result: ${response.statusCode == 201 ? "success" : "failed"}",
+      );
       return response.statusCode == 201;
     } catch (e, s) {
       AppLogger.e("Lỗi khi xác thực otp", error: e, stackTrace: s);
@@ -150,6 +158,7 @@ class AuthService {
         ),
       );
 
+      AppLogger.i("Password changed successfully for email=$email");
       return response.statusCode == 201;
     } catch (e, s) {
       AppLogger.e("Lỗi khi thay đổi password", error: e, stackTrace: s);

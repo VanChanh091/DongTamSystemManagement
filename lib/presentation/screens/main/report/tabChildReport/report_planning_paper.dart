@@ -7,6 +7,7 @@ import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -47,6 +48,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
       if (isSearching) {
         String keyword = searchController.text.trim().toLowerCase();
         String date = dateController.text.trim().toLowerCase();
+
+        AppLogger.d("loadReportPaper | search keyword=$keyword | date=$date");
 
         if (searchType == 'Tên KH') {
           futureReportPaper = ensureMinLoading(
@@ -119,81 +122,98 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   void searchReportPaper() {
     String keyword = searchController.text.trim().toLowerCase();
     String date = dateController.text.trim().toLowerCase();
-    if (isTextFieldEnabled && keyword.isEmpty) return;
+
+    AppLogger.i(
+      "searchReportPaper => searchType=$searchType | keyword=$keyword | date=$date | machine=$machine",
+    );
+
+    if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w(
+        "searchReportPaper => searchType=$searchType nhưng keyword rỗng",
+      );
+      return;
+    }
 
     currentPage = 1;
-    if (searchType == "Tất cả") {
-      setState(() {
-        futureReportPaper = ReportPlanningService().getReportPaper(
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSize,
-        );
-      });
-    } else if (searchType == "Theo Mã ĐH") {
-      isSearching = true;
-      setState(() {
-        futureReportPaper = ReportPlanningService().getRPByOrderId(
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == 'Tên KH') {
-      isSearching = true;
-      setState(() {
-        futureReportPaper = ReportPlanningService().getRPByCustomerName(
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Ngày Báo Cáo") {
-      isSearching = true;
-      setState(() {
-        futureReportPaper = ReportPlanningService().getRPByDayReported(
-          keyword: date,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == "SL Báo Cáo") {
-      isSearching = true;
-      setState(() {
-        futureReportPaper = ReportPlanningService().getRPByQtyReported(
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Ghép Khổ") {
-      isSearching = true;
-      setState(() {
-        futureReportPaper = ReportPlanningService().getRPByGhepKho(
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Quản Ca") {
-      isSearching = true;
-      setState(() {
-        futureReportPaper = ReportPlanningService().getRPByShiftManagement(
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
+    isSearching = (searchType != "Tất cả");
+
+    switch (searchType) {
+      case "Tất cả":
+        setState(() {
+          futureReportPaper = ReportPlanningService().getReportPaper(
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSize,
+          );
+        });
+        break;
+      case "Theo Mã ĐH":
+        setState(() {
+          futureReportPaper = ReportPlanningService().getRPByOrderId(
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          );
+        });
+        break;
+      case "Tên KH":
+        setState(() {
+          futureReportPaper = ReportPlanningService().getRPByCustomerName(
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          );
+        });
+        break;
+      case "Ngày Báo Cáo":
+        setState(() {
+          futureReportPaper = ReportPlanningService().getRPByDayReported(
+            keyword: date,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          );
+        });
+        break;
+      case "SL Báo Cáo":
+        setState(() {
+          futureReportPaper = ReportPlanningService().getRPByQtyReported(
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          );
+        });
+        break;
+      case "Ghép Khổ":
+        setState(() {
+          futureReportPaper = ReportPlanningService().getRPByGhepKho(
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          );
+        });
+        break;
+      case "Quản Ca":
+        setState(() {
+          futureReportPaper = ReportPlanningService().getRPByShiftManagement(
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          );
+        });
+        break;
+      default:
+        break;
     }
   }
 
   void changeMachine(String selectedMachine) {
+    AppLogger.i("changeMachine | from=$machine -> to=$selectedMachine");
     setState(() {
       machine = selectedMachine;
       selectedReportId.clear();
@@ -367,7 +387,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                   (_) => DialogSelectExportExcel(
                                     selectedReportId: selectedReportId,
                                     onPlanningIdsOrRangeDate:
-                                        () => loadReportPaper(true),
+                                        () => loadReportPaper(false),
                                     machine: machine,
                                   ),
                             );

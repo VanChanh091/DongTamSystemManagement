@@ -358,6 +358,7 @@ class ReportPlanningService {
 
       if (response.statusCode == 200) {
         final bytes = response.data as List<int>;
+        AppLogger.d("Received ${bytes.length} bytes from API");
 
         // Cho người dùng chọn thư mục lưu
         final dirPath = await FilePicker.platform.getDirectoryPath();
@@ -372,12 +373,15 @@ class ReportPlanningService {
         final file = File("$dirPath/$fileName");
 
         await file.writeAsBytes(bytes, flush: true);
+        AppLogger.i("Exported Excel report to: ${file.path}");
+
         return file;
       } else {
+        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
         return null;
       }
     } catch (e, s) {
-      AppLogger.e("Lỗi xuất báo cáo giấy tấm", error: e, stackTrace: s);
+      AppLogger.e("failed to export report paper", error: e, stackTrace: s);
       return null;
     }
   }
@@ -415,6 +419,7 @@ class ReportPlanningService {
 
       if (response.statusCode == 200) {
         final bytes = response.data as List<int>;
+        AppLogger.d("Received ${bytes.length} bytes from API");
 
         // Cho người dùng chọn thư mục lưu
         final dirPath = await FilePicker.platform.getDirectoryPath();
@@ -429,14 +434,15 @@ class ReportPlanningService {
         final file = File("$dirPath/$fileName");
 
         await file.writeAsBytes(bytes, flush: true);
+        AppLogger.i("Exported Excel report to: ${file.path}");
 
-        await file.writeAsBytes(bytes, flush: true);
         return file;
       } else {
+        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
         return null;
       }
     } catch (e, s) {
-      AppLogger.e("Lỗi khi xuất báo cáo thùng", error: e, stackTrace: s);
+      AppLogger.e("failed to export report box", error: e, stackTrace: s);
       return null;
     }
   }

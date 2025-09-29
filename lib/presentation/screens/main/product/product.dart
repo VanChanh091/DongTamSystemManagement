@@ -4,6 +4,7 @@ import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
@@ -42,8 +43,12 @@ class _ProductPageState extends State<ProductPage> {
 
   void searchProduct() {
     String keyword = searchController.text.trim().toLowerCase();
+    AppLogger.i("searchProduct => searchType=$searchType | keyword=$keyword");
 
-    if (isTextFieldEnabled && keyword.isEmpty) return;
+    if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w("searchProduct => searchType=$searchType nhưng keyword rỗng");
+      return;
+    }
 
     if (searchType == "Tất cả") {
       setState(() {

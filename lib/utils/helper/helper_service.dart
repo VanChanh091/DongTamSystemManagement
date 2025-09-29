@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/app_info.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class HelperService {
@@ -11,7 +12,7 @@ class HelperService {
     ),
   );
 
-  //get properties pagination
+  //get data pagination
   Future<Map<String, dynamic>> fetchPaginatedData<T>({
     required String endpoint,
     required Map<String, dynamic> queryParameters,
@@ -45,11 +46,15 @@ class HelperService {
         'totalPages': data['totalPages'] ?? 1,
         'currentPage': data['currentPage'] ?? 1,
       };
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e(
+        "Failed to load data from $endpoint\nError: $e\nStackTrace: $s",
+      );
       throw Exception('Failed to load data from $endpoint: $e');
     }
   }
 
+  //get all data
   Future<List<T>> fetchingData<T>({
     required String endpoint,
     required Map<String, dynamic> queryParameters,
@@ -74,7 +79,10 @@ class HelperService {
       return data
           .map((json) => fromJson(json as Map<String, dynamic>))
           .toList();
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e(
+        "Failed to load data from $endpoint\nError: $e\nStackTrace: $s",
+      );
       throw Exception('Failed to load data from $endpoint: $e');
     }
   }

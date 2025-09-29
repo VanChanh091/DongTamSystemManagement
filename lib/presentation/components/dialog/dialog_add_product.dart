@@ -44,20 +44,13 @@ class _ProductDialogState extends State<ProductDialog> {
   void initState() {
     super.initState();
     if (widget.product != null) {
+      AppLogger.i("Khởi tạo form với customerId=${widget.product!.productId}");
       idController.text = widget.product!.productId;
       typeProduct = widget.product!.typeProduct;
       nameProductController.text = widget.product?.productName ?? "";
       maKhuonController.text = widget.product?.maKhuon ?? "";
       productImageUrl = widget.product!.productImage;
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    idController.dispose();
-    nameProductController.dispose();
-    maKhuonController.dispose();
   }
 
   Future<void> pickImage() async {
@@ -69,11 +62,19 @@ class _ProductDialogState extends State<ProductDialog> {
       setState(() {
         pickedProductImage = result.files.single.bytes;
       });
+      AppLogger.d(
+        "Đã chọn ảnh sản phẩm (${result.files.single.name}, ${result.files.single.size} bytes)",
+      );
+    } else {
+      AppLogger.d("Không chọn ảnh nào");
     }
   }
 
   void submit() async {
-    if (!formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) {
+      AppLogger.w("Form không hợp lệ, dừng submit");
+      return;
+    }
 
     final newProduct = Product(
       productId: idController.text.toUpperCase(),
@@ -85,20 +86,24 @@ class _ProductDialogState extends State<ProductDialog> {
     try {
       if (widget.product == null) {
         // Add new product
+        AppLogger.d("Thêm sản phẩm mới: ${newProduct.productId}");
         await ProductService().addProduct(
           newProduct.productId,
           newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
+
         if (!mounted) return; // check context
         showSnackBarSuccess(context, 'Thêm thành công');
       } else {
         // Update existing product
+        AppLogger.d("Cập nhật sản phẩm: ${newProduct.productId}");
         await ProductService().updateProductById(
           newProduct.productId,
           newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
+
         if (!mounted) return;
         showSnackBarSuccess(context, 'Cập nhật thành công');
       }
@@ -107,8 +112,13 @@ class _ProductDialogState extends State<ProductDialog> {
       widget.onProductAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e, s) {
+      if (widget.product == null) {
+        AppLogger.e("Lỗi khi thêm sản phẩm", error: e, stackTrace: s);
+      } else {
+        AppLogger.e("Lỗi khi sửa sản phẩm", error: e, stackTrace: s);
+      }
+
       if (!mounted) return;
-      AppLogger.e("Lỗi khi thêm/sửa sản phẩm", error: e, stackTrace: s);
       showSnackBarError(context, 'Lỗi: không thể lưu dữ liệu');
     }
 
@@ -160,6 +170,14 @@ class _ProductDialogState extends State<ProductDialog> {
         return null;
       },
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    idController.dispose();
+    nameProductController.dispose();
+    maKhuonController.dispose();
   }
 
   @override

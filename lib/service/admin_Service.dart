@@ -8,6 +8,7 @@ import 'package:dongtam/data/models/admin/admin_wave_crest_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class AdminService {
@@ -22,7 +23,7 @@ class AdminService {
   //===============================ORDER====================================
 
   //get status order
-  Future<List<Order>> getOrderByStatus() async {
+  Future<List<Order>> getOrderByPendingStatus() async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -36,9 +37,11 @@ class AdminService {
         ),
       );
       final data = response.data['data'] as List;
+      AppLogger.i("Fetched ${data.length} orders");
 
       return data.map((e) => Order.fromJson(e)).toList();
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to load orders", error: e, stackTrace: s);
       throw Exception('Failed to load orders: $e');
     }
   }
@@ -62,8 +65,11 @@ class AdminService {
           },
         ),
       );
+
+      AppLogger.i("update $orderId successfully");
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to load orders", error: e, stackTrace: s);
       throw Exception('Failed to update orders: $e');
     }
   }
@@ -85,14 +91,17 @@ class AdminService {
         ),
       );
       final data = response.data['data'] as List;
+      AppLogger.i("Get all machine paper");
+
       return data.map((e) => AdminMachinePaperModel.fromJson(e)).toList();
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {
         throw Exception("NO_PERMISSION");
       }
       rethrow;
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to load machine paper", error: e, stackTrace: s);
+      throw Exception('Failed to load machine paper: $e');
     }
   }
 
@@ -126,9 +135,11 @@ class AdminService {
           },
         ),
       );
+      AppLogger.i("update machine=$machineId successfully");
       return true;
-    } catch (e) {
-      throw Exception('Failed to update paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to update machine paper", error: e, stackTrace: s);
+      throw Exception('Failed to update machine paper: $e');
     }
   }
 
@@ -147,9 +158,11 @@ class AdminService {
           },
         ),
       );
+      AppLogger.i("Delete machine=$machineId successfully");
       return true;
-    } catch (e) {
-      throw Exception('Failed to delete paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to delete machine paper", error: e, stackTrace: s);
+      throw Exception('Failed to delete machine paper: $e');
     }
   }
 
@@ -170,14 +183,17 @@ class AdminService {
         ),
       );
       final data = response.data['data'] as List;
+      AppLogger.i("Get all machine box");
+
       return data.map((e) => AdminMachineBoxModel.fromJson(e)).toList();
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {
         throw Exception("NO_PERMISSION");
       }
       rethrow;
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to load machine box", error: e, stackTrace: s);
+      throw Exception('Failed to load machine box: $e');
     }
   }
 
@@ -209,9 +225,11 @@ class AdminService {
           },
         ),
       );
+
       return true;
-    } catch (e) {
-      throw Exception('Failed to update paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to update machine box", error: e, stackTrace: s);
+      throw Exception('Failed to update machine box: $e');
     }
   }
 
@@ -231,8 +249,9 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
-      throw Exception('Failed to delete paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to delete machine box", error: e, stackTrace: s);
+      throw Exception('Failed to delete machine box: $e');
     }
   }
 
@@ -259,7 +278,8 @@ class AdminService {
         throw Exception("NO_PERMISSION");
       }
       rethrow;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to get all user", error: e, stackTrace: s);
       throw Exception('Failed to load users: $e');
     }
   }
@@ -309,7 +329,8 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to update user:$userId", error: e, stackTrace: s);
       throw Exception('Failed to update user role: $e');
     }
   }
@@ -334,7 +355,8 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to update permissions", error: e, stackTrace: s);
       throw Exception('Failed to update user permissions: $e');
     }
   }
@@ -358,7 +380,8 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to reset password user", error: e, stackTrace: s);
       throw Exception('Failed to reset user password: $e');
     }
   }
@@ -379,7 +402,8 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to update machine box", error: e, stackTrace: s);
       throw Exception('Failed to delete user: $e');
     }
   }
@@ -407,8 +431,9 @@ class AdminService {
         throw Exception("NO_PERMISSION");
       }
       rethrow;
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to get all waste norm", error: e, stackTrace: s);
+      throw Exception('Failed to get all waste norm: $e');
     }
   }
 
@@ -441,8 +466,9 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
-      throw Exception('Failed to update paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to update waste norm", error: e, stackTrace: s);
+      throw Exception('Failed to update waste norm: $e');
     }
   }
 
@@ -462,8 +488,9 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
-      throw Exception('Failed to delete paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to delete waste norm", error: e, stackTrace: s);
+      throw Exception('Failed to delete waste norm: $e');
     }
   }
 
@@ -490,8 +517,9 @@ class AdminService {
         throw Exception("NO_PERMISSION");
       }
       rethrow;
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to get all waste box", error: e, stackTrace: s);
+      throw Exception('Failed to load all wasteBox: $e');
     }
   }
 
@@ -524,8 +552,9 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
-      throw Exception('Failed to update paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to update waste box", error: e, stackTrace: s);
+      throw Exception('Failed to update waste box: $e');
     }
   }
 
@@ -545,8 +574,9 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
-      throw Exception('Failed to delete paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to delete waste box", error: e, stackTrace: s);
+      throw Exception('Failed to delete waste box: $e');
     }
   }
 
@@ -573,8 +603,9 @@ class AdminService {
         throw Exception("NO_PERMISSION");
       }
       rethrow;
-    } catch (e) {
-      throw Exception('Failed to load paper factors: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to get all waste crest", error: e, stackTrace: s);
+      throw Exception('Failed to load waste crest: $e');
     }
   }
 
@@ -607,8 +638,9 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
-      throw Exception('Failed to update paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to update waste crest", error: e, stackTrace: s);
+      throw Exception('Failed to update waste crest: $e');
     }
   }
 
@@ -628,8 +660,9 @@ class AdminService {
         ),
       );
       return true;
-    } catch (e) {
-      throw Exception('Failed to delete paper factor: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to load waste crest", error: e, stackTrace: s);
+      throw Exception('Failed to delete waste crest: $e');
     }
   }
 }

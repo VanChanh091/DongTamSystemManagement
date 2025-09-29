@@ -41,6 +41,7 @@ class UserAdminModel {
 
   static String formatPermissions(List<String> permissions) {
     final permissionMap = {
+      'manager': "Quản lý",
       "sale": "Kinh doanh",
       "plan": "Kế hoạch",
       "HR": "Nhân sự",

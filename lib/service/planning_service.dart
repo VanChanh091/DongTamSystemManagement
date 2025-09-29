@@ -4,6 +4,7 @@ import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -42,7 +43,8 @@ class PlanningService {
         throw Exception("NO_PERMISSION");
       }
       rethrow;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to load product", error: e, stackTrace: s);
       throw Exception('Failed to load orders: $e');
     }
   }
@@ -69,7 +71,8 @@ class PlanningService {
       );
 
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to plan order", error: e, stackTrace: s);
       throw Exception('Failed to plan order: $e');
     }
   }
@@ -102,7 +105,8 @@ class PlanningService {
         throw Exception("NO_PERMISSION");
       }
       rethrow;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to get planning", error: e, stackTrace: s);
       throw Exception('Failed to get planning: $e');
     }
   }
@@ -175,7 +179,8 @@ class PlanningService {
       );
 
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to update orders", error: e, stackTrace: s);
       throw Exception('Failed to update orders: $e');
     }
   }
@@ -210,7 +215,8 @@ class PlanningService {
       );
 
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to update planning", error: e, stackTrace: s);
       throw Exception('Failed to update planning: $e');
     }
   }
@@ -235,7 +241,8 @@ class PlanningService {
       );
 
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
       throw Exception('Failed to pause machine: $e');
     }
   }
@@ -268,7 +275,8 @@ class PlanningService {
         throw Exception("NO_PERMISSION");
       }
       rethrow;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to get planning", error: e, stackTrace: s);
       throw Exception('Failed to get planning: $e');
     }
   }
@@ -303,7 +311,8 @@ class PlanningService {
       );
 
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to update planning", error: e, stackTrace: s);
       throw Exception('Failed to update planning: $e');
     }
   }
@@ -333,7 +342,8 @@ class PlanningService {
       );
 
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
       throw Exception('Failed to pause machine: $e');
     }
   }

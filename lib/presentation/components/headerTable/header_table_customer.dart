@@ -13,6 +13,14 @@ List<GridColumn> buildCustomerColumn() {
       label: formatColumn("Người Liên Hệ"),
     ),
     GridColumn(columnName: "dayCreatedCus", label: formatColumn("Ngày Tạo KH")),
+    GridColumn(
+      columnName: "debtLimitCustomer",
+      label: formatColumn("Hạn Mức Công Nợ"),
+    ),
+    GridColumn(
+      columnName: "termPaymentCost",
+      label: formatColumn("Hạn Thanh Toán"),
+    ),
     GridColumn(columnName: "companyName", label: formatColumn("Tên Công Ty")),
     GridColumn(
       columnName: "companyAddress",
@@ -23,5 +31,6 @@ List<GridColumn> buildCustomerColumn() {
       label: formatColumn("Địa chỉ Giao Hàng"),
     ),
     GridColumn(columnName: "CSKH", label: formatColumn("CSKH")),
+    GridColumn(columnName: "rateCustomer", label: formatColumn("Đánh Giá")),
   ];
 }

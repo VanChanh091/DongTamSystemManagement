@@ -239,6 +239,13 @@ class ReportPaperDatasource extends DataGridSource {
           row.getCells().map<Widget>((dataCell) {
             Color cellColor = Colors.transparent;
 
+            if (dataCell.columnName == 'qtyReported') {
+              final qty = dataCell.value;
+              if (qty > 0) {
+                cellColor = Colors.amberAccent.withValues(alpha: 0.3);
+              }
+            }
+
             if (dataCell.columnName == "lackOfQty") {
               final int value = dataCell.value ?? 0;
               final String display =

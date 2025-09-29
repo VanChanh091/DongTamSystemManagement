@@ -34,6 +34,7 @@ class UserController extends GetxController {
 
   bool hasPermission(String permission) {
     if (role.value == "admin" || role.value == "manager") {
+      AppLogger.i("hasPermission: role=${role.value} => FULL ACCESS");
       return true;
     }
     return permissions.contains(permission);
@@ -41,13 +42,18 @@ class UserController extends GetxController {
 
   bool hasAnyPermission(List<String> permission) {
     if (role.value == "admin" || role.value == "manager") {
+      AppLogger.i("hasAnyPermission: role=${role.value} => FULL ACCESS");
       return true;
     }
     return permissions.any((p) => permission.contains(p));
   }
 
   bool hasAnyRole(List<String> roles) {
-    return roles.contains(role.value);
+    final result = roles.contains(role.value);
+    AppLogger.i(
+      "hasAnyRole: role=${role.value}, checkList=$roles, result=$result",
+    );
+    return result;
   }
 
   void clearUser() {

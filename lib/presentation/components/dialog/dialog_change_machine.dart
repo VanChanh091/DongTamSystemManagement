@@ -44,11 +44,19 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
   }
 
   void submit() async {
-    if (!formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) {
+      AppLogger.w("Form không hợp lệ, dừng submit");
+      return;
+    }
 
     try {
+      AppLogger.i(
+        "Chuyển máy cho đơn hàng planningIds=$planningIds đến $chooseMachine",
+      );
       await PlanningService().changeMachinePlanning(planningIds, chooseMachine);
+
       if (!mounted) return; // check context
+      AppLogger.i("Chuyển đơn sang máy $chooseMachine thành công");
       showSnackBarSuccess(
         context,
         'Chuyển đơn hàng sang $chooseMachine thành công',

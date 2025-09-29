@@ -40,7 +40,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
         return Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: size.width * 0.4,
+              maxWidth: size.width * 0.3,
               maxHeight: size.height * 0.8,
             ),
             child: Material(
@@ -75,21 +75,31 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
       }
 
       if (widget.isBox) {
+        AppLogger.i(
+          "Export báo cáo BOX | "
+          "from=${selectedRange?.start}, to=${selectedRange?.end}, "
+          "machine=${widget.machine}",
+        );
+
         await ReportPlanningService().exportExcelReportBox(
           fromDate: selectedRange?.start,
           toDate: selectedRange?.end,
           reportBoxId: widget.selectedReportId,
           machine: widget.machine,
         );
-        if (!mounted) return; // check context
       } else {
+        AppLogger.i(
+          "Export báo cáo PAPER | "
+          "from=${selectedRange?.start}, to=${selectedRange?.end}, "
+          "machine=${widget.machine}",
+        );
+
         await ReportPlanningService().exportExcelReportPaper(
           fromDate: selectedRange?.start,
           toDate: selectedRange?.end,
           reportPaperId: widget.selectedReportId,
           machine: widget.machine,
         );
-        if (!mounted) return; // check context
       }
       showSnackBarSuccess(context, "Lưu thành công");
 

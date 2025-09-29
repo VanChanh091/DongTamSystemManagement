@@ -76,23 +76,19 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
       permissionCheckStates[p] = ValueNotifier<bool>(
         chosenPermissions.contains(p),
       );
+      AppLogger.d("Permission [$p] = ${chosenPermissions.contains(p)}");
     }
-  }
-
-  @override
-  void dispose() {
-    for (final notifier in permissionCheckStates.values) {
-      notifier.dispose();
-    }
-    selectedOption.dispose();
-    super.dispose();
   }
 
   void handleSave() async {
-    if (!formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) {
+      AppLogger.w("Form không hợp lệ, dừng submit");
+      return;
+    }
 
     try {
       if (selectedOption.value == 'role') {
+        AppLogger.d("Cập nhật ROLE: $chosenRole cho user: $originalUserId");
         success = await AdminService().updateUserRole(
           originalUserId,
           chosenRole,
@@ -104,16 +100,23 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                 .map((entry) => entry.key)
                 .toList();
 
+        AppLogger.d(
+          "Cập nhật PERMISSIONS: $updatedPermissions cho user: $originalUserId",
+        );
         success = await AdminService().updateUserPermissions(
           originalUserId,
           updatedPermissions,
         );
       }
-      if (!mounted) return;
 
       if (success) {
+        if (!mounted) return;
         showSnackBarSuccess(context, 'Cập nhật thành công!');
         await Future.delayed(Duration(milliseconds: 500));
+      } else {
+        AppLogger.d(
+          "Cập nhật thất bại cho userId=$originalUserId (API trả về false)",
+        );
       }
 
       if (!mounted) return;
@@ -121,9 +124,22 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
       Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return;
-      AppLogger.e("Lỗi khi lưu role/permission", error: e, stackTrace: s);
+      AppLogger.e(
+        "Lỗi khi lưu role/permission cho userId=$originalUserId",
+        error: e,
+        stackTrace: s,
+      );
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }
+  }
+
+  @override
+  void dispose() {
+    for (final notifier in permissionCheckStates.values) {
+      notifier.dispose();
+    }
+    selectedOption.dispose();
+    super.dispose();
   }
 
   @override

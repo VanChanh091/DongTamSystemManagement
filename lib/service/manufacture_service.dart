@@ -3,6 +3,7 @@ import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class ManufactureService {
@@ -77,8 +78,9 @@ class ManufactureService {
       } else {
         throw Exception("Network Error: ${e.message}");
       }
-    } catch (e) {
-      throw Exception('Lỗi không xác định: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to create report paper", error: e, stackTrace: s);
+      throw Exception('Failed to create report paper: $e');
     }
   }
 
@@ -98,8 +100,9 @@ class ManufactureService {
       );
 
       return true;
-    } catch (e) {
-      throw Exception('Lỗi không xác định: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to confirm producing paper", error: e, stackTrace: s);
+      throw Exception('Failed to confirm producing paper: $e');
     }
   }
 
@@ -163,8 +166,9 @@ class ManufactureService {
       } else {
         throw Exception("Network Error: ${e.message}");
       }
-    } catch (e) {
-      throw Exception('Lỗi không xác định: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to create report box", error: e, stackTrace: s);
+      throw Exception('Failed to create report box: $e');
     }
   }
 
@@ -184,8 +188,9 @@ class ManufactureService {
       );
 
       return true;
-    } catch (e) {
-      throw Exception('Lỗi không xác định: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to confirm producing box", error: e, stackTrace: s);
+      throw Exception('Failed to confirm producing box: $e');
     }
   }
 }

@@ -82,8 +82,12 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
   void searchPlanning() {
     String keyword = searchController.text.trim().toLowerCase();
+    AppLogger.i(
+      "searchPaper => searchType=$searchType | keyword=$keyword | machine=$machine",
+    );
 
     if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w("searchPaper => searchType=$searchType nhưng keyword rỗng");
       return;
     }
 
@@ -131,10 +135,12 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         });
         break;
       default:
+        break;
     }
   }
 
   void changeMachine(String selectedMachine) {
+    AppLogger.i("changeMachinePaper | from=$machine -> to=$selectedMachine");
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();

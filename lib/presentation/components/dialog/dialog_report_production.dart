@@ -37,7 +37,10 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   final shiftManagementController = TextEditingController();
 
   void submit() async {
-    if (!formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) {
+      AppLogger.w("Form không hợp lệ, dừng submit");
+      return;
+    }
 
     try {
       final int qtyProduced = int.tryParse(qtyProducedController.text) ?? 0;
@@ -53,6 +56,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
       bool success;
       if (widget.isPaper == true) {
+        AppLogger.i("Báo cáo sản xuất giấy tấm: ${widget.planningId}");
         success = await ManufactureService().createReportPaper(
           widget.planningId,
           qtyProduced,
@@ -61,6 +65,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           reportData,
         );
       } else {
+        AppLogger.i("Báo cáo sản xuất thùng: ${widget.planningId}");
         success = await ManufactureService().createReportBox(
           widget.planningId,
           widget.machine ?? "",
@@ -70,10 +75,10 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           shiftManagementController.text,
         );
       }
-      if (!mounted) return;
 
       if (success) {
-        showSnackBarSuccess(context, 'Báo cáo kế hoạch thành công');
+        if (!mounted) return;
+        showSnackBarSuccess(context, 'Báo cáo sản xuất thành công');
         widget.onReport();
         Navigator.of(context).pop();
       }

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class OrderService {
@@ -133,7 +134,8 @@ class OrderService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to load orders", error: e, stackTrace: s);
       throw Exception('Failed to load orders: $e');
     }
   }
@@ -158,7 +160,8 @@ class OrderService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to update orders", error: e, stackTrace: s);
       throw Exception('Failed to update orders: $e');
     }
   }
@@ -179,8 +182,9 @@ class OrderService {
         ),
       );
       return true;
-    } catch (e) {
-      throw Exception('Failed to load orders: $e');
+    } catch (e, s) {
+      AppLogger.e("Failed to delete orders", error: e, stackTrace: s);
+      throw Exception('Failed to delete orders: $e');
     }
   }
 }

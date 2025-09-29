@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class CustomerService {
@@ -109,7 +110,8 @@ class CustomerService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to add customer", error: e, stackTrace: s);
       throw Exception('Failed to add customer: $e');
     }
   }
@@ -133,7 +135,8 @@ class CustomerService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to update customer", error: e, stackTrace: s);
       throw Exception('Failed to update customer: $e');
     }
   }
@@ -154,7 +157,8 @@ class CustomerService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to delete customer", error: e, stackTrace: s);
       throw Exception('Failed to delete customer: $e');
     }
   }
