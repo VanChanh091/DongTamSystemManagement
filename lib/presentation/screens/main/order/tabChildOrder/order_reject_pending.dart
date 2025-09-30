@@ -66,13 +66,13 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
           children: [
             //button
             SizedBox(
-              height: 105,
+              height: 100,
               width: double.infinity,
               child: Column(
                 children: [
                   //title
                   const SizedBox(
-                    height: 35,
+                    height: 30,
                     width: double.infinity,
                     child: Center(
                       child: Text(

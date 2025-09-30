@@ -3,7 +3,6 @@ import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class DialogReportProduction extends StatefulWidget {
@@ -30,7 +29,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   final qtyProducedController = TextEditingController();
   final qtyWasteNormController = TextEditingController();
   final dayCompletedController = TextEditingController();
-  DateTime? dayCompleted;
   final shiftProductionController = TextEditingController();
   late String shiftProduction = "Ca 1";
   final List<String> itemShiftProduction = ["Ca 1", "Ca 2", "Ca 3"];
@@ -47,7 +45,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       final double qtyWasteNorm =
           double.tryParse(qtyWasteNormController.text) ?? 0;
 
-      final DateTime completedDate = dayCompleted ?? DateTime.now();
+      final DateTime completedDate = DateTime.now();
 
       final Map<String, dynamic> reportData = {
         "shiftManagement": shiftManagementController.text,
@@ -180,8 +178,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         ),
       ),
       content: SizedBox(
-        width: 450,
-        height: 500,
+        width: 400,
         child: SingleChildScrollView(
           child: Form(
             key: formKey,
@@ -199,30 +196,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                   "Phế Liệu Thực Tế",
                   qtyWasteNormController,
                   Symbols.box,
-                ),
-                const SizedBox(height: 15),
-
-                validateInput(
-                  "Ngày Hoàn Thành",
-                  dayCompletedController,
-                  Symbols.calendar_month,
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      setState(() {
-                        dayCompleted = pickedDate;
-                        dayCompletedController.text = DateFormat(
-                          'dd/MM/yyyy',
-                        ).format(pickedDate);
-                      });
-                    }
-                  },
                 ),
                 const SizedBox(height: 15),
 
@@ -259,7 +232,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
             "Hủy",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 20,
+              fontSize: 18,
               color: Colors.red,
             ),
           ),
@@ -277,7 +250,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
             "Xác nhận",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 20,
+              fontSize: 18,
               color: Colors.white,
             ),
           ),

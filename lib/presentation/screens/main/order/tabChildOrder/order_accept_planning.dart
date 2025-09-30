@@ -172,12 +172,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
           children: [
             //button
             SizedBox(
-              height: 105,
+              height: 100,
               width: double.infinity,
               child: Column(
                 children: [
                   const SizedBox(
-                    height: 35,
+                    height: 30,
                     width: double.infinity,
                     child: Center(
                       child: Text(

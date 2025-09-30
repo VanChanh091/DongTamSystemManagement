@@ -125,11 +125,11 @@ class OrderDataSource extends DataGridSource {
         value: order.box?.chongTham ?? false,
       ),
       DataGridCell<bool>(
-        columnName: 'canLan',
+        columnName: 'canLanBox',
         value: order.box?.canLan ?? false,
       ),
       DataGridCell<bool>(
-        columnName: 'canLanBox',
+        columnName: 'canMang',
         value: order.box?.canMang ?? false,
       ),
       DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa ?? false),
@@ -204,6 +204,8 @@ class OrderDataSource extends DataGridSource {
     final value = dataCell.value;
 
     const boolColumns = [
+      'chongTham',
+      'canLanBox',
       'canMang',
       'xa',
       'catKhe',
@@ -212,12 +214,11 @@ class OrderDataSource extends DataGridSource {
       'dan_2_Manh',
       'dongGhimMotManh',
       'dongGhimHaiManh',
-      'chongTham',
     ];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
-      return value == true ? 'Có' : '';
+      return value == true ? '✅' : '';
     }
 
     return value?.toString() ?? '';

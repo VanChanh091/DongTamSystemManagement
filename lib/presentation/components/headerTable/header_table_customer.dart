@@ -18,6 +18,10 @@ List<GridColumn> buildCustomerColumn() {
       label: formatColumn("Hạn Mức Công Nợ"),
     ),
     GridColumn(
+      columnName: "debtCurrentCustomer",
+      label: formatColumn("Công Nợ Hiện Tại"),
+    ),
+    GridColumn(
       columnName: "termPaymentCost",
       label: formatColumn("Hạn Thanh Toán"),
     ),

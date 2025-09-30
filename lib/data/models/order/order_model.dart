@@ -71,6 +71,11 @@ class Order {
     this.user,
   });
 
+  //format number
+  static String formatCurrency(num value) {
+    return NumberFormat("#,###.##").format(value);
+  }
+
   //Acreage (m2) = lengthPaper * paperSize / 10000 * quantity
   static double acreagePaper(
     double lengthPaper,
@@ -100,11 +105,6 @@ class Order {
   //Total price = quantity * pricePaper
   static double totalPriceOrder(int quantity, double pricePaper) {
     return pricePaper * double.parse(quantity.toStringAsFixed(1));
-  }
-
-  //format number
-  static String formatCurrency(num value) {
-    return NumberFormat("#,###.##").format(value);
   }
 
   String get formatterStructureOrder {

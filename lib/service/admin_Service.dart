@@ -68,6 +68,11 @@ class AdminService {
 
       AppLogger.i("update $orderId successfully");
       return true;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 400) {
+        throw Exception("Debt limit exceeded");
+      }
+      rethrow;
     } catch (e, s) {
       AppLogger.e("Failed to load orders", error: e, stackTrace: s);
       throw Exception('Failed to update orders: $e');

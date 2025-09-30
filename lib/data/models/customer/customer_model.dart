@@ -12,6 +12,7 @@ class Customer {
   final String cskh;
   final String? contactPerson;
   final DateTime? dayCreated;
+  final double? debtCurrent;
   final double? debtLimit;
   final DateTime? timePayment;
   final String? rateCustomer;
@@ -27,6 +28,7 @@ class Customer {
     required this.cskh,
     this.contactPerson,
     this.dayCreated,
+    this.debtCurrent,
     required this.debtLimit,
     this.timePayment,
     required this.rateCustomer,
@@ -47,6 +49,7 @@ class Customer {
           json['dayCreated'] != null && json['dayCreated'].toString().isNotEmpty
               ? DateTime.tryParse(json['dayCreated'].toString())
               : null,
+      debtCurrent: toDouble(json['debtCurrent']),
       debtLimit: toDouble(json['debtLimit']),
       timePayment:
           json['timePayment'] != null &&

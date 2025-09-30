@@ -86,7 +86,6 @@ class ValidationOrder {
             if ((label == "Mã Đơn Hàng" ||
                     label == "Ngày yêu cầu giao" ||
                     label == "Số lượng (KH)" ||
-                    label == "Dài khách đặt (cm)" ||
                     label == "Khổ khách đặt (cm)" ||
                     label == "Số con" ||
                     label == "Đơn giá") &&

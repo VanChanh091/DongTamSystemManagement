@@ -265,14 +265,16 @@ class _CustomerDialogState extends State<CustomerDialog> {
                     key: formKey,
                     child: Column(
                       children: [
-                        const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          "Mã khách hàng",
-                          _idController,
-                          Icons.badge,
-                          readOnly: isEdit,
-                          checkId: !isEdit,
-                        ),
+                        if (widget.customer == null) ...[
+                          const SizedBox(height: 15),
+                          ValidationCustomer.validateInput(
+                            "Mã khách hàng",
+                            _idController,
+                            Icons.badge,
+                            readOnly: isEdit,
+                            checkId: !isEdit,
+                          ),
+                        ],
 
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(

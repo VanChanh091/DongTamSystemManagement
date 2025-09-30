@@ -41,7 +41,17 @@ class CustomerDatasource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: "debtLimitCustomer",
-        value: Order.formatCurrency(customer.debtLimit ?? 0),
+        value:
+            (customer.debtLimit ?? 0) > 0
+                ? '${Order.formatCurrency(customer.debtLimit ?? 0)} VNĐ'
+                : "0",
+      ),
+      DataGridCell<String>(
+        columnName: "debtCurrentCustomer",
+        value:
+            (customer.debtCurrent ?? 0) > 0
+                ? '${Order.formatCurrency(customer.debtCurrent ?? 0)} VNĐ'
+                : "0",
       ),
       DataGridCell<String>(
         columnName: "termPaymentCost",

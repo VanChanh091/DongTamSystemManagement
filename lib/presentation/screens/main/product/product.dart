@@ -480,7 +480,8 @@ class _ProductPageState extends State<ProductPage> {
                     return SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: DataTable(
-                        columnSpacing: 25,
+                        // columnSpacing: 25,
+                        headingRowHeight: 50,
                         headingRowColor: const WidgetStatePropertyAll(
                           Color(0xffcfa381),
                         ),

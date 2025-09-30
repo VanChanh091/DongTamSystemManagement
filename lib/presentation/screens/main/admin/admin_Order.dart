@@ -192,27 +192,45 @@ class _ManageOrderState extends State<AdminOrder> {
                                           //approve
                                           AnimatedButton(
                                             onPressed: () async {
-                                              await AdminService()
-                                                  .updateStatusOrder(
-                                                    selectedOrder!.orderId,
-                                                    'accept',
-                                                    "",
+                                              try {
+                                                await AdminService()
+                                                    .updateStatusOrder(
+                                                      selectedOrder!.orderId,
+                                                      'accept',
+                                                      "",
+                                                    );
+                                                if (!context.mounted) return;
+
+                                                showSnackBarSuccess(
+                                                  context,
+                                                  'Phê duyệt thành công',
+                                                );
+                                                await _loadOrders();
+
+                                                //cập nhật lại badge
+                                                badgesController
+                                                    .fetchPendingApprovals();
+
+                                                setState(() {
+                                                  selectedOrder = null;
+                                                });
+                                              } catch (e) {
+                                                if (!context.mounted) return;
+
+                                                if (e.toString().contains(
+                                                  "Debt limit exceeded",
+                                                )) {
+                                                  showSnackBarError(
+                                                    context,
+                                                    'Vượt hạn mức công nợ của khách hàng này!',
                                                   );
-                                              if (!context.mounted) return;
-
-                                              showSnackBarSuccess(
-                                                context,
-                                                'Phê duyệt thành công',
-                                              );
-                                              await _loadOrders();
-
-                                              //cập nhật lại badge
-                                              badgesController
-                                                  .fetchPendingApprovals();
-
-                                              setState(() {
-                                                selectedOrder = null;
-                                              });
+                                                } else {
+                                                  showSnackBarError(
+                                                    context,
+                                                    'Có lỗi xảy ra: $e',
+                                                  );
+                                                }
+                                              }
                                             },
                                             label: 'Duyệt',
                                             icon: Icons.check,

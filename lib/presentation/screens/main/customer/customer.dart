@@ -470,7 +470,7 @@ class _CustomerPageState extends State<CustomerPage> {
                           columnWidthMode: ColumnWidthMode.auto,
                           selectionMode: SelectionMode.single,
                           columns: columns,
-                          headerRowHeight: 40,
+                          headerRowHeight: 50,
                           rowHeight: 45,
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {
