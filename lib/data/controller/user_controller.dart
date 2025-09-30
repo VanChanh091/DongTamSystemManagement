@@ -42,7 +42,6 @@ class UserController extends GetxController {
 
   bool hasAnyPermission(List<String> permission) {
     if (role.value == "admin" || role.value == "manager") {
-      AppLogger.i("hasAnyPermission: role=${role.value} => FULL ACCESS");
       return true;
     }
     return permissions.any((p) => permission.contains(p));
@@ -50,9 +49,6 @@ class UserController extends GetxController {
 
   bool hasAnyRole(List<String> roles) {
     final result = roles.contains(role.value);
-    AppLogger.i(
-      "hasAnyRole: role=${role.value}, checkList=$roles, result=$result",
-    );
     return result;
   }
 

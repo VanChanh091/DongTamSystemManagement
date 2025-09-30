@@ -66,293 +66,300 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
           children: [
             //button
             SizedBox(
-              height: 70,
+              height: 105,
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            SizedBox(),
-                            //title
-                            Text(
-                              "ĐƠN HÀNG ĐANG CHỜ DUYỆT/TỪ CHỐI",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25,
-                                color: Color(0xffcfa381),
-                              ),
-                            ),
-                          ],
+                  //title
+                  const SizedBox(
+                    height: 35,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        "ĐƠN HÀNG CHỜ DUYỆT/BỊ TỪ CHỐI",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Color(0xffcfa381),
                         ),
                       ),
+                    ),
+                  ),
+                  //button menu
+                  SizedBox(
+                    height: 70,
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(),
 
-                      // Các nút bên phải
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 10,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            //see all/see only
-                            isManager
-                                ? SizedBox(
-                                  width: 150,
-                                  child: AnimatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isSeenOrder = !isSeenOrder;
-                                      });
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              //see all/see only
+                              isManager
+                                  ? SizedBox(
+                                    width: 150,
+                                    child: AnimatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isSeenOrder = !isSeenOrder;
+                                        });
 
-                                      loadOrders(false, isSeenOrder);
-                                    },
-                                    label:
-                                        isSeenOrder
-                                            ? "Xem Tất Cả"
-                                            : "Đơn Bản Thân",
-                                    icon: null,
-                                  ),
-                                )
-                                : const SizedBox.shrink(),
-                            const SizedBox(width: 10),
+                                        loadOrders(false, isSeenOrder);
+                                      },
+                                      label:
+                                          isSeenOrder
+                                              ? "Xem Tất Cả"
+                                              : "Đơn Bản Thân",
+                                      icon: null,
+                                    ),
+                                  )
+                                  : const SizedBox.shrink(),
+                              const SizedBox(width: 10),
 
-                            //add
-                            AnimatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder:
-                                      (_) => OrderDialog(
-                                        order: null,
-                                        onOrderAddOrUpdate:
-                                            () => loadOrders(true, isSeenOrder),
-                                      ),
-                                );
-                              },
-                              label: "Thêm mới",
-                              icon: Icons.add,
-                            ),
-                            const SizedBox(width: 10),
+                              //add
+                              AnimatedButton(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (_) => OrderDialog(
+                                          order: null,
+                                          onOrderAddOrUpdate:
+                                              () =>
+                                                  loadOrders(true, isSeenOrder),
+                                        ),
+                                  );
+                                },
+                                label: "Thêm mới",
+                                icon: Icons.add,
+                              ),
+                              const SizedBox(width: 10),
 
-                            //update
-                            AnimatedButton(
-                              onPressed:
-                                  selectedOrderId == null
-                                      ? null
-                                      : () async {
-                                        try {
-                                          final orders =
-                                              await futureOrdersPending;
-                                          final selectedOrder = orders
-                                              .firstWhere(
-                                                (order) =>
-                                                    order.orderId ==
-                                                    selectedOrderId,
-                                              );
+                              //update
+                              AnimatedButton(
+                                onPressed:
+                                    selectedOrderId == null
+                                        ? null
+                                        : () async {
+                                          try {
+                                            final orders =
+                                                await futureOrdersPending;
+                                            final selectedOrder = orders
+                                                .firstWhere(
+                                                  (order) =>
+                                                      order.orderId ==
+                                                      selectedOrderId,
+                                                );
 
-                                          if (!context.mounted) return;
+                                            if (!context.mounted) return;
 
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (_) => OrderDialog(
+                                                    order: selectedOrder,
+                                                    onOrderAddOrUpdate:
+                                                        () => loadOrders(
+                                                          true,
+                                                          isSeenOrder,
+                                                        ),
+                                                  ),
+                                            );
+                                          } catch (e, s) {
+                                            AppLogger.e(
+                                              "Lỗi không tìm thấy đơn hàng",
+                                              error: e,
+                                              stackTrace: s,
+                                            );
+                                          }
+                                        },
+                                label: "Sửa",
+                                icon: Symbols.construction,
+                              ),
+                              const SizedBox(width: 10),
+
+                              //delete
+                              AnimatedButton(
+                                onPressed:
+                                    selectedOrderId == null
+                                        ? null
+                                        : () {
                                           showDialog(
                                             context: context,
-                                            builder:
-                                                (_) => OrderDialog(
-                                                  order: selectedOrder,
-                                                  onOrderAddOrUpdate:
-                                                      () => loadOrders(
-                                                        true,
-                                                        isSeenOrder,
-                                                      ),
-                                                ),
-                                          );
-                                        } catch (e, s) {
-                                          AppLogger.e(
-                                            "Lỗi không tìm thấy đơn hàng",
-                                            error: e,
-                                            stackTrace: s,
-                                          );
-                                        }
-                                      },
-                              label: "Sửa",
-                              icon: Symbols.construction,
-                            ),
-                            const SizedBox(width: 10),
+                                            builder: (context) {
+                                              bool isDeleting = false;
 
-                            //delete
-                            AnimatedButton(
-                              onPressed:
-                                  selectedOrderId == null
-                                      ? null
-                                      : () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            bool isDeleting = false;
+                                              return StatefulBuilder(
+                                                builder: (
+                                                  context,
+                                                  setStateDialog,
+                                                ) {
+                                                  return AlertDialog(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            16,
+                                                          ),
+                                                    ),
+                                                    title: Row(
+                                                      children: const [
+                                                        Icon(
+                                                          Icons
+                                                              .warning_amber_rounded,
+                                                          color: Colors.red,
+                                                          size: 30,
+                                                        ),
+                                                        SizedBox(width: 8),
+                                                        Text(
+                                                          "Xác nhận xoá",
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    content:
+                                                        isDeleting
+                                                            ? Row(
+                                                              children: const [
+                                                                CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2,
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 12,
+                                                                ),
+                                                                Text(
+                                                                  "Đang xoá...",
+                                                                ),
+                                                              ],
+                                                            )
+                                                            : const Text(
+                                                              'Bạn có chắc chắn muốn xoá đơn hàng này?',
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                              ),
+                                                            ),
+                                                    actions:
+                                                        isDeleting
+                                                            ? []
+                                                            : [
+                                                              TextButton(
+                                                                onPressed:
+                                                                    () => Navigator.pop(
+                                                                      context,
+                                                                    ),
+                                                                child: const Text(
+                                                                  "Huỷ",
+                                                                  style: TextStyle(
+                                                                    fontSize:
+                                                                        16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color:
+                                                                        Colors
+                                                                            .black54,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              ElevatedButton(
+                                                                style: ElevatedButton.styleFrom(
+                                                                  backgroundColor:
+                                                                      const Color(
+                                                                        0xffEA4346,
+                                                                      ),
+                                                                  foregroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  shape: RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          8,
+                                                                        ),
+                                                                  ),
+                                                                ),
+                                                                onPressed: () async {
+                                                                  setStateDialog(
+                                                                    () {
+                                                                      isDeleting =
+                                                                          true;
+                                                                    },
+                                                                  );
 
-                                            return StatefulBuilder(
-                                              builder: (
-                                                context,
-                                                setStateDialog,
-                                              ) {
-                                                return AlertDialog(
-                                                  backgroundColor: Colors.white,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          16,
-                                                        ),
-                                                  ),
-                                                  title: Row(
-                                                    children: const [
-                                                      Icon(
-                                                        Icons
-                                                            .warning_amber_rounded,
-                                                        color: Colors.red,
-                                                        size: 30,
-                                                      ),
-                                                      SizedBox(width: 8),
-                                                      Text(
-                                                        "Xác nhận xoá",
-                                                        style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  content:
-                                                      isDeleting
-                                                          ? Row(
-                                                            children: const [
-                                                              CircularProgressIndicator(
-                                                                strokeWidth: 2,
-                                                              ),
-                                                              SizedBox(
-                                                                width: 12,
-                                                              ),
-                                                              Text(
-                                                                "Đang xoá...",
+                                                                  await OrderService()
+                                                                      .deleteOrder(
+                                                                        selectedOrderId!,
+                                                                      );
+
+                                                                  badgesController
+                                                                      .fetchPendingApprovals();
+
+                                                                  await Future.delayed(
+                                                                    const Duration(
+                                                                      milliseconds:
+                                                                          500,
+                                                                    ),
+                                                                  );
+
+                                                                  if (!context
+                                                                      .mounted) {
+                                                                    return;
+                                                                  }
+
+                                                                  loadOrders(
+                                                                    true,
+                                                                    isSeenOrder,
+                                                                  );
+
+                                                                  Navigator.pop(
+                                                                    context,
+                                                                  );
+
+                                                                  // Optional: Show success toast
+                                                                  showSnackBarSuccess(
+                                                                    context,
+                                                                    'Xoá thành công',
+                                                                  );
+                                                                },
+                                                                child: const Text(
+                                                                  "Xoá",
+                                                                  style: TextStyle(
+                                                                    fontSize:
+                                                                        16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ],
-                                                          )
-                                                          : const Text(
-                                                            'Bạn có chắc chắn muốn xoá đơn hàng này?',
-                                                            style: TextStyle(
-                                                              fontSize: 16,
-                                                            ),
-                                                          ),
-                                                  actions:
-                                                      isDeleting
-                                                          ? []
-                                                          : [
-                                                            TextButton(
-                                                              onPressed:
-                                                                  () =>
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      ),
-                                                              child: const Text(
-                                                                "Huỷ",
-                                                                style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color:
-                                                                      Colors
-                                                                          .black54,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            ElevatedButton(
-                                                              style: ElevatedButton.styleFrom(
-                                                                backgroundColor:
-                                                                    const Color(
-                                                                      0xffEA4346,
-                                                                    ),
-                                                                foregroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                shape: RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius.circular(
-                                                                        8,
-                                                                      ),
-                                                                ),
-                                                              ),
-                                                              onPressed: () async {
-                                                                setStateDialog(
-                                                                  () {
-                                                                    isDeleting =
-                                                                        true;
-                                                                  },
-                                                                );
-
-                                                                await OrderService()
-                                                                    .deleteOrder(
-                                                                      selectedOrderId!,
-                                                                    );
-
-                                                                badgesController
-                                                                    .fetchPendingApprovals();
-
-                                                                await Future.delayed(
-                                                                  const Duration(
-                                                                    milliseconds:
-                                                                        500,
-                                                                  ),
-                                                                );
-
-                                                                if (!context
-                                                                    .mounted) {
-                                                                  return;
-                                                                }
-
-                                                                loadOrders(
-                                                                  true,
-                                                                  isSeenOrder,
-                                                                );
-
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-
-                                                                // Optional: Show success toast
-                                                                showSnackBarSuccess(
-                                                                  context,
-                                                                  'Xoá thành công',
-                                                                );
-                                                              },
-                                                              child: const Text(
-                                                                "Xoá",
-                                                                style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                );
-                                              },
-                                            );
-                                          },
-                                        );
-                                      },
-                              label: "Xóa",
-                              icon: Icons.delete,
-                              backgroundColor: const Color(0xffEA4346),
-                            ),
-                          ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          );
+                                        },
+                                label: "Xóa",
+                                icon: Icons.delete,
+                                backgroundColor: const Color(0xffEA4346),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

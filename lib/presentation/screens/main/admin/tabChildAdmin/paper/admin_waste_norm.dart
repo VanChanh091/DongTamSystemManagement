@@ -52,255 +52,278 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
           children: [
             //button
             SizedBox(
-              height: 65,
+              height: 90,
               width: double.infinity,
-              child:
-                  isAccept
-                      ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          //left
-                          const SizedBox(),
-
-                          //right
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
-                            child: Row(
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 30,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        "ĐỊNH MỨC PHẾ LIỆU GIẤY",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Color(0xffcfa381),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 60,
+                    width: double.infinity,
+                    child:
+                        isAccept
+                            ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                // update
-                                AnimatedButton(
-                                  onPressed: () async {
-                                    if (isSelected.isEmpty) {
-                                      showSnackBarError(
-                                        context,
-                                        "Chưa chọn thông tin cần cập nhật",
-                                      );
-                                      return;
-                                    }
+                                //left
+                                const SizedBox(),
 
-                                    final dataToUpdate =
-                                        updatedWasteNorms
-                                            .where(
-                                              (item) => isSelected.contains(
-                                                item.wasteNormId,
-                                              ),
-                                            )
-                                            .toList();
+                                //right
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 10,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      // update
+                                      AnimatedButton(
+                                        onPressed: () async {
+                                          if (isSelected.isEmpty) {
+                                            showSnackBarError(
+                                              context,
+                                              "Chưa chọn thông tin cần cập nhật",
+                                            );
+                                            return;
+                                          }
 
-                                    for (final item in dataToUpdate) {
-                                      // print(
-                                      //   '⏫ Updating wasteNormId: ${item.wasteNormId}',
-                                      // );
+                                          final dataToUpdate =
+                                              updatedWasteNorms
+                                                  .where(
+                                                    (item) =>
+                                                        isSelected.contains(
+                                                          item.wasteNormId,
+                                                        ),
+                                                  )
+                                                  .toList();
 
-                                      await AdminService()
-                                          .updateWasteNorm(item.wasteNormId, {
-                                            "waveCrest": item.waveCrest,
-                                            "waveCrestSoft": item.waveCrestSoft,
-                                            "lossInProcess": item.lossInProcess,
-                                            "lossInSheetingAndSlitting":
-                                                item.lossInSheetingAndSlitting,
-                                            "machineName": item.machineName,
-                                          });
-                                    }
+                                          for (final item in dataToUpdate) {
+                                            // print(
+                                            //   '⏫ Updating wasteNormId: ${item.wasteNormId}',
+                                            // );
 
-                                    if (!context.mounted) return;
-
-                                    loadWasteNorm();
-
-                                    showSnackBarSuccess(
-                                      context,
-                                      'Đã cập nhật thành công',
-                                    );
-                                  },
-                                  label: "Lưu Thay Đổi",
-                                  icon: Symbols.save,
-                                ),
-                                const SizedBox(width: 10),
-
-                                //delete customers
-                                AnimatedButton(
-                                  onPressed:
-                                      isSelected.isNotEmpty
-                                          ? () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                bool isDeleting = false;
-
-                                                return StatefulBuilder(
-                                                  builder: (
-                                                    context,
-                                                    setStateDialog,
-                                                  ) {
-                                                    return AlertDialog(
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              16,
-                                                            ),
-                                                      ),
-                                                      title: const Row(
-                                                        children: [
-                                                          Icon(
-                                                            Icons
-                                                                .warning_amber_rounded,
-                                                            color: Colors.red,
-                                                            size: 30,
-                                                          ),
-                                                          SizedBox(width: 8),
-                                                          Text(
-                                                            "Xác nhận xoá",
-                                                            style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      content:
-                                                          isDeleting
-                                                              ? const Row(
-                                                                children: [
-                                                                  CircularProgressIndicator(
-                                                                    strokeWidth:
-                                                                        2,
-                                                                  ),
-                                                                  SizedBox(
-                                                                    width: 12,
-                                                                  ),
-                                                                  Text(
-                                                                    "Đang xoá...",
-                                                                  ),
-                                                                ],
-                                                              )
-                                                              : const Text(
-                                                                'Bạn có chắc chắn muốn xoá?',
-                                                                style:
-                                                                    TextStyle(
-                                                                      fontSize:
-                                                                          16,
-                                                                    ),
-                                                              ),
-                                                      actions:
-                                                          isDeleting
-                                                              ? []
-                                                              : [
-                                                                TextButton(
-                                                                  onPressed:
-                                                                      () => Navigator.pop(
-                                                                        context,
-                                                                      ),
-                                                                  child: const Text(
-                                                                    "Huỷ",
-                                                                    style: TextStyle(
-                                                                      fontSize:
-                                                                          16,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      color:
-                                                                          Colors
-                                                                              .black54,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                ElevatedButton(
-                                                                  style: ElevatedButton.styleFrom(
-                                                                    backgroundColor:
-                                                                        const Color(
-                                                                          0xffEA4346,
-                                                                        ),
-                                                                    foregroundColor:
-                                                                        Colors
-                                                                            .white,
-                                                                    shape: RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                            8,
-                                                                          ),
-                                                                    ),
-                                                                  ),
-                                                                  onPressed: () async {
-                                                                    setStateDialog(
-                                                                      () {
-                                                                        isDeleting =
-                                                                            true;
-                                                                      },
-                                                                    );
-
-                                                                    for (int id
-                                                                        in isSelected) {
-                                                                      await AdminService()
-                                                                          .deleteWasteNorm(
-                                                                            id,
-                                                                          );
-                                                                    }
-
-                                                                    await Future.delayed(
-                                                                      const Duration(
-                                                                        seconds:
-                                                                            1,
-                                                                      ),
-                                                                    );
-
-                                                                    if (!context
-                                                                        .mounted) {
-                                                                      return;
-                                                                    }
-
-                                                                    setState(() {
-                                                                      isSelected
-                                                                          .clear();
-                                                                      futureAdminWasteNorm =
-                                                                          AdminService()
-                                                                              .getAllWasteNorm();
-                                                                    });
-
-                                                                    Navigator.pop(
-                                                                      context,
-                                                                    );
-
-                                                                    // Optional: Show success toast
-                                                                    showSnackBarSuccess(
-                                                                      context,
-                                                                      'Xoá thành công',
-                                                                    );
-                                                                  },
-                                                                  child: const Text(
-                                                                    "Xoá",
-                                                                    style: TextStyle(
-                                                                      fontSize:
-                                                                          16,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                    );
-                                                  },
-                                                );
+                                            await AdminService().updateWasteNorm(
+                                              item.wasteNormId,
+                                              {
+                                                "waveCrest": item.waveCrest,
+                                                "waveCrestSoft":
+                                                    item.waveCrestSoft,
+                                                "lossInProcess":
+                                                    item.lossInProcess,
+                                                "lossInSheetingAndSlitting":
+                                                    item.lossInSheetingAndSlitting,
+                                                "machineName": item.machineName,
                                               },
                                             );
                                           }
-                                          : null,
-                                  label: "Xóa",
-                                  icon: Icons.delete,
-                                  backgroundColor: const Color(0xffEA4346),
+
+                                          if (!context.mounted) return;
+
+                                          loadWasteNorm();
+
+                                          showSnackBarSuccess(
+                                            context,
+                                            'Đã cập nhật thành công',
+                                          );
+                                        },
+                                        label: "Lưu Thay Đổi",
+                                        icon: Symbols.save,
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      //delete customers
+                                      AnimatedButton(
+                                        onPressed:
+                                            isSelected.isNotEmpty
+                                                ? () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      bool isDeleting = false;
+
+                                                      return StatefulBuilder(
+                                                        builder: (
+                                                          context,
+                                                          setStateDialog,
+                                                        ) {
+                                                          return AlertDialog(
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                            title: const Row(
+                                                              children: [
+                                                                Icon(
+                                                                  Icons
+                                                                      .warning_amber_rounded,
+                                                                  color:
+                                                                      Colors
+                                                                          .red,
+                                                                  size: 30,
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 8,
+                                                                ),
+                                                                Text(
+                                                                  "Xác nhận xoá",
+                                                                  style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            content:
+                                                                isDeleting
+                                                                    ? const Row(
+                                                                      children: [
+                                                                        CircularProgressIndicator(
+                                                                          strokeWidth:
+                                                                              2,
+                                                                        ),
+                                                                        SizedBox(
+                                                                          width:
+                                                                              12,
+                                                                        ),
+                                                                        Text(
+                                                                          "Đang xoá...",
+                                                                        ),
+                                                                      ],
+                                                                    )
+                                                                    : const Text(
+                                                                      'Bạn có chắc chắn muốn xoá?',
+                                                                      style: TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                      ),
+                                                                    ),
+                                                            actions:
+                                                                isDeleting
+                                                                    ? []
+                                                                    : [
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () => Navigator.pop(
+                                                                              context,
+                                                                            ),
+                                                                        child: const Text(
+                                                                          "Huỷ",
+                                                                          style: TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color:
+                                                                                Colors.black54,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      ElevatedButton(
+                                                                        style: ElevatedButton.styleFrom(
+                                                                          backgroundColor: const Color(
+                                                                            0xffEA4346,
+                                                                          ),
+                                                                          foregroundColor:
+                                                                              Colors.white,
+                                                                          shape: RoundedRectangleBorder(
+                                                                            borderRadius: BorderRadius.circular(
+                                                                              8,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        onPressed: () async {
+                                                                          setStateDialog(() {
+                                                                            isDeleting =
+                                                                                true;
+                                                                          });
+
+                                                                          for (int
+                                                                              id
+                                                                              in isSelected) {
+                                                                            await AdminService().deleteWasteNorm(
+                                                                              id,
+                                                                            );
+                                                                          }
+
+                                                                          await Future.delayed(
+                                                                            const Duration(
+                                                                              seconds:
+                                                                                  1,
+                                                                            ),
+                                                                          );
+
+                                                                          if (!context
+                                                                              .mounted) {
+                                                                            return;
+                                                                          }
+
+                                                                          setState(() {
+                                                                            isSelected.clear();
+                                                                            futureAdminWasteNorm =
+                                                                                AdminService().getAllWasteNorm();
+                                                                          });
+
+                                                                          Navigator.pop(
+                                                                            context,
+                                                                          );
+
+                                                                          // Optional: Show success toast
+                                                                          showSnackBarSuccess(
+                                                                            context,
+                                                                            'Xoá thành công',
+                                                                          );
+                                                                        },
+                                                                        child: const Text(
+                                                                          "Xoá",
+                                                                          style: TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  );
+                                                }
+                                                : null,
+                                        label: "Xóa",
+                                        icon: Icons.delete,
+                                        backgroundColor: const Color(
+                                          0xffEA4346,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
-                            ),
-                          ),
-                        ],
-                      )
-                      : const SizedBox.shrink(),
+                            )
+                            : const SizedBox.shrink(),
+                  ),
+                ],
+              ),
             ),
 
             //table

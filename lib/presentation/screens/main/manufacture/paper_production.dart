@@ -213,45 +213,144 @@ class _PaperProductionState extends State<PaperProduction> {
           children: [
             //button
             SizedBox(
-              height: 70,
+              height: 105,
               width: double.infinity,
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      //left button
-                      const SizedBox(),
-
-                      //right button
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 10,
+                  //title
+                  const SizedBox(
+                    height: 35,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        "DANH SÁCH GIẤY TẤM CHỜ SẢN XUẤT",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Color(0xffcfa381),
                         ),
-                        child: Row(
-                          children: [
-                            //report production
-                            AnimatedButton(
-                              onPressed:
-                                  userController.hasAnyPermission([
-                                            "machine1350",
-                                            "machine1900",
-                                            "machine2Layer",
-                                            "MachineRollPaper",
-                                          ]) &&
-                                          canExecuteAction(
-                                            selectedPlanningIds:
-                                                selectedPlanningIds,
-                                            orderIdToPlanningId:
-                                                orderIdToPlanningId,
-                                            planningList: planningList,
-                                          )
-                                      ? () async {
-                                        try {
+                      ),
+                    ),
+                  ),
+
+                  //button menu
+                  SizedBox(
+                    height: 70,
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(),
+
+                        //right button
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
+                          child: Row(
+                            children: [
+                              //report production
+                              AnimatedButton(
+                                onPressed:
+                                    userController.hasAnyPermission([
+                                              "machine1350",
+                                              "machine1900",
+                                              "machine2Layer",
+                                              "MachineRollPaper",
+                                            ]) &&
+                                            canExecuteAction(
+                                              selectedPlanningIds:
+                                                  selectedPlanningIds,
+                                              orderIdToPlanningId:
+                                                  orderIdToPlanningId,
+                                              planningList: planningList,
+                                            )
+                                        ? () async {
+                                          try {
+                                            final String selectedOrderId =
+                                                selectedPlanningIds.first;
+
+                                            final planningId =
+                                                orderIdToPlanningId[selectedOrderId];
+                                            if (planningId == null) {
+                                              showSnackBarError(
+                                                context,
+                                                "Không tìm thấy planningId cho orderId: $selectedOrderId",
+                                              );
+                                              return;
+                                            }
+
+                                            final selectedPlanning =
+                                                planningList.firstWhere(
+                                                  (p) =>
+                                                      p.planningId ==
+                                                      planningId,
+                                                  orElse:
+                                                      () =>
+                                                          throw Exception(
+                                                            "Không tìm thấy kế hoạch",
+                                                          ),
+                                                );
+
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (_) => DialogReportProduction(
+                                                    planningId:
+                                                        selectedPlanning
+                                                            .planningId,
+                                                    onReport:
+                                                        () =>
+                                                            loadPlanning(true),
+                                                  ),
+                                            );
+                                          } catch (e, s) {
+                                            AppLogger.e(
+                                              "Lỗi khi mở dialog",
+                                              error: e,
+                                              stackTrace: s,
+                                            );
+                                            showSnackBarError(
+                                              context,
+                                              "Đã xảy ra lỗi khi mở báo cáo.",
+                                            );
+                                          }
+                                        }
+                                        : null,
+                                label: "Báo Cáo SX",
+                                icon: Icons.assignment,
+                              ),
+                              const SizedBox(width: 10),
+
+                              //confirm production
+                              AnimatedButton(
+                                onPressed:
+                                    userController.hasAnyPermission([
+                                              "machine1350",
+                                              "machine1900",
+                                              "machine2Layer",
+                                              "MachineRollPaper",
+                                            ]) &&
+                                            canExecuteAction(
+                                              selectedPlanningIds:
+                                                  selectedPlanningIds,
+                                              orderIdToPlanningId:
+                                                  orderIdToPlanningId,
+                                              planningList: planningList,
+                                            )
+                                        ? () async {
+                                          //get planning first
                                           final String selectedOrderId =
                                               selectedPlanningIds.first;
 
+                                          //get all planning
+                                          final planningList =
+                                              await futurePlanning;
+
+                                          if (!context.mounted) return;
+
+                                          // get planningId from orderId
                                           final planningId =
                                               orderIdToPlanningId[selectedOrderId];
                                           if (planningId == null) {
@@ -262,6 +361,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                             return;
                                           }
 
+                                          // find planning by planningId
                                           final selectedPlanning = planningList
                                               .firstWhere(
                                                 (p) =>
@@ -273,150 +373,73 @@ class _PaperProductionState extends State<PaperProduction> {
                                                         ),
                                               );
 
-                                          showDialog(
-                                            context: context,
-                                            builder:
-                                                (_) => DialogReportProduction(
-                                                  planningId:
-                                                      selectedPlanning
-                                                          .planningId,
-                                                  onReport:
-                                                      () => loadPlanning(true),
-                                                ),
-                                          );
-                                        } catch (e, s) {
-                                          AppLogger.e(
-                                            "Lỗi khi mở dialog",
-                                            error: e,
-                                            stackTrace: s,
-                                          );
-                                          showSnackBarError(
-                                            context,
-                                            "Đã xảy ra lỗi khi mở báo cáo.",
-                                          );
-                                        }
-                                      }
-                                      : null,
-                              label: "Báo Cáo SX",
-                              icon: Icons.assignment,
-                            ),
-                            const SizedBox(width: 10),
+                                          try {
+                                            await ManufactureService()
+                                                .confirmProducingPaper(
+                                                  selectedPlanning.planningId,
+                                                );
 
-                            //confirm production
-                            AnimatedButton(
-                              onPressed:
-                                  userController.hasAnyPermission([
-                                            "machine1350",
-                                            "machine1900",
-                                            "machine2Layer",
-                                            "MachineRollPaper",
-                                          ]) &&
-                                          canExecuteAction(
-                                            selectedPlanningIds:
-                                                selectedPlanningIds,
-                                            orderIdToPlanningId:
-                                                orderIdToPlanningId,
-                                            planningList: planningList,
-                                          )
-                                      ? () async {
-                                        //get planning first
-                                        final String selectedOrderId =
-                                            selectedPlanningIds.first;
+                                            if (!context.mounted) return;
 
-                                        //get all planning
-                                        final planningList =
-                                            await futurePlanning;
-
-                                        if (!context.mounted) return;
-
-                                        // get planningId from orderId
-                                        final planningId =
-                                            orderIdToPlanningId[selectedOrderId];
-                                        if (planningId == null) {
-                                          showSnackBarError(
-                                            context,
-                                            "Không tìm thấy planningId cho orderId: $selectedOrderId",
-                                          );
-                                          return;
-                                        }
-
-                                        // find planning by planningId
-                                        final selectedPlanning = planningList
-                                            .firstWhere(
-                                              (p) => p.planningId == planningId,
-                                              orElse:
-                                                  () =>
-                                                      throw Exception(
-                                                        "Không tìm thấy kế hoạch",
-                                                      ),
+                                            loadPlanning(true);
+                                          } catch (e) {
+                                            if (!context.mounted) return;
+                                            showSnackBarError(
+                                              context,
+                                              "Có lỗi khi xác nhận SX: $e",
                                             );
-
-                                        try {
-                                          await ManufactureService()
-                                              .confirmProducingPaper(
-                                                selectedPlanning.planningId,
-                                              );
-
-                                          if (!context.mounted) return;
-
-                                          loadPlanning(true);
-                                        } catch (e) {
-                                          if (!context.mounted) return;
-                                          showSnackBarError(
-                                            context,
-                                            "Có lỗi khi xác nhận SX: $e",
-                                          );
+                                          }
                                         }
-                                      }
-                                      : null,
-                              label: "Xác Nhận SX",
-                              icon: null,
-                            ),
-                            const SizedBox(width: 10),
+                                        : null,
+                                label: "Xác Nhận SX",
+                                icon: null,
+                              ),
+                              const SizedBox(width: 10),
 
-                            //choose machine
-                            SizedBox(
-                              width: 175,
-                              child: DropdownButtonFormField<String>(
-                                value: machine,
-                                items:
-                                    [
-                                      'Máy 1350',
-                                      "Máy 1900",
-                                      "Máy 2 Lớp",
-                                      "Máy Quấn Cuồn",
-                                    ].map((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    changeMachine(value);
-                                  }
-                                },
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                      color: Colors.grey,
+                              //choose machine
+                              SizedBox(
+                                width: 175,
+                                child: DropdownButtonFormField<String>(
+                                  value: machine,
+                                  items:
+                                      [
+                                        'Máy 1350',
+                                        "Máy 1900",
+                                        "Máy 2 Lớp",
+                                        "Máy Quấn Cuồn",
+                                      ].map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      changeMachine(value);
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Colors.grey,
+                                      ),
                                     ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                          ],
+                              const SizedBox(width: 10),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

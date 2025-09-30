@@ -61,69 +61,95 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
           children: [
             //button
             SizedBox(
-              height: 70,
+              height: 105,
               width: double.infinity,
-              child:
-                  isPlan
-                      ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const SizedBox(),
-
-                          //button
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
-                            child: Row(
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 35,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        "ĐƠN HÀNG CHỜ LÊN KẾ HOẠCH",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Color(0xffcfa381),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 70,
+                    width: double.infinity,
+                    child:
+                        isPlan
+                            ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                //planning
-                                AnimatedButton(
-                                  onPressed:
-                                      selectedOrderId == null
-                                          ? null
-                                          : () async {
-                                            try {
-                                              final order =
-                                                  await futureOrdersAccept;
-                                              final selectedOrder = order
-                                                  .firstWhere(
-                                                    (order) =>
-                                                        order.orderId ==
-                                                        selectedOrderId,
-                                                  );
+                                const SizedBox(),
 
-                                              if (!context.mounted) return;
+                                //button
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 10,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      //planning
+                                      AnimatedButton(
+                                        onPressed:
+                                            selectedOrderId == null
+                                                ? null
+                                                : () async {
+                                                  try {
+                                                    final order =
+                                                        await futureOrdersAccept;
+                                                    final selectedOrder = order
+                                                        .firstWhere(
+                                                          (order) =>
+                                                              order.orderId ==
+                                                              selectedOrderId,
+                                                        );
 
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (_) => PLanningDialog(
-                                                      order: selectedOrder,
-                                                      onPlanningOrder:
-                                                          () =>
-                                                              loadOrders(true),
-                                                    ),
-                                              );
-                                            } catch (e, s) {
-                                              AppLogger.e(
-                                                "Lỗi không tìm thấy đơn hàng",
-                                                error: e,
-                                                stackTrace: s,
-                                              );
-                                            }
-                                          },
-                                  label: "Lên kế hoạch",
-                                  icon: Icons.add,
+                                                    if (!context.mounted)
+                                                      return;
+
+                                                    showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (_) => PLanningDialog(
+                                                            order:
+                                                                selectedOrder,
+                                                            onPlanningOrder:
+                                                                () =>
+                                                                    loadOrders(
+                                                                      true,
+                                                                    ),
+                                                          ),
+                                                    );
+                                                  } catch (e, s) {
+                                                    AppLogger.e(
+                                                      "Lỗi không tìm thấy đơn hàng",
+                                                      error: e,
+                                                      stackTrace: s,
+                                                    );
+                                                  }
+                                                },
+                                        label: "Lên kế hoạch",
+                                        icon: Icons.add,
+                                      ),
+                                      const SizedBox(width: 10),
+                                    ],
+                                  ),
                                 ),
-                                const SizedBox(width: 10),
                               ],
-                            ),
-                          ),
-                        ],
-                      )
-                      : const SizedBox.shrink(),
+                            )
+                            : const SizedBox.shrink(),
+                  ),
+                ],
+              ),
             ),
 
             // table

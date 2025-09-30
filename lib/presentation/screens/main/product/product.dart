@@ -75,332 +75,354 @@ class _ProductPageState extends State<ProductPage> {
           children: [
             //button
             SizedBox(
-              height: 70,
+              height: 105,
               width: double.infinity,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  //left button
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 10,
-                    ),
-                    child: Row(
-                      children: [
-                        //dropdown
-                        SizedBox(
-                          width: 170,
-                          child: DropdownButtonFormField<String>(
-                            value: searchType,
-                            items:
-                                const ['Tất cả', "Theo Mã", "Theo Tên SP"].map((
-                                  String value,
-                                ) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                searchType = value!;
-                                isTextFieldEnabled = searchType != 'Tất cả';
-
-                                searchController.clear();
-                              });
-                            },
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                            ),
-                          ),
+                  const SizedBox(
+                    height: 35,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        "DANH SÁCH SẢN PHẨM",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Color(0xffcfa381),
                         ),
-                        const SizedBox(width: 10),
-
-                        // input
-                        SizedBox(
-                          width: 250,
-                          height: 50,
-                          child: TextField(
-                            controller: searchController,
-                            enabled: isTextFieldEnabled,
-                            onSubmitted: (_) => searchProduct(),
-                            decoration: InputDecoration(
-                              hintText: 'Tìm kiếm...',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-
-                        // find
-                        AnimatedButton(
-                          onPressed: () {
-                            searchProduct();
-                          },
-                          label: "Tìm kiếm",
-                          icon: Icons.search,
-                        ),
-                        const SizedBox(width: 10),
-                      ],
+                      ),
                     ),
                   ),
+                  SizedBox(
+                    height: 70,
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //left button
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
+                          child: Row(
+                            children: [
+                              //dropdown
+                              SizedBox(
+                                width: 170,
+                                child: DropdownButtonFormField<String>(
+                                  value: searchType,
+                                  items:
+                                      const [
+                                        'Tất cả',
+                                        "Theo Mã",
+                                        "Theo Tên SP",
+                                      ].map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      searchType = value!;
+                                      isTextFieldEnabled =
+                                          searchType != 'Tất cả';
 
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 10,
-                    ),
-                    child:
-                        userController.hasPermission("sale")
-                            ? Row(
-                              children: [
-                                //add
-                                AnimatedButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => ProductDialog(
-                                            product: null,
-                                            onProductAddOrUpdate:
-                                                () => loadProduct(false),
-                                          ),
-                                    );
+                                      searchController.clear();
+                                    });
                                   },
-                                  label: "Thêm mới",
-                                  icon: Icons.add,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(width: 10),
+                              ),
+                              const SizedBox(width: 10),
 
-                                // update
-                                AnimatedButton(
-                                  onPressed: () {
-                                    if (isSelected.isEmpty) {
-                                      showSnackBarError(
-                                        context,
-                                        'Vui lòng chọn sản phẩm cần sửa',
-                                      );
-                                      return;
-                                    }
+                              // input
+                              SizedBox(
+                                width: 250,
+                                height: 50,
+                                child: TextField(
+                                  controller: searchController,
+                                  enabled: isTextFieldEnabled,
+                                  onSubmitted: (_) => searchProduct(),
+                                  decoration: InputDecoration(
+                                    hintText: 'Tìm kiếm...',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
 
-                                    String productId = isSelected.first;
-                                    ProductService()
-                                        .getProductById(productId)
-                                        .then((product) {
-                                          if (!context.mounted) return;
+                              // find
+                              AnimatedButton(
+                                onPressed: () {
+                                  searchProduct();
+                                },
+                                label: "Tìm kiếm",
+                                icon: Icons.search,
+                              ),
+                              const SizedBox(width: 10),
+                            ],
+                          ),
+                        ),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
+                          child:
+                              userController.hasPermission("sale")
+                                  ? Row(
+                                    children: [
+                                      //add
+                                      AnimatedButton(
+                                        onPressed: () {
                                           showDialog(
                                             context: context,
                                             builder:
                                                 (_) => ProductDialog(
-                                                  product: product.first,
+                                                  product: null,
                                                   onProductAddOrUpdate:
                                                       () => loadProduct(false),
                                                 ),
                                           );
-                                        });
-                                  },
-                                  label: "Sửa",
-                                  icon: Symbols.construction,
-                                ),
-                                const SizedBox(width: 10),
+                                        },
+                                        label: "Thêm mới",
+                                        icon: Icons.add,
+                                      ),
+                                      const SizedBox(width: 10),
 
-                                //delete customers
-                                AnimatedButton(
-                                  onPressed:
-                                      isSelected.isNotEmpty
-                                          ? () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                bool isDeleting = false;
+                                      // update
+                                      AnimatedButton(
+                                        onPressed: () {
+                                          if (isSelected.isEmpty) {
+                                            showSnackBarError(
+                                              context,
+                                              'Vui lòng chọn sản phẩm cần sửa',
+                                            );
+                                            return;
+                                          }
 
-                                                return StatefulBuilder(
-                                                  builder: (
-                                                    context,
-                                                    setStateDialog,
-                                                  ) {
-                                                    return AlertDialog(
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              16,
+                                          String productId = isSelected.first;
+                                          ProductService()
+                                              .getProductById(productId)
+                                              .then((product) {
+                                                if (!context.mounted) return;
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (_) => ProductDialog(
+                                                        product: product.first,
+                                                        onProductAddOrUpdate:
+                                                            () => loadProduct(
+                                                              false,
                                                             ),
                                                       ),
-                                                      title: Row(
-                                                        children: const [
-                                                          Icon(
-                                                            Icons
-                                                                .warning_amber_rounded,
-                                                            color: Colors.red,
-                                                            size: 30,
-                                                          ),
-                                                          SizedBox(width: 8),
-                                                          Text(
-                                                            "Xác nhận xoá",
-                                                            style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                );
+                                              });
+                                        },
+                                        label: "Sửa",
+                                        icon: Symbols.construction,
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      //delete customers
+                                      AnimatedButton(
+                                        onPressed:
+                                            isSelected.isNotEmpty
+                                                ? () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      bool isDeleting = false;
+
+                                                      return StatefulBuilder(
+                                                        builder: (
+                                                          context,
+                                                          setStateDialog,
+                                                        ) {
+                                                          return AlertDialog(
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    16,
+                                                                  ),
                                                             ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      content:
-                                                          isDeleting
-                                                              ? Row(
-                                                                children: const [
-                                                                  CircularProgressIndicator(
-                                                                    strokeWidth:
-                                                                        2,
-                                                                  ),
-                                                                  SizedBox(
-                                                                    width: 12,
-                                                                  ),
-                                                                  Text(
-                                                                    "Đang xoá...",
-                                                                  ),
-                                                                ],
-                                                              )
-                                                              : Text(
-                                                                'Bạn có chắc chắn muốn xoá ${isSelected.length} sản phẩm?',
-                                                                style:
-                                                                    const TextStyle(
-                                                                      fontSize:
-                                                                          16,
-                                                                    ),
-                                                              ),
-                                                      actions:
-                                                          isDeleting
-                                                              ? []
-                                                              : [
-                                                                TextButton(
-                                                                  onPressed:
-                                                                      () => Navigator.pop(
-                                                                        context,
-                                                                      ),
-                                                                  child: const Text(
-                                                                    "Huỷ",
-                                                                    style: TextStyle(
-                                                                      fontSize:
-                                                                          16,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      color:
-                                                                          Colors
-                                                                              .black54,
-                                                                    ),
-                                                                  ),
+                                                            title: Row(
+                                                              children: const [
+                                                                Icon(
+                                                                  Icons
+                                                                      .warning_amber_rounded,
+                                                                  color:
+                                                                      Colors
+                                                                          .red,
+                                                                  size: 30,
                                                                 ),
-                                                                ElevatedButton(
-                                                                  style: ElevatedButton.styleFrom(
-                                                                    backgroundColor:
-                                                                        const Color(
-                                                                          0xffEA4346,
-                                                                        ),
-                                                                    foregroundColor:
-                                                                        Colors
-                                                                            .white,
-                                                                    shape: RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                            8,
-                                                                          ),
-                                                                    ),
-                                                                  ),
-                                                                  onPressed: () async {
-                                                                    setStateDialog(
-                                                                      () {
-                                                                        isDeleting =
-                                                                            true;
-                                                                      },
-                                                                    );
-
-                                                                    for (String
-                                                                        id
-                                                                        in isSelected) {
-                                                                      await ProductService()
-                                                                          .deleteProduct(
-                                                                            id,
-                                                                          );
-                                                                    }
-
-                                                                    await Future.delayed(
-                                                                      const Duration(
-                                                                        seconds:
-                                                                            1,
-                                                                      ),
-                                                                    );
-
-                                                                    if (!context
-                                                                        .mounted) {
-                                                                      return;
-                                                                    }
-
-                                                                    setState(() {
-                                                                      isSelected
-                                                                          .clear();
-                                                                      futureProducts =
-                                                                          ProductService().getAllProducts(
-                                                                            false,
-                                                                          );
-                                                                    });
-
-                                                                    Navigator.pop(
-                                                                      context,
-                                                                    );
-
-                                                                    // Optional: Show success toast
-                                                                    showSnackBarSuccess(
-                                                                      context,
-                                                                      'Xoá thành công',
-                                                                    );
-                                                                  },
-                                                                  child: const Text(
-                                                                    "Xoá",
-                                                                    style: TextStyle(
-                                                                      fontSize:
-                                                                          16,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                    ),
+                                                                SizedBox(
+                                                                  width: 8,
+                                                                ),
+                                                                Text(
+                                                                  "Xác nhận xoá",
+                                                                  style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
                                                                   ),
                                                                 ),
                                                               ],
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            );
-                                          }
-                                          : null,
-                                  label: "Xoá",
-                                  icon: Icons.delete,
-                                  backgroundColor: const Color(0xffEA4346),
-                                ),
-                              ],
-                            )
-                            : const SizedBox.shrink(),
+                                                            ),
+                                                            content:
+                                                                isDeleting
+                                                                    ? Row(
+                                                                      children: const [
+                                                                        CircularProgressIndicator(
+                                                                          strokeWidth:
+                                                                              2,
+                                                                        ),
+                                                                        SizedBox(
+                                                                          width:
+                                                                              12,
+                                                                        ),
+                                                                        Text(
+                                                                          "Đang xoá...",
+                                                                        ),
+                                                                      ],
+                                                                    )
+                                                                    : Text(
+                                                                      'Bạn có chắc chắn muốn xoá ${isSelected.length} sản phẩm?',
+                                                                      style: const TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                      ),
+                                                                    ),
+                                                            actions:
+                                                                isDeleting
+                                                                    ? []
+                                                                    : [
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () => Navigator.pop(
+                                                                              context,
+                                                                            ),
+                                                                        child: const Text(
+                                                                          "Huỷ",
+                                                                          style: TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color:
+                                                                                Colors.black54,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      ElevatedButton(
+                                                                        style: ElevatedButton.styleFrom(
+                                                                          backgroundColor: const Color(
+                                                                            0xffEA4346,
+                                                                          ),
+                                                                          foregroundColor:
+                                                                              Colors.white,
+                                                                          shape: RoundedRectangleBorder(
+                                                                            borderRadius: BorderRadius.circular(
+                                                                              8,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        onPressed: () async {
+                                                                          setStateDialog(() {
+                                                                            isDeleting =
+                                                                                true;
+                                                                          });
+
+                                                                          for (String
+                                                                              id
+                                                                              in isSelected) {
+                                                                            await ProductService().deleteProduct(
+                                                                              id,
+                                                                            );
+                                                                          }
+
+                                                                          await Future.delayed(
+                                                                            const Duration(
+                                                                              seconds:
+                                                                                  1,
+                                                                            ),
+                                                                          );
+
+                                                                          if (!context
+                                                                              .mounted) {
+                                                                            return;
+                                                                          }
+
+                                                                          setState(() {
+                                                                            isSelected.clear();
+                                                                            futureProducts = ProductService().getAllProducts(
+                                                                              false,
+                                                                            );
+                                                                          });
+
+                                                                          Navigator.pop(
+                                                                            context,
+                                                                          );
+
+                                                                          // Optional: Show success toast
+                                                                          showSnackBarSuccess(
+                                                                            context,
+                                                                            'Xoá thành công',
+                                                                          );
+                                                                        },
+                                                                        child: const Text(
+                                                                          "Xoá",
+                                                                          style: TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  );
+                                                }
+                                                : null,
+                                        label: "Xoá",
+                                        icon: Icons.delete,
+                                        backgroundColor: const Color(
+                                          0xffEA4346,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

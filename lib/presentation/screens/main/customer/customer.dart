@@ -170,212 +170,250 @@ class _CustomerPageState extends State<CustomerPage> {
           children: [
             //button
             SizedBox(
-              height: 70,
+              height: 105,
               width: double.infinity,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  //left button
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 10,
-                    ),
-                    child: Row(
-                      children: [
-                        //dropdown
-                        SizedBox(
-                          width: 170,
-                          child: DropdownButtonFormField<String>(
-                            value: searchType,
-                            items:
-                                [
-                                  'Tất cả',
-                                  "Theo Mã",
-                                  "Theo Tên KH",
-                                  "Theo CSKH",
-                                  "Theo SDT",
-                                ].map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                searchType = value!;
-                                isTextFieldEnabled = searchType != 'Tất cả';
-
-                                searchController.clear();
-                              });
-                            },
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                            ),
-                          ),
+                  const SizedBox(
+                    height: 35,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        "DANH SÁCH KHÁCH HÀNG",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Color(0xffcfa381),
                         ),
-                        const SizedBox(width: 10),
-
-                        //input
-                        SizedBox(
-                          width: 250,
-                          height: 50,
-                          child: TextField(
-                            controller: searchController,
-                            enabled: isTextFieldEnabled,
-                            onSubmitted: (_) => searchCustomer(),
-                            decoration: InputDecoration(
-                              hintText: 'Tìm kiếm...',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-
-                        //find
-                        AnimatedButton(
-                          onPressed: () {
-                            searchCustomer();
-                          },
-                          label: "Tìm kiếm",
-                          icon: Icons.search,
-                        ),
-                        const SizedBox(width: 10),
-                      ],
+                      ),
                     ),
                   ),
+                  SizedBox(
+                    height: 70,
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //left button
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
+                          child: Row(
+                            children: [
+                              //dropdown
+                              SizedBox(
+                                width: 170,
+                                child: DropdownButtonFormField<String>(
+                                  value: searchType,
+                                  items:
+                                      [
+                                        'Tất cả',
+                                        "Theo Mã",
+                                        "Theo Tên KH",
+                                        "Theo CSKH",
+                                        "Theo SDT",
+                                      ].map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      searchType = value!;
+                                      isTextFieldEnabled =
+                                          searchType != 'Tất cả';
 
-                  //right button
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                    child:
-                        isSale
-                            ? Row(
-                              children: [
-                                //add
-                                AnimatedButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => CustomerDialog(
-                                            customer: null,
-                                            onCustomerAddOrUpdate:
-                                                () => loadCustomer(true),
-                                          ),
-                                    );
+                                      searchController.clear();
+                                    });
                                   },
-                                  label: "Thêm mới",
-                                  icon: Icons.add,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(width: 10),
+                              ),
+                              const SizedBox(width: 10),
 
-                                // update
-                                AnimatedButton(
-                                  onPressed:
-                                      isSale
-                                          ? () async {
-                                            if (selectedCustomerId == null ||
-                                                selectedCustomerId!.isEmpty) {
-                                              showSnackBarError(
-                                                context,
-                                                'Vui lòng chọn sản phẩm cần sửa',
-                                              );
-                                              return;
-                                            }
+                              //input
+                              SizedBox(
+                                width: 250,
+                                height: 50,
+                                child: TextField(
+                                  controller: searchController,
+                                  enabled: isTextFieldEnabled,
+                                  onSubmitted: (_) => searchCustomer(),
+                                  decoration: InputDecoration(
+                                    hintText: 'Tìm kiếm...',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
 
-                                            try {
-                                              final result =
-                                                  await CustomerService()
-                                                      .getCustomerById(
-                                                        customerId:
-                                                            selectedCustomerId!,
+                              //find
+                              AnimatedButton(
+                                onPressed: () {
+                                  searchCustomer();
+                                },
+                                label: "Tìm kiếm",
+                                icon: Icons.search,
+                              ),
+                              const SizedBox(width: 10),
+                            ],
+                          ),
+                        ),
+
+                        //right button
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
+                          child:
+                              isSale
+                                  ? Row(
+                                    children: [
+                                      //add
+                                      AnimatedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder:
+                                                (_) => CustomerDialog(
+                                                  customer: null,
+                                                  onCustomerAddOrUpdate:
+                                                      () => loadCustomer(true),
+                                                ),
+                                          );
+                                        },
+                                        label: "Thêm mới",
+                                        icon: Icons.add,
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      // update
+                                      AnimatedButton(
+                                        onPressed:
+                                            isSale
+                                                ? () async {
+                                                  if (selectedCustomerId ==
+                                                          null ||
+                                                      selectedCustomerId!
+                                                          .isEmpty) {
+                                                    showSnackBarError(
+                                                      context,
+                                                      'Vui lòng chọn sản phẩm cần sửa',
+                                                    );
+                                                    return;
+                                                  }
+
+                                                  try {
+                                                    final result =
+                                                        await CustomerService()
+                                                            .getCustomerById(
+                                                              customerId:
+                                                                  selectedCustomerId!,
+                                                            );
+
+                                                    if (!context.mounted)
+                                                      return;
+
+                                                    // Defensive null checks
+                                                    if (result['customers'] ==
+                                                        null) {
+                                                      showSnackBarError(
+                                                        context,
+                                                        'Dữ liệu trả về không hợp lệ',
                                                       );
+                                                      return;
+                                                    }
 
-                                              if (!context.mounted) return;
+                                                    final customers =
+                                                        result['customers']
+                                                            as List<
+                                                              Customer
+                                                            >? ??
+                                                        [];
 
-                                              // Defensive null checks
-                                              if (result['customers'] == null) {
-                                                showSnackBarError(
-                                                  context,
-                                                  'Dữ liệu trả về không hợp lệ',
-                                                );
-                                                return;
-                                              }
+                                                    if (customers.isEmpty) {
+                                                      showSnackBarError(
+                                                        context,
+                                                        'Không tìm thấy khách hàng',
+                                                      );
+                                                      return;
+                                                    }
 
-                                              final customers =
-                                                  result['customers']
-                                                      as List<Customer>? ??
-                                                  [];
-
-                                              if (customers.isEmpty) {
-                                                showSnackBarError(
-                                                  context,
-                                                  'Không tìm thấy khách hàng',
-                                                );
-                                                return;
-                                              }
-
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (_) => CustomerDialog(
-                                                      customer: customers.first,
-                                                      onCustomerAddOrUpdate:
-                                                          () => loadCustomer(
-                                                            false,
+                                                    showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (_) => CustomerDialog(
+                                                            customer:
+                                                                customers.first,
+                                                            onCustomerAddOrUpdate:
+                                                                () =>
+                                                                    loadCustomer(
+                                                                      false,
+                                                                    ),
                                                           ),
-                                                    ),
-                                              );
-                                            } catch (e, s) {
-                                              AppLogger.e(
-                                                "Error in getCustomerById: $e",
-                                                stackTrace: s,
-                                              );
-                                              showSnackBarError(
-                                                context,
-                                                'Có lỗi xảy ra, vui lòng thử lại sau',
-                                              );
-                                            }
-                                          }
-                                          : null,
-                                  label: "Sửa",
-                                  icon: Symbols.construction,
-                                ),
+                                                    );
+                                                  } catch (e, s) {
+                                                    AppLogger.e(
+                                                      "Error in getCustomerById: $e",
+                                                      stackTrace: s,
+                                                    );
+                                                    showSnackBarError(
+                                                      context,
+                                                      'Có lỗi xảy ra, vui lòng thử lại sau',
+                                                    );
+                                                  }
+                                                }
+                                                : null,
+                                        label: "Sửa",
+                                        icon: Symbols.construction,
+                                      ),
 
-                                const SizedBox(width: 10),
+                                      const SizedBox(width: 10),
 
-                                //delete customers
-                                AnimatedButton(
-                                  onPressed:
-                                      isSale &&
-                                              selectedCustomerId != null &&
-                                              selectedCustomerId!.isNotEmpty
-                                          ? () => _confirmDelete(context)
-                                          : null,
-                                  label: "Xóa",
-                                  icon: Icons.delete,
-                                  backgroundColor: const Color(0xffEA4346),
-                                ),
-                              ],
-                            )
-                            : const SizedBox.shrink(),
+                                      //delete customers
+                                      AnimatedButton(
+                                        onPressed:
+                                            isSale &&
+                                                    selectedCustomerId !=
+                                                        null &&
+                                                    selectedCustomerId!
+                                                        .isNotEmpty
+                                                ? () => _confirmDelete(context)
+                                                : null,
+                                        label: "Xóa",
+                                        icon: Icons.delete,
+                                        backgroundColor: const Color(
+                                          0xffEA4346,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

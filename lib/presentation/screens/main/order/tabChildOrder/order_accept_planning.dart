@@ -176,7 +176,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
               width: double.infinity,
               child: Column(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
