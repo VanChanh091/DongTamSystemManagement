@@ -1,4 +1,6 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/splashScreen/splash_screen_dongtam.dart';
+import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'package:flutter/material.dart';
@@ -8,6 +10,9 @@ void main() async {
 
   // Khởi tạo window_manager
   await windowManager.ensureInitialized();
+
+  //khởi tạo theme
+  Get.put(ThemeController());
 
   runApp(const MyApp());
 
@@ -24,9 +29,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const SplashScreenDT(),
+    final themeController = Get.find<ThemeController>();
+
+    return Obx(
+      () => GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: themeController.currentColor.value,
+          ),
+          useMaterial3: true,
+        ),
+        home: const SplashScreenDT(),
+      ),
     );
   }
 }

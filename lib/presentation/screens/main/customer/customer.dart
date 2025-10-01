@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_customer.dart';
@@ -26,6 +27,7 @@ class _CustomerPageState extends State<CustomerPage> {
   late CustomerDatasource customerDatasource;
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   TextEditingController searchController = TextEditingController();
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
@@ -34,7 +36,7 @@ class _CustomerPageState extends State<CustomerPage> {
   String? selectedCustomerId;
 
   int currentPage = 1;
-  int pageSize = 25;
+  int pageSize = 2;
   int pageSizeSearch = 20;
 
   @override
@@ -42,7 +44,7 @@ class _CustomerPageState extends State<CustomerPage> {
     super.initState();
     loadCustomer(true);
 
-    columns = buildCustomerColumn();
+    columns = buildCustomerColumn(themeController: themeController);
   }
 
   void loadCustomer(bool refresh) {
@@ -174,7 +176,7 @@ class _CustomerPageState extends State<CustomerPage> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
@@ -183,7 +185,7 @@ class _CustomerPageState extends State<CustomerPage> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -275,6 +277,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                 },
                                 label: "Tìm kiếm",
                                 icon: Icons.search,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
                             ],
@@ -306,6 +309,8 @@ class _CustomerPageState extends State<CustomerPage> {
                                         },
                                         label: "Thêm mới",
                                         icon: Icons.add,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -388,8 +393,9 @@ class _CustomerPageState extends State<CustomerPage> {
                                                 : null,
                                         label: "Sửa",
                                         icon: Symbols.construction,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
-
                                       const SizedBox(width: 10),
 
                                       //delete customers
@@ -459,7 +465,6 @@ class _CustomerPageState extends State<CustomerPage> {
                     customer: customers,
                     selectedCustomerId: selectedCustomerId,
                   );
-
                   return Column(
                     children: [
                       //table
@@ -529,7 +534,7 @@ class _CustomerPageState extends State<CustomerPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadCustomer(true),
-        backgroundColor: const Color(0xff78D761),
+        backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

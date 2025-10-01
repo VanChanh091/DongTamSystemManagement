@@ -1,77 +1,66 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-List<GridColumn> buildMachineBoxColumns(String machine) {
+final List<Map<String, dynamic>> machineBoxColumns = [
+  {"key": "orderId", "title": "Mã Đơn Hàng"},
+  {"key": "planningBoxId", "title": "", "visible": false},
+  {"key": "customerName", "title": "Tên Khách Hàng"},
+  {"key": "dateShipping", "title": "Ngày YC Giao"},
+  {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
+  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
+  {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "flute", "title": "Sóng"},
+  {"key": "QC_box", "title": "QC Thùng"},
+  {"key": "length", "title": "Dài"},
+  {"key": "size", "title": "Khổ"},
+  {"key": "child", "title": "Số Con"},
+  {"key": "quantityOrd", "title": "SL Đơn Hàng"},
+  {"key": "runningPlans", "title": "SL Giấy Tấm"},
+  {"key": "timeRunnings", "title": "Thời Gian Chạy"},
+  {"key": "qtyPrinted", "title": "In"},
+  {"key": "qtyCanLan", "title": "Cấn Lằn"},
+  {"key": "qtyCanMang", "title": "Cán Màng"},
+  {"key": "qtyXa", "title": "Xả"},
+  {"key": "qtyCatKhe", "title": "Cắt Khe"},
+  {"key": "qtyBe", "title": "Bế"},
+  {"key": "qtyDan", "title": "Dán"},
+  {"key": "qtyDongGhim", "title": "Đóng Ghim"},
+  {"key": "inMatTruoc", "title": "In Mặt Trước"},
+  {"key": "inMatSau", "title": "In Mặt Sau"},
+  {"key": "dan_1_Manh", "title": "Dán 1 Mảnh"},
+  {"key": "dan_2_Manh", "title": "Dán 2 Mảnh"},
+  {"key": "dongGhim1Manh", "title": "ĐGhim 1 Mảnh"},
+  {"key": "dongGhim2Manh", "title": "ĐGhim 2 Mảnh"},
+  {"key": "dmWasteLoss", "title": "Định Mức PL"},
+  {"key": "wasteActually", "title": "PL Thực Tế"},
+  {"key": "shiftManager", "title": "Trưởng Máy"},
+  {"key": "status", "title": "", "visible": false},
+  {"key": "index", "title": "Index", "visible": false},
+  // {"key": "wasteCanMang", "title": "Phế Liệu"},
+  // {"key": "wasteNormXa", "title": "Phế Liệu"},
+  // {"key": "wasteCatKhe", "title": "Phế Liệu"},
+  // {"key": "wasteNormBe", "title": "Phế Liệu"},
+  // {"key": "wasteDan", "title": "Phế Liệu"},
+  // {"key": "wasteDGhim", "title": "Phế Liệu"},
+];
+
+List<GridColumn> buildMachineBoxColumns({
+  required String machine,
+  required ThemeController themeController,
+}) {
   return [
-    GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
-    GridColumn(columnName: 'planningBoxId', label: Container(), visible: false),
-    GridColumn(
-      columnName: 'customerName',
-      label: formatColumn("Tên Khách Hàng"),
-    ),
-    GridColumn(columnName: 'dateShipping', label: formatColumn("Ngày YC Giao")),
-    GridColumn(
-      columnName: 'dayStartProduction',
-      label: formatColumn("Ngày Sản Xuất"),
-    ),
-    GridColumn(
-      columnName: 'dayCompletedProd',
-      label: formatColumn("Ngày Hoàn Thành"),
-    ),
-    GridColumn(
-      columnName: 'structure',
-      label: formatColumn("Kết Cấu Đặt Hàng"),
-    ),
-    GridColumn(columnName: 'flute', label: formatColumn("Sóng")),
-    GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
-    GridColumn(columnName: 'length', label: formatColumn("Dài")),
-    GridColumn(columnName: 'size', label: formatColumn("Khổ")),
-    GridColumn(columnName: 'child', label: formatColumn("Số Con")),
-    GridColumn(columnName: 'quantityOrd', label: formatColumn("SL Đơn Hàng")),
-    GridColumn(columnName: 'runningPlans', label: formatColumn("SL Giấy Tấm")),
-    GridColumn(
-      columnName: 'timeRunnings',
-      label: formatColumn("Thời Gian Chạy"),
-    ),
-
-    GridColumn(columnName: 'qtyPrinted', label: formatColumn("In")),
-    GridColumn(columnName: 'qtyCanLan', label: formatColumn("Cấn Lằn")),
-    GridColumn(columnName: 'qtyCanMang', label: formatColumn("Cán Màng")),
-    GridColumn(columnName: 'qtyXa', label: formatColumn("Xả")),
-    GridColumn(columnName: 'qtyCatKhe', label: formatColumn("Cắt Khe")),
-    GridColumn(columnName: 'qtyBe', label: formatColumn("Bế")),
-    GridColumn(columnName: 'qtyDan', label: formatColumn("Dán")),
-    GridColumn(columnName: 'qtyDongGhim', label: formatColumn("Đóng Ghim")),
-
-    GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
-    GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
-    GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
-    GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
-    GridColumn(
-      columnName: 'dongGhim1Manh',
-      label: formatColumn("ĐGhim 1 Mảnh"),
-    ),
-    GridColumn(
-      columnName: 'dongGhim2Manh',
-      label: formatColumn("ĐGhim 2 Mảnh"),
-    ),
-
-    GridColumn(columnName: 'dmWasteLoss', label: formatColumn("Định Mức PL")),
-    GridColumn(columnName: 'wasteActually', label: formatColumn("PL Thực Tế")),
-    GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
-    GridColumn(columnName: 'status', label: SizedBox(), visible: false),
-    GridColumn(
-      columnName: 'index',
-      label: formatColumn("Index"),
-      visible: false,
-    ),
-
-    // GridColumn(columnName: 'wasteCanMang', label: formatColumn("Phế Liệu")),
-    // GridColumn(columnName: 'wasteNormXa', label: formatColumn("Phế Liệu")),
-    // GridColumn(columnName: 'wasteCatKhe', label: formatColumn("Phế Liệu")),
-    // GridColumn(columnName: 'wasteNormBe', label: formatColumn("Phế Liệu")),
-    // GridColumn(columnName: 'wasteDan', label: formatColumn("Phế Liệu")),
-    // GridColumn(columnName: 'wasteDGhim', label: formatColumn("Phế Liệu")),
+    for (var item in machineBoxColumns)
+      GridColumn(
+        columnName: item['key']!,
+        label: Obx(
+          () => formatColumn(
+            label: item['title']!,
+            themeController: themeController,
+          ),
+        ),
+        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+      ),
   ];
 }

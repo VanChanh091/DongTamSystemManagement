@@ -1,4 +1,5 @@
 import 'package:dongtam/data/controller/sidebar_controller.dart';
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/sign_up.dart';
 import 'package:dongtam/presentation/screens/main/home.dart';
@@ -22,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final SidebarController sidebarController = Get.put(SidebarController());
-
+  final themeController = Get.find<ThemeController>();
   bool isObscureText = true;
 
   void login() async {
@@ -55,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Center(
         child: Container(
-          decoration: BoxDecoration(color: Color(0xffcfa381)),
+          decoration: BoxDecoration(color: themeController.currentColor.value),
           child: Row(
             children: [
               //logo

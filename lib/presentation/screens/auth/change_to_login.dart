@@ -1,6 +1,8 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/components/step_items.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:page_transition/page_transition.dart';
 
 class ChangeToLogin extends StatefulWidget {
@@ -11,12 +13,14 @@ class ChangeToLogin extends StatefulWidget {
 }
 
 class _ChangeToLoginState extends State<ChangeToLogin> {
+  final themeController = Get.find<ThemeController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Container(
-          decoration: const BoxDecoration(color: Color(0xffcfa381)),
+          decoration: BoxDecoration(color: themeController.currentColor.value),
           child: Row(
             children: [
               //step items

@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/service/product_service.dart';
@@ -21,6 +22,7 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   late Future<List<Product>> futureProducts;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   TextEditingController searchController = TextEditingController();
   List<String> isSelected = [];
   bool selectedAll = false;
@@ -79,7 +81,7 @@ class _ProductPageState extends State<ProductPage> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
@@ -88,7 +90,7 @@ class _ProductPageState extends State<ProductPage> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -178,6 +180,7 @@ class _ProductPageState extends State<ProductPage> {
                                 },
                                 label: "Tìm kiếm",
                                 icon: Icons.search,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
                             ],
@@ -208,6 +211,8 @@ class _ProductPageState extends State<ProductPage> {
                                         },
                                         label: "Thêm mới",
                                         icon: Icons.add,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -242,6 +247,8 @@ class _ProductPageState extends State<ProductPage> {
                                         },
                                         label: "Sửa",
                                         icon: Symbols.construction,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -482,8 +489,8 @@ class _ProductPageState extends State<ProductPage> {
                       child: DataTable(
                         // columnSpacing: 25,
                         headingRowHeight: 50,
-                        headingRowColor: const WidgetStatePropertyAll(
-                          Color(0xffcfa381),
+                        headingRowColor: WidgetStatePropertyAll(
+                          themeController.currentColor.value,
                         ),
                         columns: [
                           DataColumn(
@@ -678,7 +685,7 @@ class _ProductPageState extends State<ProductPage> {
             futureProducts = ProductService().getAllProducts(true);
           });
         },
-        backgroundColor: const Color(0xff78D761),
+        backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

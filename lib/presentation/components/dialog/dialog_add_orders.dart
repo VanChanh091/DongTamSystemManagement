@@ -328,9 +328,6 @@ class _OrderDialogState extends State<OrderDialog> {
   ) {
     fieldController.addListener(() {
       if (fieldController.text != fieldControllerReplace.text) {
-        AppLogger.i(
-          "Đồng bộ field '${fieldController.text}' → '${fieldControllerReplace.text}'",
-        );
         fieldControllerReplace.text = fieldController.text;
       }
     });

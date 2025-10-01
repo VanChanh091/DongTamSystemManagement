@@ -164,8 +164,15 @@ class PlanningDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            Alignment alignment;
+            if (dataCell.value is num) {
+              alignment = Alignment.centerRight;
+            } else {
+              alignment = Alignment.centerLeft;
+            }
+
             return Container(
-              alignment: Alignment.center,
+              alignment: alignment,
               decoration: BoxDecoration(
                 border: Border(
                   right: BorderSide(color: Colors.grey.shade300, width: 1),

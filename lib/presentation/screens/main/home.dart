@@ -1,5 +1,6 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/sidebar_controller.dart';
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
@@ -17,6 +18,7 @@ import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/presentation/screens/main/report/top_tab_report.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
+import 'package:dongtam/utils/color/theme_picker_color.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
@@ -26,7 +28,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:page_transition/page_transition.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -38,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   final sidebarController = Get.put(SidebarController());
   final badgesController = Get.put(BadgesController());
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
 
   bool _isHovered = false;
   bool _isPlanningExpanded = false;
@@ -121,13 +124,14 @@ class _HomePageState extends State<HomePage> {
   //sidebar
   Widget buildSidebar() {
     final pages = getPages();
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: _isHovered ? 300 : 60,
-        decoration: _sidebarDecoration(),
+        decoration: _sidebarDecoration(themeController.currentColor.value),
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
@@ -138,7 +142,14 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const SizedBox(height: 20),
                       //logo DT
-                      if (_isHovered) _buildLogoSection(),
+                      if (_isHovered)
+                        _buildLogoSection()
+                      else
+                        Image.asset(
+                          'assets/images/logoDT.png',
+                          width: 40,
+                          height: 40,
+                        ),
                       const SizedBox(height: 20),
                       //menu
                       Expanded(child: _buildMenuList(pages)),
@@ -190,6 +201,11 @@ class _HomePageState extends State<HomePage> {
             index: pages.indexWhere((w) => w is TopTabReport),
           ),
           _buildApprovalMenu(pages),
+          _buildSidebarItem(
+            Icons.color_lens,
+            "Đổi Màu Theme",
+            onTap: () => showThemeColorDialog(context),
+          ),
         ],
       ),
     );
@@ -487,9 +503,27 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Widget _buildSidebarItem(IconData icon, String title, {int? index}) {
-    if (index == null || index == -1) return SizedBox.shrink();
+  Widget _buildSidebarItem(
+    IconData icon,
+    String title, {
+    int? index,
+    VoidCallback? onTap,
+  }) {
+    if (index == null) {
+      return _isHovered
+          ? ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            leading: Icon(icon, color: Colors.white),
+            title: Text(
+              title,
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            onTap: onTap,
+          )
+          : SizedBox.shrink();
+    }
 
+    // item có index => theo dõi bằng Obx
     return Obx(() {
       final isSelected = sidebarController.selectedIndex.value == index;
 
@@ -522,7 +556,11 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.circular(8),
             ),
             onTap: () {
-              sidebarController.changePage(index);
+              if (onTap != null) {
+                onTap();
+              } else {
+                sidebarController.changePage(index);
+              }
             },
           )
           : Padding(
@@ -585,14 +623,14 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  BoxDecoration _sidebarDecoration() {
-    return const BoxDecoration(
-      borderRadius: BorderRadius.only(
+  BoxDecoration _sidebarDecoration(Color color) {
+    return BoxDecoration(
+      borderRadius: const BorderRadius.only(
         topRight: Radius.circular(12),
         bottomRight: Radius.circular(12),
       ),
-      color: Color(0xffcfa381),
-      boxShadow: [
+      color: color,
+      boxShadow: const [
         BoxShadow(color: Colors.black26, offset: Offset(3, 0), blurRadius: 10),
       ],
     );

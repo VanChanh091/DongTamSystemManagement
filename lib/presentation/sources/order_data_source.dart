@@ -54,19 +54,19 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'daoXaOrd', value: order.daoXa),
       DataGridCell<String>(
         columnName: 'lengthCus',
-        value: Order.formatCurrency(order.lengthPaperCustomer),
+        value: '${Order.formatCurrency(order.lengthPaperCustomer)} cm',
       ),
       DataGridCell<String>(
         columnName: 'lengthMf',
-        value: Order.formatCurrency(order.lengthPaperManufacture),
+        value: '${Order.formatCurrency(order.lengthPaperManufacture)} cm',
       ),
       DataGridCell<String>(
         columnName: 'sizeCustomer',
-        value: Order.formatCurrency(order.paperSizeCustomer),
+        value: '${Order.formatCurrency(order.paperSizeCustomer)} cm',
       ),
       DataGridCell<String>(
         columnName: 'sizeManufacture',
-        value: Order.formatCurrency(order.paperSizeManufacture),
+        value: '${Order.formatCurrency(order.paperSizeManufacture)} cm',
       ),
       DataGridCell<int>(
         columnName: 'quantityCustomer',
@@ -307,8 +307,15 @@ class OrderDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            Alignment alignment;
+            if (dataCell.value is num) {
+              alignment = Alignment.centerRight;
+            } else {
+              alignment = Alignment.centerLeft;
+            }
+
             return Container(
-              alignment: Alignment.center,
+              alignment: alignment,
               decoration: BoxDecoration(
                 border: Border(
                   right: BorderSide(color: Colors.grey.shade300, width: 1),

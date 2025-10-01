@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/admin/admin_wave_crest_model.dart';
 import 'package:dongtam/service/admin_service.dart';
@@ -18,6 +19,7 @@ class AdminWaveCrest extends StatefulWidget {
 class AdminWaveCrestState extends State<AdminWaveCrest> {
   late Future<List<AdminWaveCrestModel>> futureAdminWaveCrest;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   int? selectedWaveCrest;
   List<int> isSelected = [];
   List<AdminWaveCrestModel> updatedWaveCrest = [];
@@ -56,7 +58,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 30,
                     width: double.infinity,
                     child: Center(
@@ -65,7 +67,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -140,6 +142,8 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                         },
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -376,8 +380,8 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: const WidgetStatePropertyAll(
-                          Color(0xffcfa381),
+                        headingRowColor: WidgetStatePropertyAll(
+                          themeController.currentColor.value,
                         ),
                         columns: [
                           DataColumn(
@@ -541,7 +545,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
           isAccept
               ? FloatingActionButton(
                 onPressed: loadWaveCrest,
-                backgroundColor: const Color(0xff78D761),
+                backgroundColor: themeController.buttonColor.value,
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

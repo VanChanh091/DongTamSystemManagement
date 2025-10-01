@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_planning_order.dart';
@@ -23,6 +24,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   late Future<List<Order>> futureOrdersAccept;
   late PlanningDataSource planningDataSource;
   late List<GridColumn> columns;
+  final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
   String? selectedOrderId;
@@ -37,7 +39,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
       futureOrdersAccept = Future.error("NO_PERMISSION");
     }
 
-    columns = buildColumnPlanning();
+    columns = buildColumnPlanning(themeController: themeController);
   }
 
   void loadOrders(bool refresh) {
@@ -65,7 +67,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
@@ -74,7 +76,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -139,6 +141,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                                 },
                                         label: "Lên kế hoạch",
                                         icon: Icons.add,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
                                     ],
@@ -248,7 +252,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
           isPlan
               ? FloatingActionButton(
                 onPressed: () => loadOrders(true),
-                backgroundColor: const Color(0xff78D761),
+                backgroundColor: themeController.buttonColor.value,
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

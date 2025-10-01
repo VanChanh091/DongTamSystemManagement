@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AnimatedButton extends StatefulWidget {
   final Function()? onPressed;
   final IconData? icon;
   final String label;
-  final Color backgroundColor;
+  final dynamic backgroundColor;
   final Color foregroundColor;
 
   const AnimatedButton({
@@ -13,7 +14,7 @@ class AnimatedButton extends StatefulWidget {
     required this.onPressed,
     required this.label,
     required this.icon,
-    this.backgroundColor = const Color(0xff78D761),
+    this.backgroundColor,
     this.foregroundColor = Colors.white,
   });
 
@@ -23,6 +24,13 @@ class AnimatedButton extends StatefulWidget {
 
 class _AnimatedButtonState extends State<AnimatedButton> {
   bool _isPressed = false;
+
+  Color _resolveColor(dynamic color, Color defaultColor) {
+    if (color == null) return defaultColor;
+    if (color is Rx<Color>) return color.value;
+    if (color is Color) return color;
+    return defaultColor;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +55,10 @@ class _AnimatedButtonState extends State<AnimatedButton> {
             style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: widget.backgroundColor,
+            backgroundColor: _resolveColor(
+              widget.backgroundColor,
+              const Color(0xff78D761),
+            ),
             foregroundColor: widget.foregroundColor,
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
             shape: RoundedRectangleBorder(

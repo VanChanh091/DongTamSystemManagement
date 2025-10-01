@@ -1,66 +1,65 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-List<GridColumn> buildReportBoxColumn() {
+final List<Map<String, String>> reportBoxColumns = [
+  {"key": "orderId", "title": "Mã Đơn Hàng"},
+  {"key": "reportBoxId", "title": ""},
+  {"key": "customerName", "title": "Tên Khách Hàng"},
+  {"key": "dateShipping", "title": "Ngày YC Giao"},
+  {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
+  {"key": "dayReported", "title": "Ngày Báo Cáo"},
+  {"key": "dateTimeRp", "title": ""},
+  {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "flute", "title": "Sóng"},
+  {"key": "QC_box", "title": "QC Thùng"},
+  {"key": "length", "title": "Dài"},
+  {"key": "size", "title": "Khổ"},
+  {"key": "child", "title": "Số Con"},
+  {"key": "quantityOrd", "title": "SL Đơn Hàng"},
+  {"key": "runningPlans", "title": "SL Giấy Tấm"},
+  {"key": "timeRunnings", "title": "Thời Gian Chạy"},
+
+  // quantity box
+  {"key": "qtyPrinted", "title": "In"},
+  {"key": "qtyCanLan", "title": "Cấn Lằn"},
+  {"key": "qtyCanMang", "title": "Cán Màng"},
+  {"key": "qtyXa", "title": "Xả"},
+  {"key": "qtyCatKhe", "title": "Cắt Khe"},
+  {"key": "qtyBe", "title": "Bế"},
+  {"key": "qtyDan", "title": "Dán"},
+  {"key": "qtyDongGhim", "title": "Đóng Ghim"},
+  {"key": "lackOfQty", "title": "Thiếu/Đủ SL"},
+
+  // box
+  {"key": "inMatTruoc", "title": "In Mặt Trước"},
+  {"key": "inMatSau", "title": "In Mặt Sau"},
+  {"key": "dan_1_Manh", "title": "Dán 1 Mảnh"},
+  {"key": "dan_2_Manh", "title": "Dán 2 Mảnh"},
+  {"key": "dongGhim1Manh", "title": "ĐGhim 1 Mảnh"},
+  {"key": "dongGhim2Manh", "title": "ĐGhim 2 Mảnh"},
+
+  // waste
+  {"key": "dmWasteLoss", "title": "Định Mức PL"},
+  {"key": "wasteLossRp", "title": "PL Báo Cáo"},
+  {"key": "shiftManager", "title": "Trưởng Máy"},
+];
+
+List<GridColumn> buildReportBoxColumn({
+  required ThemeController themeController,
+}) {
   return [
-    GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
-    GridColumn(columnName: 'reportBoxId', label: Container(), visible: false),
-    GridColumn(
-      columnName: 'customerName',
-      label: formatColumn("Tên Khách Hàng"),
-    ),
-    GridColumn(columnName: 'dateShipping', label: formatColumn("Ngày YC Giao")),
-    GridColumn(
-      columnName: 'dayStartProduction',
-      label: formatColumn("Ngày Sản Xuất"),
-    ),
-    GridColumn(columnName: 'dayReported', label: formatColumn("Ngày Báo Cáo")),
-    GridColumn(columnName: 'dateTimeRp', label: Container(), visible: false),
-    GridColumn(
-      columnName: 'structure',
-      label: formatColumn("Kết Cấu Đặt Hàng"),
-    ),
-    GridColumn(columnName: 'flute', label: formatColumn("Sóng")),
-    GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
-    GridColumn(columnName: 'length', label: formatColumn("Dài")),
-    GridColumn(columnName: 'size', label: formatColumn("Khổ")),
-    GridColumn(columnName: 'child', label: formatColumn("Số Con")),
-    GridColumn(columnName: 'quantityOrd', label: formatColumn("SL Đơn Hàng")),
-    GridColumn(columnName: 'runningPlans', label: formatColumn("SL Giấy Tấm")),
-    GridColumn(
-      columnName: 'timeRunnings',
-      label: formatColumn("Thời Gian Chạy"),
-    ),
-
-    //quantity box
-    GridColumn(columnName: 'qtyPrinted', label: formatColumn("In")),
-    GridColumn(columnName: 'qtyCanLan', label: formatColumn("Cấn Lằn")),
-    GridColumn(columnName: 'qtyCanMang', label: formatColumn("Cán Màng")),
-    GridColumn(columnName: 'qtyXa', label: formatColumn("Xả")),
-    GridColumn(columnName: 'qtyCatKhe', label: formatColumn("Cắt Khe")),
-    GridColumn(columnName: 'qtyBe', label: formatColumn("Bế")),
-    GridColumn(columnName: 'qtyDan', label: formatColumn("Dán")),
-    GridColumn(columnName: 'qtyDongGhim', label: formatColumn("Đóng Ghim")),
-    GridColumn(columnName: 'lackOfQty', label: formatColumn("Thiếu/Đủ SL")),
-
-    //box
-    GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
-    GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
-    GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
-    GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
-    GridColumn(
-      columnName: 'dongGhim1Manh',
-      label: formatColumn("ĐGhim 1 Mảnh"),
-    ),
-    GridColumn(
-      columnName: 'dongGhim2Manh',
-      label: formatColumn("ĐGhim 2 Mảnh"),
-    ),
-
-    //waste
-    GridColumn(columnName: 'dmWasteLoss', label: formatColumn("Định Mức PL")),
-    GridColumn(columnName: 'wasteLossRp', label: formatColumn("PL Báo Cáo")),
-    GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
+    for (var item in reportBoxColumns)
+      GridColumn(
+        columnName: item["key"]!,
+        label: Obx(
+          () => formatColumn(
+            label: item["title"]!,
+            themeController: themeController,
+          ),
+        ),
+        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+      ),
   ];
 }

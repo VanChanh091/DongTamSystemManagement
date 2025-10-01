@@ -440,8 +440,15 @@ class MachinePaperDatasource extends DataGridSource {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
             }
 
+            Alignment alignment;
+            if (dataCell.value is num) {
+              alignment = Alignment.centerRight;
+            } else {
+              alignment = Alignment.centerLeft;
+            }
+
             return Container(
-              alignment: Alignment.center,
+              alignment: alignment,
               decoration: BoxDecoration(
                 color: cellColor,
                 border: Border(

@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/report/report_planning_box.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_option_export_excel.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_report_box.dart';
@@ -9,6 +10,7 @@ import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -20,6 +22,7 @@ class ReportPlanningBox extends StatefulWidget {
 }
 
 class _ReportPlanningBoxState extends State<ReportPlanningBox> {
+  final themeController = Get.find<ThemeController>();
   late Future<Map<String, dynamic>> futureReportBox;
   late ReportBoxDatasource reportBoxDatasource;
   late List<GridColumn> columns;
@@ -40,7 +43,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     super.initState();
     loadReportBox(true);
 
-    columns = buildReportBoxColumn();
+    columns = buildReportBoxColumn(themeController: themeController);
   }
 
   void loadReportBox(bool refresh) {
@@ -229,7 +232,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
@@ -238,7 +241,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -382,6 +385,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                 onPressed: () => searchReportPaper(),
                                 label: "Tìm kiếm",
                                 icon: Icons.search,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
                             ],
@@ -413,6 +417,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                 },
                                 label: "Xuất Excel",
                                 icon: Icons.search,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
 
@@ -541,7 +546,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                     'qtyDongGhim',
                                   ],
                                   child: formatColumn(
-                                    'Báo Cáo Số Lượng Các Công Đoạn',
+                                    label: 'Báo Cáo Số Lượng Các Công Đoạn',
+                                    themeController: themeController,
                                   ),
                                 ),
                               ],
@@ -600,7 +606,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadReportBox(true),
-        backgroundColor: const Color(0xff78D761),
+        backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

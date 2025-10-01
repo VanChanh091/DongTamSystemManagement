@@ -1,4 +1,6 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class PaginationControls extends StatelessWidget {
   final int currentPage;
@@ -16,6 +18,8 @@ class PaginationControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeController = Get.find<ThemeController>();
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
@@ -25,7 +29,7 @@ class PaginationControls extends StatelessWidget {
           ElevatedButton(
             onPressed: currentPage > 1 ? onPrevious : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff78D761),
+              backgroundColor: themeController.buttonColor.value,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               shadowColor: Colors.black.withValues(alpha: 0.2),
@@ -51,7 +55,7 @@ class PaginationControls extends StatelessWidget {
           ElevatedButton(
             onPressed: currentPage < totalPages ? onNext : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff78D761),
+              backgroundColor: themeController.buttonColor.value,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               shadowColor: Colors.black.withValues(alpha: 0.2),

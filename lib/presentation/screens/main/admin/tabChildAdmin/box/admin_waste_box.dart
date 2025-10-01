@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/admin/admin_waste_box_model.dart';
 import 'package:dongtam/service/admin_service.dart';
@@ -18,6 +19,7 @@ class AdminWasteBox extends StatefulWidget {
 class _AdminWasteBoxState extends State<AdminWasteBox> {
   late Future<List<AdminWasteBoxModel>> futureAdminWasteNorm;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   int? selectedWasteNorm;
   List<int> isSelected = [];
   List<AdminWasteBoxModel> updatedWasteNorms = [];
@@ -56,7 +58,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 30,
                     width: double.infinity,
                     child: Center(
@@ -65,7 +67,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -140,6 +142,8 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                         },
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -378,8 +382,8 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: const WidgetStatePropertyAll(
-                          Color(0xffcfa381),
+                        headingRowColor: WidgetStatePropertyAll(
+                          themeController.currentColor.value,
                         ),
                         columns: [
                           DataColumn(
@@ -531,7 +535,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
           isAccept
               ? FloatingActionButton(
                 onPressed: loadWasteBox,
-                backgroundColor: const Color(0xff78D761),
+                backgroundColor: themeController.buttonColor.value,
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

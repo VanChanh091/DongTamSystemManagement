@@ -450,8 +450,15 @@ class MachineBoxDatasource extends DataGridSource {
               }
             }
 
+            Alignment alignment;
+            if (dataCell.value is num) {
+              alignment = Alignment.centerRight;
+            } else {
+              alignment = Alignment.centerLeft;
+            }
+
             return Container(
-              alignment: Alignment.center,
+              alignment: alignment,
               decoration: BoxDecoration(
                 color: cellColor, // màu ô riêng
                 border: Border(

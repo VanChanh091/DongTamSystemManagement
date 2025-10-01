@@ -1,62 +1,60 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-List<GridColumn> buildReportPaperColumn() {
+final List<Map<String, dynamic>> reportPaperColumns = [
+  {"key": "orderId", "title": "Mã Đơn Hàng"},
+  {"key": "reportPaperId", "title": "", "visible": false},
+  {"key": "customerName", "title": "Tên Khách Hàng"},
+  {"key": "dateShipping", "title": "Ngày YC Giao"},
+  {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
+  {"key": "dayReported", "title": "Ngày Báo Cáo"},
+  {"key": "dateTimeRp", "title": "", "visible": false},
+  {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "flute", "title": "Sóng"},
+  {"key": "daoXa", "title": "Dao Xả"},
+  {"key": "length", "title": "Dài"},
+  {"key": "size", "title": "Khổ"},
+  {"key": "child", "title": "Số Con"},
+  {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
+  {"key": "quantityOrd", "title": "SL Đơn Hàng"},
+  {"key": "runningPlanProd", "title": "Kế Hoạch Chạy"},
+  {"key": "qtyReported", "title": "SL Báo Cáo"},
+  {"key": "lackOfQty", "title": "Thiếu/Đủ SL"},
+  {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
+  {"key": "HD_special", "title": "HD Đặc Biệt"},
+  {"key": "totalPrice", "title": "Doanh thu"},
+
+  // waste norm
+  {"key": "bottom", "title": "Đáy"},
+  {"key": "fluteE", "title": "Sóng E"},
+  {"key": "fluteB", "title": "Sóng B"},
+  {"key": "fluteC", "title": "Sóng C"},
+  {"key": "knife", "title": "Dao"},
+  {"key": "totalLoss", "title": "Tổng PL"},
+  {"key": "qtyWasteRp", "title": "PL Báo Cáo"},
+  {"key": "shiftProduct", "title": "Ca Sản Xuất"},
+  {"key": "shiftManager", "title": "Trưởng Máy"},
+
+  // box
+  {"key": "hasMadeBox", "title": "Làm Thùng?"},
+];
+
+List<GridColumn> buildReportPaperColumn({
+  required ThemeController themeController,
+}) {
   return [
-    GridColumn(columnName: "orderId", label: formatColumn('Mã Đơn Hàng')),
-    GridColumn(columnName: "reportPaperId", label: Container(), visible: false),
-    GridColumn(
-      columnName: "customerName",
-      label: formatColumn('Tên Khách Hàng'),
-    ),
-    GridColumn(columnName: 'dateShipping', label: formatColumn("Ngày YC Giao")),
-    GridColumn(
-      columnName: 'dayStartProduction',
-      label: formatColumn("Ngày Sản Xuất"),
-    ),
-    GridColumn(columnName: 'dayReported', label: formatColumn("Ngày Báo Cáo")),
-    GridColumn(columnName: 'dateTimeRp', label: Container(), visible: false),
-    GridColumn(
-      columnName: 'structure',
-      label: formatColumn("Kết Cấu Đặt Hàng"),
-    ),
-    GridColumn(columnName: 'flute', label: formatColumn("Sóng")),
-    GridColumn(columnName: 'daoXa', label: formatColumn("Dao Xả")),
-    GridColumn(columnName: 'length', label: formatColumn("Dài")),
-    GridColumn(columnName: 'size', label: formatColumn("Khổ")),
-    GridColumn(columnName: 'child', label: formatColumn("Số Con")),
-    GridColumn(columnName: 'khoCapGiay', label: formatColumn("Khổ Cấp Giấy")),
-    GridColumn(columnName: 'quantityOrd', label: formatColumn("SL Đơn Hàng")),
-    GridColumn(
-      columnName: 'runningPlanProd',
-      label: formatColumn("Kế Hoạch Chạy"),
-    ),
-    // GridColumn(
-    //   columnName: 'qtyProduced',
-    //   label: formatColumn("SL Đã Sản Xuất"),
-    // ),
-    GridColumn(columnName: 'qtyReported', label: formatColumn("SL Báo Cáo")),
-    GridColumn(columnName: 'lackOfQty', label: formatColumn("Thiếu/Đủ SL")),
-    GridColumn(
-      columnName: 'timeRunningProd',
-      label: formatColumn("Thời Gian Chạy"),
-    ),
-    GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
-    GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh thu")),
-
-    //waste norm
-    GridColumn(columnName: 'bottom', label: formatColumn("Đáy")),
-    GridColumn(columnName: 'fluteE', label: formatColumn("Sóng E")),
-    GridColumn(columnName: 'fluteB', label: formatColumn("Sóng B")),
-    GridColumn(columnName: 'fluteC', label: formatColumn("Sóng C")),
-    GridColumn(columnName: 'knife', label: formatColumn("Dao")),
-    GridColumn(columnName: 'totalLoss', label: formatColumn("Tổng PL")),
-    GridColumn(columnName: 'qtyWasteRp', label: formatColumn("PL Báo Cáo")),
-    GridColumn(columnName: 'shiftProduct', label: formatColumn("Ca Sản Xuất")),
-    GridColumn(columnName: 'shiftManager', label: formatColumn("Trưởng Máy")),
-
-    //box
-    GridColumn(columnName: 'hasMadeBox', label: formatColumn("Làm Thùng?")),
+    for (var item in reportPaperColumns)
+      GridColumn(
+        columnName: item["key"]!,
+        label: Obx(
+          () => formatColumn(
+            label: item["title"]!,
+            themeController: themeController,
+          ),
+        ),
+        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+      ),
   ];
 }

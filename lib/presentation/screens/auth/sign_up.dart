@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:page_transition/page_transition.dart';
 
 class SignUp extends StatefulWidget {
@@ -17,6 +19,7 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   final formKey = GlobalKey<FormState>();
   final AuthService authService = AuthService();
+  final themeController = Get.find<ThemeController>();
   bool isButtonEnabled = true;
   int secondsRemaining = 0;
   Timer? timer;
@@ -102,7 +105,7 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       body: Center(
         child: Container(
-          decoration: const BoxDecoration(color: Color(0xffcfa381)),
+          decoration: BoxDecoration(color: themeController.currentColor.value),
           child: Row(
             children: [
               //logo

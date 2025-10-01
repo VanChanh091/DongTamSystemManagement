@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
@@ -25,6 +26,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   late OrderDataSource orderDataSource;
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
@@ -42,7 +44,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
     super.initState();
     loadOrders(true, isSeenOrder);
 
-    columns = buildOrderColumns();
+    columns = buildOrderColumns(
+      themeController: themeController,
+      userController: userController,
+    );
   }
 
   void loadOrders(bool refresh, bool ownOnly) {
@@ -176,7 +181,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 30,
                     width: double.infinity,
                     child: Center(
@@ -185,7 +190,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -277,6 +282,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                 },
                                 label: "Tìm kiếm",
                                 icon: Icons.search,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
 
@@ -297,6 +303,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                               ? "Xem Tất Cả"
                                               : "Đơn Bản Thân",
                                       icon: null,
+                                      backgroundColor:
+                                          themeController.buttonColor,
                                     ),
                                   )
                                   : const SizedBox.shrink(),
@@ -386,7 +394,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                     'dongGoi',
                                     'maKhuon',
                                   ],
-                                  child: formatColumn('Công Đoạn 2'),
+                                  child: formatColumn(
+                                    label: 'Công Đoạn 2',
+                                    themeController: themeController,
+                                  ),
                                 ),
                               ],
                             ),
@@ -438,7 +449,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadOrders(true, isSeenOrder),
-        backgroundColor: const Color(0xff78D761),
+        backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

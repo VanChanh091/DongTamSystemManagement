@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
@@ -28,6 +29,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   late MachineBoxDatasource machineBoxDatasource;
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
@@ -45,7 +47,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     registerSocket();
     loadPlanning(true);
 
-    columns = buildMachineBoxColumns(machine);
+    columns = buildMachineBoxColumns(
+      machine: machine,
+      themeController: themeController,
+    );
   }
 
   void loadPlanning(bool refresh) {
@@ -199,7 +204,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
               child: Column(
                 children: [
                   //title
-                  const SizedBox(
+                  SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
@@ -208,7 +213,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -334,6 +339,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                         : null,
                                 label: "Báo Cáo SX",
                                 icon: Icons.assignment,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
 
@@ -395,6 +401,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                         : null,
                                 label: "Xác Nhận SX",
                                 icon: null,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
 
@@ -517,7 +524,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                               'qtyDan',
                               'qtyDongGhim',
                             ],
-                            child: formatColumn('Số Lượng Của Các Công Đoạn'),
+                            child: formatColumn(
+                              label: 'Số Lượng Của Các Công Đoạn',
+                              themeController: themeController,
+                            ),
                           ),
                         ],
                       ),
@@ -547,7 +557,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadPlanning(true),
-        backgroundColor: const Color(0xff78D761),
+        backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

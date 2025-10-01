@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
@@ -26,6 +27,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   late MachineBoxDatasource machineBoxDatasource;
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
   final Map<String, String> orderIdToStatus = {};
@@ -54,7 +56,10 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
       futurePlanning = Future.error("NO_PERMISSION");
     }
 
-    columns = buildMachineBoxColumns(machine);
+    columns = buildMachineBoxColumns(
+      machine: machine,
+      themeController: themeController,
+    );
   }
 
   void loadPlanning(bool refresh) {
@@ -232,6 +237,8 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                       onPressed: () => searchPlanning(),
                                       label: "Tìm kiếm",
                                       icon: Icons.search,
+                                      backgroundColor:
+                                          themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
                                   ],
@@ -509,6 +516,8 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                   },
                                           label: "Lưu",
                                           icon: Icons.save,
+                                          backgroundColor:
+                                              themeController.buttonColor,
                                         ),
 
                                         if (isLoading)
@@ -540,6 +549,8 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                           showGroup
                                               ? Symbols.ungroup
                                               : Symbols.ad_group,
+                                      backgroundColor:
+                                          themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
 
@@ -779,7 +790,10 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                               'qtyDan',
                               'qtyDongGhim',
                             ],
-                            child: formatColumn('Số Lượng Của Các Công Đoạn'),
+                            child: formatColumn(
+                              label: 'Số Lượng Của Các Công Đoạn',
+                              themeController: themeController,
+                            ),
                           ),
                         ],
                       ),
@@ -811,7 +825,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
           isPlan
               ? FloatingActionButton(
                 onPressed: () => loadPlanning(true),
-                backgroundColor: const Color(0xff78D761),
+                backgroundColor: themeController.buttonColor.value,
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

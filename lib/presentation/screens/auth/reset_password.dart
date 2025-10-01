@@ -1,8 +1,10 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/components/step_items.dart';
 import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:page_transition/page_transition.dart';
 
 class ResetPassword extends StatefulWidget {
@@ -14,11 +16,11 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-  bool isObscureText = true;
-
   final AuthService authService = AuthService();
+  final themeController = Get.find<ThemeController>();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPwController = TextEditingController();
+  bool isObscureText = true;
 
   void changePassword() async {
     bool success = await authService.changePassword(
@@ -48,7 +50,7 @@ class _ResetPasswordState extends State<ResetPassword> {
     return Scaffold(
       body: Center(
         child: Container(
-          decoration: BoxDecoration(color: Color(0xffcfa381)),
+          decoration: BoxDecoration(color: themeController.currentColor.value),
           child: Row(
             children: [
               //step items

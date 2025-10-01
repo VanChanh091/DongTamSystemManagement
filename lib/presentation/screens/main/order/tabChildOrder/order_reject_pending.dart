@@ -1,4 +1,5 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_orders.dart';
@@ -27,19 +28,22 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   late Future<List<Order>> futureOrdersPending;
   late OrderDataSource orderDataSource;
   late List<GridColumn> columns;
-  String? selectedOrderId;
-  bool isSeenOrder = false;
-
   final formatter = DateFormat('dd/MM/yyyy');
   final userController = Get.find<UserController>();
   final badgesController = Get.find<BadgesController>();
+  final themeController = Get.find<ThemeController>();
+  String? selectedOrderId;
+  bool isSeenOrder = false;
 
   @override
   void initState() {
     super.initState();
     loadOrders(false, isSeenOrder);
 
-    columns = buildOrderColumns();
+    columns = buildOrderColumns(
+      themeController: themeController,
+      userController: userController,
+    );
   }
 
   void loadOrders(bool refresh, bool ownOnly) {
@@ -71,7 +75,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
               child: Column(
                 children: [
                   //title
-                  const SizedBox(
+                  SizedBox(
                     height: 30,
                     width: double.infinity,
                     child: Center(
@@ -80,7 +84,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -119,6 +123,8 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                               ? "Xem Tất Cả"
                                               : "Đơn Bản Thân",
                                       icon: null,
+                                      backgroundColor:
+                                          themeController.buttonColor,
                                     ),
                                   )
                                   : const SizedBox.shrink(),
@@ -140,6 +146,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                 },
                                 label: "Thêm mới",
                                 icon: Icons.add,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
 
@@ -183,6 +190,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                         },
                                 label: "Sửa",
                                 icon: Symbols.construction,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
 
@@ -430,7 +438,10 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                               'dongGoi',
                               'maKhuon',
                             ],
-                            child: formatColumn('Công Đoạn 2'),
+                            child: formatColumn(
+                              label: 'Công Đoạn 2',
+                              themeController: themeController,
+                            ),
                           ),
                         ],
                       ),
@@ -464,7 +475,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadOrders(true, isSeenOrder),
-        backgroundColor: const Color(0xff78D761),
+        backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

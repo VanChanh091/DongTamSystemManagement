@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_option_export_excel.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_report_paper.dart';
@@ -9,6 +10,7 @@ import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -20,6 +22,7 @@ class ReportPlanningPaper extends StatefulWidget {
 }
 
 class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
+  final themeController = Get.find<ThemeController>();
   late Future<Map<String, dynamic>> futureReportPaper;
   late ReportPaperDatasource reportPaperDatasource;
   late List<GridColumn> columns;
@@ -40,7 +43,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     super.initState();
     loadReportPaper(true);
 
-    columns = buildReportPaperColumn();
+    columns = buildReportPaperColumn(themeController: themeController);
   }
 
   void loadReportPaper(bool refresh) {
@@ -235,7 +238,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
@@ -244,7 +247,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -388,6 +391,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                 onPressed: () => searchReportPaper(),
                                 label: "Tìm kiếm",
                                 icon: Icons.search,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
                             ],
@@ -418,6 +422,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                 },
                                 label: "Xuất Excel",
                                 icon: Icons.search,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
 
@@ -539,7 +544,10 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                     'qtyReported',
                                     'LackOfQty',
                                   ],
-                                  child: formatColumn('Số Lượng'),
+                                  child: formatColumn(
+                                    label: 'Số Lượng',
+                                    themeController: themeController,
+                                  ),
                                 ),
                                 StackedHeaderCell(
                                   columnNames: [
@@ -550,7 +558,10 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                     'knife',
                                     'totalLoss',
                                   ],
-                                  child: formatColumn('Định Mức Phế Liệu'),
+                                  child: formatColumn(
+                                    label: 'Định Mức Phế Liệu',
+                                    themeController: themeController,
+                                  ),
                                 ),
                                 StackedHeaderCell(
                                   columnNames: [
@@ -569,7 +580,10 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                     'dongGoi',
                                     'maKhuon',
                                   ],
-                                  child: formatColumn('Công Đoạn 2'),
+                                  child: formatColumn(
+                                    label: 'Công Đoạn 2',
+                                    themeController: themeController,
+                                  ),
                                 ),
                               ],
                             ),
@@ -628,7 +642,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadReportPaper(true),
-        backgroundColor: const Color(0xff78D761),
+        backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

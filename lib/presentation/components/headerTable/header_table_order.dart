@@ -1,88 +1,84 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-List<GridColumn> buildOrderColumns() {
-  final userController = Get.find<UserController>();
+final List<Map<String, dynamic>> orderColumns = [
+  // Order
+  {"key": "orderId", "title": "Mã Đơn Hàng"},
+  {"key": "dayReceiveOrder", "title": "Ngày Nhận"},
+  {"key": "dateRequestShipping", "title": "Ngày YC Giao"},
+  {"key": "customerName", "title": "Tên Khách Hàng"},
+  {"key": "companyName", "title": "Tên Công Ty"},
+  {"key": "typeProduct", "title": "Loại SP"},
+  {"key": "productName", "title": "Tên SP"},
+  {"key": "flute", "title": "Sóng"},
+  {"key": "QC_box", "title": "QC Thùng"},
+  {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "canLan", "title": "Cấn Lằn"},
+  {"key": "daoXaOrd", "title": "Dao Xả"},
+  {"key": "lengthCus", "title": "Dài (KH)"},
+  {"key": "lengthMf", "title": "Dài (SX)"},
+  {"key": "sizeCustomer", "title": "Khổ (KH)"},
+  {"key": "sizeManufacture", "title": "Khổ (SX)"},
+  {"key": "quantityCustomer", "title": "Số Lượng (KH)"},
+  {"key": "qtyManufacture", "title": "Số Lượng (SX)"},
+  {"key": "child", "title": "Số con"},
+  {"key": "dvt", "title": "DVT"},
+  {"key": "acreage", "title": "Diện Tích"},
+  {"key": "price", "title": "Đơn Giá"},
+  {"key": "pricePaper", "title": "Giá Tấm"},
+  {"key": "discounts", "title": "Chiết Khấu"},
+  {"key": "profitOrd", "title": "Lợi Nhuận"},
+  {"key": "vat", "title": "VAT"},
+  {"key": "HD_special", "title": "HD Đặc Biệt"},
+  {"key": "totalPrice", "title": "Doanh số"},
 
+  // Box
+  {"key": "inMatTruoc", "title": "In Mặt Trước"},
+  {"key": "inMatSau", "title": "In Mặt Sau"},
+  {"key": "chongTham", "title": "Chống Thấm"},
+  {"key": "canLanBox", "title": "Cấn Lằn"},
+  {"key": "canMang", "title": "Cán Màng"},
+  {"key": "xa", "title": "Xả"},
+  {"key": "catKhe", "title": "Cắt Khe"},
+  {"key": "be", "title": "Bế"},
+  {"key": "maKhuon", "title": "Mã Khuôn"},
+  {"key": "dan_1_Manh", "title": "Dán 1 Mảnh"},
+  {"key": "dan_2_Manh", "title": "Dán 2 Mảnh"},
+  {"key": "dongGhimMotManh", "title": "Đóng Ghim 1 Mảnh"},
+  {"key": "dongGhimHaiManh", "title": "Đóng Ghim 2 Mảnh"},
+  {"key": "dongGoi", "title": "Đóng Gói"},
+
+  // Role-based
+  {
+    "key": "staffOrder",
+    "title": "Nhân Viên",
+    "showIfRole": ["admin", "manager"],
+  },
+
+  // Status
+  {"key": "status", "title": "Trạng thái"},
+  {"key": "rejectReason", "title": "Lý do"},
+];
+
+List<GridColumn> buildOrderColumns({
+  required ThemeController themeController,
+  required UserController userController,
+}) {
   return [
-    //order
-    GridColumn(columnName: 'orderId', label: formatColumn('Mã Đơn Hàng')),
-    GridColumn(columnName: 'dayReceiveOrder', label: formatColumn('Ngày Nhận')),
-    GridColumn(
-      columnName: 'dateRequestShipping',
-      label: formatColumn("Ngày YC Giao"),
-    ),
-    GridColumn(
-      columnName: 'customerName',
-      label: formatColumn("Tên Khách Hàng"),
-    ),
-    GridColumn(columnName: 'companyName', label: formatColumn("Tên Công Ty")),
-    GridColumn(columnName: 'typeProduct', label: formatColumn("Loại SP")),
-    GridColumn(columnName: 'productName', label: formatColumn("Tên SP")),
-    GridColumn(columnName: 'flute', label: formatColumn("Sóng")),
-    GridColumn(columnName: 'QC_box', label: formatColumn("QC Thùng")),
-    GridColumn(
-      columnName: 'structure',
-      label: formatColumn("Kết Cấu Đặt Hàng"),
-    ),
-    GridColumn(columnName: 'canLan', label: formatColumn("Cấn Lằn")),
-    GridColumn(columnName: 'daoXaOrd', label: formatColumn("Dao Xả")),
-    GridColumn(columnName: 'lengthCus', label: formatColumn("Dài (KH)")),
-    GridColumn(columnName: 'lengthMf', label: formatColumn("Dài (SX)")),
-    GridColumn(columnName: 'sizeCustomer', label: formatColumn("Khổ (KH)")),
-    GridColumn(columnName: 'sizeManufacture', label: formatColumn("Khổ (SX)")),
-    GridColumn(
-      columnName: 'quantityCustomer',
-      label: formatColumn("Số Lượng (KH)"),
-    ),
-    GridColumn(
-      columnName: 'qtyManufacture',
-      label: formatColumn("Số Lượng (SX)"),
-    ),
-    GridColumn(columnName: 'child', label: formatColumn("Số con")),
-    GridColumn(columnName: 'dvt', label: formatColumn("DVT")),
-    GridColumn(columnName: 'acreage', label: formatColumn("Diện Tích")),
-    GridColumn(columnName: 'price', label: formatColumn("Đơn Giá")),
-    GridColumn(columnName: 'pricePaper', label: formatColumn("Giá Tấm")),
-    GridColumn(columnName: 'discounts', label: formatColumn("Chiết Khấu")),
-    GridColumn(columnName: 'profitOrd', label: formatColumn("Lợi Nhuận")),
-    GridColumn(columnName: 'vat', label: formatColumn("VAT")),
-    GridColumn(columnName: 'HD_special', label: formatColumn("HD Đặc Biệt")),
-    GridColumn(columnName: 'totalPrice', label: formatColumn("Doanh số")),
-
-    //Box
-    GridColumn(columnName: 'inMatTruoc', label: formatColumn("In Mặt Trước")),
-    GridColumn(columnName: 'inMatSau', label: formatColumn("In Mặt Sau")),
-    GridColumn(columnName: 'chongTham', label: formatColumn("Chống Thấm")),
-    GridColumn(columnName: 'canLanBox', label: formatColumn("Cấn Lằn")),
-    GridColumn(columnName: 'canMang', label: formatColumn("Cán Màng")),
-    GridColumn(columnName: 'xa', label: formatColumn("Xả")),
-    GridColumn(columnName: 'catKhe', label: formatColumn("Cắt Khe")),
-    GridColumn(columnName: 'be', label: formatColumn("Bế")),
-    GridColumn(columnName: 'maKhuon', label: formatColumn("Mã Khuôn")),
-    GridColumn(columnName: 'dan_1_Manh', label: formatColumn("Dán 1 Mảnh")),
-    GridColumn(columnName: 'dan_2_Manh', label: formatColumn("Dán 2 Mảnh")),
-    GridColumn(
-      columnName: 'dongGhimMotManh',
-      label: formatColumn("Đóng Ghim 1 Mảnh"),
-    ),
-    GridColumn(
-      columnName: 'dongGhimHaiManh',
-      label: formatColumn("Đóng Ghim 2 Mảnh"),
-    ),
-    GridColumn(columnName: 'dongGoi', label: formatColumn("Đóng Gói")),
-    ...userController.hasAnyRole(['admin', 'manager'])
-        ? [
-          GridColumn(
-            columnName: 'staffOrder',
-            label: formatColumn("Nhân Viên"),
+    for (var item in orderColumns)
+      if (!item.containsKey("showIfRole") ||
+          userController.hasAnyRole(item["showIfRole"] as List<String>))
+        GridColumn(
+          columnName: item["key"]!,
+          label: Obx(
+            () => formatColumn(
+              label: item["title"]!,
+              themeController: themeController,
+            ),
           ),
-        ]
-        : [],
-
-    GridColumn(columnName: 'status', label: formatColumn("Trạng thái")),
-    GridColumn(columnName: 'rejectReason', label: formatColumn("Lý do")),
+        ),
   ];
 }

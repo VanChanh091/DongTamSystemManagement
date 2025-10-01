@@ -1,40 +1,40 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-List<GridColumn> buildCustomerColumn() {
+const List<Map<String, dynamic>> headerCustomer = [
+  {"key": "stt", "title": "STT"},
+  {"key": "customerId", "title": "Mã KH"},
+  {"key": "maSoThue", "title": "MST"},
+  {"key": "customerName", "title": "Tên KH"},
+  {"key": "phone", "title": "SDT"},
+  {"key": "contactPerson", "title": "Người Liên Hệ"},
+  {"key": "dayCreatedCus", "title": "Ngày Tạo KH"},
+  {"key": "debtLimitCustomer", "title": "Hạn Mức Công Nợ"},
+  {"key": "debtCurrentCustomer", "title": "Công Nợ Hiện Tại"},
+  {"key": "termPaymentCost", "title": "Hạn Thanh Toán"},
+  {"key": "companyName", "title": "Tên Công Ty"},
+  {"key": "companyAddress", "title": "Địa chỉ công ty"},
+  {"key": "shippingAddress", "title": "Địa chỉ Giao Hàng"},
+  {"key": "CSKH", "title": "CSKH"},
+  {"key": "rateCustomer", "title": "Đánh Giá"},
+];
+
+List<GridColumn> buildCustomerColumn({
+  required ThemeController themeController,
+}) {
   return [
-    GridColumn(columnName: "stt", label: formatColumn("STT")),
-    GridColumn(columnName: "customerId", label: formatColumn("Mã KH")),
-    GridColumn(columnName: "maSoThue", label: formatColumn("MST")),
-    GridColumn(columnName: "customerName", label: formatColumn("Tên KH")),
-    GridColumn(columnName: "phone", label: formatColumn("SDT")),
-    GridColumn(
-      columnName: "contactPerson",
-      label: formatColumn("Người Liên Hệ"),
-    ),
-    GridColumn(columnName: "dayCreatedCus", label: formatColumn("Ngày Tạo KH")),
-    GridColumn(
-      columnName: "debtLimitCustomer",
-      label: formatColumn("Hạn Mức Công Nợ"),
-    ),
-    GridColumn(
-      columnName: "debtCurrentCustomer",
-      label: formatColumn("Công Nợ Hiện Tại"),
-    ),
-    GridColumn(
-      columnName: "termPaymentCost",
-      label: formatColumn("Hạn Thanh Toán"),
-    ),
-    GridColumn(columnName: "companyName", label: formatColumn("Tên Công Ty")),
-    GridColumn(
-      columnName: "companyAddress",
-      label: formatColumn("Địa chỉ công ty"),
-    ),
-    GridColumn(
-      columnName: "shippingAddress",
-      label: formatColumn("Địa chỉ Giao Hàng"),
-    ),
-    GridColumn(columnName: "CSKH", label: formatColumn("CSKH")),
-    GridColumn(columnName: "rateCustomer", label: formatColumn("Đánh Giá")),
+    for (var item in headerCustomer)
+      GridColumn(
+        columnName: item["key"]!,
+        label: Obx(
+          () => formatColumn(
+            label: item["title"]!,
+            themeController: themeController,
+          ),
+        ),
+        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+      ),
   ];
 }

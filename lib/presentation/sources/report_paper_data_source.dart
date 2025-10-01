@@ -259,8 +259,15 @@ class ReportPaperDatasource extends DataGridSource {
                 textColor = Colors.green;
               }
 
+              Alignment alignment;
+              if (dataCell.value is num) {
+                alignment = Alignment.centerRight;
+              } else {
+                alignment = Alignment.centerLeft;
+              }
+
               return Container(
-                alignment: Alignment.center,
+                alignment: alignment,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
                   border: Border(

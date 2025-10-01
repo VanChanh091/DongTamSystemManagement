@@ -1,4 +1,5 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_change_machine.dart';
@@ -29,6 +30,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   late List<GridColumn> columns;
   final DataGridController dataGridController = DataGridController();
   final badgesController = Get.find<BadgesController>();
+  final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
@@ -57,7 +59,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       futurePlanning = Future.error("NO_PERMISSION");
     }
 
-    columns = buildMachineColumns(isShowPlanningPaper: true);
+    columns = buildMachineColumns(
+      isShowPlanningPaper: true,
+      themeController: themeController,
+    );
   }
 
   void loadPlanning(bool refresh) {
@@ -254,6 +259,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                       onPressed: () => searchPlanning(),
                                       label: "Tìm kiếm",
                                       icon: Icons.search,
+                                      backgroundColor:
+                                          themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
                                   ],
@@ -529,6 +536,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   },
                                           label: "Lưu",
                                           icon: Icons.save,
+                                          backgroundColor:
+                                              themeController.buttonColor,
                                         ),
 
                                         if (isLoading)
@@ -560,6 +569,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                           showGroup
                                               ? Symbols.ungroup
                                               : Symbols.ad_group,
+                                      backgroundColor:
+                                          themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
 
@@ -857,7 +868,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               'runningPlanProd',
                               'qtyProduced',
                             ],
-                            child: formatColumn('Số Lượng'),
+                            child: formatColumn(
+                              label: 'Số Lượng',
+                              themeController: themeController,
+                            ),
                           ),
                           StackedHeaderCell(
                             columnNames: [
@@ -868,7 +882,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               'knife',
                               'totalLoss',
                             ],
-                            child: formatColumn('Định Mức Phế Liệu'),
+                            child: formatColumn(
+                              label: 'Định Mức Phế Liệu',
+                              themeController: themeController,
+                            ),
                           ),
                           StackedHeaderCell(
                             columnNames: [
@@ -887,7 +904,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               'dongGoi',
                               'maKhuon',
                             ],
-                            child: formatColumn('Công Đoạn 2'),
+                            child: formatColumn(
+                              label: 'Công Đoạn 2',
+                              themeController: themeController,
+                            ),
                           ),
                         ],
                       ),
@@ -919,7 +939,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
           isPlan
               ? FloatingActionButton(
                 onPressed: () => loadPlanning(true),
-                backgroundColor: const Color(0xff78D761),
+                backgroundColor: themeController.buttonColor.value,
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

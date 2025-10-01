@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:flutter/material.dart';
 
 Widget styleText(String text) {
@@ -39,17 +40,19 @@ Widget styleCell(String text, {double? width}) {
   );
 }
 
-Widget formatColumn(String text, {double widthBorder = 0}) {
+Widget formatColumn({
+  required String label,
+  required ThemeController themeController,
+  double widthBorder = 0,
+}) {
   return Container(
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      // color: Colors.amberAccent.shade200,
-      color: Color(0xffcfa381),
+      color: themeController.currentColor.value,
       border: Border(right: BorderSide(color: Colors.grey.shade400, width: 1)),
     ),
-    width: widthBorder,
     child: Text(
-      text,
+      label,
       style: const TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 15,

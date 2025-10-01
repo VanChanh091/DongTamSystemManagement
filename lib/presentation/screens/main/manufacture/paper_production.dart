@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
@@ -28,6 +29,7 @@ class _PaperProductionState extends State<PaperProduction> {
   late MachinePaperDatasource machinePaperDatasource;
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
@@ -45,7 +47,10 @@ class _PaperProductionState extends State<PaperProduction> {
     registerSocket();
     loadPlanning(true);
 
-    columns = buildMachineColumns(hasBox: true);
+    columns = buildMachineColumns(
+      hasBox: true,
+      themeController: themeController,
+    );
   }
 
   void loadPlanning(bool refresh) {
@@ -218,7 +223,7 @@ class _PaperProductionState extends State<PaperProduction> {
               child: Column(
                 children: [
                   //title
-                  const SizedBox(
+                  SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
@@ -227,7 +232,7 @@ class _PaperProductionState extends State<PaperProduction> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -320,6 +325,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                         : null,
                                 label: "Báo Cáo SX",
                                 icon: Icons.assignment,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
 
@@ -393,6 +399,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                         : null,
                                 label: "Xác Nhận SX",
                                 icon: null,
+                                backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 10),
 
@@ -506,7 +513,10 @@ class _PaperProductionState extends State<PaperProduction> {
                               'runningPlanProd',
                               'qtyProduced',
                             ],
-                            child: formatColumn('Số Lượng'),
+                            child: formatColumn(
+                              label: 'Số Lượng',
+                              themeController: themeController,
+                            ),
                           ),
                           StackedHeaderCell(
                             columnNames: [
@@ -517,7 +527,10 @@ class _PaperProductionState extends State<PaperProduction> {
                               'knife',
                               'totalWasteLoss',
                             ],
-                            child: formatColumn('Định Mức Phế Liệu'),
+                            child: formatColumn(
+                              label: 'Định Mức Phế Liệu',
+                              themeController: themeController,
+                            ),
                           ),
                         ],
                       ),
@@ -547,7 +560,7 @@ class _PaperProductionState extends State<PaperProduction> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadPlanning(true),
-        backgroundColor: const Color(0xff78D761),
+        backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );

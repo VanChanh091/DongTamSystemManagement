@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/admin/admin_machine_box_model.dart';
 import 'package:dongtam/service/admin_service.dart';
@@ -18,6 +19,7 @@ class AdminMachineBox extends StatefulWidget {
 class _AdminMachineBoxState extends State<AdminMachineBox> {
   late Future<List<AdminMachineBoxModel>> futureAdminMachine;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   int? selectedMachine;
   List<int> isSelected = [];
   List<AdminMachineBoxModel> updatedMachine = [];
@@ -56,7 +58,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 30,
                     width: double.infinity,
                     child: Center(
@@ -65,7 +67,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -142,6 +144,8 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                         },
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -378,8 +382,8 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: const WidgetStatePropertyAll(
-                          Color(0xffcfa381),
+                        headingRowColor: WidgetStatePropertyAll(
+                          themeController.currentColor.value,
                         ),
                         columns: [
                           DataColumn(
@@ -517,7 +521,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
           isAccept
               ? FloatingActionButton(
                 onPressed: loadMachine,
-                backgroundColor: const Color(0xff78D761),
+                backgroundColor: themeController.buttonColor.value,
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

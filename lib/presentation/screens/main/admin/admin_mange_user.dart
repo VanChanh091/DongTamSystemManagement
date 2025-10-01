@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_permission_role.dart';
@@ -20,6 +21,7 @@ class AdminMangeUser extends StatefulWidget {
 class _AdminMangeUserState extends State<AdminMangeUser> {
   late Future<List<UserAdminModel>> futureUserAdmin;
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   TextEditingController searchController = TextEditingController();
   List<int> selectedUserIds = [];
   bool selectedAll = false;
@@ -85,7 +87,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
               width: double.infinity,
               child: Column(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
@@ -94,7 +96,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          color: Color(0xffcfa381),
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -193,6 +195,8 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                         },
                                         label: "Tìm kiếm",
                                         icon: Icons.search,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
                                     ],
@@ -266,6 +270,8 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                         },
                                         label: "Phân Quyền/Vai Trò",
                                         icon: Symbols.graph_5,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -395,6 +401,8 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                         },
                                         label: "Đặt lại mật khẩu",
                                         icon: Symbols.lock_reset,
+                                        backgroundColor:
+                                            themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -631,8 +639,8 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: const WidgetStatePropertyAll(
-                          Color(0xFFCFA381),
+                        headingRowColor: WidgetStatePropertyAll(
+                          themeController.currentColor.value,
                         ),
                         columns: [
                           DataColumn(
@@ -851,7 +859,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                     futureUserAdmin = AdminService().getAllUsers();
                   });
                 },
-                backgroundColor: const Color(0xff78D761),
+                backgroundColor: themeController.buttonColor.value,
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,

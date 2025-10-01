@@ -1,4 +1,5 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
@@ -22,6 +23,7 @@ class _ManageOrderState extends State<AdminOrder> {
 
   final badgesController = Get.find<BadgesController>();
   final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
 
   @override
@@ -234,6 +236,10 @@ class _ManageOrderState extends State<AdminOrder> {
                                             },
                                             label: 'Duyệt',
                                             icon: Icons.check,
+                                            backgroundColor:
+                                                themeController
+                                                    .buttonColor
+                                                    .value,
                                           ),
                                           const SizedBox(width: 12),
 
@@ -404,7 +410,7 @@ class _ManageOrderState extends State<AdminOrder> {
                     selectedOrder = null;
                   });
                 },
-                backgroundColor: Color(0xff78D761),
+                backgroundColor: themeController.buttonColor.value,
                 child: const Icon(Icons.refresh, color: Colors.white),
               )
               : null,
