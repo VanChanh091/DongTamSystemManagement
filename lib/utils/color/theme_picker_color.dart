@@ -24,7 +24,7 @@ Future<void> showThemeColorDialog(BuildContext context) async {
       style: ElevatedButton.styleFrom(
         backgroundColor: bgColor,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
@@ -41,11 +41,14 @@ Future<void> showThemeColorDialog(BuildContext context) async {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: SingleChildScrollView(
-          child: BlockPicker(
-            pickerColor: themeController.currentColor.value,
-            onColorChanged: (color) {
-              tempColor = color;
-            },
+          child: ColorPicker(
+            pickerColor: tempColor,
+            onColorChanged: (color) => tempColor = color,
+            labelTypes: const [ColorLabelType.rgb, ColorLabelType.hex],
+            pickerAreaHeightPercent: 0.7,
+            enableAlpha: false,
+            displayThumbColor: true,
+            paletteType: PaletteType.hueWheel, // hueWheel hoặc hsvWithHue
           ),
         ),
         actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

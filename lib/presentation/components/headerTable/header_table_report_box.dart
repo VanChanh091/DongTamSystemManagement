@@ -3,14 +3,14 @@ import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-final List<Map<String, String>> reportBoxColumns = [
+final List<Map<String, dynamic>> reportBoxColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
-  {"key": "reportBoxId", "title": ""},
+  {"key": "reportBoxId", "title": "", "visible": false},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "dateShipping", "title": "Ngày YC Giao"},
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "dayReported", "title": "Ngày Báo Cáo"},
-  {"key": "dateTimeRp", "title": ""},
+  {"key": "dateTimeRp", "title": "", "visible": false},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},

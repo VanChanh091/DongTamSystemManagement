@@ -338,8 +338,9 @@ class _CustomerPageState extends State<CustomerPage> {
                                                                   selectedCustomerId!,
                                                             );
 
-                                                    if (!context.mounted)
+                                                    if (!context.mounted) {
                                                       return;
+                                                    }
 
                                                     // Defensive null checks
                                                     if (result['customers'] ==

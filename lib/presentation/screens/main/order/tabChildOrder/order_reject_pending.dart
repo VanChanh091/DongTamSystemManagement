@@ -79,12 +79,14 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     height: 30,
                     width: double.infinity,
                     child: Center(
-                      child: Text(
-                        "ĐƠN HÀNG CHỜ DUYỆT/BỊ TỪ CHỐI",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
+                      child: Obx(
+                        () => Text(
+                          "ĐƠN HÀNG CHỜ DUYỆT/BỊ TỪ CHỐI",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: themeController.currentColor.value,
+                          ),
                         ),
                       ),
                     ),
@@ -438,9 +440,11 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                               'dongGoi',
                               'maKhuon',
                             ],
-                            child: formatColumn(
-                              label: 'Công Đoạn 2',
-                              themeController: themeController,
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Công Đoạn 2',
+                                themeController: themeController,
+                              ),
                             ),
                           ),
                         ],
@@ -473,10 +477,12 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => loadOrders(true, isSeenOrder),
-        backgroundColor: themeController.buttonColor.value,
-        child: const Icon(Icons.refresh, color: Colors.white),
+      floatingActionButton: Obx(
+        () => FloatingActionButton(
+          onPressed: () => loadOrders(true, isSeenOrder),
+          backgroundColor: themeController.buttonColor.value,
+          child: const Icon(Icons.refresh, color: Colors.white),
+        ),
       ),
     );
   }

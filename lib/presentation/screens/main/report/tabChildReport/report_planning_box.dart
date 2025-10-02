@@ -236,12 +236,14 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                     height: 35,
                     width: double.infinity,
                     child: Center(
-                      child: Text(
-                        "LỊCH SỬ BÁO CÁO THÙNG",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
+                      child: Obx(
+                        () => Text(
+                          "LỊCH SỬ BÁO CÁO THÙNG",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: themeController.currentColor.value,
+                          ),
                         ),
                       ),
                     ),
@@ -545,9 +547,11 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                     'qtyDan',
                                     'qtyDongGhim',
                                   ],
-                                  child: formatColumn(
-                                    label: 'Báo Cáo Số Lượng Các Công Đoạn',
-                                    themeController: themeController,
+                                  child: Obx(
+                                    () => formatColumn(
+                                      label: 'Báo Cáo Số Lượng Các Công Đoạn',
+                                      themeController: themeController,
+                                    ),
                                   ),
                                 ),
                               ],

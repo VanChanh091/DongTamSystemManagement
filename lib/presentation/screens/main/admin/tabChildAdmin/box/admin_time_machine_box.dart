@@ -62,12 +62,14 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                     height: 30,
                     width: double.infinity,
                     child: Center(
-                      child: Text(
-                        "THỜI GIAN VÀ TỐC ĐỘ LÀM THÙNG",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
+                      child: Obx(
+                        () => Text(
+                          "THỜI GIAN VÀ TỐC ĐỘ LÀM THÙNG",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: themeController.currentColor.value,
+                          ),
                         ),
                       ),
                     ),
@@ -517,14 +519,16 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
           ],
         ),
       ),
-      floatingActionButton:
-          isAccept
-              ? FloatingActionButton(
-                onPressed: loadMachine,
-                backgroundColor: themeController.buttonColor.value,
-                child: const Icon(Icons.refresh, color: Colors.white),
-              )
-              : null,
+      floatingActionButton: Obx(
+        () =>
+            isAccept
+                ? FloatingActionButton(
+                  onPressed: loadMachine,
+                  backgroundColor: themeController.buttonColor.value,
+                  child: const Icon(Icons.refresh, color: Colors.white),
+                )
+                : SizedBox.shrink(),
+      ),
     );
   }
 

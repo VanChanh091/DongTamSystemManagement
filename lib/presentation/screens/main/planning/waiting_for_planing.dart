@@ -115,8 +115,9 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                                               selectedOrderId,
                                                         );
 
-                                                    if (!context.mounted)
+                                                    if (!context.mounted) {
                                                       return;
+                                                    }
 
                                                     showDialog(
                                                       context: context,

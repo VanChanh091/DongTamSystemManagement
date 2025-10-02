@@ -58,12 +58,12 @@ class PlanningDataSource extends DataGridSource {
         value: order.instructSpecial ?? "",
       ),
       DataGridCell<String>(
-        columnName: 'haveMadeBox',
-        value: order.formatIsBox(order.isBox),
-      ),
-      DataGridCell<String>(
         columnName: 'totalPrice',
         value: Order.formatCurrency(order.totalPrice),
+      ),
+      DataGridCell<String>(
+        columnName: 'haveMadeBox',
+        value: order.formatIsBox(order.isBox),
       ),
     ];
   }

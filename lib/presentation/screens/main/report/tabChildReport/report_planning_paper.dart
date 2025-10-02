@@ -242,12 +242,14 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                     height: 35,
                     width: double.infinity,
                     child: Center(
-                      child: Text(
-                        "LỊCH SỬ BÁO CÁO GIẤY TẤM",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
+                      child: Obx(
+                        () => Text(
+                          "LỊCH SỬ BÁO CÁO GIẤY TẤM",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: themeController.currentColor.value,
+                          ),
                         ),
                       ),
                     ),
@@ -544,9 +546,11 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                     'qtyReported',
                                     'LackOfQty',
                                   ],
-                                  child: formatColumn(
-                                    label: 'Số Lượng',
-                                    themeController: themeController,
+                                  child: Obx(
+                                    () => formatColumn(
+                                      label: 'Số Lượng',
+                                      themeController: themeController,
+                                    ),
                                   ),
                                 ),
                                 StackedHeaderCell(
@@ -558,31 +562,11 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                     'knife',
                                     'totalLoss',
                                   ],
-                                  child: formatColumn(
-                                    label: 'Định Mức Phế Liệu',
-                                    themeController: themeController,
-                                  ),
-                                ),
-                                StackedHeaderCell(
-                                  columnNames: [
-                                    'inMatTruoc',
-                                    'inMatSau',
-                                    'canLanBox',
-                                    'canMang',
-                                    'xa',
-                                    'catKhe',
-                                    'be',
-                                    'dan_1_Manh',
-                                    'dan_2_Manh',
-                                    'dongGhimMotManh',
-                                    'dongGhimHaiManh',
-                                    'chongTham',
-                                    'dongGoi',
-                                    'maKhuon',
-                                  ],
-                                  child: formatColumn(
-                                    label: 'Công Đoạn 2',
-                                    themeController: themeController,
+                                  child: Obx(
+                                    () => formatColumn(
+                                      label: 'Định Mức Phế Liệu',
+                                      themeController: themeController,
+                                    ),
                                   ),
                                 ),
                               ],

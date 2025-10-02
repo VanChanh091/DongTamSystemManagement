@@ -868,9 +868,11 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               'runningPlanProd',
                               'qtyProduced',
                             ],
-                            child: formatColumn(
-                              label: 'Số Lượng',
-                              themeController: themeController,
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Số Lượng',
+                                themeController: themeController,
+                              ),
                             ),
                           ),
                           StackedHeaderCell(
@@ -882,9 +884,11 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               'knife',
                               'totalLoss',
                             ],
-                            child: formatColumn(
-                              label: 'Định Mức Phế Liệu',
-                              themeController: themeController,
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Định Mức Phế Liệu',
+                                themeController: themeController,
+                              ),
                             ),
                           ),
                           StackedHeaderCell(
@@ -904,9 +908,11 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               'dongGoi',
                               'maKhuon',
                             ],
-                            child: formatColumn(
-                              label: 'Công Đoạn 2',
-                              themeController: themeController,
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Công Đoạn 2',
+                                themeController: themeController,
+                              ),
                             ),
                           ),
                         ],
@@ -935,14 +941,16 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
           ],
         ),
       ),
-      floatingActionButton:
-          isPlan
-              ? FloatingActionButton(
-                onPressed: () => loadPlanning(true),
-                backgroundColor: themeController.buttonColor.value,
-                child: const Icon(Icons.refresh, color: Colors.white),
-              )
-              : null,
+      floatingActionButton: Obx(
+        () =>
+            isPlan
+                ? FloatingActionButton(
+                  onPressed: () => loadPlanning(true),
+                  backgroundColor: themeController.buttonColor.value,
+                  child: const Icon(Icons.refresh, color: Colors.white),
+                )
+                : SizedBox.shrink(),
+      ),
     );
   }
 

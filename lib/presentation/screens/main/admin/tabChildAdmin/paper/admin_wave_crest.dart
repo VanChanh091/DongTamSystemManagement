@@ -62,12 +62,14 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                     height: 30,
                     width: double.infinity,
                     child: Center(
-                      child: Text(
-                        "HỆ SỐ MÁY SÓNG",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
+                      child: Obx(
+                        () => Text(
+                          "HỆ SỐ MÁY SÓNG",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: themeController.currentColor.value,
+                          ),
                         ),
                       ),
                     ),
@@ -541,14 +543,16 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
           ],
         ),
       ),
-      floatingActionButton:
-          isAccept
-              ? FloatingActionButton(
-                onPressed: loadWaveCrest,
-                backgroundColor: themeController.buttonColor.value,
-                child: const Icon(Icons.refresh, color: Colors.white),
-              )
-              : null,
+      floatingActionButton: Obx(
+        () =>
+            isAccept
+                ? FloatingActionButton(
+                  onPressed: loadWaveCrest,
+                  backgroundColor: themeController.buttonColor.value,
+                  child: const Icon(Icons.refresh, color: Colors.white),
+                )
+                : SizedBox.shrink(),
+      ),
     );
   }
 }

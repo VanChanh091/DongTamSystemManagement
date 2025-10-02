@@ -62,12 +62,14 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                     height: 30,
                     width: double.infinity,
                     child: Center(
-                      child: Text(
-                        "ĐỊNH MỨC PHẾ LIỆU THÙNG",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
+                      child: Obx(
+                        () => Text(
+                          "ĐỊNH MỨC PHẾ LIỆU THÙNG",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: themeController.currentColor.value,
+                          ),
                         ),
                       ),
                     ),
@@ -531,14 +533,16 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
           ],
         ),
       ),
-      floatingActionButton:
-          isAccept
-              ? FloatingActionButton(
-                onPressed: loadWasteBox,
-                backgroundColor: themeController.buttonColor.value,
-                child: const Icon(Icons.refresh, color: Colors.white),
-              )
-              : null,
+      floatingActionButton: Obx(
+        () =>
+            isAccept
+                ? FloatingActionButton(
+                  onPressed: loadWasteBox,
+                  backgroundColor: themeController.buttonColor.value,
+                  child: const Icon(Icons.refresh, color: Colors.white),
+                )
+                : SizedBox.shrink(),
+      ),
     );
   }
 }

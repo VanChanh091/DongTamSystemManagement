@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_machine_paper.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_time_machine_paper.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_waste_norm.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_wave_crest.dart';
 import 'package:flutter/material.dart';

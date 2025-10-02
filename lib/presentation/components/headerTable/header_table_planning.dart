@@ -19,8 +19,8 @@ final List<Map<String, dynamic>> planningColumns = [
   {"key": "sizeManufacture", "title": "Khổ (SX)"},
   {"key": "qtyManufacture", "title": "Số Lượng (SX)"},
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
-  {"key": "haveMadeBox", "title": "Làm Thùng?"},
   {"key": "totalPrice", "title": "Doanh thu"},
+  {"key": "haveMadeBox", "title": "Làm Thùng?"},
 ];
 
 List<GridColumn> buildColumnPlanning({

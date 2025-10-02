@@ -680,11 +680,7 @@ class _ProductPageState extends State<ProductPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          setState(() {
-            futureProducts = ProductService().getAllProducts(true);
-          });
-        },
+        onPressed: () => loadProduct(true),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

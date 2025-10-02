@@ -101,6 +101,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
           machine: widget.machine,
         );
       }
+      if (!mounted) return;
       showSnackBarSuccess(context, "Lưu thành công");
 
       if (!mounted) return; // check context

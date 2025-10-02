@@ -790,9 +790,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                               'qtyDan',
                               'qtyDongGhim',
                             ],
-                            child: formatColumn(
-                              label: 'Số Lượng Của Các Công Đoạn',
-                              themeController: themeController,
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Số Lượng Của Các Công Đoạn',
+                                themeController: themeController,
+                              ),
                             ),
                           ),
                         ],
@@ -821,14 +823,16 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
           ],
         ),
       ),
-      floatingActionButton:
-          isPlan
-              ? FloatingActionButton(
-                onPressed: () => loadPlanning(true),
-                backgroundColor: themeController.buttonColor.value,
-                child: const Icon(Icons.refresh, color: Colors.white),
-              )
-              : null,
+      floatingActionButton: Obx(
+        () =>
+            isPlan
+                ? FloatingActionButton(
+                  onPressed: () => loadPlanning(true),
+                  backgroundColor: themeController.buttonColor.value,
+                  child: const Icon(Icons.refresh, color: Colors.white),
+                )
+                : SizedBox.shrink(),
+      ),
     );
   }
 

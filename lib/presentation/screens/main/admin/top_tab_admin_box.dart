@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_machine_box.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_time_machine_box.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_waste_box.dart';
 import 'package:flutter/material.dart';
 
