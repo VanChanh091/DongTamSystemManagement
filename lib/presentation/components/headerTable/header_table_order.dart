@@ -33,7 +33,8 @@ final List<Map<String, dynamic>> orderColumns = [
   {"key": "profitOrd", "title": "Lợi Nhuận"},
   {"key": "vat", "title": "VAT"},
   {"key": "HD_special", "title": "HD Đặc Biệt"},
-  {"key": "totalPrice", "title": "Doanh số"},
+  {"key": "totalPrice", "title": "Tổng Tiền"},
+  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền Sau VAT"},
 
   // Box
   {"key": "inMatTruoc", "title": "In Mặt Trước"},

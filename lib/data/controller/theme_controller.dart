@@ -41,7 +41,7 @@ class ThemeController extends GetxController {
 
     await _storage.write(
       key: _keyThemeColor,
-      value: defaultColor.value.toRadixString(16),
+      value: defaultColor.toARGB32().toRadixString(16),
     );
   }
 }

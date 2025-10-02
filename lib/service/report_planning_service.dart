@@ -27,7 +27,7 @@ class ReportPlanningService {
     bool refresh = false,
   }) async {
     return HelperService().fetchPaginatedData<ReportPaperModel>(
-      endpoint: "report/reportPaper/getCustomerName",
+      endpoint: "report/reportPaper/",
       queryParameters: {
         "machine": machine,
         "page": page,
@@ -179,7 +179,7 @@ class ReportPlanningService {
     bool refresh = false,
   }) async {
     return HelperService().fetchPaginatedData<ReportBoxModel>(
-      endpoint: "report/reportBox/getCustomerName",
+      endpoint: "report/reportBox/",
       queryParameters: {
         "machine": machine,
         "page": page,

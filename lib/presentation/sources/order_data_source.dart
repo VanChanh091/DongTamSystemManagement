@@ -54,11 +54,17 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'daoXaOrd', value: order.daoXa),
       DataGridCell<String>(
         columnName: 'lengthCus',
-        value: '${Order.formatCurrency(order.lengthPaperCustomer)} cm',
+        value:
+            ((order.lengthPaperCustomer) > 0)
+                ? '${Order.formatCurrency(order.lengthPaperCustomer)} cm'
+                : '0',
       ),
       DataGridCell<String>(
         columnName: 'lengthMf',
-        value: '${Order.formatCurrency(order.lengthPaperManufacture)} cm',
+        value:
+            ((order.lengthPaperManufacture) > 0)
+                ? '${Order.formatCurrency(order.lengthPaperManufacture)} cm'
+                : "0",
       ),
       DataGridCell<String>(
         columnName: 'sizeCustomer',
@@ -105,7 +111,11 @@ class OrderDataSource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: 'totalPrice',
-        value: Order.formatCurrency(order.totalPrice),
+        value: '${Order.formatCurrency(order.totalPrice)} VNĐ',
+      ),
+      DataGridCell<String>(
+        columnName: 'totalPriceAfterVAT',
+        value: '${Order.formatCurrency(order.totalPriceVAT)} VNĐ',
       ),
     ];
   }

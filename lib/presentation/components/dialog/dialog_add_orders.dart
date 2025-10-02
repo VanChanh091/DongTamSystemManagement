@@ -35,7 +35,7 @@ class _OrderDialogState extends State<OrderDialog> {
   Timer? _productIdDebounce;
   String lastSearchedCustomerId = "";
   String lastSearchedProductId = "";
-  final List<String> itemsDvt = ['Kg', 'Cái', 'M2'];
+  final List<String> itemsDvt = ['Kg', 'Cái', 'M2', 'Lần'];
   final List<String> itemsDaoXa = [
     "Tề Gọn",
     "Tề Biên Đẹp",
@@ -377,6 +377,11 @@ class _OrderDialogState extends State<OrderDialog> {
           totalPricePaper,
         ).roundToDouble();
 
+    late double totalPriceVAT = Order.totalPriceAfterVAT(
+      totalPrice: totalPriceOrder,
+      vat: int.tryParse(vatController.text) ?? 0,
+    );
+
     // helper: only add prefix if not empty and not already present
     String addPrefixIfNeeded(String value, String prefix) {
       value = value.trim().toUpperCase();
@@ -473,6 +478,7 @@ class _OrderDialogState extends State<OrderDialog> {
       isBox: isBoxChecked.value,
 
       totalPrice: totalPriceOrder,
+      totalPriceVAT: totalPriceVAT,
       box: newBox,
       status: 'pending',
     );

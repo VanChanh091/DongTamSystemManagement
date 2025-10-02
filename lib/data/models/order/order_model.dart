@@ -14,7 +14,7 @@ class Order {
   final double lengthPaperCustomer, lengthPaperManufacture;
   final double paperSizeCustomer, paperSizeManufacture;
   final double? discount;
-  final double acreage, profit, totalPrice, price, pricePaper;
+  final double acreage, profit, price, pricePaper, totalPrice, totalPriceVAT;
   final int quantityCustomer, quantityManufacture;
   final int numberChild;
   final int? vat;
@@ -63,6 +63,7 @@ class Order {
     required this.status,
     this.rejectReason,
     required this.totalPrice,
+    required this.totalPriceVAT,
     required this.isBox,
 
     this.customer,
@@ -96,10 +97,20 @@ class Order {
     double price,
   ) {
     dvt = dvt.trim();
-    if (dvt == 'Kg' || dvt == 'Cái') {
+    if (dvt == 'Kg' || dvt == 'Cái' || dvt == 'Lần') {
       return price;
     }
     return length * size * price / 10000;
+  }
+
+  static double totalPriceAfterVAT({
+    required double totalPrice,
+    required int vat,
+  }) {
+    if (vat == 0) {
+      return totalPrice;
+    }
+    return totalPrice * (1 + (vat / 100));
   }
 
   //Total price = quantity * pricePaper
@@ -195,6 +206,7 @@ class Order {
       discount: toDouble(json['discount']),
       profit: toDouble(json['profit']),
       totalPrice: toDouble(json['totalPrice']),
+      totalPriceVAT: toDouble(json['totalPriceVAT']),
       dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
       instructSpecial: json['instructSpecial'] ?? "",
       isBox: json['isBox'] ?? false,
@@ -249,6 +261,7 @@ class Order {
       "rejectReason": rejectReason,
       'vat': vat,
       'totalPrice': totalPrice,
+      'totalPriceVAT': totalPriceVAT,
       'box': box?.toJson(),
     };
   }

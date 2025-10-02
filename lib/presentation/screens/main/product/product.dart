@@ -592,9 +592,9 @@ class _ProductPageState extends State<ProductPage> {
                                         product.productImage!.isNotEmpty
                                     ? TextButton(
                                       onPressed: () {
-                                        // print(
-                                        //   'Attempting to show image from URL: ${product.productImage}',
-                                        // );
+                                        AppLogger.i(
+                                          'Attempting to show image from URL: ${product.productImage}',
+                                        );
                                         showDialog(
                                           context: context,
                                           barrierDismissible: true,

@@ -1,8 +1,9 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,9 +21,9 @@ class AdminOrder extends StatefulWidget {
 class _ManageOrderState extends State<AdminOrder> {
   List<dynamic> orders = [];
   Order? selectedOrder;
+  bool isLoading = false;
 
   final badgesController = Get.find<BadgesController>();
-  final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
 
@@ -30,21 +31,35 @@ class _ManageOrderState extends State<AdminOrder> {
   void initState() {
     super.initState();
 
-    if (userController.hasAnyRole(["admin", "manager"])) {
-      _loadOrders();
-    }
+    _loadOrders();
   }
 
   Future<void> _loadOrders() async {
-    final fetchedOrders = await AdminService().getOrderByPendingStatus();
+    setState(() => isLoading = true);
+
+    final fetchedOrders = await ensureMinLoading(
+      AdminService().getOrderByPendingStatus(),
+    );
+
     setState(() {
       orders = fetchedOrders;
+      isLoading = false;
     });
+  }
+
+  Map<String, List<dynamic>> groupOrdersByPrefix(List<dynamic> orders) {
+    final Map<String, List<dynamic>> grouped = {};
+    for (var order in orders) {
+      final prefix = order.orderId.split('/').first; // lấy 3 số đầu
+      grouped.putIfAbsent(prefix, () => []);
+      grouped[prefix]!.add(order);
+    }
+    return grouped;
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isAccept = userController.hasAnyRole(["admin", "manager"]);
+    final groupedOrders = groupOrdersByPrefix(orders);
 
     return Scaffold(
       body: Container(
@@ -55,365 +70,391 @@ class _ManageOrderState extends State<AdminOrder> {
             end: Alignment.bottomRight,
           ),
         ),
-        child:
-            isAccept
-                ? Row(
-                  children: [
-                    // order list
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        color: Color(0xFFF8FAFC),
-                        child:
-                            orders.isEmpty
-                                ? Center(
-                                  child: Text(
-                                    "Không có đơn hàng cần duyệt",
-                                    style: GoogleFonts.inter(fontSize: 16),
+        child: Row(
+          children: [
+            // order list
+            Expanded(
+              flex: 1,
+              child: Container(
+                color: Color(0xFFF8FAFC),
+                child:
+                    isLoading
+                        ? buildShimmerSkeletonTable(context: context)
+                        : ListView(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 8,
+                          ),
+                          children:
+                              groupedOrders.entries.map((entry) {
+                                final prefix = entry.key;
+                                final ordersInGroup = entry.value;
+
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 5,
                                   ),
-                                )
-                                : ListView.builder(
-                                  itemCount: orders.length,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    final ordersPending = orders[index];
-                                    final isSelected =
-                                        selectedOrder == ordersPending;
-                                    return AnimatedContainer(
-                                      duration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            isSelected
-                                                ? Colors.blue.shade50
-                                                : Colors.white70,
-                                        border: Border.all(
-                                          color:
-                                              isSelected
-                                                  ? Colors.blue.shade400
-                                                  : Colors.grey.shade300,
-                                          width: isSelected ? 1.5 : 1,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(
+                                      alpha: 0.9,
+                                    ), // nền mờ mờ
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: Colors.grey.shade300,
+                                      width: 1,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.05,
                                         ),
-                                        borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.1,
-                                            ),
-                                            blurRadius: 8,
-                                            offset: const Offset(1, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: ListTile(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 8,
-                                            ),
-                                        title: Text(
-                                          "Mã đơn: ${ordersPending.orderId}",
-                                          style: GoogleFonts.inter(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        subtitle: Text(
-                                          'Sản phẩm: ${ordersPending.product.productName}',
-                                          style: GoogleFonts.inter(
-                                            color: Colors.black,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        trailing: Text(
-                                          'Tổng tiền: ${Order.formatCurrency(ordersPending.totalPrice)} đ',
-                                          style: GoogleFonts.inter(
-                                            color: Colors.blue.shade700,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        selected: isSelected,
-                                        onTap:
-                                            () => setState(
-                                              () =>
-                                                  selectedOrder = ordersPending,
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                      ),
-                    ),
-                    const VerticalDivider(width: 1),
-
-                    // order detail
-                    Expanded(
-                      flex: 2,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child:
-                            selectedOrder == null
-                                ? Center(
-                                  key: const ValueKey('no-selection'),
-                                  child: Text(
-                                    'Chọn một đơn hàng để xem chi tiết',
-                                    style: GoogleFonts.inter(fontSize: 16),
-                                  ),
-                                )
-                                : Padding(
-                                  key: const ValueKey('detail'),
-                                  padding: const EdgeInsets.all(24.0),
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              rowOrder(),
-                                              const SizedBox(height: 12),
-                                              if (selectedOrder!.box != null)
-                                                rowBox(),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-
-                                      //approve or reject
-                                      Row(
-                                        children: [
-                                          //approve
-                                          AnimatedButton(
-                                            onPressed: () async {
-                                              try {
-                                                await AdminService()
-                                                    .updateStatusOrder(
-                                                      selectedOrder!.orderId,
-                                                      'accept',
-                                                      "",
-                                                    );
-                                                if (!context.mounted) return;
-
-                                                showSnackBarSuccess(
-                                                  context,
-                                                  'Phê duyệt thành công',
-                                                );
-                                                await _loadOrders();
-
-                                                //cập nhật lại badge
-                                                badgesController
-                                                    .fetchPendingApprovals();
-
-                                                setState(() {
-                                                  selectedOrder = null;
-                                                });
-                                              } catch (e) {
-                                                if (!context.mounted) return;
-
-                                                if (e.toString().contains(
-                                                  "Debt limit exceeded",
-                                                )) {
-                                                  showSnackBarError(
-                                                    context,
-                                                    'Vượt hạn mức công nợ của khách hàng này!',
-                                                  );
-                                                } else {
-                                                  showSnackBarError(
-                                                    context,
-                                                    'Có lỗi xảy ra: $e',
-                                                  );
-                                                }
-                                              }
-                                            },
-                                            label: 'Duyệt',
-                                            icon: Icons.check,
-                                            backgroundColor:
-                                                themeController
-                                                    .buttonColor
-                                                    .value,
-                                          ),
-                                          const SizedBox(width: 12),
-
-                                          //reject
-                                          AnimatedButton(
-                                            onPressed: () {
-                                              final TextEditingController
-                                              reasonController =
-                                                  TextEditingController();
-                                              final formKey =
-                                                  GlobalKey<FormState>();
-
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return AlertDialog(
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    title: const Text(
-                                                      'Nhập lý do từ chối',
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
-                                                    content: SizedBox(
-                                                      width: 350,
-                                                      height: 80,
-                                                      child: Form(
-                                                        key: formKey,
-                                                        child: TextFormField(
-                                                          controller:
-                                                              reasonController,
-                                                          decoration: const InputDecoration(
-                                                            hintText:
-                                                                'Nhập lý do...',
-                                                            border:
-                                                                OutlineInputBorder(),
-                                                          ),
-                                                          validator: (value) {
-                                                            if (value == null ||
-                                                                value
-                                                                    .trim()
-                                                                    .isEmpty) {
-                                                              return 'Vui lòng nhập lý do từ chối';
-                                                            }
-                                                            return null;
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed:
-                                                            () => Navigator.pop(
-                                                              context,
-                                                            ),
-                                                        child: const Text(
-                                                          'Hủy',
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: Colors.black,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      ElevatedButton(
-                                                        style:
-                                                            ElevatedButton.styleFrom(
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .red
-                                                                      .shade600,
-                                                            ),
-                                                        onPressed: () async {
-                                                          if (formKey
-                                                              .currentState!
-                                                              .validate()) {
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-
-                                                            await AdminService()
-                                                                .updateStatusOrder(
-                                                                  selectedOrder!
-                                                                      .orderId,
-                                                                  'reject',
-                                                                  reasonController
-                                                                      .text,
-                                                                );
-                                                            if (!context
-                                                                .mounted) {
-                                                              return;
-                                                            }
-
-                                                            showSnackBarSuccess(
-                                                              context,
-                                                              "Từ chối phê duyệt thành công",
-                                                            );
-
-                                                            await _loadOrders();
-
-                                                            //cập nhật lại badge
-                                                            badgesController
-                                                                .fetchPendingApprovals();
-
-                                                            setState(() {
-                                                              selectedOrder =
-                                                                  null;
-                                                            });
-                                                          }
-                                                        },
-                                                        child: const Text(
-                                                          'Xác nhận',
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 16,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            label: 'Từ chối',
-                                            icon: Icons.close,
-                                            backgroundColor:
-                                                Colors.red.shade600,
-                                          ),
-                                        ],
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
-                                ),
-                      ),
-                    ),
-                  ],
-                )
-                : Center(
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.lock_outline,
-                        color: Colors.redAccent,
-                        size: 35,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        "Bạn không có quyền xem chức năng này",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 26,
-                          color: Colors.redAccent,
+                                  child: Theme(
+                                    data: Theme.of(context).copyWith(
+                                      dividerColor: Colors.transparent,
+                                    ),
+                                    child: ExpansionTile(
+                                      tilePadding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 6,
+                                      ),
+                                      collapsedBackgroundColor:
+                                          Colors.transparent,
+                                      backgroundColor: Colors.transparent,
+                                      childrenPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 6,
+                                          ),
+
+                                      // Header
+                                      title: Text(
+                                        "Đơn Hàng $prefix • ${ordersInGroup.length} đơn",
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.blueGrey.shade800,
+                                        ),
+                                      ),
+                                      trailing: const Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: Colors.grey,
+                                      ),
+
+                                      // Children (list các order)
+                                      children:
+                                          ordersInGroup.map((ordersPending) {
+                                            final isSelected =
+                                                selectedOrder == ordersPending;
+
+                                            return AnimatedContainer(
+                                              duration: const Duration(
+                                                milliseconds: 300,
+                                              ),
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 6,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    isSelected
+                                                        ? Colors.blue.shade50
+                                                        : Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                border: Border.all(
+                                                  color:
+                                                      isSelected
+                                                          ? Colors.blue.shade400
+                                                          : Colors
+                                                              .grey
+                                                              .shade300,
+                                                  width: isSelected ? 1.5 : 1,
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                          alpha: 0.08,
+                                                        ),
+                                                    blurRadius: 10,
+                                                    spreadRadius: 1,
+                                                    offset: const Offset(
+                                                      0,
+                                                      4,
+                                                    ), // 👈 đẩy bóng xuống dưới, nổi bật hơn
+                                                  ),
+                                                ],
+                                              ),
+                                              child: ListTile(
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 10,
+                                                    ),
+                                                title: Text(
+                                                  "Mã đơn: ${ordersPending.orderId}",
+                                                  style: GoogleFonts.inter(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 15,
+                                                  ),
+                                                ),
+                                                subtitle: Text(
+                                                  'Sản phẩm: ${ordersPending.product.productName}',
+                                                  style: GoogleFonts.inter(
+                                                    color: Colors.grey.shade700,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                                trailing: Text(
+                                                  'Tổng: ${Order.formatCurrency(ordersPending.totalPrice)} đ',
+                                                  style: GoogleFonts.inter(
+                                                    color: Colors.blue.shade600,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                selected: isSelected,
+                                                onTap:
+                                                    () => setState(
+                                                      () =>
+                                                          selectedOrder =
+                                                              ordersPending,
+                                                    ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+              ),
+            ),
+            const VerticalDivider(width: 1),
+
+            // order detail
+            Expanded(
+              flex: 2,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child:
+                    selectedOrder == null
+                        ? Center(
+                          key: const ValueKey('no-selection'),
+                          child: Text(
+                            'Chọn một đơn hàng để xem chi tiết',
+                            style: GoogleFonts.inter(fontSize: 16),
+                          ),
+                        )
+                        : Padding(
+                          key: const ValueKey('detail'),
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      rowOrder(),
+                                      const SizedBox(height: 12),
+                                      if (selectedOrder!.box != null) rowBox(),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              //approve or reject
+                              Row(
+                                children: [
+                                  //approve
+                                  AnimatedButton(
+                                    onPressed: () async {
+                                      try {
+                                        await AdminService().updateStatusOrder(
+                                          selectedOrder!.orderId,
+                                          'accept',
+                                          "",
+                                        );
+                                        if (!context.mounted) return;
+
+                                        showSnackBarSuccess(
+                                          context,
+                                          'Phê duyệt thành công',
+                                        );
+                                        await _loadOrders();
+
+                                        //cập nhật lại badge
+                                        badgesController
+                                            .fetchPendingApprovals();
+
+                                        setState(() {
+                                          selectedOrder = null;
+                                        });
+                                      } catch (e) {
+                                        if (!context.mounted) return;
+
+                                        if (e.toString().contains(
+                                          "Debt limit exceeded",
+                                        )) {
+                                          showSnackBarError(
+                                            context,
+                                            'Vượt hạn mức công nợ của khách hàng này!',
+                                          );
+                                        } else {
+                                          showSnackBarError(
+                                            context,
+                                            'Có lỗi xảy ra: $e',
+                                          );
+                                        }
+                                      }
+                                    },
+                                    label: 'Duyệt',
+                                    icon: Icons.check,
+                                    backgroundColor:
+                                        themeController.buttonColor.value,
+                                  ),
+                                  const SizedBox(width: 12),
+
+                                  //reject
+                                  AnimatedButton(
+                                    onPressed: () {
+                                      final TextEditingController
+                                      reasonController =
+                                          TextEditingController();
+                                      final formKey = GlobalKey<FormState>();
+
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            backgroundColor: Colors.white,
+                                            title: const Text(
+                                              'Nhập lý do từ chối',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                            content: SizedBox(
+                                              width: 350,
+                                              height: 80,
+                                              child: Form(
+                                                key: formKey,
+                                                child: TextFormField(
+                                                  controller: reasonController,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                        hintText:
+                                                            'Nhập lý do...',
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                      ),
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.trim().isEmpty) {
+                                                      return 'Vui lòng nhập lý do từ chối';
+                                                    }
+                                                    return null;
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () =>
+                                                        Navigator.pop(context),
+                                                child: const Text(
+                                                  'Hủy',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                              ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Colors.red.shade600,
+                                                ),
+                                                onPressed: () async {
+                                                  if (formKey.currentState!
+                                                      .validate()) {
+                                                    Navigator.pop(context);
+
+                                                    await AdminService()
+                                                        .updateStatusOrder(
+                                                          selectedOrder!
+                                                              .orderId,
+                                                          'reject',
+                                                          reasonController.text,
+                                                        );
+                                                    if (!context.mounted) {
+                                                      return;
+                                                    }
+
+                                                    showSnackBarSuccess(
+                                                      context,
+                                                      "Từ chối phê duyệt thành công",
+                                                    );
+
+                                                    await _loadOrders();
+
+                                                    //cập nhật lại badge
+                                                    badgesController
+                                                        .fetchPendingApprovals();
+
+                                                    setState(() {
+                                                      selectedOrder = null;
+                                                    });
+                                                  }
+                                                },
+                                                child: const Text(
+                                                  'Xác nhận',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    label: 'Từ chối',
+                                    icon: Icons.close,
+                                    backgroundColor: Colors.red.shade600,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+              ),
+            ),
+          ],
+        ),
       ),
-      floatingActionButton:
-          isAccept
-              ? FloatingActionButton(
-                onPressed: () async {
-                  await _loadOrders();
-                  setState(() {
-                    selectedOrder = null;
-                  });
-                },
-                backgroundColor: themeController.buttonColor.value,
-                child: const Icon(Icons.refresh, color: Colors.white),
-              )
-              : null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await _loadOrders();
+          setState(() {
+            selectedOrder = null;
+          });
+        },
+        backgroundColor: themeController.buttonColor.value,
+        child: const Icon(Icons.refresh, color: Colors.white),
+      ),
     );
   }
 
@@ -530,8 +571,8 @@ class _ManageOrderState extends State<AdminOrder> {
       ),
       _infoRow('💡 VAT:', order.vat.toString(), unit: "%"),
       _infoRow(
-        '💰 Tổng tiền:',
-        Order.formatCurrency(order.totalPrice),
+        '💰 Tổng tiền (VAT):',
+        'Trước ${Order.formatCurrency(order.totalPrice)} - Sau ${Order.formatCurrency(order.totalPriceVAT)}',
         unit: "VNĐ",
       ),
     ];
@@ -597,7 +638,9 @@ class _ManageOrderState extends State<AdminOrder> {
 
   Widget rowBox() {
     final box = selectedOrder!.box!;
-    final productImage = selectedOrder!.product?.productImage ?? '';
+    final productImage = selectedOrder!.product!.productImage ?? "";
+    AppLogger.i('Attempting to show image from URL: $productImage');
+
     final boolFields = [
       {'label': 'Cán màng', 'value': box.canMang},
       {'label': 'Xả', 'value': box.Xa},
@@ -706,7 +749,6 @@ class _ManageOrderState extends State<AdminOrder> {
                     ),
                   ),
                 ),
-
                 const SizedBox(width: 16),
 
                 // RIGHT SIDE - IMAGE
@@ -721,14 +763,14 @@ class _ManageOrderState extends State<AdminOrder> {
                               ? Image.network(
                                 productImage,
                                 fit: BoxFit.contain,
-                                errorBuilder:
-                                    (context, error, stackTrace) =>
-                                        const Center(
-                                          child: Text(
-                                            'Lỗi ảnh',
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                        ),
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Center(
+                                    child: Text(
+                                      'Lỗi ảnh',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  );
+                                },
                               )
                               : const Center(
                                 child: Text(
