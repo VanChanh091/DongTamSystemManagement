@@ -103,6 +103,11 @@ class Order {
     return length * size * price / 10000;
   }
 
+  //Total price = quantity * pricePaper
+  static double totalPriceOrder(int quantity, double pricePaper) {
+    return pricePaper * double.parse(quantity.toStringAsFixed(1));
+  }
+
   static double totalPriceAfterVAT({
     required double totalPrice,
     required int vat,
@@ -111,11 +116,6 @@ class Order {
       return totalPrice;
     }
     return totalPrice * (1 + (vat / 100));
-  }
-
-  //Total price = quantity * pricePaper
-  static double totalPriceOrder(int quantity, double pricePaper) {
-    return pricePaper * double.parse(quantity.toStringAsFixed(1));
   }
 
   String get formatterStructureOrder {

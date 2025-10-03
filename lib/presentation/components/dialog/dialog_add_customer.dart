@@ -54,6 +54,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
     fetchAllCustomer();
   }
 
+  //create value of customer to update
   void customerInitState() {
     final customer = widget.customer!;
     AppLogger.i("Khởi tạo form với customerId=${customer.customerId}");
@@ -78,6 +79,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
             : "";
   }
 
+  //get all customer to check sdt
   Future<void> fetchAllCustomer() async {
     try {
       final result = await CustomerService().getAllCustomers(
@@ -101,6 +103,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       return;
     }
 
+    //check sdt is existed
     if (widget.customer == null && _phoneController.text.isNotEmpty) {
       final isPhoneExist = allCustomers.any(
         (customer) => customer.phone == _phoneController.text,

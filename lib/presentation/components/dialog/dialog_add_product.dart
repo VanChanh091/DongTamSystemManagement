@@ -29,13 +29,14 @@ class _ProductDialogState extends State<ProductDialog> {
   final nameProductController = TextEditingController();
   final maKhuonController = TextEditingController();
   final typeProductController = TextEditingController();
-  String typeProduct = "Thùng/hộp";
+  String typeProduct = "Giấy Tấm";
   final List<String> itemsTypeProduct = [
+    "Giấy Tấm",
     'Thùng/hộp',
-    "Giấy tấm",
-    "Giấy quấn cuồn",
-    "Giấy cuộn",
-    "Giấy kg",
+    "Giấy Quấn Cuồn",
+    "Giấy Cuộn",
+    "Giấy Kg",
+    "Phí Khác",
   ];
   Uint8List? pickedProductImage;
   String? productImageUrl;
@@ -112,14 +113,18 @@ class _ProductDialogState extends State<ProductDialog> {
       widget.onProductAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e, s) {
-      if (widget.product == null) {
-        AppLogger.e("Lỗi khi thêm sản phẩm", error: e, stackTrace: s);
+      if (e.toString().contains("productId existed")) {
+        return showSnackBarError(context, 'Mã khách hàng đã tồn tại');
       } else {
-        AppLogger.e("Lỗi khi sửa sản phẩm", error: e, stackTrace: s);
-      }
+        if (widget.product == null) {
+          AppLogger.e("Lỗi khi thêm sản phẩm", error: e, stackTrace: s);
+        } else {
+          AppLogger.e("Lỗi khi sửa sản phẩm", error: e, stackTrace: s);
+        }
 
-      if (!mounted) return;
-      showSnackBarError(context, 'Lỗi: không thể lưu dữ liệu');
+        if (!mounted) return;
+        return showSnackBarError(context, 'Lỗi: không thể lưu dữ liệu');
+      }
     }
 
     widget.onProductAddOrUpdate();
@@ -149,6 +154,7 @@ class _ProductDialogState extends State<ProductDialog> {
         if ((label == "Mã Sản Phẩm") && (value == null || value.isEmpty)) {
           return "Không được để trống";
         }
+
         if (label == "Mã Sản Phẩm") {
           // Kiểm tra nếu có dấu tiếng Việt
           final withoutDiacritics = removeDiacritics(value!);
@@ -161,12 +167,16 @@ class _ProductDialogState extends State<ProductDialog> {
           if (!pattern.hasMatch(value)) {
             return "Mã sản phẩm không được chứa ký tự đặc biệt";
           }
-        }
-        if (checkId && label == "Mã Sản Phẩm") {
-          if (value!.length > 10) {
-            return "Mã sản phẩm chỉ được tối đa 10 ký tự";
+
+          if (checkId) {
+            if (value.length < 10) {
+              return 'Mã sản phẩm phải nhập 10 ký tự';
+            } else if (value.length > 10) {
+              return 'Mã sản phẩm vượt quá 10 ký tự';
+            }
           }
         }
+
         return null;
       },
     );
@@ -201,14 +211,16 @@ class _ProductDialogState extends State<ProductDialog> {
             key: formKey,
             child: Column(
               children: [
-                const SizedBox(height: 15),
-                validateInput(
-                  "Mã Sản Phẩm",
-                  idController,
-                  Icons.code,
-                  readOnly: isEdit,
-                  checkId: !isEdit,
-                ),
+                if (widget.product == null) ...[
+                  const SizedBox(height: 15),
+                  validateInput(
+                    "Mã Sản Phẩm",
+                    idController,
+                    Icons.code,
+                    readOnly: isEdit,
+                    checkId: !isEdit,
+                  ),
+                ],
 
                 const SizedBox(height: 15),
                 ValidationOrder.dropdownForTypes(

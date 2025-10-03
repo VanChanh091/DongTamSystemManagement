@@ -36,7 +36,7 @@ class _CustomerPageState extends State<CustomerPage> {
   String? selectedCustomerId;
 
   int currentPage = 1;
-  int pageSize = 2;
+  int pageSize = 25;
   int pageSizeSearch = 20;
 
   @override
@@ -478,6 +478,7 @@ class _CustomerPageState extends State<CustomerPage> {
                           columns: columns,
                           headerRowHeight: 50,
                           rowHeight: 45,
+                          // frozenColumnsCount: 1, //cố định cột đầu tiên
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {
                               final selectedRow = addedRows.first;

@@ -589,263 +589,314 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
 
             // table
             Expanded(
-              child: SizedBox(
-                width: double.infinity,
-                child: FutureBuilder<List<UserAdminModel>>(
-                  future: futureUserAdmin,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                        return const Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.lock_outline,
-                                color: Colors.redAccent,
-                                size: 35,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                "Bạn không có quyền xem chức năng này",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 26,
-                                  color: Colors.redAccent,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      return Center(child: Text("Lỗi: ${snapshot.error}"));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          "Không có người dùng nào",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
-                        ),
-                      );
-                    }
-
-                    final data = snapshot.data!;
-
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: DataTable(
-                        columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
-                          themeController.currentColor.value,
-                        ),
-                        columns: [
-                          DataColumn(
-                            label: Theme(
-                              data: Theme.of(context).copyWith(
-                                checkboxTheme: CheckboxThemeData(
-                                  fillColor: WidgetStateProperty.resolveWith<
-                                    Color
-                                  >((states) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return Colors.red;
-                                    }
-                                    return Colors.white;
-                                  }),
-                                  checkColor: WidgetStateProperty.all<Color>(
-                                    Colors.white,
-                                  ),
-                                  side: const BorderSide(
-                                    color: Colors.black,
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                              child: Checkbox(
-                                value: selectedAll,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedAll = value!;
-                                    if (selectedAll) {
-                                      selectedUserIds =
-                                          data.map((e) => e.userId).toList();
-                                    } else {
-                                      selectedUserIds.clear();
-                                    }
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          DataColumn(label: styleText("Họ Tên")),
-                          DataColumn(label: styleText("Email")),
-                          DataColumn(label: styleText("Giới Tính")),
-                          DataColumn(label: styleText("Số Điện Thoại")),
-                          DataColumn(label: styleText("Vai Trò")),
-                          DataColumn(label: styleText("Quyền Truy Cập")),
-                          DataColumn(label: styleText("Hình Ảnh")),
-                        ],
-                        rows: List<DataRow>.generate(data.length, (index) {
-                          final user = data[index];
-                          return DataRow(
-                            cells: [
-                              DataCell(
-                                Theme(
-                                  data: Theme.of(context).copyWith(
-                                    checkboxTheme: CheckboxThemeData(
-                                      fillColor:
-                                          WidgetStateProperty.resolveWith<
-                                            Color
-                                          >((states) {
-                                            if (states.contains(
-                                              WidgetState.selected,
-                                            )) {
-                                              return Colors.red;
-                                            }
-                                            return Colors.white;
-                                          }),
-                                      checkColor:
-                                          WidgetStateProperty.all<Color>(
-                                            Colors.white,
-                                          ),
-                                      side: const BorderSide(
-                                        color: Colors.black,
-                                        width: 1,
+              child: Column(
+                children: [
+                  //table
+                  Expanded(
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FutureBuilder<List<UserAdminModel>>(
+                        future: futureUserAdmin,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            if (snapshot.error.toString().contains(
+                              "NO_PERMISSION",
+                            )) {
+                              return const Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.lock_outline,
+                                      color: Colors.redAccent,
+                                      size: 35,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      "Bạn không có quyền xem chức năng này",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 26,
+                                        color: Colors.redAccent,
                                       ),
                                     ),
-                                  ),
-                                  child: Checkbox(
-                                    value: selectedUserIds.contains(
-                                      user.userId,
+                                  ],
+                                ),
+                              );
+                            }
+                            return Center(
+                              child: Text("Lỗi: ${snapshot.error}"),
+                            );
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                "Không có người dùng nào",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                ),
+                              ),
+                            );
+                          }
+
+                          final data = snapshot.data!;
+
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: DataTable(
+                              columnSpacing: 25,
+                              headingRowColor: WidgetStatePropertyAll(
+                                themeController.currentColor.value,
+                              ),
+                              columns: [
+                                DataColumn(
+                                  label: Theme(
+                                    data: Theme.of(context).copyWith(
+                                      checkboxTheme: CheckboxThemeData(
+                                        fillColor:
+                                            WidgetStateProperty.resolveWith<
+                                              Color
+                                            >((states) {
+                                              if (states.contains(
+                                                WidgetState.selected,
+                                              )) {
+                                                return Colors.red;
+                                              }
+                                              return Colors.white;
+                                            }),
+                                        checkColor:
+                                            WidgetStateProperty.all<Color>(
+                                              Colors.white,
+                                            ),
+                                        side: const BorderSide(
+                                          color: Colors.black,
+                                          width: 1,
+                                        ),
+                                      ),
                                     ),
-                                    onChanged: (val) {
-                                      setState(() {
-                                        if (val == true) {
-                                          selectedUserIds.add(user.userId);
-                                        } else {
-                                          selectedUserIds.remove(user.userId);
-                                        }
-                                        selectedAll =
-                                            selectedUserIds.length ==
-                                            data.length;
-                                      });
-                                    },
+                                    child: Checkbox(
+                                      value: selectedAll,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          selectedAll = value!;
+                                          if (selectedAll) {
+                                            selectedUserIds =
+                                                data
+                                                    .map((e) => e.userId)
+                                                    .toList();
+                                          } else {
+                                            selectedUserIds.clear();
+                                          }
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ),
-                              ),
-                              DataCell(styleCell(user.fullName)),
-                              DataCell(styleCell(user.email)),
-                              DataCell(
-                                styleCell(
-                                  UserAdminModel.formatSex(user.sex ?? ""),
-                                ),
-                              ),
-                              DataCell(styleCell(user.phone ?? "")),
-                              DataCell(
-                                styleCell(UserAdminModel.formatRole(user.role)),
-                              ),
-                              DataCell(
-                                styleCell(
-                                  UserAdminModel.formatPermissions(
-                                    user.permissions,
-                                  ),
-                                ),
-                              ),
-                              DataCell(
-                                user.avatar != null && user.avatar!.isNotEmpty
-                                    ? TextButton(
-                                      onPressed: () {
-                                        // print(
-                                        //   'Attempting to show image from URL: ${user.avatar}',
-                                        // );
-                                        showDialog(
-                                          context: context,
-                                          barrierDismissible: true,
-                                          builder: (_) {
-                                            return GestureDetector(
-                                              onTap:
-                                                  () =>
-                                                      Navigator.of(
-                                                        context,
-                                                      ).pop(),
-                                              child: Scaffold(
-                                                backgroundColor: Colors.black54,
-                                                body: Center(
-                                                  child: GestureDetector(
+                                DataColumn(label: styleText("Họ Tên")),
+                                DataColumn(label: styleText("Email")),
+                                DataColumn(label: styleText("Giới Tính")),
+                                DataColumn(label: styleText("Số Điện Thoại")),
+                                DataColumn(label: styleText("Vai Trò")),
+                                DataColumn(label: styleText("Quyền Truy Cập")),
+                                DataColumn(label: styleText("Hình Ảnh")),
+                              ],
+                              rows: List<DataRow>.generate(data.length, (
+                                index,
+                              ) {
+                                final user = data[index];
+                                return DataRow(
+                                  cells: [
+                                    DataCell(
+                                      Theme(
+                                        data: Theme.of(context).copyWith(
+                                          checkboxTheme: CheckboxThemeData(
+                                            fillColor:
+                                                WidgetStateProperty.resolveWith<
+                                                  Color
+                                                >((states) {
+                                                  if (states.contains(
+                                                    WidgetState.selected,
+                                                  )) {
+                                                    return Colors.red;
+                                                  }
+                                                  return Colors.white;
+                                                }),
+                                            checkColor:
+                                                WidgetStateProperty.all<Color>(
+                                                  Colors.white,
+                                                ),
+                                            side: const BorderSide(
+                                              color: Colors.black,
+                                              width: 1,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Checkbox(
+                                          value: selectedUserIds.contains(
+                                            user.userId,
+                                          ),
+                                          onChanged: (val) {
+                                            setState(() {
+                                              if (val == true) {
+                                                selectedUserIds.add(
+                                                  user.userId,
+                                                );
+                                              } else {
+                                                selectedUserIds.remove(
+                                                  user.userId,
+                                                );
+                                              }
+                                              selectedAll =
+                                                  selectedUserIds.length ==
+                                                  data.length;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(styleCell(user.fullName)),
+                                    DataCell(styleCell(user.email)),
+                                    DataCell(
+                                      styleCell(
+                                        UserAdminModel.formatSex(
+                                          user.sex ?? "",
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(styleCell(user.phone ?? "")),
+                                    DataCell(
+                                      styleCell(
+                                        UserAdminModel.formatRole(user.role),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      styleCell(
+                                        UserAdminModel.formatPermissions(
+                                          user.permissions,
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      user.avatar != null &&
+                                              user.avatar!.isNotEmpty
+                                          ? TextButton(
+                                            onPressed: () {
+                                              // print(
+                                              //   'Attempting to show image from URL: ${user.avatar}',
+                                              // );
+                                              showDialog(
+                                                context: context,
+                                                barrierDismissible: true,
+                                                builder: (_) {
+                                                  return GestureDetector(
                                                     onTap:
-                                                        () {}, // Ngăn không cho nhấn vào ảnh đóng dialog
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            12,
-                                                          ),
-                                                      child: SizedBox(
-                                                        width: 600,
-                                                        height: 600,
-                                                        child: Image.network(
-                                                          user.avatar!,
-                                                          fit: BoxFit.contain,
-                                                          errorBuilder: (
-                                                            context,
-                                                            error,
-                                                            stackTrace,
-                                                          ) {
-                                                            AppLogger.e(
-                                                              "Lỗi khi tải hình ảnh",
-                                                              error: error,
-                                                              stackTrace:
-                                                                  stackTrace,
-                                                            );
-                                                            return Container(
-                                                              width: 300,
-                                                              height: 300,
-                                                              color:
-                                                                  Colors
-                                                                      .grey
-                                                                      .shade300,
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
-                                                              child: const Text(
-                                                                "Lỗi ảnh",
-                                                                style: TextStyle(
-                                                                  color:
-                                                                      Colors
-                                                                          .black,
+                                                        () =>
+                                                            Navigator.of(
+                                                              context,
+                                                            ).pop(),
+                                                    child: Scaffold(
+                                                      backgroundColor:
+                                                          Colors.black54,
+                                                      body: Center(
+                                                        child: GestureDetector(
+                                                          onTap:
+                                                              () {}, // Ngăn không cho nhấn vào ảnh đóng dialog
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
                                                                 ),
+                                                            child: SizedBox(
+                                                              width: 600,
+                                                              height: 600,
+                                                              child: Image.network(
+                                                                user.avatar!,
+                                                                fit:
+                                                                    BoxFit
+                                                                        .contain,
+                                                                errorBuilder: (
+                                                                  context,
+                                                                  error,
+                                                                  stackTrace,
+                                                                ) {
+                                                                  AppLogger.e(
+                                                                    "Lỗi khi tải hình ảnh",
+                                                                    error:
+                                                                        error,
+                                                                    stackTrace:
+                                                                        stackTrace,
+                                                                  );
+                                                                  return Container(
+                                                                    width: 300,
+                                                                    height: 300,
+                                                                    color:
+                                                                        Colors
+                                                                            .grey
+                                                                            .shade300,
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .center,
+                                                                    child: const Text(
+                                                                      "Lỗi ảnh",
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            Colors.black,
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                },
                                                               ),
-                                                            );
-                                                          },
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            child: const Text(
+                                              'Xem ảnh',
+                                              style: TextStyle(
+                                                color: Colors.blue,
+                                                decoration:
+                                                    TextDecoration.underline,
                                               ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                      child: const Text(
-                                        'Xem ảnh',
-                                        style: TextStyle(
-                                          color: Colors.blue,
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                      ),
-                                    )
-                                    : const Text('Không có ảnh'),
-                              ),
-                            ],
+                                            ),
+                                          )
+                                          : const Text('Không có ảnh'),
+                                    ),
+                                  ],
+                                );
+                              }),
+                            ),
                           );
-                        }),
+                        },
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+
+                  //text
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Center(
+                      child: Text(
+                        "Mật khẩu mặc định là: 12345678",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 20,
+                          color: themeController.currentColor.value,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

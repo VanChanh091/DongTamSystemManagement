@@ -7,7 +7,7 @@ class ReportBoxModel {
   final int qtyProduced;
   final int lackOfQty;
   final double wasteLoss;
-  final String shiftManagement;
+  final String shiftManagement, machine;
 
   final int planningBoxId;
   final PlanningBox? planningBox;
@@ -19,6 +19,8 @@ class ReportBoxModel {
     required this.lackOfQty,
     required this.wasteLoss,
     required this.shiftManagement,
+    required this.machine,
+
     required this.planningBoxId,
     this.planningBox,
   });
@@ -31,6 +33,7 @@ class ReportBoxModel {
       lackOfQty: json['lackOfQty'] ?? 0,
       wasteLoss: toDouble(json['wasteLoss']),
       shiftManagement: json['shiftManagement'] ?? "",
+      machine: json['machine'] ?? "",
       planningBoxId: json['planningBoxId'] ?? 0,
       planningBox:
           json['PlanningBox'] != null

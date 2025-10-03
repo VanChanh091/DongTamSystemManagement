@@ -34,7 +34,6 @@ class UserController extends GetxController {
 
   bool hasPermission(String permission) {
     if (role.value == "admin" || role.value == "manager") {
-      AppLogger.i("hasPermission: role=${role.value} => FULL ACCESS");
       return true;
     }
     return permissions.contains(permission);

@@ -377,10 +377,11 @@ class _OrderDialogState extends State<OrderDialog> {
           totalPricePaper,
         ).roundToDouble();
 
-    late double totalPriceVAT = Order.totalPriceAfterVAT(
-      totalPrice: totalPriceOrder,
-      vat: int.tryParse(vatController.text) ?? 0,
-    );
+    late double totalPriceVAT =
+        Order.totalPriceAfterVAT(
+          totalPrice: totalPriceOrder,
+          vat: int.tryParse(vatController.text) ?? 0,
+        ).roundToDouble();
 
     // helper: only add prefix if not empty and not already present
     String addPrefixIfNeeded(String value, String prefix) {

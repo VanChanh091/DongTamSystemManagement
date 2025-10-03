@@ -79,6 +79,11 @@ class ProductService {
       );
 
       return true;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 400) {
+        throw Exception("productId existed");
+      }
+      rethrow;
     } catch (e, s) {
       AppLogger.e("Failed to add product", error: e, stackTrace: s);
       throw Exception('Failed to add product: $e');

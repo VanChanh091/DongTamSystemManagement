@@ -52,8 +52,18 @@ class ValidationCustomer {
           if (value != withoutDiacritics) {
             return "Mã khách hàng không được có dấu tiếng Việt";
           }
-          if (checkId && value.length > 10) {
-            return 'Mã khách hàng chỉ được tối đa 10 ký tự';
+
+          if (checkId) {
+            if (value.length < 10) {
+              return 'Mã khách hàng phải nhập 10 ký tự';
+            } else if (value.length > 10) {
+              return 'Mã khách hàng vượt quá 10 ký tự';
+            }
+          }
+
+          final pattern = RegExp(r"^[a-zA-Z0-9]+$");
+          if (!pattern.hasMatch(value)) {
+            return "Mã khách hàng không được chứa ký tự đặc biệt";
           }
         }
 
@@ -62,12 +72,6 @@ class ValidationCustomer {
             return 'Số điện thoại chỉ được chứa chữ số';
           }
         }
-
-        // if (label == "Hạn Mức Công Nợ" && value != null && value.isNotEmpty) {
-        //   if (!RegExp(r'^\d+$').hasMatch(value)) {
-        //     return 'Hạn Mức Công Nợ chỉ được chứa chữ số';
-        //   }
-        // }
 
         if (label == "MST" && value != null && value.isNotEmpty) {
           final trimmed = value.replaceAll(RegExp(r'\s+'), '');
