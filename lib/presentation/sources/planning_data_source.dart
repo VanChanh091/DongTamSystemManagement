@@ -120,29 +120,6 @@ class PlanningDataSource extends DataGridSource {
   }
 
   void buildDataCell() {
-    orders.sort((a, b) {
-      int getStatusPriority(String? status) {
-        switch (status?.toLowerCase()) {
-          case 'reject':
-            return 0;
-          case 'pending':
-            return 1;
-          case 'accept':
-            return 2;
-          case 'planning':
-            return 3;
-          default:
-            return 4;
-        }
-      }
-
-      int statusCompare = getStatusPriority(
-        a.status,
-      ).compareTo(getStatusPriority(b.status));
-      if (statusCompare != 0) return statusCompare;
-      return a.orderId.compareTo(b.orderId);
-    });
-
     orderDataGridRows =
         orders
             .map<DataGridRow>(

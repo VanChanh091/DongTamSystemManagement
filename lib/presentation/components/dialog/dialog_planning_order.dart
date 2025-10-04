@@ -158,6 +158,17 @@ class _PLanningDialogState extends State<PLanningDialog> {
       return;
     }
 
+    final flute = fluteController.text.trim();
+
+    // check flute để sắp đúng máy
+    if (flute.startsWith("2") && chooseMachine != "Máy 2 Lớp") {
+      showSnackBarError(context, "Đơn 2 lớp, chỉ được chạy ở Máy 2 Lớp!");
+      return;
+    } else if (!flute.startsWith("2") && chooseMachine == "Máy 2 Lớp") {
+      showSnackBarError(context, "Đơn này không được chạy ở Máy 2 Lớp!");
+      return;
+    }
+
     final newPlanning = PlanningPaper(
       planningId: 0,
       dayStart: DateTime.now(),

@@ -250,7 +250,7 @@ class MachinePaperDatasource extends DataGridSource {
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
-      return value == true ? 'Có' : '';
+      return value == true ? '✅' : '';
     }
 
     return value?.toString() ?? '';
@@ -428,8 +428,17 @@ class MachinePaperDatasource extends DataGridSource {
       color: rowColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            Color cellColor = Colors.transparent;
+            final cellText = _formatCellValueBool(dataCell);
+            Alignment alignment;
+            if (dataCell.value is num) {
+              alignment = Alignment.centerRight;
+            } else if (cellText == '✅') {
+              alignment = Alignment.center;
+            } else {
+              alignment = Alignment.centerLeft;
+            }
 
+            Color cellColor = Colors.transparent;
             if (dataCell.columnName == "qtyProduced" &&
                 qtyProduct < runningPlan) {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
@@ -438,13 +447,6 @@ class MachinePaperDatasource extends DataGridSource {
             if (dataCell.columnName == "qtyWastes" &&
                 qtyWastesVal > totalWasteLossVal) {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
-            }
-
-            Alignment alignment;
-            if (dataCell.value is num) {
-              alignment = Alignment.centerRight;
-            } else {
-              alignment = Alignment.centerLeft;
             }
 
             return Container(

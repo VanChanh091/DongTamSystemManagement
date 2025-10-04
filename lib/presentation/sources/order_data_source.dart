@@ -1,5 +1,6 @@
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -245,29 +246,6 @@ class OrderDataSource extends DataGridSource {
   }
 
   void buildDataCell() {
-    orders.sort((a, b) {
-      int getStatusPriority(String? status) {
-        switch (status?.toLowerCase()) {
-          case 'reject':
-            return 0;
-          case 'pending':
-            return 1;
-          case 'accept':
-            return 2;
-          case 'planning':
-            return 3;
-          default:
-            return 4;
-        }
-      }
-
-      int statusCompare = getStatusPriority(
-        a.status,
-      ).compareTo(getStatusPriority(b.status));
-      if (statusCompare != 0) return statusCompare;
-      return a.orderId.compareTo(b.orderId);
-    });
-
     orderDataGridRows =
         orders
             .map<DataGridRow>(
@@ -286,12 +264,9 @@ class OrderDataSource extends DataGridSource {
   DataGridRowAdapter buildRow(DataGridRow row) {
     final orderId = row.getCells()[0].value.toString();
 
-    final statusCell = row.getCells().firstWhere(
-      (cell) => cell.columnName == 'status',
-      orElse: () => DataGridCell<String>(columnName: 'status', value: ''),
-    );
-
-    final status = (statusCell.value ?? '').toString().toLowerCase();
+    //get value cell
+    final statusCell = getCellValue<String>(row, 'status', "");
+    final status = statusCell.toString().toLowerCase();
 
     // Chọn màu nền theo status
     Color backgroundColor;
@@ -317,9 +292,13 @@ class OrderDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            final cellText = _formatCellValueBool(dataCell);
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
+            } else if (cellText == '✅') {
+              alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;
             }

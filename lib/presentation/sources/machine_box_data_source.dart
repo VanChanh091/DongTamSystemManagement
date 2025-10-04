@@ -425,8 +425,17 @@ class MachineBoxDatasource extends DataGridSource {
       color: rowColor, // chỉ set khi tô cả hàng
       cells:
           row.getCells().map<Widget>((dataCell) {
-            Color cellColor = Colors.transparent;
+            final cellText = _formatCellValueBool(dataCell);
+            Alignment alignment;
+            if (dataCell.value is num) {
+              alignment = Alignment.centerRight;
+            } else if (cellText == '✅') {
+              alignment = Alignment.center;
+            } else {
+              alignment = Alignment.centerLeft;
+            }
 
+            Color cellColor = Colors.transparent;
             //tô màu cho waste loss
             if (dataCell.columnName == 'wasteActually' &&
                 totalWasteActually > totalDmWasteLoss) {
@@ -448,13 +457,6 @@ class MachineBoxDatasource extends DataGridSource {
               if (qty < qtyOrder) {
                 cellColor = Colors.red.withValues(alpha: 0.5);
               }
-            }
-
-            Alignment alignment;
-            if (dataCell.value is num) {
-              alignment = Alignment.centerRight;
-            } else {
-              alignment = Alignment.centerLeft;
             }
 
             return Container(
