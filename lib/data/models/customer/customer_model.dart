@@ -7,6 +7,7 @@ class Customer {
   final String companyName;
   final String companyAddress;
   final String shippingAddress;
+  final double? distance;
   final String mst;
   final String phone;
   final String cskh;
@@ -23,6 +24,7 @@ class Customer {
     required this.companyName,
     required this.companyAddress,
     required this.shippingAddress,
+    this.distance,
     required this.mst,
     required this.phone,
     required this.cskh,
@@ -41,6 +43,7 @@ class Customer {
       companyName: json['companyName'] ?? "",
       companyAddress: json['companyAddress'] ?? "",
       shippingAddress: json['shippingAddress'] ?? "",
+      distance: toDouble(json['distance']),
       mst: json['mst'] ?? "",
       phone: json['phone'] ?? "",
       cskh: json['cskh'] ?? "",
@@ -67,6 +70,7 @@ class Customer {
       'companyName': companyName,
       'companyAddress': companyAddress,
       'shippingAddress': shippingAddress,
+      'distance': distance,
       'mst': mst,
       'phone': phone,
       'cskh': cskh,

@@ -503,7 +503,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     selectionMode: SelectionMode.multiple,
                     columns: columns,
                     headerRowHeight: 40,
-                    rowHeight: 45,
+                    rowHeight: 40,
                     stackedHeaderRows: <StackedHeaderRow>[
                       StackedHeaderRow(
                         cells: [

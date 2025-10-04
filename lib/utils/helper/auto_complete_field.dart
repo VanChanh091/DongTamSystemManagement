@@ -75,6 +75,7 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
 
         return TextFormField(
           controller: textEditingController, // Để TypeAhead hoạt động đúng
+          style: const TextStyle(fontSize: 15),
           focusNode: focusNode,
           decoration: InputDecoration(
             labelText: widget.labelText,

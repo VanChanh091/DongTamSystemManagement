@@ -211,16 +211,14 @@ class _ProductDialogState extends State<ProductDialog> {
             key: formKey,
             child: Column(
               children: [
-                if (widget.product == null) ...[
-                  const SizedBox(height: 15),
-                  validateInput(
-                    "Mã Sản Phẩm",
-                    idController,
-                    Icons.code,
-                    readOnly: isEdit,
-                    checkId: !isEdit,
-                  ),
-                ],
+                const SizedBox(height: 15),
+                validateInput(
+                  "Mã Sản Phẩm",
+                  idController,
+                  Icons.code,
+                  readOnly: isEdit,
+                  checkId: !isEdit,
+                ),
 
                 const SizedBox(height: 15),
                 ValidationOrder.dropdownForTypes(

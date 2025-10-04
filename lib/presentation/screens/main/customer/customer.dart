@@ -476,8 +476,8 @@ class _CustomerPageState extends State<CustomerPage> {
                           columnWidthMode: ColumnWidthMode.auto,
                           selectionMode: SelectionMode.single,
                           columns: columns,
-                          headerRowHeight: 50,
-                          rowHeight: 45,
+                          headerRowHeight: 45,
+                          rowHeight: 40,
                           // frozenColumnsCount: 1, //cố định cột đầu tiên
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {

@@ -34,6 +34,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
   final _companyNameController = TextEditingController();
   final _companyAddressController = TextEditingController();
   final _shippingAddressController = TextEditingController();
+  final _distanceController = TextEditingController();
   final _mstController = TextEditingController();
   final _phoneController = TextEditingController();
   final _cskhController = TextEditingController();
@@ -64,6 +65,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _companyNameController.text = customer.companyName;
     _companyAddressController.text = customer.companyAddress;
     _shippingAddressController.text = customer.shippingAddress;
+    _distanceController.text = customer.distance?.toString() ?? "0";
     _mstController.text = customer.mst;
     _phoneController.text = customer.phone;
     _cskhController.text = customer.cskh;
@@ -182,12 +184,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
       companyName: _companyNameController.text,
       companyAddress: _companyAddressController.text,
       shippingAddress: _shippingAddressController.text,
+      distance: double.tryParse(_distanceController.text) ?? 0,
       mst: _mstController.text,
       phone: _phoneController.text,
       cskh: _cskhController.text,
       contactPerson: _contactPersonController.text,
       dayCreated: dayCreated ?? DateTime.now(),
-      debtLimit: double.tryParse(_debtLimitController.text) ?? 0.0,
+      debtLimit: double.tryParse(_debtLimitController.text) ?? 0,
       timePayment: timePayment ?? DateTime.now(),
       rateCustomer: typeRating,
     );
@@ -233,6 +236,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _companyNameController.dispose();
     _companyAddressController.dispose();
     _shippingAddressController.dispose();
+    _distanceController.dispose();
     _mstController.dispose();
     _phoneController.dispose();
     _cskhController.dispose();
@@ -259,7 +263,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
       ),
       content: SizedBox(
         width: 600,
-        height: 700,
         child:
             isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -268,22 +271,27 @@ class _CustomerDialogState extends State<CustomerDialog> {
                     key: formKey,
                     child: Column(
                       children: [
-                        if (widget.customer == null) ...[
-                          const SizedBox(height: 15),
-                          ValidationCustomer.validateInput(
-                            "Mã khách hàng",
-                            _idController,
-                            Icons.badge,
-                            readOnly: isEdit,
-                            checkId: !isEdit,
-                          ),
-                        ],
-
                         const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          "Tên khách hàng",
-                          _nameController,
-                          Icons.person,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ValidationCustomer.validateInput(
+                                "Mã khách hàng",
+                                _idController,
+                                Icons.badge,
+                                readOnly: isEdit,
+                                checkId: !isEdit,
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: ValidationCustomer.validateInput(
+                                "Tên khách hàng",
+                                _nameController,
+                                Icons.person,
+                              ),
+                            ),
+                          ],
                         ),
 
                         const SizedBox(height: 15),
@@ -308,75 +316,128 @@ class _CustomerDialogState extends State<CustomerDialog> {
                         ),
 
                         const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          "MST",
-                          _mstController,
-                          Icons.numbers,
-                          allCustomers: allCustomers,
-                          currentCustomerId: widget.customer?.customerId,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ValidationCustomer.validateInput(
+                                "Khoảng Cách Giao Hàng",
+                                _distanceController,
+                                Icons.social_distance,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ValidationCustomer.validateInput(
+                                "MST",
+                                _mstController,
+                                Icons.numbers,
+                                allCustomers: allCustomers,
+                                currentCustomerId: widget.customer?.customerId,
+                              ),
+                            ),
+                          ],
                         ),
 
                         const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          "SDT",
-                          _phoneController,
-                          Icons.phone,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ValidationCustomer.validateInput(
+                                "SDT",
+                                _phoneController,
+                                Icons.phone,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ValidationCustomer.validateInput(
+                                "Người Liên Hệ",
+                                _contactPersonController,
+                                Icons.person,
+                              ),
+                            ),
+                          ],
                         ),
 
                         const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          "Người Liên Hệ",
-                          _contactPersonController,
-                          Icons.person,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ValidationCustomer.validateInput(
+                                "Hạn Mức Công Nợ",
+                                _debtLimitController,
+                                Icons.money,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ValidationOrder.validateInput(
+                                "Hạn Thanh Toán",
+                                _timePaymentController,
+                                Symbols.calendar_month,
+                                readOnly: true,
+                                onTap: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2100),
+                                    builder: (
+                                      BuildContext context,
+                                      Widget? child,
+                                    ) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: ColorScheme.light(
+                                            primary: Colors.blue,
+                                            onPrimary: Colors.white,
+                                            onSurface: Colors.black,
+                                          ),
+                                          dialogTheme: DialogThemeData(
+                                            backgroundColor: Colors.white12,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
+                                    },
+                                  );
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      timePayment = pickedDate;
+                                      _timePaymentController.text = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(pickedDate);
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
 
                         const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          "Hạn Mức Công Nợ",
-                          _debtLimitController,
-                          Icons.money,
-                        ),
-
-                        const SizedBox(height: 15),
-                        ValidationOrder.validateInput(
-                          "Hạn Thanh Toán",
-                          _timePaymentController,
-                          Symbols.calendar_month,
-                          readOnly: true,
-                          onTap: () async {
-                            DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(2100),
-                            );
-                            if (pickedDate != null) {
-                              setState(() {
-                                timePayment = pickedDate;
-                                _timePaymentController.text = DateFormat(
-                                  'dd/MM/yyyy',
-                                ).format(pickedDate);
-                              });
-                            }
-                          },
-                        ),
-
-                        const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          "CSKH",
-                          _cskhController,
-                          Icons.support_agent,
-                        ),
-
-                        const SizedBox(height: 15),
-                        ValidationOrder.dropdownForTypes(
-                          itemRating,
-                          typeRating,
-                          (value) {
-                            setState(() {
-                              typeRating = value!;
-                            });
-                          },
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ValidationCustomer.validateInput(
+                                "CSKH",
+                                _cskhController,
+                                Icons.support_agent,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ValidationOrder.dropdownForTypes(
+                                itemRating,
+                                typeRating,
+                                (value) {
+                                  setState(() {
+                                    typeRating = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

@@ -15,8 +15,9 @@ const List<Map<String, dynamic>> headerCustomer = [
   {"key": "debtCurrentCustomer", "title": "Công Nợ Hiện Tại"},
   {"key": "termPaymentCost", "title": "Hạn Thanh Toán"},
   {"key": "companyName", "title": "Tên Công Ty"},
-  {"key": "companyAddress", "title": "Địa chỉ công ty"},
-  {"key": "shippingAddress", "title": "Địa chỉ Giao Hàng"},
+  {"key": "companyAddress", "title": "Địa Chỉ Công Ty"},
+  {"key": "shippingAddress", "title": "Địa Chỉ Giao Hàng"},
+  {"key": "distanceShip", "title": "Khoảng Cách"},
   {"key": "CSKH", "title": "CSKH"},
   {"key": "rateCustomer", "title": "Đánh Giá"},
 ];

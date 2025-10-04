@@ -668,6 +668,24 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                       initialDate: DateTime.now(),
                                       firstDate: DateTime.now(),
                                       lastDate: DateTime(2100),
+                                      builder: (
+                                        BuildContext context,
+                                        Widget? child,
+                                      ) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme: ColorScheme.light(
+                                              primary: Colors.blue,
+                                              onPrimary: Colors.white,
+                                              onSurface: Colors.black,
+                                            ),
+                                            dialogTheme: DialogThemeData(
+                                              backgroundColor: Colors.white12,
+                                            ),
+                                          ),
+                                          child: child!,
+                                        );
+                                      },
                                     );
                                     if (selected != null) {
                                       dayStartController.text =
@@ -775,7 +793,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     selectionMode: SelectionMode.multiple,
                     columns: columns,
                     headerRowHeight: 40,
-                    rowHeight: 45,
+                    rowHeight: 40,
                     stackedHeaderRows: <StackedHeaderRow>[
                       StackedHeaderRow(
                         cells: [

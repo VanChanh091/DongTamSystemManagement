@@ -22,7 +22,7 @@ class ValidationPlanning {
           readOnly: readOnly,
           decoration: InputDecoration(
             labelText: label,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             contentPadding: const EdgeInsets.symmetric(

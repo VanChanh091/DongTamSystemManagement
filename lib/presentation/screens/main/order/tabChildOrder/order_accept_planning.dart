@@ -375,7 +375,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                           columnWidthMode: ColumnWidthMode.auto,
                           columns: columns,
                           headerRowHeight: 40,
-                          rowHeight: 45,
+                          rowHeight: 40,
                           stackedHeaderRows: <StackedHeaderRow>[
                             StackedHeaderRow(
                               cells: [

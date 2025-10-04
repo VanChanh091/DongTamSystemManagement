@@ -268,7 +268,7 @@ class _OrderDialogState extends State<OrderDialog> {
     }
   }
 
-  // debounce customer
+  // debounce to get customerId
   void _onCustomerIdChanged() {
     if (_customerIdDebounce?.isActive ?? false) _customerIdDebounce!.cancel();
 
@@ -283,7 +283,7 @@ class _OrderDialogState extends State<OrderDialog> {
     });
   }
 
-  // debounce product
+  // debounce to get productId
   void _onProductIdChanged() {
     if (_productIdDebounce?.isActive ?? false) _productIdDebounce!.cancel();
 
@@ -659,6 +659,21 @@ class _OrderDialogState extends State<OrderDialog> {
                   initialDate: dateShipping ?? dayReceive,
                   firstDate: baseDate,
                   lastDate: DateTime(2100),
+                  builder: (BuildContext context, Widget? child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: ColorScheme.light(
+                          primary: Colors.blue,
+                          onPrimary: Colors.white,
+                          onSurface: Colors.black,
+                        ),
+                        dialogTheme: DialogThemeData(
+                          backgroundColor: Colors.white12,
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  },
                 );
                 if (pickedDate != null) {
                   setState(() {

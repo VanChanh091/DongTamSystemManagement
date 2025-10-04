@@ -72,6 +72,13 @@ class CustomerDatasource extends DataGridSource {
         columnName: "shippingAddress",
         value: customer.shippingAddress,
       ),
+      DataGridCell<String>(
+        columnName: "distanceShip",
+        value:
+            (customer.distance ?? 0) > 0
+                ? '${Order.formatCurrency(customer.distance ?? 0)} Km'
+                : "0",
+      ),
       DataGridCell<String>(columnName: "CSKH", value: customer.cskh),
       DataGridCell<String>(
         columnName: "rateCustomer",

@@ -63,10 +63,11 @@ class ValidationOrder {
 
         return TextFormField(
           controller: controller,
+          style: const TextStyle(fontSize: 15),
           readOnly: effectiveReadOnly,
           decoration: InputDecoration(
             labelText: label,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             contentPadding: const EdgeInsets.symmetric(

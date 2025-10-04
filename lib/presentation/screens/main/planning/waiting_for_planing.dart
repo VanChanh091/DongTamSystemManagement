@@ -223,6 +223,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                     isScrollbarAlwaysShown: true,
                     columnWidthMode: ColumnWidthMode.auto,
                     selectionMode: SelectionMode.single,
+                    headerRowHeight: 50,
+                    rowHeight: 40,
                     onSelectionChanged: (addedRows, removedRows) {
                       if (addedRows.isNotEmpty) {
                         final selectedRow = addedRows.first;

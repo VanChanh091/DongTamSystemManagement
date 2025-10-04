@@ -97,62 +97,46 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     String label,
     TextEditingController controller,
     IconData icon, {
-    bool readOnly = false,
     VoidCallback? onTap,
   }) {
-    final isFilled = controller.text.isEmpty;
+    return TextFormField(
+      controller: controller,
+      style: const TextStyle(fontSize: 16),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        fillColor: Colors.white,
+        filled: true,
+      ),
+      validator: (value) {
+        final text = value?.trim() ?? "";
 
-    return StatefulBuilder(
-      builder: (context, setState) {
-        controller.addListener(() {
-          setState(() {}); // cập nhật mỗi khi text thay đổi
-        });
+        if (text.isEmpty) return "Vui lòng nhập $label";
 
-        return TextFormField(
-          controller: controller,
-          readOnly: readOnly,
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-            prefixIcon: Icon(icon),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            fillColor:
-                readOnly
-                    ? Colors.grey.shade300
-                    : (isFilled
-                        ? Colors.white
-                        : const Color.fromARGB(255, 148, 236, 154)),
-            filled: true,
-          ),
-          validator: (value) {
-            final text = value?.trim() ?? "";
+        if (label == "Số Lượng Đã Sản Xuất") {
+          if (!RegExp(r'^\d+$').hasMatch(text)) {
+            return "Chỉ được nhập số nguyên dương";
+          }
+        } else if (label == "Phế Liệu Thực Tế") {
+          if (!RegExp(r'^\d+([.]\d+)?$').hasMatch(text)) {
+            return "Chỉ được nhập số thực, chỉ được dùng dấu chấm";
+          }
+        } else if (label == "Trưởng Máy") {
+          if (!RegExp(r"^[a-zA-ZÀ-ỹ\s]+$").hasMatch(text)) {
+            return "Chỉ được chứa chữ cái và khoảng trắng";
+          }
+        }
 
-            if (text.isEmpty) return "Vui lòng nhập $label";
-
-            if (label == "Số Lượng Đã Sản Xuất") {
-              if (!RegExp(r'^\d+$').hasMatch(text)) {
-                return "Chỉ được nhập số nguyên dương";
-              }
-            } else if (label == "Phế Liệu Thực Tế") {
-              if (!RegExp(r'^\d+([.]\d+)?$').hasMatch(text)) {
-                return "Chỉ được nhập số thực, chỉ được dùng dấu chấm";
-              }
-            } else if (label == "Trưởng Máy") {
-              if (!RegExp(r"^[a-zA-ZÀ-ỹ\s]+$").hasMatch(text)) {
-                return "Chỉ được chứa chữ cái và khoảng trắng";
-              }
-            }
-
-            return null;
-          },
-          onTap: onTap,
-        );
+        return null;
       },
+      onTap: onTap,
     );
   }
 

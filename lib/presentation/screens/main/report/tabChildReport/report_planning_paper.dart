@@ -329,6 +329,25 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                           initialDate: now,
                                           firstDate: DateTime(2020),
                                           lastDate: DateTime(2100),
+                                          builder: (
+                                            BuildContext context,
+                                            Widget? child,
+                                          ) {
+                                            return Theme(
+                                              data: Theme.of(context).copyWith(
+                                                colorScheme: ColorScheme.light(
+                                                  primary: Colors.blue,
+                                                  onPrimary: Colors.white,
+                                                  onSurface: Colors.black,
+                                                ),
+                                                dialogTheme: DialogThemeData(
+                                                  backgroundColor:
+                                                      Colors.white12,
+                                                ),
+                                              ),
+                                              child: child!,
+                                            );
+                                          },
                                         );
 
                                         if (picked != null) {
@@ -535,7 +554,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                           navigationMode: GridNavigationMode.row,
                           selectionMode: SelectionMode.multiple,
                           headerRowHeight: 40,
-                          rowHeight: 45,
+                          rowHeight: 40,
                           stackedHeaderRows: <StackedHeaderRow>[
                             StackedHeaderRow(
                               cells: [
