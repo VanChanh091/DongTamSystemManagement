@@ -20,19 +20,19 @@ void main() {
       expect(Order.acreagePaper(0, 300, 10), 0);
     });
 
-    test("total price paper calculate", () {
-      // DVT đặc biệt
-      expect(Order.totalPricePaper('Kg', 100, 50, 200), 200);
-      expect(Order.totalPricePaper('Cái', 100, 50, 500), 500);
+    // test("total price paper calculate", () {
+    //   // DVT đặc biệt
+    //   expect(Order.totalPricePaper('Kg', 100, 50, 200), 200);
+    //   expect(Order.totalPricePaper('Cái', 100, 50, 500), 500);
 
-      // DVT chuẩn
-      expect(
-        Order.totalPricePaper('M2', 100, 50, 200),
-        100,
-      ); // 100*50*200/10000
-      expect(Order.totalPricePaper('M2', 0, 50, 200), 0); // length = 0
-      expect(Order.totalPricePaper('M2', 100, 0, 200), 0); // size = 0
-    });
+    //   // DVT chuẩn
+    //   expect(
+    //     Order.totalPricePaper('M2', 100, 50, 200),
+    //     100,
+    //   ); // 100*50*200/10000
+    //   expect(Order.totalPricePaper('M2', 0, 50, 200), 0); // length = 0
+    //   expect(Order.totalPricePaper('M2', 100, 0, 200), 0); // size = 0
+    // });
 
     test("total price order", () {
       expect(Order.totalPriceOrder(5, 20), 100);

@@ -37,7 +37,7 @@ class AdminService {
         ),
       );
       final data = response.data['data'] as List;
-      AppLogger.i("Fetched ${data.length} orders");
+      // AppLogger.i("Fetched ${data.length} orders");
 
       return data.map((e) => Order.fromJson(e)).toList();
     } catch (e, s) {

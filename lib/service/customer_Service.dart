@@ -38,7 +38,7 @@ class CustomerService {
   Future<Map<String, dynamic>> getCustomerById({
     String customerId = "",
     int page = 1,
-    int pageSize = 10,
+    int pageSize = 25,
   }) async {
     return HelperService().fetchPaginatedData<Customer>(
       endpoint: 'customer/byCustomerId',

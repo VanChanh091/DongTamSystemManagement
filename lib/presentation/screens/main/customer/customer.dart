@@ -325,7 +325,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                                           .isEmpty) {
                                                     showSnackBarError(
                                                       context,
-                                                      'Vui lòng chọn sản phẩm cần sửa',
+                                                      'Vui lòng chọn khách hàng cần sửa',
                                                     );
                                                     return;
                                                   }

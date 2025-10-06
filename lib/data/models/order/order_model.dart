@@ -90,17 +90,19 @@ class Order {
   }
 
   //Total price paper = (kg, cái) => price, else => lengthPaper * paperSize * price
-  static double totalPricePaper(
-    String dvt,
-    double length,
-    double size,
-    double price,
-  ) {
-    dvt = dvt.trim();
-    if (dvt == 'Kg' || dvt == 'Cái' || dvt == 'Lần') {
-      return price;
+  static double totalPricePaper({
+    required String dvt,
+    required double length,
+    required double size,
+    required double price,
+    double pricePaper = 0,
+  }) {
+    if (dvt == 'M2' || dvt == 'Tấm') {
+      return length * size * price / 10000;
+    } else if (dvt == 'Tấm Bao Khổ') {
+      return pricePaper;
     }
-    return length * size * price / 10000;
+    return price;
   }
 
   //Total price = quantity * pricePaper

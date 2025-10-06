@@ -18,29 +18,58 @@ class ProductService {
   );
 
   // get all
-  Future<List<Product>> getAllProducts(bool refresh) async {
-    return HelperService().fetchingData<Product>(
+  Future<Map<String, dynamic>> getAllProducts({
+    bool refresh = false,
+    bool noPaging = false,
+    int? page,
+    int? pageSize,
+  }) async {
+    return HelperService().fetchPaginatedData<Product>(
       endpoint: "product",
-      queryParameters: {'refresh': refresh},
+      queryParameters: {
+        'refresh': refresh,
+        'noPaging': noPaging,
+        'page': page,
+        'pageSize': pageSize,
+      },
       fromJson: (json) => Product.fromJson(json),
+      dataKey: 'products',
     );
   }
 
   //get by id
-  Future<List<Product>> getProductById(String productId) async {
-    return HelperService().fetchingData<Product>(
-      endpoint: "product/productId",
-      queryParameters: {"id": productId},
+  Future<Map<String, dynamic>> getProductById({
+    required String productId,
+    int page = 1,
+    int pageSize = 25,
+  }) async {
+    return HelperService().fetchPaginatedData<Product>(
+      endpoint: "product/byProductId",
+      queryParameters: {
+        'productId': productId,
+        'page': page,
+        'pageSize': pageSize,
+      },
       fromJson: (json) => Product.fromJson(json),
+      dataKey: 'products',
     );
   }
 
   //get by name
-  Future<List<Product>> getProductByName(String productName) async {
-    return HelperService().fetchingData<Product>(
-      endpoint: "product/productName",
-      queryParameters: {'name': productName},
+  Future<Map<String, dynamic>> getProductByName({
+    required String productName,
+    int page = 1,
+    int pageSize = 25,
+  }) async {
+    return HelperService().fetchPaginatedData<Product>(
+      endpoint: "product/byName",
+      queryParameters: {
+        'productName': productName,
+        'page': page,
+        'pageSize': pageSize,
+      },
       fromJson: (json) => Product.fromJson(json),
+      dataKey: 'products',
     );
   }
 

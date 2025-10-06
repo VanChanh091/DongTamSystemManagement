@@ -43,7 +43,6 @@ Widget styleCell(String text, {double? width}) {
 Widget formatColumn({
   required String label,
   required ThemeController themeController,
-  double widthBorder = 0,
 }) {
   return Container(
     alignment: Alignment.center,
