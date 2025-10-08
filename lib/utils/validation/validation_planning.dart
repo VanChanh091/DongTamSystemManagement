@@ -42,11 +42,9 @@ class ValidationPlanning {
             if (label == "Ghép Khổ") {
               if (value == null || value.isEmpty) {
                 return 'Không được để trống';
-              }
-              if (value.length > 3) {
-                return "Ghép Khổ chỉ được tối đa 3 số";
-              }
-              if (!RegExp(r'^\d+$').hasMatch(value)) {
+              } else if (value == "0") {
+                return "Ghép khổ phải lớn hơn 0";
+              } else if (!RegExp(r'^\d+$').hasMatch(value)) {
                 return "Ghép Khổ chỉ được chứa số";
               }
             }

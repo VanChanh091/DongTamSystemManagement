@@ -16,9 +16,8 @@ class ProductDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildProductCells(Product product, int index) {
+  List<DataGridCell> buildProductCells(Product product) {
     return [
-      DataGridCell<int>(columnName: "stt", value: index + 1),
       DataGridCell<String>(columnName: "productId", value: product.productId),
       DataGridCell<String>(
         columnName: "typeProduct",
@@ -41,14 +40,9 @@ class ProductDataSource extends DataGridSource {
 
   void buildDataGridRows() {
     productDataGridRows =
-        products
-            .asMap()
-            .entries
-            .map<DataGridRow>(
-              (entry) =>
-                  DataGridRow(cells: buildProductCells(entry.value, entry.key)),
-            )
-            .toList();
+        products.map<DataGridRow>((product) {
+          return DataGridRow(cells: buildProductCells(product));
+        }).toList();
   }
 
   @override

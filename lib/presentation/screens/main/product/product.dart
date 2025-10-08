@@ -36,7 +36,7 @@ class _ProductPageState extends State<ProductPage> {
   String? selectedProductId;
 
   int currentPage = 1;
-  int pageSize = 25;
+  int pageSize = 30;
   int pageSizeSearch = 20;
 
   @override
@@ -140,6 +140,7 @@ class _ProductPageState extends State<ProductPage> {
               width: double.infinity,
               child: Column(
                 children: [
+                  //title
                   SizedBox(
                     height: 35,
                     width: double.infinity,
@@ -154,6 +155,7 @@ class _ProductPageState extends State<ProductPage> {
                       ),
                     ),
                   ),
+
                   SizedBox(
                     height: 70,
                     width: double.infinity,
@@ -334,7 +336,7 @@ class _ProductPageState extends State<ProductPage> {
                                                             onProductAddOrUpdate:
                                                                 () =>
                                                                     loadProduct(
-                                                                      false,
+                                                                      true,
                                                                     ),
                                                           ),
                                                     );

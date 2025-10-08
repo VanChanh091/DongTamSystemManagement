@@ -119,11 +119,11 @@ class OrderService {
   }
 
   //add order
-  Future<bool> addOrders(Map<String, dynamic> orderData) async {
+  Future<Map<String, dynamic>> addOrders(Map<String, dynamic> orderData) async {
     try {
       final token = await SecureStorageService().getToken();
 
-      await dioService.post(
+      final response = await dioService.post(
         "/api/order",
         data: orderData,
         options: Options(
@@ -133,10 +133,21 @@ class OrderService {
           },
         ),
       );
-      return true;
+
+      if (response.statusCode == 201) {
+        if (response.data is Map<String, dynamic>) {
+          return response.data;
+        } else {
+          throw Exception("Invalid response format from server");
+        }
+      } else {
+        throw Exception(
+          'Thêm đơn hàng thất bại: ${response.statusCode} - ${response.statusMessage}',
+        );
+      }
     } catch (e, s) {
-      AppLogger.e("Failed to load orders", error: e, stackTrace: s);
-      throw Exception('Failed to load orders: $e');
+      AppLogger.e("Failed to add order", error: e, stackTrace: s);
+      throw Exception('Failed to add order: $e');
     }
   }
 

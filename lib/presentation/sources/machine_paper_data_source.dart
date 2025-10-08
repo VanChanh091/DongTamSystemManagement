@@ -83,10 +83,7 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'size',
         value: '${planning.sizePaperPLaning} cm',
       ),
-      DataGridCell<int>(
-        columnName: 'child',
-        value: planning.order?.numberChild ?? 0,
-      ),
+      DataGridCell<int>(columnName: 'child', value: planning.numberChild),
       DataGridCell<String>(
         columnName: 'khoCapGiay',
         value: '${planning.ghepKho} cm',
@@ -397,8 +394,14 @@ class MachinePaperDatasource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final orderId = row.getCells()[0].value.toString();
-    final isSelected = selectedPlanningIds.contains(orderId);
+    final planningId =
+        row
+            .getCells()
+            .firstWhere((cell) => cell.columnName == 'planningId')
+            .value
+            .toString();
+
+    final isSelected = selectedPlanningIds.contains(planningId);
 
     // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);

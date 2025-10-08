@@ -32,6 +32,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   final userController = Get.find<UserController>();
   final badgesController = Get.find<BadgesController>();
   final themeController = Get.find<ThemeController>();
+  final DataGridController _dataGridController = DataGridController();
   String? selectedOrderId;
   bool isSeenOrder = false;
 
@@ -91,6 +92,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                       ),
                     ),
                   ),
+
                   //button menu
                   SizedBox(
                     height: 70,
@@ -140,9 +142,27 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                     builder:
                                         (_) => OrderDialog(
                                           order: null,
-                                          onOrderAddOrUpdate:
-                                              () =>
-                                                  loadOrders(true, isSeenOrder),
+                                          onOrderAddOrUpdate: (
+                                            String newOrderId,
+                                          ) {
+                                            print(
+                                              ">>> addedOrderId trước khi gọi scroll: $newOrderId",
+                                            );
+                                            loadOrders(true, isSeenOrder);
+                                            WidgetsBinding.instance
+                                                .addPostFrameCallback((_) {
+                                                  Future.delayed(
+                                                    const Duration(
+                                                      milliseconds: 300,
+                                                    ),
+                                                    () {
+                                                      _scrollToOrder(
+                                                        newOrderId,
+                                                      );
+                                                    },
+                                                  );
+                                                });
+                                          },
                                         ),
                                   );
                                 },
@@ -176,10 +196,11 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                   (_) => OrderDialog(
                                                     order: selectedOrder,
                                                     onOrderAddOrUpdate:
-                                                        () => loadOrders(
-                                                          true,
-                                                          isSeenOrder,
-                                                        ),
+                                                        (String? newOrderId) =>
+                                                            loadOrders(
+                                                              true,
+                                                              isSeenOrder,
+                                                            ),
                                                   ),
                                             );
                                           } catch (e, s) {
@@ -194,6 +215,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                 icon: Symbols.construction,
                                 backgroundColor: themeController.buttonColor,
                               ),
+
                               const SizedBox(width: 10),
 
                               //delete
@@ -413,6 +435,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                   );
 
                   return SfDataGrid(
+                    controller: _dataGridController,
                     source: orderDataSource,
                     isScrollbarAlwaysShown: true,
                     selectionMode: SelectionMode.single,
@@ -485,5 +508,22 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
         ),
       ),
     );
+  }
+
+  void _scrollToOrder(String newOrderId) {
+    // Tìm index trong list
+    final newIndex = orderDataSource.orders.indexWhere(
+      (p) => p.orderId == newOrderId,
+    );
+
+    if (newIndex != -1) {
+      _dataGridController.scrollToRow(newIndex.toDouble(), canAnimate: true);
+      _dataGridController.selectedIndex = newIndex;
+      setState(() {
+        selectedOrderId = newOrderId;
+      });
+    } else {
+      AppLogger.d("Không tìm thấy đơn hàng mới trong bảng.");
+    }
   }
 }

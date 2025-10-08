@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> headerCustomer = [
-  {"key": "stt", "title": "STT"},
   {"key": "customerId", "title": "Mã KH"},
   {"key": "maSoThue", "title": "MST"},
   {"key": "customerName", "title": "Tên KH"},

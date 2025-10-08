@@ -20,7 +20,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class OrderDialog extends StatefulWidget {
   final Order? order;
-  final VoidCallback onOrderAddOrUpdate;
+  final void Function(String orderId)? onOrderAddOrUpdate;
 
   const OrderDialog({super.key, this.order, required this.onOrderAddOrUpdate});
 
@@ -361,7 +361,10 @@ class _OrderDialogState extends State<OrderDialog> {
     );
   }
 
+  // create a string after prefix
   String generateOrderCode(String prefix) {
+    if (prefix.contains('/D')) return prefix;
+
     final now = DateTime.now();
     final String month = now.month.toString().padLeft(2, '0');
     final String year = now.year.toString().substring(2);
@@ -505,9 +508,11 @@ class _OrderDialogState extends State<OrderDialog> {
     );
 
     try {
+      String? orderId;
       if (widget.order == null) {
         AppLogger.i("Thêm đơn hàng mới: ${newOrder.orderId}");
-        await OrderService().addOrders(newOrder.toJson());
+        final response = await OrderService().addOrders(newOrder.toJson());
+        orderId = response['orderId'];
 
         if (!mounted) return; // check context
         showSnackBarSuccess(context, "Lưu thành công");
@@ -525,8 +530,9 @@ class _OrderDialogState extends State<OrderDialog> {
       //fetch lại badge sau khi add/update
       badgesController.fetchPendingApprovals();
 
+      widget.onOrderAddOrUpdate?.call(orderId ?? newOrder.orderId);
+
       if (!mounted) return;
-      widget.onOrderAddOrUpdate();
       Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return;
@@ -594,6 +600,7 @@ class _OrderDialogState extends State<OrderDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.order != null;
 
+    //order detail
     final List<Map<String, dynamic>> orders = [
       {
         'left':
@@ -878,6 +885,7 @@ class _OrderDialogState extends State<OrderDialog> {
       },
     ];
 
+    //structure
     final List<Map<String, dynamic>> structure = [
       {
         'left':
@@ -888,44 +896,46 @@ class _OrderDialogState extends State<OrderDialog> {
             ),
         'middle_1':
             () => ValidationOrder.validateInput(
-              "Mặt E (g)",
-              matEController,
-              Symbols.vertical_align_center,
-            ),
-        'middle_2':
-            () => ValidationOrder.validateInput(
               "Sóng E (g)",
               songEController,
               Symbols.airwave,
             ),
-        'middle_3':
+
+        'middle_2':
             () => ValidationOrder.validateInput(
-              "Mặt B (g)",
-              matBController,
+              "Mặt E (g)",
+              matEController,
               Symbols.vertical_align_center,
             ),
-
-        'right':
+        'middle_3':
             () => ValidationOrder.validateInput(
               "Sóng B (g)",
               songBController,
               Symbols.airwave,
+            ),
+
+        'right':
+            () => ValidationOrder.validateInput(
+              "Mặt B (g)",
+              matBController,
+              Symbols.vertical_align_center,
             ),
       },
 
       {
         'left':
             () => ValidationOrder.validateInput(
-              "Mặt C (g)",
-              matCController,
-              Symbols.vertical_align_center,
-            ),
-        'middle_1':
-            () => ValidationOrder.validateInput(
               "Sóng C (g)",
               songCController,
               Symbols.airwave,
             ),
+        'middle_1':
+            () => ValidationOrder.validateInput(
+              "Mặt C (g)",
+              matCController,
+              Symbols.vertical_align_center,
+            ),
+
         'middle_2':
             () => ValidationOrder.validateInput(
               "Sóng E2 (g)",
@@ -947,6 +957,7 @@ class _OrderDialogState extends State<OrderDialog> {
       },
     ];
 
+    //box
     List<Map<String, dynamic>> buildBoxes(bool isEnabled) {
       return [
         {

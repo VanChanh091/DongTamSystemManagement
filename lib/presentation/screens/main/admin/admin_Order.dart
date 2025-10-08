@@ -132,13 +132,44 @@ class _ManageOrderState extends State<AdminOrder> {
                                           ),
 
                                       // Header
-                                      title: Text(
-                                        "Đơn Hàng $prefix • ${ordersInGroup.length} đơn",
-                                        style: GoogleFonts.inter(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16,
-                                          color: Colors.blueGrey.shade800,
-                                        ),
+                                      title: Builder(
+                                        builder: (context) {
+                                          final customerNames = ordersInGroup
+                                              .map(
+                                                (c) =>
+                                                    c.customer?.customerName ??
+                                                    "Không rõ",
+                                              )
+                                              .toSet()
+                                              .join(", ");
+
+                                          return Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.person_outline,
+                                                color: Colors.blueGrey,
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  "Đơn $prefix • $customerNames • ${ordersInGroup.length} đơn",
+                                                  style: GoogleFonts.inter(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                    color:
+                                                        Colors
+                                                            .blueGrey
+                                                            .shade800,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       ),
                                       trailing: const Icon(
                                         Icons.keyboard_arrow_down,
@@ -184,10 +215,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                                         ),
                                                     blurRadius: 10,
                                                     spreadRadius: 1,
-                                                    offset: const Offset(
-                                                      0,
-                                                      4,
-                                                    ), // 👈 đẩy bóng xuống dưới, nổi bật hơn
+                                                    offset: const Offset(0, 4),
                                                   ),
                                                 ],
                                               ),
@@ -486,16 +514,6 @@ class _ManageOrderState extends State<AdminOrder> {
     );
   }
 
-  String formatQuantity(String typeProduct) {
-    final typeProduct = selectedOrder!.product!.typeProduct;
-    if (typeProduct == "Thùng/hộp") {
-      return "cái";
-    } else if (typeProduct == "Giấy tấm" || typeProduct == "Giấy quấn cuồn") {
-      return "m²";
-    }
-    return "kg";
-  }
-
   Widget rowOrder() {
     final order = selectedOrder!;
 
@@ -513,41 +531,41 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('🔪 Dao xả:', order.daoXa.toString()),
       _infoRow('🔧 Kết cấu:', order.formatterStructureOrder),
       _infoRow(
-        '✂️ Cắt (KH):',
+        '✂️ Cắt (Khách Hàng):',
         Order.formatCurrency(order.lengthPaperCustomer),
         unit: "cm",
       ),
       _infoRow(
-        '✂️ Cắt (SX) :',
+        '✂️ Cắt (Sản Xuất) :',
         Order.formatCurrency(order.lengthPaperManufacture),
         unit: "cm",
       ),
       _infoRow(
-        '📏 Khổ (KH):',
+        '📏 Khổ (Khách Hàng):',
         Order.formatCurrency(order.paperSizeCustomer),
         unit: "cm",
       ),
       _infoRow(
-        '📏 Khổ (SX):',
+        '📏 Khổ (Sản Xuất):',
         Order.formatCurrency(order.paperSizeManufacture),
         unit: "cm",
       ),
+      _infoRow('📐 Đơn vị tính:', order.dvt),
       _infoRow(
-        '🔢 Số lượng (KH):',
+        '🔢 Số lượng (Khách Hàng):',
         order.quantityCustomer.toString(),
-        unit: formatQuantity(order.product!.typeProduct),
+        unit: "",
       ),
       _infoRow(
-        '🔢 Số lượng (SX):',
+        '🔢 Số lượng (Sản Xuất):',
         order.quantityManufacture.toString(),
-        unit: formatQuantity(order.product!.typeProduct),
+        unit: "",
       ),
       _infoRow(
         '📜 Số con:',
         Order.formatCurrency(order.numberChild),
         unit: "Con",
       ),
-      _infoRow('📐 Đơn vị tính:', order.dvt),
       _infoRow(
         '🌍 Diện tích:',
         Order.formatCurrency(order.acreage),

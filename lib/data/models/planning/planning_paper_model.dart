@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 class PlanningPaper {
   //frontend
   final DateTime? dayStart, dayCompleted;
-  final int? ghepKho;
+  final int ghepKho;
   final double lengthPaperPlanning, sizePaperPLaning;
   final String? dayReplace, matEReplace, matBReplace, matCReplace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
-  final int runningPlan;
+  final int runningPlan, numberChild;
   final int? qtyProduced;
   final double? qtyWasteNorm;
   final String chooseMachine;
@@ -30,6 +30,7 @@ class PlanningPaper {
   final String status;
   final bool hasBox;
 
+  //association
   final String orderId;
   final Order? order;
   final TimeOverflowPlanning? timeOverflowPlanning;
@@ -50,6 +51,7 @@ class PlanningPaper {
     required this.lengthPaperPlanning,
     required this.sizePaperPLaning,
     required this.ghepKho,
+    required this.numberChild,
     required this.chooseMachine,
     this.bottom,
     this.fluteE,
@@ -125,7 +127,8 @@ class PlanningPaper {
       songE2Replace: json['songE2Replace'] ?? "",
       lengthPaperPlanning: toDouble(json['lengthPaperPlanning']),
       sizePaperPLaning: toDouble((json['sizePaperPLaning'])),
-      ghepKho: json['ghepKho'] ?? "",
+      ghepKho: json['ghepKho'] ?? 0,
+      numberChild: json['numberChild'] ?? 0,
       chooseMachine: json['chooseMachine'] ?? "",
       bottom: toDouble(json['bottom']),
       fluteE: toDouble(json['fluteE']),
@@ -164,6 +167,7 @@ class PlanningPaper {
       'lengthPaperPlanning': lengthPaperPlanning,
       'sizePaperPLaning': sizePaperPLaning,
       'ghepKho': ghepKho,
+      'numberChild': numberChild,
       'chooseMachine': chooseMachine,
       'hasBox': hasBox,
 

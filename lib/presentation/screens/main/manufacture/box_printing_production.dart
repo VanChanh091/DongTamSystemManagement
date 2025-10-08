@@ -57,18 +57,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     AppLogger.i("Loading all data manufacture box");
     setState(() {
       futurePlanning = ensureMinLoading(
-        ManufactureService().getPlanningBox(machine, refresh).then((
-          planningList,
-        ) {
-          orderIdToPlanningId.clear();
-          selectedPlanningIds.clear();
-          for (var planning in planningList) {
-            orderIdToPlanningId[planning.orderId] = planning.planningBoxId;
-          }
-          // print('manufacture_box:$orderIdToPlanningId');
-          return planningList;
-        }),
+        ManufactureService().getPlanningBox(machine, refresh),
       );
+
+      selectedPlanningIds.clear();
     });
   }
 
@@ -533,14 +525,21 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                       ),
                     ],
                     onSelectionChanged: (addedRows, removedRows) {
+                      final selectedRow = addedRows.first;
+                      final planningBoxId =
+                          selectedRow
+                              .getCells()
+                              .firstWhere(
+                                (cell) => cell.columnName == 'planningBoxId',
+                              )
+                              .value
+                              .toString();
+
                       setState(() {
-                        for (var row in addedRows) {
-                          final orderId = row.getCells()[0].value.toString();
-                          if (selectedPlanningIds.contains(orderId)) {
-                            selectedPlanningIds.remove(orderId);
-                          } else {
-                            selectedPlanningIds.add(orderId);
-                          }
+                        if (selectedPlanningIds.contains(planningBoxId)) {
+                          selectedPlanningIds.remove(planningBoxId);
+                        } else {
+                          selectedPlanningIds.add(planningBoxId);
                         }
 
                         machineBoxDatasource.selectedPlanningIds =

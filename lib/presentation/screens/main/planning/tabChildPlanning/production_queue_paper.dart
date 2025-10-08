@@ -660,7 +660,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             context: context,
                                             selectedPlanningIds:
                                                 selectedPlanningIds,
-                                            status: "pending",
+                                            status: "reject",
                                             title: "Xác nhận dừng sản xuất",
                                             message:
                                                 "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
@@ -674,6 +674,21 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   badgesController
                                                       .fetchPendingApprovals(),
                                                 },
+                                          );
+                                        } else if (value == 'accept') {
+                                          await handlePlanningAction(
+                                            context: context,
+                                            selectedPlanningIds:
+                                                selectedPlanningIds,
+                                            status: "accept",
+                                            title:
+                                                "Xác nhận trả về chờ lên kế hoạch",
+                                            message:
+                                                "Bạn có chắc muốn trả về chờ lên kế hoạch không?",
+                                            successMessage: "Trả về thành công",
+                                            errorMessage:
+                                                "Có lỗi xảy ra khi trả về",
+                                            onSuccess: () => loadPlanning(true),
                                           );
                                         } else if (value == 'acceptLack') {
                                           await handlePlanningAction(
@@ -710,6 +725,17 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   Symbols.pause_circle,
                                                 ),
                                                 title: Text('Dừng Chạy Đơn'),
+                                              ),
+                                            ),
+                                            const PopupMenuItem<String>(
+                                              value: 'accept',
+                                              child: ListTile(
+                                                leading: Icon(
+                                                  Symbols.arrow_circle_left,
+                                                ),
+                                                title: Text(
+                                                  'Trả Về Trang Chờ KH',
+                                                ),
                                               ),
                                             ),
                                             const PopupMenuItem<String>(

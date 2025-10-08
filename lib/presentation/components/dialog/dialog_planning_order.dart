@@ -58,6 +58,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
   //planning
   final ghepKhoController = TextEditingController();
+  final numberChildController = TextEditingController();
   final fluteController = TextEditingController();
   late String chooseMachine = 'Máy 1350';
   final dayReplaceController = TextEditingController();
@@ -91,6 +92,10 @@ class _PLanningDialogState extends State<PLanningDialog> {
     orderInitState();
 
     fillDataOrderToPlanning();
+    calculateDefaultGhepKho();
+
+    numberChildController.addListener(calculateDefaultGhepKho);
+    sizePaperPLaningController.addListener(calculateDefaultGhepKho);
   }
 
   void orderInitState() {
@@ -119,6 +124,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     sizeOrderController.text = order.paperSizeManufacture.toStringAsFixed(1);
     quantityOrderController.text = order.quantityManufacture.toString();
     totalPriceOrderController.text = order.totalPrice.toStringAsFixed(1);
+    numberChildController.text = order.numberChild.toString();
 
     //date
     dateShipping = order.dateRequestShipping;
@@ -140,6 +146,14 @@ class _PLanningDialogState extends State<PLanningDialog> {
     sizePaperPLaningController.text = sizeOrderController.text;
     runningPlanController.text = quantityOrderController.text;
     fluteController.text = extractNumbers(songController.text);
+  }
+
+  void calculateDefaultGhepKho() {
+    final numberChild = int.tryParse(numberChildController.text) ?? 0;
+    final sizeOrder = double.tryParse(sizePaperPLaningController.text) ?? 0;
+
+    final ghepKho = (numberChild * sizeOrder).ceil();
+    ghepKhoController.text = ghepKho.toString();
   }
 
   /// Trích xuất số từ chuỗi văn bản
@@ -186,6 +200,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
           double.tryParse(lengthPaperPlanningController.text) ?? 0,
       sizePaperPLaning: double.tryParse(sizePaperPLaningController.text) ?? 0,
       ghepKho: int.tryParse(ghepKhoController.text) ?? 0,
+      numberChild: int.tryParse(numberChildController.text) ?? 0,
       chooseMachine: chooseMachine,
       hasBox: widget.order!.isBox,
       status: 'planning',
@@ -238,6 +253,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     sizeOrderController.dispose();
     quantityOrderController.dispose();
     totalPriceOrderController.dispose();
+
     //planning
     ghepKhoController.dispose();
     dayReplaceController.dispose();
@@ -253,8 +269,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
     runningPlanController.dispose();
     quantityPLanningsController.dispose();
     numberLayerPaperController.dispose();
-
-    // _debounce?.cancel();
+    numberChildController.dispose();
+    numberChildController.removeListener(calculateDefaultGhepKho);
+    sizeOrderController.removeListener(calculateDefaultGhepKho);
   }
 
   @override
@@ -518,7 +535,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
               });
             }),
 
-        'middle_2': () => SizedBox(),
+        'middle_2':
+            () => ValidationPlanning.validateInput(
+              "Số Con",
+              numberChildController,
+              Symbols.numbers,
+            ),
 
         'right': () => SizedBox(),
       },

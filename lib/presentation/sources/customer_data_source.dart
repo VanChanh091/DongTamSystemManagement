@@ -15,9 +15,8 @@ class CustomerDatasource extends DataGridSource {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildCustomerCells(Customer customer, int index) {
+  List<DataGridCell> buildCustomerCells(Customer customer) {
     return [
-      DataGridCell<int>(columnName: "stt", value: index + 1),
       DataGridCell<String>(
         columnName: "customerId",
         value: customer.customerId,
@@ -92,15 +91,9 @@ class CustomerDatasource extends DataGridSource {
 
   void buildDataGridRows() {
     customerDataGridRows =
-        customer
-            .asMap()
-            .entries
-            .map<DataGridRow>(
-              (entry) => DataGridRow(
-                cells: buildCustomerCells(entry.value, entry.key),
-              ),
-            )
-            .toList();
+        customer.map<DataGridRow>((customer) {
+          return DataGridRow(cells: buildCustomerCells(customer));
+        }).toList();
   }
 
   @override

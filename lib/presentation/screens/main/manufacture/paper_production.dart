@@ -5,7 +5,6 @@ import 'package:dongtam/presentation/components/dialog/dialog_report_production.
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/machine_paper_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
-import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -32,7 +31,6 @@ class _PaperProductionState extends State<PaperProduction> {
   final themeController = Get.find<ThemeController>();
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
-  final Map<String, int> orderIdToPlanningId = {};
   final DataGridController dataGridController = DataGridController();
   String machine = "Máy 1350";
   List<String> selectedPlanningIds = [];
@@ -57,18 +55,12 @@ class _PaperProductionState extends State<PaperProduction> {
     AppLogger.i("Loading all data manufacture paper");
     setState(() {
       futurePlanning = ensureMinLoading(
-        ManufactureService().getPlanningPaper(machine, refresh).then((
-          planningList,
-        ) {
-          orderIdToPlanningId.clear();
-          selectedPlanningIds.clear();
-          for (var planning in planningList) {
-            orderIdToPlanningId[planning.orderId] = planning.planningId;
-          }
-          // print('manufacture_paper:$orderIdToPlanningId');
-          return planningList;
-        }),
+        ManufactureService().getPlanningPaper(machine, refresh),
       );
+
+      selectedPlanningIds.clear();
+      // machinePaperDatasource.selectedPlanningIds = [];
+      // machinePaperDatasource.notifyListeners();
     });
   }
 
@@ -181,18 +173,15 @@ class _PaperProductionState extends State<PaperProduction> {
   /* end socket */
 
   bool canExecuteAction({
-    required List<String> selectedPlanningIds,
-    required Map<String, int?> orderIdToPlanningId,
+    required List<int> selectedPlanningIds,
     required List<PlanningPaper> planningList,
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
-    final String selectedOrderId = selectedPlanningIds.first;
-    final planningId = orderIdToPlanningId[selectedOrderId];
-    if (planningId == null) return false;
+    final int selectedPlanningId = selectedPlanningIds.first;
 
     final selectedPlanning = planningList.firstWhere(
-      (p) => p.planningId == planningId,
+      (p) => p.planningId == selectedPlanningId,
       orElse: () => throw Exception("Không tìm thấy kế hoạch"),
     );
 
@@ -266,31 +255,23 @@ class _PaperProductionState extends State<PaperProduction> {
                                             ]) &&
                                             canExecuteAction(
                                               selectedPlanningIds:
-                                                  selectedPlanningIds,
-                                              orderIdToPlanningId:
-                                                  orderIdToPlanningId,
+                                                  selectedPlanningIds
+                                                      .map(int.parse)
+                                                      .toList(),
                                               planningList: planningList,
                                             )
                                         ? () async {
                                           try {
-                                            final String selectedOrderId =
-                                                selectedPlanningIds.first;
-
-                                            final planningId =
-                                                orderIdToPlanningId[selectedOrderId];
-                                            if (planningId == null) {
-                                              showSnackBarError(
-                                                context,
-                                                "Không tìm thấy planningId cho orderId: $selectedOrderId",
-                                              );
-                                              return;
-                                            }
+                                            final int selectedPlanningId =
+                                                int.parse(
+                                                  selectedPlanningIds.first,
+                                                );
 
                                             final selectedPlanning =
                                                 planningList.firstWhere(
                                                   (p) =>
                                                       p.planningId ==
-                                                      planningId,
+                                                      selectedPlanningId,
                                                   orElse:
                                                       () =>
                                                           throw Exception(
@@ -327,6 +308,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                 icon: Icons.assignment,
                                 backgroundColor: themeController.buttonColor,
                               ),
+
                               const SizedBox(width: 10),
 
                               //confirm production
@@ -340,46 +322,33 @@ class _PaperProductionState extends State<PaperProduction> {
                                             ]) &&
                                             canExecuteAction(
                                               selectedPlanningIds:
-                                                  selectedPlanningIds,
-                                              orderIdToPlanningId:
-                                                  orderIdToPlanningId,
+                                                  selectedPlanningIds
+                                                      .map(int.parse)
+                                                      .toList(),
                                               planningList: planningList,
                                             )
                                         ? () async {
-                                          //get planning first
-                                          final String selectedOrderId =
-                                              selectedPlanningIds.first;
-
-                                          //get all planning
-                                          final planningList =
-                                              await futurePlanning;
-
-                                          if (!context.mounted) return;
-
-                                          // get planningId from orderId
-                                          final planningId =
-                                              orderIdToPlanningId[selectedOrderId];
-                                          if (planningId == null) {
-                                            showSnackBarError(
-                                              context,
-                                              "Không tìm thấy planningId cho orderId: $selectedOrderId",
-                                            );
-                                            return;
-                                          }
-
-                                          // find planning by planningId
-                                          final selectedPlanning = planningList
-                                              .firstWhere(
-                                                (p) =>
-                                                    p.planningId == planningId,
-                                                orElse:
-                                                    () =>
-                                                        throw Exception(
-                                                          "Không tìm thấy kế hoạch",
-                                                        ),
-                                              );
-
                                           try {
+                                            // Lấy planningId (đang ở dạng String → convert sang int)
+                                            final int selectedPlanningId =
+                                                int.parse(
+                                                  selectedPlanningIds.first,
+                                                );
+
+                                            // Tìm planning tương ứng
+                                            final selectedPlanning =
+                                                planningList.firstWhere(
+                                                  (p) =>
+                                                      p.planningId ==
+                                                      selectedPlanningId,
+                                                  orElse:
+                                                      () =>
+                                                          throw Exception(
+                                                            "Không tìm thấy kế hoạch",
+                                                          ),
+                                                );
+
+                                            // Gửi yêu cầu xác nhận sản xuất
                                             await ManufactureService()
                                                 .confirmProducingPaper(
                                                   selectedPlanning.planningId,
@@ -387,8 +356,14 @@ class _PaperProductionState extends State<PaperProduction> {
 
                                             if (!context.mounted) return;
 
+                                            // Reload lại danh sách
                                             loadPlanning(true);
-                                          } catch (e) {
+                                          } catch (e, s) {
+                                            AppLogger.e(
+                                              "Lỗi khi xác nhận SX",
+                                              error: e,
+                                              stackTrace: s,
+                                            );
                                             if (!context.mounted) return;
                                             showSnackBarError(
                                               context,
@@ -482,7 +457,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     );
                   }
 
-                  final List<PlanningPaper> data = snapshot.data!;
+                  final data = snapshot.data as List<PlanningPaper>;
                   planningList = data;
 
                   machinePaperDatasource = MachinePaperDatasource(
@@ -536,14 +511,21 @@ class _PaperProductionState extends State<PaperProduction> {
                       ),
                     ],
                     onSelectionChanged: (addedRows, removedRows) {
+                      final selectedRow = addedRows.first;
+                      final planningPaperId =
+                          selectedRow
+                              .getCells()
+                              .firstWhere(
+                                (cell) => cell.columnName == 'planningId',
+                              )
+                              .value
+                              .toString();
+
                       setState(() {
-                        for (var row in addedRows) {
-                          final orderId = row.getCells()[0].value.toString();
-                          if (selectedPlanningIds.contains(orderId)) {
-                            selectedPlanningIds.remove(orderId);
-                          } else {
-                            selectedPlanningIds.add(orderId);
-                          }
+                        if (selectedPlanningIds.contains(planningPaperId)) {
+                          selectedPlanningIds.remove(planningPaperId);
+                        } else {
+                          selectedPlanningIds.add(planningPaperId);
                         }
 
                         machinePaperDatasource.selectedPlanningIds =
@@ -564,100 +546,5 @@ class _PaperProductionState extends State<PaperProduction> {
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
-  }
-
-  Future<void> handlePlanningAction({
-    required BuildContext context,
-    required List<String> selectedPlanningIds,
-    required String status,
-    required String title,
-    required String message,
-    required String successMessage,
-    required String errorMessage,
-    required VoidCallback onSuccess,
-  }) async {
-    if (selectedPlanningIds.isEmpty) {
-      showSnackBarError(context, "Chưa chọn kế hoạch cần thực hiện");
-      return;
-    }
-
-    bool confirm =
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              content: Text(
-                message,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 15,
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text(
-                    "Huỷ",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffEA4346),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text(
-                    "Xác nhận",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
-
-    if (confirm) {
-      try {
-        final planningIds =
-            selectedPlanningIds
-                .map((orderId) => orderIdToPlanningId[orderId])
-                .whereType<int>()
-                .toList();
-
-        final success = await PlanningService().pauseOrAcceptLackQty(
-          planningIds,
-          status,
-        );
-        if (!context.mounted) return;
-
-        if (success) {
-          showSnackBarSuccess(context, successMessage);
-          onSuccess();
-        }
-      } catch (e) {
-        if (!context.mounted) return;
-        showSnackBarError(context, errorMessage);
-      }
-    }
   }
 }

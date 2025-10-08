@@ -382,8 +382,13 @@ class MachineBoxDatasource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final orderId = row.getCells()[0].value.toString();
-    final isSelected = selectedPlanningIds.contains(orderId);
+    final planningBoxId =
+        row
+            .getCells()
+            .firstWhere((cell) => cell.columnName == 'planningBoxId')
+            .value
+            .toString();
+    final isSelected = selectedPlanningIds.contains(planningBoxId);
 
     // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);
