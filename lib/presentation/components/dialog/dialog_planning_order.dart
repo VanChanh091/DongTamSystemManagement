@@ -134,6 +134,10 @@ class _PLanningDialogState extends State<PLanningDialog> {
   }
 
   void fillDataOrderToPlanning() {
+    int leftQty =
+        (int.tryParse(quantityOrderController.text) ?? 0) -
+        (widget.order?.totalRunningPlan ?? 0);
+
     dayReplaceController.text = dayOrderController.text;
     matEReplaceController.text = matEOrderController.text;
     matBReplaceController.text = matBOrderController.text;
@@ -144,7 +148,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     songE2ReplaceController.text = songE2OrderController.text;
     lengthPaperPlanningController.text = lengthOrderController.text;
     sizePaperPLaningController.text = sizeOrderController.text;
-    runningPlanController.text = quantityOrderController.text;
+    runningPlanController.text = leftQty.toString();
     fluteController.text = extractNumbers(songController.text);
   }
 

@@ -47,15 +47,25 @@ class PlanningDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'daoXa', value: order.daoXa),
       DataGridCell<String>(
         columnName: 'lengthMf',
-        value: Order.formatCurrency(order.lengthPaperManufacture),
+        value:
+            order.lengthPaperManufacture > 0
+                ? '${Order.formatCurrency(order.lengthPaperManufacture)} cm'
+                : "0",
       ),
       DataGridCell<String>(
-        columnName: 'sizeManufacture',
-        value: Order.formatCurrency(order.paperSizeManufacture),
+        columnName: 'sizeManu',
+        value:
+            order.paperSizeManufacture > 0
+                ? '${Order.formatCurrency(order.paperSizeManufacture)} cm'
+                : "0",
       ),
       DataGridCell<int>(
         columnName: 'qtyManufacture',
         value: order.quantityManufacture,
+      ),
+      DataGridCell<int>(
+        columnName: 'quantityProduced',
+        value: order.totalRunningPlan,
       ),
       DataGridCell<String>(
         columnName: 'instructSpecial',
@@ -64,6 +74,10 @@ class PlanningDataSource extends DataGridSource {
       DataGridCell<String>(
         columnName: 'totalPrice',
         value: Order.formatCurrency(order.totalPrice),
+      ),
+      DataGridCell<String>(
+        columnName: 'totalPriceAfterVAT',
+        value: Order.formatCurrency(order.totalPriceVAT),
       ),
       DataGridCell<String>(
         columnName: 'haveMadeBox',

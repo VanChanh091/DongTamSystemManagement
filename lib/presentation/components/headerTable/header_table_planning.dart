@@ -17,10 +17,12 @@ final List<Map<String, dynamic>> planningColumns = [
   {"key": "canLan", "title": "Cấn Lằn"},
   {"key": "daoXa", "title": "Dao Xả"},
   {"key": "lengthMf", "title": "Dài (SX)"},
-  {"key": "sizeManufacture", "title": "Khổ (SX)"},
+  {"key": "sizeManu", "title": "Khổ (SX)"},
   {"key": "qtyManufacture", "title": "Số Lượng (SX)"},
+  {"key": "quantityProduced", "title": "Số Lượng đã SX"},
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
-  {"key": "totalPrice", "title": "Doanh thu"},
+  {"key": "totalPrice", "title": "Tổng Tiền"},
+  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền Sau VAT"},
   {"key": "haveMadeBox", "title": "Làm Thùng?"},
 ];
 

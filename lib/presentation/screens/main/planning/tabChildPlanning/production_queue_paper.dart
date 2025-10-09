@@ -33,8 +33,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
-  final Map<String, int> orderIdToPlanningId = {};
-  final Map<String, String> orderIdToStatus = {};
   List<String> selectedPlanningIds = [];
   String searchType = "Tất cả";
   String machine = "Máy 1350";
@@ -68,20 +66,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   void loadPlanning(bool refresh) {
     setState(() {
       futurePlanning = ensureMinLoading(
-        PlanningService().getPlanningPaperByMachine(machine, refresh).then((
-          planningList,
-        ) {
-          orderIdToPlanningId.clear();
-          selectedPlanningIds.clear();
-          for (var planning in planningList) {
-            orderIdToPlanningId[planning.orderId] = planning.planningId;
-            orderIdToStatus[planning.orderId] = planning.status;
-          }
-          // print('planningId:$orderIdToPlanningId');
-          // print('status:$orderIdToStatus');
-          return planningList;
-        }),
+        PlanningService().getPlanningPaperByMachine(machine, refresh),
       );
+
+      selectedPlanningIds.clear();
     });
   }
 
@@ -644,11 +632,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   planning:
                                                       planning
                                                           .where(
-                                                            (p) =>
-                                                                selectedPlanningIds
-                                                                    .contains(
-                                                                      p.orderId,
-                                                                    ),
+                                                            (
+                                                              p,
+                                                            ) => selectedPlanningIds
+                                                                .contains(
+                                                                  p.planningId
+                                                                      .toString(),
+                                                                ),
                                                           )
                                                           .toList(),
                                                   onChangeMachine:
@@ -695,12 +685,14 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             context: context,
                                             selectedPlanningIds:
                                                 selectedPlanningIds,
+                                            planningList:
+                                                machinePaperDatasource.planning,
                                             status: "complete",
                                             title: "Xác nhận thiếu số lượng",
                                             message:
                                                 "Bạn có chắc muốn chấp nhận thiếu không?",
                                             successMessage:
-                                                "Thực thi thành công",
+                                                "Chấp nhận thành công",
                                             errorMessage:
                                                 "Có lỗi xảy ra khi thực thi",
                                             onSuccess: () => loadPlanning(true),
@@ -963,14 +955,21 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                       ),
                     ],
                     onSelectionChanged: (addedRows, removedRows) {
+                      final selectedRow = addedRows.first;
+                      final planningPaperId =
+                          selectedRow
+                              .getCells()
+                              .firstWhere(
+                                (cell) => cell.columnName == 'planningId',
+                              )
+                              .value
+                              .toString();
+
                       setState(() {
-                        for (var row in addedRows) {
-                          final orderId = row.getCells()[0].value.toString();
-                          if (selectedPlanningIds.contains(orderId)) {
-                            selectedPlanningIds.remove(orderId);
-                          } else {
-                            selectedPlanningIds.add(orderId);
-                          }
+                        if (selectedPlanningIds.contains(planningPaperId)) {
+                          selectedPlanningIds.remove(planningPaperId);
+                        } else {
+                          selectedPlanningIds.add(planningPaperId);
                         }
 
                         machinePaperDatasource.selectedPlanningIds =
@@ -1001,6 +1000,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   Future<void> handlePlanningAction({
     required BuildContext context,
     required List<String> selectedPlanningIds,
+    List<PlanningPaper>? planningList,
     required String status,
     required String title,
     required String message,
@@ -1013,15 +1013,37 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       return;
     }
 
-    // final hasCompletedOrder = selectedPlanningIds.any(
-    //   (orderId) => orderIdToStatus[orderId] == "complete",
-    // );
+    final planningIds =
+        selectedPlanningIds
+            .map((e) => int.tryParse(e))
+            .whereType<int>() // lọc bỏ phần tử null nếu parse fail
+            .toList();
 
-    // if (hasCompletedOrder) {
-    //   showSnackBarError(context, "Không thể thao tác với đơn đã hoàn thành");
-    //   return;
-    // }
+    final selectedPlannings =
+        planningList
+            ?.where((p) => planningIds.contains(p.planningId))
+            .toList() ??
+        [];
 
+    //check sort planning
+    final hasNoSortPlanning = selectedPlannings.any(
+      (p) => p.sortPlanning == null || p.sortPlanning == 0,
+    );
+    if (hasNoSortPlanning) {
+      showSnackBarError(context, "Đơn hàng chưa được sắp xếp");
+      return;
+    }
+
+    //check dayCompleted
+    final hasDayCompleted = selectedPlannings.any(
+      (p) => p.dayCompleted == null,
+    );
+    if (hasDayCompleted) {
+      showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
+      return;
+    }
+
+    //UI
     bool confirm =
         await showDialog(
           context: context,
@@ -1079,12 +1101,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
     if (confirm) {
       try {
-        final planningIds =
-            selectedPlanningIds
-                .map((orderId) => orderIdToPlanningId[orderId])
-                .whereType<int>()
-                .toList();
-
         final success = await PlanningService().pauseOrAcceptLackQty(
           planningIds,
           status,

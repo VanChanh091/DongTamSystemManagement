@@ -9,6 +9,7 @@ class MachineBoxDatasource extends DataGridSource {
   List<String> selectedPlanningIds = [];
   String machine;
   bool showGroup;
+  bool isMapping;
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -20,6 +21,7 @@ class MachineBoxDatasource extends DataGridSource {
     required this.selectedPlanningIds,
     required this.showGroup,
     required this.machine,
+    this.isMapping = false,
   }) {
     buildDataGridRows();
 
@@ -382,13 +384,18 @@ class MachineBoxDatasource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
+    final orderId = row.getCells()[0].value.toString();
     final planningBoxId =
         row
             .getCells()
             .firstWhere((cell) => cell.columnName == 'planningBoxId')
             .value
             .toString();
-    final isSelected = selectedPlanningIds.contains(planningBoxId);
+
+    final isSelected =
+        isMapping
+            ? selectedPlanningIds.contains(orderId)
+            : selectedPlanningIds.contains(planningBoxId);
 
     // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);

@@ -112,6 +112,11 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'totalPrice',
         value: '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND',
       ),
+      DataGridCell<String>(
+        columnName: 'totalPriceAfterVAT',
+        value:
+            '${Order.formatCurrency(planning.order?.totalPriceVAT ?? 0)} VND',
+      ),
     ];
   }
 
@@ -275,7 +280,9 @@ class MachinePaperDatasource extends DataGridSource {
     if (idsToMove.isEmpty) return;
 
     List<PlanningPaper> selectedItems =
-        planning.where((p) => idsToMove.contains(p.orderId)).toList();
+        planning
+            .where((p) => idsToMove.contains(p.planningId.toString()))
+            .toList();
 
     selectedItems.sort(
       (a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)),
@@ -310,7 +317,9 @@ class MachinePaperDatasource extends DataGridSource {
     if (idsToMove.isEmpty) return;
 
     List<PlanningPaper> selectedItems =
-        planning.where((p) => idsToMove.contains(p.orderId)).toList();
+        planning
+            .where((p) => idsToMove.contains(p.planningId.toString()))
+            .toList();
 
     selectedItems.sort(
       (a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)),

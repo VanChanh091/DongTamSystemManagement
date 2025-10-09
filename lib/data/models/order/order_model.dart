@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/data/models/user/user_user_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
@@ -26,6 +27,7 @@ class Order {
   final Product? product;
   final Box? box;
   final UserUserModel? user;
+  final List<PlanningPaper>? planningPaper;
 
   Order({
     required this.orderId,
@@ -70,6 +72,7 @@ class Order {
     this.box,
     this.product,
     this.user,
+    this.planningPaper,
   });
 
   //format number
@@ -175,6 +178,13 @@ class Order {
     return isBox ? "Có" : "";
   }
 
+  int get totalRunningPlan {
+    if (planningPaper == null || planningPaper!.isEmpty) {
+      return 0;
+    }
+    return planningPaper!.fold(0, (sum, p) => sum + (p.runningPlan));
+  }
+
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       orderId: json['orderId'] ?? 'ORDER',
@@ -220,6 +230,12 @@ class Order {
           json['Product'] != null ? Product.fromJson(json['Product']) : null,
       box: json['box'] != null ? Box.fromJson(json['box']) : null,
       user: json['User'] != null ? UserUserModel.fromJson(json['User']) : null,
+      planningPaper:
+          json['Plannings'] != null
+              ? List<PlanningPaper>.from(
+                json['Plannings'].map((x) => PlanningPaper.fromJson(x)),
+              )
+              : [],
     );
   }
 

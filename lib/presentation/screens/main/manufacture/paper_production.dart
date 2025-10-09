@@ -59,8 +59,6 @@ class _PaperProductionState extends State<PaperProduction> {
       );
 
       selectedPlanningIds.clear();
-      // machinePaperDatasource.selectedPlanningIds = [];
-      // machinePaperDatasource.notifyListeners();
     });
   }
 

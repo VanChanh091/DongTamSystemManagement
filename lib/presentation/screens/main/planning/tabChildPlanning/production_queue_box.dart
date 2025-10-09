@@ -780,6 +780,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     selectedPlanningIds: selectedPlanningIds,
                     machine: machine,
                     showGroup: showGroup,
+                    isMapping: true,
                   );
 
                   return SfDataGrid(

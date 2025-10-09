@@ -173,6 +173,26 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     loadPlanning(true);
   }
 
+  bool canExecuteAction({
+    required List<int> selectedPlanningIds,
+    required List<PlanningBox> planningList,
+  }) {
+    if (selectedPlanningIds.length != 1) return false;
+
+    final int selectedPlanningBoxId = selectedPlanningIds.first;
+
+    final selectedPlanning = planningList.firstWhere(
+      (p) => p.planningBoxId == selectedPlanningBoxId,
+      orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+    );
+
+    final boxTimes = selectedPlanning.boxTimes;
+    if (boxTimes == null || boxTimes.isEmpty) return false;
+
+    final status = boxTimes.first.status;
+    return status != "complete";
+  }
+
   @override
   void dispose() {
     final room = _machineRoomName(machine);
@@ -233,67 +253,25 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                     userController.hasPermission(
                                               "step2Production",
                                             ) &&
-                                            selectedPlanningIds.length == 1 &&
-                                            (() {
-                                              final String selectedOrderId =
-                                                  selectedPlanningIds.first;
-                                              final planningBoxId =
-                                                  orderIdToPlanningId[selectedOrderId];
-                                              if (planningBoxId == null) {
-                                                return false;
-                                              }
-
-                                              final selectedPlanning =
-                                                  planningList.firstWhere(
-                                                    (p) =>
-                                                        p.planningBoxId ==
-                                                        planningBoxId,
-                                                    orElse:
-                                                        () =>
-                                                            throw Exception(
-                                                              "Không tìm thấy kế hoạch",
-                                                            ),
-                                                  );
-
-                                              // Nếu không tìm thấy hoặc đã complete thì disable
-                                              return !(selectedPlanning
-                                                          .boxTimes!
-                                                          .isNotEmpty &&
-                                                      selectedPlanning
-                                                              .boxTimes!
-                                                              .first
-                                                              .status ==
-                                                          "complete") &&
-                                                  selectedPlanning.runningPlan >
-                                                      0;
-                                            })()
+                                            canExecuteAction(
+                                              selectedPlanningIds:
+                                                  selectedPlanningIds
+                                                      .map(int.parse)
+                                                      .toList(),
+                                              planningList: planningList,
+                                            )
                                         ? () async {
                                           try {
-                                            final String selectedOrderId =
-                                                selectedPlanningIds.first;
+                                            final int selectedPlanningBoxId =
+                                                int.parse(
+                                                  selectedPlanningIds.first,
+                                                );
 
-                                            final planningList =
-                                                await futurePlanning;
-
-                                            if (!context.mounted) return;
-
-                                            // get planningId from orderId
-                                            final planningBoxId =
-                                                orderIdToPlanningId[selectedOrderId];
-                                            if (planningBoxId == null) {
-                                              showSnackBarError(
-                                                context,
-                                                "Không tìm thấy planningBoxId cho orderId: $selectedOrderId",
-                                              );
-                                              return;
-                                            }
-
-                                            // find planning by planningId
                                             final selectedPlanning =
                                                 planningList.firstWhere(
                                                   (p) =>
                                                       p.planningBoxId ==
-                                                      planningBoxId,
+                                                      selectedPlanningBoxId,
                                                   orElse:
                                                       () =>
                                                           throw Exception(
@@ -338,34 +316,29 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                               //confirm production
                               AnimatedButton(
                                 onPressed:
-                                    selectedPlanningIds.length == 1
+                                    userController.hasPermission(
+                                              "step2Production",
+                                            ) &&
+                                            canExecuteAction(
+                                              selectedPlanningIds:
+                                                  selectedPlanningIds
+                                                      .map(int.parse)
+                                                      .toList(),
+                                              planningList: planningList,
+                                            )
                                         ? () async {
                                           //get planning first
-                                          final String selectedOrderId =
-                                              selectedPlanningIds.first;
-
-                                          //get all planning
-                                          final planningList =
-                                              await futurePlanning;
-
-                                          // get planningId from orderId
-                                          final planningBoxId =
-                                              orderIdToPlanningId[selectedOrderId];
-                                          if (planningBoxId == null) {
-                                            if (!context.mounted) return;
-                                            showSnackBarError(
-                                              context,
-                                              "Không tìm thấy planningBoxId cho orderId: $selectedOrderId",
-                                            );
-                                            return;
-                                          }
+                                          final int selectedPlanningBoxId =
+                                              int.parse(
+                                                selectedPlanningIds.first,
+                                              );
 
                                           // find planning by planningId
                                           final selectedPlanning = planningList
                                               .firstWhere(
                                                 (p) =>
                                                     p.planningBoxId ==
-                                                    planningBoxId,
+                                                    selectedPlanningBoxId,
                                                 orElse:
                                                     () =>
                                                         throw Exception(

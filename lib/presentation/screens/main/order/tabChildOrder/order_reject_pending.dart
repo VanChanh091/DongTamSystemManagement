@@ -145,9 +145,6 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                           onOrderAddOrUpdate: (
                                             String newOrderId,
                                           ) {
-                                            print(
-                                              ">>> addedOrderId trước khi gọi scroll: $newOrderId",
-                                            );
                                             loadOrders(true, isSeenOrder);
                                             WidgetsBinding.instance
                                                 .addPostFrameCallback((_) {
