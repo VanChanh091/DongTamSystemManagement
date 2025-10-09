@@ -26,18 +26,16 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   late Future<List<PlanningBox>> futurePlanning;
   late MachineBoxDatasource machineBoxDatasource;
   late List<GridColumn> columns;
+  final DataGridController dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
-  final Map<String, int> orderIdToPlanningId = {};
-  final Map<String, String> orderIdToStatus = {};
-  final DataGridController dataGridController = DataGridController();
+  List<String> selectedPlanningIds = [];
   String searchType = "Tất cả";
   String machine = "Máy In";
+  DateTime? dayStart = DateTime.now();
   DateTime selectedDate = DateTime.now();
   bool isTextFieldEnabled = false;
-  List<String> selectedPlanningIds = [];
-  DateTime? dayStart = DateTime.now();
   bool isLoading = false;
   bool showGroup = true;
 
@@ -65,21 +63,10 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   void loadPlanning(bool refresh) {
     setState(() {
       futurePlanning = ensureMinLoading(
-        PlanningService().getPlanningMachineBox(machine, refresh).then((
-          planningList,
-        ) {
-          orderIdToPlanningId.clear();
-          selectedPlanningIds.clear();
-          for (var planning in planningList) {
-            orderIdToPlanningId[planning.orderId] = planning.planningBoxId;
-            orderIdToStatus[planning.orderId] =
-                planning.boxTimes?.first.status ?? "";
-          }
-          // print('planningBoxId:$machine-$orderIdToPlanningId');
-          // print('status:$orderIdToStatus');
-          return planningList;
-        }),
+        PlanningService().getPlanningMachineBox(machine, refresh),
       );
+
+      selectedPlanningIds.clear();
     });
   }
 
@@ -614,6 +601,8 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                             context: context,
                                             selectedPlanningIds:
                                                 selectedPlanningIds,
+                                            planningList:
+                                                machineBoxDatasource.planning,
                                             machine: machine,
                                             status: "complete",
                                             title: "Xác nhận thiếu số lượng",
@@ -780,7 +769,6 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     selectedPlanningIds: selectedPlanningIds,
                     machine: machine,
                     showGroup: showGroup,
-                    isMapping: true,
                   );
 
                   return SfDataGrid(
@@ -820,14 +808,21 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                       ),
                     ],
                     onSelectionChanged: (addedRows, removedRows) {
+                      final selectedRow = addedRows.first;
+                      final planningBoxId =
+                          selectedRow
+                              .getCells()
+                              .firstWhere(
+                                (cell) => cell.columnName == 'planningBoxId',
+                              )
+                              .value
+                              .toString();
+
                       setState(() {
-                        for (var row in addedRows) {
-                          final orderId = row.getCells()[0].value.toString();
-                          if (selectedPlanningIds.contains(orderId)) {
-                            selectedPlanningIds.remove(orderId);
-                          } else {
-                            selectedPlanningIds.add(orderId);
-                          }
+                        if (selectedPlanningIds.contains(planningBoxId)) {
+                          selectedPlanningIds.remove(planningBoxId);
+                        } else {
+                          selectedPlanningIds.add(planningBoxId);
                         }
 
                         machineBoxDatasource.selectedPlanningIds =
@@ -858,6 +853,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   Future<void> handlePlanningAction({
     required BuildContext context,
     required List<String> selectedPlanningIds,
+    List<PlanningBox>? planningList,
     required String status,
     required String machine,
     required String title,
@@ -871,12 +867,43 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
       return;
     }
 
-    final hasCompletedOrder = selectedPlanningIds.any(
-      (orderId) => orderIdToStatus[orderId] == "complete",
-    );
+    final planningIds =
+        selectedPlanningIds
+            .map((e) => int.tryParse(e))
+            .whereType<int>() // lọc bỏ phần tử null nếu parse fail
+            .toList();
 
-    if (hasCompletedOrder) {
-      showSnackBarError(context, "Không thể chấp nhận đơn đã hoàn thành");
+    final selectedPlannings =
+        planningList
+            ?.where((p) => planningIds.contains(p.planningBoxId))
+            .toList() ??
+        [];
+
+    // check sortPlanning
+    final hasNoSortPlanning = selectedPlannings.any((p) {
+      final boxTime =
+          (p.boxTimes != null && p.boxTimes!.isNotEmpty)
+              ? p.boxTimes!.first
+              : null;
+      return boxTime == null ||
+          boxTime.sortPlanning == null ||
+          boxTime.sortPlanning == 0;
+    });
+    if (hasNoSortPlanning) {
+      showSnackBarError(context, "Đơn hàng chưa được sắp xếp");
+      return;
+    }
+
+    // check dayCompleted
+    final hasNoDayCompleted = selectedPlannings.any((p) {
+      final boxTime =
+          (p.boxTimes != null && p.boxTimes!.isNotEmpty)
+              ? p.boxTimes!.first
+              : null;
+      return boxTime == null || boxTime.dayCompleted == null;
+    });
+    if (hasNoDayCompleted) {
+      showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
       return;
     }
 
@@ -937,12 +964,6 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
     if (confirm) {
       try {
-        final planningIds =
-            selectedPlanningIds
-                .map((orderId) => orderIdToPlanningId[orderId])
-                .whereType<int>()
-                .toList();
-
         final success = await PlanningService().acceptLackQtyBox(
           planningIds,
           status,
