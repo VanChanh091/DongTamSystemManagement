@@ -5,6 +5,7 @@ import 'package:dongtam/presentation/screens/auth/sign_up.dart';
 import 'package:dongtam/presentation/screens/main/home.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/hint_user_name.dart';
 import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,16 +25,33 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   final SidebarController sidebarController = Get.put(SidebarController());
   final themeController = Get.find<ThemeController>();
+  List<String> emailSuggestions = [];
   bool isObscureText = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _loadEmailSuggestions();
+  }
+
+  Future<void> _loadEmailSuggestions() async {
+    final emails = await HintUserName.instance.loadEmail();
+    setState(() {
+      emailSuggestions = emails;
+    });
+  }
 
   void login() async {
     bool success = await authService.login(
       emailController.text,
       passwordController.text,
     );
-    if (!mounted) return;
 
     if (success) {
+      await HintUserName.instance.saveUsername(emailController.text);
+
+      if (!mounted) return;
       showSnackBarSuccess(context, 'Đăng nhập thành công');
 
       sidebarController.reset();
@@ -47,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } else {
+      if (!mounted) return;
       showSnackBarError(context, 'Sai thông tin đăng nhập');
     }
   }
@@ -98,22 +117,161 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 70),
 
                             // Email
-                            TextFormField(
-                              controller: emailController,
-                              textInputAction: TextInputAction.next,
-                              onFieldSubmitted: (_) {
-                                FocusScope.of(context).nextFocus();
+                            Autocomplete<String>(
+                              optionsBuilder: (textEditingValue) {
+                                if (textEditingValue.text.isEmpty)
+                                  return emailSuggestions;
+                                return emailSuggestions.where(
+                                  (email) => email.toLowerCase().contains(
+                                    textEditingValue.text.toLowerCase(),
+                                  ),
+                                );
                               },
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                prefixIcon: const Icon(Icons.email),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              validator:
-                                  (value) =>
-                                      ValidationAuth.validateEmail(value),
+                              onSelected: (selection) {
+                                emailController.text = selection;
+                              },
+                              fieldViewBuilder: (
+                                context,
+                                textEditingController,
+                                focusNode,
+                                onFieldSubmitted,
+                              ) {
+                                textEditingController.text =
+                                    emailController.text;
+                                textEditingController
+                                    .selection = TextSelection.fromPosition(
+                                  TextPosition(
+                                    offset: textEditingController.text.length,
+                                  ),
+                                );
+                                textEditingController.addListener(() {
+                                  emailController.value =
+                                      textEditingController.value;
+                                });
+
+                                return TextFormField(
+                                  controller: textEditingController,
+                                  focusNode: focusNode,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    labelText: 'Email',
+                                    prefixIcon: const Icon(Icons.email),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                );
+                              },
+                              optionsViewBuilder: (
+                                context,
+                                onSelected,
+                                options,
+                              ) {
+                                return Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Material(
+                                    elevation: 4.0,
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Container(
+                                      width:
+                                          MediaQuery.of(context).size.width *
+                                          0.9,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: ListView.builder(
+                                        padding: EdgeInsets.zero,
+                                        shrinkWrap: true,
+                                        itemCount: options.length,
+                                        itemBuilder: (context, index) {
+                                          final option = options.elementAt(
+                                            index,
+                                          );
+                                          final hover = ValueNotifier(false);
+
+                                          return ValueListenableBuilder<bool>(
+                                            valueListenable: hover,
+                                            builder: (
+                                              context,
+                                              isHovering,
+                                              child,
+                                            ) {
+                                              return MouseRegion(
+                                                onEnter:
+                                                    (_) => hover.value = true,
+                                                onExit:
+                                                    (_) => hover.value = false,
+                                                child: Container(
+                                                  color:
+                                                      isHovering
+                                                          ? Colors.blue.shade100
+                                                          : null,
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8,
+                                                      ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Expanded(
+                                                        child: InkWell(
+                                                          onTap:
+                                                              () => onSelected(
+                                                                option,
+                                                              ),
+                                                          child: Text(
+                                                            option,
+                                                            style: TextStyle(
+                                                              fontSize: 15,
+                                                              color:
+                                                                  isHovering
+                                                                      ? Colors
+                                                                          .blue
+                                                                          .shade500
+                                                                      : Colors
+                                                                          .black,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      InkWell(
+                                                        onTap: () async {
+                                                          await HintUserName
+                                                              .instance
+                                                              .removeOneUsername(
+                                                                option,
+                                                              );
+
+                                                          setState(() {
+                                                            emailSuggestions
+                                                                .remove(option);
+                                                          });
+                                                        },
+                                                        child: const Icon(
+                                                          Icons.close,
+                                                          size: 18,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                             const SizedBox(height: 25),
 

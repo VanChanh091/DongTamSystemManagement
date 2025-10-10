@@ -281,6 +281,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
                                 Icons.badge,
                                 readOnly: isEdit,
                                 checkId: !isEdit,
+                                allCustomers: allCustomers,
+                                currentCustomerId: widget.customer?.customerId,
                               ),
                             ),
                             const SizedBox(width: 15),

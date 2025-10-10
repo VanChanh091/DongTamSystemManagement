@@ -65,6 +65,34 @@ class ValidationCustomer {
           if (!pattern.hasMatch(value)) {
             return "Mã khách hàng không được chứa ký tự đặc biệt";
           }
+
+          //check prefix
+          if (allCustomers != null && allCustomers.isNotEmpty) {
+            final prefix = value.toUpperCase();
+
+            final hasDuplicatePrefix = allCustomers.any((c) {
+              // bỏ qua khách hiện tại nếu đang edit
+              if (currentCustomerId != null &&
+                  c.customerId == currentCustomerId) {
+                return false;
+              }
+
+              if (c.customerId.length > 10) {
+                final existingPreifx = c.customerId.substring(
+                  0,
+                  c.customerId.length - 4,
+                );
+
+                return existingPreifx == prefix;
+              }
+
+              return false;
+            });
+
+            if (hasDuplicatePrefix) {
+              return "Tiền mã khách hàng đã tồn tại";
+            }
+          }
         }
 
         if (label == "SDT" && value != null && value.isNotEmpty) {
