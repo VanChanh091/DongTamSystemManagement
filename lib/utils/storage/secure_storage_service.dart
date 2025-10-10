@@ -16,6 +16,10 @@ class SecureStorageService {
     await _storage.delete(key: "auth_token");
   }
 
+  Future<void> clearAll() async {
+    await _storage.deleteAll();
+  }
+
   //============================ROLE=================================
   Future<void> saveRole(String token) async {
     await _storage.write(key: "user_role", value: token);

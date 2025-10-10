@@ -14,6 +14,8 @@ class CustomerService {
     ),
   );
 
+  // final Dio dioService = DioClient().dio;
+
   // get all
   Future<Map<String, dynamic>> getAllCustomers({
     bool refresh = false,

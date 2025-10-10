@@ -4,7 +4,7 @@ import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
@@ -146,7 +146,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                           return Row(
                                             children: [
                                               const Icon(
-                                                Icons.person_outline,
+                                                Icons.receipt_outlined,
                                                 color: Colors.blueGrey,
                                                 size: 20,
                                               ),

@@ -20,7 +20,7 @@ import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/color/theme_picker_color.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

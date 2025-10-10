@@ -1,4 +1,5 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
+import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/splashScreen/splash_screen_dongtam.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
@@ -40,7 +41,11 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: const SplashScreenDT(),
+        initialRoute: '/splash',
+        getPages: [
+          GetPage(name: '/splash', page: () => const SplashScreenDT()),
+          GetPage(name: '/login', page: () => const LoginScreen()),
+        ],
       ),
     );
   }

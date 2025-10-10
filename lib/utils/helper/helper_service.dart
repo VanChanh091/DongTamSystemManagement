@@ -12,6 +12,8 @@ class HelperService {
     ),
   );
 
+  // final Dio dioService = DioClient().dio;
+
   //get data pagination
   Future<Map<String, dynamic>> fetchPaginatedData<T>({
     required String endpoint,

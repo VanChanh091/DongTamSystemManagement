@@ -4,7 +4,7 @@ import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/sign_up.dart';
 import 'package:dongtam/presentation/screens/main/home.dart';
 import 'package:dongtam/service/auth_service.dart';
-import 'package:dongtam/utils/showSnackBar/show_snack_bar.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

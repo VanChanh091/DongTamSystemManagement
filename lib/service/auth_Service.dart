@@ -10,10 +10,12 @@ class AuthService {
   final Dio dioService = Dio(
     BaseOptions(
       baseUrl: AppInfo.BASE_URL,
-      connectTimeout: Duration(seconds: 5),
-      receiveTimeout: Duration(seconds: 5),
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
     ),
   );
+
+  // final Dio dioService = DioClient().dio;
 
   //jwt
   final SecureStorageService secureStorage = SecureStorageService();
