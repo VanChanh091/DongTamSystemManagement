@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/data/models/report/report_planning_box.dart';
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
+import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
@@ -11,13 +11,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:diacritic/diacritic.dart';
 
 class ReportPlanningService {
-  final Dio dioService = Dio(
-    BaseOptions(
-      baseUrl: AppInfo.BASE_URL,
-      connectTimeout: Duration(seconds: 10),
-      receiveTimeout: Duration(seconds: 10),
-    ),
-  );
+  final Dio dioService = DioClient().dio;
 
   //============================REPORT PAPER=================================
   Future<Map<String, dynamic>> getReportPaper({

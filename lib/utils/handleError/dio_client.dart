@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/app_info.dart';
+import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:page_transition/page_transition.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
@@ -10,13 +13,11 @@ class DioClient {
   DioClient._internal();
 
   late Dio dio;
-
   final SecureStorageService _storage = SecureStorageService();
+  bool _isShowingDialog = false;
 
   Future<void> init() async {
     final token = await _storage.getToken();
-
-    print("init dio client");
 
     dio = Dio(
       BaseOptions(
@@ -33,22 +34,77 @@ class DioClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onError: (DioException e, handler) async {
-          print('⚠️ Dio error caught!');
-          print('🔸 StatusCode: ${e.response?.statusCode}');
-          print('🔸 Response: ${e.response?.data}');
-
           if (e.response?.statusCode == 401) {
             final message = e.response?.data?['message'] ?? "";
-            print(message);
+
             if (message.toString().toLowerCase().contains('expired')) {
-              print("🚨 TOKEN EXPIRED");
               AppLogger.w(
                 "🔁 Token expired — clearing storage and redirecting to login",
               );
 
-              //token het han -> login
-              await _storage.clearAll();
-              Get.offAllNamed('/login');
+              if (!_isShowingDialog) {
+                _isShowingDialog = true;
+                Get.dialog(
+                  AlertDialog(
+                    backgroundColor: Colors.white,
+                    title: const Center(
+                      child: Text(
+                        'Phiên đăng nhập đã hết hạn',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                    content: const Text(
+                      'Vui lòng đăng nhập lại để tiếp tục sử dụng ứng dụng.',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    actionsPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          _isShowingDialog = false;
+                          Get.back(); //đóng dialog và back
+                          await _storage.clearAll();
+                          Navigator.pushAndRemoveUntil(
+                            Get.context!,
+                            PageTransition(
+                              type: PageTransitionType.fade,
+                              duration: const Duration(milliseconds: 500),
+                              child: LoginScreen(),
+                            ),
+                            (route) => false,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff78D761),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Đăng nhập lại',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  barrierDismissible: false, //không cho đóng dialog
+                );
+              }
+
               return;
             }
           }

@@ -1,19 +1,13 @@
 import 'package:dio/dio.dart';
-import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class ManufactureService {
-  final Dio dioService = Dio(
-    BaseOptions(
-      baseUrl: AppInfo.BASE_URL,
-      connectTimeout: Duration(seconds: 10),
-      receiveTimeout: Duration(seconds: 10),
-    ),
-  );
+  final Dio dioService = DioClient().dio;
 
   //===============================MANUFACTURE PAPER====================================
 

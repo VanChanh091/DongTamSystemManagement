@@ -1,21 +1,13 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
+import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:dongtam/constant/app_info.dart';
 import 'package:get/get.dart';
 
 class AuthService {
-  final Dio dioService = Dio(
-    BaseOptions(
-      baseUrl: AppInfo.BASE_URL,
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 5),
-    ),
-  );
-
-  // final Dio dioService = DioClient().dio;
+  final Dio dioService = DioClient().dio;
 
   //jwt
   final SecureStorageService secureStorage = SecureStorageService();

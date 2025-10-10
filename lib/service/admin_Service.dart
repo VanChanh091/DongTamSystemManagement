@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/data/models/admin/admin_machine_box_model.dart';
 import 'package:dongtam/data/models/admin/admin_machine_paper_model.dart';
 import 'package:dongtam/data/models/admin/admin_waste_norm_model.dart';
@@ -7,18 +6,13 @@ import 'package:dongtam/data/models/admin/admin_waste_box_model.dart';
 import 'package:dongtam/data/models/admin/admin_wave_crest_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
+import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class AdminService {
-  final Dio dioService = Dio(
-    BaseOptions(
-      baseUrl: AppInfo.BASE_URL,
-      connectTimeout: Duration(seconds: 10),
-      receiveTimeout: Duration(seconds: 10),
-    ),
-  );
+  final Dio dioService = DioClient().dio;
 
   //===============================ORDER====================================
 

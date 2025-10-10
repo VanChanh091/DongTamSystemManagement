@@ -1,18 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:dongtam/constant/app_info.dart';
+import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class HelperService {
-  final Dio dioService = Dio(
-    BaseOptions(
-      baseUrl: AppInfo.BASE_URL,
-      connectTimeout: Duration(seconds: 10),
-      receiveTimeout: Duration(seconds: 10),
-    ),
-  );
-
-  // final Dio dioService = DioClient().dio;
+  final Dio dioService = DioClient().dio;
 
   //get data pagination
   Future<Map<String, dynamic>> fetchPaginatedData<T>({
