@@ -57,10 +57,15 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       futurePlanning = Future.error("NO_PERMISSION");
     }
 
-    columns = buildMachineColumns(
-      isShowPlanningPaper: true,
-      themeController: themeController,
-    );
+    columns = buildMachineColumns(themeController: themeController);
+
+    final now = DateTime.now();
+    dayStartController.text =
+        "${now.day.toString().padLeft(2, '0')}/"
+        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.year}";
+    timeStartController.text = '6:00';
+    totalTimeWorkingController.text = "24";
   }
 
   void loadPlanning(bool refresh) {

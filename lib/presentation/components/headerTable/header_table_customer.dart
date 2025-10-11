@@ -4,12 +4,12 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> headerCustomer = [
-  {"key": "customerId", "title": "Mã KH"},
-  {"key": "maSoThue", "title": "MST"},
-  {"key": "customerName", "title": "Tên KH"},
-  {"key": "phone", "title": "SDT"},
+  {"key": "customerId", "title": "Mã Khách Hàng"},
+  {"key": "maSoThue", "title": "Mã Số Thuế"},
+  {"key": "customerName", "title": "Tên Khách Hàng"},
+  {"key": "phone", "title": "Số Điện Thoại"},
   {"key": "contactPerson", "title": "Người Liên Hệ"},
-  {"key": "dayCreatedCus", "title": "Ngày Tạo KH"},
+  {"key": "dayCreatedCus", "title": "Ngày Tạo"},
   {"key": "debtLimitCustomer", "title": "Hạn Mức Công Nợ"},
   {"key": "debtCurrentCustomer", "title": "Công Nợ Hiện Tại"},
   {"key": "termPaymentCost", "title": "Hạn Thanh Toán"},

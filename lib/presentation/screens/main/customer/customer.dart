@@ -5,10 +5,12 @@ import 'package:dongtam/presentation/components/headerTable/header_table_custome
 import 'package:dongtam/presentation/sources/customer_data_source.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:get/get.dart';
@@ -29,6 +31,7 @@ class _CustomerPageState extends State<CustomerPage> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   TextEditingController searchController = TextEditingController();
+  Map<String, double> columnWidths = {}; //map header table
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
@@ -36,7 +39,7 @@ class _CustomerPageState extends State<CustomerPage> {
   String? selectedCustomerId;
 
   int currentPage = 1;
-  int pageSize = 30;
+  int pageSize = 4;
   int pageSizeSearch = 20;
 
   @override
@@ -45,6 +48,14 @@ class _CustomerPageState extends State<CustomerPage> {
     loadCustomer(true);
 
     columns = buildCustomerColumn(themeController: themeController);
+
+    ColumnWidthTable.loadWidths(tableKey: 'customer', columns: columns).then((
+      w,
+    ) {
+      setState(() {
+        columnWidths = w;
+      });
+    });
   }
 
   void loadCustomer(bool refresh) {
@@ -95,6 +106,8 @@ class _CustomerPageState extends State<CustomerPage> {
           ),
         );
       }
+
+      selectedCustomerId = null;
     });
   }
 
@@ -466,6 +479,7 @@ class _CustomerPageState extends State<CustomerPage> {
                     customer: customers,
                     selectedCustomerId: selectedCustomerId,
                   );
+
                   return Column(
                     children: [
                       //table
@@ -475,10 +489,32 @@ class _CustomerPageState extends State<CustomerPage> {
                           isScrollbarAlwaysShown: true,
                           columnWidthMode: ColumnWidthMode.auto,
                           selectionMode: SelectionMode.single,
-                          columns: columns,
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columns,
+                            widths: columnWidths,
+                          ),
                           headerRowHeight: 45,
                           rowHeight: 40,
-                          // frozenColumnsCount: 1, //cố định cột đầu tiên
+
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: setState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: 'customer',
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {
                               final selectedRow = addedRows.first;

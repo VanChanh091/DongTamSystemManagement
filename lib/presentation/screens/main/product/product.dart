@@ -10,6 +10,7 @@ import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -29,6 +30,7 @@ class _ProductPageState extends State<ProductPage> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   TextEditingController searchController = TextEditingController();
+  Map<String, double> columnWidths = {};
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
@@ -45,6 +47,14 @@ class _ProductPageState extends State<ProductPage> {
     loadProduct(true);
 
     columns = buildProductColumn(themeController: themeController);
+
+    ColumnWidthTable.loadWidths(tableKey: 'product', columns: columns).then((
+      w,
+    ) {
+      setState(() {
+        columnWidths = w;
+      });
+    });
   }
 
   void loadProduct(bool refresh) {
@@ -79,6 +89,8 @@ class _ProductPageState extends State<ProductPage> {
           ),
         );
       }
+
+      selectedProductId = null;
     });
   }
 
@@ -440,6 +452,45 @@ class _ProductPageState extends State<ProductPage> {
                           columns: columns,
                           headerRowHeight: 45,
                           rowHeight: 40,
+
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+
+                          onColumnResizeStart: (
+                            ColumnResizeStartDetails details,
+                          ) {
+                            return true; // Cho phép resize tất cả cột
+                          },
+                          onColumnResizeUpdate: (
+                            ColumnResizeUpdateDetails details,
+                          ) {
+                            if (details.width < 50) return false;
+
+                            setState(() {
+                              final old = columns[details.columnIndex];
+                              columns[details.columnIndex] = GridColumn(
+                                columnName: old.columnName,
+                                label: old.label,
+                                width: details.width,
+                              );
+                            });
+                            return true;
+                          },
+                          onColumnResizeEnd: (details) {
+                            if (details.width >= 10) {
+                              ColumnWidthTable.saveWidth(
+                                tableKey: 'customer',
+                                columnName: details.column.columnName,
+                                width: details.width,
+                              );
+                              setState(() {
+                                columnWidths[details.column.columnName] =
+                                    details.width;
+                              });
+                            }
+                          },
+
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {
                               final selectedRow = addedRows.first;

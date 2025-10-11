@@ -45,10 +45,7 @@ class _PaperProductionState extends State<PaperProduction> {
     registerSocket();
     loadPlanning(true);
 
-    columns = buildMachineColumns(
-      hasBox: true,
-      themeController: themeController,
-    );
+    columns = buildMachineColumns(themeController: themeController);
   }
 
   void loadPlanning(bool refresh) {

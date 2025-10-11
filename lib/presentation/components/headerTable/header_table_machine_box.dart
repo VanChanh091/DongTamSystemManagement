@@ -5,20 +5,19 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> machineBoxColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
-  {"key": "planningBoxId", "title": "", "visible": false},
   {"key": "customerName", "title": "Tên Khách Hàng"},
-  {"key": "dateShipping", "title": "Ngày YC Giao"},
-  {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
-  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
+  {"key": "dateShipping", "title": "Ngày Dự Kiến Giao"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "length", "title": "Dài"},
   {"key": "size", "title": "Khổ"},
   {"key": "child", "title": "Số Con"},
-  {"key": "quantityOrd", "title": "SL Đơn Hàng"},
-  {"key": "runningPlans", "title": "SL Giấy Tấm"},
+  {"key": "quantityOrd", "title": "Đơn Hàng"},
+  {"key": "runningPlans", "title": "Giấy Tấm"},
   {"key": "timeRunnings", "title": "Thời Gian Chạy"},
+
+  //quantity
   {"key": "qtyPrinted", "title": "In"},
   {"key": "qtyCanLan", "title": "Cấn Lằn"},
   {"key": "qtyCanMang", "title": "Cán Màng"},
@@ -27,23 +26,24 @@ final List<Map<String, dynamic>> machineBoxColumns = [
   {"key": "qtyBe", "title": "Bế"},
   {"key": "qtyDan", "title": "Dán"},
   {"key": "qtyDongGhim", "title": "Đóng Ghim"},
-  {"key": "inMatTruoc", "title": "In Mặt Trước"},
-  {"key": "inMatSau", "title": "In Mặt Sau"},
-  {"key": "dan_1_Manh", "title": "Dán 1 Mảnh"},
-  {"key": "dan_2_Manh", "title": "Dán 2 Mảnh"},
-  {"key": "dongGhim1Manh", "title": "ĐGhim 1 Mảnh"},
-  {"key": "dongGhim2Manh", "title": "ĐGhim 2 Mảnh"},
+  {"key": "inMatTruoc", "title": "Mặt Trước"},
+  {"key": "inMatSau", "title": "Mặt Sau"},
+  {"key": "dan_1_Manh", "title": "1 Mảnh"},
+  {"key": "dan_2_Manh", "title": "2 Mảnh"},
+  {"key": "dongGhim1Manh", "title": "1 Mảnh"},
+  {"key": "dongGhim2Manh", "title": "2 Mảnh"},
+
+  //waste
   {"key": "dmWasteLoss", "title": "Định Mức PL"},
-  {"key": "wasteActually", "title": "PL Thực Tế"},
+  {"key": "wasteActually", "title": "PL Báo Cáo"},
   {"key": "shiftManager", "title": "Trưởng Máy"},
+
+  // hidden technical fields
   {"key": "status", "title": "", "visible": false},
   {"key": "index", "title": "Index", "visible": false},
-  // {"key": "wasteCanMang", "title": "Phế Liệu"},
-  // {"key": "wasteNormXa", "title": "Phế Liệu"},
-  // {"key": "wasteCatKhe", "title": "Phế Liệu"},
-  // {"key": "wasteNormBe", "title": "Phế Liệu"},
-  // {"key": "wasteDan", "title": "Phế Liệu"},
-  // {"key": "wasteDGhim", "title": "Phế Liệu"},
+  {"key": "planningBoxId", "title": "", "visible": false},
+  {"key": "dayStartProduction", "title": "Ngày Sản Xuất", "visible": false},
+  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành", "visible": false},
 ];
 
 List<GridColumn> buildMachineBoxColumns({

@@ -37,7 +37,6 @@ class MachinePaperDatasource extends DataGridSource {
   List<DataGridCell> buildPlanningInfoCells(PlanningPaper planning) {
     return [
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
-      DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
       DataGridCell<String>(
         columnName: 'customerName',
         value: planning.order?.customer?.customerName ?? '',
@@ -48,20 +47,6 @@ class MachinePaperDatasource extends DataGridSource {
             planning.order?.dateRequestShipping != null
                 ? formatter.format(planning.order!.dateRequestShipping)
                 : '',
-      ),
-      DataGridCell<String?>(
-        columnName: "dayStartProduction",
-        value:
-            planning.dayStart != null
-                ? formatter.format(planning.dayStart!)
-                : null,
-      ),
-      DataGridCell<String?>(
-        columnName: "dayCompletedProd",
-        value:
-            planning.dayCompleted != null
-                ? formatterDayCompleted.format(planning.dayCompleted!)
-                : null,
       ),
       DataGridCell<String>(
         columnName: 'structure',
@@ -88,6 +73,13 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'khoCapGiay',
         value: '${planning.ghepKho} cm',
       ),
+      DataGridCell<String>(
+        columnName: 'timeRunningProd',
+        value:
+            planning.timeRunning != null
+                ? PlanningPaper.formatTimeOfDay(planning.timeRunning!)
+                : '',
+      ),
       DataGridCell<int>(
         columnName: 'quantityOrd',
         value: planning.order?.quantityManufacture ?? 0,
@@ -97,13 +89,6 @@ class MachinePaperDatasource extends DataGridSource {
         value: planning.runningPlan,
       ),
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
-      DataGridCell<String>(
-        columnName: 'timeRunnings',
-        value:
-            planning.timeRunning != null
-                ? PlanningPaper.formatTimeOfDay(planning.timeRunning!)
-                : '',
-      ),
       DataGridCell<String>(
         columnName: "HD_special",
         value: planning.order?.instructSpecial ?? '',
@@ -158,69 +143,29 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'shiftManager',
         value: planning.shiftManagement,
       ),
-    ];
-  }
+      DataGridCell<bool>(
+        columnName: 'haveMadeBox',
+        value: planning.order!.isBox,
+      ),
 
-  List<DataGridCell> buildBoxCell(PlanningPaper planning) {
-    final boxCell = planning.order!.box;
-    return [
-      if (isShowPlanningPaper == true) ...[
-        DataGridCell<int>(
-          columnName: 'inMatTruoc',
-          value: boxCell?.inMatTruoc ?? 0,
-        ),
-        DataGridCell<int>(
-          columnName: 'inMatSau',
-          value: boxCell?.inMatSau ?? 0,
-        ),
-        DataGridCell<bool>(
-          columnName: 'chongTham',
-          value: boxCell?.chongTham ?? false,
-        ),
-        DataGridCell<bool>(
-          columnName: 'canLanBox',
-          value: boxCell?.canLan ?? false,
-        ),
-        DataGridCell<bool>(
-          columnName: 'canMang',
-          value: boxCell?.canMang ?? false,
-        ),
-        DataGridCell<bool>(columnName: 'xa', value: boxCell?.Xa ?? false),
-        DataGridCell<bool>(
-          columnName: 'catKhe',
-          value: boxCell?.catKhe ?? false,
-        ),
-        DataGridCell<bool>(columnName: 'be', value: boxCell?.be ?? false),
-        DataGridCell<String>(
-          columnName: 'maKhuon',
-          value: boxCell?.maKhuon ?? "",
-        ),
-        DataGridCell<bool>(
-          columnName: 'dan_1_Manh',
-          value: boxCell?.dan_1_Manh ?? false,
-        ),
-        DataGridCell<bool>(
-          columnName: 'dan_2_Manh',
-          value: boxCell?.dan_2_Manh ?? false,
-        ),
-        DataGridCell<bool>(
-          columnName: 'dongGhimMotManh',
-          value: boxCell?.dongGhim1Manh ?? false,
-        ),
-        DataGridCell<bool>(
-          columnName: 'dongGhimHaiManh',
-          value: boxCell?.dongGhim2Manh ?? false,
-        ),
-        DataGridCell<String>(
-          columnName: 'dongGoi',
-          value: boxCell?.dongGoi ?? "",
-        ),
-      ],
-      if (hasBox == true) ...[
-        DataGridCell<bool>(columnName: 'hasMadeBox', value: planning.hasBox),
-      ],
+      // hidden technical fields
       DataGridCell<String>(columnName: "status", value: planning.status),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
+      DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
+      DataGridCell<String?>(
+        columnName: "dayStartProduction",
+        value:
+            planning.dayStart != null
+                ? formatter.format(planning.dayStart!)
+                : null,
+      ),
+      DataGridCell<String?>(
+        columnName: "dayCompletedProd",
+        value:
+            planning.dayCompleted != null
+                ? formatterDayCompleted.format(planning.dayCompleted!)
+                : null,
+      ),
     ];
   }
 
@@ -236,19 +181,7 @@ class MachinePaperDatasource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = [
-      'canMang',
-      "canLanBox",
-      'xa',
-      'catKhe',
-      'be',
-      'dan_1_Manh',
-      'dan_2_Manh',
-      'dongGhimMotManh',
-      'dongGhimHaiManh',
-      'chongTham',
-      "hasMadeBox",
-    ];
+    const boolColumns = ["haveMadeBox"];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
@@ -266,7 +199,6 @@ class MachinePaperDatasource extends DataGridSource {
                 cells: [
                   ...buildPlanningInfoCells(planning),
                   ...buildWasteNormCell(planning),
-                  ...buildBoxCell(planning),
                 ],
               ),
             )

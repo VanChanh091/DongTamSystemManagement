@@ -58,6 +58,14 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
       machine: machine,
       themeController: themeController,
     );
+
+    final now = DateTime.now();
+    dayStartController.text =
+        "${now.day.toString().padLeft(2, '0')}/"
+        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.year}";
+    timeStartController.text = '6:00';
+    totalTimeWorkingController.text = "12";
   }
 
   void loadPlanning(bool refresh) {
@@ -800,6 +808,42 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                             child: Obx(
                               () => formatColumn(
                                 label: 'Số Lượng Của Các Công Đoạn',
+                                themeController: themeController,
+                              ),
+                            ),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: ["quantityOrd", "runningPlans"],
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Số Lượng',
+                                themeController: themeController,
+                              ),
+                            ),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: ["inMatTruoc", "inMatSau"],
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'In Ấn',
+                                themeController: themeController,
+                              ),
+                            ),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: ["dan_1_Manh", "dan_2_Manh"],
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Dán',
+                                themeController: themeController,
+                              ),
+                            ),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Đóng Ghim',
                                 themeController: themeController,
                               ),
                             ),
