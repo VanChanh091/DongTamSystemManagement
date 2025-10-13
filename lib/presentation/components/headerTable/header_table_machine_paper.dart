@@ -7,7 +7,7 @@ final List<Map<String, dynamic>> machinePaperColumns = [
   // planning
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
-  {"key": "dateShipping", "title": "Ngày Dự Kiến Giao"},
+  {"key": "dateShipping", "title": "Ngày Giao Dự Kiến"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "daoXa", "title": "Dao Xả"},

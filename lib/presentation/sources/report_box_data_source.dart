@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/report/report_planning_box.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -357,25 +358,10 @@ class ReportBoxDatasource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return Container(
+            return formatDataTable(
+              label: _formatCellValueBool(dataCell),
               alignment: alignment,
-              decoration: BoxDecoration(
-                color: cellColor,
-                border: Border(
-                  right: BorderSide(color: Colors.grey.shade300, width: 1),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 4.0,
-              ),
-              child: Text(
-                _formatCellValueBool(dataCell),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
+              cellColor: cellColor,
             );
           }).toList(),
     );

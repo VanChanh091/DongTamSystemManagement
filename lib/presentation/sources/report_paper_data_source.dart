@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -158,7 +159,7 @@ class ReportPaperDatasource extends DataGridSource {
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
-      return value == true ? 'Có' : '';
+      return value == true ? '✅' : '';
     }
 
     return value?.toString() ?? '';
@@ -237,33 +238,33 @@ class ReportPaperDatasource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            Color cellColor = Colors.transparent;
+            final cellText = _formatCellValueBool(dataCell);
 
+            Alignment alignment;
+            if (dataCell.value is num) {
+              alignment = Alignment.centerRight;
+            } else if (cellText == '✅') {
+              alignment = Alignment.center;
+            } else {
+              alignment = Alignment.centerLeft;
+            }
+
+            Color cellColor = Colors.transparent;
             if (dataCell.columnName == 'qtyReported') {
               final qty = dataCell.value;
               if (qty > 0) {
                 cellColor = Colors.amberAccent.withValues(alpha: 0.3);
               }
-            }
-
-            if (dataCell.columnName == "lackOfQty") {
+            } else if (dataCell.columnName == "lackOfQty") {
               final int value = dataCell.value ?? 0;
               final String display =
                   value < 0 ? "+${value.abs()}" : value.toString();
 
               Color textColor = Colors.black;
-
               if (value > 0) {
                 textColor = Colors.redAccent;
               } else if (value < 0) {
                 textColor = Colors.green;
-              }
-
-              Alignment alignment;
-              if (dataCell.value is num) {
-                alignment = Alignment.centerRight;
-              } else {
-                alignment = Alignment.centerLeft;
               }
 
               return Container(
@@ -284,25 +285,10 @@ class ReportPaperDatasource extends DataGridSource {
               );
             }
 
-            return Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: cellColor,
-                border: Border(
-                  right: BorderSide(color: Colors.grey.shade300, width: 1),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 4.0,
-              ),
-              child: Text(
-                _formatCellValueBool(dataCell),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
+            return formatDataTable(
+              label: _formatCellValueBool(dataCell),
+              alignment: alignment,
+              cellColor: cellColor,
             );
           }).toList(),
     );

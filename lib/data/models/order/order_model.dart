@@ -174,10 +174,6 @@ class Order {
     return '${layers.length}${uniqueFlutes.join()}';
   }
 
-  String formatIsBox(bool isBox) {
-    return isBox ? "Có" : "";
-  }
-
   int get totalRunningPlan {
     if (planningPaper == null || planningPaper!.isEmpty) {
       return 0;

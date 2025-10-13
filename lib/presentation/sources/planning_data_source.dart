@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:intl/intl.dart';
@@ -79,10 +80,7 @@ class PlanningDataSource extends DataGridSource {
         columnName: 'totalPriceAfterVAT',
         value: Order.formatCurrency(order.totalPriceVAT),
       ),
-      DataGridCell<String>(
-        columnName: 'haveMadeBox',
-        value: order.formatIsBox(order.isBox),
-      ),
+      DataGridCell<bool>(columnName: 'haveMadeBox', value: order.isBox),
     ];
   }
 
@@ -103,34 +101,14 @@ class PlanningDataSource extends DataGridSource {
   String formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = [
-      'canMang',
-      'xa',
-      'catKhe',
-      'be',
-      'dan_1_Manh',
-      'dan_2_Manh',
-      'dongGhimMotManh',
-      'dongGhimHaiManh',
-      'chongTham',
-    ];
+    const boolColumns = ["haveMadeBox"];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
-      return value == true ? 'Có' : '';
+      return value == true ? '✅' : '';
     }
 
     return value?.toString() ?? '';
-  }
-
-  void removeItemById(String orderId) {
-    orders.removeWhere((order) => order.orderId == orderId);
-    buildDataCell();
-  }
-
-  void removeAll() {
-    orders.clear();
-    buildDataCell();
   }
 
   void buildDataCell() {
@@ -159,31 +137,20 @@ class PlanningDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            final cellText = formatCellValueBool(dataCell);
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
+            } else if (cellText == '✅') {
+              alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;
             }
 
-            return Container(
+            return formatDataTable(
+              label: formatCellValueBool(dataCell),
               alignment: alignment,
-              decoration: BoxDecoration(
-                border: Border(
-                  right: BorderSide(color: Colors.grey.shade300, width: 1),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 4.0,
-              ),
-              child: Text(
-                formatCellValueBool(dataCell),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
             );
           }).toList(),
     );

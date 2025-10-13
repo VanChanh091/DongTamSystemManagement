@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -84,11 +85,11 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'quantityOrd',
         value: planning.order?.quantityManufacture ?? 0,
       ),
+      DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       DataGridCell<int>(
         columnName: "runningPlanProd",
         value: planning.runningPlan,
       ),
-      DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       DataGridCell<String>(
         columnName: "HD_special",
         value: planning.order?.instructSpecial ?? '',
@@ -373,6 +374,7 @@ class MachinePaperDatasource extends DataGridSource {
       cells:
           row.getCells().map<Widget>((dataCell) {
             final cellText = _formatCellValueBool(dataCell);
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
@@ -386,32 +388,15 @@ class MachinePaperDatasource extends DataGridSource {
             if (dataCell.columnName == "qtyProduced" &&
                 qtyProduct < runningPlan) {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
-            }
-
-            if (dataCell.columnName == "qtyWastes" &&
+            } else if (dataCell.columnName == "qtyWastes" &&
                 qtyWastesVal > totalWasteLossVal) {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
             }
 
-            return Container(
+            return formatDataTable(
+              label: _formatCellValueBool(dataCell),
               alignment: alignment,
-              decoration: BoxDecoration(
-                color: cellColor,
-                border: Border(
-                  right: BorderSide(color: Colors.grey.shade300, width: 1),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 4.0,
-              ),
-              child: Text(
-                _formatCellValueBool(dataCell),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
+              cellColor: cellColor,
             );
           }).toList(),
     );

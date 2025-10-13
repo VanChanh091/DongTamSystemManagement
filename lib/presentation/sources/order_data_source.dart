@@ -1,6 +1,7 @@
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -235,16 +236,6 @@ class OrderDataSource extends DataGridSource {
     return value?.toString() ?? '';
   }
 
-  void removeItemById(String orderId) {
-    orders.removeWhere((order) => order.orderId == orderId);
-    buildDataCell();
-  }
-
-  void removeAll() {
-    orders.clear();
-    buildDataCell();
-  }
-
   void buildDataCell() {
     orderDataGridRows =
         orders
@@ -303,24 +294,9 @@ class OrderDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return Container(
+            return formatDataTable(
+              label: _formatCellValueBool(dataCell),
               alignment: alignment,
-              decoration: BoxDecoration(
-                border: Border(
-                  right: BorderSide(color: Colors.grey.shade300, width: 1),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 4.0,
-              ),
-              child: Text(
-                _formatCellValueBool(dataCell),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
             );
           }).toList(),
     );

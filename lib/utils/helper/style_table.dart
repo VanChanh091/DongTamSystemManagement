@@ -52,11 +52,32 @@ Widget formatColumn({
     ),
     child: Text(
       label,
+      overflow: TextOverflow.ellipsis,
       style: const TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 15,
         color: Colors.white,
       ),
+    ),
+  );
+}
+
+Widget formatDataTable({
+  required String label,
+  required Alignment alignment,
+  Color cellColor = Colors.transparent,
+}) {
+  return Container(
+    alignment: alignment,
+    decoration: BoxDecoration(
+      color: cellColor,
+      border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+    child: Text(
+      label,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
     ),
   );
 }
