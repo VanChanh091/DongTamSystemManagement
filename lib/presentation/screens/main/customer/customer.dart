@@ -489,12 +489,12 @@ class _CustomerPageState extends State<CustomerPage> {
                           isScrollbarAlwaysShown: true,
                           columnWidthMode: ColumnWidthMode.auto,
                           selectionMode: SelectionMode.single,
+                          headerRowHeight: 45,
+                          rowHeight: 40,
                           columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
                             widths: columnWidths,
                           ),
-                          headerRowHeight: 45,
-                          rowHeight: 40,
 
                           //auto resize
                           allowColumnsResizing: true,

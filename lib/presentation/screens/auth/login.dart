@@ -119,8 +119,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             // Email
                             Autocomplete<String>(
                               optionsBuilder: (textEditingValue) {
-                                if (textEditingValue.text.isEmpty)
+                                if (textEditingValue.text.isEmpty) {
                                   return emailSuggestions;
+                                }
                                 return emailSuggestions.where(
                                   (email) => email.toLowerCase().contains(
                                     textEditingValue.text.toLowerCase(),

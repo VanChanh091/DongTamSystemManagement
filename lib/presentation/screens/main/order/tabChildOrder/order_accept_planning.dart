@@ -5,10 +5,12 @@ import 'package:dongtam/presentation/components/headerTable/header_table_order.d
 import 'package:dongtam/presentation/sources/order_data_source.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
+import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -29,6 +31,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
   TextEditingController searchController = TextEditingController();
+  Map<String, double> columnWidths = {};
   String searchType = "Tất cả";
   String? selectedOrderId;
   bool isTextFieldEnabled = false;
@@ -48,6 +51,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
       themeController: themeController,
       userController: userController,
     );
+
+    ColumnWidthTable.loadWidths(tableKey: 'order', columns: columns).then((w) {
+      setState(() {
+        columnWidths = w;
+      });
+    });
   }
 
   void loadOrders(bool refresh, bool ownOnly) {
@@ -373,9 +382,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                           isScrollbarAlwaysShown: true,
                           selectionMode: SelectionMode.single,
                           columnWidthMode: ColumnWidthMode.auto,
-                          columns: columns,
                           headerRowHeight: 40,
                           rowHeight: 40,
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columns,
+                            widths: columnWidths,
+                          ),
                           stackedHeaderRows: <StackedHeaderRow>[
                             StackedHeaderRow(
                               cells: [
@@ -406,6 +418,26 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                               ],
                             ),
                           ],
+
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: setState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: 'order',
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {
                               final selectedRow = addedRows.first;

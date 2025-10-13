@@ -6,8 +6,10 @@ import 'package:dongtam/presentation/components/headerTable/header_table_plannin
 import 'package:dongtam/presentation/sources/planning_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
+import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -27,6 +29,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
+  Map<String, double> columnWidths = {};
   String? selectedOrderId;
 
   @override
@@ -40,6 +43,15 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
     }
 
     columns = buildColumnPlanning(themeController: themeController);
+
+    ColumnWidthTable.loadWidths(
+      tableKey: 'waitingPlanning',
+      columns: columns,
+    ).then((w) {
+      setState(() {
+        columnWidths = w;
+      });
+    });
   }
 
   void loadOrders(bool refresh) {
@@ -219,12 +231,35 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
                   return SfDataGrid(
                     source: planningDataSource,
-                    columns: columns,
                     isScrollbarAlwaysShown: true,
                     columnWidthMode: ColumnWidthMode.auto,
                     selectionMode: SelectionMode.single,
+                    columns: ColumnWidthTable.applySavedWidths(
+                      columns: columns,
+                      widths: columnWidths,
+                    ),
                     headerRowHeight: 50,
                     rowHeight: 40,
+
+                    //auto resize
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
+
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate:
+                        (details) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: columns,
+                          setState: setState,
+                        ),
+                    onColumnResizeEnd:
+                        (details) => GridResizeHelper.onResizeEnd(
+                          details: details,
+                          tableKey: 'waitingPlanning',
+                          columnWidths: columnWidths,
+                          setState: setState,
+                        ),
+
                     onSelectionChanged: (addedRows, removedRows) {
                       if (addedRows.isNotEmpty) {
                         final selectedRow = addedRows.first;

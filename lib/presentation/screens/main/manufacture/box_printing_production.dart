@@ -8,10 +8,12 @@ import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -34,10 +36,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, int> orderIdToPlanningId = {};
   final DataGridController dataGridController = DataGridController();
-  String machine = "Máy In";
+  Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
   List<PlanningBox> planningList = [];
   DateTime? dayStart = DateTime.now();
+  String machine = "Máy In";
   bool showGroup = true;
 
   @override
@@ -51,6 +54,14 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
       machine: machine,
       themeController: themeController,
     );
+
+    ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((
+      w,
+    ) {
+      setState(() {
+        columnWidths = w;
+      });
+    });
   }
 
   void loadPlanning(bool refresh) {
@@ -472,9 +483,12 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: columns,
                     headerRowHeight: 40,
                     rowHeight: 40,
+                    columns: ColumnWidthTable.applySavedWidths(
+                      columns: columns,
+                      widths: columnWidths,
+                    ),
                     stackedHeaderRows: <StackedHeaderRow>[
                       StackedHeaderRow(
                         cells: [
@@ -497,6 +511,26 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                         ],
                       ),
                     ],
+
+                    //auto resize
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
+
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate:
+                        (details) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: columns,
+                          setState: setState,
+                        ),
+                    onColumnResizeEnd:
+                        (details) => GridResizeHelper.onResizeEnd(
+                          details: details,
+                          tableKey: 'queueBox',
+                          columnWidths: columnWidths,
+                          setState: setState,
+                        ),
+
                     onSelectionChanged: (addedRows, removedRows) {
                       final selectedRow = addedRows.first;
                       final planningBoxId =

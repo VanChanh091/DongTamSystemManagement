@@ -5,10 +5,12 @@ import 'package:dongtam/presentation/components/headerTable/header_table_machine
 import 'package:dongtam/presentation/sources/machine_box_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -30,6 +32,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
+  Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
   String searchType = "Tất cả";
   String machine = "Máy In";
@@ -58,6 +61,14 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
       machine: machine,
       themeController: themeController,
     );
+
+    ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((
+      w,
+    ) {
+      setState(() {
+        columnWidths = w;
+      });
+    });
 
     final now = DateTime.now();
     dayStartController.text =
@@ -788,9 +799,12 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: columns,
                     headerRowHeight: 40,
                     rowHeight: 40,
+                    columns: ColumnWidthTable.applySavedWidths(
+                      columns: columns,
+                      widths: columnWidths,
+                    ),
                     stackedHeaderRows: <StackedHeaderRow>[
                       StackedHeaderRow(
                         cells: [
@@ -851,6 +865,26 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                         ],
                       ),
                     ],
+
+                    //auto resize
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
+
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate:
+                        (details) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: columns,
+                          setState: setState,
+                        ),
+                    onColumnResizeEnd:
+                        (details) => GridResizeHelper.onResizeEnd(
+                          details: details,
+                          tableKey: 'queueBox',
+                          columnWidths: columnWidths,
+                          setState: setState,
+                        ),
+
                     onSelectionChanged: (addedRows, removedRows) {
                       final selectedRow = addedRows.first;
                       final planningBoxId =

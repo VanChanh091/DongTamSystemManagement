@@ -6,6 +6,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_product
 import 'package:dongtam/presentation/sources/product_data_source.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -449,47 +450,31 @@ class _ProductPageState extends State<ProductPage> {
                           gridLinesVisibility: GridLinesVisibility.both,
                           headerGridLinesVisibility: GridLinesVisibility.both,
                           selectionMode: SelectionMode.single,
-                          columns: columns,
                           headerRowHeight: 45,
                           rowHeight: 40,
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columns,
+                            widths: columnWidths,
+                          ),
 
                           //auto resize
                           allowColumnsResizing: true,
                           columnResizeMode: ColumnResizeMode.onResize,
 
-                          onColumnResizeStart: (
-                            ColumnResizeStartDetails details,
-                          ) {
-                            return true; // Cho phép resize tất cả cột
-                          },
-                          onColumnResizeUpdate: (
-                            ColumnResizeUpdateDetails details,
-                          ) {
-                            if (details.width < 50) return false;
-
-                            setState(() {
-                              final old = columns[details.columnIndex];
-                              columns[details.columnIndex] = GridColumn(
-                                columnName: old.columnName,
-                                label: old.label,
-                                width: details.width,
-                              );
-                            });
-                            return true;
-                          },
-                          onColumnResizeEnd: (details) {
-                            if (details.width >= 10) {
-                              ColumnWidthTable.saveWidth(
-                                tableKey: 'customer',
-                                columnName: details.column.columnName,
-                                width: details.width,
-                              );
-                              setState(() {
-                                columnWidths[details.column.columnName] =
-                                    details.width;
-                              });
-                            }
-                          },
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: setState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: 'product',
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
 
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {

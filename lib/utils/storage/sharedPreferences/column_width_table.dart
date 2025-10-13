@@ -37,8 +37,6 @@ class ColumnWidthTable {
 
       if (cachedWidth != null) {
         result[col.columnName] = cachedWidth;
-
-        print('get from cache');
       } else {
         final fullKey = '$_prefix${tableKey}_${col.columnName}';
 
@@ -46,8 +44,6 @@ class ColumnWidthTable {
 
         final finalWidth = savedWidth ?? col.width;
         result[col.columnName] = finalWidth;
-
-        print('get from sharedPreferences');
 
         // Lưu lại cache
         _cache[tableKey]![col.columnName] = finalWidth;

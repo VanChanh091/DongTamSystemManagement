@@ -5,10 +5,12 @@ import 'package:dongtam/presentation/components/headerTable/header_table_report_
 import 'package:dongtam/presentation/sources/report_paper_data_source.dart';
 import 'package:dongtam/service/report_planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
+import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -29,6 +31,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   List<int> selectedReportId = [];
   TextEditingController searchController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+  Map<String, double> columnWidths = {};
   String searchType = "Tất cả";
   String machine = "Máy 1350";
   bool isTextFieldEnabled = false;
@@ -44,6 +47,14 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     loadReportPaper(true);
 
     columns = buildReportPaperColumn(themeController: themeController);
+
+    ColumnWidthTable.loadWidths(tableKey: 'reportPaper', columns: columns).then(
+      (w) {
+        setState(() {
+          columnWidths = w;
+        });
+      },
+    );
   }
 
   void loadReportPaper(bool refresh) {
@@ -546,7 +557,6 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                       Expanded(
                         child: SfDataGrid(
                           source: reportPaperDatasource,
-                          columns: columns,
                           isScrollbarAlwaysShown: true,
                           allowExpandCollapseGroup: true, // Bật grouping
                           autoExpandGroups: true,
@@ -555,6 +565,10 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                           selectionMode: SelectionMode.multiple,
                           headerRowHeight: 40,
                           rowHeight: 40,
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columns,
+                            widths: columnWidths,
+                          ),
                           stackedHeaderRows: <StackedHeaderRow>[
                             StackedHeaderRow(
                               cells: [
@@ -591,6 +605,26 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                               ],
                             ),
                           ],
+
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: setState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: 'reportPaper',
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+
                           onSelectionChanged: (addedRows, removedRows) {
                             setState(() {
                               for (var row in addedRows) {

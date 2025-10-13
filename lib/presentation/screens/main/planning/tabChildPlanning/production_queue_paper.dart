@@ -7,10 +7,12 @@ import 'package:dongtam/presentation/components/headerTable/header_table_machine
 import 'package:dongtam/presentation/sources/machine_paper_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
@@ -33,6 +35,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
+  Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
   String searchType = "Tất cả";
   String machine = "Máy 1350";
@@ -58,6 +61,14 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     }
 
     columns = buildMachineColumns(themeController: themeController);
+
+    ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((
+      w,
+    ) {
+      setState(() {
+        columnWidths = w;
+      });
+    });
 
     final now = DateTime.now();
     dayStartController.text =
@@ -897,9 +908,12 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    columns: columns,
                     headerRowHeight: 40,
                     rowHeight: 40,
+                    columns: ColumnWidthTable.applySavedWidths(
+                      columns: columns,
+                      widths: columnWidths,
+                    ),
                     stackedHeaderRows: <StackedHeaderRow>[
                       StackedHeaderRow(
                         cells: [
@@ -959,6 +973,26 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                         ],
                       ),
                     ],
+
+                    //auto resize
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
+
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate:
+                        (details) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: columns,
+                          setState: setState,
+                        ),
+                    onColumnResizeEnd:
+                        (details) => GridResizeHelper.onResizeEnd(
+                          details: details,
+                          tableKey: 'queuePaper',
+                          columnWidths: columnWidths,
+                          setState: setState,
+                        ),
+
                     onSelectionChanged: (addedRows, removedRows) {
                       final selectedRow = addedRows.first;
                       final planningPaperId =
