@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_export_excel_cusOrProd.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_product.dart';
 import 'package:dongtam/presentation/sources/product_data_source.dart';
 import 'package:dongtam/service/product_service.dart';
@@ -269,6 +270,26 @@ class _ProductPageState extends State<ProductPage> {
                               isSale
                                   ? Row(
                                     children: [
+                                      //export excel
+                                      AnimatedButton(
+                                        onPressed: () async {
+                                          showDialog(
+                                            context: context,
+                                            builder:
+                                                (_) => DialogExportCusOrProd(
+                                                  isProduct: true,
+                                                  onCusOrProd:
+                                                      () => loadProduct(false),
+                                                ),
+                                          );
+                                        },
+                                        label: "Xuất Excel",
+                                        icon: Icons.search,
+                                        backgroundColor:
+                                            themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+
                                       //add
                                       AnimatedButton(
                                         onPressed: () {

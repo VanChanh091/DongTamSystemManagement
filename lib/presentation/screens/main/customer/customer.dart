@@ -1,6 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_export_excel_cusOrProd.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_customer.dart';
 import 'package:dongtam/presentation/sources/customer_data_source.dart';
 import 'package:dongtam/service/customer_service.dart';
@@ -39,7 +40,7 @@ class _CustomerPageState extends State<CustomerPage> {
   String? selectedCustomerId;
 
   int currentPage = 1;
-  int pageSize = 4;
+  int pageSize = 30;
   int pageSizeSearch = 20;
 
   @override
@@ -189,6 +190,7 @@ class _CustomerPageState extends State<CustomerPage> {
               width: double.infinity,
               child: Column(
                 children: [
+                  //title
                   SizedBox(
                     height: 35,
                     width: double.infinity,
@@ -203,6 +205,8 @@ class _CustomerPageState extends State<CustomerPage> {
                       ),
                     ),
                   ),
+
+                  //button
                   SizedBox(
                     height: 70,
                     width: double.infinity,
@@ -307,6 +311,25 @@ class _CustomerPageState extends State<CustomerPage> {
                               isSale
                                   ? Row(
                                     children: [
+                                      //export excel
+                                      AnimatedButton(
+                                        onPressed: () async {
+                                          showDialog(
+                                            context: context,
+                                            builder:
+                                                (_) => DialogExportCusOrProd(
+                                                  onCusOrProd:
+                                                      () => loadCustomer(false),
+                                                ),
+                                          );
+                                        },
+                                        label: "Xuất Excel",
+                                        icon: Icons.search,
+                                        backgroundColor:
+                                            themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+
                                       //add
                                       AnimatedButton(
                                         onPressed: () {

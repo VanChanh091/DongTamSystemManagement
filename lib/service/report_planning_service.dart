@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/report/report_planning_box.dart';
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
@@ -331,6 +330,7 @@ class ReportPlanningService {
 
       final Map<String, dynamic> body = {"machine": machine};
 
+      //add condition into map body
       if (reportPaperId != null && reportPaperId.isNotEmpty) {
         body["reportPaperId"] = reportPaperId;
       } else if (fromDate != null && toDate != null) {
@@ -363,7 +363,7 @@ class ReportPlanningService {
         final now = DateTime.now();
         final safeMachine = makeSafeFileName(machine);
         final fileName =
-            "report-paper-${safeMachine.toLowerCase()}-${now.toIso8601String().split('T')[0]}.xlsx";
+            "reportPaper_${safeMachine.toLowerCase()}_${now.toIso8601String().split('T')[0]}.xlsx";
         final file = File("$dirPath/$fileName");
 
         await file.writeAsBytes(bytes, flush: true);
