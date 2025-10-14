@@ -652,6 +652,12 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                             loadReportBox(false);
                           });
                         },
+                        onJumpToPage: (page) {
+                          setState(() {
+                            currentPage = page;
+                            loadReportBox(false);
+                          });
+                        },
                       ),
                     ],
                   );

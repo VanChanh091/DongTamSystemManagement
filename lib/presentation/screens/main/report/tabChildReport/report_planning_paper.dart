@@ -671,6 +671,12 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                             loadReportPaper(false);
                           });
                         },
+                        onJumpToPage: (page) {
+                          setState(() {
+                            currentPage = page;
+                            loadReportPaper(false);
+                          });
+                        },
                       ),
                     ],
                   );

@@ -584,6 +584,12 @@ class _CustomerPageState extends State<CustomerPage> {
                             loadCustomer(false);
                           });
                         },
+                        onJumpToPage: (page) {
+                          setState(() {
+                            currentPage = page;
+                            loadCustomer(false);
+                          });
+                        },
                       ),
                     ],
                   );

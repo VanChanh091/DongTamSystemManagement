@@ -474,6 +474,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                             loadOrders(false, isSeenOrder);
                           });
                         },
+                        onJumpToPage: (page) {
+                          setState(() {
+                            currentPage = page;
+                            loadOrders(false, isSeenOrder);
+                          });
+                        },
                       ),
                     ],
                   );

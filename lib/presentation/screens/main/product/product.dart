@@ -542,6 +542,12 @@ class _ProductPageState extends State<ProductPage> {
                             loadProduct(false);
                           });
                         },
+                        onJumpToPage: (page) {
+                          setState(() {
+                            currentPage = page;
+                            loadProduct(false);
+                          });
+                        },
                       ),
                     ],
                   );
