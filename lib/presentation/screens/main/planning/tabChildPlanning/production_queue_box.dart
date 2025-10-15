@@ -827,7 +827,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                             ),
                           ),
                           StackedHeaderCell(
-                            columnNames: ["quantityOrd", "runningPlans"],
+                            columnNames: [
+                              "quantityOrd",
+                              "qtyPaper",
+                              "needProd",
+                            ],
                             child: Obx(
                               () => formatColumn(
                                 label: 'Số Lượng',

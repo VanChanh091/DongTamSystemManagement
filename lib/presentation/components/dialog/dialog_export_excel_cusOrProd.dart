@@ -88,9 +88,6 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
           "from=${selectedRange?.start}, to=${selectedRange?.end}",
         );
 
-        print(selectedRange?.start);
-        print(selectedRange?.end);
-
         await CustomerService().exportExcelCustomer(
           fromDate: selectedRange?.start,
           toDate: selectedRange?.end,

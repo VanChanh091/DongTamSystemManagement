@@ -17,8 +17,8 @@ final List<Map<String, dynamic>> reportBoxColumns = [
   {"key": "length", "title": "Dài"},
   {"key": "size", "title": "Khổ"},
   {"key": "child", "title": "Số Con"},
-  {"key": "quantityOrd", "title": "SL Đơn Hàng"},
-  {"key": "runningPlans", "title": "SL Giấy Tấm"},
+  {"key": "quantityOrd", "title": "Đơn Hàng"},
+  {"key": "qtyPaper", "title": "Giấy Tấm"},
   {"key": "timeRunnings", "title": "Thời Gian Chạy"},
 
   // quantity box

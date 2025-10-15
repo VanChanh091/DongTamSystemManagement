@@ -14,7 +14,8 @@ final List<Map<String, dynamic>> machineBoxColumns = [
   {"key": "size", "title": "Khổ"},
   {"key": "child", "title": "Số Con"},
   {"key": "quantityOrd", "title": "Đơn Hàng"},
-  {"key": "runningPlans", "title": "Giấy Tấm"},
+  {"key": "qtyPaper", "title": "Giấy Tấm"},
+  {"key": "needProd", "title": "Cần SX"},
   {"key": "timeRunnings", "title": "Thời Gian Chạy"},
 
   //quantity

@@ -2,7 +2,7 @@ import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
 
 class BoxMachineTime {
-  final int boxTimeId;
+  final int boxTimeId, runningPlan;
   final TimeOfDay? timeRunning;
   final DateTime? dayCompleted, dayStart;
   final double? wasteBox, rpWasteLoss;
@@ -14,6 +14,7 @@ class BoxMachineTime {
 
   BoxMachineTime({
     required this.boxTimeId,
+    required this.runningPlan,
     this.timeRunning,
     this.dayStart,
     this.dayCompleted,
@@ -35,6 +36,7 @@ class BoxMachineTime {
   factory BoxMachineTime.fromJson(Map<String, dynamic> json) {
     return BoxMachineTime(
       boxTimeId: json['boxTimeId'],
+      runningPlan: json['runningPlan'] ?? 0,
       timeRunning:
           json['timeRunning'] != null && json['timeRunning'] != ''
               ? parseTimeOfDay(json['timeRunning'])

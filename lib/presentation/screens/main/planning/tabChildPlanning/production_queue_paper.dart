@@ -661,12 +661,12 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                       () => loadPlanning(true),
                                                 ),
                                           );
-                                        } else if (value == 'pause') {
+                                        } else if (value == 'stop') {
                                           await handlePlanningAction(
                                             context: context,
                                             selectedPlanningIds:
                                                 selectedPlanningIds,
-                                            status: "reject",
+                                            status: "stop",
                                             title: "Xác nhận dừng sản xuất",
                                             message:
                                                 "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
@@ -681,19 +681,20 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                       .fetchPendingApprovals(),
                                                 },
                                           );
-                                        } else if (value == 'accept') {
+                                        } else if (value == 'reject') {
                                           await handlePlanningAction(
                                             context: context,
                                             selectedPlanningIds:
                                                 selectedPlanningIds,
-                                            status: "accept",
-                                            title:
-                                                "Xác nhận trả về chờ lên kế hoạch",
+                                            planningList:
+                                                machinePaperDatasource.planning,
+                                            status: "reject",
+                                            title: "Xác nhận hủy kế hoạch",
                                             message:
-                                                "Bạn có chắc muốn trả về chờ lên kế hoạch không?",
-                                            successMessage: "Trả về thành công",
+                                                "Bạn có chắc muốn hủy kế hoạch đơn này không?",
+                                            successMessage: "Hủy thành công",
                                             errorMessage:
-                                                "Có lỗi xảy ra khi trả về",
+                                                "Có lỗi xảy ra khi hủy",
                                             onSuccess: () => loadPlanning(true),
                                           );
                                         } else if (value == 'acceptLack') {
@@ -727,7 +728,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               ),
                                             ),
                                             const PopupMenuItem<String>(
-                                              value: 'pause',
+                                              value: 'stop',
                                               child: ListTile(
                                                 leading: Icon(
                                                   Symbols.pause_circle,
@@ -736,14 +737,12 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               ),
                                             ),
                                             const PopupMenuItem<String>(
-                                              value: 'accept',
+                                              value: 'reject',
                                               child: ListTile(
                                                 leading: Icon(
-                                                  Symbols.arrow_circle_left,
+                                                  Symbols.cancel_rounded,
                                                 ),
-                                                title: Text(
-                                                  'Trả Về Trang Chờ KH',
-                                                ),
+                                                title: Text('Hủy Chạy Đơn'),
                                               ),
                                             ),
                                             const PopupMenuItem<String>(
@@ -1064,21 +1063,40 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
             .toList() ??
         [];
 
-    //check sort planning
-    final hasNoSortPlanning = selectedPlannings.any(
-      (p) => p.sortPlanning == null || p.sortPlanning == 0,
-    );
-    if (hasNoSortPlanning) {
-      showSnackBarError(context, "Đơn hàng chưa được sắp xếp");
-      return;
+    if (status == 'complete') {
+      //check sort planning
+      final hasNoSortPlanning = selectedPlannings.any(
+        (p) => p.sortPlanning == null || p.sortPlanning == 0,
+      );
+      if (hasNoSortPlanning) {
+        showSnackBarError(context, "Đơn hàng chưa được sắp xếp");
+        return;
+      }
+
+      //check dayCompleted
+      final hasDayCompleted = selectedPlannings.any(
+        (p) => p.dayCompleted == null,
+      );
+
+      if (hasDayCompleted) {
+        showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
+        return;
+      }
+    } else if (status == 'reject') {
+      //check qtyProduced > 0
+      final hasQtyProduced = selectedPlannings.any(
+        (p) => (p.qtyProduced ?? 0) > 0,
+      );
+      if (hasQtyProduced) {
+        showSnackBarError(context, "Không thể hủy đơn hàng đã có số lượng");
+        return;
+      }
     }
 
-    //check dayCompleted
-    final hasDayCompleted = selectedPlannings.any(
-      (p) => p.dayCompleted == null,
-    );
-    if (hasDayCompleted) {
-      showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
+    //check status complete
+    final hasCompleted = selectedPlannings.any((p) => p.status == 'complete');
+    if (hasCompleted) {
+      showSnackBarError(context, "Không thể thao tác với đơn đã hoàn thành");
       return;
     }
 

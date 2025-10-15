@@ -49,6 +49,13 @@ class MachinePaperDatasource extends DataGridSource {
                 ? formatter.format(planning.order!.dateRequestShipping)
                 : '',
       ),
+      DataGridCell<String?>(
+        columnName: "dayCompletedProd",
+        value:
+            planning.dayCompleted != null
+                ? formatterDayCompleted.format(planning.dayCompleted!)
+                : null,
+      ),
       DataGridCell<String>(
         columnName: 'structure',
         value: planning.formatterStructureOrder,
@@ -158,13 +165,6 @@ class MachinePaperDatasource extends DataGridSource {
         value:
             planning.dayStart != null
                 ? formatter.format(planning.dayStart!)
-                : null,
-      ),
-      DataGridCell<String?>(
-        columnName: "dayCompletedProd",
-        value:
-            planning.dayCompleted != null
-                ? formatterDayCompleted.format(planning.dayCompleted!)
                 : null,
       ),
     ];
@@ -349,7 +349,6 @@ class MachinePaperDatasource extends DataGridSource {
     final sortPlanning = getCellValue<int>(row, 'index', 0);
     final status = getCellValue<String>(row, 'status', "");
     final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
-    final qtyProduct = getCellValue<int>(row, 'qtyProduced', 0);
     final totalLoss = getCellValue<String>(row, 'totalLoss', "0");
     final qtyWastes = getCellValue<String>(row, 'qtyWastes', "0");
 
@@ -385,8 +384,7 @@ class MachinePaperDatasource extends DataGridSource {
             }
 
             Color cellColor = Colors.transparent;
-            if (dataCell.columnName == "qtyProduced" &&
-                qtyProduct < runningPlan) {
+            if (dataCell.columnName == "qtyProduced" && runningPlan > 0) {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
             } else if (dataCell.columnName == "qtyWastes" &&
                 qtyWastesVal > totalWasteLossVal) {

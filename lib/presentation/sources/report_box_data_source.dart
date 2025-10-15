@@ -82,8 +82,8 @@ class ReportBoxDatasource extends DataGridSource {
         value: orderCell.quantityCustomer,
       ),
       DataGridCell<int>(
-        columnName: "runningPlans",
-        value: planningBoxCell.runningPlan,
+        columnName: "qtyPaper",
+        value: planningBoxCell.qtyPaper,
       ),
       DataGridCell<String>(
         columnName: "timeRunnings",

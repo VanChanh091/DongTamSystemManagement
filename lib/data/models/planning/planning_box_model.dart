@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class PlanningBox {
   final int planningBoxId;
 
-  final int runningPlan;
+  final int qtyPaper;
   final String? day, matE, matB, matC, songE, songB, songC, songE2;
   final double length, size;
 
@@ -20,7 +20,7 @@ class PlanningBox {
 
   PlanningBox({
     required this.planningBoxId,
-    required this.runningPlan,
+    required this.qtyPaper,
     this.day,
     this.matE,
     this.matB,
@@ -91,7 +91,7 @@ class PlanningBox {
   factory PlanningBox.fromJson(Map<String, dynamic> json) {
     return PlanningBox(
       planningBoxId: json['planningBoxId'],
-      runningPlan: json['runningPlan'] ?? 0,
+      qtyPaper: json['qtyPaper'] ?? 0,
       day: json['day'] ?? "",
       matE: json['matE'] ?? "",
       matB: json['matB'] ?? "",

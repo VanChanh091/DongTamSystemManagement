@@ -92,7 +92,7 @@ class _PaginationControlsState extends State<PaginationControls> {
           Row(
             children: [
               SizedBox(
-                width: 60,
+                width: 40,
                 child: TextField(
                   controller: _pageController,
                   keyboardType: TextInputType.number,

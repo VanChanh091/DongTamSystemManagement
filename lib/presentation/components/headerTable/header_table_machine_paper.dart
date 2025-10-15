@@ -8,6 +8,7 @@ final List<Map<String, dynamic>> machinePaperColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "dateShipping", "title": "Ngày Giao Dự Kiến"},
+  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "daoXa", "title": "Dao Xả"},
@@ -38,7 +39,6 @@ final List<Map<String, dynamic>> machinePaperColumns = [
   {"key": "index", "title": "Index", "visible": false},
   {"key": "planningId", "title": "", "visible": false},
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất", "visible": false},
-  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành", "visible": false},
 ];
 
 List<GridColumn> buildMachineColumns({
