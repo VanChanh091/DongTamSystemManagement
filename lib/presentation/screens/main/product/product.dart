@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_export_excel_cusOrProd.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_export_cus_or_prod.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_product.dart';
 import 'package:dongtam/presentation/sources/product_data_source.dart';
 import 'package:dongtam/service/product_service.dart';
@@ -177,240 +177,277 @@ class _ProductPageState extends State<ProductPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         //left button
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 10,
-                          ),
-                          child: Row(
-                            children: [
-                              //dropdown
-                              SizedBox(
-                                width: 170,
-                                child: DropdownButtonFormField<String>(
-                                  value: searchType,
-                                  items:
-                                      ['Tất cả', "Theo Mã", "Theo Tên SP"].map((
-                                        String value,
-                                      ) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      searchType = value!;
-                                      isTextFieldEnabled =
-                                          searchType != 'Tất cả';
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 10,
+                            ),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                final maxWidth = constraints.maxWidth;
+                                final dropdownWidth = (maxWidth * 0.2).clamp(
+                                  120.0,
+                                  170.0,
+                                );
+                                final textInputWidth = (maxWidth * 0.3).clamp(
+                                  200.0,
+                                  250.0,
+                                );
 
-                                      searchController.clear();
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: const BorderSide(
-                                        color: Colors.grey,
+                                return Row(
+                                  children: [
+                                    //dropdown
+                                    SizedBox(
+                                      width: dropdownWidth,
+                                      child: DropdownButtonFormField<String>(
+                                        value: searchType,
+                                        items:
+                                            [
+                                              'Tất cả',
+                                              "Theo Mã",
+                                              "Theo Tên SP",
+                                            ].map((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value),
+                                              );
+                                            }).toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            searchType = value!;
+                                            isTextFieldEnabled =
+                                                searchType != 'Tất cả';
+
+                                            searchController.clear();
+                                          });
+                                        },
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
+                                        ),
                                       ),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
+                                    const SizedBox(width: 10),
 
-                              //input
-                              SizedBox(
-                                width: 250,
-                                height: 50,
-                                child: TextField(
-                                  controller: searchController,
-                                  enabled: isTextFieldEnabled,
-                                  onSubmitted: (_) => searchProduct(),
-                                  decoration: InputDecoration(
-                                    hintText: 'Tìm kiếm...',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                    //input
+                                    SizedBox(
+                                      width: textInputWidth,
+                                      height: 50,
+                                      child: TextField(
+                                        controller: searchController,
+                                        enabled: isTextFieldEnabled,
+                                        onSubmitted: (_) => searchProduct(),
+                                        decoration: InputDecoration(
+                                          hintText: 'Tìm kiếm...',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                              ),
+                                        ),
+                                      ),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
+                                    const SizedBox(width: 10),
 
-                              //find
-                              AnimatedButton(
-                                onPressed: () {
-                                  searchProduct();
-                                },
-                                label: "Tìm kiếm",
-                                icon: Icons.search,
-                                backgroundColor: themeController.buttonColor,
-                              ),
-                              const SizedBox(width: 10),
-                            ],
+                                    //find
+                                    AnimatedButton(
+                                      onPressed: () {
+                                        searchProduct();
+                                      },
+                                      label: "Tìm kiếm",
+                                      icon: Icons.search,
+                                      backgroundColor:
+                                          themeController.buttonColor,
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
 
                         //right button
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 10,
-                          ),
-                          child:
-                              isSale
-                                  ? Row(
-                                    children: [
-                                      //export excel
-                                      AnimatedButton(
-                                        onPressed: () async {
-                                          showDialog(
-                                            context: context,
-                                            builder:
-                                                (_) => DialogExportCusOrProd(
-                                                  isProduct: true,
-                                                  onCusOrProd:
-                                                      () => loadProduct(false),
-                                                ),
-                                          );
-                                        },
-                                        label: "Xuất Excel",
-                                        icon: Icons.search,
-                                        backgroundColor:
-                                            themeController.buttonColor,
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //add
-                                      AnimatedButton(
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder:
-                                                (_) => ProductDialog(
-                                                  product: null,
-                                                  onProductAddOrUpdate:
-                                                      () => loadProduct(true),
-                                                ),
-                                          );
-                                        },
-                                        label: "Thêm mới",
-                                        icon: Icons.add,
-                                        backgroundColor:
-                                            themeController.buttonColor,
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      // update
-                                      AnimatedButton(
-                                        onPressed:
-                                            isSale
-                                                ? () async {
-                                                  if (selectedProductId ==
-                                                          null ||
-                                                      selectedProductId!
-                                                          .isEmpty) {
-                                                    showSnackBarError(
-                                                      context,
-                                                      'Vui lòng chọn sản phẩm cần sửa',
-                                                    );
-                                                    return;
-                                                  }
-
-                                                  try {
-                                                    final result =
-                                                        await ProductService()
-                                                            .getProductById(
-                                                              productId:
-                                                                  selectedProductId!,
-                                                            );
-
-                                                    if (!context.mounted) {
-                                                      return;
-                                                    }
-
-                                                    // Defensive null checks
-                                                    if (result['products'] ==
-                                                        null) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        'Dữ liệu trả về không hợp lệ',
-                                                      );
-                                                      return;
-                                                    }
-
-                                                    final products =
-                                                        result['products']
-                                                            as List<Product>? ??
-                                                        [];
-
-                                                    if (products.isEmpty) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        'Không tìm thấy khách hàng',
-                                                      );
-                                                      return;
-                                                    }
-
-                                                    showDialog(
-                                                      context: context,
-                                                      builder:
-                                                          (_) => ProductDialog(
-                                                            product:
-                                                                products.first,
-                                                            onProductAddOrUpdate:
-                                                                () =>
-                                                                    loadProduct(
-                                                                      true,
-                                                                    ),
-                                                          ),
-                                                    );
-                                                  } catch (e, s) {
-                                                    AppLogger.e(
-                                                      "Error in getProductById: $e",
-                                                      stackTrace: s,
-                                                    );
-                                                    showSnackBarError(
-                                                      context,
-                                                      'Có lỗi xảy ra, vui lòng thử lại sau',
-                                                    );
-                                                  }
-                                                }
-                                                : null,
-                                        label: "Sửa",
-                                        icon: Symbols.construction,
-                                        backgroundColor:
-                                            themeController.buttonColor,
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //delete
-                                      AnimatedButton(
-                                        onPressed:
-                                            isSale &&
-                                                    selectedProductId != null &&
-                                                    selectedProductId!
-                                                        .isNotEmpty
-                                                ? () => _confirmDelete(context)
-                                                : null,
-                                        label: "Xóa",
-                                        icon: Icons.delete,
-                                        backgroundColor: const Color(
-                                          0xffEA4346,
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 10,
+                            ),
+                            child:
+                                isSale
+                                    ? Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        //export excel
+                                        AnimatedButton(
+                                          onPressed: () async {
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (_) => DialogExportCusOrProd(
+                                                    isProduct: true,
+                                                    onCusOrProd:
+                                                        () =>
+                                                            loadProduct(false),
+                                                  ),
+                                            );
+                                          },
+                                          label: "Xuất Excel",
+                                          icon: Icons.search,
+                                          backgroundColor:
+                                              themeController.buttonColor,
                                         ),
-                                      ),
-                                    ],
-                                  )
-                                  : const SizedBox.shrink(),
+                                        const SizedBox(width: 10),
+
+                                        //add
+                                        AnimatedButton(
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (_) => ProductDialog(
+                                                    product: null,
+                                                    onProductAddOrUpdate:
+                                                        () => loadProduct(true),
+                                                  ),
+                                            );
+                                          },
+                                          label: "Thêm mới",
+                                          icon: Icons.add,
+                                          backgroundColor:
+                                              themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
+
+                                        // update
+                                        AnimatedButton(
+                                          onPressed:
+                                              isSale
+                                                  ? () async {
+                                                    if (selectedProductId ==
+                                                            null ||
+                                                        selectedProductId!
+                                                            .isEmpty) {
+                                                      showSnackBarError(
+                                                        context,
+                                                        'Vui lòng chọn sản phẩm cần sửa',
+                                                      );
+                                                      return;
+                                                    }
+
+                                                    try {
+                                                      final result =
+                                                          await ProductService()
+                                                              .getProductById(
+                                                                productId:
+                                                                    selectedProductId!,
+                                                              );
+
+                                                      if (!context.mounted) {
+                                                        return;
+                                                      }
+
+                                                      // Defensive null checks
+                                                      if (result['products'] ==
+                                                          null) {
+                                                        showSnackBarError(
+                                                          context,
+                                                          'Dữ liệu trả về không hợp lệ',
+                                                        );
+                                                        return;
+                                                      }
+
+                                                      final products =
+                                                          result['products']
+                                                              as List<
+                                                                Product
+                                                              >? ??
+                                                          [];
+
+                                                      if (products.isEmpty) {
+                                                        showSnackBarError(
+                                                          context,
+                                                          'Không tìm thấy khách hàng',
+                                                        );
+                                                        return;
+                                                      }
+
+                                                      showDialog(
+                                                        context: context,
+                                                        builder:
+                                                            (
+                                                              _,
+                                                            ) => ProductDialog(
+                                                              product:
+                                                                  products
+                                                                      .first,
+                                                              onProductAddOrUpdate:
+                                                                  () =>
+                                                                      loadProduct(
+                                                                        true,
+                                                                      ),
+                                                            ),
+                                                      );
+                                                    } catch (e, s) {
+                                                      AppLogger.e(
+                                                        "Error in getProductById: $e",
+                                                        stackTrace: s,
+                                                      );
+                                                      showSnackBarError(
+                                                        context,
+                                                        'Có lỗi xảy ra, vui lòng thử lại sau',
+                                                      );
+                                                    }
+                                                  }
+                                                  : null,
+                                          label: "Sửa",
+                                          icon: Symbols.construction,
+                                          backgroundColor:
+                                              themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
+
+                                        //delete
+                                        AnimatedButton(
+                                          onPressed:
+                                              isSale &&
+                                                      selectedProductId !=
+                                                          null &&
+                                                      selectedProductId!
+                                                          .isNotEmpty
+                                                  ? () =>
+                                                      _confirmDelete(context)
+                                                  : null,
+                                          label: "Xóa",
+                                          icon: Icons.delete,
+                                          backgroundColor: const Color(
+                                            0xffEA4346,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                    : const SizedBox.shrink(),
+                          ),
                         ),
                       ],
                     ),

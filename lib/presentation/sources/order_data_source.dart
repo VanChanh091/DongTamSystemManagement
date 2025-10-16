@@ -23,11 +23,11 @@ class OrderDataSource extends DataGridSource {
     return [
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
       DataGridCell<String>(
-        columnName: 'dayReceiveOrder',
+        columnName: 'dayReceive',
         value: formatter.format(order.dayReceiveOrder),
       ),
       DataGridCell<String>(
-        columnName: 'dateRequestShipping',
+        columnName: 'dateShipping',
         value: formatter.format(order.dateRequestShipping),
       ),
       DataGridCell<String>(

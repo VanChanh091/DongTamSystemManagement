@@ -7,8 +7,8 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 final List<Map<String, dynamic>> orderColumns = [
   // Order
   {"key": "orderId", "title": "Mã Đơn Hàng"},
-  {"key": "dayReceiveOrder", "title": "Ngày Nhận"},
-  {"key": "dateRequestShipping", "title": "Ngày YC Giao"},
+  {"key": "dayReceive", "title": "Ngày Nhận"},
+  {"key": "dateShipping", "title": "Ngày Giao"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "companyName", "title": "Tên Công Ty"},
   {"key": "typeProduct", "title": "Loại SP"},
@@ -25,7 +25,7 @@ final List<Map<String, dynamic>> orderColumns = [
   {"key": "quantityCustomer", "title": "Số Lượng (KH)"},
   {"key": "qtyManufacture", "title": "Số Lượng (SX)"},
   {"key": "child", "title": "Số con"},
-  {"key": "dvt", "title": "DVT"},
+  {"key": "dvt", "title": "Đơn Vị Tính"},
   {"key": "acreage", "title": "Diện Tích"},
   {"key": "price", "title": "Đơn Giá"},
   {"key": "pricePaper", "title": "Giá Tấm"},

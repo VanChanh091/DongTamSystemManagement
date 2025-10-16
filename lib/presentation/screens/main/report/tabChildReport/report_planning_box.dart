@@ -266,237 +266,274 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         //left button
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 10,
-                          ),
-                          child: Row(
-                            children: [
-                              //dropdown
-                              SizedBox(
-                                width: 160,
-                                child: DropdownButtonFormField<String>(
-                                  value: searchType,
-                                  items:
-                                      [
-                                        'Tất cả',
-                                        "Theo Mã ĐH",
-                                        'Tên KH',
-                                        "Ngày Báo Cáo",
-                                        "SL Báo Cáo",
-                                        "QC Thùng",
-                                        "Quản Ca",
-                                      ].map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      searchType = value!;
-                                      isTextFieldEnabled =
-                                          searchType != 'Tất cả';
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 10,
+                            ),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                final maxWidth = constraints.maxWidth;
+                                final dropdownWidth = (maxWidth * 0.2).clamp(
+                                  120.0,
+                                  170.0,
+                                );
+                                final textInputWidth = (maxWidth * 0.3).clamp(
+                                  200.0,
+                                  250.0,
+                                );
 
-                                      searchController.clear();
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: const BorderSide(
-                                        color: Colors.grey,
+                                return Row(
+                                  children: [
+                                    //dropdown
+                                    SizedBox(
+                                      width: dropdownWidth,
+                                      child: DropdownButtonFormField<String>(
+                                        value: searchType,
+                                        items:
+                                            [
+                                              'Tất cả',
+                                              "Theo Mã ĐH",
+                                              'Tên KH',
+                                              "Ngày Báo Cáo",
+                                              "SL Báo Cáo",
+                                              "QC Thùng",
+                                              "Quản Ca",
+                                            ].map((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value),
+                                              );
+                                            }).toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            searchType = value!;
+                                            isTextFieldEnabled =
+                                                searchType != 'Tất cả';
+
+                                            searchController.clear();
+                                          });
+                                        },
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
+                                        ),
                                       ),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
+                                    const SizedBox(width: 10),
 
-                              //date picker or input
-                              searchType == 'Ngày Báo Cáo'
-                                  ? SizedBox(
-                                    width: 250,
-                                    height: 50,
-                                    child: InkWell(
-                                      onTap: () async {
-                                        final now = DateTime.now();
+                                    //date picker or input
+                                    searchType == 'Ngày Báo Cáo'
+                                        ? SizedBox(
+                                          width: textInputWidth,
+                                          height: 50,
+                                          child: InkWell(
+                                            onTap: () async {
+                                              final now = DateTime.now();
 
-                                        DateTime? picked = await showDatePicker(
-                                          context: context,
-                                          initialDate: now,
-                                          firstDate: DateTime(2020),
-                                          lastDate: DateTime(2100),
-                                          builder: (
-                                            BuildContext context,
-                                            Widget? child,
-                                          ) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                colorScheme: ColorScheme.light(
-                                                  primary: Colors.blue,
-                                                  onPrimary: Colors.white,
-                                                  onSurface: Colors.black,
-                                                ),
-                                                dialogTheme: DialogThemeData(
-                                                  backgroundColor:
-                                                      Colors.white12,
+                                              DateTime?
+                                              picked = await showDatePicker(
+                                                context: context,
+                                                initialDate: now,
+                                                firstDate: DateTime(2020),
+                                                lastDate: DateTime(2100),
+                                                builder: (
+                                                  BuildContext context,
+                                                  Widget? child,
+                                                ) {
+                                                  return Theme(
+                                                    data: Theme.of(
+                                                      context,
+                                                    ).copyWith(
+                                                      colorScheme:
+                                                          ColorScheme.light(
+                                                            primary:
+                                                                Colors.blue,
+                                                            onPrimary:
+                                                                Colors.white,
+                                                            onSurface:
+                                                                Colors.black,
+                                                          ),
+                                                      dialogTheme:
+                                                          DialogThemeData(
+                                                            backgroundColor:
+                                                                Colors.white12,
+                                                          ),
+                                                    ),
+                                                    child: child!,
+                                                  );
+                                                },
+                                              );
+
+                                              if (picked != null) {
+                                                final displayDate = DateFormat(
+                                                  'dd/MM/yyyy',
+                                                ).format(picked);
+
+                                                setState(() {
+                                                  dateController.text =
+                                                      "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+
+                                                  searchController.text =
+                                                      displayDate;
+                                                });
+                                              }
+                                            },
+                                            child: IgnorePointer(
+                                              child: TextField(
+                                                controller: searchController,
+                                                decoration: InputDecoration(
+                                                  hintText: 'Chọn ngày...',
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  suffixIcon: const Icon(
+                                                    Icons.calendar_today,
+                                                  ),
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                      ),
                                                 ),
                                               ),
-                                              child: child!,
-                                            );
-                                          },
-                                        );
-
-                                        if (picked != null) {
-                                          final displayDate = DateFormat(
-                                            'dd/MM/yyyy',
-                                          ).format(picked);
-
-                                          setState(() {
-                                            dateController.text =
-                                                "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-
-                                            searchController.text = displayDate;
-                                          });
-                                        }
-                                      },
-                                      child: IgnorePointer(
-                                        child: TextField(
-                                          controller: searchController,
-                                          decoration: InputDecoration(
-                                            hintText: 'Chọn ngày...',
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
                                             ),
-                                            suffixIcon: const Icon(
-                                              Icons.calendar_today,
+                                          ),
+                                        )
+                                        : SizedBox(
+                                          width: textInputWidth,
+                                          height: 50,
+                                          child: TextField(
+                                            controller: searchController,
+                                            enabled: isTextFieldEnabled,
+                                            onSubmitted:
+                                                (_) => searchReportPaper(),
+                                            decoration: InputDecoration(
+                                              hintText: 'Tìm kiếm...',
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                  ),
                                             ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  )
-                                  : SizedBox(
-                                    width: 250,
-                                    height: 50,
-                                    child: TextField(
-                                      controller: searchController,
-                                      enabled: isTextFieldEnabled,
-                                      onSubmitted: (_) => searchReportPaper(),
-                                      decoration: InputDecoration(
-                                        hintText: 'Tìm kiếm...',
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                              const SizedBox(width: 10),
+                                    const SizedBox(width: 10),
 
-                              // find
-                              AnimatedButton(
-                                onPressed: () => searchReportPaper(),
-                                label: "Tìm kiếm",
-                                icon: Icons.search,
-                                backgroundColor: themeController.buttonColor,
-                              ),
-                              const SizedBox(width: 10),
-                            ],
+                                    // find
+                                    AnimatedButton(
+                                      onPressed: () => searchReportPaper(),
+                                      label: "Tìm kiếm",
+                                      icon: Icons.search,
+                                      backgroundColor:
+                                          themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 10),
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
 
                         //right button
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 10,
-                          ),
-                          child: Row(
-                            children: [
-                              //export excel
-                              AnimatedButton(
-                                onPressed: () async {
-                                  showDialog(
-                                    context: context,
-                                    builder:
-                                        (_) => DialogSelectExportExcel(
-                                          selectedReportId: selectedReportId,
-                                          onPlanningIdsOrRangeDate:
-                                              () => loadReportBox(false),
-                                          machine: machine,
-                                          isBox: true,
-                                        ),
-                                  );
-                                },
-                                label: "Xuất Excel",
-                                icon: Icons.search,
-                                backgroundColor: themeController.buttonColor,
-                              ),
-                              const SizedBox(width: 10),
-
-                              //choose machine
-                              SizedBox(
-                                width: 175,
-                                child: DropdownButtonFormField<String>(
-                                  value: machine,
-                                  items:
-                                      [
-                                        'Máy In',
-                                        "Máy Bế",
-                                        "Máy Xả",
-                                        "Máy Dán",
-                                        'Máy Cấn Lằn',
-                                        "Máy Cắt Khe",
-                                        "Máy Cán Màng",
-                                        "Máy Đóng Ghim",
-                                      ].map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      changeMachine(value);
-                                    }
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 10,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                //export excel
+                                AnimatedButton(
+                                  onPressed: () async {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => DialogSelectExportExcel(
+                                            selectedReportId: selectedReportId,
+                                            onPlanningIdsOrRangeDate:
+                                                () => loadReportBox(false),
+                                            machine: machine,
+                                            isBox: true,
+                                          ),
+                                    );
                                   },
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: const BorderSide(
-                                        color: Colors.grey,
+                                  label: "Xuất Excel",
+                                  icon: Icons.search,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
+                                //choose machine
+                                SizedBox(
+                                  width: 175,
+                                  child: DropdownButtonFormField<String>(
+                                    value: machine,
+                                    items:
+                                        [
+                                          'Máy In',
+                                          "Máy Bế",
+                                          "Máy Xả",
+                                          "Máy Dán",
+                                          'Máy Cấn Lằn',
+                                          "Máy Cắt Khe",
+                                          "Máy Cán Màng",
+                                          "Máy Đóng Ghim",
+                                        ].map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        changeMachine(value);
+                                      }
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(
+                                          color: Colors.grey,
+                                        ),
                                       ),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                            ],
+                                const SizedBox(width: 10),
+                              ],
+                            ),
                           ),
                         ),
                       ],

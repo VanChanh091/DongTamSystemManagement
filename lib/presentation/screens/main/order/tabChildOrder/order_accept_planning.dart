@@ -30,6 +30,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
+  final Map<String, String> searchFieldMap = {
+    "Tên KH": "customerName",
+    "Tên SP": "productName",
+    "QC Thùng": "qcBox",
+    "Đơn giá": "price",
+  };
   TextEditingController searchController = TextEditingController();
   Map<String, double> columnWidths = {};
   String searchType = "Tất cả";
@@ -39,13 +45,13 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   bool isSeenOrder = false;
 
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 3;
+  int pageSizeSearch = 3;
 
   @override
   void initState() {
     super.initState();
-    loadOrders(true, isSeenOrder);
+    loadOrders(refresh: true, ownOnly: isSeenOrder);
 
     columns = buildOrderColumns(
       themeController: themeController,
@@ -59,45 +65,22 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
     });
   }
 
-  void loadOrders(bool refresh, bool ownOnly) {
+  void loadOrders({bool refresh = false, bool ownOnly = false}) {
     setState(() {
-      if (isSearching) {
-        String keyword = searchController.text.trim().toLowerCase();
-        AppLogger.d("loadOrderAccept_Planning | search keyword=$keyword");
+      final String selectedField = searchFieldMap[searchType] ?? "";
 
-        if (searchType == "Tên KH") {
-          futureOrdersAccept = ensureMinLoading(
-            OrderService().getOrderByCustomerName(
-              inputCustomerName: keyword,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Tên SP") {
-          futureOrdersAccept = ensureMinLoading(
-            OrderService().getOrderByProductName(
-              inputProductName: keyword,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "QC Thùng") {
-          futureOrdersAccept = ensureMinLoading(
-            OrderService().getOrderByQcBox(
-              inputQcBox: keyword,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Đơn giá") {
-          futureOrdersAccept = ensureMinLoading(
-            OrderService().getOrderByPrice(
-              price: keyword,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        }
+      String keyword = searchController.text.trim().toLowerCase();
+      AppLogger.d("loadOrderAccept_Planning | search keyword=$keyword");
+
+      if (isSearching && searchType != "Tất cả" && keyword.isNotEmpty) {
+        futureOrdersAccept = ensureMinLoading(
+          OrderService().getOrderByField(
+            field: selectedField,
+            keyword: keyword,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
       } else {
         futureOrdersAccept = ensureMinLoading(
           OrderService().getOrderAcceptAndPlanning(
@@ -120,58 +103,32 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
       return;
     }
 
-    currentPage = 1;
-    isSearching = (searchType != "Tất cả");
-    switch (searchType) {
-      case "Tất cả":
-        setState(() {
-          futureOrdersAccept = OrderService().getOrderAcceptAndPlanning(
+    setState(() {
+      currentPage = 1;
+      isSearching = (searchType != "Tất cả");
+
+      if (searchType == "Tất cả") {
+        futureOrdersAccept = ensureMinLoading(
+          OrderService().getOrderAcceptAndPlanning(
             page: currentPage,
             pageSize: pageSize,
             refresh: false,
             ownOnly: false,
-          );
-        });
-        break;
-      case "Tên KH":
-        setState(() {
-          futureOrdersAccept = OrderService().getOrderByCustomerName(
-            inputCustomerName: keyword,
+          ),
+        );
+      } else {
+        final selectedField = searchFieldMap[searchType] ?? "";
+
+        futureOrdersAccept = ensureMinLoading(
+          OrderService().getOrderByField(
+            field: selectedField,
+            keyword: keyword,
             page: currentPage,
             pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      case "Tên SP":
-        setState(() {
-          futureOrdersAccept = OrderService().getOrderByProductName(
-            inputProductName: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      case "QC Thùng":
-        setState(() {
-          futureOrdersAccept = OrderService().getOrderByQcBox(
-            inputQcBox: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      case "Đơn giá":
-        setState(() {
-          futureOrdersAccept = OrderService().getOrderByPrice(
-            price: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      default:
-        break;
-    }
+          ),
+        );
+      }
+    });
   }
 
   @override
@@ -213,116 +170,141 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                     child: Row(
                       children: [
                         //button
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 10,
-                          ),
-                          child: Row(
-                            children: [
-                              // dropdown
-                              SizedBox(
-                                width: 140,
-                                child: DropdownButtonFormField<String>(
-                                  value: searchType,
-                                  items:
-                                      [
-                                        'Tất cả',
-                                        "Tên KH",
-                                        "Tên SP",
-                                        "QC Thùng",
-                                        'Đơn giá',
-                                      ].map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      searchType = value!;
-                                      isTextFieldEnabled =
-                                          searchType != 'Tất cả';
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 10,
+                            ),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                final maxWidth = constraints.maxWidth;
+                                final dropdownWidth = (maxWidth * 0.2).clamp(
+                                  120.0,
+                                  170.0,
+                                );
+                                final textInputWidth = (maxWidth * 0.3).clamp(
+                                  200.0,
+                                  250.0,
+                                );
 
-                                      searchController.clear();
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: const BorderSide(
-                                        color: Colors.grey,
+                                return Row(
+                                  children: [
+                                    // dropdown
+                                    SizedBox(
+                                      width: dropdownWidth,
+                                      child: DropdownButtonFormField<String>(
+                                        value: searchType,
+                                        items:
+                                            [
+                                              'Tất cả',
+                                              "Tên KH",
+                                              "Tên SP",
+                                              "QC Thùng",
+                                              'Đơn giá',
+                                            ].map((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value),
+                                              );
+                                            }).toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            searchType = value!;
+                                            isTextFieldEnabled =
+                                                searchType != 'Tất cả';
+
+                                            searchController.clear();
+                                          });
+                                        },
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
+                                        ),
                                       ),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
 
-                              // input
-                              SizedBox(
-                                width: 250,
-                                height: 50,
-                                child: TextField(
-                                  controller: searchController,
-                                  enabled: isTextFieldEnabled,
-                                  onSubmitted: (_) => searchOrders(),
-                                  decoration: InputDecoration(
-                                    hintText: 'Tìm kiếm...',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
+                                    const SizedBox(width: 10),
 
-                              // find
-                              AnimatedButton(
-                                onPressed: () {
-                                  searchOrders();
-                                },
-                                label: "Tìm kiếm",
-                                icon: Icons.search,
-                                backgroundColor: themeController.buttonColor,
-                              ),
-                              const SizedBox(width: 10),
+                                    // input
+                                    SizedBox(
+                                      width: textInputWidth,
+                                      height: 50,
+                                      child: TextField(
+                                        controller: searchController,
+                                        enabled: isTextFieldEnabled,
+                                        onSubmitted: (_) => searchOrders(),
+                                        decoration: InputDecoration(
+                                          hintText: 'Tìm kiếm...',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
 
-                              //see all/see only
-                              isManager
-                                  ? SizedBox(
-                                    width: 150,
-                                    child: AnimatedButton(
+                                    // find
+                                    AnimatedButton(
                                       onPressed: () {
-                                        setState(() {
-                                          isSeenOrder = !isSeenOrder;
-                                        });
-
-                                        loadOrders(false, isSeenOrder);
+                                        searchOrders();
                                       },
-                                      label:
-                                          isSeenOrder
-                                              ? "Xem Tất Cả"
-                                              : "Đơn Bản Thân",
-                                      icon: null,
+                                      label: "Tìm kiếm",
+                                      icon: Icons.search,
                                       backgroundColor:
                                           themeController.buttonColor,
                                     ),
-                                  )
-                                  : const SizedBox.shrink(),
-                              const SizedBox(width: 10),
-                            ],
+                                    const SizedBox(width: 10),
+
+                                    //see all/see only
+                                    isManager
+                                        ? AnimatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              isSeenOrder = !isSeenOrder;
+                                            });
+
+                                            loadOrders(
+                                              refresh: false,
+                                              ownOnly: isSeenOrder,
+                                            );
+                                          },
+                                          label:
+                                              isSeenOrder
+                                                  ? "Xem Tất Cả"
+                                                  : "Đơn Bản Thân",
+                                          icon: null,
+                                          backgroundColor:
+                                              themeController.buttonColor,
+                                        )
+                                        : const SizedBox.shrink(),
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
+                        Expanded(flex: 1, child: Container()),
                       ],
                     ),
                   ),
@@ -465,19 +447,19 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadOrders(false, isSeenOrder);
+                            loadOrders(refresh: false, ownOnly: isSeenOrder);
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadOrders(false, isSeenOrder);
+                            loadOrders(refresh: false, ownOnly: isSeenOrder);
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadOrders(false, isSeenOrder);
+                            loadOrders(refresh: false, ownOnly: isSeenOrder);
                           });
                         },
                       ),
@@ -491,7 +473,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
       ),
       floatingActionButton: Obx(
         () => FloatingActionButton(
-          onPressed: () => loadOrders(true, isSeenOrder),
+          onPressed: () => loadOrders(refresh: true, ownOnly: isSeenOrder),
           backgroundColor: themeController.buttonColor.value,
           child: const Icon(Icons.refresh, color: Colors.white),
         ),

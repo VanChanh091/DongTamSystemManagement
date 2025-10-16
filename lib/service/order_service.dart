@@ -31,15 +31,17 @@ class OrderService {
   }
 
   //get by customer name
-  Future<Map<String, dynamic>> getOrderByCustomerName({
-    String inputCustomerName = "",
+  Future<Map<String, dynamic>> getOrderByField({
+    required String field,
+    required String keyword,
     int page = 1,
     int pageSize = 20,
   }) async {
     return HelperService().fetchPaginatedData<Order>(
-      endpoint: "order/customerName",
+      endpoint: "order/filter",
       queryParameters: {
-        'name': inputCustomerName,
+        'field': field,
+        'keyword': keyword,
         'page': page,
         'pageSize': pageSize,
       },

@@ -179,587 +179,618 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               //left button
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                  horizontal: 10,
-                                ),
-                                child: Row(
-                                  children: [
-                                    //dropdown
-                                    SizedBox(
-                                      width: 160,
-                                      child: DropdownButtonFormField<String>(
-                                        value: searchType,
-                                        items:
-                                            [
-                                              'Tất cả',
-                                              'Mã Đơn Hàng',
-                                              'Tên KH',
-                                              "Sóng",
-                                              'Khổ Cấp Giấy',
-                                            ].map((String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            searchType = value!;
-                                            isTextFieldEnabled =
-                                                searchType != 'Tất cả';
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 10,
+                                  ),
+                                  child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      final maxWidth = constraints.maxWidth;
+                                      final dropdownWidth = (maxWidth * 0.2)
+                                          .clamp(120.0, 170.0);
+                                      final textInputWidth = (maxWidth * 0.3)
+                                          .clamp(200.0, 250.0);
 
-                                            searchController.clear();
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
+                                      return Row(
+                                        children: [
+                                          //dropdown
+                                          SizedBox(
+                                            width: dropdownWidth,
+                                            child: DropdownButtonFormField<
+                                              String
+                                            >(
+                                              value: searchType,
+                                              items:
+                                                  [
+                                                    'Tất cả',
+                                                    'Mã Đơn Hàng',
+                                                    'Tên KH',
+                                                    "Sóng",
+                                                    'Khổ Cấp Giấy',
+                                                  ].map((String value) {
+                                                    return DropdownMenuItem<
+                                                      String
+                                                    >(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  searchType = value!;
+                                                  isTextFieldEnabled =
+                                                      searchType != 'Tất cả';
+
+                                                  searchController.clear();
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 8,
+                                                    ),
+                                              ),
                                             ),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
+                                          const SizedBox(width: 10),
 
-                                    // input
-                                    SizedBox(
-                                      width: 250,
-                                      height: 50,
-                                      child: TextField(
-                                        controller: searchController,
-                                        enabled: isTextFieldEnabled,
-                                        onSubmitted: (_) => searchPlanning(),
-                                        decoration: InputDecoration(
-                                          hintText: 'Tìm kiếm...',
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                                          // input
+                                          SizedBox(
+                                            width: textInputWidth,
+                                            height: 50,
+                                            child: TextField(
+                                              controller: searchController,
+                                              enabled: isTextFieldEnabled,
+                                              onSubmitted:
+                                                  (_) => searchPlanning(),
+                                              decoration: InputDecoration(
+                                                hintText: 'Tìm kiếm...',
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                    ),
+                                              ),
                                             ),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
+                                          const SizedBox(width: 10),
 
-                                    // find
-                                    AnimatedButton(
-                                      onPressed: () => searchPlanning(),
-                                      label: "Tìm kiếm",
-                                      icon: Icons.search,
-                                      backgroundColor:
-                                          themeController.buttonColor,
-                                    ),
-                                    const SizedBox(width: 10),
-                                  ],
+                                          // find
+                                          AnimatedButton(
+                                            onPressed: () => searchPlanning(),
+                                            label: "Tìm kiếm",
+                                            icon: Icons.search,
+                                            backgroundColor:
+                                                themeController.buttonColor,
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
 
                               //right button
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                  horizontal: 10,
-                                ),
-                                child: Row(
-                                  children: [
-                                    // nút lên xuống
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.arrow_upward),
-                                          onPressed:
-                                              selectedPlanningIds.isNotEmpty
-                                                  ? () {
-                                                    setState(() {
-                                                      machinePaperDatasource
-                                                          .moveRowUp(
-                                                            selectedPlanningIds,
-                                                          );
-                                                    });
-                                                  }
-                                                  : null,
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.arrow_downward,
-                                          ),
-                                          onPressed:
-                                              selectedPlanningIds.isNotEmpty
-                                                  ? () {
-                                                    setState(() {
-                                                      machinePaperDatasource
-                                                          .moveRowDown(
-                                                            selectedPlanningIds,
-                                                          );
-                                                    });
-                                                  }
-                                                  : null,
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 20),
-
-                                    // save
-                                    Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        AnimatedButton(
-                                          onPressed:
-                                              isLoading
-                                                  ? null
-                                                  : () async {
-                                                    if (dayStartController
-                                                            .text
-                                                            .isEmpty ||
-                                                        timeStartController
-                                                            .text
-                                                            .isEmpty ||
-                                                        totalTimeWorkingController
-                                                            .text
-                                                            .isEmpty) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        "Vui lòng nhập đầy đủ ngày bắt đầu, giờ bắt đầu và tổng thời gian.",
-                                                      );
-                                                      return;
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 10,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      // nút lên xuống
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.arrow_upward,
+                                            ),
+                                            onPressed:
+                                                selectedPlanningIds.isNotEmpty
+                                                    ? () {
+                                                      setState(() {
+                                                        machinePaperDatasource
+                                                            .moveRowUp(
+                                                              selectedPlanningIds,
+                                                            );
+                                                      });
                                                     }
+                                                    : null,
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.arrow_downward,
+                                            ),
+                                            onPressed:
+                                                selectedPlanningIds.isNotEmpty
+                                                    ? () {
+                                                      setState(() {
+                                                        machinePaperDatasource
+                                                            .moveRowDown(
+                                                              selectedPlanningIds,
+                                                            );
+                                                      });
+                                                    }
+                                                    : null,
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 20),
 
-                                                    setState(
-                                                      () => isLoading = true,
-                                                    );
-
-                                                    try {
-                                                      final List<DataGridRow>
-                                                      visibleRows =
-                                                          machinePaperDatasource
-                                                              .rows;
-
-                                                      // 1️⃣ Lấy các đơn chưa complete và gán sortPlanning
-                                                      final List<
-                                                        Map<String, dynamic>
-                                                      >
-                                                      updateIndex =
-                                                          visibleRows
-                                                              .asMap()
-                                                              .entries
-                                                              .where((entry) {
-                                                                final status =
-                                                                    entry.value
-                                                                        .getCells()
-                                                                        .firstWhere(
-                                                                          (
-                                                                            cell,
-                                                                          ) =>
-                                                                              cell.columnName ==
-                                                                              "status",
-                                                                          orElse:
-                                                                              () => DataGridCell(
-                                                                                columnName:
-                                                                                    'status',
-                                                                                value:
-                                                                                    null,
-                                                                              ),
-                                                                        )
-                                                                        .value;
-
-                                                                return status !=
-                                                                    'complete';
-                                                              })
-                                                              .map((entry) {
-                                                                final planningId =
-                                                                    entry.value
-                                                                        .getCells()
-                                                                        .firstWhere(
-                                                                          (
-                                                                            cell,
-                                                                          ) =>
-                                                                              cell.columnName ==
-                                                                              "planningId",
-                                                                        )
-                                                                        .value;
-
-                                                                return {
-                                                                  "planningId":
-                                                                      planningId,
-                                                                  "sortPlanning":
-                                                                      entry
-                                                                          .key +
-                                                                      1,
-                                                                };
-                                                              })
-                                                              .toList();
-
-                                                      // 2️⃣ Lấy 1 đơn complete cuối cùng (để BE tính timeRunning, không update sortPlanning)
-                                                      DataGridRow?
-                                                      lastCompleteRow;
-
-                                                      for (var row
-                                                          in visibleRows
-                                                              .reversed) {
-                                                        final status =
-                                                            row
-                                                                .getCells()
-                                                                .firstWhere(
-                                                                  (cell) =>
-                                                                      cell.columnName ==
-                                                                      "status",
-                                                                  orElse:
-                                                                      () => DataGridCell(
-                                                                        columnName:
-                                                                            'status',
-                                                                        value:
-                                                                            null,
-                                                                      ),
-                                                                )
-                                                                .value;
-
-                                                        if (status ==
-                                                            'complete') {
-                                                          lastCompleteRow = row;
-                                                          break;
-                                                        }
-                                                      }
-
-                                                      if (lastCompleteRow !=
-                                                          null) {
-                                                        final planningId =
-                                                            lastCompleteRow
-                                                                .getCells()
-                                                                .firstWhere(
-                                                                  (cell) =>
-                                                                      cell.columnName ==
-                                                                      "planningId",
-                                                                )
-                                                                .value;
-
-                                                        updateIndex.add({
-                                                          "planningId":
-                                                              planningId,
-                                                        });
-                                                      }
-
-                                                      // 3️⃣ Parse ngày, giờ, tổng thời gian
-                                                      final DateTime
-                                                      parsedDayStart =
-                                                          DateFormat(
-                                                            'dd/MM/yyyy',
-                                                          ).parse(
-                                                            dayStartController
-                                                                .text,
-                                                          );
-
-                                                      final List<String>
-                                                      timeParts =
+                                      // save
+                                      Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          AnimatedButton(
+                                            onPressed:
+                                                isLoading
+                                                    ? null
+                                                    : () async {
+                                                      if (dayStartController
+                                                              .text
+                                                              .isEmpty ||
                                                           timeStartController
                                                               .text
-                                                              .split(':');
-                                                      final TimeOfDay
-                                                      parsedTimeStart =
-                                                          TimeOfDay(
-                                                            hour: int.parse(
-                                                              timeParts[0],
-                                                            ),
-                                                            minute: int.parse(
-                                                              timeParts[1],
-                                                            ),
-                                                          );
-
-                                                      final int
-                                                      parsedTotalTime =
-                                                          int.tryParse(
-                                                            totalTimeWorkingController
-                                                                .text,
-                                                          ) ??
-                                                          0;
-
-                                                      // 4️⃣ Gửi xuống BE
-                                                      // print(
-                                                      //   "=== Các đơn sẽ gửi xuống BE ===",
-                                                      // );
-                                                      // for (var item
-                                                      //     in updateIndex) {
-                                                      //   print(item);
-                                                      // }
-                                                      // print(
-                                                      //   "================================",
-                                                      // );
-
-                                                      final result =
-                                                          await PlanningService()
-                                                              .updateIndexWTimeRunning(
-                                                                machine,
-                                                                updateIndex,
-                                                                parsedDayStart,
-                                                                parsedTimeStart,
-                                                                parsedTotalTime,
-                                                              );
-
-                                                      if (!context.mounted) {
+                                                              .isEmpty ||
+                                                          totalTimeWorkingController
+                                                              .text
+                                                              .isEmpty) {
+                                                        showSnackBarError(
+                                                          context,
+                                                          "Vui lòng nhập đầy đủ ngày bắt đầu, giờ bắt đầu và tổng thời gian.",
+                                                        );
                                                         return;
                                                       }
 
-                                                      if (result) {
-                                                        showSnackBarSuccess(
-                                                          context,
-                                                          "Cập nhật thành công",
-                                                        );
-                                                        loadPlanning(true);
-                                                      }
-                                                    } catch (e, s) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        "Lỗi cập nhật",
-                                                      );
-                                                      AppLogger.e(
-                                                        "Lỗi khi lưu",
-                                                        error: e,
-                                                        stackTrace: s,
-                                                      );
-                                                    } finally {
                                                       setState(
-                                                        () => isLoading = false,
+                                                        () => isLoading = true,
                                                       );
-                                                    }
-                                                  },
-                                          label: "Lưu",
-                                          icon: Icons.save,
-                                          backgroundColor:
-                                              themeController.buttonColor,
-                                        ),
 
-                                        if (isLoading)
-                                          const Positioned(
-                                            right: 10,
-                                            child: SizedBox(
-                                              width: 18,
-                                              height: 18,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: Colors.white,
+                                                      try {
+                                                        final List<DataGridRow>
+                                                        visibleRows =
+                                                            machinePaperDatasource
+                                                                .rows;
+
+                                                        // 1️⃣ Lấy các đơn chưa complete và gán sortPlanning
+                                                        final List<
+                                                          Map<String, dynamic>
+                                                        >
+                                                        updateIndex =
+                                                            visibleRows
+                                                                .asMap()
+                                                                .entries
+                                                                .where((entry) {
+                                                                  final status =
+                                                                      entry
+                                                                          .value
+                                                                          .getCells()
+                                                                          .firstWhere(
+                                                                            (
+                                                                              cell,
+                                                                            ) =>
+                                                                                cell.columnName ==
+                                                                                "status",
+                                                                            orElse:
+                                                                                () => DataGridCell(
+                                                                                  columnName:
+                                                                                      'status',
+                                                                                  value:
+                                                                                      null,
+                                                                                ),
+                                                                          )
+                                                                          .value;
+
+                                                                  return status !=
+                                                                      'complete';
+                                                                })
+                                                                .map((entry) {
+                                                                  final planningId =
+                                                                      entry
+                                                                          .value
+                                                                          .getCells()
+                                                                          .firstWhere(
+                                                                            (
+                                                                              cell,
+                                                                            ) =>
+                                                                                cell.columnName ==
+                                                                                "planningId",
+                                                                          )
+                                                                          .value;
+
+                                                                  return {
+                                                                    "planningId":
+                                                                        planningId,
+                                                                    "sortPlanning":
+                                                                        entry
+                                                                            .key +
+                                                                        1,
+                                                                  };
+                                                                })
+                                                                .toList();
+
+                                                        // 2️⃣ Lấy 1 đơn complete cuối cùng (để BE tính timeRunning, không update sortPlanning)
+                                                        DataGridRow?
+                                                        lastCompleteRow;
+
+                                                        for (var row
+                                                            in visibleRows
+                                                                .reversed) {
+                                                          final status =
+                                                              row
+                                                                  .getCells()
+                                                                  .firstWhere(
+                                                                    (cell) =>
+                                                                        cell.columnName ==
+                                                                        "status",
+                                                                    orElse:
+                                                                        () => DataGridCell(
+                                                                          columnName:
+                                                                              'status',
+                                                                          value:
+                                                                              null,
+                                                                        ),
+                                                                  )
+                                                                  .value;
+
+                                                          if (status ==
+                                                              'complete') {
+                                                            lastCompleteRow =
+                                                                row;
+                                                            break;
+                                                          }
+                                                        }
+
+                                                        if (lastCompleteRow !=
+                                                            null) {
+                                                          final planningId =
+                                                              lastCompleteRow
+                                                                  .getCells()
+                                                                  .firstWhere(
+                                                                    (cell) =>
+                                                                        cell.columnName ==
+                                                                        "planningId",
+                                                                  )
+                                                                  .value;
+
+                                                          updateIndex.add({
+                                                            "planningId":
+                                                                planningId,
+                                                          });
+                                                        }
+
+                                                        // 3️⃣ Parse ngày, giờ, tổng thời gian
+                                                        final DateTime
+                                                        parsedDayStart =
+                                                            DateFormat(
+                                                              'dd/MM/yyyy',
+                                                            ).parse(
+                                                              dayStartController
+                                                                  .text,
+                                                            );
+
+                                                        final List<String>
+                                                        timeParts =
+                                                            timeStartController
+                                                                .text
+                                                                .split(':');
+                                                        final TimeOfDay
+                                                        parsedTimeStart =
+                                                            TimeOfDay(
+                                                              hour: int.parse(
+                                                                timeParts[0],
+                                                              ),
+                                                              minute: int.parse(
+                                                                timeParts[1],
+                                                              ),
+                                                            );
+
+                                                        final int
+                                                        parsedTotalTime =
+                                                            int.tryParse(
+                                                              totalTimeWorkingController
+                                                                  .text,
+                                                            ) ??
+                                                            0;
+
+                                                        // 4️⃣ Gửi xuống BE
+                                                        // print(
+                                                        //   "=== Các đơn sẽ gửi xuống BE ===",
+                                                        // );
+                                                        // for (var item
+                                                        //     in updateIndex) {
+                                                        //   print(item);
+                                                        // }
+                                                        // print(
+                                                        //   "================================",
+                                                        // );
+
+                                                        final result =
+                                                            await PlanningService()
+                                                                .updateIndexWTimeRunning(
+                                                                  machine,
+                                                                  updateIndex,
+                                                                  parsedDayStart,
+                                                                  parsedTimeStart,
+                                                                  parsedTotalTime,
+                                                                );
+
+                                                        if (!context.mounted) {
+                                                          return;
+                                                        }
+
+                                                        if (result) {
+                                                          showSnackBarSuccess(
+                                                            context,
+                                                            "Cập nhật thành công",
+                                                          );
+                                                          loadPlanning(true);
+                                                        }
+                                                      } catch (e, s) {
+                                                        showSnackBarError(
+                                                          context,
+                                                          "Lỗi cập nhật",
+                                                        );
+                                                        AppLogger.e(
+                                                          "Lỗi khi lưu",
+                                                          error: e,
+                                                          stackTrace: s,
+                                                        );
+                                                      } finally {
+                                                        setState(
+                                                          () =>
+                                                              isLoading = false,
+                                                        );
+                                                      }
+                                                    },
+                                            label: "Lưu",
+                                            icon: Icons.save,
+                                            backgroundColor:
+                                                themeController.buttonColor,
+                                          ),
+
+                                          if (isLoading)
+                                            const Positioned(
+                                              right: 10,
+                                              child: SizedBox(
+                                                width: 18,
+                                                height: 18,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      color: Colors.white,
+                                                    ),
                                               ),
                                             ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      //group/unGroup
+                                      AnimatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            showGroup = !showGroup;
+                                          });
+                                        },
+                                        label:
+                                            showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                        icon:
+                                            showGroup
+                                                ? Symbols.ungroup
+                                                : Symbols.ad_group,
+                                        backgroundColor:
+                                            themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      //choose machine
+                                      SizedBox(
+                                        width: 175,
+                                        child: DropdownButtonFormField<String>(
+                                          value: machine,
+                                          items:
+                                              [
+                                                'Máy 1350',
+                                                "Máy 1900",
+                                                "Máy 2 Lớp",
+                                                "Máy Quấn Cuồn",
+                                              ].map((String value) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(value),
+                                                );
+                                              }).toList(),
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              changeMachine(value);
+                                            }
+                                          },
+                                          decoration: InputDecoration(
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: const BorderSide(
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 8,
+                                                ),
                                           ),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 10),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
 
-                                    //group/unGroup
-                                    AnimatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          showGroup = !showGroup;
-                                        });
-                                      },
-                                      label:
-                                          showGroup ? 'Tắt nhóm' : 'Bật nhóm',
-                                      icon:
-                                          showGroup
-                                              ? Symbols.ungroup
-                                              : Symbols.ad_group,
-                                      backgroundColor:
-                                          themeController.buttonColor,
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //choose machine
-                                    SizedBox(
-                                      width: 175,
-                                      child: DropdownButtonFormField<String>(
-                                        value: machine,
-                                        items:
-                                            [
-                                              'Máy 1350',
-                                              "Máy 1900",
-                                              "Máy 2 Lớp",
-                                              "Máy Quấn Cuồn",
-                                            ].map((String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
+                                      //popup menu
+                                      PopupMenuButton<String>(
+                                        icon: const Icon(
+                                          Icons.more_vert,
+                                          color: Colors.black,
+                                        ),
+                                        color: Colors.white,
+                                        onSelected: (value) async {
+                                          if (value == 'change') {
+                                            if (selectedPlanningIds.isEmpty) {
+                                              showSnackBarError(
+                                                context,
+                                                "Chưa chọn kế hoạch cần chuyển máy",
                                               );
-                                            }).toList(),
-                                        onChanged: (value) {
-                                          if (value != null) {
-                                            changeMachine(value);
+                                              return;
+                                            }
+                                            final planning =
+                                                await futurePlanning;
+
+                                            if (!context.mounted) return;
+
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (_) => ChangeMachineDialog(
+                                                    planning:
+                                                        planning
+                                                            .where(
+                                                              (
+                                                                p,
+                                                              ) => selectedPlanningIds
+                                                                  .contains(
+                                                                    p.planningId
+                                                                        .toString(),
+                                                                  ),
+                                                            )
+                                                            .toList(),
+                                                    onChangeMachine:
+                                                        () =>
+                                                            loadPlanning(true),
+                                                  ),
+                                            );
+                                          } else if (value == 'stop') {
+                                            await handlePlanningAction(
+                                              context: context,
+                                              selectedPlanningIds:
+                                                  selectedPlanningIds,
+                                              status: "stop",
+                                              title: "Xác nhận dừng sản xuất",
+                                              message:
+                                                  "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
+                                              successMessage:
+                                                  "Dừng sản xuất thành công",
+                                              errorMessage:
+                                                  "Có lỗi xảy ra khi dừng sản xuất",
+                                              onSuccess:
+                                                  () => {
+                                                    loadPlanning(true),
+                                                    badgesController
+                                                        .fetchPendingApprovals(),
+                                                  },
+                                            );
+                                          } else if (value == 'reject') {
+                                            await handlePlanningAction(
+                                              context: context,
+                                              selectedPlanningIds:
+                                                  selectedPlanningIds,
+                                              planningList:
+                                                  machinePaperDatasource
+                                                      .planning,
+                                              status: "reject",
+                                              title: "Xác nhận hủy kế hoạch",
+                                              message:
+                                                  "Bạn có chắc muốn hủy kế hoạch đơn này không?",
+                                              successMessage: "Hủy thành công",
+                                              errorMessage:
+                                                  "Có lỗi xảy ra khi hủy",
+                                              onSuccess:
+                                                  () => loadPlanning(true),
+                                            );
+                                          } else if (value == 'acceptLack') {
+                                            await handlePlanningAction(
+                                              context: context,
+                                              selectedPlanningIds:
+                                                  selectedPlanningIds,
+                                              planningList:
+                                                  machinePaperDatasource
+                                                      .planning,
+                                              status: "complete",
+                                              title: "Xác nhận thiếu số lượng",
+                                              message:
+                                                  "Bạn có chắc muốn chấp nhận thiếu không?",
+                                              successMessage:
+                                                  "Chấp nhận thành công",
+                                              errorMessage:
+                                                  "Có lỗi xảy ra khi thực thi",
+                                              onSuccess:
+                                                  () => loadPlanning(true),
+                                            );
                                           }
                                         },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
+                                        itemBuilder:
+                                            (BuildContext context) => [
+                                              const PopupMenuItem<String>(
+                                                value: 'change',
+                                                child: ListTile(
+                                                  leading: Icon(
+                                                    Symbols.construction,
+                                                  ),
+                                                  title: Text('Chuyển Máy'),
+                                                ),
                                               ),
-                                        ),
+                                              const PopupMenuItem<String>(
+                                                value: 'stop',
+                                                child: ListTile(
+                                                  leading: Icon(
+                                                    Symbols.pause_circle,
+                                                  ),
+                                                  title: Text('Dừng Chạy Đơn'),
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'reject',
+                                                child: ListTile(
+                                                  leading: Icon(
+                                                    Symbols.cancel_rounded,
+                                                  ),
+                                                  title: Text('Hủy Chạy Đơn'),
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'acceptLack',
+                                                child: ListTile(
+                                                  leading: Icon(
+                                                    Icons.approval_outlined,
+                                                  ),
+                                                  title: Text(
+                                                    'Chấp Nhận Thiếu SL',
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                       ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //popup menu
-                                    PopupMenuButton<String>(
-                                      icon: const Icon(
-                                        Icons.more_vert,
-                                        color: Colors.black,
-                                      ),
-                                      color: Colors.white,
-                                      onSelected: (value) async {
-                                        if (value == 'change') {
-                                          if (selectedPlanningIds.isEmpty) {
-                                            showSnackBarError(
-                                              context,
-                                              "Chưa chọn kế hoạch cần chuyển máy",
-                                            );
-                                            return;
-                                          }
-                                          final planning = await futurePlanning;
-
-                                          if (!context.mounted) return;
-
-                                          showDialog(
-                                            context: context,
-                                            builder:
-                                                (_) => ChangeMachineDialog(
-                                                  planning:
-                                                      planning
-                                                          .where(
-                                                            (
-                                                              p,
-                                                            ) => selectedPlanningIds
-                                                                .contains(
-                                                                  p.planningId
-                                                                      .toString(),
-                                                                ),
-                                                          )
-                                                          .toList(),
-                                                  onChangeMachine:
-                                                      () => loadPlanning(true),
-                                                ),
-                                          );
-                                        } else if (value == 'stop') {
-                                          await handlePlanningAction(
-                                            context: context,
-                                            selectedPlanningIds:
-                                                selectedPlanningIds,
-                                            status: "stop",
-                                            title: "Xác nhận dừng sản xuất",
-                                            message:
-                                                "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
-                                            successMessage:
-                                                "Dừng sản xuất thành công",
-                                            errorMessage:
-                                                "Có lỗi xảy ra khi dừng sản xuất",
-                                            onSuccess:
-                                                () => {
-                                                  loadPlanning(true),
-                                                  badgesController
-                                                      .fetchPendingApprovals(),
-                                                },
-                                          );
-                                        } else if (value == 'reject') {
-                                          await handlePlanningAction(
-                                            context: context,
-                                            selectedPlanningIds:
-                                                selectedPlanningIds,
-                                            planningList:
-                                                machinePaperDatasource.planning,
-                                            status: "reject",
-                                            title: "Xác nhận hủy kế hoạch",
-                                            message:
-                                                "Bạn có chắc muốn hủy kế hoạch đơn này không?",
-                                            successMessage: "Hủy thành công",
-                                            errorMessage:
-                                                "Có lỗi xảy ra khi hủy",
-                                            onSuccess: () => loadPlanning(true),
-                                          );
-                                        } else if (value == 'acceptLack') {
-                                          await handlePlanningAction(
-                                            context: context,
-                                            selectedPlanningIds:
-                                                selectedPlanningIds,
-                                            planningList:
-                                                machinePaperDatasource.planning,
-                                            status: "complete",
-                                            title: "Xác nhận thiếu số lượng",
-                                            message:
-                                                "Bạn có chắc muốn chấp nhận thiếu không?",
-                                            successMessage:
-                                                "Chấp nhận thành công",
-                                            errorMessage:
-                                                "Có lỗi xảy ra khi thực thi",
-                                            onSuccess: () => loadPlanning(true),
-                                          );
-                                        }
-                                      },
-                                      itemBuilder:
-                                          (BuildContext context) => [
-                                            const PopupMenuItem<String>(
-                                              value: 'change',
-                                              child: ListTile(
-                                                leading: Icon(
-                                                  Symbols.construction,
-                                                ),
-                                                title: Text('Chuyển Máy'),
-                                              ),
-                                            ),
-                                            const PopupMenuItem<String>(
-                                              value: 'stop',
-                                              child: ListTile(
-                                                leading: Icon(
-                                                  Symbols.pause_circle,
-                                                ),
-                                                title: Text('Dừng Chạy Đơn'),
-                                              ),
-                                            ),
-                                            const PopupMenuItem<String>(
-                                              value: 'reject',
-                                              child: ListTile(
-                                                leading: Icon(
-                                                  Symbols.cancel_rounded,
-                                                ),
-                                                title: Text('Hủy Chạy Đơn'),
-                                              ),
-                                            ),
-                                            const PopupMenuItem<String>(
-                                              value: 'acceptLack',
-                                              child: ListTile(
-                                                leading: Icon(
-                                                  Icons.approval_outlined,
-                                                ),
-                                                title: Text(
-                                                  'Chấp Nhận Thiếu SL',
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                    ),
-                                    const SizedBox(width: 10),
-                                  ],
+                                      const SizedBox(width: 10),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
