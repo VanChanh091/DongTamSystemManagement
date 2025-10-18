@@ -38,7 +38,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   bool isSearching = false;
 
   int currentPage = 1;
-  int pageSize = 25;
+  int pageSize = 30;
   int pageSizeSearch = 20;
 
   @override
@@ -597,7 +597,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                           autoExpandGroups: true,
                           columnWidthMode: ColumnWidthMode.auto,
                           selectionMode: SelectionMode.single,
-                          headerRowHeight: 40,
+                          headerRowHeight: 35,
                           rowHeight: 40,
                           columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,

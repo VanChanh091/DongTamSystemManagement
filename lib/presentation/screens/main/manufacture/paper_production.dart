@@ -506,7 +506,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    headerRowHeight: 40,
+                    headerRowHeight: 35,
                     rowHeight: 40,
                     columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,

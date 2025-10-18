@@ -45,8 +45,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   bool isSeenOrder = false;
 
   int currentPage = 1;
-  int pageSize = 3;
-  int pageSizeSearch = 3;
+  int pageSize = 30;
+  int pageSizeSearch = 20;
 
   @override
   void initState() {
@@ -364,7 +364,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                           isScrollbarAlwaysShown: true,
                           selectionMode: SelectionMode.single,
                           columnWidthMode: ColumnWidthMode.auto,
-                          headerRowHeight: 40,
+                          headerRowHeight: 35,
                           rowHeight: 40,
                           columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,

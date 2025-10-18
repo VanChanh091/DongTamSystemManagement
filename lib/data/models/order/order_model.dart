@@ -174,11 +174,12 @@ class Order {
     return '${layers.length}${uniqueFlutes.join()}';
   }
 
-  int get totalRunningPlan {
+  int get totalQtyProduced {
     if (planningPaper == null || planningPaper!.isEmpty) {
       return 0;
     }
-    return planningPaper!.fold(0, (sum, p) => sum + (p.runningPlan));
+
+    return planningPaper!.fold(0, (sum, p) => sum + (p.qtyProduced ?? 0));
   }
 
   factory Order.fromJson(Map<String, dynamic> json) {

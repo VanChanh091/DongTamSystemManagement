@@ -66,7 +66,7 @@ class PlanningDataSource extends DataGridSource {
       ),
       DataGridCell<int>(
         columnName: 'quantityProduced',
-        value: order.totalRunningPlan,
+        value: order.totalQtyProduced,
       ),
       DataGridCell<String>(
         columnName: 'instructSpecial',

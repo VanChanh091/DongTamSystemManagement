@@ -21,12 +21,7 @@ class PlanningPaper {
   final int planningId;
   final TimeOfDay? timeRunning;
   final int? sortPlanning;
-  final double? bottom;
-  final double? fluteE;
-  final double? fluteB;
-  final double? fluteC;
-  final double? knife;
-  final double? totalLoss;
+  final double? bottom, fluteE, fluteB, fluteC, knife, totalLoss;
   final String status;
   final bool hasBox;
 

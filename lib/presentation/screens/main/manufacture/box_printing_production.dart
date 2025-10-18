@@ -241,6 +241,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                       ),
                     ),
                   ),
+
                   //button menu
                   SizedBox(
                     height: 70,
@@ -509,7 +510,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    headerRowHeight: 40,
+                    headerRowHeight: 35,
                     rowHeight: 40,
                     columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,

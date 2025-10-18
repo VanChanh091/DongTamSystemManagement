@@ -8,6 +8,7 @@ import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -234,12 +235,27 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                     isScrollbarAlwaysShown: true,
                     columnWidthMode: ColumnWidthMode.auto,
                     selectionMode: SelectionMode.single,
+                    headerRowHeight: 35,
+                    rowHeight: 40,
                     columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
                       widths: columnWidths,
                     ),
-                    headerRowHeight: 50,
-                    rowHeight: 40,
+                    stackedHeaderRows: <StackedHeaderRow>[
+                      StackedHeaderRow(
+                        cells: [
+                          StackedHeaderCell(
+                            columnNames: ["qtyManufacture", "quantityProduced"],
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Số Lượng',
+                                themeController: themeController,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
 
                     //auto resize
                     allowColumnsResizing: true,

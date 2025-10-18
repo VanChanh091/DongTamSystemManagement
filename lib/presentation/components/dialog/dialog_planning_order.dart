@@ -136,7 +136,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   void fillDataOrderToPlanning() {
     int leftQty =
         (int.tryParse(quantityOrderController.text) ?? 0) -
-        (widget.order?.totalRunningPlan ?? 0);
+        (widget.order?.totalQtyProduced ?? 0);
 
     dayReplaceController.text = dayOrderController.text;
     matEReplaceController.text = matEOrderController.text;

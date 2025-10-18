@@ -446,7 +446,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     isScrollbarAlwaysShown: true,
                     selectionMode: SelectionMode.single,
                     columnWidthMode: ColumnWidthMode.auto,
-                    headerRowHeight: 40,
+                    headerRowHeight: 35,
                     rowHeight: 40,
                     columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
