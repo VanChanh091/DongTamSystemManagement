@@ -40,7 +40,7 @@ class _CustomerPageState extends State<CustomerPage> {
   String? selectedCustomerId;
 
   int currentPage = 1;
-  int pageSize = 30;
+  int pageSize = 3;
   int pageSizeSearch = 20;
 
   @override
@@ -351,7 +351,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                             );
                                           },
                                           label: "Xuất Excel",
-                                          icon: Icons.search,
+                                          icon: Symbols.export_notes,
                                           backgroundColor:
                                               themeController.buttonColor,
                                         ),

@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
@@ -9,8 +10,9 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class MachinePaperDatasource extends DataGridSource {
   List<PlanningPaper> planning = [];
   List<String> selectedPlanningIds = [];
-  bool showGroup;
+  UnsavedChangeController? unsavedChange;
   bool isShowPlanningPaper;
+  bool showGroup;
   bool hasBox;
 
   late List<DataGridRow> planningDataGridRows;
@@ -22,6 +24,7 @@ class MachinePaperDatasource extends DataGridSource {
     required this.planning,
     required this.selectedPlanningIds,
     required this.showGroup,
+    this.unsavedChange,
     this.isShowPlanningPaper = false,
     this.hasBox = false,
   }) {
@@ -212,6 +215,8 @@ class MachinePaperDatasource extends DataGridSource {
   void moveRowUp(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
 
+    unsavedChange?.setUnsavedChanges(true);
+
     List<PlanningPaper> selectedItems =
         planning
             .where((p) => idsToMove.contains(p.planningId.toString()))
@@ -248,6 +253,8 @@ class MachinePaperDatasource extends DataGridSource {
   // Di chuyển hàng xuống
   void moveRowDown(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
+
+    unsavedChange?.setUnsavedChanges(true);
 
     List<PlanningPaper> selectedItems =
         planning

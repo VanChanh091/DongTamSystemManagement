@@ -2,7 +2,6 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/splashScreen/splash_screen_dongtam.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
-
 import 'package:flutter/material.dart';
 
 void main() async {

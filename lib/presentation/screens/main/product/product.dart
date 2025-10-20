@@ -313,7 +313,7 @@ class _ProductPageState extends State<ProductPage> {
                                             );
                                           },
                                           label: "Xuất Excel",
-                                          icon: Icons.search,
+                                          icon: Symbols.export_notes,
                                           backgroundColor:
                                               themeController.buttonColor,
                                         ),

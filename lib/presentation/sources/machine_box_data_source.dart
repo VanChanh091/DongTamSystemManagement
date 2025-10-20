@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -8,6 +9,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class MachineBoxDatasource extends DataGridSource {
   List<PlanningBox> planning = [];
   List<String> selectedPlanningIds = [];
+  UnsavedChangeController? unsavedChange;
   String machine;
   bool showGroup;
 
@@ -21,6 +23,7 @@ class MachineBoxDatasource extends DataGridSource {
     required this.selectedPlanningIds,
     required this.showGroup,
     required this.machine,
+    this.unsavedChange,
   }) {
     buildDataGridRows();
 
@@ -246,6 +249,8 @@ class MachineBoxDatasource extends DataGridSource {
   void moveRowUp(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
 
+    unsavedChange?.setUnsavedChanges(true);
+
     List<PlanningBox> selectedItems =
         planning
             .where((p) => idsToMove.contains(p.planningBoxId.toString()))
@@ -282,6 +287,8 @@ class MachineBoxDatasource extends DataGridSource {
   // Di chuyển hàng xuống
   void moveRowDown(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
+
+    unsavedChange?.setUnsavedChanges(true);
 
     List<PlanningBox> selectedItems =
         planning

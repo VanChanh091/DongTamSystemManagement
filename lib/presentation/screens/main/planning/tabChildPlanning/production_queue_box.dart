@@ -1,4 +1,5 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
+import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
@@ -29,6 +30,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   late MachineBoxDatasource machineBoxDatasource;
   late List<GridColumn> columns;
   final DataGridController dataGridController = DataGridController();
+  final unsavedChangeController = Get.find<UnsavedChangeController>();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
@@ -812,6 +814,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                   machineBoxDatasource = MachineBoxDatasource(
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
+                    unsavedChange: unsavedChangeController,
                     machine: machine,
                     showGroup: showGroup,
                   );

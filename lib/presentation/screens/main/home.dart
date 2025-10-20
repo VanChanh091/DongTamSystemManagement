@@ -1,6 +1,7 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
+import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
@@ -19,6 +20,7 @@ import 'package:dongtam/presentation/screens/main/report/top_tab_report.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/color/theme_picker_color.dart';
+import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
@@ -37,6 +39,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final AuthService authService = AuthService();
   final socketService = SocketService();
+  final unsavedChangeController = Get.put(UnsavedChangeController());
   final sidebarController = Get.put(SidebarController());
   final badgesController = Get.put(BadgesController());
   final userController = Get.find<UserController>();
@@ -555,11 +558,16 @@ class _HomePageState extends State<HomePage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            onTap: () {
+            onTap: () async {
               if (onTap != null) {
                 onTap();
               } else {
-                sidebarController.changePage(index);
+                bool canNavigate = await UnsavedChangeDialog(
+                  unsavedChangeController,
+                );
+                if (canNavigate) {
+                  sidebarController.changePage(index);
+                }
               }
             },
           )
@@ -616,8 +624,11 @@ class _HomePageState extends State<HomePage> {
                 ? Colors.white.withValues(alpha: 0.7)
                 : const Color.fromARGB(255, 252, 220, 41),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        onTap: () {
-          sidebarController.changePage(index);
+        onTap: () async {
+          bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);
+          if (canNavigate) {
+            sidebarController.changePage(index);
+          }
         },
       );
     });

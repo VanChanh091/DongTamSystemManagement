@@ -14,6 +14,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportPlanningBox extends StatefulWidget {
@@ -483,7 +484,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                     );
                                   },
                                   label: "Xuất Excel",
-                                  icon: Icons.search,
+                                  icon: Symbols.export_notes,
                                   backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 10),
