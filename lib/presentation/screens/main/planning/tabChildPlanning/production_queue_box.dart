@@ -59,14 +59,9 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
       futurePlanning = Future.error("NO_PERMISSION");
     }
 
-    columns = buildMachineBoxColumns(
-      machine: machine,
-      themeController: themeController,
-    );
+    columns = buildMachineBoxColumns(machine: machine, themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((
-      w,
-    ) {
+    ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -83,9 +78,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
   void loadPlanning(bool refresh) {
     setState(() {
-      futurePlanning = ensureMinLoading(
-        PlanningService().getPlanningMachineBox(machine, refresh),
-      );
+      futurePlanning = ensureMinLoading(PlanningService().getPlanningMachineBox(machine, refresh));
 
       selectedPlanningIds.clear();
     });
@@ -93,9 +86,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
   void searchPlanning() {
     String keyword = searchController.text.trim().toLowerCase();
-    AppLogger.i(
-      "searchBox => searchType=$searchType | keyword=$keyword | machine=$machine",
-    );
+    AppLogger.i("searchBox => searchType=$searchType | keyword=$keyword | machine=$machine");
 
     if (isTextFieldEnabled && keyword.isEmpty) {
       AppLogger.w("searchBox => searchType=$searchType nhưng keyword rỗng");
@@ -164,26 +155,19 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                               Expanded(
                                 flex: 1,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: LayoutBuilder(
                                     builder: (context, constraints) {
                                       final maxWidth = constraints.maxWidth;
-                                      final dropdownWidth = (maxWidth * 0.2)
-                                          .clamp(120.0, 170.0);
-                                      final textInputWidth = (maxWidth * 0.3)
-                                          .clamp(200.0, 250.0);
+                                      final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
+                                      final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
 
                                       return Row(
                                         children: [
                                           //dropdown
                                           SizedBox(
                                             width: dropdownWidth,
-                                            child: DropdownButtonFormField<
-                                              String
-                                            >(
+                                            child: DropdownButtonFormField<String>(
                                               value: searchType,
                                               items:
                                                   [
@@ -193,9 +177,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                     "Sóng",
                                                     'QC Thùng',
                                                   ].map((String value) {
-                                                    return DropdownMenuItem<
-                                                      String
-                                                    >(
+                                                    return DropdownMenuItem<String>(
                                                       value: value,
                                                       child: Text(value),
                                                     );
@@ -203,8 +185,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                               onChanged: (value) {
                                                 setState(() {
                                                   searchType = value!;
-                                                  isTextFieldEnabled =
-                                                      searchType != 'Tất cả';
+                                                  isTextFieldEnabled = searchType != 'Tất cả';
 
                                                   searchController.clear();
                                                 });
@@ -213,17 +194,13 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                 filled: true,
                                                 fillColor: Colors.white,
                                                 border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                  ),
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: Colors.grey),
                                                 ),
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 8,
-                                                    ),
+                                                contentPadding: const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 8,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -236,18 +213,15 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                             child: TextField(
                                               controller: searchController,
                                               enabled: isTextFieldEnabled,
-                                              onSubmitted:
-                                                  (_) => searchPlanning(),
+                                              onSubmitted: (_) => searchPlanning(),
                                               decoration: InputDecoration(
                                                 hintText: 'Tìm kiếm...',
                                                 border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
+                                                  borderRadius: BorderRadius.circular(12),
                                                 ),
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                    ),
+                                                contentPadding: const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -258,8 +232,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                             onPressed: () => searchPlanning(),
                                             label: "Tìm kiếm",
                                             icon: Icons.search,
-                                            backgroundColor:
-                                                themeController.buttonColor,
+                                            backgroundColor: themeController.buttonColor,
                                           ),
                                         ],
                                       );
@@ -272,10 +245,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                               Expanded(
                                 flex: 1,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
@@ -283,33 +253,27 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                       Row(
                                         children: [
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.arrow_upward,
-                                            ),
+                                            icon: const Icon(Icons.arrow_upward),
                                             onPressed:
                                                 selectedPlanningIds.isNotEmpty
                                                     ? () {
                                                       setState(() {
-                                                        machineBoxDatasource
-                                                            .moveRowUp(
-                                                              selectedPlanningIds,
-                                                            );
+                                                        machineBoxDatasource.moveRowUp(
+                                                          selectedPlanningIds,
+                                                        );
                                                       });
                                                     }
                                                     : null,
                                           ),
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.arrow_downward,
-                                            ),
+                                            icon: const Icon(Icons.arrow_downward),
                                             onPressed:
                                                 selectedPlanningIds.isNotEmpty
                                                     ? () {
                                                       setState(() {
-                                                        machineBoxDatasource
-                                                            .moveRowDown(
-                                                              selectedPlanningIds,
-                                                            );
+                                                        machineBoxDatasource.moveRowDown(
+                                                          selectedPlanningIds,
+                                                        );
                                                       });
                                                     }
                                                     : null,
@@ -327,121 +291,88 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                 isLoading
                                                     ? null
                                                     : () async {
-                                                      if (dayStartController
-                                                              .text
-                                                              .isEmpty ||
-                                                          timeStartController
-                                                              .text
-                                                              .isEmpty ||
-                                                          totalTimeWorkingController
-                                                              .text
-                                                              .isEmpty) {
+                                                      if (dayStartController.text.isEmpty ||
+                                                          timeStartController.text.isEmpty ||
+                                                          totalTimeWorkingController.text.isEmpty) {
                                                         showSnackBarError(
                                                           context,
                                                           "Vui lòng nhập đầy đủ ngày bắt đầu, giờ bắt đầu và tổng thời gian.",
                                                         );
                                                       }
-                                                      setState(
-                                                        () => isLoading = true,
-                                                      );
+                                                      setState(() => isLoading = true);
 
                                                       try {
-                                                        final List<DataGridRow>
-                                                        visibleRows =
-                                                            machineBoxDatasource
-                                                                .rows;
+                                                        final List<DataGridRow> visibleRows =
+                                                            machineBoxDatasource.rows;
 
                                                         // 1️⃣ Lấy các đơn chưa complete và gán sortPlanning
-                                                        final List<
-                                                          Map<String, dynamic>
-                                                        >
+                                                        final List<Map<String, dynamic>>
                                                         updateIndex =
                                                             visibleRows
                                                                 .asMap()
                                                                 .entries
                                                                 .where((entry) {
                                                                   final status =
-                                                                      entry
-                                                                          .value
+                                                                      entry.value
                                                                           .getCells()
                                                                           .firstWhere(
-                                                                            (
-                                                                              cell,
-                                                                            ) =>
+                                                                            (cell) =>
                                                                                 cell.columnName ==
                                                                                 "status",
                                                                             orElse:
                                                                                 () => DataGridCell(
                                                                                   columnName:
                                                                                       'status',
-                                                                                  value:
-                                                                                      null,
+                                                                                  value: null,
                                                                                 ),
                                                                           )
                                                                           .value;
 
-                                                                  return status !=
-                                                                      'complete';
+                                                                  return status != 'complete';
                                                                 })
                                                                 .map((entry) {
                                                                   final planningId =
-                                                                      entry
-                                                                          .value
+                                                                      entry.value
                                                                           .getCells()
                                                                           .firstWhere(
-                                                                            (
-                                                                              cell,
-                                                                            ) =>
+                                                                            (cell) =>
                                                                                 cell.columnName ==
                                                                                 "planningBoxId",
                                                                           )
                                                                           .value;
 
                                                                   return {
-                                                                    "planningBoxId":
-                                                                        planningId,
-                                                                    "sortPlanning":
-                                                                        entry
-                                                                            .key +
-                                                                        1,
+                                                                    "planningBoxId": planningId,
+                                                                    "sortPlanning": entry.key + 1,
                                                                   };
                                                                 })
                                                                 .toList();
 
                                                         // 2️⃣ Lấy 1 đơn complete cuối cùng (để BE tính timeRunning, không update sortPlanning)
-                                                        DataGridRow?
-                                                        lastCompleteRow;
+                                                        DataGridRow? lastCompleteRow;
 
-                                                        for (var row
-                                                            in visibleRows
-                                                                .reversed) {
+                                                        for (var row in visibleRows.reversed) {
                                                           final status =
                                                               row
                                                                   .getCells()
                                                                   .firstWhere(
                                                                     (cell) =>
-                                                                        cell.columnName ==
-                                                                        "status",
+                                                                        cell.columnName == "status",
                                                                     orElse:
                                                                         () => DataGridCell(
-                                                                          columnName:
-                                                                              'status',
-                                                                          value:
-                                                                              null,
+                                                                          columnName: 'status',
+                                                                          value: null,
                                                                         ),
                                                                   )
                                                                   .value;
 
-                                                          if (status ==
-                                                              'complete') {
-                                                            lastCompleteRow =
-                                                                row;
+                                                          if (status == 'complete') {
+                                                            lastCompleteRow = row;
                                                             break;
                                                           }
                                                         }
 
-                                                        if (lastCompleteRow !=
-                                                            null) {
+                                                        if (lastCompleteRow != null) {
                                                           final planningBoxId =
                                                               lastCompleteRow
                                                                   .getCells()
@@ -453,43 +384,26 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                                   .value;
 
                                                           updateIndex.add({
-                                                            "planningBoxId":
-                                                                planningBoxId,
+                                                            "planningBoxId": planningBoxId,
                                                           });
                                                         }
 
                                                         // 3️⃣ Parse ngày, giờ, tổng thời gian
-                                                        final DateTime
-                                                        parsedDayStart =
-                                                            DateFormat(
-                                                              'dd/MM/yyyy',
-                                                            ).parse(
-                                                              dayStartController
-                                                                  .text,
-                                                            );
+                                                        final DateTime parsedDayStart = DateFormat(
+                                                          'dd/MM/yyyy',
+                                                        ).parse(dayStartController.text);
 
-                                                        final List<String>
-                                                        timeParts =
-                                                            timeStartController
-                                                                .text
-                                                                .split(':');
+                                                        final List<String> timeParts =
+                                                            timeStartController.text.split(':');
 
-                                                        final TimeOfDay
-                                                        parsedTimeStart =
-                                                            TimeOfDay(
-                                                              hour: int.parse(
-                                                                timeParts[0],
-                                                              ),
-                                                              minute: int.parse(
-                                                                timeParts[1],
-                                                              ),
-                                                            );
+                                                        final TimeOfDay parsedTimeStart = TimeOfDay(
+                                                          hour: int.parse(timeParts[0]),
+                                                          minute: int.parse(timeParts[1]),
+                                                        );
 
-                                                        final int
-                                                        parsedTotalTime =
+                                                        final int parsedTotalTime =
                                                             int.tryParse(
-                                                              totalTimeWorkingController
-                                                                  .text,
+                                                              totalTimeWorkingController.text,
                                                             ) ??
                                                             0;
 
@@ -505,15 +419,14 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                         //   "================================",
                                                         // );
 
-                                                        final result =
-                                                            await PlanningService()
-                                                                .updateIndexWTimeRunningBox(
-                                                                  machine,
-                                                                  parsedDayStart,
-                                                                  parsedTimeStart,
-                                                                  parsedTotalTime,
-                                                                  updateIndex,
-                                                                );
+                                                        final result = await PlanningService()
+                                                            .updateIndexWTimeRunningBox(
+                                                              machine,
+                                                              parsedDayStart,
+                                                              parsedTimeStart,
+                                                              parsedTotalTime,
+                                                              updateIndex,
+                                                            );
 
                                                         if (!context.mounted) {
                                                           return;
@@ -529,10 +442,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                         if (!context.mounted) {
                                                           return;
                                                         }
-                                                        showSnackBarError(
-                                                          context,
-                                                          "Lỗi cập nhật",
-                                                        );
+                                                        showSnackBarError(context, "Lỗi cập nhật");
 
                                                         AppLogger.e(
                                                           "Lỗi khi lưu",
@@ -540,16 +450,12 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                           stackTrace: s,
                                                         );
                                                       } finally {
-                                                        setState(
-                                                          () =>
-                                                              isLoading = false,
-                                                        );
+                                                        setState(() => isLoading = false);
                                                       }
                                                     },
                                             label: "Lưu",
                                             icon: Icons.save,
-                                            backgroundColor:
-                                                themeController.buttonColor,
+                                            backgroundColor: themeController.buttonColor,
                                           ),
 
                                           if (isLoading)
@@ -558,11 +464,10 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                               child: SizedBox(
                                                 width: 18,
                                                 height: 18,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                      color: Colors.white,
-                                                    ),
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: Colors.white,
+                                                ),
                                               ),
                                             ),
                                         ],
@@ -576,14 +481,9 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                             showGroup = !showGroup;
                                           });
                                         },
-                                        label:
-                                            showGroup ? 'Tắt nhóm' : 'Bật nhóm',
-                                        icon:
-                                            showGroup
-                                                ? Symbols.ungroup
-                                                : Symbols.ad_group,
-                                        backgroundColor:
-                                            themeController.buttonColor,
+                                        label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                        icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -617,17 +517,13 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                             filled: true,
                                             fillColor: Colors.white,
                                             border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                color: Colors.grey,
-                                              ),
+                                              borderRadius: BorderRadius.circular(10),
+                                              borderSide: const BorderSide(color: Colors.grey),
                                             ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 8,
-                                                ),
+                                            contentPadding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -635,30 +531,21 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
                                       //popup menu
                                       PopupMenuButton<String>(
-                                        icon: const Icon(
-                                          Icons.more_vert,
-                                          color: Colors.black,
-                                        ),
+                                        icon: const Icon(Icons.more_vert, color: Colors.black),
                                         color: Colors.white,
                                         onSelected: (value) async {
                                           if (value == 'acceptLack') {
                                             await handlePlanningAction(
                                               context: context,
-                                              selectedPlanningIds:
-                                                  selectedPlanningIds,
-                                              planningList:
-                                                  machineBoxDatasource.planning,
+                                              selectedPlanningIds: selectedPlanningIds,
+                                              planningList: machineBoxDatasource.planning,
                                               machine: machine,
                                               status: "complete",
                                               title: "Xác nhận thiếu số lượng",
-                                              message:
-                                                  "Bạn có chắc muốn chấp nhận thiếu không?",
-                                              successMessage:
-                                                  "Thực thi thành công",
-                                              errorMessage:
-                                                  "Có lỗi xảy ra khi thực thi",
-                                              onSuccess:
-                                                  () => loadPlanning(true),
+                                              message: "Bạn có chắc muốn chấp nhận thiếu không?",
+                                              successMessage: "Thực thi thành công",
+                                              errorMessage: "Có lỗi xảy ra khi thực thi",
+                                              onSuccess: () => loadPlanning(true),
                                             );
                                           }
                                         },
@@ -667,12 +554,8 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                               const PopupMenuItem<String>(
                                                 value: 'acceptLack',
                                                 child: ListTile(
-                                                  leading: Icon(
-                                                    Icons.approval_outlined,
-                                                  ),
-                                                  title: Text(
-                                                    'Chấp Nhận Thiếu SL',
-                                                  ),
+                                                  leading: Icon(Icons.approval_outlined),
+                                                  title: Text('Chấp Nhận Thiếu SL'),
                                                 ),
                                               ),
                                             ],
@@ -704,10 +587,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                       initialDate: DateTime.now(),
                                       firstDate: DateTime.now(),
                                       lastDate: DateTime(2100),
-                                      builder: (
-                                        BuildContext context,
-                                        Widget? child,
-                                      ) {
+                                      builder: (BuildContext context, Widget? child) {
                                         return Theme(
                                           data: Theme.of(context).copyWith(
                                             colorScheme: ColorScheme.light(
@@ -766,10 +646,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
@@ -778,11 +655,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.lock_outline,
-                              color: Colors.redAccent,
-                              size: 35,
-                            ),
+                            Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
                             SizedBox(width: 8),
                             Text(
                               "Bạn không có quyền xem chức năng này",
@@ -801,10 +674,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
@@ -856,34 +726,22 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                             ),
                           ),
                           StackedHeaderCell(
-                            columnNames: [
-                              "quantityOrd",
-                              "qtyPaper",
-                              "needProd",
-                            ],
+                            columnNames: ["quantityOrd", "qtyPaper", "needProd"],
                             child: Obx(
-                              () => formatColumn(
-                                label: 'Số Lượng',
-                                themeController: themeController,
-                              ),
+                              () =>
+                                  formatColumn(label: 'Số Lượng', themeController: themeController),
                             ),
                           ),
                           StackedHeaderCell(
                             columnNames: ["inMatTruoc", "inMatSau"],
                             child: Obx(
-                              () => formatColumn(
-                                label: 'In Ấn',
-                                themeController: themeController,
-                              ),
+                              () => formatColumn(label: 'In Ấn', themeController: themeController),
                             ),
                           ),
                           StackedHeaderCell(
                             columnNames: ["dan_1_Manh", "dan_2_Manh"],
                             child: Obx(
-                              () => formatColumn(
-                                label: 'Dán',
-                                themeController: themeController,
-                              ),
+                              () => formatColumn(label: 'Dán', themeController: themeController),
                             ),
                           ),
                           StackedHeaderCell(
@@ -923,9 +781,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                       final planningBoxId =
                           selectedRow
                               .getCells()
-                              .firstWhere(
-                                (cell) => cell.columnName == 'planningBoxId',
-                              )
+                              .firstWhere((cell) => cell.columnName == 'planningBoxId')
                               .value
                               .toString();
 
@@ -936,8 +792,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                           selectedPlanningIds.add(planningBoxId);
                         }
 
-                        machineBoxDatasource.selectedPlanningIds =
-                            selectedPlanningIds;
+                        machineBoxDatasource.selectedPlanningIds = selectedPlanningIds;
                         machineBoxDatasource.notifyListeners();
                       });
                     },
@@ -985,20 +840,12 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
             .toList();
 
     final selectedPlannings =
-        planningList
-            ?.where((p) => planningIds.contains(p.planningBoxId))
-            .toList() ??
-        [];
+        planningList?.where((p) => planningIds.contains(p.planningBoxId)).toList() ?? [];
 
     // check sortPlanning
     final hasNoSortPlanning = selectedPlannings.any((p) {
-      final boxTime =
-          (p.boxTimes != null && p.boxTimes!.isNotEmpty)
-              ? p.boxTimes!.first
-              : null;
-      return boxTime == null ||
-          boxTime.sortPlanning == null ||
-          boxTime.sortPlanning == 0;
+      final boxTime = (p.boxTimes != null && p.boxTimes!.isNotEmpty) ? p.boxTimes!.first : null;
+      return boxTime == null || boxTime.sortPlanning == null || boxTime.sortPlanning == 0;
     });
     if (hasNoSortPlanning) {
       showSnackBarError(context, "Đơn hàng chưa được sắp xếp");
@@ -1007,10 +854,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
     // check dayCompleted
     final hasNoDayCompleted = selectedPlannings.any((p) {
-      final boxTime =
-          (p.boxTimes != null && p.boxTimes!.isNotEmpty)
-              ? p.boxTimes!.first
-              : null;
+      final boxTime = (p.boxTimes != null && p.boxTimes!.isNotEmpty) ? p.boxTimes!.first : null;
       return boxTime == null || boxTime.dayCompleted == null;
     });
     if (hasNoDayCompleted) {
@@ -1024,22 +868,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
           builder: (BuildContext context) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               content: Text(
                 message,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 15,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
               ),
               actions: [
                 TextButton(
@@ -1057,9 +890,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xffEA4346),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   child: const Text(
@@ -1075,11 +906,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
     if (confirm) {
       try {
-        final success = await PlanningService().acceptLackQtyBox(
-          planningIds,
-          status,
-          machine,
-        );
+        final success = await PlanningService().acceptLackQtyBox(planningIds, status, machine);
 
         if (!context.mounted) return;
 
@@ -1105,10 +932,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
         const SizedBox(width: 8),
         SizedBox(
           width: width,

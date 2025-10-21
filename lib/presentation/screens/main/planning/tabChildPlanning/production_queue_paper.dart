@@ -64,9 +64,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
     columns = buildMachineColumns(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((
-      w,
-    ) {
+    ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -93,9 +91,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
   void searchPlanning() {
     String keyword = searchController.text.trim().toLowerCase();
-    AppLogger.i(
-      "searchPaper => searchType=$searchType | keyword=$keyword | machine=$machine",
-    );
+    AppLogger.i("searchPaper => searchType=$searchType | keyword=$keyword | machine=$machine");
 
     if (isTextFieldEnabled && keyword.isEmpty) {
       AppLogger.w("searchPaper => searchType=$searchType nhưng keyword rỗng");
@@ -108,40 +104,25 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         break;
       case 'Mã Đơn Hàng':
         setState(() {
-          futurePlanning = PlanningService().getPlanningByOrderId(
-            keyword,
-            machine,
-          );
+          futurePlanning = PlanningService().getPlanningByOrderId(keyword, machine);
         });
         break;
       case 'Tên KH':
         setState(() {
-          futurePlanning = PlanningService().getPlanningByCustomerName(
-            keyword,
-            machine,
-          );
+          futurePlanning = PlanningService().getPlanningByCustomerName(keyword, machine);
         });
         break;
       case 'Sóng':
         setState(() {
-          futurePlanning = PlanningService().getPlanningByFlute(
-            keyword,
-            machine,
-          );
+          futurePlanning = PlanningService().getPlanningByFlute(keyword, machine);
         });
         break;
       case 'Khổ Cấp Giấy':
         setState(() {
           try {
-            futurePlanning = PlanningService().getPlanningByGhepKho(
-              int.parse(keyword),
-              machine,
-            );
+            futurePlanning = PlanningService().getPlanningByGhepKho(int.parse(keyword), machine);
           } catch (e) {
-            showSnackBarError(
-              context,
-              'Vui lòng nhập số hợp lệ cho khổ cấp giấy',
-            );
+            showSnackBarError(context, 'Vui lòng nhập số hợp lệ cho khổ cấp giấy');
           }
         });
         break;
@@ -184,26 +165,19 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               Expanded(
                                 flex: 1,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: LayoutBuilder(
                                     builder: (context, constraints) {
                                       final maxWidth = constraints.maxWidth;
-                                      final dropdownWidth = (maxWidth * 0.2)
-                                          .clamp(120.0, 170.0);
-                                      final textInputWidth = (maxWidth * 0.3)
-                                          .clamp(200.0, 250.0);
+                                      final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
+                                      final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
 
                                       return Row(
                                         children: [
                                           //dropdown
                                           SizedBox(
                                             width: dropdownWidth,
-                                            child: DropdownButtonFormField<
-                                              String
-                                            >(
+                                            child: DropdownButtonFormField<String>(
                                               value: searchType,
                                               items:
                                                   [
@@ -213,9 +187,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                     "Sóng",
                                                     'Khổ Cấp Giấy',
                                                   ].map((String value) {
-                                                    return DropdownMenuItem<
-                                                      String
-                                                    >(
+                                                    return DropdownMenuItem<String>(
                                                       value: value,
                                                       child: Text(value),
                                                     );
@@ -223,8 +195,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               onChanged: (value) {
                                                 setState(() {
                                                   searchType = value!;
-                                                  isTextFieldEnabled =
-                                                      searchType != 'Tất cả';
+                                                  isTextFieldEnabled = searchType != 'Tất cả';
 
                                                   searchController.clear();
                                                 });
@@ -233,17 +204,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 filled: true,
                                                 fillColor: Colors.white,
                                                 border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                  ),
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: Colors.grey),
                                                 ),
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 8,
-                                                    ),
+                                                contentPadding: const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 8,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -256,18 +223,15 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             child: TextField(
                                               controller: searchController,
                                               enabled: isTextFieldEnabled,
-                                              onSubmitted:
-                                                  (_) => searchPlanning(),
+                                              onSubmitted: (_) => searchPlanning(),
                                               decoration: InputDecoration(
                                                 hintText: 'Tìm kiếm...',
                                                 border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
+                                                  borderRadius: BorderRadius.circular(12),
                                                 ),
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                    ),
+                                                contentPadding: const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -278,8 +242,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             onPressed: () => searchPlanning(),
                                             label: "Tìm kiếm",
                                             icon: Icons.search,
-                                            backgroundColor:
-                                                themeController.buttonColor,
+                                            backgroundColor: themeController.buttonColor,
                                           ),
                                         ],
                                       );
@@ -292,10 +255,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               Expanded(
                                 flex: 1,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
@@ -303,33 +263,27 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                       Row(
                                         children: [
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.arrow_upward,
-                                            ),
+                                            icon: const Icon(Icons.arrow_upward),
                                             onPressed:
                                                 selectedPlanningIds.isNotEmpty
                                                     ? () {
                                                       setState(() {
-                                                        machinePaperDatasource
-                                                            .moveRowUp(
-                                                              selectedPlanningIds,
-                                                            );
+                                                        machinePaperDatasource.moveRowUp(
+                                                          selectedPlanningIds,
+                                                        );
                                                       });
                                                     }
                                                     : null,
                                           ),
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.arrow_downward,
-                                            ),
+                                            icon: const Icon(Icons.arrow_downward),
                                             onPressed:
                                                 selectedPlanningIds.isNotEmpty
                                                     ? () {
                                                       setState(() {
-                                                        machinePaperDatasource
-                                                            .moveRowDown(
-                                                              selectedPlanningIds,
-                                                            );
+                                                        machinePaperDatasource.moveRowDown(
+                                                          selectedPlanningIds,
+                                                        );
                                                       });
                                                     }
                                                     : null,
@@ -347,15 +301,9 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 isLoading
                                                     ? null
                                                     : () async {
-                                                      if (dayStartController
-                                                              .text
-                                                              .isEmpty ||
-                                                          timeStartController
-                                                              .text
-                                                              .isEmpty ||
-                                                          totalTimeWorkingController
-                                                              .text
-                                                              .isEmpty) {
+                                                      if (dayStartController.text.isEmpty ||
+                                                          timeStartController.text.isEmpty ||
+                                                          totalTimeWorkingController.text.isEmpty) {
                                                         showSnackBarError(
                                                           context,
                                                           "Vui lòng nhập đầy đủ ngày bắt đầu, giờ bắt đầu và tổng thời gian.",
@@ -363,107 +311,80 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                         return;
                                                       }
 
-                                                      setState(
-                                                        () => isLoading = true,
-                                                      );
+                                                      setState(() => isLoading = true);
 
                                                       try {
-                                                        final List<DataGridRow>
-                                                        visibleRows =
-                                                            machinePaperDatasource
-                                                                .rows;
+                                                        final List<DataGridRow> visibleRows =
+                                                            machinePaperDatasource.rows;
 
                                                         // 1️⃣ Lấy các đơn chưa complete và gán sortPlanning
-                                                        final List<
-                                                          Map<String, dynamic>
-                                                        >
+                                                        final List<Map<String, dynamic>>
                                                         updateIndex =
                                                             visibleRows
                                                                 .asMap()
                                                                 .entries
                                                                 .where((entry) {
                                                                   final status =
-                                                                      entry
-                                                                          .value
+                                                                      entry.value
                                                                           .getCells()
                                                                           .firstWhere(
-                                                                            (
-                                                                              cell,
-                                                                            ) =>
+                                                                            (cell) =>
                                                                                 cell.columnName ==
                                                                                 "status",
                                                                             orElse:
                                                                                 () => DataGridCell(
                                                                                   columnName:
                                                                                       'status',
-                                                                                  value:
-                                                                                      null,
+                                                                                  value: null,
                                                                                 ),
                                                                           )
                                                                           .value;
 
-                                                                  return status !=
-                                                                      'complete';
+                                                                  return status != 'complete';
                                                                 })
                                                                 .map((entry) {
                                                                   final planningId =
-                                                                      entry
-                                                                          .value
+                                                                      entry.value
                                                                           .getCells()
                                                                           .firstWhere(
-                                                                            (
-                                                                              cell,
-                                                                            ) =>
+                                                                            (cell) =>
                                                                                 cell.columnName ==
                                                                                 "planningId",
                                                                           )
                                                                           .value;
 
                                                                   return {
-                                                                    "planningId":
-                                                                        planningId,
-                                                                    "sortPlanning":
-                                                                        entry
-                                                                            .key +
-                                                                        1,
+                                                                    "planningId": planningId,
+                                                                    "sortPlanning": entry.key + 1,
                                                                   };
                                                                 })
                                                                 .toList();
 
                                                         // 2️⃣ Lấy 1 đơn complete cuối cùng (để BE tính timeRunning, không update sortPlanning)
-                                                        DataGridRow?
-                                                        lastCompleteRow;
+                                                        DataGridRow? lastCompleteRow;
 
-                                                        for (var row
-                                                            in visibleRows
-                                                                .reversed) {
+                                                        for (var row in visibleRows.reversed) {
                                                           final status =
                                                               row
                                                                   .getCells()
                                                                   .firstWhere(
                                                                     (cell) =>
-                                                                        cell.columnName ==
-                                                                        "status",
+                                                                        cell.columnName == "status",
                                                                     orElse:
                                                                         () => DataGridCell(
-                                                                          columnName:
-                                                                              'status',
-                                                                          value:
-                                                                              null,
+                                                                          columnName: 'status',
+                                                                          value: null,
                                                                         ),
                                                                   )
                                                                   .value;
 
-                                                          if (status ==
-                                                              'complete') {
-                                                            lastCompleteRow =
-                                                                row;
+                                                          if (status == 'complete') {
+                                                            lastCompleteRow = row;
                                                             break;
                                                           }
                                                         }
 
-                                                        if (lastCompleteRow !=
-                                                            null) {
+                                                        if (lastCompleteRow != null) {
                                                           final planningId =
                                                               lastCompleteRow
                                                                   .getCells()
@@ -475,42 +396,25 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                                   .value;
 
                                                           updateIndex.add({
-                                                            "planningId":
-                                                                planningId,
+                                                            "planningId": planningId,
                                                           });
                                                         }
 
                                                         // 3️⃣ Parse ngày, giờ, tổng thời gian
-                                                        final DateTime
-                                                        parsedDayStart =
-                                                            DateFormat(
-                                                              'dd/MM/yyyy',
-                                                            ).parse(
-                                                              dayStartController
-                                                                  .text,
-                                                            );
+                                                        final DateTime parsedDayStart = DateFormat(
+                                                          'dd/MM/yyyy',
+                                                        ).parse(dayStartController.text);
 
-                                                        final List<String>
-                                                        timeParts =
-                                                            timeStartController
-                                                                .text
-                                                                .split(':');
-                                                        final TimeOfDay
-                                                        parsedTimeStart =
-                                                            TimeOfDay(
-                                                              hour: int.parse(
-                                                                timeParts[0],
-                                                              ),
-                                                              minute: int.parse(
-                                                                timeParts[1],
-                                                              ),
-                                                            );
+                                                        final List<String> timeParts =
+                                                            timeStartController.text.split(':');
+                                                        final TimeOfDay parsedTimeStart = TimeOfDay(
+                                                          hour: int.parse(timeParts[0]),
+                                                          minute: int.parse(timeParts[1]),
+                                                        );
 
-                                                        final int
-                                                        parsedTotalTime =
+                                                        final int parsedTotalTime =
                                                             int.tryParse(
-                                                              totalTimeWorkingController
-                                                                  .text,
+                                                              totalTimeWorkingController.text,
                                                             ) ??
                                                             0;
 
@@ -526,15 +430,14 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                         //   "================================",
                                                         // );
 
-                                                        final result =
-                                                            await PlanningService()
-                                                                .updateIndexWTimeRunning(
-                                                                  machine,
-                                                                  updateIndex,
-                                                                  parsedDayStart,
-                                                                  parsedTimeStart,
-                                                                  parsedTotalTime,
-                                                                );
+                                                        final result = await PlanningService()
+                                                            .updateIndexWTimeRunning(
+                                                              machine,
+                                                              updateIndex,
+                                                              parsedDayStart,
+                                                              parsedTimeStart,
+                                                              parsedTotalTime,
+                                                            );
 
                                                         if (!context.mounted) {
                                                           return;
@@ -546,28 +449,24 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                             "Cập nhật thành công",
                                                           );
                                                           loadPlanning(true);
+
+                                                          unsavedChangeController
+                                                              .resetUnsavedChanges();
                                                         }
                                                       } catch (e, s) {
-                                                        showSnackBarError(
-                                                          context,
-                                                          "Lỗi cập nhật",
-                                                        );
+                                                        showSnackBarError(context, "Lỗi cập nhật");
                                                         AppLogger.e(
                                                           "Lỗi khi lưu",
                                                           error: e,
                                                           stackTrace: s,
                                                         );
                                                       } finally {
-                                                        setState(
-                                                          () =>
-                                                              isLoading = false,
-                                                        );
+                                                        setState(() => isLoading = false);
                                                       }
                                                     },
                                             label: "Lưu",
                                             icon: Icons.save,
-                                            backgroundColor:
-                                                themeController.buttonColor,
+                                            backgroundColor: themeController.buttonColor,
                                           ),
 
                                           if (isLoading)
@@ -576,15 +475,15 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               child: SizedBox(
                                                 width: 18,
                                                 height: 18,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                      color: Colors.white,
-                                                    ),
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: Colors.white,
+                                                ),
                                               ),
                                             ),
                                         ],
                                       ),
+
                                       const SizedBox(width: 10),
 
                                       //group/unGroup
@@ -594,14 +493,9 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             showGroup = !showGroup;
                                           });
                                         },
-                                        label:
-                                            showGroup ? 'Tắt nhóm' : 'Bật nhóm',
-                                        icon:
-                                            showGroup
-                                                ? Symbols.ungroup
-                                                : Symbols.ad_group,
-                                        backgroundColor:
-                                            themeController.buttonColor,
+                                        label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                        icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -631,17 +525,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             filled: true,
                                             fillColor: Colors.white,
                                             border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                color: Colors.grey,
-                                              ),
+                                              borderRadius: BorderRadius.circular(10),
+                                              borderSide: const BorderSide(color: Colors.grey),
                                             ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 8,
-                                                ),
+                                            contentPadding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -649,10 +539,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
                                       //popup menu
                                       PopupMenuButton<String>(
-                                        icon: const Icon(
-                                          Icons.more_vert,
-                                          color: Colors.black,
-                                        ),
+                                        icon: const Icon(Icons.more_vert, color: Colors.black),
                                         color: Colors.white,
                                         onSelected: (value) async {
                                           if (value == 'change') {
@@ -663,8 +550,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               );
                                               return;
                                             }
-                                            final planning =
-                                                await futurePlanning;
+                                            final planning = await futurePlanning;
 
                                             if (!context.mounted) return;
 
@@ -675,76 +561,54 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                     planning:
                                                         planning
                                                             .where(
-                                                              (
-                                                                p,
-                                                              ) => selectedPlanningIds
-                                                                  .contains(
-                                                                    p.planningId
-                                                                        .toString(),
-                                                                  ),
+                                                              (p) => selectedPlanningIds.contains(
+                                                                p.planningId.toString(),
+                                                              ),
                                                             )
                                                             .toList(),
-                                                    onChangeMachine:
-                                                        () =>
-                                                            loadPlanning(true),
+                                                    onChangeMachine: () => loadPlanning(true),
                                                   ),
                                             );
                                           } else if (value == 'stop') {
                                             await handlePlanningAction(
                                               context: context,
-                                              selectedPlanningIds:
-                                                  selectedPlanningIds,
+                                              selectedPlanningIds: selectedPlanningIds,
                                               status: "stop",
                                               title: "Xác nhận dừng sản xuất",
                                               message:
                                                   "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
-                                              successMessage:
-                                                  "Dừng sản xuất thành công",
-                                              errorMessage:
-                                                  "Có lỗi xảy ra khi dừng sản xuất",
+                                              successMessage: "Dừng sản xuất thành công",
+                                              errorMessage: "Có lỗi xảy ra khi dừng sản xuất",
                                               onSuccess:
                                                   () => {
                                                     loadPlanning(true),
-                                                    badgesController
-                                                        .fetchPendingApprovals(),
+                                                    badgesController.fetchPendingApprovals(),
                                                   },
                                             );
                                           } else if (value == 'reject') {
                                             await handlePlanningAction(
                                               context: context,
-                                              selectedPlanningIds:
-                                                  selectedPlanningIds,
-                                              planningList:
-                                                  machinePaperDatasource
-                                                      .planning,
+                                              selectedPlanningIds: selectedPlanningIds,
+                                              planningList: machinePaperDatasource.planning,
                                               status: "reject",
                                               title: "Xác nhận hủy kế hoạch",
                                               message:
                                                   "Bạn có chắc muốn hủy kế hoạch đơn này không?",
                                               successMessage: "Hủy thành công",
-                                              errorMessage:
-                                                  "Có lỗi xảy ra khi hủy",
-                                              onSuccess:
-                                                  () => loadPlanning(true),
+                                              errorMessage: "Có lỗi xảy ra khi hủy",
+                                              onSuccess: () => loadPlanning(true),
                                             );
                                           } else if (value == 'acceptLack') {
                                             await handlePlanningAction(
                                               context: context,
-                                              selectedPlanningIds:
-                                                  selectedPlanningIds,
-                                              planningList:
-                                                  machinePaperDatasource
-                                                      .planning,
+                                              selectedPlanningIds: selectedPlanningIds,
+                                              planningList: machinePaperDatasource.planning,
                                               status: "complete",
                                               title: "Xác nhận thiếu số lượng",
-                                              message:
-                                                  "Bạn có chắc muốn chấp nhận thiếu không?",
-                                              successMessage:
-                                                  "Chấp nhận thành công",
-                                              errorMessage:
-                                                  "Có lỗi xảy ra khi thực thi",
-                                              onSuccess:
-                                                  () => loadPlanning(true),
+                                              message: "Bạn có chắc muốn chấp nhận thiếu không?",
+                                              successMessage: "Chấp nhận thành công",
+                                              errorMessage: "Có lỗi xảy ra khi thực thi",
+                                              onSuccess: () => loadPlanning(true),
                                             );
                                           }
                                         },
@@ -753,39 +617,29 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               const PopupMenuItem<String>(
                                                 value: 'change',
                                                 child: ListTile(
-                                                  leading: Icon(
-                                                    Symbols.construction,
-                                                  ),
+                                                  leading: Icon(Symbols.construction),
                                                   title: Text('Chuyển Máy'),
                                                 ),
                                               ),
                                               const PopupMenuItem<String>(
                                                 value: 'stop',
                                                 child: ListTile(
-                                                  leading: Icon(
-                                                    Symbols.pause_circle,
-                                                  ),
+                                                  leading: Icon(Symbols.pause_circle),
                                                   title: Text('Dừng Chạy Đơn'),
                                                 ),
                                               ),
                                               const PopupMenuItem<String>(
                                                 value: 'reject',
                                                 child: ListTile(
-                                                  leading: Icon(
-                                                    Symbols.cancel_rounded,
-                                                  ),
+                                                  leading: Icon(Symbols.cancel_rounded),
                                                   title: Text('Hủy Chạy Đơn'),
                                                 ),
                                               ),
                                               const PopupMenuItem<String>(
                                                 value: 'acceptLack',
                                                 child: ListTile(
-                                                  leading: Icon(
-                                                    Icons.approval_outlined,
-                                                  ),
-                                                  title: Text(
-                                                    'Chấp Nhận Thiếu SL',
-                                                  ),
+                                                  leading: Icon(Icons.approval_outlined),
+                                                  title: Text('Chấp Nhận Thiếu SL'),
                                                 ),
                                               ),
                                             ],
@@ -817,10 +671,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                       initialDate: DateTime.now(),
                                       firstDate: DateTime.now(),
                                       lastDate: DateTime(2100),
-                                      builder: (
-                                        BuildContext context,
-                                        Widget? child,
-                                      ) {
+                                      builder: (BuildContext context, Widget? child) {
                                         return Theme(
                                           data: Theme.of(context).copyWith(
                                             colorScheme: ColorScheme.light(
@@ -879,10 +730,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
@@ -891,11 +739,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.lock_outline,
-                              color: Colors.redAccent,
-                              size: 35,
-                            ),
+                            Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
                             SizedBox(width: 8),
                             Text(
                               "Bạn không có quyền xem chức năng này",
@@ -914,10 +758,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
@@ -951,16 +792,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                       StackedHeaderRow(
                         cells: [
                           StackedHeaderCell(
-                            columnNames: [
-                              'quantityOrd',
-                              'runningPlanProd',
-                              'qtyProduced',
-                            ],
+                            columnNames: ['quantityOrd', 'runningPlanProd', 'qtyProduced'],
                             child: Obx(
-                              () => formatColumn(
-                                label: 'Số Lượng',
-                                themeController: themeController,
-                              ),
+                              () =>
+                                  formatColumn(label: 'Số Lượng', themeController: themeController),
                             ),
                           ),
                           StackedHeaderCell(
@@ -1031,9 +866,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                       final planningPaperId =
                           selectedRow
                               .getCells()
-                              .firstWhere(
-                                (cell) => cell.columnName == 'planningId',
-                              )
+                              .firstWhere((cell) => cell.columnName == 'planningId')
                               .value
                               .toString();
 
@@ -1044,8 +877,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                           selectedPlanningIds.add(planningPaperId);
                         }
 
-                        machinePaperDatasource.selectedPlanningIds =
-                            selectedPlanningIds;
+                        machinePaperDatasource.selectedPlanningIds = selectedPlanningIds;
                         machinePaperDatasource.notifyListeners();
                       });
                     },
@@ -1092,10 +924,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
             .toList();
 
     final selectedPlannings =
-        planningList
-            ?.where((p) => planningIds.contains(p.planningId))
-            .toList() ??
-        [];
+        planningList?.where((p) => planningIds.contains(p.planningId)).toList() ?? [];
 
     if (status == 'complete') {
       //check sort planning
@@ -1108,9 +937,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       }
 
       //check dayCompleted
-      final hasDayCompleted = selectedPlannings.any(
-        (p) => p.dayCompleted == null,
-      );
+      final hasDayCompleted = selectedPlannings.any((p) => p.dayCompleted == null);
 
       if (hasDayCompleted) {
         showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
@@ -1118,9 +945,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       }
     } else if (status == 'reject') {
       //check qtyProduced > 0
-      final hasQtyProduced = selectedPlannings.any(
-        (p) => (p.qtyProduced ?? 0) > 0,
-      );
+      final hasQtyProduced = selectedPlannings.any((p) => (p.qtyProduced ?? 0) > 0);
       if (hasQtyProduced) {
         showSnackBarError(context, "Không thể hủy đơn hàng đã có số lượng");
         return;
@@ -1141,22 +966,11 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
           builder: (BuildContext context) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               content: Text(
                 message,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 15,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
               ),
               actions: [
                 TextButton(
@@ -1174,9 +988,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xffEA4346),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   child: const Text(
@@ -1192,10 +1004,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
     if (confirm) {
       try {
-        final success = await PlanningService().pauseOrAcceptLackQty(
-          planningIds,
-          status,
-        );
+        final success = await PlanningService().pauseOrAcceptLackQty(planningIds, status);
 
         if (!context.mounted) return;
         if (success) {
@@ -1220,10 +1029,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
         const SizedBox(width: 8),
         SizedBox(
           width: width,

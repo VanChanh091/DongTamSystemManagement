@@ -23,10 +23,7 @@ class PlanningService {
         '/api/planning/',
         queryParameters: {'refresh': refresh},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       final data = response.data['data'] as List;
@@ -44,23 +41,16 @@ class PlanningService {
   }
 
   //planning for order
-  Future<bool> planningOrder(
-    String orderId,
-    String newStatus,
-    Map<String, dynamic> orderPlanning,
-  ) async {
+  Future<bool> planningOrder(Map<String, dynamic> orderPlanning, String orderId) async {
     try {
       final token = await SecureStorageService().getToken();
 
       await dioService.post(
         '/api/planning/planningOrder',
-        queryParameters: {"orderId": orderId, "newStatus": newStatus},
+        queryParameters: {"orderId": orderId},
         data: orderPlanning,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -74,10 +64,7 @@ class PlanningService {
   //===============================PLANNING PAPER====================================
 
   //get planning by machine
-  Future<List<PlanningPaper>> getPlanningPaperByMachine(
-    String machine,
-    bool refresh,
-  ) async {
+  Future<List<PlanningPaper>> getPlanningPaperByMachine(String machine, bool refresh) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -85,10 +72,7 @@ class PlanningService {
         '/api/planning/byMachinePaper',
         queryParameters: {'machine': machine, 'refresh': refresh},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -106,10 +90,7 @@ class PlanningService {
   }
 
   //get planning by customer name
-  Future<List<PlanningPaper>> getPlanningByCustomerName(
-    String customerName,
-    String machine,
-  ) async {
+  Future<List<PlanningPaper>> getPlanningByCustomerName(String customerName, String machine) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "planning/getCusNamePaper",
       queryParameters: {'customerName': customerName, 'machine': machine},
@@ -118,10 +99,7 @@ class PlanningService {
   }
 
   //get planning by orderId
-  Future<List<PlanningPaper>> getPlanningByOrderId(
-    String orderId,
-    String machine,
-  ) async {
+  Future<List<PlanningPaper>> getPlanningByOrderId(String orderId, String machine) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "planning/getOrderIdPaper",
       queryParameters: {'orderId': orderId, 'machine': machine},
@@ -130,10 +108,7 @@ class PlanningService {
   }
 
   //get planning by flute
-  Future<List<PlanningPaper>> getPlanningByFlute(
-    String flute,
-    String machine,
-  ) async {
+  Future<List<PlanningPaper>> getPlanningByFlute(String flute, String machine) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "planning/getFlutePaper",
       queryParameters: {'flute': flute, 'machine': machine},
@@ -142,10 +117,7 @@ class PlanningService {
   }
 
   //get planning by ghepKho
-  Future<List<PlanningPaper>> getPlanningByGhepKho(
-    int ghepKho,
-    String machine,
-  ) async {
+  Future<List<PlanningPaper>> getPlanningByGhepKho(int ghepKho, String machine) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "planning/getGhepKhoPaper",
       queryParameters: {'ghepKho': ghepKho, 'machine': machine},
@@ -154,10 +126,7 @@ class PlanningService {
   }
 
   //change machine
-  Future<bool> changeMachinePlanning(
-    List<int> planningIds,
-    String newMachine,
-  ) async {
+  Future<bool> changeMachinePlanning(List<int> planningIds, String newMachine) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -165,10 +134,7 @@ class PlanningService {
         "/api/planning/changeMachinePaper",
         data: {"planningIds": planningIds, "newMachine": newMachine},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -192,19 +158,16 @@ class PlanningService {
 
       await dioService.post(
         "/api/planning/updateIndex_TimeRunningPaper",
-        queryParameters: {'machine': machine},
         data: {
-          "updateIndex": updateIndex,
+          'machine': machine,
           "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
           "timeStart":
               "${timeStart.hour.toString().padLeft(2, '0')}:${timeStart.minute.toString().padLeft(2, '0')}",
           "totalTimeWorking": totalTimeWorking,
+          "updateIndex": updateIndex,
         },
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -216,10 +179,7 @@ class PlanningService {
   }
 
   //pause order
-  Future<bool> pauseOrAcceptLackQty(
-    List<int> planningIds,
-    String newStatus,
-  ) async {
+  Future<bool> pauseOrAcceptLackQty(List<int> planningIds, String newStatus) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -227,10 +187,7 @@ class PlanningService {
         "/api/planning/pauseOrAcceptLackQtyPaper",
         data: {'planningIds': planningIds, "newStatus": newStatus},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -243,10 +200,7 @@ class PlanningService {
 
   //===============================PLANNING BOX====================================
 
-  Future<List<PlanningBox>> getPlanningMachineBox(
-    String machine,
-    bool refresh,
-  ) async {
+  Future<List<PlanningBox>> getPlanningMachineBox(String machine, bool refresh) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -254,10 +208,7 @@ class PlanningService {
         '/api/planning/byMachineBox',
         queryParameters: {'machine': machine, 'refresh': refresh},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -297,10 +248,7 @@ class PlanningService {
           "updateIndex": updateIndex,
         },
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -312,26 +260,15 @@ class PlanningService {
   }
 
   //accept lack qty
-  Future<bool> acceptLackQtyBox(
-    List<int> planningBoxIds,
-    String newStatus,
-    String machine,
-  ) async {
+  Future<bool> acceptLackQtyBox(List<int> planningBoxIds, String newStatus, String machine) async {
     try {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
         "/api/planning/acceptLackQtyBox",
-        data: {
-          "planningBoxIds": planningBoxIds,
-          "newStatus": newStatus,
-          "machine": machine,
-        },
+        data: {"planningBoxIds": planningBoxIds, "newStatus": newStatus, "machine": machine},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -343,10 +280,7 @@ class PlanningService {
   }
 
   //get planning by orderId
-  Future<List<PlanningBox>> getOrderIdBox(
-    String orderId,
-    String machine,
-  ) async {
+  Future<List<PlanningBox>> getOrderIdBox(String orderId, String machine) async {
     return HelperService().fetchingData<PlanningBox>(
       endpoint: "planning/getOrderIdBox",
       queryParameters: {'machine': machine, 'orderId': orderId},
@@ -355,10 +289,7 @@ class PlanningService {
   }
 
   //get planning by customer name
-  Future<List<PlanningBox>> getCusNameBox(
-    String customerName,
-    String machine,
-  ) async {
+  Future<List<PlanningBox>> getCusNameBox(String customerName, String machine) async {
     return HelperService().fetchingData<PlanningBox>(
       endpoint: "planning/getCusNameBox",
       queryParameters: {'customerName': customerName, 'machine': machine},

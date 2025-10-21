@@ -29,34 +29,63 @@ class _TopTabPlanningState extends State<TopTabPlanning>
     super.dispose();
   }
 
+  Future<void> _handleTapOnTabBar(
+    TapDownDetails details,
+    BuildContext ctx,
+  ) async {
+    // Tính xem user bấm tab nào
+    final renderBox = ctx.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final size = renderBox.size;
+    final tabCount = _tabController.length;
+    final tabWidth = size.width / tabCount;
+    final tappedIndex = (details.localPosition.dx ~/ tabWidth).clamp(
+      0,
+      tabCount - 1,
+    );
+
+    // Nếu bấm lại tab hiện tại -> bỏ qua
+    if (tappedIndex == _tabController.index) return;
+
+    // Nếu có thay đổi chưa lưu -> hỏi người dùng
+    if (unsavedChange.isUnsavedChanges.value) {
+      final canLeave = await UnsavedChangeDialog(unsavedChange);
+      if (canLeave) {
+        unsavedChange.resetUnsavedChanges();
+        _tabController.animateTo(tappedIndex);
+      }
+    } else {
+      // Không có thay đổi thì chuyển tab bình thường
+      _tabController.animateTo(tappedIndex);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
           color: Colors.white,
-          child: TabBar(
-            controller: _tabController,
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.red,
-            onTap: (index) async {
-              if (index == _tabController.index) return;
-
-              // Kiểm tra flag chưa lưu
-              bool canSwitch = await UnsavedChangeDialog(unsavedChange);
-              if (canSwitch) {
-                unsavedChange.resetUnsavedChanges();
-                _tabController.index = index;
-              } else {
-                // ❌ Không cho đổi tab => giữ nguyên tab hiện tại
-                // Không cần làm gì cả
-              }
-            },
-            tabs: const [
-              Tab(text: "Kế Hoạch SX Giấy Tấm"),
-              Tab(text: "Kế Hoạch SX Thùng"),
-            ],
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: (d) => _handleTapOnTabBar(d, context),
+              child: AbsorbPointer(
+                absorbing: true, // vẫn chặn tap mặc định
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: Colors.red,
+                  tabs: const [
+                    Tab(text: "Kế Hoạch SX Giấy Tấm"),
+                    Tab(text: "Kế Hoạch SX Thùng"),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
         Expanded(

@@ -65,6 +65,10 @@ class PlanningDataSource extends DataGridSource {
         value: order.quantityManufacture,
       ),
       DataGridCell<int>(
+        columnName: 'runningPlan',
+        value: order.totalQtyRunningPlan,
+      ),
+      DataGridCell<int>(
         columnName: 'quantityProduced',
         value: order.totalQtyProduced,
       ),

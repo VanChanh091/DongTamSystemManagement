@@ -48,7 +48,7 @@ void main() {
 
     test("flute paper", () {
       // Đủ layers + E, B
-      expect(Order.flutePaper('D', 'M1', 'M2', 'Mat', 'E', 'B', '', ''), '5EB');
+      expect(Order.flutePaper('D', 'M1', '', 'Mat', 'E', 'B', '', ''), '5EB');
       // Chỉ có D và E
       expect(Order.flutePaper('D', '', '', '', 'E', '', '', ''), '2E');
       // Không có flute nào

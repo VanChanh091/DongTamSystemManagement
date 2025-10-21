@@ -216,9 +216,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
     try {
       AppLogger.i("Lên kế hoạch cho 1 đơn hàng mới: $originalOrderId");
       await PlanningService().planningOrder(
-        originalOrderId,
-        'planning',
         newPlanning.toJson(),
+        originalOrderId,
       );
 
       if (!mounted) return;

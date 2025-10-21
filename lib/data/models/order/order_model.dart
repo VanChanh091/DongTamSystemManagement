@@ -174,13 +174,17 @@ class Order {
     return '${layers.length}${uniqueFlutes.join()}';
   }
 
-  int get totalQtyProduced {
-    if (planningPaper == null || planningPaper!.isEmpty) {
-      return 0;
-    }
+  int getTotalByField(num? Function(PlanningPaper p) selector) {
+    if (planningPaper == null || planningPaper!.isEmpty) return 0;
 
-    return planningPaper!.fold(0, (sum, p) => sum + (p.qtyProduced ?? 0));
+    return planningPaper!.fold<int>(
+      0,
+      (sum, p) => sum + (selector(p)?.toInt() ?? 0),
+    );
   }
+
+  int get totalQtyProduced => getTotalByField((p) => p.qtyProduced);
+  int get totalQtyRunningPlan => getTotalByField((p) => p.runningPlan);
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(

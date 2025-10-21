@@ -245,7 +245,11 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                       StackedHeaderRow(
                         cells: [
                           StackedHeaderCell(
-                            columnNames: ["qtyManufacture", "quantityProduced"],
+                            columnNames: [
+                              "qtyManufacture",
+                              "runningPlan",
+                              "quantityProduced",
+                            ],
                             child: Obx(
                               () => formatColumn(
                                 label: 'Số Lượng',

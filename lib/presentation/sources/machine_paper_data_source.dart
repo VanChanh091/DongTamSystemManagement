@@ -31,9 +31,7 @@ class MachinePaperDatasource extends DataGridSource {
     buildDataGridRows();
 
     if (showGroup) {
-      addColumnGroup(
-        ColumnGroup(name: 'dayStartProduction', sortGroupRows: false),
-      );
+      addColumnGroup(ColumnGroup(name: 'dayStartProduction', sortGroupRows: false));
     }
   }
 
@@ -53,37 +51,23 @@ class MachinePaperDatasource extends DataGridSource {
                 : '',
       ),
       DataGridCell<String?>(
+        columnName: "dayStartProduction",
+        value: planning.dayStart != null ? formatter.format(planning.dayStart!) : null,
+      ),
+      DataGridCell<String?>(
         columnName: "dayCompletedProd",
         value:
             planning.dayCompleted != null
                 ? formatterDayCompleted.format(planning.dayCompleted!)
                 : null,
       ),
-      DataGridCell<String>(
-        columnName: 'structure',
-        value: planning.formatterStructureOrder,
-      ),
-      DataGridCell<String>(
-        columnName: 'flute',
-        value: planning.order?.flute ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: 'daoXa',
-        value: planning.order?.daoXa ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: 'length',
-        value: '${planning.lengthPaperPlanning} cm',
-      ),
-      DataGridCell<String>(
-        columnName: 'size',
-        value: '${planning.sizePaperPLaning} cm',
-      ),
+      DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
+      DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
+      DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
+      DataGridCell<String>(columnName: 'length', value: '${planning.lengthPaperPlanning} cm'),
+      DataGridCell<String>(columnName: 'size', value: '${planning.sizePaperPLaning} cm'),
       DataGridCell<int>(columnName: 'child', value: planning.numberChild),
-      DataGridCell<String>(
-        columnName: 'khoCapGiay',
-        value: '${planning.ghepKho} cm',
-      ),
+      DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
       DataGridCell<String>(
         columnName: 'timeRunningProd',
         value:
@@ -91,27 +75,23 @@ class MachinePaperDatasource extends DataGridSource {
                 ? PlanningPaper.formatTimeOfDay(planning.timeRunning!)
                 : '',
       ),
-      DataGridCell<int>(
-        columnName: 'quantityOrd',
-        value: planning.order?.quantityManufacture ?? 0,
-      ),
+      DataGridCell<int>(columnName: 'quantityOrd', value: planning.order?.quantityManufacture ?? 0),
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
-      DataGridCell<int>(
-        columnName: "runningPlanProd",
-        value: planning.runningPlan,
-      ),
-      DataGridCell<String>(
-        columnName: "HD_special",
-        value: planning.order?.instructSpecial ?? '',
-      ),
+      DataGridCell<int>(columnName: "runningPlanProd", value: planning.runningPlan),
+      DataGridCell<String>(columnName: "HD_special", value: planning.order?.instructSpecial ?? ''),
       DataGridCell<String>(
         columnName: 'totalPrice',
-        value: '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND',
+        value:
+            (planning.order?.totalPrice ?? 0) > 0
+                ? '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND'
+                : "0",
       ),
       DataGridCell<String>(
         columnName: 'totalPriceAfterVAT',
         value:
-            '${Order.formatCurrency(planning.order?.totalPriceVAT ?? 0)} VND',
+            (planning.order?.totalPriceVAT ?? 0) > 0
+                ? '${Order.formatCurrency(planning.order?.totalPriceVAT ?? 0)} VND'
+                : "0",
       ),
     ];
   }
@@ -146,30 +126,14 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'qtyWastes',
         value: planning.qtyWasteNorm != 0 ? '${planning.qtyWasteNorm} kg' : "0",
       ),
-      DataGridCell<String>(
-        columnName: 'shiftProduct',
-        value: planning.shiftProduction,
-      ),
-      DataGridCell<String>(
-        columnName: 'shiftManager',
-        value: planning.shiftManagement,
-      ),
-      DataGridCell<bool>(
-        columnName: 'haveMadeBox',
-        value: planning.order!.isBox,
-      ),
+      DataGridCell<String>(columnName: 'shiftProduct', value: planning.shiftProduction),
+      DataGridCell<String>(columnName: 'shiftManager', value: planning.shiftManagement),
+      DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
 
       // hidden technical fields
       DataGridCell<String>(columnName: "status", value: planning.status),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
       DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
-      DataGridCell<String?>(
-        columnName: "dayStartProduction",
-        value:
-            planning.dayStart != null
-                ? formatter.format(planning.dayStart!)
-                : null,
-      ),
     ];
   }
 
@@ -200,10 +164,7 @@ class MachinePaperDatasource extends DataGridSource {
         planning
             .map<DataGridRow>(
               (planning) => DataGridRow(
-                cells: [
-                  ...buildPlanningInfoCells(planning),
-                  ...buildWasteNormCell(planning),
-                ],
+                cells: [...buildPlanningInfoCells(planning), ...buildWasteNormCell(planning)],
               ),
             )
             .toList();
@@ -218,13 +179,9 @@ class MachinePaperDatasource extends DataGridSource {
     unsavedChange?.setUnsavedChanges(true);
 
     List<PlanningPaper> selectedItems =
-        planning
-            .where((p) => idsToMove.contains(p.planningId.toString()))
-            .toList();
+        planning.where((p) => idsToMove.contains(p.planningId.toString())).toList();
 
-    selectedItems.sort(
-      (a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)),
-    );
+    selectedItems.sort((a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)));
 
     int minCurrentIndex = planning.length;
     for (var item in selectedItems) {
@@ -237,9 +194,7 @@ class MachinePaperDatasource extends DataGridSource {
     if (minCurrentIndex == 0) return;
 
     List<PlanningPaper> itemsToRemove = [...selectedItems];
-    itemsToRemove.sort(
-      (a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)),
-    );
+    itemsToRemove.sort((a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)));
     for (var item in itemsToRemove) {
       planning.remove(item);
     }
@@ -257,13 +212,9 @@ class MachinePaperDatasource extends DataGridSource {
     unsavedChange?.setUnsavedChanges(true);
 
     List<PlanningPaper> selectedItems =
-        planning
-            .where((p) => idsToMove.contains(p.planningId.toString()))
-            .toList();
+        planning.where((p) => idsToMove.contains(p.planningId.toString())).toList();
 
-    selectedItems.sort(
-      (a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)),
-    );
+    selectedItems.sort((a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)));
 
     int maxCurrentIndex = -1;
     for (var item in selectedItems) {
@@ -283,9 +234,7 @@ class MachinePaperDatasource extends DataGridSource {
     }
 
     List<PlanningPaper> itemsToRemove = [...selectedItems];
-    itemsToRemove.sort(
-      (a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)),
-    );
+    itemsToRemove.sort((a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)));
     for (var item in itemsToRemove) {
       planning.remove(item);
     }
@@ -307,15 +256,9 @@ class MachinePaperDatasource extends DataGridSource {
   }
 
   @override
-  Widget? buildGroupCaptionCellWidget(
-    RowColumnIndex rowColumnIndex,
-    String summaryValue,
-  ) {
+  Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(
-      r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$',
-      caseSensitive: false,
-    );
+    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
     String displayDate = '';
@@ -344,11 +287,7 @@ class MachinePaperDatasource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final planningId =
-        row
-            .getCells()
-            .firstWhere((cell) => cell.columnName == 'planningId')
-            .value
-            .toString();
+        row.getCells().firstWhere((cell) => cell.columnName == 'planningId').value.toString();
 
     final isSelected = selectedPlanningIds.contains(planningId);
 
@@ -360,8 +299,7 @@ class MachinePaperDatasource extends DataGridSource {
     final qtyWastes = getCellValue<String>(row, 'qtyWastes', "0");
 
     // Chuyển từ "10 kg" -> 10.0
-    final totalWasteLossVal =
-        double.tryParse(totalLoss.replaceAll(' kg', '')) ?? 0;
+    final totalWasteLossVal = double.tryParse(totalLoss.replaceAll(' kg', '')) ?? 0;
     final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(' kg', '')) ?? 0;
 
     Color? rowColor;
@@ -393,8 +331,7 @@ class MachinePaperDatasource extends DataGridSource {
             Color cellColor = Colors.transparent;
             if (dataCell.columnName == "qtyProduced" && runningPlan > 0) {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
-            } else if (dataCell.columnName == "qtyWastes" &&
-                qtyWastesVal > totalWasteLossVal) {
+            } else if (dataCell.columnName == "qtyWastes" && qtyWastesVal > totalWasteLossVal) {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
             }
 
