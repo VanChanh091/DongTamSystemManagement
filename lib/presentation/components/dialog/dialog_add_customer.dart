@@ -12,11 +12,7 @@ class CustomerDialog extends StatefulWidget {
   final Customer? customer;
   final VoidCallback onCustomerAddOrUpdate;
 
-  const CustomerDialog({
-    super.key,
-    this.customer,
-    required this.onCustomerAddOrUpdate,
-  });
+  const CustomerDialog({super.key, this.customer, required this.onCustomerAddOrUpdate});
 
   @override
   State<CustomerDialog> createState() => _CustomerDialogState();
@@ -76,18 +72,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
     timePayment = customer.timePayment;
     _timePaymentController.text =
-        (timePayment != null)
-            ? DateFormat('dd/MM/yyyy').format(timePayment!)
-            : "";
+        (timePayment != null) ? DateFormat('dd/MM/yyyy').format(timePayment!) : "";
   }
 
   //get all customer to check sdt
   Future<void> fetchAllCustomer() async {
     try {
-      final result = await CustomerService().getAllCustomers(
-        refresh: false,
-        noPaging: true,
-      );
+      final result = await CustomerService().getAllCustomers(refresh: false, noPaging: true);
 
       allCustomers = result['customers'] as List<Customer>;
     } catch (e, s) {
@@ -107,9 +98,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
     //check sdt is existed
     if (widget.customer == null && _phoneController.text.isNotEmpty) {
-      final isPhoneExist = allCustomers.any(
-        (customer) => customer.phone == _phoneController.text,
-      );
+      final isPhoneExist = allCustomers.any((customer) => customer.phone == _phoneController.text);
 
       if (isPhoneExist) {
         AppLogger.w("Số điện thoại đã tồn tại: ${_phoneController.text}");
@@ -118,27 +107,19 @@ class _CustomerDialogState extends State<CustomerDialog> {
           builder:
               (context) => AlertDialog(
                 backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 title: Row(
                   children: [
                     Icon(Icons.warning_amber_rounded, color: Colors.orange),
                     const SizedBox(width: 8),
-                    const Text(
-                      'Cảnh báo',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    const Text('Cảnh báo', style: TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
                 content: const Text(
                   'Số điện thoại này đã tồn tại trong hệ thống.\nBạn có chắc chắn muốn tiếp tục lưu không?',
                   style: TextStyle(fontSize: 16),
                 ),
-                actionsPadding: EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 15,
-                ),
+                actionsPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                 actionsAlignment: MainAxisAlignment.spaceBetween,
                 actions: [
                   TextButton.icon(
@@ -163,9 +144,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
                   ),
@@ -206,10 +185,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       } else {
         // update
         AppLogger.i("Cập nhật khách hàng: ${newCustomer.customerId}");
-        await CustomerService().updateCustomer(
-          newCustomer.customerId,
-          newCustomer.toJson(),
-        );
+        await CustomerService().updateCustomer(newCustomer.customerId, newCustomer.toJson());
         if (!mounted) return;
         showSnackBarSuccess(context, "Cập nhật thành công");
       }
@@ -384,10 +360,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
                                     initialDate: DateTime.now(),
                                     firstDate: DateTime.now(),
                                     lastDate: DateTime(2100),
-                                    builder: (
-                                      BuildContext context,
-                                      Widget? child,
-                                    ) {
+                                    builder: (BuildContext context, Widget? child) {
                                       return Theme(
                                         data: Theme.of(context).copyWith(
                                           colorScheme: ColorScheme.light(
@@ -429,15 +402,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: ValidationOrder.dropdownForTypes(
-                                itemRating,
-                                typeRating,
-                                (value) {
-                                  setState(() {
-                                    typeRating = value!;
-                                  });
-                                },
-                              ),
+                              child: ValidationOrder.dropdownForTypes(itemRating, typeRating, (
+                                value,
+                              ) {
+                                setState(() {
+                                  typeRating = value!;
+                                });
+                              }),
                             ),
                           ],
                         ),
@@ -456,24 +427,15 @@ class _CustomerDialogState extends State<CustomerDialog> {
                   onPressed: () => Navigator.pop(context),
                   child: const Text(
                     "Hủy",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.red,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red),
                   ),
                 ),
                 ElevatedButton(
                   onPressed: submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   child: Text(
                     isEdit ? "Cập nhật" : "Thêm",

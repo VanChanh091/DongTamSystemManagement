@@ -50,14 +50,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     registerSocket();
     loadPlanning(true);
 
-    columns = buildMachineBoxColumns(
-      machine: machine,
-      themeController: themeController,
-    );
+    columns = buildMachineBoxColumns(machine: machine, themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((
-      w,
-    ) {
+    ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -67,9 +62,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   void loadPlanning(bool refresh) {
     AppLogger.i("Loading all data manufacture box");
     setState(() {
-      futurePlanning = ensureMinLoading(
-        ManufactureService().getPlanningBox(machine, refresh),
-      );
+      futurePlanning = ensureMinLoading(ManufactureService().getPlanningBox(machine, refresh));
 
       selectedPlanningIds.clear();
     });
@@ -88,9 +81,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
       builder:
           (ctx) => AlertDialog(
             backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             contentPadding: const EdgeInsets.all(20),
             titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
             actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
@@ -98,16 +89,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
             title: Center(
               child: const Row(
                 children: [
-                  Icon(
-                    Icons.notifications_active,
-                    color: Colors.green,
-                    size: 28,
-                  ),
+                  Icon(Icons.notifications_active, color: Colors.green, size: 28),
                   SizedBox(width: 8),
-                  Text(
-                    'Thông báo',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  Text('Thông báo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -134,13 +118,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 12,
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                 ),
                 child: const Text('OK', style: TextStyle(fontSize: 16)),
               ),
@@ -255,17 +234,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(
-                                  120.0,
-                                  170.0,
-                                );
+                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
 
                                 return Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
@@ -273,51 +246,35 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                     //report production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasPermission(
-                                                    "step2Production",
-                                                  ) &&
+                                          userController.hasPermission("step2Production") &&
                                                   canExecuteAction(
                                                     selectedPlanningIds:
-                                                        selectedPlanningIds
-                                                            .map(int.parse)
-                                                            .toList(),
+                                                        selectedPlanningIds.map(int.parse).toList(),
                                                     planningList: planningList,
                                                   )
                                               ? () async {
                                                 try {
-                                                  final int
-                                                  selectedPlanningBoxId =
-                                                      int.parse(
-                                                        selectedPlanningIds
-                                                            .first,
-                                                      );
+                                                  final int selectedPlanningBoxId = int.parse(
+                                                    selectedPlanningIds.first,
+                                                  );
 
-                                                  final selectedPlanning =
-                                                      planningList.firstWhere(
-                                                        (p) =>
-                                                            p.planningBoxId ==
-                                                            selectedPlanningBoxId,
-                                                        orElse:
-                                                            () =>
-                                                                throw Exception(
-                                                                  "Không tìm thấy kế hoạch",
-                                                                ),
-                                                      );
+                                                  final selectedPlanning = planningList.firstWhere(
+                                                    (p) => p.planningBoxId == selectedPlanningBoxId,
+                                                    orElse:
+                                                        () =>
+                                                            throw Exception(
+                                                              "Không tìm thấy kế hoạch",
+                                                            ),
+                                                  );
 
                                                   showDialog(
                                                     context: context,
                                                     builder:
-                                                        (
-                                                          _,
-                                                        ) => DialogReportProduction(
+                                                        (_) => DialogReportProduction(
                                                           planningId:
-                                                              selectedPlanning
-                                                                  .planningBoxId,
-                                                          onReport:
-                                                              () =>
-                                                                  loadPlanning(
-                                                                    true,
-                                                                  ),
+                                                              selectedPlanning.planningBoxId,
+                                                          qtyPaper: selectedPlanning.qtyPaper,
+                                                          onReport: () => loadPlanning(true),
                                                           machine: machine,
                                                           isPaper: false,
                                                         ),
@@ -338,52 +295,41 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                               : null,
                                       label: "Báo Cáo SX",
                                       icon: Icons.assignment,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
+
                                     const SizedBox(width: 10),
 
                                     //confirm production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasPermission(
-                                                    "step2Production",
-                                                  ) &&
+                                          userController.hasPermission("step2Production") &&
                                                   canExecuteAction(
                                                     selectedPlanningIds:
-                                                        selectedPlanningIds
-                                                            .map(int.parse)
-                                                            .toList(),
+                                                        selectedPlanningIds.map(int.parse).toList(),
                                                     planningList: planningList,
                                                   )
                                               ? () async {
                                                 //get planning first
-                                                final int
-                                                selectedPlanningBoxId =
-                                                    int.parse(
-                                                      selectedPlanningIds.first,
-                                                    );
+                                                final int selectedPlanningBoxId = int.parse(
+                                                  selectedPlanningIds.first,
+                                                );
 
                                                 // find planning by planningId
-                                                final selectedPlanning =
-                                                    planningList.firstWhere(
-                                                      (p) =>
-                                                          p.planningBoxId ==
-                                                          selectedPlanningBoxId,
-                                                      orElse:
-                                                          () =>
-                                                              throw Exception(
-                                                                "Không tìm thấy kế hoạch",
-                                                              ),
-                                                    );
+                                                final selectedPlanning = planningList.firstWhere(
+                                                  (p) => p.planningBoxId == selectedPlanningBoxId,
+                                                  orElse:
+                                                      () =>
+                                                          throw Exception(
+                                                            "Không tìm thấy kế hoạch",
+                                                          ),
+                                                );
 
                                                 try {
-                                                  await ManufactureService()
-                                                      .confirmProducingBox(
-                                                        selectedPlanning
-                                                            .planningBoxId,
-                                                        machine,
-                                                      );
+                                                  await ManufactureService().confirmProducingBox(
+                                                    selectedPlanning.planningBoxId,
+                                                    machine,
+                                                  );
 
                                                   loadPlanning(true);
                                                 } catch (e) {
@@ -397,8 +343,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                               : null,
                                       label: "Xác Nhận SX",
                                       icon: null,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
 
@@ -432,18 +377,13 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
-                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                            borderSide: const BorderSide(color: Colors.grey),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -471,10 +411,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
@@ -483,10 +420,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
@@ -563,9 +497,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                       final planningBoxId =
                           selectedRow
                               .getCells()
-                              .firstWhere(
-                                (cell) => cell.columnName == 'planningBoxId',
-                              )
+                              .firstWhere((cell) => cell.columnName == 'planningBoxId')
                               .value
                               .toString();
 
@@ -576,8 +508,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                           selectedPlanningIds.add(planningBoxId);
                         }
 
-                        machineBoxDatasource.selectedPlanningIds =
-                            selectedPlanningIds;
+                        machineBoxDatasource.selectedPlanningIds = selectedPlanningIds;
                         machineBoxDatasource.notifyListeners();
                       });
                     },
@@ -617,22 +548,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
           builder: (BuildContext context) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               content: Text(
                 message,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 15,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
               ),
               actions: [
                 TextButton(
@@ -650,9 +570,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xffEA4346),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   child: const Text(
@@ -674,10 +592,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                 .whereType<int>()
                 .toList();
 
-        final success = await PlanningService().pauseOrAcceptLackQty(
-          planningIds,
-          status,
-        );
+        final success = await PlanningService().pauseOrAcceptLackQty(planningIds, status);
         if (!context.mounted) return;
 
         if (success) {

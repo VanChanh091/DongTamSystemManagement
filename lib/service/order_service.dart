@@ -19,12 +19,7 @@ class OrderService {
   }) async {
     return HelperService().fetchPaginatedData<Order>(
       endpoint: "order/accept-planning",
-      queryParameters: {
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-        'ownOnly': ownOnly,
-      },
+      queryParameters: {'page': page, 'pageSize': pageSize, 'refresh': refresh, 'ownOnly': ownOnly},
       fromJson: (json) => Order.fromJson(json),
       dataKey: 'orders',
     );
@@ -39,12 +34,7 @@ class OrderService {
   }) async {
     return HelperService().fetchPaginatedData<Order>(
       endpoint: "order/filter",
-      queryParameters: {
-        'field': field,
-        'keyword': keyword,
-        'page': page,
-        'pageSize': pageSize,
-      },
+      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
       fromJson: (json) => Order.fromJson(json),
       dataKey: 'orders',
     );
@@ -58,11 +48,7 @@ class OrderService {
   }) async {
     return HelperService().fetchPaginatedData<Order>(
       endpoint: "order/productName",
-      queryParameters: {
-        'productName': inputProductName,
-        'page': page,
-        'pageSize': pageSize,
-      },
+      queryParameters: {'productName': inputProductName, 'page': page, 'pageSize': pageSize},
       fromJson: (json) => Order.fromJson(json),
       dataKey: 'orders',
     );
@@ -76,11 +62,7 @@ class OrderService {
   }) async {
     return HelperService().fetchPaginatedData<Order>(
       endpoint: "order/qcBox",
-      queryParameters: {
-        'QcBox': inputQcBox,
-        'page': page,
-        'pageSize': pageSize,
-      },
+      queryParameters: {'QcBox': inputQcBox, 'page': page, 'pageSize': pageSize},
       fromJson: (json) => Order.fromJson(json),
       dataKey: 'orders',
     );
@@ -103,10 +85,7 @@ class OrderService {
   //===============================PENDING AND REJECT=====================================
 
   //get Order Pending And Reject
-  Future<List<Order>> getOrderPendingAndReject({
-    bool refresh = false,
-    bool ownOnly = false,
-  }) async {
+  Future<List<Order>> getOrderPendingAndReject({bool refresh = false, bool ownOnly = false}) async {
     return HelperService().fetchingData<Order>(
       endpoint: "order/pending-reject",
       queryParameters: {'refresh': refresh, 'ownOnly': ownOnly},
@@ -123,10 +102,7 @@ class OrderService {
         "/api/order",
         data: orderData,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -148,10 +124,7 @@ class OrderService {
   }
 
   //update order
-  Future<bool> updateOrderById(
-    String orderId,
-    Map<String, dynamic> orderUpdated,
-  ) async {
+  Future<bool> updateOrderById(String orderId, Map<String, dynamic> orderUpdated) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -160,10 +133,7 @@ class OrderService {
         queryParameters: {'orderId': orderId},
         data: orderUpdated,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -182,10 +152,7 @@ class OrderService {
         '/api/order/orders',
         queryParameters: {'id': orderId},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;

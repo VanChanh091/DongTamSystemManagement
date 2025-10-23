@@ -35,20 +35,8 @@ class _OrderDialogState extends State<OrderDialog> {
   Timer? _productIdDebounce;
   String lastSearchedCustomerId = "";
   String lastSearchedProductId = "";
-  final List<String> itemsDvt = [
-    'Tấm',
-    'Tấm Bao Khổ',
-    'Kg',
-    'Cái',
-    'M2',
-    'Lần',
-  ];
-  final List<String> itemsDaoXa = [
-    "Tề Gọn",
-    "Tề Biên Đẹp",
-    "Tề Biên Cột",
-    "Quấn Cuồn",
-  ];
+  final List<String> itemsDvt = ['Tấm', 'Tấm Bao Khổ', 'Kg', 'Cái', 'M2', 'Lần'];
+  final List<String> itemsDaoXa = ["Tề Gọn", "Tề Biên Đẹp", "Tề Biên Cột", "Quấn Cuồn"];
   late String originalOrderId;
   List<Customer> allCustomers = [];
   List<Product> allProducts = [];
@@ -148,15 +136,10 @@ class _OrderDialogState extends State<OrderDialog> {
     songBController.text = order.songB.toString();
     songCController.text = order.songC.toString();
     songE2Controller.text = order.songE2.toString();
-    lengthCustomerController.text = order.lengthPaperCustomer.toStringAsFixed(
-      1,
-    );
-    lengthManufactureController.text = order.lengthPaperManufacture
-        .toStringAsFixed(1);
+    lengthCustomerController.text = order.lengthPaperCustomer.toStringAsFixed(1);
+    lengthManufactureController.text = order.lengthPaperManufacture.toStringAsFixed(1);
     sizeCustomerController.text = order.paperSizeCustomer.toStringAsFixed(1);
-    sizeManufactureController.text = order.paperSizeManufacture.toStringAsFixed(
-      1,
-    );
+    sizeManufactureController.text = order.paperSizeManufacture.toStringAsFixed(1);
     quantityCustomerController.text = order.quantityCustomer.toString();
     quantityManufactureController.text = order.quantityManufacture.toString();
     numberChildController.text = order.numberChild.toString();
@@ -176,9 +159,7 @@ class _OrderDialogState extends State<OrderDialog> {
     //date
     dayReceive = order.dayReceiveOrder;
     dateShipping = order.dateRequestShipping;
-    dateShippingController.text = DateFormat(
-      'dd/MM/yyyy',
-    ).format(dateShipping!);
+    dateShippingController.text = DateFormat('dd/MM/yyyy').format(dateShipping!);
   }
 
   //init data to update
@@ -206,8 +187,9 @@ class _OrderDialogState extends State<OrderDialog> {
 
   Future<void> getCustomerById(String customerId) async {
     try {
-      final result = await CustomerService().getCustomerById(
-        customerId: customerId,
+      final result = await CustomerService().getCustomerByField(
+        field: 'customerId',
+        keyword: customerId,
       );
       if (customerId != lastSearchedCustomerId) return;
 
@@ -234,18 +216,15 @@ class _OrderDialogState extends State<OrderDialog> {
         }
       }
     } catch (e, s) {
-      AppLogger.e(
-        "Lỗi khi tìm khách hàng id=$customerId",
-        error: e,
-        stackTrace: s,
-      );
+      AppLogger.e("Lỗi khi tìm khách hàng id=$customerId", error: e, stackTrace: s);
     }
   }
 
   Future<void> getProductById(String productId) async {
     try {
-      final result = await ProductService().getProductById(
-        productId: productId,
+      final result = await ProductService().getProductByField(
+        field: 'productId',
+        keyword: productId,
       );
       if (productId != lastSearchedProductId) return;
 
@@ -274,11 +253,7 @@ class _OrderDialogState extends State<OrderDialog> {
         }
       }
     } catch (e, s) {
-      AppLogger.e(
-        "Lỗi khi tìm sản phẩm id=$productId",
-        error: e,
-        stackTrace: s,
-      );
+      AppLogger.e("Lỗi khi tìm sản phẩm id=$productId", error: e, stackTrace: s);
     }
   }
 
@@ -314,10 +289,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
   Future<void> fetchAllCustomers() async {
     try {
-      final result = await CustomerService().getAllCustomers(
-        refresh: false,
-        noPaging: true,
-      );
+      final result = await CustomerService().getAllCustomers(refresh: false, noPaging: true);
 
       allCustomers = result['customers'] as List<Customer>;
       AppLogger.i("Fetch thành công tất cả khách hàng vào order");
@@ -328,10 +300,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
   Future<void> fetchAllProduct() async {
     try {
-      final result = await ProductService().getAllProducts(
-        refresh: false,
-        noPaging: true,
-      );
+      final result = await ProductService().getAllProducts(refresh: false, noPaging: true);
 
       allProducts = result['products'] as List<Product>;
       AppLogger.i("Fetch thành công tất cả sản phẩm vào order");
@@ -355,10 +324,7 @@ class _OrderDialogState extends State<OrderDialog> {
   void addListenerForField() {
     listenerForFieldNeed(lengthCustomerController, lengthManufactureController);
     listenerForFieldNeed(sizeCustomerController, sizeManufactureController);
-    listenerForFieldNeed(
-      quantityCustomerController,
-      quantityManufactureController,
-    );
+    listenerForFieldNeed(quantityCustomerController, quantityManufactureController);
   }
 
   // create a string after prefix
@@ -479,16 +445,12 @@ class _OrderDialogState extends State<OrderDialog> {
       songB: songBValue,
       songC: songCValue,
       songE2: songE2Value,
-      lengthPaperCustomer:
-          double.tryParse(lengthCustomerController.text) ?? 0.0,
-      lengthPaperManufacture:
-          double.tryParse(lengthManufactureController.text) ?? 0.0,
+      lengthPaperCustomer: double.tryParse(lengthCustomerController.text) ?? 0.0,
+      lengthPaperManufacture: double.tryParse(lengthManufactureController.text) ?? 0.0,
       paperSizeCustomer: double.tryParse(sizeCustomerController.text) ?? 0.0,
-      paperSizeManufacture:
-          double.tryParse(sizeManufactureController.text) ?? 0.0,
+      paperSizeManufacture: double.tryParse(sizeManufactureController.text) ?? 0.0,
       quantityCustomer: int.tryParse(quantityCustomerController.text) ?? 0,
-      quantityManufacture:
-          int.tryParse(quantityManufactureController.text) ?? 0,
+      quantityManufacture: int.tryParse(quantityManufactureController.text) ?? 0,
       numberChild: int.tryParse(numberChildController.text) ?? 0,
       acreage: totalAcreage,
       dvt: typeDVT,
@@ -518,10 +480,7 @@ class _OrderDialogState extends State<OrderDialog> {
         showSnackBarSuccess(context, "Lưu thành công");
       } else {
         AppLogger.i("Cập nhật đơn hàng: ${newOrder.orderId}");
-        await OrderService().updateOrderById(
-          originalOrderId,
-          newOrder.toJson(),
-        );
+        await OrderService().updateOrderById(originalOrderId, newOrder.toJson());
 
         if (!mounted) return; // check context
         showSnackBarSuccess(context, 'Cập nhật thành công');
@@ -617,11 +576,11 @@ class _OrderDialogState extends State<OrderDialog> {
               labelText: "Mã Khách Hàng",
               icon: Symbols.badge,
               suggestionsCallback: (pattern) async {
-                final result = await CustomerService().getCustomerById(
-                  customerId: pattern,
+                final result = await CustomerService().getCustomerByField(
+                  field: 'customerId',
+                  keyword: pattern,
                 );
-                if (result['customers'] != null &&
-                    result['customers'] is List<Customer>) {
+                if (result['customers'] != null && result['customers'] is List<Customer>) {
                   return result['customers'] as List<Customer>;
                 }
 
@@ -696,9 +655,7 @@ class _OrderDialogState extends State<OrderDialog> {
                           onPrimary: Colors.white,
                           onSurface: Colors.black,
                         ),
-                        dialogTheme: DialogThemeData(
-                          backgroundColor: Colors.white12,
-                        ),
+                        dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
                       ),
                       child: child!,
                     );
@@ -707,9 +664,7 @@ class _OrderDialogState extends State<OrderDialog> {
                 if (pickedDate != null) {
                   setState(() {
                     dateShipping = pickedDate;
-                    dateShippingController.text = DateFormat(
-                      'dd/MM/yyyy',
-                    ).format(pickedDate);
+                    dateShippingController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
                   });
                 }
               },
@@ -723,11 +678,11 @@ class _OrderDialogState extends State<OrderDialog> {
               labelText: "Mã Sản Phẩm",
               icon: Symbols.box,
               suggestionsCallback: (pattern) async {
-                final result = await ProductService().getProductById(
-                  productId: pattern,
+                final result = await ProductService().getProductByField(
+                  field: 'productId',
+                  keyword: pattern,
                 );
-                if (result['products'] != null &&
-                    result['products'] is List<Product>) {
+                if (result['products'] != null && result['products'] is List<Product>) {
                   return result['products'] as List<Product>;
                 }
 
@@ -798,11 +753,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
       {
         'left':
-            () => ValidationOrder.validateInput(
-              "QC Thùng",
-              qcBoxController,
-              Symbols.deployed_code,
-            ),
+            () => ValidationOrder.validateInput("QC Thùng", qcBoxController, Symbols.deployed_code),
         'middle_1':
             () => ValidationOrder.validateInput(
               "Dài khách đặt (cm)",
@@ -843,22 +794,12 @@ class _OrderDialogState extends State<OrderDialog> {
               Symbols.price_change,
             ),
         'middle_2':
-            () => ValidationOrder.validateInput(
-              "Lợi nhuận",
-              profitController,
-              Symbols.price_change,
-            ),
-        'middle_3':
-            () => ValidationOrder.validateInput(
-              "VAT",
-              vatController,
-              Symbols.percent,
-            ),
+            () =>
+                ValidationOrder.validateInput("Lợi nhuận", profitController, Symbols.price_change),
+        'middle_3': () => ValidationOrder.validateInput("VAT", vatController, Symbols.percent),
 
         'right':
-            () => ValidationOrder.dropdownForTypes(itemsDaoXa, typeDaoXa, (
-              value,
-            ) {
+            () => ValidationOrder.dropdownForTypes(itemsDaoXa, typeDaoXa, (value) {
               setState(() {
                 typeDaoXa = value!;
               });
@@ -895,11 +836,7 @@ class _OrderDialogState extends State<OrderDialog> {
               Symbols.vertical_align_bottom,
             ),
         'middle_1':
-            () => ValidationOrder.validateInput(
-              "Sóng E (g)",
-              songEController,
-              Symbols.airwave,
-            ),
+            () => ValidationOrder.validateInput("Sóng E (g)", songEController, Symbols.airwave),
 
         'middle_2':
             () => ValidationOrder.validateInput(
@@ -908,11 +845,7 @@ class _OrderDialogState extends State<OrderDialog> {
               Symbols.vertical_align_center,
             ),
         'middle_3':
-            () => ValidationOrder.validateInput(
-              "Sóng B (g)",
-              songBController,
-              Symbols.airwave,
-            ),
+            () => ValidationOrder.validateInput("Sóng B (g)", songBController, Symbols.airwave),
 
         'right':
             () => ValidationOrder.validateInput(
@@ -923,12 +856,7 @@ class _OrderDialogState extends State<OrderDialog> {
       },
 
       {
-        'left':
-            () => ValidationOrder.validateInput(
-              "Sóng C (g)",
-              songCController,
-              Symbols.airwave,
-            ),
+        'left': () => ValidationOrder.validateInput("Sóng C (g)", songCController, Symbols.airwave),
         'middle_1':
             () => ValidationOrder.validateInput(
               "Mặt C (g)",
@@ -937,23 +865,10 @@ class _OrderDialogState extends State<OrderDialog> {
             ),
 
         'middle_2':
-            () => ValidationOrder.validateInput(
-              "Sóng E2 (g)",
-              songE2Controller,
-              Symbols.airwave,
-            ),
+            () => ValidationOrder.validateInput("Sóng E2 (g)", songE2Controller, Symbols.airwave),
         'middle_3':
-            () => ValidationOrder.validateInput(
-              "Cấn Lằn",
-              canLanController,
-              Symbols.bottom_sheets,
-            ),
-        'right':
-            () => ValidationOrder.validateInput(
-              "Số con",
-              numberChildController,
-              Symbols.box,
-            ),
+            () => ValidationOrder.validateInput("Cấn Lằn", canLanController, Symbols.bottom_sheets),
+        'right': () => ValidationOrder.validateInput("Số con", numberChildController, Symbols.box),
       },
     ];
 
@@ -999,50 +914,22 @@ class _OrderDialogState extends State<OrderDialog> {
                 chongThamChecked,
                 enabled: isEnabled,
               ),
-          'middle_1':
-              () => ValidationOrder.checkboxForBox(
-                "Xả",
-                xaChecked,
-                enabled: isEnabled,
-              ),
+          'middle_1': () => ValidationOrder.checkboxForBox("Xả", xaChecked, enabled: isEnabled),
           'middle_2':
-              () => ValidationOrder.checkboxForBox(
-                "Cắt khe",
-                catKheChecked,
-                enabled: isEnabled,
-              ),
+              () => ValidationOrder.checkboxForBox("Cắt khe", catKheChecked, enabled: isEnabled),
           'middle_3':
-              () => ValidationOrder.checkboxForBox(
-                "Dán 1 mảnh",
-                dan1ManhChecked,
-                enabled: isEnabled,
-              ),
+              () =>
+                  ValidationOrder.checkboxForBox("Dán 1 mảnh", dan1ManhChecked, enabled: isEnabled),
           'right':
-              () => ValidationOrder.checkboxForBox(
-                "Dán 2 mảnh",
-                dan2ManhChecked,
-                enabled: isEnabled,
-              ),
+              () =>
+                  ValidationOrder.checkboxForBox("Dán 2 mảnh", dan2ManhChecked, enabled: isEnabled),
         },
         {
           'left':
-              () => ValidationOrder.checkboxForBox(
-                "Cán màng",
-                canMangChecked,
-                enabled: isEnabled,
-              ),
-          'middle_1':
-              () => ValidationOrder.checkboxForBox(
-                "Bế",
-                beChecked,
-                enabled: isEnabled,
-              ),
+              () => ValidationOrder.checkboxForBox("Cán màng", canMangChecked, enabled: isEnabled),
+          'middle_1': () => ValidationOrder.checkboxForBox("Bế", beChecked, enabled: isEnabled),
           'middle_2':
-              () => ValidationOrder.checkboxForBox(
-                "Cấn Lằn",
-                canLanChecked,
-                enabled: isEnabled,
-              ),
+              () => ValidationOrder.checkboxForBox("Cấn Lằn", canLanChecked, enabled: isEnabled),
 
           'middle_3':
               () => ValidationOrder.checkboxForBox(
@@ -1065,9 +952,7 @@ class _OrderDialogState extends State<OrderDialog> {
       builder: (context, state) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           content: SizedBox(
             width: 1400,
             height: 900,
@@ -1081,10 +966,7 @@ class _OrderDialogState extends State<OrderDialog> {
                     const SizedBox(height: 10),
                     const Text(
                       "Đơn Hàng",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -1101,10 +983,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child:
-                                          row['left'] is Function
-                                              ? row['left']()
-                                              : row['left'],
+                                      child: row['left'] is Function ? row['left']() : row['left'],
                                     ),
                                     const SizedBox(width: 30),
                                     Expanded(
@@ -1130,9 +1009,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     const SizedBox(width: 30),
                                     Expanded(
                                       child:
-                                          row['right'] is Function
-                                              ? row['right']()
-                                              : row['right'],
+                                          row['right'] is Function ? row['right']() : row['right'],
                                     ),
                                   ],
                                 ),
@@ -1145,10 +1022,7 @@ class _OrderDialogState extends State<OrderDialog> {
                     //structure
                     const Text(
                       "Kết Cấu",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -1165,10 +1039,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child:
-                                          row['left'] is Function
-                                              ? row['left']()
-                                              : row['left'],
+                                      child: row['left'] is Function ? row['left']() : row['left'],
                                     ),
                                     const SizedBox(width: 30),
                                     Expanded(
@@ -1194,9 +1065,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     const SizedBox(width: 30),
                                     Expanded(
                                       child:
-                                          row['right'] is Function
-                                              ? row['right']()
-                                              : row['right'],
+                                          row['right'] is Function ? row['right']() : row['right'],
                                     ),
                                   ],
                                 ),
@@ -1213,20 +1082,14 @@ class _OrderDialogState extends State<OrderDialog> {
                           alignment: Alignment.center,
                           child: const Text(
                             "Làm Thùng",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                           ),
                         ),
                         Align(
                           alignment: Alignment.centerRight,
                           child: SizedBox(
                             width: 150, // chỉnh độ rộng hợp lý
-                            child: ValidationOrder.checkboxForBox(
-                              "Làm thùng?",
-                              isBoxChecked,
-                            ),
+                            child: ValidationOrder.checkboxForBox("Làm thùng?", isBoxChecked),
                           ),
                         ),
                       ],
@@ -1249,9 +1112,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                 children:
                                     boxes.map((row) {
                                       return Padding(
-                                        padding: const EdgeInsets.only(
-                                          bottom: 15,
-                                        ),
+                                        padding: const EdgeInsets.only(bottom: 15),
                                         child: Row(
                                           children: [
                                             Expanded(
@@ -1298,10 +1159,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
                           const Text(
                             'Hướng dẫn đặc biệt:',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const SizedBox(height: 10),
 
@@ -1326,34 +1184,22 @@ class _OrderDialogState extends State<OrderDialog> {
               ),
             ),
           ),
-          actionsPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 10,
-          ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Hủy",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.red,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.red),
               ),
             ),
             ElevatedButton(
               onPressed: submit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: Text(
                 isEdit ? "Cập nhật" : "Thêm",

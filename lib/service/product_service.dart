@@ -33,37 +33,16 @@ class ProductService {
     );
   }
 
-  //get by id
-  Future<Map<String, dynamic>> getProductById({
-    required String productId,
+  //get product by field
+  Future<Map<String, dynamic>> getProductByField({
+    required String field,
+    required String keyword,
     int page = 1,
     int pageSize = 25,
   }) async {
     return HelperService().fetchPaginatedData<Product>(
-      endpoint: "product/byProductId",
-      queryParameters: {
-        'productId': productId,
-        'page': page,
-        'pageSize': pageSize,
-      },
-      fromJson: (json) => Product.fromJson(json),
-      dataKey: 'products',
-    );
-  }
-
-  //get by name
-  Future<Map<String, dynamic>> getProductByName({
-    required String productName,
-    int page = 1,
-    int pageSize = 25,
-  }) async {
-    return HelperService().fetchPaginatedData<Product>(
-      endpoint: "product/byName",
-      queryParameters: {
-        'productName': productName,
-        'page': page,
-        'pageSize': pageSize,
-      },
+      endpoint: "product/filter",
+      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
       fromJson: (json) => Product.fromJson(json),
       dataKey: 'products',
     );
@@ -96,10 +75,7 @@ class ProductService {
         '/api/product/',
         data: formData,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'multipart/form-data'},
         ),
       );
 
@@ -142,10 +118,7 @@ class ProductService {
         queryParameters: {'id': productId},
         data: formData,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'multipart/form-data'},
         ),
       );
 
@@ -167,10 +140,7 @@ class ProductService {
       await dioService.delete(
         '/api/product/$productId',
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -181,10 +151,7 @@ class ProductService {
   }
 
   //export product
-  Future<File?> exportExcelProduct({
-    String? typeProduct,
-    bool all = false,
-  }) async {
+  Future<File?> exportExcelProduct({String? typeProduct, bool all = false}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -198,10 +165,7 @@ class ProductService {
         "/api/product/exportExcel",
         data: body,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
           responseType: ResponseType.bytes,
         ),
       );

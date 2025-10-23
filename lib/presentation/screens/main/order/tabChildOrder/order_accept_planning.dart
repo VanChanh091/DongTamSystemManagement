@@ -53,10 +53,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
     super.initState();
     loadOrders(refresh: true, ownOnly: isSeenOrder);
 
-    columns = buildOrderColumns(
-      themeController: themeController,
-      userController: userController,
-    );
+    columns = buildOrderColumns(themeController: themeController, userController: userController);
 
     ColumnWidthTable.loadWidths(tableKey: 'order', columns: columns).then((w) {
       setState(() {
@@ -70,9 +67,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
       final String selectedField = searchFieldMap[searchType] ?? "";
 
       String keyword = searchController.text.trim().toLowerCase();
-      AppLogger.d("loadOrderAccept_Planning | search keyword=$keyword");
 
       if (isSearching && searchType != "Tất cả" && keyword.isNotEmpty) {
+        AppLogger.d("loadOrderAccept_Planning: isSearching=true | keyword='$keyword'");
+
         futureOrdersAccept = ensureMinLoading(
           OrderService().getOrderByField(
             field: selectedField,
@@ -173,21 +171,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(
-                                  120.0,
-                                  170.0,
-                                );
-                                final textInputWidth = (maxWidth * 0.3).clamp(
-                                  200.0,
-                                  250.0,
-                                );
+                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
+                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
 
                                 return Row(
                                   children: [
@@ -212,8 +201,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                         onChanged: (value) {
                                           setState(() {
                                             searchType = value!;
-                                            isTextFieldEnabled =
-                                                searchType != 'Tất cả';
+                                            isTextFieldEnabled = searchType != 'Tất cả';
 
                                             searchController.clear();
                                           });
@@ -222,18 +210,13 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
-                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                            borderSide: const BorderSide(color: Colors.grey),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -251,14 +234,11 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                         decoration: InputDecoration(
                                           hintText: 'Tìm kiếm...',
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -271,8 +251,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                       },
                                       label: "Tìm kiếm",
                                       icon: Icons.search,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
 
@@ -284,18 +263,11 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                               isSeenOrder = !isSeenOrder;
                                             });
 
-                                            loadOrders(
-                                              refresh: false,
-                                              ownOnly: isSeenOrder,
-                                            );
+                                            loadOrders(refresh: false, ownOnly: isSeenOrder);
                                           },
-                                          label:
-                                              isSeenOrder
-                                                  ? "Xem Tất Cả"
-                                                  : "Đơn Bản Thân",
+                                          label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
                                           icon: null,
-                                          backgroundColor:
-                                              themeController.buttonColor,
+                                          backgroundColor: themeController.buttonColor,
                                         )
                                         : const SizedBox.shrink(),
                                   ],
@@ -322,10 +294,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
@@ -336,18 +305,14 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
 
                   final data = snapshot.data!;
                   final orders = data['orders'] as List<Order>;
-                  final currentPg =
-                      data['currentPage']; //current page of response
+                  final currentPg = data['currentPage']; //current page of response
                   final totalPgs = data['totalPages']; //total  page of response
 
                   orderDataSource = OrderDataSource(
@@ -423,8 +388,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                           onSelectionChanged: (addedRows, removedRows) {
                             if (addedRows.isNotEmpty) {
                               final selectedRow = addedRows.first;
-                              final orderId =
-                                  selectedRow.getCells()[0].value.toString();
+                              final orderId = selectedRow.getCells()[0].value.toString();
                               final selectedOrder = orders.firstWhere(
                                 (order) => order.orderId == orderId,
                               );

@@ -30,61 +30,15 @@ class CustomerService {
     );
   }
 
-  // get by id
-  Future<Map<String, dynamic>> getCustomerById({
-    String customerId = "",
+  Future<Map<String, dynamic>> getCustomerByField({
+    required String field,
+    required String keyword,
     int page = 1,
-    int pageSize = 25,
+    int pageSize = 30,
   }) async {
     return HelperService().fetchPaginatedData<Customer>(
-      endpoint: 'customer/byCustomerId',
-      queryParameters: {
-        'customerId': customerId,
-        'page': page,
-        'pageSize': pageSize,
-      },
-      fromJson: (json) => Customer.fromJson(json),
-      dataKey: 'customers',
-    );
-  }
-
-  // get by name
-  Future<Map<String, dynamic>> getCustomerByName(
-    String name,
-    int page,
-    int pageSize,
-  ) async {
-    return HelperService().fetchPaginatedData<Customer>(
-      endpoint: 'customer/byName',
-      queryParameters: {'name': name, 'page': page, 'pageSize': pageSize},
-      fromJson: (json) => Customer.fromJson(json),
-      dataKey: 'customers',
-    );
-  }
-
-  // get by cskh
-  Future<Map<String, dynamic>> getCustomerByCSKH(
-    String cskh,
-    int page,
-    int pageSize,
-  ) async {
-    return HelperService().fetchPaginatedData<Customer>(
-      endpoint: 'customer/byCskh',
-      queryParameters: {'cskh': cskh, 'page': page, 'pageSize': pageSize},
-      fromJson: (json) => Customer.fromJson(json),
-      dataKey: 'customers',
-    );
-  }
-
-  // get by phone
-  Future<Map<String, dynamic>> getCustomerByPhone(
-    String phone,
-    int page,
-    int pageSize,
-  ) async {
-    return HelperService().fetchPaginatedData<Customer>(
-      endpoint: 'customer/byPhone',
-      queryParameters: {'phone': phone, 'page': page, 'pageSize': pageSize},
+      endpoint: 'customer/filter',
+      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
       fromJson: (json) => Customer.fromJson(json),
       dataKey: 'customers',
     );
@@ -99,10 +53,7 @@ class CustomerService {
         "/api/customer/",
         data: customerData,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -113,10 +64,7 @@ class CustomerService {
   }
 
   // update customer
-  Future<bool> updateCustomer(
-    String customerId,
-    Map<String, dynamic> updateCustomer,
-  ) async {
+  Future<bool> updateCustomer(String customerId, Map<String, dynamic> updateCustomer) async {
     try {
       final token = await SecureStorageService().getToken();
       await dioService.put(
@@ -124,10 +72,7 @@ class CustomerService {
         queryParameters: {"customerId": customerId},
         data: updateCustomer,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -146,10 +91,7 @@ class CustomerService {
         "/api/customer/customerDel",
         queryParameters: {"customerId": customerId},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -179,10 +121,7 @@ class CustomerService {
         "/api/customer/exportExcel",
         data: body,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
           responseType: ResponseType.bytes,
         ),
       );

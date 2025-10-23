@@ -21,19 +21,15 @@ class ReportPlanningService {
   }) async {
     return HelperService().fetchPaginatedData<ReportPaperModel>(
       endpoint: "report/reportPaper/",
-      queryParameters: {
-        "machine": machine,
-        "page": page,
-        "pageSize": pageSize,
-        "refresh": refresh,
-      },
+      queryParameters: {"machine": machine, "page": page, "pageSize": pageSize, "refresh": refresh},
       fromJson: (json) => ReportPaperModel.fromJson(json),
       dataKey: 'reportPapers',
     );
   }
 
-  //get by customerName
-  Future<Map<String, dynamic>> getRPByCustomerName({
+  //get report paper by field
+  Future<Map<String, dynamic>> getReportPaperByField({
+    required String field,
     required String keyword,
     required String machine,
     required int page,
@@ -41,119 +37,10 @@ class ReportPlanningService {
     bool refresh = false,
   }) async {
     return HelperService().fetchPaginatedData<ReportPaperModel>(
-      endpoint: "report/reportPaper/getCustomerName",
+      endpoint: "report/reportPaper/filter",
       queryParameters: {
-        'customerName': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportPaperModel.fromJson(json),
-      dataKey: 'reportPapers',
-    );
-  }
-
-  //get by dayReported
-  Future<Map<String, dynamic>> getRPByDayReported({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportPaperModel>(
-      endpoint: "report/reportPaper/getDayReported",
-      queryParameters: {
-        'dayReported': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportPaperModel.fromJson(json),
-      dataKey: 'reportPapers',
-    );
-  }
-
-  //get by qtyReported
-  Future<Map<String, dynamic>> getRPByQtyReported({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportPaperModel>(
-      endpoint: "report/reportPaper/getQtyReported",
-      queryParameters: {
-        'qtyProduced': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportPaperModel.fromJson(json),
-      dataKey: 'reportPapers',
-    );
-  }
-
-  //get by ghepKho
-  Future<Map<String, dynamic>> getRPByGhepKho({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportPaperModel>(
-      endpoint: "report/reportPaper/getGhepKho",
-      queryParameters: {
-        'ghepKho': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportPaperModel.fromJson(json),
-      dataKey: 'reportPapers',
-    );
-  }
-
-  //get by shiftManagement
-  Future<Map<String, dynamic>> getRPByShiftManagement({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportPaperModel>(
-      endpoint: "report/reportPaper/getShiftManagement",
-      queryParameters: {
-        'shiftManagement': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportPaperModel.fromJson(json),
-      dataKey: 'reportPapers',
-    );
-  }
-
-  //get by orderId
-  Future<Map<String, dynamic>> getRPByOrderId({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportPaperModel>(
-      endpoint: "report/reportPaper/getOrderId",
-      queryParameters: {
-        'orderId': keyword,
+        'field': field,
+        'keyword': keyword,
         'machine': machine,
         'page': page,
         'pageSize': pageSize,
@@ -173,19 +60,15 @@ class ReportPlanningService {
   }) async {
     return HelperService().fetchPaginatedData<ReportBoxModel>(
       endpoint: "report/reportBox/",
-      queryParameters: {
-        "machine": machine,
-        "page": page,
-        "pageSize": pageSize,
-        "refresh": refresh,
-      },
+      queryParameters: {"machine": machine, "page": page, "pageSize": pageSize, "refresh": refresh},
       fromJson: (json) => ReportBoxModel.fromJson(json),
       dataKey: 'reportBoxes',
     );
   }
 
-  //get by customerName
-  Future<Map<String, dynamic>> getRBByCustomerName({
+  //get report box by field
+  Future<Map<String, dynamic>> getReportBoxByField({
+    required String field,
     required String keyword,
     required String machine,
     required int page,
@@ -193,119 +76,10 @@ class ReportPlanningService {
     bool refresh = false,
   }) async {
     return HelperService().fetchPaginatedData<ReportBoxModel>(
-      endpoint: "report/reportBox/getCustomerName",
+      endpoint: "report/reportBox/filter",
       queryParameters: {
-        'customerName': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportBoxModel.fromJson(json),
-      dataKey: 'reportBoxes',
-    );
-  }
-
-  //get by dayReported
-  Future<Map<String, dynamic>> getRBByDayReported({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportBoxModel>(
-      endpoint: "report/reportBox/getDayReported",
-      queryParameters: {
-        'dayReported': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportBoxModel.fromJson(json),
-      dataKey: 'reportBoxes',
-    );
-  }
-
-  // get by qtyReported
-  Future<Map<String, dynamic>> getRBByQtyReported({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportBoxModel>(
-      endpoint: "report/reportBox/getQtyReported",
-      queryParameters: {
-        'qtyProduced': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportBoxModel.fromJson(json),
-      dataKey: 'reportBoxes',
-    );
-  }
-
-  //get by QC_Box
-  Future<Map<String, dynamic>> getRBByQcBox({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportBoxModel>(
-      endpoint: "report/reportBox/getQcBox",
-      queryParameters: {
-        'QcBox': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportBoxModel.fromJson(json),
-      dataKey: 'reportBoxes',
-    );
-  }
-
-  //get by shiftManagement
-  Future<Map<String, dynamic>> getRBByShiftManagement({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportBoxModel>(
-      endpoint: "report/reportBox/getShiftManagement",
-      queryParameters: {
-        'shiftManagement': keyword,
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-      },
-      fromJson: (json) => ReportBoxModel.fromJson(json),
-      dataKey: 'reportBoxes',
-    );
-  }
-
-  //get by shiftManagement
-  Future<Map<String, dynamic>> getRBByOrderId({
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-    bool refresh = false,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportBoxModel>(
-      endpoint: "report/reportBox/getOrderId",
-      queryParameters: {
-        'orderId': keyword,
+        'field': field,
+        'keyword': keyword,
         'machine': machine,
         'page': page,
         'pageSize': pageSize,
@@ -342,10 +116,7 @@ class ReportPlanningService {
         "/api/report/exportExcelPaper",
         data: body,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
           responseType: ResponseType.bytes,
         ),
       );
@@ -403,10 +174,7 @@ class ReportPlanningService {
         "/api/report/exportExcelBox",
         data: body,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
           responseType: ResponseType.bytes,
         ),
       );

@@ -29,6 +29,7 @@ class _ProductPageState extends State<ProductPage> {
   late Future<Map<String, dynamic>> futureProduct;
   late ProductDataSource productDataSource;
   late List<GridColumn> columns;
+  final Map<String, String> searchFieldMap = {"Theo Mã": "productId", "Theo Tên SP": "productName"};
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   TextEditingController searchController = TextEditingController();
@@ -50,9 +51,7 @@ class _ProductPageState extends State<ProductPage> {
 
     columns = buildProductColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'product', columns: columns).then((
-      w,
-    ) {
+    ColumnWidthTable.loadWidths(tableKey: 'product', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -61,34 +60,24 @@ class _ProductPageState extends State<ProductPage> {
 
   void loadProduct(bool refresh) {
     setState(() {
-      if (isSearching) {
-        String keyword = searchController.text.trim().toLowerCase();
+      final String selectedField = searchFieldMap[searchType] ?? "";
+
+      String keyword = searchController.text.trim().toLowerCase();
+
+      if (isSearching && searchType != "Tất cả") {
         AppLogger.i("loadProducts: isSearching=true, keyword='$keyword'");
 
-        if (searchType == "Theo Mã") {
-          futureProduct = ensureMinLoading(
-            ProductService().getProductById(
-              productId: keyword,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Theo Tên SP") {
-          futureProduct = ensureMinLoading(
-            ProductService().getProductByName(
-              productName: keyword,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        }
+        futureProduct = ensureMinLoading(
+          ProductService().getProductByField(
+            field: selectedField,
+            keyword: keyword,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
       } else {
         futureProduct = ensureMinLoading(
-          ProductService().getAllProducts(
-            refresh: refresh,
-            page: currentPage,
-            pageSize: pageSize,
-          ),
+          ProductService().getAllProducts(refresh: refresh, page: currentPage, pageSize: pageSize),
         );
       }
 
@@ -105,37 +94,27 @@ class _ProductPageState extends State<ProductPage> {
       return;
     }
 
-    currentPage = 1;
-    if (searchType == "Tất cả") {
-      AppLogger.i("searchProduct: tìm tất cả SP");
-      setState(() {
-        futureProduct = ProductService().getAllProducts(
-          refresh: false,
-          page: currentPage,
-          pageSize: pageSize,
+    setState(() {
+      currentPage = 1;
+      isSearching = (searchType != "Tất cả");
+
+      if (searchType == "Tất cả") {
+        AppLogger.i("searchProduct: tìm tất cả SP");
+        futureProduct = ensureMinLoading(
+          ProductService().getAllProducts(refresh: false, page: currentPage, pageSize: pageSize),
         );
-      });
-    } else if (searchType == "Theo Mã") {
-      AppLogger.i("searchProduct: tìm Theo Mã = $keyword");
-      isSearching = true;
-      setState(() {
-        futureProduct = ProductService().getProductById(
-          productId: keyword,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Theo Tên SP") {
-      AppLogger.i("searchProduct: tìm Theo Tên KH = $keyword");
-      isSearching = true;
-      setState(() {
-        futureProduct = ProductService().getProductByName(
-          productName: keyword,
+      } else {
+        final selectedField = searchFieldMap[searchType] ?? "";
+
+        AppLogger.i("searchProduct: tìm theo field SP");
+        futureProduct = ProductService().getProductByField(
+          field: selectedField,
+          keyword: keyword,
           page: currentPage,
           pageSize: pageSizeSearch,
         );
-      });
-    }
+      }
+    });
   }
 
   @override
@@ -180,21 +159,12 @@ class _ProductPageState extends State<ProductPage> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(
-                                  120.0,
-                                  170.0,
-                                );
-                                final textInputWidth = (maxWidth * 0.3).clamp(
-                                  200.0,
-                                  250.0,
-                                );
+                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
+                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
 
                                 return Row(
                                   children: [
@@ -204,11 +174,9 @@ class _ProductPageState extends State<ProductPage> {
                                       child: DropdownButtonFormField<String>(
                                         value: searchType,
                                         items:
-                                            [
-                                              'Tất cả',
-                                              "Theo Mã",
-                                              "Theo Tên SP",
-                                            ].map((String value) {
+                                            ['Tất cả', "Theo Mã", "Theo Tên SP"].map((
+                                              String value,
+                                            ) {
                                               return DropdownMenuItem<String>(
                                                 value: value,
                                                 child: Text(value),
@@ -217,8 +185,7 @@ class _ProductPageState extends State<ProductPage> {
                                         onChanged: (value) {
                                           setState(() {
                                             searchType = value!;
-                                            isTextFieldEnabled =
-                                                searchType != 'Tất cả';
+                                            isTextFieldEnabled = searchType != 'Tất cả';
 
                                             searchController.clear();
                                           });
@@ -227,18 +194,13 @@ class _ProductPageState extends State<ProductPage> {
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
-                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                            borderSide: const BorderSide(color: Colors.grey),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -255,14 +217,11 @@ class _ProductPageState extends State<ProductPage> {
                                         decoration: InputDecoration(
                                           hintText: 'Tìm kiếm...',
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -275,8 +234,7 @@ class _ProductPageState extends State<ProductPage> {
                                       },
                                       label: "Tìm kiếm",
                                       icon: Icons.search,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
                                   ],
                                 );
@@ -289,10 +247,7 @@ class _ProductPageState extends State<ProductPage> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child:
                                 isSale
                                     ? Row(
@@ -306,16 +261,13 @@ class _ProductPageState extends State<ProductPage> {
                                               builder:
                                                   (_) => DialogExportCusOrProd(
                                                     isProduct: true,
-                                                    onCusOrProd:
-                                                        () =>
-                                                            loadProduct(false),
+                                                    onCusOrProd: () => loadProduct(false),
                                                   ),
                                             );
                                           },
                                           label: "Xuất Excel",
                                           icon: Symbols.export_notes,
-                                          backgroundColor:
-                                              themeController.buttonColor,
+                                          backgroundColor: themeController.buttonColor,
                                         ),
                                         const SizedBox(width: 10),
 
@@ -327,15 +279,13 @@ class _ProductPageState extends State<ProductPage> {
                                               builder:
                                                   (_) => ProductDialog(
                                                     product: null,
-                                                    onProductAddOrUpdate:
-                                                        () => loadProduct(true),
+                                                    onProductAddOrUpdate: () => loadProduct(true),
                                                   ),
                                             );
                                           },
                                           label: "Thêm mới",
                                           icon: Icons.add,
-                                          backgroundColor:
-                                              themeController.buttonColor,
+                                          backgroundColor: themeController.buttonColor,
                                         ),
                                         const SizedBox(width: 10),
 
@@ -344,10 +294,8 @@ class _ProductPageState extends State<ProductPage> {
                                           onPressed:
                                               isSale
                                                   ? () async {
-                                                    if (selectedProductId ==
-                                                            null ||
-                                                        selectedProductId!
-                                                            .isEmpty) {
+                                                    if (selectedProductId == null ||
+                                                        selectedProductId!.isEmpty) {
                                                       showSnackBarError(
                                                         context,
                                                         'Vui lòng chọn sản phẩm cần sửa',
@@ -356,20 +304,18 @@ class _ProductPageState extends State<ProductPage> {
                                                     }
 
                                                     try {
-                                                      final result =
-                                                          await ProductService()
-                                                              .getProductById(
-                                                                productId:
-                                                                    selectedProductId!,
-                                                              );
+                                                      final result = await ProductService()
+                                                          .getProductByField(
+                                                            field: 'productId',
+                                                            keyword: selectedProductId!,
+                                                          );
 
                                                       if (!context.mounted) {
                                                         return;
                                                       }
 
                                                       // Defensive null checks
-                                                      if (result['products'] ==
-                                                          null) {
+                                                      if (result['products'] == null) {
                                                         showSnackBarError(
                                                           context,
                                                           'Dữ liệu trả về không hợp lệ',
@@ -378,10 +324,7 @@ class _ProductPageState extends State<ProductPage> {
                                                       }
 
                                                       final products =
-                                                          result['products']
-                                                              as List<
-                                                                Product
-                                                              >? ??
+                                                          result['products'] as List<Product>? ??
                                                           [];
 
                                                       if (products.isEmpty) {
@@ -395,17 +338,10 @@ class _ProductPageState extends State<ProductPage> {
                                                       showDialog(
                                                         context: context,
                                                         builder:
-                                                            (
-                                                              _,
-                                                            ) => ProductDialog(
-                                                              product:
-                                                                  products
-                                                                      .first,
+                                                            (_) => ProductDialog(
+                                                              product: products.first,
                                                               onProductAddOrUpdate:
-                                                                  () =>
-                                                                      loadProduct(
-                                                                        true,
-                                                                      ),
+                                                                  () => loadProduct(true),
                                                             ),
                                                       );
                                                     } catch (e, s) {
@@ -422,8 +358,7 @@ class _ProductPageState extends State<ProductPage> {
                                                   : null,
                                           label: "Sửa",
                                           icon: Symbols.construction,
-                                          backgroundColor:
-                                              themeController.buttonColor,
+                                          backgroundColor: themeController.buttonColor,
                                         ),
                                         const SizedBox(width: 10),
 
@@ -431,18 +366,13 @@ class _ProductPageState extends State<ProductPage> {
                                         AnimatedButton(
                                           onPressed:
                                               isSale &&
-                                                      selectedProductId !=
-                                                          null &&
-                                                      selectedProductId!
-                                                          .isNotEmpty
-                                                  ? () =>
-                                                      _confirmDelete(context)
+                                                      selectedProductId != null &&
+                                                      selectedProductId!.isNotEmpty
+                                                  ? () => _confirmDelete(context)
                                                   : null,
                                           label: "Xóa",
                                           icon: Icons.delete,
-                                          backgroundColor: const Color(
-                                            0xffEA4346,
-                                          ),
+                                          backgroundColor: const Color(0xffEA4346),
                                         ),
                                       ],
                                     )
@@ -466,23 +396,16 @@ class _ProductPageState extends State<ProductPage> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData ||
-                      snapshot.data!['products'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['products'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có khách hàng nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
@@ -540,10 +463,7 @@ class _ProductPageState extends State<ProductPage> {
                               final productId =
                                   selectedRow
                                       .getCells()
-                                      .firstWhere(
-                                        (cell) =>
-                                            cell.columnName == 'productId',
-                                      )
+                                      .firstWhere((cell) => cell.columnName == 'productId')
                                       .value
                                       .toString();
 
@@ -612,21 +532,12 @@ class _ProductPageState extends State<ProductPage> {
           builder: (context, setStateDialog) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               title: const Row(
                 children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    color: Colors.red,
-                    size: 30,
-                  ),
+                  Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
                   SizedBox(width: 8),
-                  Text(
-                    "Xác nhận xoá",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  Text("Xác nhận xoá", style: TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
               content:
@@ -661,18 +572,14 @@ class _ProductPageState extends State<ProductPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xffEA4346),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
                           onPressed: () async {
                             setStateDialog(() {
                               isDeleting = true;
                             });
 
-                            await ProductService().deleteProduct(
-                              selectedProductId!,
-                            );
+                            await ProductService().deleteProduct(selectedProductId!);
                             await Future.delayed(const Duration(seconds: 1));
 
                             setState(() {
@@ -687,10 +594,7 @@ class _ProductPageState extends State<ProductPage> {
                           },
                           child: const Text(
                             "Xoá",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],

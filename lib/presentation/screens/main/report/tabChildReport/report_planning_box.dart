@@ -25,10 +25,18 @@ class ReportPlanningBox extends StatefulWidget {
 }
 
 class _ReportPlanningBoxState extends State<ReportPlanningBox> {
-  final themeController = Get.find<ThemeController>();
   late Future<Map<String, dynamic>> futureReportBox;
   late ReportBoxDatasource reportBoxDatasource;
   late List<GridColumn> columns;
+  final Map<String, String> searchFieldMap = {
+    "Theo Mã ĐH": "orderId",
+    "Tên KH": "customerName",
+    "Ngày Báo Cáo": "dayReported",
+    "SL Báo Cáo": "qtyProduced",
+    "QC Thùng": "QcBox",
+    "Quản Ca": "shiftManagement",
+  };
+  final themeController = Get.find<ThemeController>();
   TextEditingController searchController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   Map<String, double> columnWidths = {};
@@ -49,9 +57,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
     columns = buildReportBoxColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'reportBox', columns: columns).then((
-      w,
-    ) {
+    ColumnWidthTable.loadWidths(tableKey: 'reportBox', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -60,67 +66,23 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
   void loadReportBox(bool refresh) {
     setState(() {
-      if (isSearching) {
-        String keyword = searchController.text.trim().toLowerCase();
-        String date = dateController.text.trim().toLowerCase();
+      final String selectedField = searchFieldMap[searchType] ?? "";
 
-        AppLogger.d("loadReportBox | search keyword=$keyword | date=$date");
+      String keyword = searchController.text.trim().toLowerCase();
+      String date = dateController.text.trim().toLowerCase();
 
-        if (searchType == 'Tên KH') {
-          futureReportBox = ensureMinLoading(
-            ReportPlanningService().getRBByCustomerName(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Theo Mã ĐH") {
-          futureReportBox = ensureMinLoading(
-            ReportPlanningService().getRBByOrderId(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Ngày Báo Cáo") {
-          futureReportBox = ensureMinLoading(
-            ReportPlanningService().getRBByDayReported(
-              keyword: date,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "SL Báo Cáo") {
-          futureReportBox = ensureMinLoading(
-            ReportPlanningService().getRBByQtyReported(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "QC Thùng") {
-          futureReportBox = ensureMinLoading(
-            ReportPlanningService().getRBByQcBox(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Quản Ca") {
-          futureReportBox = ensureMinLoading(
-            ReportPlanningService().getRBByShiftManagement(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        }
+      AppLogger.d("loadReportBox | search keyword=$keyword | date=$date");
+
+      if (isSearching && searchType != "Tất cả") {
+        futureReportBox = ensureMinLoading(
+          ReportPlanningService().getReportBoxByField(
+            field: selectedField,
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
       } else {
         futureReportBox = ensureMinLoading(
           ReportPlanningService().getReportBox(
@@ -142,83 +104,35 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     );
 
     if (isTextFieldEnabled && keyword.isEmpty) {
-      AppLogger.w(
-        "searchReportBox => searchType=$searchType nhưng keyword rỗng",
-      );
+      AppLogger.w("searchReportBox => searchType=$searchType nhưng keyword rỗng");
       return;
     }
 
-    currentPage = 1;
-    if (searchType == "Tất cả") {
-      setState(() {
-        futureReportBox = ReportPlanningService().getReportBox(
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSize,
-          refresh: false,
+    setState(() {
+      currentPage = 1;
+      isSearching = (searchType != "Tất cả");
+
+      if (searchType == "Tất cả") {
+        futureReportBox = ensureMinLoading(
+          ReportPlanningService().getReportBox(
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSize,
+            refresh: false,
+          ),
         );
-      });
-    } else if (searchType == "Theo Mã ĐH") {
-      isSearching = true;
-      setState(() {
-        futureReportBox = ReportPlanningService().getRBByOrderId(
+      } else {
+        final selectedField = searchFieldMap[searchType] ?? "";
+
+        futureReportBox = ReportPlanningService().getReportBoxByField(
+          field: selectedField,
           keyword: keyword,
           machine: machine,
           page: currentPage,
           pageSize: pageSizeSearch,
         );
-      });
-    } else if (searchType == 'Tên KH') {
-      isSearching = true;
-      setState(() {
-        futureReportBox = ReportPlanningService().getRBByCustomerName(
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Ngày Báo Cáo") {
-      isSearching = true;
-      setState(() {
-        futureReportBox = ReportPlanningService().getRBByDayReported(
-          keyword: date,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == "SL Báo Cáo") {
-      isSearching = true;
-      setState(() {
-        futureReportBox = ReportPlanningService().getRBByQtyReported(
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == "QC Thùng") {
-      isSearching = true;
-      setState(() {
-        futureReportBox = ReportPlanningService().getRBByQcBox(
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Quản Ca") {
-      isSearching = true;
-      setState(() {
-        futureReportBox = ReportPlanningService().getRBByShiftManagement(
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      });
-    }
+      }
+    });
   }
 
   void changeMachine(String selectedMachine) {
@@ -270,21 +184,12 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(
-                                  120.0,
-                                  170.0,
-                                );
-                                final textInputWidth = (maxWidth * 0.3).clamp(
-                                  200.0,
-                                  250.0,
-                                );
+                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
+                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
 
                                 return Row(
                                   children: [
@@ -311,8 +216,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                         onChanged: (value) {
                                           setState(() {
                                             searchType = value!;
-                                            isTextFieldEnabled =
-                                                searchType != 'Tất cả';
+                                            isTextFieldEnabled = searchType != 'Tất cả';
 
                                             searchController.clear();
                                           });
@@ -321,18 +225,13 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
-                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                            borderSide: const BorderSide(color: Colors.grey),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -347,34 +246,22 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                             onTap: () async {
                                               final now = DateTime.now();
 
-                                              DateTime?
-                                              picked = await showDatePicker(
+                                              DateTime? picked = await showDatePicker(
                                                 context: context,
                                                 initialDate: now,
                                                 firstDate: DateTime(2020),
                                                 lastDate: DateTime(2100),
-                                                builder: (
-                                                  BuildContext context,
-                                                  Widget? child,
-                                                ) {
+                                                builder: (BuildContext context, Widget? child) {
                                                   return Theme(
-                                                    data: Theme.of(
-                                                      context,
-                                                    ).copyWith(
-                                                      colorScheme:
-                                                          ColorScheme.light(
-                                                            primary:
-                                                                Colors.blue,
-                                                            onPrimary:
-                                                                Colors.white,
-                                                            onSurface:
-                                                                Colors.black,
-                                                          ),
-                                                      dialogTheme:
-                                                          DialogThemeData(
-                                                            backgroundColor:
-                                                                Colors.white12,
-                                                          ),
+                                                    data: Theme.of(context).copyWith(
+                                                      colorScheme: ColorScheme.light(
+                                                        primary: Colors.blue,
+                                                        onPrimary: Colors.white,
+                                                        onSurface: Colors.black,
+                                                      ),
+                                                      dialogTheme: DialogThemeData(
+                                                        backgroundColor: Colors.white12,
+                                                      ),
                                                     ),
                                                     child: child!,
                                                   );
@@ -390,8 +277,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                                   dateController.text =
                                                       "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
 
-                                                  searchController.text =
-                                                      displayDate;
+                                                  searchController.text = displayDate;
                                                 });
                                               }
                                             },
@@ -401,18 +287,12 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                                 decoration: InputDecoration(
                                                   hintText: 'Chọn ngày...',
                                                   border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
+                                                    borderRadius: BorderRadius.circular(12),
                                                   ),
-                                                  suffixIcon: const Icon(
-                                                    Icons.calendar_today,
+                                                  suffixIcon: const Icon(Icons.calendar_today),
+                                                  contentPadding: const EdgeInsets.symmetric(
+                                                    horizontal: 10,
                                                   ),
-                                                  contentPadding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                      ),
                                                 ),
                                               ),
                                             ),
@@ -424,18 +304,15 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                           child: TextField(
                                             controller: searchController,
                                             enabled: isTextFieldEnabled,
-                                            onSubmitted:
-                                                (_) => searchReportPaper(),
+                                            onSubmitted: (_) => searchReportPaper(),
                                             decoration: InputDecoration(
                                               hintText: 'Tìm kiếm...',
                                               border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
+                                                borderRadius: BorderRadius.circular(12),
                                               ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                  ),
+                                              contentPadding: const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -446,8 +323,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                       onPressed: () => searchReportPaper(),
                                       label: "Tìm kiếm",
                                       icon: Icons.search,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
                                   ],
@@ -461,10 +337,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -476,8 +349,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                       builder:
                                           (_) => DialogSelectExportExcel(
                                             selectedReportId: selectedReportId,
-                                            onPlanningIdsOrRangeDate:
-                                                () => loadReportBox(false),
+                                            onPlanningIdsOrRangeDate: () => loadReportBox(false),
                                             machine: machine,
                                             isBox: true,
                                           ),
@@ -520,15 +392,12 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                       fillColor: Colors.white,
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(
-                                          color: Colors.grey,
-                                        ),
+                                        borderSide: const BorderSide(color: Colors.grey),
                                       ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -554,30 +423,22 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData ||
-                      snapshot.data!['reportBoxes'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['reportBoxes'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có báo cáo nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
 
                   final data = snapshot.data!;
-                  final reportBoxes =
-                      data['reportBoxes'] as List<ReportBoxModel>;
+                  final reportBoxes = data['reportBoxes'] as List<ReportBoxModel>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
@@ -654,10 +515,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                 final reportPaperId =
                                     row
                                         .getCells()
-                                        .firstWhere(
-                                          (cell) =>
-                                              cell.columnName == 'reportBoxId',
-                                        )
+                                        .firstWhere((cell) => cell.columnName == 'reportBoxId')
                                         .value;
                                 if (selectedReportId.contains(reportPaperId)) {
                                   selectedReportId.remove(reportPaperId);
@@ -666,8 +524,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                 }
                               }
 
-                              reportBoxDatasource.selectedReportId =
-                                  selectedReportId;
+                              reportBoxDatasource.selectedReportId = selectedReportId;
                               reportBoxDatasource.notifyListeners();
                             });
                           },

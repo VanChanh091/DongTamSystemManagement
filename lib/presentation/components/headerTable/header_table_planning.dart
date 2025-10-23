@@ -19,7 +19,7 @@ final List<Map<String, dynamic>> planningColumns = [
   {"key": "lengthMf", "title": "Dài (SX)"},
   {"key": "sizeManu", "title": "Khổ (SX)"},
   {"key": "qtyManufacture", "title": "Cần Sản xuất"},
-  {"key": "runningPlan", "title": "Đã lên KH"},
+  {"key": "runningPlan", "title": "Đang lên KH"},
   {"key": "quantityProduced", "title": "Đã SX"},
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
   {"key": "totalPrice", "title": "Tổng Tiền"},
@@ -27,19 +27,12 @@ final List<Map<String, dynamic>> planningColumns = [
   {"key": "haveMadeBox", "title": "Làm Thùng?"},
 ];
 
-List<GridColumn> buildColumnPlanning({
-  required ThemeController themeController,
-}) {
+List<GridColumn> buildColumnPlanning({required ThemeController themeController}) {
   return [
     for (var item in planningColumns)
       GridColumn(
         columnName: item["key"]!,
-        label: Obx(
-          () => formatColumn(
-            label: item["title"]!,
-            themeController: themeController,
-          ),
-        ),
+        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
         visible: item.containsKey("visible") ? item["visible"]! as bool : true,
       ),
   ];

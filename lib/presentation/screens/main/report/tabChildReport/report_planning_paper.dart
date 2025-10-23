@@ -25,10 +25,18 @@ class ReportPlanningPaper extends StatefulWidget {
 }
 
 class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
-  final themeController = Get.find<ThemeController>();
   late Future<Map<String, dynamic>> futureReportPaper;
   late ReportPaperDatasource reportPaperDatasource;
   late List<GridColumn> columns;
+  final themeController = Get.find<ThemeController>();
+  final Map<String, String> searchFieldMap = {
+    "Theo Mã ĐH": "orderId",
+    "Tên KH": "customerName",
+    "Ngày Báo Cáo": "dayReported",
+    "SL Báo Cáo": "qtyProduced",
+    "Ghép Khổ": "ghepKho",
+    "Quản Ca": "shiftManagement",
+  };
   List<int> selectedReportId = [];
   TextEditingController searchController = TextEditingController();
   TextEditingController dateController = TextEditingController();
@@ -49,78 +57,32 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
 
     columns = buildReportPaperColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'reportPaper', columns: columns).then(
-      (w) {
-        setState(() {
-          columnWidths = w;
-        });
-      },
-    );
+    ColumnWidthTable.loadWidths(tableKey: 'reportPaper', columns: columns).then((w) {
+      setState(() {
+        columnWidths = w;
+      });
+    });
   }
 
   void loadReportPaper(bool refresh) {
     setState(() {
-      if (isSearching) {
-        String keyword = searchController.text.trim().toLowerCase();
-        String date = dateController.text.trim().toLowerCase();
+      final String selectedField = searchFieldMap[searchType] ?? "";
 
-        AppLogger.d("loadReportPaper | search keyword=$keyword | date=$date");
+      String keyword = searchController.text.trim().toLowerCase();
+      String date = dateController.text.trim().toLowerCase();
 
-        if (searchType == 'Tên KH') {
-          futureReportPaper = ensureMinLoading(
-            ReportPlanningService().getRPByCustomerName(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Theo Mã ĐH") {
-          futureReportPaper = ensureMinLoading(
-            ReportPlanningService().getRPByOrderId(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Ngày Báo Cáo") {
-          futureReportPaper = ensureMinLoading(
-            ReportPlanningService().getRPByDayReported(
-              keyword: date,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "SL Báo Cáo") {
-          futureReportPaper = ensureMinLoading(
-            ReportPlanningService().getRPByQtyReported(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Ghép Khổ") {
-          futureReportPaper = ensureMinLoading(
-            ReportPlanningService().getRPByGhepKho(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Quản Ca") {
-          futureReportPaper = ensureMinLoading(
-            ReportPlanningService().getRPByShiftManagement(
-              keyword: keyword,
-              machine: machine,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        }
+      if (isSearching && searchType != "Tất cả") {
+        AppLogger.d("loadReportPaper: isSearching=true | keyword=$keyword | date=$date");
+
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getReportPaperByField(
+            field: selectedField,
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
       } else {
         futureReportPaper = ensureMinLoading(
           ReportPlanningService().getReportPaper(
@@ -143,88 +105,36 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     );
 
     if (isTextFieldEnabled && keyword.isEmpty) {
-      AppLogger.w(
-        "searchReportPaper => searchType=$searchType nhưng keyword rỗng",
-      );
+      AppLogger.w("searchReportPaper => searchType=$searchType nhưng keyword rỗng");
       return;
     }
 
-    currentPage = 1;
-    isSearching = (searchType != "Tất cả");
+    setState(() {
+      currentPage = 1;
+      isSearching = (searchType != "Tất cả");
 
-    switch (searchType) {
-      case "Tất cả":
-        setState(() {
-          futureReportPaper = ReportPlanningService().getReportPaper(
+      if (searchType == "Tất cả") {
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getReportPaper(
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
-          );
-        });
-        break;
-      case "Theo Mã ĐH":
-        setState(() {
-          futureReportPaper = ReportPlanningService().getRPByOrderId(
+          ),
+        );
+      } else {
+        final selectedField = searchFieldMap[searchType] ?? "";
+
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getReportPaperByField(
+            field: selectedField,
             keyword: keyword,
             machine: machine,
             page: currentPage,
             pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      case "Tên KH":
-        setState(() {
-          futureReportPaper = ReportPlanningService().getRPByCustomerName(
-            keyword: keyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      case "Ngày Báo Cáo":
-        setState(() {
-          futureReportPaper = ReportPlanningService().getRPByDayReported(
-            keyword: date,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      case "SL Báo Cáo":
-        setState(() {
-          futureReportPaper = ReportPlanningService().getRPByQtyReported(
-            keyword: keyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      case "Ghép Khổ":
-        setState(() {
-          futureReportPaper = ReportPlanningService().getRPByGhepKho(
-            keyword: keyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      case "Quản Ca":
-        setState(() {
-          futureReportPaper = ReportPlanningService().getRPByShiftManagement(
-            keyword: keyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          );
-        });
-        break;
-      default:
-        break;
-    }
+          ),
+        );
+      }
+    });
   }
 
   void changeMachine(String selectedMachine) {
@@ -279,21 +189,12 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(
-                                  120.0,
-                                  170.0,
-                                );
-                                final textInputWidth = (maxWidth * 0.3).clamp(
-                                  200.0,
-                                  250.0,
-                                );
+                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
+                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
 
                                 return Row(
                                   children: [
@@ -320,8 +221,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                         onChanged: (value) {
                                           setState(() {
                                             searchType = value!;
-                                            isTextFieldEnabled =
-                                                searchType != 'Tất cả';
+                                            isTextFieldEnabled = searchType != 'Tất cả';
 
                                             searchController.clear();
                                           });
@@ -330,18 +230,13 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
-                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                            borderSide: const BorderSide(color: Colors.grey),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -356,34 +251,22 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                             onTap: () async {
                                               final now = DateTime.now();
 
-                                              DateTime?
-                                              picked = await showDatePicker(
+                                              DateTime? picked = await showDatePicker(
                                                 context: context,
                                                 initialDate: now,
                                                 firstDate: DateTime(2020),
                                                 lastDate: DateTime(2100),
-                                                builder: (
-                                                  BuildContext context,
-                                                  Widget? child,
-                                                ) {
+                                                builder: (BuildContext context, Widget? child) {
                                                   return Theme(
-                                                    data: Theme.of(
-                                                      context,
-                                                    ).copyWith(
-                                                      colorScheme:
-                                                          ColorScheme.light(
-                                                            primary:
-                                                                Colors.blue,
-                                                            onPrimary:
-                                                                Colors.white,
-                                                            onSurface:
-                                                                Colors.black,
-                                                          ),
-                                                      dialogTheme:
-                                                          DialogThemeData(
-                                                            backgroundColor:
-                                                                Colors.white12,
-                                                          ),
+                                                    data: Theme.of(context).copyWith(
+                                                      colorScheme: ColorScheme.light(
+                                                        primary: Colors.blue,
+                                                        onPrimary: Colors.white,
+                                                        onSurface: Colors.black,
+                                                      ),
+                                                      dialogTheme: DialogThemeData(
+                                                        backgroundColor: Colors.white12,
+                                                      ),
                                                     ),
                                                     child: child!,
                                                   );
@@ -399,8 +282,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                                   dateController.text =
                                                       "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
 
-                                                  searchController.text =
-                                                      displayDate;
+                                                  searchController.text = displayDate;
                                                 });
                                               }
                                             },
@@ -410,18 +292,12 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                                 decoration: InputDecoration(
                                                   hintText: 'Chọn ngày...',
                                                   border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
+                                                    borderRadius: BorderRadius.circular(12),
                                                   ),
-                                                  suffixIcon: const Icon(
-                                                    Icons.calendar_today,
+                                                  suffixIcon: const Icon(Icons.calendar_today),
+                                                  contentPadding: const EdgeInsets.symmetric(
+                                                    horizontal: 10,
                                                   ),
-                                                  contentPadding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                      ),
                                                 ),
                                               ),
                                             ),
@@ -433,18 +309,15 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                           child: TextField(
                                             controller: searchController,
                                             enabled: isTextFieldEnabled,
-                                            onSubmitted:
-                                                (_) => searchReportPaper(),
+                                            onSubmitted: (_) => searchReportPaper(),
                                             decoration: InputDecoration(
                                               hintText: 'Tìm kiếm...',
                                               border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
+                                                borderRadius: BorderRadius.circular(12),
                                               ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                  ),
+                                              contentPadding: const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -455,8 +328,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                       onPressed: () => searchReportPaper(),
                                       label: "Tìm kiếm",
                                       icon: Icons.search,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
                                   ],
@@ -470,10 +342,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -485,8 +354,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                       builder:
                                           (_) => DialogSelectExportExcel(
                                             selectedReportId: selectedReportId,
-                                            onPlanningIdsOrRangeDate:
-                                                () => loadReportPaper(false),
+                                            onPlanningIdsOrRangeDate: () => loadReportPaper(false),
                                             machine: machine,
                                           ),
                                     );
@@ -503,12 +371,9 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                   child: DropdownButtonFormField<String>(
                                     value: machine,
                                     items:
-                                        [
-                                          'Máy 1350',
-                                          "Máy 1900",
-                                          "Máy 2 Lớp",
-                                          "Máy Quấn Cuồn",
-                                        ].map((String value) {
+                                        ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"].map((
+                                          String value,
+                                        ) {
                                           return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value),
@@ -524,15 +389,12 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                       fillColor: Colors.white,
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(
-                                          color: Colors.grey,
-                                        ),
+                                        borderSide: const BorderSide(color: Colors.grey),
                                       ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -558,30 +420,22 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData ||
-                      snapshot.data!['reportPapers'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['reportPapers'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có báo cáo nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
 
                   final data = snapshot.data!;
-                  final reportPapers =
-                      data['reportPapers'] as List<ReportPaperModel>;
+                  final reportPapers = data['reportPapers'] as List<ReportPaperModel>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
@@ -672,11 +526,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                 final reportPaperId =
                                     row
                                         .getCells()
-                                        .firstWhere(
-                                          (cell) =>
-                                              cell.columnName ==
-                                              'reportPaperId',
-                                        )
+                                        .firstWhere((cell) => cell.columnName == 'reportPaperId')
                                         .value;
                                 if (selectedReportId.contains(reportPaperId)) {
                                   selectedReportId.remove(reportPaperId);
@@ -685,8 +535,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                 }
                               }
 
-                              reportPaperDatasource.selectedReportId =
-                                  selectedReportId;
+                              reportPaperDatasource.selectedReportId = selectedReportId;
                               reportPaperDatasource.notifyListeners();
                             });
                           },

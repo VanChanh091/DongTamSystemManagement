@@ -31,6 +31,13 @@ class _CustomerPageState extends State<CustomerPage> {
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final Map<String, String> searchFieldMap = {
+    "Theo Mã": "customerId",
+    "Theo Tên KH": "customerName",
+    "Theo CSKH": "cskh",
+    "Theo SDT": "phone",
+  };
+
   TextEditingController searchController = TextEditingController();
   Map<String, double> columnWidths = {}; //map header table
   bool selectedAll = false;
@@ -40,7 +47,7 @@ class _CustomerPageState extends State<CustomerPage> {
   String? selectedCustomerId;
 
   int currentPage = 1;
-  int pageSize = 3;
+  int pageSize = 30;
   int pageSizeSearch = 20;
 
   @override
@@ -50,9 +57,7 @@ class _CustomerPageState extends State<CustomerPage> {
 
     columns = buildCustomerColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'customer', columns: columns).then((
-      w,
-    ) {
+    ColumnWidthTable.loadWidths(tableKey: 'customer', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -61,43 +66,21 @@ class _CustomerPageState extends State<CustomerPage> {
 
   void loadCustomer(bool refresh) {
     setState(() {
-      if (isSearching) {
-        String keyword = searchController.text.trim().toLowerCase();
+      final String selectedField = searchFieldMap[searchType] ?? "";
+
+      String keyword = searchController.text.trim().toLowerCase();
+
+      if (isSearching && searchType != "Tất cả") {
         AppLogger.i("loadCustomer: isSearching=true, keyword='$keyword'");
 
-        if (searchType == "Theo Mã") {
-          futureCustomer = ensureMinLoading(
-            CustomerService().getCustomerById(
-              customerId: keyword,
-              page: currentPage,
-              pageSize: pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Theo Tên KH") {
-          futureCustomer = ensureMinLoading(
-            CustomerService().getCustomerByName(
-              keyword,
-              currentPage,
-              pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Theo CSKH") {
-          futureCustomer = ensureMinLoading(
-            CustomerService().getCustomerByCSKH(
-              keyword,
-              currentPage,
-              pageSizeSearch,
-            ),
-          );
-        } else if (searchType == "Theo SDT") {
-          futureCustomer = ensureMinLoading(
-            CustomerService().getCustomerByPhone(
-              keyword,
-              currentPage,
-              pageSizeSearch,
-            ),
-          );
-        }
+        futureCustomer = ensureMinLoading(
+          CustomerService().getCustomerByField(
+            field: selectedField,
+            keyword: keyword,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
       } else {
         futureCustomer = ensureMinLoading(
           CustomerService().getAllCustomers(
@@ -121,57 +104,27 @@ class _CustomerPageState extends State<CustomerPage> {
       return;
     }
 
-    currentPage = 1;
-    if (searchType == "Tất cả") {
-      AppLogger.i("searchCustomer: tìm tất cả KH");
-      setState(() {
-        futureCustomer = CustomerService().getAllCustomers(
-          refresh: false,
-          page: currentPage,
-          pageSize: pageSize,
+    setState(() {
+      currentPage = 1;
+      isSearching = (searchType != "Tất cả");
+
+      if (searchType == "Tất cả") {
+        futureCustomer = ensureMinLoading(
+          CustomerService().getAllCustomers(refresh: false, page: currentPage, pageSize: pageSize),
         );
-      });
-    } else if (searchType == "Theo Mã") {
-      AppLogger.i("searchCustomer: tìm Theo Mã = $keyword");
-      isSearching = true;
-      setState(() {
-        futureCustomer = CustomerService().getCustomerById(
-          customerId: keyword,
-          page: currentPage,
-          pageSize: pageSizeSearch,
+      } else {
+        final selectedField = searchFieldMap[searchType] ?? "";
+
+        futureCustomer = ensureMinLoading(
+          CustomerService().getCustomerByField(
+            field: selectedField,
+            keyword: keyword,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
         );
-      });
-    } else if (searchType == "Theo Tên KH") {
-      AppLogger.i("searchCustomer: tìm Theo Tên KH = $keyword");
-      isSearching = true;
-      setState(() {
-        futureCustomer = CustomerService().getCustomerByName(
-          keyword,
-          currentPage,
-          pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Theo CSKH") {
-      AppLogger.i("searchCustomer: tìm Theo CSKH = $keyword");
-      isSearching = true;
-      setState(() {
-        futureCustomer = CustomerService().getCustomerByCSKH(
-          keyword,
-          currentPage,
-          pageSizeSearch,
-        );
-      });
-    } else if (searchType == "Theo SDT") {
-      AppLogger.i("searchCustomer: tìm Theo SDT = $keyword");
-      isSearching = true;
-      setState(() {
-        futureCustomer = CustomerService().getCustomerByPhone(
-          keyword,
-          currentPage,
-          pageSizeSearch,
-        );
-      });
-    }
+      }
+    });
   }
 
   @override
@@ -217,21 +170,12 @@ class _CustomerPageState extends State<CustomerPage> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(
-                                  120.0,
-                                  170.0,
-                                );
-                                final textInputWidth = (maxWidth * 0.3).clamp(
-                                  200.0,
-                                  250.0,
-                                );
+                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
+                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
 
                                 return Row(
                                   children: [
@@ -256,8 +200,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                         onChanged: (value) {
                                           setState(() {
                                             searchType = value!;
-                                            isTextFieldEnabled =
-                                                searchType != 'Tất cả';
+                                            isTextFieldEnabled = searchType != 'Tất cả';
 
                                             searchController.clear();
                                           });
@@ -266,18 +209,13 @@ class _CustomerPageState extends State<CustomerPage> {
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
-                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                            borderSide: const BorderSide(color: Colors.grey),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -294,14 +232,11 @@ class _CustomerPageState extends State<CustomerPage> {
                                         decoration: InputDecoration(
                                           hintText: 'Tìm kiếm...',
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -314,8 +249,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                       },
                                       label: "Tìm kiếm",
                                       icon: Icons.search,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
                                   ],
                                 );
@@ -328,10 +262,7 @@ class _CustomerPageState extends State<CustomerPage> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child:
                                 isSale
                                     ? Row(
@@ -344,16 +275,13 @@ class _CustomerPageState extends State<CustomerPage> {
                                               context: context,
                                               builder:
                                                   (_) => DialogExportCusOrProd(
-                                                    onCusOrProd:
-                                                        () =>
-                                                            loadCustomer(false),
+                                                    onCusOrProd: () => loadCustomer(false),
                                                   ),
                                             );
                                           },
                                           label: "Xuất Excel",
                                           icon: Symbols.export_notes,
-                                          backgroundColor:
-                                              themeController.buttonColor,
+                                          backgroundColor: themeController.buttonColor,
                                         ),
                                         const SizedBox(width: 10),
 
@@ -365,16 +293,13 @@ class _CustomerPageState extends State<CustomerPage> {
                                               builder:
                                                   (_) => CustomerDialog(
                                                     customer: null,
-                                                    onCustomerAddOrUpdate:
-                                                        () =>
-                                                            loadCustomer(true),
+                                                    onCustomerAddOrUpdate: () => loadCustomer(true),
                                                   ),
                                             );
                                           },
                                           label: "Thêm mới",
                                           icon: Icons.add,
-                                          backgroundColor:
-                                              themeController.buttonColor,
+                                          backgroundColor: themeController.buttonColor,
                                         ),
                                         const SizedBox(width: 10),
 
@@ -383,10 +308,8 @@ class _CustomerPageState extends State<CustomerPage> {
                                           onPressed:
                                               isSale
                                                   ? () async {
-                                                    if (selectedCustomerId ==
-                                                            null ||
-                                                        selectedCustomerId!
-                                                            .isEmpty) {
+                                                    if (selectedCustomerId == null ||
+                                                        selectedCustomerId!.isEmpty) {
                                                       showSnackBarError(
                                                         context,
                                                         'Vui lòng chọn khách hàng cần sửa',
@@ -395,20 +318,18 @@ class _CustomerPageState extends State<CustomerPage> {
                                                     }
 
                                                     try {
-                                                      final result =
-                                                          await CustomerService()
-                                                              .getCustomerById(
-                                                                customerId:
-                                                                    selectedCustomerId!,
-                                                              );
+                                                      final result = await CustomerService()
+                                                          .getCustomerByField(
+                                                            field: 'customerId',
+                                                            keyword: selectedCustomerId!,
+                                                          );
 
                                                       if (!context.mounted) {
                                                         return;
                                                       }
 
                                                       // Defensive null checks
-                                                      if (result['customers'] ==
-                                                          null) {
+                                                      if (result['customers'] == null) {
                                                         showSnackBarError(
                                                           context,
                                                           'Dữ liệu trả về không hợp lệ',
@@ -417,10 +338,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                                       }
 
                                                       final customers =
-                                                          result['customers']
-                                                              as List<
-                                                                Customer
-                                                              >? ??
+                                                          result['customers'] as List<Customer>? ??
                                                           [];
 
                                                       if (customers.isEmpty) {
@@ -434,17 +352,10 @@ class _CustomerPageState extends State<CustomerPage> {
                                                       showDialog(
                                                         context: context,
                                                         builder:
-                                                            (
-                                                              _,
-                                                            ) => CustomerDialog(
-                                                              customer:
-                                                                  customers
-                                                                      .first,
+                                                            (_) => CustomerDialog(
+                                                              customer: customers.first,
                                                               onCustomerAddOrUpdate:
-                                                                  () =>
-                                                                      loadCustomer(
-                                                                        false,
-                                                                      ),
+                                                                  () => loadCustomer(false),
                                                             ),
                                                       );
                                                     } catch (e, s) {
@@ -461,8 +372,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                                   : null,
                                           label: "Sửa",
                                           icon: Symbols.construction,
-                                          backgroundColor:
-                                              themeController.buttonColor,
+                                          backgroundColor: themeController.buttonColor,
                                         ),
                                         const SizedBox(width: 10),
 
@@ -470,18 +380,13 @@ class _CustomerPageState extends State<CustomerPage> {
                                         AnimatedButton(
                                           onPressed:
                                               isSale &&
-                                                      selectedCustomerId !=
-                                                          null &&
-                                                      selectedCustomerId!
-                                                          .isNotEmpty
-                                                  ? () =>
-                                                      _confirmDelete(context)
+                                                      selectedCustomerId != null &&
+                                                      selectedCustomerId!.isNotEmpty
+                                                  ? () => _confirmDelete(context)
                                                   : null,
                                           label: "Xóa",
                                           icon: Icons.delete,
-                                          backgroundColor: const Color(
-                                            0xffEA4346,
-                                          ),
+                                          backgroundColor: const Color(0xffEA4346),
                                         ),
                                       ],
                                     )
@@ -505,23 +410,16 @@ class _CustomerPageState extends State<CustomerPage> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData ||
-                      snapshot.data!['customers'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['customers'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có khách hàng nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
@@ -577,10 +475,7 @@ class _CustomerPageState extends State<CustomerPage> {
                               final customerId =
                                   selectedRow
                                       .getCells()
-                                      .firstWhere(
-                                        (cell) =>
-                                            cell.columnName == 'customerId',
-                                      )
+                                      .firstWhere((cell) => cell.columnName == 'customerId')
                                       .value
                                       .toString();
 
@@ -589,8 +484,7 @@ class _CustomerPageState extends State<CustomerPage> {
                               );
 
                               setState(() {
-                                selectedCustomerId =
-                                    selectedCustomer.customerId;
+                                selectedCustomerId = selectedCustomer.customerId;
                               });
                             } else {
                               setState(() {
@@ -650,21 +544,12 @@ class _CustomerPageState extends State<CustomerPage> {
           builder: (context, setStateDialog) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               title: const Row(
                 children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    color: Colors.red,
-                    size: 30,
-                  ),
+                  Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
                   SizedBox(width: 8),
-                  Text(
-                    "Xác nhận xoá",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  Text("Xác nhận xoá", style: TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
               content:
@@ -699,18 +584,14 @@ class _CustomerPageState extends State<CustomerPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xffEA4346),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
                           onPressed: () async {
                             setStateDialog(() {
                               isDeleting = true;
                             });
 
-                            await CustomerService().deleteCustomer(
-                              selectedCustomerId!,
-                            );
+                            await CustomerService().deleteCustomer(selectedCustomerId!);
                             await Future.delayed(const Duration(seconds: 1));
 
                             setState(() {
@@ -725,10 +606,7 @@ class _CustomerPageState extends State<CustomerPage> {
                           },
                           child: const Text(
                             "Xoá",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],

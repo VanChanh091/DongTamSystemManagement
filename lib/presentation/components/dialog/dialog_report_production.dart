@@ -10,13 +10,15 @@ class DialogReportProduction extends StatefulWidget {
   final VoidCallback onReport;
   final String? machine;
   final bool isPaper;
+  final int? qtyPaper;
 
   const DialogReportProduction({
     super.key,
     required this.planningId,
     required this.onReport,
-    this.machine,
     this.isPaper = true,
+    this.machine,
+    this.qtyPaper,
   });
 
   @override
@@ -35,6 +37,56 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   final shiftManagementController = TextEditingController();
 
   void submit() async {
+    if (widget.qtyPaper == null || widget.qtyPaper == 0) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text(
+                "⚠️ Thiếu số lượng giấy tấm",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+              content: const Text(
+                "Kế hoạch này chưa có số lượng giấy tấm.\n"
+                "Bạn có chắc muốn tiếp tục báo cáo không?",
+                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text(
+                    "Hủy",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffEA4346),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text(
+                    "Tiếp tục",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+        barrierDismissible: false,
+      );
+
+      if (confirm != true) {
+        return;
+      }
+    }
+
     if (!formKey.currentState!.validate()) {
       AppLogger.w("Form không hợp lệ, dừng submit");
       return;
@@ -42,8 +94,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
     try {
       final int qtyProduced = int.tryParse(qtyProducedController.text) ?? 0;
-      final double qtyWasteNorm =
-          double.tryParse(qtyWasteNormController.text) ?? 0;
+      final double qtyWasteNorm = double.tryParse(qtyWasteNormController.text) ?? 0;
 
       final DateTime completedDate = DateTime.now();
 
@@ -107,10 +158,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         labelStyle: const TextStyle(fontWeight: FontWeight.bold),
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         fillColor: Colors.white,
         filled: true,
@@ -176,30 +224,18 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                 ),
                 const SizedBox(height: 15),
 
-                validateInput(
-                  "Phế Liệu Thực Tế",
-                  qtyWasteNormController,
-                  Symbols.box,
-                ),
+                validateInput("Phế Liệu Thực Tế", qtyWasteNormController, Symbols.box),
                 const SizedBox(height: 15),
 
-                validateInput(
-                  "Trưởng Máy",
-                  shiftManagementController,
-                  Symbols.person,
-                ),
+                validateInput("Trưởng Máy", shiftManagementController, Symbols.person),
                 const SizedBox(height: 15),
 
                 if (widget.isPaper) ...[
-                  ValidationOrder.dropdownForTypes(
-                    itemShiftProduction,
-                    shiftProduction,
-                    (value) {
-                      setState(() {
-                        shiftProduction = value!;
-                      });
-                    },
-                  ),
+                  ValidationOrder.dropdownForTypes(itemShiftProduction, shiftProduction, (value) {
+                    setState(() {
+                      shiftProduction = value!;
+                    });
+                  }),
                   const SizedBox(height: 10),
                 ],
               ],
@@ -214,11 +250,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           onPressed: () => Navigator.pop(context),
           child: const Text(
             "Hủy",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Colors.red,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
           ),
         ),
         ElevatedButton(
@@ -226,17 +258,11 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           child: const Text(
             "Xác nhận",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
           ),
         ),
       ],
