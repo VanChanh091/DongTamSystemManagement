@@ -7,6 +7,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_order.d
 import 'package:dongtam/presentation/sources/order_data_source.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -44,10 +45,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
     super.initState();
     loadOrders(false, isSeenOrder);
 
-    columns = buildOrderColumns(
-      themeController: themeController,
-      userController: userController,
-    );
+    columns = buildOrderColumns(themeController: themeController, userController: userController);
 
     ColumnWidthTable.loadWidths(tableKey: 'order', columns: columns).then((w) {
       setState(() {
@@ -60,10 +58,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
     AppLogger.i("load all oder pending & reject");
     setState(() {
       futureOrdersPending = ensureMinLoading(
-        OrderService().getOrderPendingAndReject(
-          refresh: refresh,
-          ownOnly: ownOnly,
-        ),
+        OrderService().getOrderPendingAndReject(refresh: refresh, ownOnly: ownOnly),
       );
     });
   }
@@ -112,10 +107,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                         SizedBox(),
 
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 10,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -131,13 +123,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
                                         loadOrders(false, isSeenOrder);
                                       },
-                                      label:
-                                          isSeenOrder
-                                              ? "Xem Tất Cả"
-                                              : "Đơn Bản Thân",
+                                      label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
                                       icon: null,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
                                   )
                                   : const SizedBox.shrink(),
@@ -151,23 +139,13 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                     builder:
                                         (_) => OrderDialog(
                                           order: null,
-                                          onOrderAddOrUpdate: (
-                                            String newOrderId,
-                                          ) {
+                                          onOrderAddOrUpdate: (String newOrderId) {
                                             loadOrders(true, isSeenOrder);
-                                            WidgetsBinding.instance
-                                                .addPostFrameCallback((_) {
-                                                  Future.delayed(
-                                                    const Duration(
-                                                      milliseconds: 300,
-                                                    ),
-                                                    () {
-                                                      _scrollToOrder(
-                                                        newOrderId,
-                                                      );
-                                                    },
-                                                  );
-                                                });
+                                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                                              Future.delayed(const Duration(milliseconds: 300), () {
+                                                _scrollToOrder(newOrderId);
+                                              });
+                                            });
                                           },
                                         ),
                                   );
@@ -185,14 +163,10 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                         ? null
                                         : () async {
                                           try {
-                                            final orders =
-                                                await futureOrdersPending;
-                                            final selectedOrder = orders
-                                                .firstWhere(
-                                                  (order) =>
-                                                      order.orderId ==
-                                                      selectedOrderId,
-                                                );
+                                            final orders = await futureOrdersPending;
+                                            final selectedOrder = orders.firstWhere(
+                                              (order) => order.orderId == selectedOrderId,
+                                            );
 
                                             if (!context.mounted) return;
 
@@ -203,10 +177,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                     order: selectedOrder,
                                                     onOrderAddOrUpdate:
                                                         (String? newOrderId) =>
-                                                            loadOrders(
-                                                              true,
-                                                              isSeenOrder,
-                                                            ),
+                                                            loadOrders(true, isSeenOrder),
                                                   ),
                                             );
                                           } catch (e, s) {
@@ -221,174 +192,14 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                 icon: Symbols.construction,
                                 backgroundColor: themeController.buttonColor,
                               ),
-
                               const SizedBox(width: 10),
 
                               //delete
                               AnimatedButton(
                                 onPressed:
-                                    selectedOrderId == null
-                                        ? null
-                                        : () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              bool isDeleting = false;
-
-                                              return StatefulBuilder(
-                                                builder: (
-                                                  context,
-                                                  setStateDialog,
-                                                ) {
-                                                  return AlertDialog(
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            16,
-                                                          ),
-                                                    ),
-                                                    title: Row(
-                                                      children: const [
-                                                        Icon(
-                                                          Icons
-                                                              .warning_amber_rounded,
-                                                          color: Colors.red,
-                                                          size: 30,
-                                                        ),
-                                                        SizedBox(width: 8),
-                                                        Text(
-                                                          "Xác nhận xoá",
-                                                          style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    content:
-                                                        isDeleting
-                                                            ? Row(
-                                                              children: const [
-                                                                CircularProgressIndicator(
-                                                                  strokeWidth:
-                                                                      2,
-                                                                ),
-                                                                SizedBox(
-                                                                  width: 12,
-                                                                ),
-                                                                Text(
-                                                                  "Đang xoá...",
-                                                                ),
-                                                              ],
-                                                            )
-                                                            : const Text(
-                                                              'Bạn có chắc chắn muốn xoá đơn hàng này?',
-                                                              style: TextStyle(
-                                                                fontSize: 16,
-                                                              ),
-                                                            ),
-                                                    actions:
-                                                        isDeleting
-                                                            ? []
-                                                            : [
-                                                              TextButton(
-                                                                onPressed:
-                                                                    () => Navigator.pop(
-                                                                      context,
-                                                                    ),
-                                                                child: const Text(
-                                                                  "Huỷ",
-                                                                  style: TextStyle(
-                                                                    fontSize:
-                                                                        16,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color:
-                                                                        Colors
-                                                                            .black54,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              ElevatedButton(
-                                                                style: ElevatedButton.styleFrom(
-                                                                  backgroundColor:
-                                                                      const Color(
-                                                                        0xffEA4346,
-                                                                      ),
-                                                                  foregroundColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  shape: RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          8,
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                                onPressed: () async {
-                                                                  setStateDialog(
-                                                                    () {
-                                                                      isDeleting =
-                                                                          true;
-                                                                    },
-                                                                  );
-
-                                                                  await OrderService()
-                                                                      .deleteOrder(
-                                                                        selectedOrderId!,
-                                                                      );
-
-                                                                  badgesController
-                                                                      .fetchPendingApprovals();
-
-                                                                  await Future.delayed(
-                                                                    const Duration(
-                                                                      milliseconds:
-                                                                          500,
-                                                                    ),
-                                                                  );
-
-                                                                  if (!context
-                                                                      .mounted) {
-                                                                    return;
-                                                                  }
-
-                                                                  loadOrders(
-                                                                    true,
-                                                                    isSeenOrder,
-                                                                  );
-
-                                                                  Navigator.pop(
-                                                                    context,
-                                                                  );
-
-                                                                  // Optional: Show success toast
-                                                                  showSnackBarSuccess(
-                                                                    context,
-                                                                    'Xoá thành công',
-                                                                  );
-                                                                },
-                                                                child: const Text(
-                                                                  "Xoá",
-                                                                  style: TextStyle(
-                                                                    fontSize:
-                                                                        16,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                          );
-                                        },
+                                    selectedOrderId != null && selectedOrderId!.isNotEmpty
+                                        ? () => _confirmDelete(context)
+                                        : null,
                                 label: "Xóa",
                                 icon: Icons.delete,
                                 backgroundColor: const Color(0xffEA4346),
@@ -413,10 +224,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
@@ -425,20 +233,14 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
 
                   final List<Order> data = snapshot.data!;
 
-                  orderDataSource = OrderDataSource(
-                    orders: data,
-                    selectedOrderId: selectedOrderId,
-                  );
+                  orderDataSource = OrderDataSource(orders: data, selectedOrderId: selectedOrderId);
 
                   return SfDataGrid(
                     controller: _dataGridController,
@@ -505,12 +307,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     onSelectionChanged: (addedRows, removedRows) {
                       if (addedRows.isNotEmpty) {
                         final selectedRow = addedRows.first;
-                        final orderId =
-                            selectedRow.getCells()[0].value.toString();
+                        final orderId = selectedRow.getCells()[0].value.toString();
 
-                        final selectedOrder = data.firstWhere(
-                          (order) => order.orderId == orderId,
-                        );
+                        final selectedOrder = data.firstWhere((order) => order.orderId == orderId);
 
                         setState(() {
                           selectedOrderId = selectedOrder.orderId;
@@ -541,9 +340,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
   void _scrollToOrder(String newOrderId) {
     // Tìm index trong list
-    final newIndex = orderDataSource.orders.indexWhere(
-      (p) => p.orderId == newOrderId,
-    );
+    final newIndex = orderDataSource.orders.indexWhere((p) => p.orderId == newOrderId);
 
     if (newIndex != -1) {
       _dataGridController.scrollToRow(newIndex.toDouble(), canAnimate: true);
@@ -553,6 +350,42 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
       });
     } else {
       AppLogger.d("Không tìm thấy đơn hàng mới trong bảng.");
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    //show confirm dialog
+    final confirm = await showConfirmDialog(
+      context: context,
+      title: "⚠️ Xác nhận xoá",
+      content: "Bạn có chắc chắn muốn xoá đơn hàng này?",
+      confirmText: "Xoá",
+      confirmColor: const Color(0xffEA4346),
+    );
+
+    if (!confirm) return;
+
+    //show deleteing dialog
+    if (!context.mounted) return;
+    showLoadingDialog(context, message: "Đang xoá...");
+
+    try {
+      await OrderService().deleteOrder(selectedOrderId!);
+
+      badgesController.fetchPendingApprovals();
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      loadOrders(true, isSeenOrder);
+
+      if (!context.mounted) {
+        return;
+      }
+      Navigator.pop(context);
+      showSnackBarSuccess(context, 'Xoá thành công');
+    } catch (e, s) {
+      Navigator.pop(context);
+      AppLogger.e("Lỗi khi xoá khách hàng", error: e, stackTrace: s);
+      showSnackBarError(context, "Không thể xoá khách hàng");
     }
   }
 }

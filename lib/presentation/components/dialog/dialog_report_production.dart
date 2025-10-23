@@ -1,4 +1,5 @@
 import 'package:dongtam/service/manufacture_service.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -38,48 +39,14 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
   void submit() async {
     if (widget.qtyPaper == null || widget.qtyPaper == 0) {
-      final confirm = await showDialog<bool>(
+      final confirm = await showConfirmDialog(
         context: context,
-        builder:
-            (_) => AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Text(
-                "⚠️ Thiếu số lượng giấy tấm",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-              ),
-              content: const Text(
-                "Kế hoạch này chưa có số lượng giấy tấm.\n"
-                "Bạn có chắc muốn tiếp tục báo cáo không?",
-                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text(
-                    "Hủy",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffEA4346),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text(
-                    "Tiếp tục",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-        barrierDismissible: false,
+        title: "⚠️ Thiếu số lượng giấy tấm",
+        content:
+            "Kế hoạch này chưa có số lượng giấy tấm.\n"
+            "Bạn có chắc muốn tiếp tục báo cáo không?",
+        confirmText: "Tiếp tục",
+        cancelText: "Hủy",
       );
 
       if (confirm != true) {

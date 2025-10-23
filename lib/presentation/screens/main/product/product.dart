@@ -7,6 +7,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_product
 import 'package:dongtam/presentation/sources/product_data_source.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -523,85 +524,38 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
-    bool isDeleting = false;
-
-    await showDialog(
+    //show confirm dialog
+    final confirm = await showConfirmDialog(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Row(
-                children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
-                  SizedBox(width: 8),
-                  Text("Xác nhận xoá", style: TextStyle(fontWeight: FontWeight.bold)),
-                ],
-              ),
-              content:
-                  isDeleting
-                      ? const Row(
-                        children: [
-                          CircularProgressIndicator(strokeWidth: 2),
-                          SizedBox(width: 12),
-                          Text("Đang xoá..."),
-                        ],
-                      )
-                      : const Text(
-                        'Bạn có chắc chắn muốn xoá sản phẩm này?',
-                        style: TextStyle(fontSize: 16),
-                      ),
-              actions:
-                  isDeleting
-                      ? []
-                      : [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            "Huỷ",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xffEA4346),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                          onPressed: () async {
-                            setStateDialog(() {
-                              isDeleting = true;
-                            });
-
-                            await ProductService().deleteProduct(selectedProductId!);
-                            await Future.delayed(const Duration(seconds: 1));
-
-                            setState(() {
-                              selectedProductId = null;
-                            });
-                            loadProduct(true);
-
-                            if (!context.mounted) return;
-
-                            Navigator.pop(context);
-                            showSnackBarSuccess(context, 'Xoá thành công');
-                          },
-                          child: const Text(
-                            "Xoá",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-            );
-          },
-        );
-      },
+      title: "⚠️ Xác nhận xoá",
+      content: "Bạn có chắc chắn muốn xoá sản phẩm này?",
+      confirmText: "Xoá",
+      confirmColor: const Color(0xffEA4346),
     );
+
+    if (!confirm) return;
+
+    //show deleteing dialog
+    if (!context.mounted) return;
+    showLoadingDialog(context, message: "Đang xoá...");
+
+    try {
+      await ProductService().deleteProduct(selectedProductId!);
+      await Future.delayed(const Duration(seconds: 1));
+
+      setState(() {
+        selectedProductId = null;
+      });
+      loadProduct(true);
+
+      if (!context.mounted) return;
+
+      Navigator.pop(context);
+      showSnackBarSuccess(context, 'Xoá thành công');
+    } catch (e, s) {
+      Navigator.pop(context);
+      AppLogger.e("Lỗi khi xoá sản phẩm", error: e, stackTrace: s);
+      showSnackBarError(context, "Không thể xoá sản phẩm");
+    }
   }
 }
