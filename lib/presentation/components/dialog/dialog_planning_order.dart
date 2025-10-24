@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -13,11 +14,7 @@ class PLanningDialog extends StatefulWidget {
   final Order? order;
   final VoidCallback onPlanningOrder;
 
-  const PLanningDialog({
-    super.key,
-    required this.order,
-    required this.onPlanningOrder,
-  });
+  const PLanningDialog({super.key, required this.order, required this.onPlanningOrder});
 
   @override
   State<PLanningDialog> createState() => _PLanningDialogState();
@@ -26,12 +23,7 @@ class PLanningDialog extends StatefulWidget {
 class _PLanningDialogState extends State<PLanningDialog> {
   final formKey = GlobalKey<FormState>();
   late String originalOrderId;
-  final List<String> machineList = [
-    'Máy 1350',
-    'Máy 1900',
-    'Máy 2 Lớp',
-    "Máy Quấn Cuồn",
-  ];
+  final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp', "Máy Quấn Cuồn"];
 
   //order
   final orderIdController = TextEditingController();
@@ -118,9 +110,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     qcBoxController.text = order.QC_box.toString();
     instructSpecialController.text = order.instructSpecial.toString();
     daoXaOrderController.text = order.daoXa.toString();
-    lengthOrderController.text = order.lengthPaperManufacture.toStringAsFixed(
-      1,
-    );
+    lengthOrderController.text = order.lengthPaperManufacture.toStringAsFixed(1);
     sizeOrderController.text = order.paperSizeManufacture.toStringAsFixed(1);
     quantityOrderController.text = order.quantityManufacture.toString();
     totalPriceOrderController.text = order.totalPrice.toStringAsFixed(1);
@@ -128,15 +118,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     //date
     dateShipping = order.dateRequestShipping;
-    dateShippingController.text = DateFormat(
-      'dd/MM/yyyy',
-    ).format(dateShipping!);
+    dateShippingController.text = DateFormat('dd/MM/yyyy').format(dateShipping!);
   }
 
   void fillDataOrderToPlanning() {
     int leftQty =
-        (int.tryParse(quantityOrderController.text) ?? 0) -
-        (widget.order?.totalQtyProduced ?? 0);
+        (int.tryParse(quantityOrderController.text) ?? 0) - (widget.order?.totalQtyProduced ?? 0);
 
     dayReplaceController.text = dayOrderController.text;
     matEReplaceController.text = matEOrderController.text;
@@ -200,8 +187,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       songBReplace: songBReplaceController.text,
       songCReplace: songCReplaceController.text,
       songE2Replace: songE2ReplaceController.text,
-      lengthPaperPlanning:
-          double.tryParse(lengthPaperPlanningController.text) ?? 0,
+      lengthPaperPlanning: double.tryParse(lengthPaperPlanningController.text) ?? 0,
       sizePaperPLaning: double.tryParse(sizePaperPLaningController.text) ?? 0,
       ghepKho: int.tryParse(ghepKhoController.text) ?? 0,
       numberChild: int.tryParse(numberChildController.text) ?? 0,
@@ -215,10 +201,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     try {
       AppLogger.i("Lên kế hoạch cho 1 đơn hàng mới: $originalOrderId");
-      await PlanningService().planningOrder(
-        newPlanning.toJson(),
-        originalOrderId,
-      );
+      await PlanningService().planningOrder(newPlanning.toJson(), originalOrderId);
 
       if (!mounted) return;
       showSnackBarSuccess(context, "Lưu thành công");
@@ -514,36 +497,23 @@ class _PLanningDialogState extends State<PLanningDialog> {
               Symbols.production_quantity_limits,
             ),
         'right':
-            () => ValidationPlanning.validateInput(
-              "Số Lớp Sóng",
-              fluteController,
-              Symbols.stacks,
-            ),
+            () => ValidationPlanning.validateInput("Số Lớp Sóng", fluteController, Symbols.stacks),
       },
 
       {
         'left':
-            () => ValidationPlanning.validateInput(
-              "Ghép Khổ",
-              ghepKhoController,
-              Symbols.layers,
-            ),
+            () => ValidationPlanning.validateInput("Ghép Khổ", ghepKhoController, Symbols.layers),
 
         'middle_1':
-            () => ValidationOrder.dropdownForTypes(machineList, chooseMachine, (
-              value,
-            ) {
+            () => ValidationOrder.dropdownForTypes(machineList, chooseMachine, (value) {
               setState(() {
                 chooseMachine = value!;
               });
             }),
 
         'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Số Con",
-              numberChildController,
-              Symbols.numbers,
-            ),
+            () =>
+                ValidationPlanning.validateInput("Số Con", numberChildController, Symbols.numbers),
 
         'right': () => SizedBox(),
       },
@@ -553,12 +523,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
       builder: (context, state) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           content: SizedBox(
-            width: 1400,
-            height: 800,
+            width: ResponsiveSize.getWidth(context, ResponsiveType.xLarge),
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Form(
@@ -569,10 +536,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
                     const SizedBox(height: 10),
                     const Text(
                       "Đơn Hàng",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -589,10 +553,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child:
-                                          row['left'] is Function
-                                              ? row['left']()
-                                              : row['left'],
+                                      child: row['left'] is Function ? row['left']() : row['left'],
                                     ),
                                     const SizedBox(width: 30),
                                     Expanded(
@@ -611,9 +572,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
                                     const SizedBox(width: 30),
                                     Expanded(
                                       child:
-                                          row['right'] is Function
-                                              ? row['right']()
-                                              : row['right'],
+                                          row['right'] is Function ? row['right']() : row['right'],
                                     ),
                                   ],
                                 ),
@@ -626,10 +585,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
                     // Planning
                     const Text(
                       "Kế Hoạch",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                     const SizedBox(height: 20),
                     Container(
@@ -646,10 +602,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child:
-                                          row['left'] is Function
-                                              ? row['left']()
-                                              : row['left'],
+                                      child: row['left'] is Function ? row['left']() : row['left'],
                                     ),
                                     const SizedBox(width: 30),
                                     Expanded(
@@ -668,9 +621,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
                                     const SizedBox(width: 30),
                                     Expanded(
                                       child:
-                                          row['right'] is Function
-                                              ? row['right']()
-                                              : row['right'],
+                                          row['right'] is Function ? row['right']() : row['right'],
                                     ),
                                   ],
                                 ),
@@ -684,42 +635,26 @@ class _PLanningDialogState extends State<PLanningDialog> {
               ),
             ),
           ),
-          actionsPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 10,
-          ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Hủy",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.red,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.red),
               ),
             ),
             ElevatedButton(
               onPressed: submit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text(
                 "Lưu",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
               ),
             ),
           ],

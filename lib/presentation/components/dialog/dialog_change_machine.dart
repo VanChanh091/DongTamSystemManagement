@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -9,11 +10,7 @@ class ChangeMachineDialog extends StatefulWidget {
   final List<PlanningPaper> planning;
   final VoidCallback onChangeMachine;
 
-  const ChangeMachineDialog({
-    super.key,
-    required this.planning,
-    required this.onChangeMachine,
-  });
+  const ChangeMachineDialog({super.key, required this.planning, required this.onChangeMachine});
 
   @override
   State<ChangeMachineDialog> createState() => _ChangeMachineDialogState();
@@ -22,12 +19,7 @@ class ChangeMachineDialog extends StatefulWidget {
 class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
   final formKey = GlobalKey<FormState>();
   late List<int> planningIds = [];
-  final List<String> machineList = [
-    'Máy 1350',
-    'Máy 1900',
-    'Máy 2 Lớp',
-    "Máy Quấn Cuồn",
-  ];
+  final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp', "Máy Quấn Cuồn"];
 
   //planning
   late String chooseMachine = 'Máy 1350';
@@ -50,28 +42,19 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
     }
 
     try {
-      AppLogger.i(
-        "Chuyển máy cho đơn hàng planningIds=$planningIds đến $chooseMachine",
-      );
+      AppLogger.i("Chuyển máy cho đơn hàng planningIds=$planningIds đến $chooseMachine");
       await PlanningService().changeMachinePlanning(planningIds, chooseMachine);
 
       if (!mounted) return; // check context
       AppLogger.i("Chuyển đơn sang máy $chooseMachine thành công");
-      showSnackBarSuccess(
-        context,
-        'Chuyển đơn hàng sang $chooseMachine thành công',
-      );
+      showSnackBarSuccess(context, 'Chuyển đơn hàng sang $chooseMachine thành công');
 
       if (!mounted) return; // check context
       widget.onChangeMachine();
       Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return; // check context
-      AppLogger.e(
-        "Lỗi khi chuyển đơn hàng sang máy khác",
-        error: e,
-        stackTrace: s,
-      );
+      AppLogger.e("Lỗi khi chuyển đơn hàng sang máy khác", error: e, stackTrace: s);
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }
   }
@@ -82,11 +65,9 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
       builder: (context, state) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           content: SizedBox(
-            width: 500,
+            width: ResponsiveSize.getWidth(context, ResponsiveType.small),
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Form(
@@ -97,10 +78,7 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                     const SizedBox(height: 10),
                     const Text(
                       "Chuyển máy",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                     const SizedBox(height: 10),
 
@@ -120,23 +98,15 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                           children: [
                             const Text(
                               "Đơn hàng cần chuyển máy:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             const SizedBox(height: 5),
                             ...widget.planning.map(
                               (p) => Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 2.0,
-                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 2.0),
                                 child: Row(
                                   children: [
-                                    const Text(
-                                      "- Mã đơn hàng: ",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
+                                    const Text("- Mã đơn hàng: ", style: TextStyle(fontSize: 16)),
                                     Text(
                                       p.orderId,
                                       style: const TextStyle(
@@ -169,21 +139,14 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                         children: [
                           const Text(
                             'Chọn máy cần chuyển',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const SizedBox(height: 12),
-                          ValidationOrder.dropdownForTypes(
-                            machineList,
-                            chooseMachine,
-                            (value) {
-                              setState(() {
-                                chooseMachine = value!;
-                              });
-                            },
-                          ),
+                          ValidationOrder.dropdownForTypes(machineList, chooseMachine, (value) {
+                            setState(() {
+                              chooseMachine = value!;
+                            });
+                          }),
                         ],
                       ),
                     ),
@@ -194,42 +157,26 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
             ),
           ),
 
-          actionsPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 10,
-          ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Hủy",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.red,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.red),
               ),
             ),
             ElevatedButton(
               onPressed: submit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text(
                 "Chuyển",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
               ),
             ),
           ],

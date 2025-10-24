@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_service.dart';
+import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -12,11 +13,7 @@ class ProductDialog extends StatefulWidget {
   final Product? product;
   final VoidCallback onProductAddOrUpdate;
 
-  const ProductDialog({
-    super.key,
-    this.product,
-    required this.onProductAddOrUpdate,
-  });
+  const ProductDialog({super.key, this.product, required this.onProductAddOrUpdate});
 
   @override
   State<ProductDialog> createState() => _ProductDialogState();
@@ -55,10 +52,7 @@ class _ProductDialogState extends State<ProductDialog> {
   }
 
   Future<void> pickImage() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
+    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
     if (result != null && result.files.single.bytes != null) {
       setState(() {
         pickedProductImage = result.files.single.bytes;
@@ -204,8 +198,8 @@ class _ProductDialogState extends State<ProductDialog> {
         ),
       ),
       content: SizedBox(
-        width: 550,
-        height: 450,
+        width: ResponsiveSize.getWidth(context, ResponsiveType.small),
+        // height: 450,
         child: SingleChildScrollView(
           child: Form(
             key: formKey,
@@ -221,15 +215,11 @@ class _ProductDialogState extends State<ProductDialog> {
                 ),
 
                 const SizedBox(height: 15),
-                ValidationOrder.dropdownForTypes(
-                  itemsTypeProduct,
-                  typeProduct,
-                  (value) {
-                    setState(() {
-                      typeProduct = value!;
-                    });
-                  },
-                ),
+                ValidationOrder.dropdownForTypes(itemsTypeProduct, typeProduct, (value) {
+                  setState(() {
+                    typeProduct = value!;
+                  });
+                }),
 
                 const SizedBox(height: 15),
                 validateInput(
@@ -252,23 +242,13 @@ class _ProductDialogState extends State<ProductDialog> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 15,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                 ),
                 if (pickedProductImage != null) ...[
                   const SizedBox(height: 15),
-                  Image.memory(
-                    pickedProductImage!,
-                    width: 350,
-                    height: 350,
-                    fit: BoxFit.contain,
-                  ),
+                  Image.memory(pickedProductImage!, width: 350, height: 350, fit: BoxFit.contain),
                 ] else if (productImageUrl != null) ...[
                   const SizedBox(height: 15),
                   Image.network(
@@ -293,11 +273,7 @@ class _ProductDialogState extends State<ProductDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text(
             "Hủy",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.red,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red),
           ),
         ),
         ElevatedButton(
@@ -305,17 +281,11 @@ class _ProductDialogState extends State<ProductDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           child: Text(
             isEdit ? "Cập nhật" : "Thêm",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
           ),
         ),
       ],

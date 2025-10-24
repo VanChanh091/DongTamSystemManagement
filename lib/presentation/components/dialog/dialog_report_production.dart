@@ -38,22 +38,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   final shiftManagementController = TextEditingController();
 
   void submit() async {
-    if (widget.qtyPaper == null || widget.qtyPaper == 0) {
-      final confirm = await showConfirmDialog(
-        context: context,
-        title: "⚠️ Thiếu số lượng giấy tấm",
-        content:
-            "Kế hoạch này chưa có số lượng giấy tấm.\n"
-            "Bạn có chắc muốn tiếp tục báo cáo không?",
-        confirmText: "Tiếp tục",
-        cancelText: "Hủy",
-      );
-
-      if (confirm != true) {
-        return;
-      }
-    }
-
     if (!formKey.currentState!.validate()) {
       AppLogger.w("Form không hợp lệ, dừng submit");
       return;
@@ -81,6 +65,22 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           reportData,
         );
       } else {
+        if (widget.qtyPaper == null || widget.qtyPaper == 0) {
+          final confirm = await showConfirmDialog(
+            context: context,
+            title: "⚠️ Thiếu số lượng giấy tấm",
+            content:
+                "Kế hoạch này chưa có số lượng giấy tấm.\n"
+                "Bạn có chắc muốn tiếp tục báo cáo không?",
+            confirmText: "Tiếp tục",
+            cancelText: "Hủy",
+          );
+
+          if (confirm != true) {
+            return;
+          }
+        }
+
         AppLogger.i("Báo cáo sản xuất thùng: ${widget.planningId}");
         success = await ManufactureService().createReportBox(
           widget.planningId,

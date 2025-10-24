@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_service.dart';
+import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_customer.dart';
@@ -238,7 +239,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
         ),
       ),
       content: SizedBox(
-        width: 600,
+        width: ResponsiveSize.getWidth(context, ResponsiveType.small),
         child:
             isLoading
                 ? const Center(child: CircularProgressIndicator())

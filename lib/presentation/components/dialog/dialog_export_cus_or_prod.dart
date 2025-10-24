@@ -9,11 +9,7 @@ class DialogExportCusOrProd extends StatefulWidget {
   final VoidCallback onCusOrProd;
   final bool isProduct;
 
-  const DialogExportCusOrProd({
-    super.key,
-    required this.onCusOrProd,
-    this.isProduct = false,
-  });
+  const DialogExportCusOrProd({super.key, required this.onCusOrProd, this.isProduct = false});
 
   @override
   State<DialogExportCusOrProd> createState() => _DialogExportCusOrProdState();
@@ -43,10 +39,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
       builder: (context, child) {
         return Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: size.width * 0.3,
-              maxHeight: size.height * 0.8,
-            ),
+            constraints: BoxConstraints(maxWidth: size.width * 0.3, maxHeight: size.height * 0.8),
             child: Material(
               borderRadius: BorderRadius.circular(16),
               clipBehavior: Clip.antiAlias,
@@ -78,8 +71,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
 
         //export product
         await ProductService().exportExcelProduct(
-          typeProduct:
-              selectedOption.value == 'typeProduct' ? typeProduct : null,
+          typeProduct: selectedOption.value == 'typeProduct' ? typeProduct : null,
           all: selectedOption.value == 'all' ? true : false,
         );
       } else {
@@ -131,10 +123,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
               // Option 2: Theo thời gian
               !widget.isProduct
                   ? RadioListTile<String>(
-                    title: const Text(
-                      "Hạn Thanh Toán",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    title: const Text("Hạn Thanh Toán", style: TextStyle(fontSize: 16)),
                     value: 'termPayment',
                     groupValue: value,
                     onChanged: (val) => selectedOption.value = val,
@@ -144,10 +133,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
               // Option 3: Theo loại sp
               widget.isProduct
                   ? RadioListTile<String>(
-                    title: const Text(
-                      "Loại Sản Phẩm",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    title: const Text("Loại Sản Phẩm", style: TextStyle(fontSize: 16)),
                     value: 'typeProduct',
                     groupValue: value,
                     onChanged: (val) => selectedOption.value = val,
@@ -163,23 +149,12 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
                       height: 50,
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          side: BorderSide(
-                            color: Colors.blue.shade400,
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          side: BorderSide(color: Colors.blue.shade400, width: 1.5),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         onPressed: () => pickDateRange(context),
-                        icon: Icon(
-                          Icons.date_range,
-                          color: Colors.blue.shade400,
-                        ),
+                        icon: Icon(Icons.date_range, color: Colors.blue.shade400),
                         label: Text(
                           selectedRange == null
                               ? "Chọn khoảng thời gian"
@@ -202,15 +177,11 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
                   ],
                 ),
               ] else if (value == 'typeProduct') ...[
-                ValidationOrder.dropdownForTypes(
-                  itemsTypeProduct,
-                  typeProduct,
-                  (value) {
-                    setState(() {
-                      typeProduct = value!;
-                    });
-                  },
-                ),
+                ValidationOrder.dropdownForTypes(itemsTypeProduct, typeProduct, (value) {
+                  setState(() {
+                    typeProduct = value!;
+                  });
+                }),
               ],
             ],
           );
@@ -222,11 +193,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
           onPressed: () => Navigator.pop(context),
           child: const Text(
             "Hủy",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-              color: Colors.red,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.red),
           ),
         ),
         ElevatedButton(
@@ -234,17 +201,11 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           child: const Text(
             "Xác nhận",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
           ),
         ),
       ],

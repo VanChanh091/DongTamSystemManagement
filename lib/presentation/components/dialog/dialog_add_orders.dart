@@ -10,6 +10,7 @@ import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
+import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -954,8 +955,7 @@ class _OrderDialogState extends State<OrderDialog> {
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           content: SizedBox(
-            width: 1400,
-            height: 900,
+            width: ResponsiveSize.getWidth(context, ResponsiveType.xLarge),
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Form(
