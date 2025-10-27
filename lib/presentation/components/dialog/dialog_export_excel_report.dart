@@ -18,8 +18,7 @@ class DialogSelectExportExcel extends StatefulWidget {
   });
 
   @override
-  State<DialogSelectExportExcel> createState() =>
-      _DialogSelectExportExcelState();
+  State<DialogSelectExportExcel> createState() => _DialogSelectExportExcelState();
 }
 
 class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
@@ -39,10 +38,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
       builder: (context, child) {
         return Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: size.width * 0.3,
-              maxHeight: size.height * 0.8,
-            ),
+            constraints: BoxConstraints(maxWidth: size.width * 0.3, maxHeight: size.height * 0.8),
             child: Material(
               borderRadius: BorderRadius.circular(16),
               clipBehavior: Clip.antiAlias,
@@ -128,10 +124,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
             children: [
               // Option 1: Các báo cáo đã chọn
               RadioListTile<String>(
-                title: const Text(
-                  "Các Báo Cáo Đã Chọn",
-                  style: TextStyle(fontSize: 16),
-                ),
+                title: const Text("Các Báo Cáo Đã Chọn", style: TextStyle(fontSize: 16)),
                 value: 'list',
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
@@ -139,10 +132,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
 
               // Option 2: Theo thời gian
               RadioListTile<String>(
-                title: const Text(
-                  "Theo Thời Gian",
-                  style: TextStyle(fontSize: 16),
-                ),
+                title: const Text("Theo Thời Gian", style: TextStyle(fontSize: 16)),
                 value: 'date',
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
@@ -156,23 +146,12 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
                       height: 50,
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          side: BorderSide(
-                            color: Colors.blue.shade400,
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          side: BorderSide(color: Colors.blue.shade400, width: 1.5),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         onPressed: () => pickDateRange(context),
-                        icon: Icon(
-                          Icons.date_range,
-                          color: Colors.blue.shade400,
-                        ),
+                        icon: Icon(Icons.date_range, color: Colors.blue.shade400),
                         label: Text(
                           selectedRange == null
                               ? "Chọn khoảng thời gian"
@@ -204,11 +183,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
           onPressed: () => Navigator.pop(context),
           child: const Text(
             "Hủy",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-              color: Colors.red,
-            ),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
           ),
         ),
         ElevatedButton(
@@ -216,17 +191,11 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           child: const Text(
             "Xác nhận",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
           ),
         ),
       ],

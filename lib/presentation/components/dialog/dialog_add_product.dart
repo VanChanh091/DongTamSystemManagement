@@ -198,7 +198,7 @@ class _ProductDialogState extends State<ProductDialog> {
         ),
       ),
       content: SizedBox(
-        width: ResponsiveSize.getWidth(context, ResponsiveType.small),
+        width: ResponsiveSize.getWidth(context, ResponsiveType.xSmall),
         // height: 450,
         child: SingleChildScrollView(
           child: Form(
@@ -267,13 +267,12 @@ class _ProductDialogState extends State<ProductDialog> {
         ),
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text(
             "Hủy",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
           ),
         ),
         ElevatedButton(

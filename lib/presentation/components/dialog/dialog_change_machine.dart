@@ -158,13 +158,12 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
           ),
 
           actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Hủy",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.red),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
               ),
             ),
             ElevatedButton(

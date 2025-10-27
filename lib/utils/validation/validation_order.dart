@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ValidationOrder {
-  static Widget checkboxForBox(
-    String label,
-    ValueNotifier<bool> notifier, {
-    bool enabled = true,
-  }) {
+  static Widget checkboxForBox(String label, ValueNotifier<bool> notifier, {bool enabled = true}) {
     return ValueListenableBuilder<bool>(
       valueListenable: notifier,
       builder: (context, checked, _) {
@@ -23,10 +19,7 @@ class ValidationOrder {
             ),
           ),
           child: CheckboxListTile(
-            title: Text(
-              label,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            title: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             value: checked,
             onChanged:
                 enabled
@@ -70,17 +63,12 @@ class ValidationOrder {
             labelStyle: const TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             fillColor:
                 effectiveReadOnly
                     ? Colors.grey.shade300
-                    : (isFilled
-                        ? Colors.white
-                        : Color.fromARGB(255, 148, 236, 154)),
+                    : (isFilled ? Colors.white : Color.fromARGB(255, 148, 236, 154)),
             filled: true,
           ),
           validator: (value) {
@@ -109,11 +97,7 @@ class ValidationOrder {
     );
   }
 
-  static Widget dropdownForTypes(
-    List<String> items,
-    String type,
-    ValueChanged onChanged,
-  ) {
+  static Widget dropdownForTypes(List<String> items, String type, ValueChanged onChanged) {
     return DropdownButtonFormField<String>(
       value: items.contains(type) ? type : null,
       items:
@@ -123,13 +107,7 @@ class ValidationOrder {
               child: Row(
                 children: [
                   const SizedBox(width: 10),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                 ],
               ),
             );

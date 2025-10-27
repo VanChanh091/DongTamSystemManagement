@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ResponsiveType { small, medium, large, xLarge }
+enum ResponsiveType { xSmall, small, medium, large, xLarge }
 
 class ResponsiveSize {
   static double getWidth(BuildContext context, ResponsiveType type) {
@@ -9,6 +9,9 @@ class ResponsiveSize {
     // Base width theo loại form
     double baseWidth;
     switch (type) {
+      case ResponsiveType.xSmall:
+        baseWidth = 300;
+        break;
       case ResponsiveType.small:
         baseWidth = 400;
         break;

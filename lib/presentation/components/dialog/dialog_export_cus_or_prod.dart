@@ -87,7 +87,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
         );
       }
       if (!mounted) return;
-      showSnackBarSuccess(context, "Lưu thành công");
+      showSnackBarSuccess(context, "Xuất thành công");
 
       widget.onCusOrProd();
 
@@ -96,7 +96,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
     } catch (e, s) {
       if (!mounted) return; // check context
       AppLogger.e("Lỗi khi xuất báo cáo", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      showSnackBarError(context, 'Lỗi: Không thể xuất dữ liệu');
     }
   }
 
@@ -193,7 +193,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
           onPressed: () => Navigator.pop(context),
           child: const Text(
             "Hủy",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.red),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
           ),
         ),
         ElevatedButton(

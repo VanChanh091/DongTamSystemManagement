@@ -4,20 +4,12 @@ import 'package:flutter/material.dart';
 Widget styleText(String text) {
   return Text(
     text,
-    style: const TextStyle(
-      fontWeight: FontWeight.w700,
-      fontSize: 16,
-      color: Colors.white,
-    ),
+    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white),
   );
 }
 
 //editing on table, update a little data
-Widget styleCellAdmin(
-  String text,
-  ValueChanged<String>? onChanged, {
-  double width = 100,
-}) {
+Widget styleCellAdmin(String text, ValueChanged<String>? onChanged, {double width = 100}) {
   return SizedBox(
     width: double.infinity,
     child: TextFormField(
@@ -40,10 +32,7 @@ Widget styleCell(String text, {double? width}) {
   );
 }
 
-Widget formatColumn({
-  required String label,
-  required ThemeController themeController,
-}) {
+Widget formatColumn({required String label, required ThemeController themeController}) {
   return Container(
     alignment: Alignment.center,
     decoration: BoxDecoration(
@@ -53,11 +42,7 @@ Widget formatColumn({
     child: Text(
       label,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 15,
-        color: Colors.white,
-      ),
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
     ),
   );
 }

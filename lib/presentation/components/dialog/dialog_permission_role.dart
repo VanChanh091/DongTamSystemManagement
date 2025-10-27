@@ -73,9 +73,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
 
     // Khởi tạo trạng thái checkbox cho từng quyền
     for (final p in permissions) {
-      permissionCheckStates[p] = ValueNotifier<bool>(
-        chosenPermissions.contains(p),
-      );
+      permissionCheckStates[p] = ValueNotifier<bool>(chosenPermissions.contains(p));
       AppLogger.d("Permission [$p] = ${chosenPermissions.contains(p)}");
     }
   }
@@ -89,10 +87,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     try {
       if (selectedOption.value == 'role') {
         AppLogger.d("Cập nhật ROLE: $chosenRole cho user: $originalUserId");
-        success = await AdminService().updateUserRole(
-          originalUserId,
-          chosenRole,
-        );
+        success = await AdminService().updateUserRole(originalUserId, chosenRole);
       } else if (selectedOption.value == 'permission') {
         List<String> updatedPermissions =
             permissionCheckStates.entries
@@ -100,13 +95,8 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                 .map((entry) => entry.key)
                 .toList();
 
-        AppLogger.d(
-          "Cập nhật PERMISSIONS: $updatedPermissions cho user: $originalUserId",
-        );
-        success = await AdminService().updateUserPermissions(
-          originalUserId,
-          updatedPermissions,
-        );
+        AppLogger.d("Cập nhật PERMISSIONS: $updatedPermissions cho user: $originalUserId");
+        success = await AdminService().updateUserPermissions(originalUserId, updatedPermissions);
       }
 
       if (success) {
@@ -114,9 +104,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
         showSnackBarSuccess(context, 'Cập nhật thành công!');
         await Future.delayed(Duration(milliseconds: 500));
       } else {
-        AppLogger.d(
-          "Cập nhật thất bại cho userId=$originalUserId (API trả về false)",
-        );
+        AppLogger.d("Cập nhật thất bại cho userId=$originalUserId (API trả về false)");
       }
 
       if (!mounted) return;
@@ -161,19 +149,13 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                   return Column(
                     children: [
                       RadioListTile<String>(
-                        title: const Text(
-                          "Vai trò",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        title: const Text("Vai trò", style: TextStyle(fontSize: 16)),
                         value: 'role',
                         groupValue: value,
                         onChanged: (val) => selectedOption.value = val,
                       ),
                       RadioListTile<String>(
-                        title: const Text(
-                          "Quyền truy cập",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        title: const Text("Quyền truy cập", style: TextStyle(fontSize: 16)),
                         value: 'permission',
                         groupValue: value,
                         onChanged: (val) => selectedOption.value = val,
@@ -216,38 +198,23 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                                   return Theme(
                                     data: Theme.of(context).copyWith(
                                       checkboxTheme: CheckboxThemeData(
-                                        fillColor:
-                                            WidgetStateProperty.resolveWith<
-                                              Color
-                                            >((states) {
-                                              if (states.contains(
-                                                WidgetState.selected,
-                                              )) {
-                                                return Colors.red;
-                                              }
-                                              return Colors.white;
-                                            }),
-                                        checkColor:
-                                            WidgetStateProperty.all<Color>(
-                                              Colors.white,
-                                            ),
-                                        side: const BorderSide(
-                                          color: Colors.black,
-                                          width: 1,
-                                        ),
+                                        fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                                          if (states.contains(WidgetState.selected)) {
+                                            return Colors.red;
+                                          }
+                                          return Colors.white;
+                                        }),
+                                        checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                        side: const BorderSide(color: Colors.black, width: 1),
                                       ),
                                     ),
                                     child: CheckboxListTile(
-                                      title: Text(
-                                        permissionsLabels[perm] ?? perm,
-                                      ),
+                                      title: Text(permissionsLabels[perm] ?? perm),
                                       value: checked,
                                       onChanged: (val) {
-                                        permissionCheckStates[perm]!.value =
-                                            val ?? false;
+                                        permissionCheckStates[perm]!.value = val ?? false;
                                       },
-                                      controlAffinity:
-                                          ListTileControlAffinity.leading,
+                                      controlAffinity: ListTileControlAffinity.leading,
                                     ),
                                   );
                                 },
@@ -270,11 +237,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text(
             "Huỷ",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
           ),
         ),
         ElevatedButton(
@@ -282,14 +245,9 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xffEA4346),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          child: const Text(
-            "Lưu",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          child: const Text("Lưu", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
         ),
       ],
     );
@@ -312,10 +270,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                   const SizedBox(width: 10),
                   Text(
                     labelMap?[value] ?? value, //show vn
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),

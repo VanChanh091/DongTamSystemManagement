@@ -11,6 +11,7 @@ import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
@@ -483,7 +484,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             ),
                                         ],
                                       ),
-
                                       const SizedBox(width: 10),
 
                                       //group/unGroup
@@ -516,9 +516,18 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   child: Text(value),
                                                 );
                                               }).toList(),
-                                          onChanged: (value) {
-                                            if (value != null) {
+                                          onChanged: (value) async {
+                                            if (value == null) return;
+
+                                            bool canChange = await UnsavedChangeDialog(
+                                              unsavedChangeController,
+                                            );
+
+                                            if (canChange) {
                                               changeMachine(value);
+                                            } else {
+                                              // reset dropdown về máy cũ
+                                              setState(() {});
                                             }
                                           },
                                           decoration: InputDecoration(
@@ -550,25 +559,36 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               );
                                               return;
                                             }
-                                            final planning = await futurePlanning;
 
+                                            final planning = await futurePlanning;
                                             if (!context.mounted) return;
 
-                                            showDialog(
+                                            final selectedPlans =
+                                                planning
+                                                    .where(
+                                                      (p) => selectedPlanningIds.contains(
+                                                        p.planningId.toString(),
+                                                      ),
+                                                    )
+                                                    .toList();
+
+                                            if (selectedPlans.isEmpty) {
+                                              showSnackBarError(
+                                                context,
+                                                "Không tìm thấy kế hoạch hợp lệ để chuyển máy",
+                                              );
+                                              return;
+                                            }
+
+                                            await showDialog(
                                               context: context,
                                               builder:
                                                   (_) => ChangeMachineDialog(
-                                                    planning:
-                                                        planning
-                                                            .where(
-                                                              (p) => selectedPlanningIds.contains(
-                                                                p.planningId.toString(),
-                                                              ),
-                                                            )
-                                                            .toList(),
+                                                    planning: selectedPlans,
                                                     onChangeMachine: () => loadPlanning(true),
                                                   ),
                                             );
+                                            return;
                                           } else if (value == 'stop') {
                                             await handlePlanningAction(
                                               context: context,
@@ -579,11 +599,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
                                               successMessage: "Dừng sản xuất thành công",
                                               errorMessage: "Có lỗi xảy ra khi dừng sản xuất",
-                                              onSuccess:
-                                                  () => {
-                                                    loadPlanning(true),
-                                                    badgesController.fetchPendingApprovals(),
-                                                  },
+                                              onSuccess: () {
+                                                loadPlanning(true);
+                                                badgesController.fetchPendingApprovals();
+                                              },
                                             );
                                           } else if (value == 'reject') {
                                             await handlePlanningAction(

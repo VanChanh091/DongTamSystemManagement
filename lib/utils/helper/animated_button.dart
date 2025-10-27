@@ -36,9 +36,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 1, end: _isPressed ? 0.9 : 1),
       duration: const Duration(milliseconds: 200),
-      builder:
-          (context, scale, child) =>
-              Transform.scale(scale: scale, child: child),
+      builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
       child: Listener(
         onPointerDown: (_) => setState(() => _isPressed = true),
         onPointerUp: (_) => setState(() => _isPressed = false),
@@ -57,9 +55,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
             backgroundColor: bgColor,
             foregroundColor: widget.foregroundColor,
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         ),
       ),
@@ -70,15 +66,11 @@ class _AnimatedButtonState extends State<AnimatedButton> {
   Widget build(BuildContext context) {
     if (widget.backgroundColor is Rx<Color>) {
       return Obx(
-        () => _buildButton(
-          _resolveColor(widget.backgroundColor, const Color(0xff78D761)),
-        ),
+        () => _buildButton(_resolveColor(widget.backgroundColor, const Color(0xff78D761))),
       );
     }
 
     // Nếu là Color thường thì build 1 lần thôi
-    return _buildButton(
-      _resolveColor(widget.backgroundColor, const Color(0xff78D761)),
-    );
+    return _buildButton(_resolveColor(widget.backgroundColor, const Color(0xff78D761)));
   }
 }

@@ -636,13 +636,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
             ),
           ),
           actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Hủy",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.red),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black54),
               ),
             ),
             ElevatedButton(

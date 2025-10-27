@@ -28,9 +28,7 @@ class MachineBoxDatasource extends DataGridSource {
     buildDataGridRows();
 
     if (showGroup) {
-      addColumnGroup(
-        ColumnGroup(name: 'dayStartProduction', sortGroupRows: false),
-      );
+      addColumnGroup(ColumnGroup(name: 'dayStartProduction', sortGroupRows: false));
     }
   }
 
@@ -51,36 +49,15 @@ class MachineBoxDatasource extends DataGridSource {
                 ? formatter.format(planning.order!.dateRequestShipping)
                 : '',
       ),
-      DataGridCell<String>(
-        columnName: "structure",
-        value: planning.formatterStructureOrder,
-      ),
-      DataGridCell<String>(
-        columnName: "flute",
-        value: planning.order?.flute ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: "QC_box",
-        value: planning.order?.QC_box ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: "length",
-        value: '${planning.length} cm',
-      ),
+      DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
+      DataGridCell<String>(columnName: "flute", value: planning.order?.flute ?? ""),
+      DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
+      DataGridCell<String>(columnName: "length", value: '${planning.length} cm'),
       DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
-      DataGridCell<int>(
-        columnName: 'child',
-        value: planning.order?.numberChild ?? 0,
-      ),
-      DataGridCell<int>(
-        columnName: "quantityOrd",
-        value: planning.order?.quantityCustomer ?? 0,
-      ),
+      DataGridCell<int>(columnName: 'child', value: planning.order?.numberChild ?? 0),
+      DataGridCell<int>(columnName: "quantityOrd", value: planning.order?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),
-      DataGridCell<int>(
-        columnName: "needProd",
-        value: boxMachineTime?.runningPlan ?? 0,
-      ),
+      DataGridCell<int>(columnName: "needProd", value: boxMachineTime?.runningPlan ?? 0),
       DataGridCell<String>(
         columnName: "timeRunnings",
         value:
@@ -95,90 +72,52 @@ class MachineBoxDatasource extends DataGridSource {
     final boxMachineTime = planning.getBoxMachineTimeByMachine(machine);
 
     /// Hàm dùng chung lấy qtyProduced
-    String getQtyProduced(String machineName, {bool blankIfMissing = true}) {
-      //check boxTimes theo machine
+    int? getQtyProduced(String machineName, {bool zeroIfMissing = false}) {
+      // check boxTimes theo machine
       final bt = planning.getBoxMachineTimeByMachine(machineName);
       if (bt != null && (bt.qtyProduced ?? 0) > 0) {
-        return bt.qtyProduced.toString();
-      }
-      //check allBoxTimes
-      final all = planning.getAllBoxMachineTime(machineName);
-      if (all != null && (all.qtyProduced ?? 0) > 0) {
-        return all.qtyProduced.toString();
+        return bt.qtyProduced;
       }
 
-      return blankIfMissing ? "" : "0";
+      // check allBoxTimes
+      final all = planning.getAllBoxMachineTime(machineName);
+      if (all != null && (all.qtyProduced ?? 0) > 0) {
+        return all.qtyProduced;
+      }
+
+      return zeroIfMissing ? 0 : null;
     }
 
     return [
-      DataGridCell<String>(
-        columnName: "qtyPrinted",
-        value: getQtyProduced("Máy In"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyCanLan",
-        value: getQtyProduced("Máy Cấn Lằn"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyCanMang",
-        value: getQtyProduced("Máy Cán Màng"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyXa",
-        value: getQtyProduced("Máy Xả"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyCatKhe",
-        value: getQtyProduced("Máy Cắt Khe"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyBe",
-        value: getQtyProduced("Máy Bế"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyDan",
-        value: getQtyProduced("Máy Dán"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyDongGhim",
-        value: getQtyProduced("Máy Đóng Ghim"),
-      ),
+      DataGridCell<int>(columnName: "qtyPrinted", value: getQtyProduced("Máy In")),
+      DataGridCell<int>(columnName: "qtyCanLan", value: getQtyProduced("Máy Cấn Lằn")),
+      DataGridCell<int>(columnName: "qtyCanMang", value: getQtyProduced("Máy Cán Màng")),
+      DataGridCell<int>(columnName: "qtyXa", value: getQtyProduced("Máy Xả")),
+      DataGridCell<int>(columnName: "qtyCatKhe", value: getQtyProduced("Máy Cắt Khe")),
+      DataGridCell<int>(columnName: "qtyBe", value: getQtyProduced("Máy Bế")),
+      DataGridCell<int>(columnName: "qtyDan", value: getQtyProduced("Máy Dán")),
+      DataGridCell<int>(columnName: "qtyDongGhim", value: getQtyProduced("Máy Đóng Ghim")),
 
       ...buildChildBoxCells(planning, machine),
 
       DataGridCell<String>(
         columnName: "dmWasteLoss",
-        value:
-            (boxMachineTime?.wasteBox ?? 0) > 0
-                ? '${boxMachineTime!.wasteBox} Cái'
-                : "0",
+        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? '${boxMachineTime!.wasteBox} Cái' : "0",
       ),
       DataGridCell<String>(
         columnName: "wasteActually",
-        value:
-            (boxMachineTime?.rpWasteLoss ?? 0) > 0
-                ? '${boxMachineTime!.rpWasteLoss} Cái'
-                : "0",
+        value: (boxMachineTime?.rpWasteLoss ?? 0) > 0 ? '${boxMachineTime!.rpWasteLoss} Cái' : "0",
       ),
       DataGridCell<String>(
         columnName: "shiftManager",
         value: boxMachineTime?.shiftManagement ?? "",
       ),
       DataGridCell<String>(columnName: "status", value: boxMachineTime?.status),
-      DataGridCell<int>(
-        columnName: "index",
-        value: boxMachineTime?.sortPlanning ?? 0,
-      ),
-      DataGridCell<int>(
-        columnName: "planningBoxId",
-        value: planning.planningBoxId,
-      ),
+      DataGridCell<int>(columnName: "index", value: boxMachineTime?.sortPlanning ?? 0),
+      DataGridCell<int>(columnName: "planningBoxId", value: planning.planningBoxId),
       DataGridCell<String>(
         columnName: "dayStartProduction",
-        value:
-            boxMachineTime?.dayStart != null
-                ? formatter.format(boxMachineTime!.dayStart!)
-                : '',
+        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : '',
       ),
       DataGridCell<String>(
         columnName: "dayCompletedProd",
@@ -194,8 +133,7 @@ class MachineBoxDatasource extends DataGridSource {
     return [
       DataGridCell<int>(
         columnName: "inMatTruoc",
-        value:
-            machine == "Máy In" ? (planning.order!.box!.inMatTruoc ?? 0) : null,
+        value: machine == "Máy In" ? (planning.order!.box!.inMatTruoc ?? 0) : null,
       ),
       DataGridCell<int>(
         columnName: "inMatSau",
@@ -211,17 +149,11 @@ class MachineBoxDatasource extends DataGridSource {
       ),
       DataGridCell<bool>(
         columnName: "dongGhim1Manh",
-        value:
-            machine == "Máy Đóng Ghim"
-                ? planning.order!.box!.dongGhim1Manh
-                : false,
+        value: machine == "Máy Đóng Ghim" ? planning.order!.box!.dongGhim1Manh : false,
       ),
       DataGridCell<bool>(
         columnName: "dongGhim2Manh",
-        value:
-            machine == "Máy Đóng Ghim"
-                ? planning.order!.box!.dongGhim2Manh
-                : false,
+        value: machine == "Máy Đóng Ghim" ? planning.order!.box!.dongGhim2Manh : false,
       ),
     ];
   }
@@ -252,13 +184,9 @@ class MachineBoxDatasource extends DataGridSource {
     unsavedChange?.setUnsavedChanges(true);
 
     List<PlanningBox> selectedItems =
-        planning
-            .where((p) => idsToMove.contains(p.planningBoxId.toString()))
-            .toList();
+        planning.where((p) => idsToMove.contains(p.planningBoxId.toString())).toList();
 
-    selectedItems.sort(
-      (a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)),
-    );
+    selectedItems.sort((a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)));
 
     int minCurrentIndex = planning.length;
     for (var item in selectedItems) {
@@ -271,9 +199,7 @@ class MachineBoxDatasource extends DataGridSource {
     if (minCurrentIndex == 0) return;
 
     List<PlanningBox> itemsToRemove = [...selectedItems];
-    itemsToRemove.sort(
-      (a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)),
-    );
+    itemsToRemove.sort((a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)));
     for (var item in itemsToRemove) {
       planning.remove(item);
     }
@@ -291,13 +217,9 @@ class MachineBoxDatasource extends DataGridSource {
     unsavedChange?.setUnsavedChanges(true);
 
     List<PlanningBox> selectedItems =
-        planning
-            .where((p) => idsToMove.contains(p.planningBoxId.toString()))
-            .toList();
+        planning.where((p) => idsToMove.contains(p.planningBoxId.toString())).toList();
 
-    selectedItems.sort(
-      (a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)),
-    );
+    selectedItems.sort((a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)));
 
     int maxCurrentIndex = -1;
     for (var item in selectedItems) {
@@ -317,9 +239,7 @@ class MachineBoxDatasource extends DataGridSource {
     }
 
     List<PlanningBox> itemsToRemove = [...selectedItems];
-    itemsToRemove.sort(
-      (a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)),
-    );
+    itemsToRemove.sort((a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)));
     for (var item in itemsToRemove) {
       planning.remove(item);
     }
@@ -343,12 +263,7 @@ class MachineBoxDatasource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = [
-      'dan_1_Manh',
-      'dan_2_Manh',
-      'dongGhim1Manh',
-      'dongGhim2Manh',
-    ];
+    const boolColumns = ['dan_1_Manh', 'dan_2_Manh', 'dongGhim1Manh', 'dongGhim2Manh'];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
@@ -359,15 +274,9 @@ class MachineBoxDatasource extends DataGridSource {
   }
 
   @override
-  Widget? buildGroupCaptionCellWidget(
-    RowColumnIndex rowColumnIndex,
-    String summaryValue,
-  ) {
+  Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(
-      r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$',
-      caseSensitive: false,
-    );
+    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
     String displayDate = '';
@@ -396,11 +305,7 @@ class MachineBoxDatasource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final planningBoxId =
-        row
-            .getCells()
-            .firstWhere((cell) => cell.columnName == 'planningBoxId')
-            .value
-            .toString();
+        row.getCells().firstWhere((cell) => cell.columnName == 'planningBoxId').value.toString();
 
     final isSelected = selectedPlanningIds.contains(planningBoxId);
 
@@ -423,10 +328,8 @@ class MachineBoxDatasource extends DataGridSource {
     };
 
     //Chuyển từ "10 cái" -> 10
-    final totalDmWasteLoss =
-        double.tryParse(dmWasteLoss.replaceAll(' Cái', '')) ?? 0;
-    final totalWasteActually =
-        double.tryParse(wasteActually.replaceAll(' Cái', '')) ?? 0;
+    final totalDmWasteLoss = double.tryParse(dmWasteLoss.replaceAll(' Cái', '')) ?? 0;
+    final totalWasteActually = double.tryParse(wasteActually.replaceAll(' Cái', '')) ?? 0;
 
     // Màu nền cho cả hàng
     Color? rowColor;
@@ -456,8 +359,7 @@ class MachineBoxDatasource extends DataGridSource {
 
             Color cellColor = Colors.transparent;
             //tô màu cho waste loss
-            if (dataCell.columnName == 'wasteActually' &&
-                totalWasteActually > totalDmWasteLoss) {
+            if (dataCell.columnName == 'wasteActually' && totalWasteActually > totalDmWasteLoss) {
               cellColor = Colors.red.withValues(alpha: 0.5);
             }
 
@@ -469,9 +371,7 @@ class MachineBoxDatasource extends DataGridSource {
             // Kiểm tra cột máy dựa vào map
             final machineColumnName = machineColumnMap[dataCell.columnName];
 
-            if (machineColumnName != null &&
-                machineColumnName == machine &&
-                status != "complete") {
+            if (machineColumnName != null && machineColumnName == machine && status != "complete") {
               final qty = (dataCell.value is int) ? dataCell.value as int : 0;
               if (qty < qtyOrder) {
                 cellColor = Colors.red.withValues(alpha: 0.5);

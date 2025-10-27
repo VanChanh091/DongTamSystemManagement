@@ -1191,7 +1191,7 @@ class _OrderDialogState extends State<OrderDialog> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Hủy",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.red),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
               ),
             ),
             ElevatedButton(

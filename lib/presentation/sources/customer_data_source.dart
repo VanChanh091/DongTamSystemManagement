@@ -18,26 +18,14 @@ class CustomerDatasource extends DataGridSource {
 
   List<DataGridCell> buildCustomerCells(Customer customer) {
     return [
-      DataGridCell<String>(
-        columnName: "customerId",
-        value: customer.customerId,
-      ),
+      DataGridCell<String>(columnName: "customerId", value: customer.customerId),
       DataGridCell<String>(columnName: "maSoThue", value: customer.mst),
-      DataGridCell<String>(
-        columnName: "customerName",
-        value: customer.customerName,
-      ),
+      DataGridCell<String>(columnName: "customerName", value: customer.customerName),
       DataGridCell<String>(columnName: "phone", value: customer.phone),
-      DataGridCell<String>(
-        columnName: "contactPerson",
-        value: customer.contactPerson ?? "",
-      ),
+      DataGridCell<String>(columnName: "contactPerson", value: customer.contactPerson ?? ""),
       DataGridCell<String>(
         columnName: "dayCreatedCus",
-        value:
-            customer.dayCreated != null
-                ? formatter.format(customer.dayCreated!)
-                : "",
+        value: customer.dayCreated != null ? formatter.format(customer.dayCreated!) : "",
       ),
       DataGridCell<String>(
         columnName: "debtLimitCustomer",
@@ -55,23 +43,11 @@ class CustomerDatasource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: "termPaymentCost",
-        value:
-            customer.timePayment != null
-                ? formatter.format(customer.timePayment!)
-                : "",
+        value: customer.timePayment != null ? formatter.format(customer.timePayment!) : "",
       ),
-      DataGridCell<String>(
-        columnName: "companyName",
-        value: customer.companyName,
-      ),
-      DataGridCell<String>(
-        columnName: "companyAddress",
-        value: customer.companyAddress,
-      ),
-      DataGridCell<String>(
-        columnName: "shippingAddress",
-        value: customer.shippingAddress,
-      ),
+      DataGridCell<String>(columnName: "companyName", value: customer.companyName),
+      DataGridCell<String>(columnName: "companyAddress", value: customer.companyAddress),
+      DataGridCell<String>(columnName: "shippingAddress", value: customer.shippingAddress),
       DataGridCell<String>(
         columnName: "distanceShip",
         value:
@@ -80,10 +56,7 @@ class CustomerDatasource extends DataGridSource {
                 : "0",
       ),
       DataGridCell<String>(columnName: "CSKH", value: customer.cskh),
-      DataGridCell<String>(
-        columnName: "rateCustomer",
-        value: customer.rateCustomer ?? "",
-      ),
+      DataGridCell<String>(columnName: "rateCustomer", value: customer.rateCustomer ?? ""),
     ];
   }
 
@@ -100,11 +73,7 @@ class CustomerDatasource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final customerId =
-        row
-            .getCells()
-            .firstWhere((cell) => cell.columnName == 'customerId')
-            .value
-            .toString();
+        row.getCells().firstWhere((cell) => cell.columnName == 'customerId').value.toString();
 
     Color backgroundColor;
     if (selectedCustomerId == customerId) {
@@ -124,10 +93,7 @@ class CustomerDatasource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(
-              label: dataCell.value?.toString() ?? "",
-              alignment: alignment,
-            );
+            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
           }).toList(),
     );
   }

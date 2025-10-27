@@ -45,10 +45,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
     columns = buildColumnPlanning(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(
-      tableKey: 'waitingPlanning',
-      columns: columns,
-    ).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: 'waitingPlanning', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -57,9 +54,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
   void loadOrders(bool refresh) {
     setState(() {
-      futureOrdersAccept = ensureMinLoading(
-        PlanningService().getOrderAccept(refresh),
-      );
+      futureOrdersAccept = ensureMinLoading(PlanningService().getOrderAccept(refresh));
       selectedOrderId = null;
     });
   }
@@ -106,10 +101,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
                                 //button
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     children: [
                                       //planning
@@ -119,14 +111,10 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                                 ? null
                                                 : () async {
                                                   try {
-                                                    final order =
-                                                        await futureOrdersAccept;
-                                                    final selectedOrder = order
-                                                        .firstWhere(
-                                                          (order) =>
-                                                              order.orderId ==
-                                                              selectedOrderId,
-                                                        );
+                                                    final order = await futureOrdersAccept;
+                                                    final selectedOrder = order.firstWhere(
+                                                      (order) => order.orderId == selectedOrderId,
+                                                    );
 
                                                     if (!context.mounted) {
                                                       return;
@@ -136,13 +124,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                                       context: context,
                                                       builder:
                                                           (_) => PLanningDialog(
-                                                            order:
-                                                                selectedOrder,
-                                                            onPlanningOrder:
-                                                                () =>
-                                                                    loadOrders(
-                                                                      true,
-                                                                    ),
+                                                            order: selectedOrder,
+                                                            onPlanningOrder: () => loadOrders(true),
                                                           ),
                                                     );
                                                   } catch (e, s) {
@@ -155,8 +138,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                                 },
                                         label: "Lên kế hoạch",
                                         icon: Icons.add,
-                                        backgroundColor:
-                                            themeController.buttonColor,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
                                     ],
@@ -180,10 +162,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
@@ -192,11 +171,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.lock_outline,
-                              color: Colors.redAccent,
-                              size: 35,
-                            ),
+                            Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
                             SizedBox(width: 8),
                             Text(
                               "Bạn không có quyền xem chức năng này",
@@ -215,10 +190,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
@@ -245,16 +217,10 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                       StackedHeaderRow(
                         cells: [
                           StackedHeaderCell(
-                            columnNames: [
-                              "qtyManufacture",
-                              "runningPlan",
-                              "quantityProduced",
-                            ],
+                            columnNames: ["qtyManufacture", "runningPlan", "quantityProduced"],
                             child: Obx(
-                              () => formatColumn(
-                                label: 'Số Lượng',
-                                themeController: themeController,
-                              ),
+                              () =>
+                                  formatColumn(label: 'Số Lượng', themeController: themeController),
                             ),
                           ),
                         ],
@@ -283,12 +249,9 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                     onSelectionChanged: (addedRows, removedRows) {
                       if (addedRows.isNotEmpty) {
                         final selectedRow = addedRows.first;
-                        final orderId =
-                            selectedRow.getCells()[0].value.toString();
+                        final orderId = selectedRow.getCells()[0].value.toString();
 
-                        final selectedOrder = data.firstWhere(
-                          (order) => order.orderId == orderId,
-                        );
+                        final selectedOrder = data.firstWhere((order) => order.orderId == orderId);
 
                         setState(() {
                           selectedOrderId = selectedOrder.orderId;

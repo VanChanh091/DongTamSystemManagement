@@ -105,7 +105,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       if (message.contains('403')) {
         showSnackBarError(context, 'Bạn không có quyền báo cáo máy này.');
       } else {
-        AppLogger.e("Lỗi khi bá cáo sản xuất", error: e, stackTrace: s);
+        AppLogger.e("Lỗi khi báo cáo sản xuất", error: e, stackTrace: s);
         showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
       }
     }
@@ -211,13 +211,12 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         ),
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text(
             "Hủy",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black54),
           ),
         ),
         ElevatedButton(

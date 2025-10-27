@@ -419,7 +419,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
                 ),
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      actionsAlignment: MainAxisAlignment.spaceBetween,
       actions:
           isLoading
               ? []
@@ -428,7 +427,11 @@ class _CustomerDialogState extends State<CustomerDialog> {
                   onPressed: () => Navigator.pop(context),
                   child: const Text(
                     "Hủy",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red),
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
                   ),
                 ),
                 ElevatedButton(

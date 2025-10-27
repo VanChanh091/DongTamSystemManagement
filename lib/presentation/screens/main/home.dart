@@ -10,6 +10,7 @@ import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_box.dart';
 import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
+import 'package:dongtam/presentation/screens/main/employee/employee.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
@@ -77,6 +78,9 @@ class _HomePageState extends State<HomePage> {
       //report
       TopTabReport(),
 
+      //Employee
+      _buildPage(permission: 'HR', child: Employee()),
+
       // admin
       _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),
       _buildPage(roles: ['admin'], child: TopTabAdminPaper()),
@@ -86,14 +90,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget? _buildPage({String? permission, List<String>? roles, Widget? child}) {
-    if (roles != null &&
-        roles.isNotEmpty &&
-        !roles.contains(userController.role.value)) {
+    final role = userController.role.value;
+
+    if (roles != null && roles.isNotEmpty) {
+      if (!roles.contains(role)) return null;
+    } else {
+      if (role == "admin" || role == "manager") return child;
+    }
+
+    if (roles != null && roles.isNotEmpty && !roles.contains(role)) {
       return null;
     }
+
     if (permission != null && !userController.hasAnyPermission([permission])) {
       return null;
     }
+
     return child;
   }
 
@@ -148,11 +160,7 @@ class _HomePageState extends State<HomePage> {
                       if (_isHovered)
                         _buildLogoSection()
                       else
-                        Image.asset(
-                          'assets/images/logoDT.png',
-                          width: 40,
-                          height: 40,
-                        ),
+                        Image.asset('assets/images/logoDT.png', width: 40, height: 40),
                       const SizedBox(height: 20),
                       //menu
                       Expanded(child: _buildMenuList(pages)),
@@ -203,6 +211,11 @@ class _HomePageState extends State<HomePage> {
             "Lịch Sử Sản Xuất",
             index: pages.indexWhere((w) => w is TopTabReport),
           ),
+          _buildSidebarItem(
+            Symbols.people_outline,
+            "Nhân Viên",
+            index: pages.indexWhere((w) => w is Employee),
+          ),
           _buildApprovalMenu(pages),
           _buildSidebarItem(
             Icons.color_lens,
@@ -225,8 +238,7 @@ class _HomePageState extends State<HomePage> {
 
     return Obx(() {
       final selected = sidebarController.selectedIndex.value;
-      final isParentSelected =
-          selected == waitingIndex || selected == planningIndex;
+      final isParentSelected = selected == waitingIndex || selected == planningIndex;
 
       return Column(
         children: [
@@ -235,21 +247,15 @@ class _HomePageState extends State<HomePage> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 leading: Icon(
                   Icons.schedule,
-                  color:
-                      isParentSelected
-                          ? const Color.fromARGB(255, 252, 220, 41)
-                          : Colors.white,
+                  color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
                 ),
                 title: Text(
                   "Kế Hoạch",
                   style: TextStyle(
                     color:
-                        isParentSelected
-                            ? const Color.fromARGB(255, 252, 220, 41)
-                            : Colors.white,
+                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
                     fontSize: 18,
-                    fontWeight:
-                        isParentSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
                 trailing: Icon(
@@ -257,10 +263,7 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.white,
                   size: 20,
                 ),
-                onTap:
-                    () => setState(
-                      () => _isPlanningExpanded = !_isPlanningExpanded,
-                    ),
+                onTap: () => setState(() => _isPlanningExpanded = !_isPlanningExpanded),
               )
               : Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -268,19 +271,13 @@ class _HomePageState extends State<HomePage> {
                   child: Icon(
                     Icons.schedule,
                     color:
-                        isParentSelected
-                            ? const Color.fromARGB(255, 252, 220, 41)
-                            : Colors.white,
+                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
                   ),
                 ),
               ),
           if (_isHovered && _isPlanningExpanded) ...[
             if (waitingIndex != -1)
-              _buildSubMenuItem(
-                Icons.outbox_rounded,
-                "Chờ Lên Kế Hoạch",
-                waitingIndex,
-              ),
+              _buildSubMenuItem(Icons.outbox_rounded, "Chờ Lên Kế Hoạch", waitingIndex),
             if (planningIndex != -1)
               _buildSubMenuItem(
                 Icons.production_quantity_limits_outlined,
@@ -313,34 +310,23 @@ class _HomePageState extends State<HomePage> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 leading: Icon(
                   Symbols.manufacturing,
-                  color:
-                      isParentSelected
-                          ? const Color.fromARGB(255, 252, 220, 41)
-                          : Colors.white,
+                  color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
                 ),
                 title: Text(
                   "Sản Xuất",
                   style: TextStyle(
                     color:
-                        isParentSelected
-                            ? const Color.fromARGB(255, 252, 220, 41)
-                            : Colors.white,
+                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
                     fontSize: 18,
-                    fontWeight:
-                        isParentSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
                 trailing: Icon(
-                  _isManufactureExpanded
-                      ? Icons.expand_less
-                      : Icons.expand_more,
+                  _isManufactureExpanded ? Icons.expand_less : Icons.expand_more,
                   color: Colors.white,
                   size: 20,
                 ),
-                onTap:
-                    () => setState(
-                      () => _isManufactureExpanded = !_isManufactureExpanded,
-                    ),
+                onTap: () => setState(() => _isManufactureExpanded = !_isManufactureExpanded),
               )
               : Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -348,17 +334,13 @@ class _HomePageState extends State<HomePage> {
                   child: Icon(
                     Symbols.manufacturing,
                     color:
-                        isParentSelected
-                            ? const Color.fromARGB(255, 252, 220, 41)
-                            : Colors.white,
+                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
                   ),
                 ),
               ),
           if (_isHovered && _isManufactureExpanded) ...[
-            if (paperIndex != -1)
-              _buildSubMenuItem(Icons.article, "Giấy Tấm", paperIndex),
-            if (boxIndex != -1)
-              _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", boxIndex),
+            if (paperIndex != -1) _buildSubMenuItem(Icons.article, "Giấy Tấm", paperIndex),
+            if (boxIndex != -1) _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", boxIndex),
           ],
         ],
       );
@@ -400,29 +382,21 @@ class _HomePageState extends State<HomePage> {
                     return Icon(
                       Icons.admin_panel_settings,
                       color:
-                          isParentSelected
-                              ? const Color.fromARGB(255, 252, 220, 41)
-                              : Colors.white,
+                          isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
                     );
                   }
                   return Badge.count(
                     count: count,
-                    child: const Icon(
-                      Icons.admin_panel_settings,
-                      color: Colors.white,
-                    ),
+                    child: const Icon(Icons.admin_panel_settings, color: Colors.white),
                   );
                 }),
                 title: Text(
                   "Quản Lý",
                   style: TextStyle(
                     color:
-                        isParentSelected
-                            ? const Color.fromARGB(255, 252, 220, 41)
-                            : Colors.white,
+                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
                     fontSize: 18,
-                    fontWeight:
-                        isParentSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
                 trailing: Icon(
@@ -472,32 +446,18 @@ class _HomePageState extends State<HomePage> {
                 leadingWrapper: Obx(() {
                   final count = badgesController.numberBadges.value;
                   if (count == 0) {
-                    return const Icon(
-                      Icons.pending_actions,
-                      color: Colors.white,
-                    );
+                    return const Icon(Icons.pending_actions, color: Colors.white);
                   }
                   return Badge.count(
                     count: count,
-                    child: const Icon(
-                      Icons.pending_actions,
-                      color: Colors.white,
-                    ),
+                    child: const Icon(Icons.pending_actions, color: Colors.white),
                   );
                 }),
               ),
             if (adminPaperIndex != -1)
-              _buildSubMenuItem(
-                Icons.gif_box,
-                "Máy Sóng Và Phế Liệu",
-                adminPaperIndex,
-              ),
+              _buildSubMenuItem(Icons.gif_box, "Máy Sóng Và Phế Liệu", adminPaperIndex),
             if (adminBoxIndex != -1)
-              _buildSubMenuItem(
-                Icons.gif_box,
-                "In Ấn Và Phế Liệu",
-                adminBoxIndex,
-              ),
+              _buildSubMenuItem(Icons.gif_box, "In Ấn Và Phế Liệu", adminBoxIndex),
             if (manageUserIndex != -1)
               _buildSubMenuItem(Icons.person, "Người Dùng", manageUserIndex),
           ],
@@ -506,24 +466,9 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Widget _buildSidebarItem(
-    IconData icon,
-    String title, {
-    int? index,
-    VoidCallback? onTap,
-  }) {
-    if (index == null) {
-      return _isHovered
-          ? ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-            leading: Icon(icon, color: Colors.white),
-            title: Text(
-              title,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            onTap: onTap,
-          )
-          : SizedBox.shrink();
+  Widget _buildSidebarItem(IconData icon, String title, {int? index, VoidCallback? onTap}) {
+    if (index == null || index == -1) {
+      return const SizedBox.shrink();
     }
 
     // item có index => theo dõi bằng Obx
@@ -535,36 +480,23 @@ class _HomePageState extends State<HomePage> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             leading: Icon(
               icon,
-              color:
-                  isSelected
-                      ? const Color.fromARGB(255, 252, 220, 41)
-                      : Colors.white,
+              color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
             ),
             title: Text(
               title,
               style: TextStyle(
-                color:
-                    isSelected
-                        ? const Color.fromARGB(255, 252, 220, 41)
-                        : Colors.white,
+                color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
                 fontSize: 18,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
-            tileColor:
-                isSelected
-                    ? Colors.white.withValues(alpha: 0.7)
-                    : Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            tileColor: isSelected ? Colors.white.withValues(alpha: 0.7) : Colors.transparent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             onTap: () async {
               if (onTap != null) {
                 onTap();
               } else {
-                bool canNavigate = await UnsavedChangeDialog(
-                  unsavedChangeController,
-                );
+                bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);
                 if (canNavigate) {
                   sidebarController.changePage(index);
                 }
@@ -576,22 +508,14 @@ class _HomePageState extends State<HomePage> {
             child: Center(
               child: Icon(
                 icon,
-                color:
-                    isSelected
-                        ? const Color.fromARGB(255, 252, 220, 41)
-                        : Colors.white,
+                color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
               ),
             ),
           );
     });
   }
 
-  Widget _buildSubMenuItem(
-    IconData icon,
-    String title,
-    int index, {
-    Widget? leadingWrapper,
-  }) {
+  Widget _buildSubMenuItem(IconData icon, String title, int index, {Widget? leadingWrapper}) {
     if (index == -1) return const SizedBox.shrink();
 
     return Obx(() {
@@ -600,21 +524,12 @@ class _HomePageState extends State<HomePage> {
       return ListTile(
         leading:
             leadingWrapper ??
-            Icon(
-              icon,
-              color:
-                  isSelected
-                      ? const Color.fromARGB(255, 252, 220, 41)
-                      : Colors.white,
-            ),
+            Icon(icon, color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white),
         contentPadding: EdgeInsets.only(left: _isHovered ? 32 : 16),
         title: Text(
           title,
           style: TextStyle(
-            color:
-                isSelected
-                    ? const Color.fromARGB(255, 252, 220, 41)
-                    : Colors.white,
+            color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
             fontSize: 16,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
@@ -641,9 +556,7 @@ class _HomePageState extends State<HomePage> {
         bottomRight: Radius.circular(12),
       ),
       color: color,
-      boxShadow: const [
-        BoxShadow(color: Colors.black26, offset: Offset(3, 0), blurRadius: 10),
-      ],
+      boxShadow: const [BoxShadow(color: Colors.black26, offset: Offset(3, 0), blurRadius: 10)],
     );
   }
 
@@ -652,10 +565,7 @@ class _HomePageState extends State<HomePage> {
     return _isHovered
         ? ListTile(
           leading: const Icon(Icons.logout, color: Colors.white),
-          title: const Text(
-            "Đăng xuất",
-            style: TextStyle(color: Colors.white, fontSize: 18),
-          ),
+          title: const Text("Đăng xuất", style: TextStyle(color: Colors.white, fontSize: 18)),
           onTap: () {
             logout();
             socketService.disconnect();
@@ -677,11 +587,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 5),
           const Text(
             'Bao Bì Đồng Tâm',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -703,10 +609,7 @@ class _HomePageState extends State<HomePage> {
               // Xác định trang hiện tại
               Widget page;
               if (index < 0 || index >= pages.length) {
-                page = Center(
-                  key: ValueKey('not_found'),
-                  child: Text("Trang không tồn tại"),
-                );
+                page = Center(key: ValueKey('not_found'), child: Text("Trang không tồn tại"));
               } else {
                 page = Container(
                   key: ValueKey(index), // key duy nhất cho mỗi trang
@@ -730,10 +633,7 @@ class _HomePageState extends State<HomePage> {
 
                   return FadeTransition(
                     opacity: animation,
-                    child: SlideTransition(
-                      position: offsetAnimation,
-                      child: child,
-                    ),
+                    child: SlideTransition(position: offsetAnimation, child: child),
                   );
                 },
                 child: page,
