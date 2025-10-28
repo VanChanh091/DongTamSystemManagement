@@ -356,7 +356,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                                             (_) => CustomerDialog(
                                                               customer: customers.first,
                                                               onCustomerAddOrUpdate:
-                                                                  () => loadCustomer(false),
+                                                                  () => loadCustomer(true),
                                                             ),
                                                       );
                                                     } catch (e, s) {

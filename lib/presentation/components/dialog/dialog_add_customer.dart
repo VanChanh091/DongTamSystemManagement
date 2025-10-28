@@ -24,8 +24,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
   List<Customer> allCustomers = [];
   bool isLoading = true;
   final List<String> itemRating = ["Xấu", "Bình Thường", "Tốt", "VIP"];
-
   late String typeRating = "Bình Thường";
+
   final _idController = TextEditingController();
   final _nameController = TextEditingController();
   final _companyNameController = TextEditingController();
@@ -39,7 +39,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
   final _dayCreatedController = TextEditingController();
   final _debtLimitController = TextEditingController();
   final _timePaymentController = TextEditingController();
-  final _rateCustomerController = TextEditingController();
   DateTime? dayCreated;
   DateTime? timePayment;
 
@@ -67,10 +66,12 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _phoneController.text = customer.phone;
     _cskhController.text = customer.cskh;
     _contactPersonController.text = customer.contactPerson ?? "";
-
     _debtLimitController.text = widget.customer!.debtLimit?.toString() ?? "0";
-    _rateCustomerController.text = customer.rateCustomer ?? "";
 
+    //dropdown
+    typeRating = customer.rateCustomer ?? "";
+
+    //date
     timePayment = customer.timePayment;
     _timePaymentController.text =
         (timePayment != null) ? DateFormat('dd/MM/yyyy').format(timePayment!) : "";
@@ -221,7 +222,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _dayCreatedController.dispose();
     _debtLimitController.dispose();
     _timePaymentController.dispose();
-    _rateCustomerController.dispose();
     super.dispose();
   }
 
@@ -358,7 +358,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
                                 onTap: () async {
                                   DateTime? pickedDate = await showDatePicker(
                                     context: context,
-                                    initialDate: DateTime.now(),
+                                    initialDate: timePayment ?? DateTime.now(),
                                     firstDate: DateTime.now(),
                                     lastDate: DateTime(2100),
                                     builder: (BuildContext context, Widget? child) {

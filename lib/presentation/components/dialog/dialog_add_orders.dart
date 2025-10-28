@@ -496,7 +496,12 @@ class _OrderDialogState extends State<OrderDialog> {
       Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return;
-      AppLogger.e("Lỗi khi thêm/sửa đơn hàng", error: e, stackTrace: s);
+      if (widget.order == null) {
+        AppLogger.e("Lỗi khi thêm đơn hàng", error: e, stackTrace: s);
+      } else {
+        AppLogger.e("Lỗi khi sửa đơn hàng", error: e, stackTrace: s);
+      }
+
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }
   }

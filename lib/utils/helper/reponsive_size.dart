@@ -16,7 +16,7 @@ class ResponsiveSize {
         baseWidth = 400;
         break;
       case ResponsiveType.medium:
-        baseWidth = 600;
+        baseWidth = 650;
         break;
       case ResponsiveType.large:
         baseWidth = 900;

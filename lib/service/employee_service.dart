@@ -14,12 +14,18 @@ class EmployeeService {
   // get all
   Future<Map<String, dynamic>> getAllEmployees({
     bool refresh = false,
+    bool noPaging = false,
     int? page,
     int? pageSize,
   }) async {
     return HelperService().fetchPaginatedData<EmployeeBasicInfo>(
       endpoint: "employee",
-      queryParameters: {'page': page, 'pageSize': pageSize, 'refresh': refresh},
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        'refresh': refresh,
+        'noPaging': noPaging,
+      },
       fromJson: (json) => EmployeeBasicInfo.fromJson(json),
       dataKey: 'employees',
     );

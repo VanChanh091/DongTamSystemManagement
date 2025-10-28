@@ -311,11 +311,10 @@ class _EmployeeState extends State<Employee> {
                                           onPressed:
                                               isSale
                                                   ? () async {
-                                                    if (selectedEmployeeId == null ||
-                                                        selectedEmployeeId! > 0) {
+                                                    if (selectedEmployeeId == null) {
                                                       showSnackBarError(
                                                         context,
-                                                        'Vui lòng chọn khách hàng cần sửa',
+                                                        'Vui lòng chọn nhân viên cần sửa',
                                                       );
                                                       return;
                                                     }
@@ -345,6 +344,8 @@ class _EmployeeState extends State<Employee> {
                                                               as List<EmployeeBasicInfo>? ??
                                                           [];
 
+                                                      print(employees);
+
                                                       if (employees.isEmpty) {
                                                         showSnackBarError(
                                                           context,
@@ -359,7 +360,7 @@ class _EmployeeState extends State<Employee> {
                                                             (_) => EmployeeDialog(
                                                               employee: employees.first,
                                                               onEmployeeAddOrUpdate:
-                                                                  () => loadEmployee(false),
+                                                                  () => loadEmployee(true),
                                                             ),
                                                       );
                                                     } catch (e, s) {
@@ -488,6 +489,7 @@ class _EmployeeState extends State<Employee> {
 
                               setState(() {
                                 selectedEmployeeId = selectedCustomer.employeeId;
+                                print(selectedEmployeeId);
                               });
                             } else {
                               setState(() {
