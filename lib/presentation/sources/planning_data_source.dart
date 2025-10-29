@@ -26,24 +26,12 @@ class PlanningDataSource extends DataGridSource {
         columnName: 'dateRequestShipping',
         value: formatter.format(order.dateRequestShipping),
       ),
-      DataGridCell<String>(
-        columnName: 'companyName',
-        value: order.customer?.companyName ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: 'typeProduct',
-        value: order.product?.typeProduct ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: 'productName',
-        value: order.product?.productName ?? '',
-      ),
+      DataGridCell<String>(columnName: 'companyName', value: order.customer?.companyName ?? ''),
+      DataGridCell<String>(columnName: 'typeProduct', value: order.product?.typeProduct ?? ''),
+      DataGridCell<String>(columnName: 'productName', value: order.product?.productName ?? ''),
       DataGridCell<String>(columnName: 'flute', value: order.flute ?? ''),
       DataGridCell<String>(columnName: 'QC_box', value: order.QC_box ?? ''),
-      DataGridCell<String>(
-        columnName: 'structure',
-        value: order.formatterStructureOrder,
-      ),
+      DataGridCell<String>(columnName: 'structure', value: order.formatterStructureOrder),
       DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: order.daoXa),
       DataGridCell<String>(
@@ -60,26 +48,11 @@ class PlanningDataSource extends DataGridSource {
                 ? '${Order.formatCurrency(order.paperSizeManufacture)} cm'
                 : "0",
       ),
-      DataGridCell<int>(
-        columnName: 'qtyManufacture',
-        value: order.quantityManufacture,
-      ),
-      DataGridCell<int>(
-        columnName: 'runningPlan',
-        value: order.totalQtyRunningPlan,
-      ),
-      DataGridCell<int>(
-        columnName: 'quantityProduced',
-        value: order.totalQtyProduced,
-      ),
-      DataGridCell<String>(
-        columnName: 'instructSpecial',
-        value: order.instructSpecial ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: 'totalPrice',
-        value: Order.formatCurrency(order.totalPrice),
-      ),
+      DataGridCell<int>(columnName: 'qtyManufacture', value: order.quantityManufacture),
+      DataGridCell<int>(columnName: 'runningPlan', value: order.totalQtyRunningPlan),
+      DataGridCell<int>(columnName: 'quantityProduced', value: order.totalQtyProduced),
+      DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
+      DataGridCell<String>(columnName: 'totalPrice', value: Order.formatCurrency(order.totalPrice)),
       DataGridCell<String>(
         columnName: 'totalPriceAfterVAT',
         value: Order.formatCurrency(order.totalPriceVAT),
@@ -117,11 +90,7 @@ class PlanningDataSource extends DataGridSource {
 
   void buildDataCell() {
     orderDataGridRows =
-        orders
-            .map<DataGridRow>(
-              (order) => DataGridRow(cells: buildOrderCells(order)),
-            )
-            .toList();
+        orders.map<DataGridRow>((order) => DataGridRow(cells: buildOrderCells(order))).toList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
@@ -152,10 +121,7 @@ class PlanningDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(
-              label: formatCellValueBool(dataCell),
-              alignment: alignment,
-            );
+            return formatDataTable(label: formatCellValueBool(dataCell), alignment: alignment);
           }).toList(),
     );
   }

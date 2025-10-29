@@ -8,7 +8,7 @@ class PlanningPaper {
   final DateTime? dayStart, dayCompleted;
   final int ghepKho;
   final double lengthPaperPlanning, sizePaperPLaning;
-  final String? dayReplace, matEReplace, matBReplace, matCReplace;
+  final String? dayReplace, matEReplace, matBReplace, matCReplace, matE2Replace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
   final int runningPlan, numberChild;
   final int? qtyProduced;
@@ -39,6 +39,7 @@ class PlanningPaper {
     this.matEReplace,
     this.matBReplace,
     this.matCReplace,
+    this.matE2Replace,
     this.songEReplace,
     this.songBReplace,
     this.songCReplace,
@@ -78,6 +79,7 @@ class PlanningPaper {
       songCReplace,
       matCReplace,
       songE2Replace,
+      matE2Replace,
     ];
     final formattedParts = <String>[];
 
@@ -116,6 +118,7 @@ class PlanningPaper {
       matEReplace: json['matEReplace'] ?? "",
       matBReplace: json['matBReplace'] ?? "",
       matCReplace: json['matCReplace'] ?? "",
+      matE2Replace: json['matE2Replace'] ?? "",
       songEReplace: json['songEReplace'] ?? "",
       songBReplace: json['songBReplace'] ?? "",
       songCReplace: json['songCReplace'] ?? "",
@@ -142,9 +145,7 @@ class PlanningPaper {
       orderId: json['orderId'] ?? "",
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
       timeOverflowPlanning:
-          json['timeOverFlow'] != null
-              ? TimeOverflowPlanning.fromJson(json['timeOverFlow'])
-              : null,
+          json['timeOverFlow'] != null ? TimeOverflowPlanning.fromJson(json['timeOverFlow']) : null,
     );
   }
 
@@ -155,6 +156,7 @@ class PlanningPaper {
       'matEReplace': matEReplace,
       'matBReplace': matBReplace,
       'matCReplace': matCReplace,
+      'matE2Replace': matE2Replace,
       'songEReplace': songEReplace,
       'songBReplace': songBReplace,
       'songCReplace': songCReplace,

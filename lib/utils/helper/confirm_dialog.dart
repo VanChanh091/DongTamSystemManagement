@@ -54,7 +54,7 @@ Future<void> showLoadingDialog(BuildContext context, {String message = "Äang xá
     barrierDismissible: false,
     barrierLabel: "Loading",
     transitionDuration: const Duration(milliseconds: 300),
-    pageBuilder: (_, __, ___) {
+    pageBuilder: (context, _, _) {
       return Center(
         child: AlertDialog(
           backgroundColor: Colors.white,
@@ -72,7 +72,7 @@ Future<void> showLoadingDialog(BuildContext context, {String message = "Äang xá
     },
 
     // ğŸ’« Animation: fade + scale
-    transitionBuilder: (_, animation, __, child) {
+    transitionBuilder: (_, animation, _, child) {
       return Transform.scale(
         scale: Curves.easeOutBack.transform(animation.value),
         child: Opacity(opacity: animation.value, child: child),

@@ -2,6 +2,7 @@ import 'package:dongtam/data/models/employee/employee_basic_info.dart';
 import 'package:dongtam/data/models/employee/employee_company_info.dart';
 import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/building_card_form.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/validation/validation_employee.dart';
@@ -236,370 +237,259 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
                       children: [
                         //basic info
                         const SizedBox(height: 10),
-                        const Text(
-                          "Thông Tin Cơ Bản",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xffF2E873),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.all(15),
-                          child: Column(
-                            children: [
+                        buildingCard(
+                          title: "Thông Tin Cơ Bản",
+                          children: [
+                            buildFieldRow([
                               ValidationEmployee.validateInput(
                                 label: "Tên Nhân Viên",
                                 controller: _fullNameController,
                                 icon: Symbols.person,
                               ),
-
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Số Điện Thoại",
-                                      controller: _phoneNumberController,
-                                      icon: Symbols.phone,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ValidationOrder.dropdownForTypes(
-                                      itemGender,
-                                      typeGender,
-                                      (value) {
-                                        setState(() {
-                                          typeGender = value!;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ],
+                            ]),
+                            buildFieldRow([
+                              ValidationEmployee.validateInput(
+                                label: "Số Điện Thoại",
+                                controller: _phoneNumberController,
+                                icon: Symbols.phone,
+                              ),
+                              ValidationOrder.dropdownForTypes(itemGender, typeGender, (value) {
+                                setState(() {
+                                  typeGender = value!;
+                                });
+                              }),
+                            ]),
+                            buildFieldRow([
+                              ValidationOrder.validateInput(
+                                "Ngày Sinh",
+                                _birthdayController,
+                                Symbols.calendar_month,
+                                readOnly: true,
+                                onTap: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: birthday ?? DateTime.now(),
+                                    firstDate: DateTime(1970),
+                                    lastDate: DateTime(2100),
+                                    builder: (BuildContext context, Widget? child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: ColorScheme.light(
+                                            primary: Colors.blue,
+                                            onPrimary: Colors.white,
+                                            onSurface: Colors.black,
+                                          ),
+                                          dialogTheme: DialogThemeData(
+                                            backgroundColor: Colors.white12,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
+                                    },
+                                  );
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      birthday = pickedDate;
+                                      _birthdayController.text = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(pickedDate);
+                                    });
+                                  }
+                                },
                               ),
 
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ValidationOrder.validateInput(
-                                      "Ngày Sinh",
-                                      _birthdayController,
-                                      Symbols.calendar_month,
-                                      readOnly: true,
-                                      onTap: () async {
-                                        DateTime? pickedDate = await showDatePicker(
-                                          context: context,
-                                          initialDate: birthday ?? DateTime.now(),
-                                          firstDate: DateTime(1970),
-                                          lastDate: DateTime(2100),
-                                          builder: (BuildContext context, Widget? child) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                colorScheme: ColorScheme.light(
-                                                  primary: Colors.blue,
-                                                  onPrimary: Colors.white,
-                                                  onSurface: Colors.black,
-                                                ),
-                                                dialogTheme: DialogThemeData(
-                                                  backgroundColor: Colors.white12,
-                                                ),
-                                              ),
-                                              child: child!,
-                                            );
-                                          },
-                                        );
-                                        if (pickedDate != null) {
-                                          setState(() {
-                                            birthday = pickedDate;
-                                            _birthdayController.text = DateFormat(
-                                              'dd/MM/yyyy',
-                                            ).format(pickedDate);
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Nơi Sinh",
-                                      controller: _birthPlaceController,
-                                      icon: Symbols.place,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Nguyên Quán",
-                                      controller: _homeTownController,
-                                      icon: Symbols.home_pin,
-                                    ),
-                                  ),
-                                ],
+                              ValidationEmployee.validateInput(
+                                label: "Nơi Sinh",
+                                controller: _birthPlaceController,
+                                icon: Symbols.place,
                               ),
-
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Trình Độ Văn Hóa",
-                                      controller: _educationLevelController,
-                                      icon: Symbols.book_ribbon,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Hệ Đào Tạo",
-                                      controller: _educationSystemController,
-                                      icon: Symbols.book_5,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Chuyên Ngành",
-                                      controller: _majorController,
-                                      icon: Symbols.menu_book,
-                                    ),
-                                  ),
-                                ],
+                              ValidationEmployee.validateInput(
+                                label: "Nguyên Quán",
+                                controller: _homeTownController,
+                                icon: Symbols.home_pin,
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-
-                        //CCCD info
-                        const Text(
-                          "Thông Tin CCCD",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ]),
+                            buildFieldRow([
+                              ValidationEmployee.validateInput(
+                                label: "Trình Độ Văn Hóa",
+                                controller: _educationLevelController,
+                                icon: Symbols.book_ribbon,
+                              ),
+                              ValidationEmployee.validateInput(
+                                label: "Hệ Đào Tạo",
+                                controller: _educationSystemController,
+                                icon: Symbols.book_5,
+                              ),
+                              ValidationEmployee.validateInput(
+                                label: "Chuyên Ngành",
+                                controller: _majorController,
+                                icon: Symbols.menu_book,
+                              ),
+                            ]),
+                          ],
                         ),
                         const SizedBox(height: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xffF2E873),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.all(15),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Số CCCD",
-                                      controller: _citizenIdController,
-                                      icon: Symbols.numbers,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    flex: 1,
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Dân Tộc",
-                                      controller: _ethnicityController,
-                                      icon: Symbols.accessibility,
-                                    ),
-                                  ),
-                                ],
+
+                        //CCCD info
+                        buildingCard(
+                          title: "Thông Tin CCCD",
+                          children: [
+                            buildFieldRow([
+                              ValidationEmployee.validateInput(
+                                label: "Số CCCD",
+                                controller: _citizenIdController,
+                                icon: Symbols.numbers,
+                              ),
+                              ValidationEmployee.validateInput(
+                                label: "Dân Tộc",
+                                controller: _ethnicityController,
+                                icon: Symbols.accessibility,
+                              ),
+                            ]),
+                            buildFieldRow([
+                              ValidationOrder.validateInput(
+                                "Ngày Cấp",
+                                _citizenIssuedDateController,
+                                Symbols.calendar_month,
+                                readOnly: true,
+                                onTap: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: citizenIssuedDate ?? DateTime.now(),
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2100),
+                                    builder: (BuildContext context, Widget? child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: ColorScheme.light(
+                                            primary: Colors.blue,
+                                            onPrimary: Colors.white,
+                                            onSurface: Colors.black,
+                                          ),
+                                          dialogTheme: DialogThemeData(
+                                            backgroundColor: Colors.white12,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
+                                    },
+                                  );
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      citizenIssuedDate = pickedDate;
+                                      _citizenIssuedDateController.text = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(pickedDate);
+                                    });
+                                  }
+                                },
                               ),
 
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ValidationOrder.validateInput(
-                                      "Ngày Cấp",
-                                      _citizenIssuedDateController,
-                                      Symbols.calendar_month,
-                                      readOnly: true,
-                                      onTap: () async {
-                                        DateTime? pickedDate = await showDatePicker(
-                                          context: context,
-                                          initialDate: citizenIssuedDate ?? DateTime.now(),
-                                          firstDate: DateTime(2020),
-                                          lastDate: DateTime(2100),
-                                          builder: (BuildContext context, Widget? child) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                colorScheme: ColorScheme.light(
-                                                  primary: Colors.blue,
-                                                  onPrimary: Colors.white,
-                                                  onSurface: Colors.black,
-                                                ),
-                                                dialogTheme: DialogThemeData(
-                                                  backgroundColor: Colors.white12,
-                                                ),
-                                              ),
-                                              child: child!,
-                                            );
-                                          },
-                                        );
-                                        if (pickedDate != null) {
-                                          setState(() {
-                                            citizenIssuedDate = pickedDate;
-                                            _citizenIssuedDateController.text = DateFormat(
-                                              'dd/MM/yyyy',
-                                            ).format(pickedDate);
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Nơi Cấp",
-                                      controller: _citizenIssuedPlaceController,
-                                      icon: Symbols.location_on,
-                                    ),
-                                  ),
-                                ],
+                              ValidationEmployee.validateInput(
+                                label: "Nơi Cấp",
+                                controller: _citizenIssuedPlaceController,
+                                icon: Symbols.location_on,
                               ),
-
-                              const SizedBox(height: 15),
+                            ]),
+                            buildFieldRow([
                               ValidationEmployee.validateInput(
                                 label: "ĐC Thường Trú",
                                 controller: _permanentAddressController,
                                 icon: Symbols.add_location,
                               ),
-                              const SizedBox(height: 15),
+                            ]),
+                            buildFieldRow([
                               ValidationEmployee.validateInput(
                                 label: "ĐC Tạm Trú",
                                 controller: _temporaryAddressController,
                                 icon: Symbols.edit_location,
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-
-                        //company info
-                        const Text(
-                          "Thông Tin Trong CTY",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ]),
+                          ],
                         ),
                         const SizedBox(height: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xffF2E873),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.all(15),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Mã Nhân Viên",
-                                      controller: _employeeCodeController,
-                                      icon: Symbols.person_pin,
-                                      readOnly: isEdit,
-                                      allEmployees: allEmployees,
-                                      currentEmployeeId: widget.employee?.employeeId,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ValidationOrder.validateInput(
-                                      "Ngày Tham Gia",
-                                      _joinDateController,
-                                      Symbols.calendar_month,
-                                      readOnly: true,
-                                      onTap: () async {
-                                        DateTime? pickedDate = await showDatePicker(
-                                          context: context,
-                                          initialDate: joinDate ?? DateTime.now(),
-                                          firstDate: DateTime(2019),
-                                          lastDate: DateTime(2100),
-                                          builder: (BuildContext context, Widget? child) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                colorScheme: ColorScheme.light(
-                                                  primary: Colors.blue,
-                                                  onPrimary: Colors.white,
-                                                  onSurface: Colors.black,
-                                                ),
-                                                dialogTheme: DialogThemeData(
-                                                  backgroundColor: Colors.white12,
-                                                ),
-                                              ),
-                                              child: child!,
-                                            );
-                                          },
-                                        );
-                                        if (pickedDate != null) {
-                                          setState(() {
-                                            joinDate = pickedDate;
-                                            _joinDateController.text = DateFormat(
-                                              'dd/MM/yyyy',
-                                            ).format(pickedDate);
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
 
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Bộ Phận",
-                                      controller: _departmentController,
-                                      icon: Symbols.business,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Chức Vụ",
-                                      controller: _positionController,
-                                      icon: Symbols.home_repair_service,
-                                    ),
-                                  ),
-                                ],
+                        //company info
+                        buildingCard(
+                          title: "Thông Tin Trong CTY",
+                          children: [
+                            buildFieldRow([
+                              ValidationEmployee.validateInput(
+                                label: "Mã Nhân Viên",
+                                controller: _employeeCodeController,
+                                icon: Symbols.person_pin,
+                                readOnly: isEdit,
+                                allEmployees: allEmployees,
+                                currentEmployeeId: widget.employee?.employeeId,
                               ),
-
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ValidationEmployee.validateInput(
-                                      label: "Số Liên Hệ Khẩn Cấp",
-                                      controller: _emergencyPhoneController,
-                                      icon: Symbols.emergency,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ValidationOrder.dropdownForTypes(
-                                      itemStatusWorking,
-                                      typeStatusWorking,
-                                      (value) {
-                                        setState(() {
-                                          typeStatusWorking = value!;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ],
+                              ValidationOrder.validateInput(
+                                "Ngày Tham Gia",
+                                _joinDateController,
+                                Symbols.calendar_month,
+                                readOnly: true,
+                                onTap: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: joinDate ?? DateTime.now(),
+                                    firstDate: DateTime(2019),
+                                    lastDate: DateTime(2100),
+                                    builder: (BuildContext context, Widget? child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: ColorScheme.light(
+                                            primary: Colors.blue,
+                                            onPrimary: Colors.white,
+                                            onSurface: Colors.black,
+                                          ),
+                                          dialogTheme: DialogThemeData(
+                                            backgroundColor: Colors.white12,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
+                                    },
+                                  );
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      joinDate = pickedDate;
+                                      _joinDateController.text = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(pickedDate);
+                                    });
+                                  }
+                                },
                               ),
-                            ],
-                          ),
+                            ]),
+                            buildFieldRow([
+                              ValidationEmployee.validateInput(
+                                label: "Bộ Phận",
+                                controller: _departmentController,
+                                icon: Symbols.business,
+                              ),
+                              ValidationEmployee.validateInput(
+                                label: "Chức Vụ",
+                                controller: _positionController,
+                                icon: Symbols.home_repair_service,
+                              ),
+                            ]),
+                            buildFieldRow([
+                              ValidationEmployee.validateInput(
+                                label: "Số Liên Hệ Khẩn Cấp",
+                                controller: _emergencyPhoneController,
+                                icon: Symbols.emergency,
+                              ),
+                              ValidationOrder.dropdownForTypes(
+                                itemStatusWorking,
+                                typeStatusWorking,
+                                (value) {
+                                  setState(() {
+                                    typeStatusWorking = value!;
+                                  });
+                                },
+                              ),
+                            ]),
+                          ],
                         ),
-                        const SizedBox(height: 20),
                       ],
                     ),
                   ),

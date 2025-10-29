@@ -8,6 +8,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_machine
 import 'package:dongtam/presentation/sources/machine_paper_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -16,6 +17,7 @@ import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -880,7 +882,16 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                           setState: setState,
                         ),
 
+                    //  final isShiftPressed = HardwareKeyboard.instance.logicalKeysPressed.contains(
+                    //                         LogicalKeyboardKey.shiftLeft,
+                    //                       );
                     onSelectionChanged: (addedRows, removedRows) {
+                      if (addedRows.isEmpty) return;
+
+                      final isShiftPressed = HardwareKeyboard.instance.logicalKeysPressed.contains(
+                        LogicalKeyboardKey.shiftLeft,
+                      );
+
                       final selectedRow = addedRows.first;
                       final planningPaperId =
                           selectedRow
@@ -890,10 +901,16 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               .toString();
 
                       setState(() {
-                        if (selectedPlanningIds.contains(planningPaperId)) {
-                          selectedPlanningIds.remove(planningPaperId);
+                        if (isShiftPressed) {
+                          if (selectedPlanningIds.contains(planningPaperId)) {
+                            selectedPlanningIds.remove(planningPaperId);
+                          } else {
+                            selectedPlanningIds.add(planningPaperId);
+                          }
                         } else {
-                          selectedPlanningIds.add(planningPaperId);
+                          selectedPlanningIds
+                            ..clear()
+                            ..add(planningPaperId);
                         }
 
                         machinePaperDatasource.selectedPlanningIds = selectedPlanningIds;
@@ -923,13 +940,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   Future<void> handlePlanningAction({
     required BuildContext context,
     required List<String> selectedPlanningIds,
-    List<PlanningPaper>? planningList,
     required String status,
     required String title,
     required String message,
     required String successMessage,
     required String errorMessage,
     required VoidCallback onSuccess,
+    List<PlanningPaper>? planningList,
   }) async {
     if (selectedPlanningIds.isEmpty) {
       showSnackBarError(context, "Chưa chọn kế hoạch cần thực hiện");
@@ -979,47 +996,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     }
 
     //UI
-    bool confirm =
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-              content: Text(
-                message,
-                style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text(
-                    "Huỷ",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffEA4346),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text(
-                    "Xác nhận",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
+    bool confirm = await showConfirmDialog(
+      context: context,
+      title: title,
+      content: message,
+      confirmText: "Xác nhận",
+      confirmColor: const Color(0xffEA4346),
+    );
 
     if (confirm) {
       try {

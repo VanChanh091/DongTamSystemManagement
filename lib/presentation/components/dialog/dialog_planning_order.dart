@@ -1,12 +1,14 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/utils/helper/building_card_form.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:dongtam/utils/validation/validation_planning.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
@@ -35,6 +37,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final matEOrderController = TextEditingController();
   final matBOrderController = TextEditingController();
   final matCOrderController = TextEditingController();
+  final matE2OrderController = TextEditingController();
   final songEOrderController = TextEditingController();
   final songBOrderController = TextEditingController();
   final songCOrderController = TextEditingController();
@@ -57,6 +60,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final matEReplaceController = TextEditingController();
   final matBReplaceController = TextEditingController();
   final matCReplaceController = TextEditingController();
+  final matE2ReplaceController = TextEditingController();
   final songEReplaceController = TextEditingController();
   final songBReplaceController = TextEditingController();
   final songCReplaceController = TextEditingController();
@@ -67,6 +71,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final quantityPLanningsController = TextEditingController();
   final numberLayerPaperController = TextEditingController();
   ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
+  final structureController = TextEditingController();
 
   //paper consumption norm
   final dayController = TextEditingController();
@@ -88,6 +93,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     numberChildController.addListener(calculateDefaultGhepKho);
     sizePaperPLaningController.addListener(calculateDefaultGhepKho);
+
+    _listenStructureChanges();
   }
 
   void orderInitState() {
@@ -102,6 +109,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     matEOrderController.text = order.matE.toString();
     matBOrderController.text = order.matB.toString();
     matCOrderController.text = order.matC.toString();
+    matE2OrderController.text = order.matE2.toString();
     songEOrderController.text = order.songE.toString();
     songBOrderController.text = order.songB.toString();
     songCOrderController.text = order.songC.toString();
@@ -125,18 +133,83 @@ class _PLanningDialogState extends State<PLanningDialog> {
     int leftQty =
         (int.tryParse(quantityOrderController.text) ?? 0) - (widget.order?.totalQtyProduced ?? 0);
 
-    dayReplaceController.text = dayOrderController.text;
-    matEReplaceController.text = matEOrderController.text;
-    matBReplaceController.text = matBOrderController.text;
-    matCReplaceController.text = matCOrderController.text;
-    songEReplaceController.text = songEOrderController.text;
-    songBReplaceController.text = songBOrderController.text;
-    songCReplaceController.text = songCOrderController.text;
-    songE2ReplaceController.text = songE2OrderController.text;
-    lengthPaperPlanningController.text = lengthOrderController.text;
-    sizePaperPLaningController.text = sizeOrderController.text;
+    final fieldPairs = {
+      dayReplaceController: dayOrderController,
+      matEReplaceController: matEOrderController,
+      matBReplaceController: matBOrderController,
+      matCReplaceController: matCOrderController,
+      matE2ReplaceController: matE2OrderController,
+      songEReplaceController: songEOrderController,
+      songBReplaceController: songBOrderController,
+      songCReplaceController: songCOrderController,
+      songE2ReplaceController: songE2OrderController,
+      lengthPaperPlanningController: lengthOrderController,
+      sizePaperPLaningController: sizeOrderController,
+    };
+
+    fieldPairs.forEach((target, source) {
+      target.text = source.text;
+    });
+
     runningPlanController.text = leftQty.toString();
     fluteController.text = extractNumbers(songController.text);
+
+    //structure replace
+    _updateStructureController();
+  }
+
+  String formatterStructureOrder({
+    required String dayReplace,
+    required String songEReplace,
+    required String matEReplace,
+    required String songBReplace,
+    required String matBReplace,
+    required String songCReplace,
+    required String matCReplace,
+    required String songE2Replace,
+    required String matE2Replace,
+  }) {
+    return [
+      dayReplace,
+      songEReplace,
+      matEReplace,
+      songBReplace,
+      matBReplace,
+      songCReplace,
+      matCReplace,
+      songE2Replace,
+      matE2Replace,
+    ].where((e) => e.trim().isNotEmpty).join('/');
+  }
+
+  void _updateStructureController() {
+    structureController.text = formatterStructureOrder(
+      dayReplace: dayReplaceController.text,
+      songEReplace: songEReplaceController.text,
+      matEReplace: matEReplaceController.text,
+      songBReplace: songBReplaceController.text,
+      matBReplace: matBReplaceController.text,
+      songCReplace: songCReplaceController.text,
+      matCReplace: matCReplaceController.text,
+      songE2Replace: songE2ReplaceController.text,
+      matE2Replace: matE2ReplaceController.text,
+    );
+  }
+
+  void _listenStructureChanges() {
+    for (final ctrl in [
+      dayReplaceController,
+      songEReplaceController,
+      matEReplaceController,
+      songBReplaceController,
+      matBReplaceController,
+      songCReplaceController,
+      matCReplaceController,
+      songE2ReplaceController,
+      matE2ReplaceController,
+    ]) {
+      ctrl.addListener(_updateStructureController);
+    }
   }
 
   void calculateDefaultGhepKho() {
@@ -183,6 +256,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       matEReplace: matEReplaceController.text,
       matBReplace: matBReplaceController.text,
       matCReplace: matCReplaceController.text,
+      matE2Replace: matE2ReplaceController.text,
       songEReplace: songEReplaceController.text,
       songBReplace: songBReplaceController.text,
       songCReplace: songCReplaceController.text,
@@ -227,6 +301,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     matEOrderController.dispose();
     matBOrderController.dispose();
     matCOrderController.dispose();
+    matE2OrderController.dispose();
     songEOrderController.dispose();
     songBOrderController.dispose();
     songCOrderController.dispose();
@@ -246,6 +321,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     matEReplaceController.dispose();
     matBReplaceController.dispose();
     matCReplaceController.dispose();
+    matE2ReplaceController.dispose();
     songEReplaceController.dispose();
     songBReplaceController.dispose();
     songCReplaceController.dispose();
@@ -262,261 +338,44 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> orders = [
+    final List<Map<String, String>> orderInfoRows = [
       {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Mã Đơn Hàng",
-              orderIdController,
-              Symbols.orders,
-              readOnly: true,
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Tên Khách Hàng",
-              customerNameController,
-              Symbols.person,
-              readOnly: true,
-            ),
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Tên Công Ty",
-              companyNameController,
-              Symbols.business,
-              readOnly: true,
-            ),
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Ngày Giao Hàng",
-              dateShippingController, //fix here
-              Symbols.calendar_month,
-              readOnly: true,
-            ),
+        "leftKey": "Mã Đơn Hàng",
+        "leftValue": orderIdController.text,
+        "rightKey": "Kết Cấu Giấy",
+        "rightValue": widget.order!.formatterStructureOrder,
       },
-
       {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Đáy (g)",
-              dayOrderController,
-              Symbols.vertical_align_bottom,
-              readOnly: true,
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Mặt E (g)",
-              matEOrderController,
-              Symbols.vertical_align_center,
-              readOnly: true,
-            ),
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Mặt B (g)",
-              matBOrderController,
-              Symbols.vertical_align_center,
-              readOnly: true,
-            ),
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Mặt C (g)",
-              matCOrderController,
-              Symbols.vertical_align_top,
-              readOnly: true,
-            ),
+        "leftKey": "Ngày Giao Hàng",
+        "leftValue": dateShippingController.text,
+        "rightKey": "Số Lượng SX",
+        "rightValue": quantityOrderController.text,
       },
-
       {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Sóng E (g)",
-              songEOrderController,
-              Symbols.airwave,
-              readOnly: true,
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Sóng B (g)",
-              songBOrderController,
-              Symbols.airwave,
-              readOnly: true,
-            ),
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Sóng C (g)",
-              songCOrderController,
-              Symbols.airwave,
-              readOnly: true,
-            ),
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Sóng E2 (g)",
-              songE2OrderController,
-              Symbols.airwave,
-              readOnly: true,
-            ),
+        "leftKey": "Khách Hàng",
+        "leftValue": customerNameController.text,
+        "rightKey": "Dài SX (cm)",
+        "rightValue": lengthOrderController.text,
       },
-
       {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Khổ sản xuất (cm)",
-              sizeOrderController,
-              Symbols.horizontal_distribute,
-              readOnly: true,
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Dài sản xuất (cm)",
-              lengthOrderController,
-              Symbols.vertical_distribute,
-              readOnly: true,
-            ),
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Số lượng (SX)",
-              quantityOrderController,
-              Symbols.filter_9_plus,
-              readOnly: true,
-            ),
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Doanh số",
-              totalPriceOrderController,
-              Symbols.filter_9_plus,
-              readOnly: true,
-            ),
+        "leftKey": "Công Ty",
+        "leftValue": companyNameController.text,
+        "rightKey": "Khổ SX (cm)",
+        "rightValue": sizeOrderController.text,
       },
-
       {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Sóng",
-              songController,
-              Symbols.waves,
-              readOnly: true,
-            ),
-
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "QC Thùng",
-              qcBoxController,
-              Symbols.deployed_code,
-              readOnly: true,
-            ),
-
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Dao Xả",
-              daoXaOrderController,
-              Symbols.cut,
-              readOnly: true,
-            ),
-
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Hướng dẫn đặc biệt",
-              instructSpecialController,
-              Symbols.description,
-              readOnly: true,
-            ),
+        "leftKey": "QC Thùng",
+        "leftValue": qcBoxController.text,
+        "rightKey": "Doanh Số",
+        "rightValue": totalPriceOrderController.text,
       },
-    ];
-
-    final List<Map<String, dynamic>> planning = [
       {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Đáy thay thế (g)",
-              dayReplaceController,
-              Symbols.vertical_align_bottom,
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Mặt E thay thế (g)",
-              matEReplaceController,
-              Symbols.vertical_align_center,
-            ),
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Mặt B thay thế (g)",
-              matBReplaceController,
-              Symbols.vertical_align_center,
-            ),
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Mặt C thay thế (g)",
-              matCReplaceController,
-              Symbols.vertical_align_top,
-            ),
+        "leftKey": "Sóng",
+        "leftValue": songController.text,
+        "rightKey": "Hướng Dẫn Đặc Biệt",
+        "rightValue": instructSpecialController.text,
       },
-
-      {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Sóng E thay thế (g)",
-              songEReplaceController,
-              Symbols.airwave,
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Sóng B thay thế (g)",
-              songBReplaceController,
-              Symbols.airwave,
-            ),
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Sóng C thay thế (g)",
-              songCReplaceController,
-              Symbols.airwave,
-            ),
-        'right':
-            () => ValidationPlanning.validateInput(
-              "Sóng E2 thay thế (g)",
-              songE2ReplaceController,
-              Symbols.airwave,
-            ),
-      },
-
-      {
-        'left':
-            () => ValidationPlanning.validateInput(
-              "Dài sản xuất (cm)",
-              lengthPaperPlanningController,
-              Symbols.horizontal_distribute,
-            ),
-        'middle_1':
-            () => ValidationPlanning.validateInput(
-              "Khổ sản xuất (cm)",
-              sizePaperPLaningController,
-              Symbols.horizontal_distribute,
-            ),
-        'middle_2':
-            () => ValidationPlanning.validateInput(
-              "Kế hoạch chạy",
-              runningPlanController,
-              Symbols.production_quantity_limits,
-            ),
-        'right':
-            () => ValidationPlanning.validateInput("Số Lớp Sóng", fluteController, Symbols.stacks),
-      },
-
-      {
-        'left':
-            () => ValidationPlanning.validateInput("Ghép Khổ", ghepKhoController, Symbols.layers),
-
-        'middle_1':
-            () => ValidationOrder.dropdownForTypes(machineList, chooseMachine, (value) {
-              setState(() {
-                chooseMachine = value!;
-              });
-            }),
-
-        'middle_2':
-            () =>
-                ValidationPlanning.validateInput("Số Con", numberChildController, Symbols.numbers),
-
-        'right': () => SizedBox(),
-      },
+      {"leftKey": "Dao Xả", "leftValue": daoXaOrderController.text},
     ];
 
     return StatefulBuilder(
@@ -531,104 +390,221 @@ class _PLanningDialogState extends State<PLanningDialog> {
               child: Form(
                 key: formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    //Order
                     const SizedBox(height: 10),
-                    const Text(
-                      "Đơn Hàng",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xffF2E873),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.all(15),
-                      child: Column(
-                        children:
-                            orders.map((row) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 15),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: row['left'] is Function ? row['left']() : row['left'],
-                                    ),
-                                    const SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['middle_1'] is Function
-                                              ? row['middle_1']()
-                                              : row['middle_1'],
-                                    ),
-                                    const SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['middle_2'] is Function
-                                              ? row['middle_2']()
-                                              : row['middle_2'],
-                                    ),
-                                    const SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['right'] is Function ? row['right']() : row['right'],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                    //order
+                    buildingCard(
+                      title: "📦 Thông Tin Đơn Hàng",
+                      children:
+                          orderInfoRows.map((row) {
+                            final leftKey = row['leftKey']?.toString().trim() ?? '';
+                            final leftValue = row['leftValue']?.toString().trim() ?? '';
+                            final rightKey = row['rightKey']?.toString().trim() ?? '';
+                            final rightValue = row['rightValue']?.toString().trim() ?? '';
 
-                    // Planning
-                    const Text(
-                      "Kế Hoạch",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xffF2E873),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.all(15),
-                      child: Column(
-                        children:
-                            planning.map((row) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 15),
-                                child: Row(
+                            // Nếu tất cả đều rỗng -> bỏ qua
+                            final isEmptyRow = [
+                              leftKey,
+                              leftValue,
+                              rightKey,
+                              rightValue,
+                            ].every((e) => e.isEmpty);
+
+                            if (isEmptyRow) return const SizedBox.shrink();
+
+                            return Column(
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    // Left
                                     Expanded(
-                                      child: row['left'] is Function ? row['left']() : row['left'],
+                                      flex: 1,
+                                      child: RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: leftKey.isNotEmpty ? "$leftKey: " : "",
+                                              style: GoogleFonts.inter(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: leftValue.isNotEmpty ? leftValue : "",
+                                              style: GoogleFonts.inter(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 16,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                    const SizedBox(width: 30),
+                                    const SizedBox(width: 25),
+
+                                    // Right
                                     Expanded(
-                                      child:
-                                          row['middle_1'] is Function
-                                              ? row['middle_1']()
-                                              : row['middle_1'],
-                                    ),
-                                    const SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['middle_2'] is Function
-                                              ? row['middle_2']()
-                                              : row['middle_2'],
-                                    ),
-                                    const SizedBox(width: 30),
-                                    Expanded(
-                                      child:
-                                          row['right'] is Function ? row['right']() : row['right'],
+                                      flex: 1,
+                                      child: RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: rightKey.isNotEmpty ? "$rightKey: " : "",
+                                              style: GoogleFonts.inter(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: rightValue.isNotEmpty ? rightValue : "",
+                                              style: GoogleFonts.inter(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 16,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
-                              );
-                            }).toList(),
-                      ),
+                                const Divider(height: 18, thickness: 0.6, color: Color(0xFFE0E0E0)),
+                              ],
+                            );
+                          }).toList(),
                     ),
+                    const SizedBox(height: 15),
+
+                    // planning
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "⚙️ KẾ HOẠCH SẢN XUẤT",
+                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
+                        ),
+                        const SizedBox(height: 15),
+
+                        // 🧾 CẤU TRÚC GIẤY
+                        buildingCard(
+                          title: "🧾 CẤU TRÚC GIẤY",
+                          children: [
+                            buildFieldRow([
+                              ValidationPlanning.validateInput(
+                                "Sóng E thay thế (g)",
+                                songEReplaceController,
+                                Symbols.airwave,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Sóng B thay thế (g)",
+                                songBReplaceController,
+                                Symbols.airwave,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Sóng C thay thế (g)",
+                                songCReplaceController,
+                                Symbols.airwave,
+                              ),
+                            ]),
+                            buildFieldRow([
+                              ValidationPlanning.validateInput(
+                                "Mặt E thay thế (g)",
+                                matEReplaceController,
+                                Symbols.vertical_align_center,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Mặt B thay thế (g)",
+                                matBReplaceController,
+                                Symbols.vertical_align_center,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Mặt C thay thế (g)",
+                                matCReplaceController,
+                                Symbols.vertical_align_top,
+                              ),
+                            ]),
+                            buildFieldRow([
+                              ValidationPlanning.validateInput(
+                                "Đáy thay thế (g)",
+                                dayReplaceController,
+                                Symbols.vertical_align_bottom,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Sóng E2 thay thế (g)",
+                                songE2ReplaceController,
+                                Symbols.airwave,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Sóng E2 thay thế (g)",
+                                songE2ReplaceController,
+                                Symbols.airwave,
+                              ),
+                            ]),
+                            buildFieldRow([
+                              ValidationPlanning.validateInput(
+                                "Kết Cấu Thay thế",
+                                structureController,
+                                Symbols.waves,
+                                readOnly: true,
+                              ),
+                            ]),
+                          ],
+                        ),
+
+                        // 📏 THÔNG SỐ SẢN XUẤT
+                        buildingCard(
+                          title: "📏 THÔNG SỐ SẢN XUẤT",
+                          children: [
+                            buildFieldRow([
+                              ValidationPlanning.validateInput(
+                                "Dài sản xuất (cm)",
+                                lengthPaperPlanningController,
+                                Symbols.horizontal_distribute,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Khổ sản xuất (cm)",
+                                sizePaperPLaningController,
+                                Symbols.horizontal_distribute,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Số Lớp Sóng",
+                                fluteController,
+                                Symbols.stacks,
+                              ),
+                            ]),
+                            buildFieldRow([
+                              ValidationPlanning.validateInput(
+                                "Kế hoạch chạy",
+                                runningPlanController,
+                                Symbols.production_quantity_limits,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Ghép Khổ",
+                                ghepKhoController,
+                                Symbols.layers,
+                              ),
+                              ValidationPlanning.validateInput(
+                                "Số Con",
+                                numberChildController,
+                                Symbols.numbers,
+                              ),
+                            ]),
+                            buildFieldRow([
+                              ValidationOrder.dropdownForTypes(machineList, chooseMachine, (value) {
+                                setState(() => chooseMachine = value!);
+                              }),
+                            ]),
+                          ],
+                        ),
+                      ],
+                    ),
+
                     const SizedBox(height: 20),
                   ],
                 ),

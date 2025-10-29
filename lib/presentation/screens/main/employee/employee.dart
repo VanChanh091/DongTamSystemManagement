@@ -344,8 +344,6 @@ class _EmployeeState extends State<Employee> {
                                                               as List<EmployeeBasicInfo>? ??
                                                           [];
 
-                                                      print(employees);
-
                                                       if (employees.isEmpty) {
                                                         showSnackBarError(
                                                           context,
@@ -489,7 +487,6 @@ class _EmployeeState extends State<Employee> {
 
                               setState(() {
                                 selectedEmployeeId = selectedCustomer.employeeId;
-                                print(selectedEmployeeId);
                               });
                             } else {
                               setState(() {

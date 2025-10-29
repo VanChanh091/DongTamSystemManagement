@@ -37,9 +37,7 @@ class _ManageOrderState extends State<AdminOrder> {
   Future<void> _loadOrders() async {
     setState(() => isLoading = true);
 
-    final fetchedOrders = await ensureMinLoading(
-      AdminService().getOrderByPendingStatus(),
-    );
+    final fetchedOrders = await ensureMinLoading(AdminService().getOrderByPendingStatus());
 
     setState(() {
       orders = fetchedOrders;
@@ -81,65 +79,47 @@ class _ManageOrderState extends State<AdminOrder> {
                     isLoading
                         ? buildShimmerSkeletonTable(context: context)
                         : ListView(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 8,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                           children:
                               groupedOrders.entries.map((entry) {
                                 final prefix = entry.key;
                                 final ordersInGroup = entry.value;
 
                                 return Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 5,
-                                  ),
+                                  margin: const EdgeInsets.symmetric(vertical: 5),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(
-                                      alpha: 0.9,
-                                    ), // nền mờ mờ
+                                    color: Colors.white.withValues(alpha: 0.9), // nền mờ mờ
                                     borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(
-                                      color: Colors.grey.shade300,
-                                      width: 1,
-                                    ),
+                                    border: Border.all(color: Colors.grey.shade300, width: 1),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.05,
-                                        ),
+                                        color: Colors.black.withValues(alpha: 0.05),
                                         blurRadius: 6,
                                         offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
                                   child: Theme(
-                                    data: Theme.of(context).copyWith(
-                                      dividerColor: Colors.transparent,
-                                    ),
+                                    data: Theme.of(
+                                      context,
+                                    ).copyWith(dividerColor: Colors.transparent),
                                     child: ExpansionTile(
                                       tilePadding: const EdgeInsets.symmetric(
                                         horizontal: 16,
                                         vertical: 6,
                                       ),
-                                      collapsedBackgroundColor:
-                                          Colors.transparent,
+                                      collapsedBackgroundColor: Colors.transparent,
                                       backgroundColor: Colors.transparent,
-                                      childrenPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 6,
-                                          ),
+                                      childrenPadding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 6,
+                                      ),
 
                                       // Header
                                       title: Builder(
                                         builder: (context) {
                                           final customerNames = ordersInGroup
-                                              .map(
-                                                (c) =>
-                                                    c.customer?.customerName ??
-                                                    "Không rõ",
-                                              )
+                                              .map((c) => c.customer?.customerName ?? "Không rõ")
                                               .toSet()
                                               .join(", ");
 
@@ -157,13 +137,9 @@ class _ManageOrderState extends State<AdminOrder> {
                                                   style: GoogleFonts.inter(
                                                     fontWeight: FontWeight.w600,
                                                     fontSize: 16,
-                                                    color:
-                                                        Colors
-                                                            .blueGrey
-                                                            .shade800,
+                                                    color: Colors.blueGrey.shade800,
                                                   ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
+                                                  overflow: TextOverflow.ellipsis,
                                                   maxLines: 1,
                                                 ),
                                               ),
@@ -179,40 +155,28 @@ class _ManageOrderState extends State<AdminOrder> {
                                       // Children (list các order)
                                       children:
                                           ordersInGroup.map((ordersPending) {
-                                            final isSelected =
-                                                selectedOrder == ordersPending;
+                                            final isSelected = selectedOrder == ordersPending;
 
                                             return AnimatedContainer(
-                                              duration: const Duration(
-                                                milliseconds: 300,
+                                              duration: const Duration(milliseconds: 300),
+                                              margin: const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 6,
                                               ),
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 6,
-                                                  ),
                                               decoration: BoxDecoration(
                                                 color:
-                                                    isSelected
-                                                        ? Colors.blue.shade50
-                                                        : Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
+                                                    isSelected ? Colors.blue.shade50 : Colors.white,
+                                                borderRadius: BorderRadius.circular(12),
                                                 border: Border.all(
                                                   color:
                                                       isSelected
                                                           ? Colors.blue.shade400
-                                                          : Colors
-                                                              .grey
-                                                              .shade300,
+                                                          : Colors.grey.shade300,
                                                   width: isSelected ? 1.5 : 1,
                                                 ),
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: Colors.black
-                                                        .withValues(
-                                                          alpha: 0.08,
-                                                        ),
+                                                    color: Colors.black.withValues(alpha: 0.08),
                                                     blurRadius: 10,
                                                     spreadRadius: 1,
                                                     offset: const Offset(0, 4),
@@ -220,11 +184,10 @@ class _ManageOrderState extends State<AdminOrder> {
                                                 ],
                                               ),
                                               child: ListTile(
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 10,
-                                                    ),
+                                                contentPadding: const EdgeInsets.symmetric(
+                                                  horizontal: 16,
+                                                  vertical: 10,
+                                                ),
                                                 title: Text(
                                                   "Mã đơn: ${ordersPending.orderId}",
                                                   style: GoogleFonts.inter(
@@ -250,9 +213,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                                 selected: isSelected,
                                                 onTap:
                                                     () => setState(
-                                                      () =>
-                                                          selectedOrder =
-                                                              ordersPending,
+                                                      () => selectedOrder = ordersPending,
                                                     ),
                                               ),
                                             );
@@ -288,8 +249,7 @@ class _ManageOrderState extends State<AdminOrder> {
                               Expanded(
                                 child: SingleChildScrollView(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       rowOrder(),
                                       const SizedBox(height: 12),
@@ -314,15 +274,11 @@ class _ManageOrderState extends State<AdminOrder> {
                                         );
                                         if (!context.mounted) return;
 
-                                        showSnackBarSuccess(
-                                          context,
-                                          'Phê duyệt thành công',
-                                        );
+                                        showSnackBarSuccess(context, 'Phê duyệt thành công');
                                         await _loadOrders();
 
                                         //cập nhật lại badge
-                                        badgesController
-                                            .fetchPendingApprovals();
+                                        badgesController.fetchPendingApprovals();
 
                                         setState(() {
                                           selectedOrder = null;
@@ -330,33 +286,26 @@ class _ManageOrderState extends State<AdminOrder> {
                                       } catch (e) {
                                         if (!context.mounted) return;
 
-                                        if (e.toString().contains(
-                                          "Debt limit exceeded",
-                                        )) {
+                                        if (e.toString().contains("Debt limit exceeded")) {
                                           showSnackBarError(
                                             context,
                                             'Vượt hạn mức công nợ của khách hàng này!',
                                           );
                                         } else {
-                                          showSnackBarError(
-                                            context,
-                                            'Có lỗi xảy ra: $e',
-                                          );
+                                          showSnackBarError(context, 'Có lỗi xảy ra: $e');
                                         }
                                       }
                                     },
                                     label: 'Duyệt',
                                     icon: Icons.check,
-                                    backgroundColor:
-                                        themeController.buttonColor.value,
+                                    backgroundColor: themeController.buttonColor.value,
                                   ),
                                   const SizedBox(width: 12),
 
                                   //reject
                                   AnimatedButton(
                                     onPressed: () {
-                                      final TextEditingController
-                                      reasonController =
+                                      final TextEditingController reasonController =
                                           TextEditingController();
                                       final formKey = GlobalKey<FormState>();
 
@@ -379,16 +328,12 @@ class _ManageOrderState extends State<AdminOrder> {
                                                 key: formKey,
                                                 child: TextFormField(
                                                   controller: reasonController,
-                                                  decoration:
-                                                      const InputDecoration(
-                                                        hintText:
-                                                            'Nhập lý do...',
-                                                        border:
-                                                            OutlineInputBorder(),
-                                                      ),
+                                                  decoration: const InputDecoration(
+                                                    hintText: 'Nhập lý do...',
+                                                    border: OutlineInputBorder(),
+                                                  ),
                                                   validator: (value) {
-                                                    if (value == null ||
-                                                        value.trim().isEmpty) {
+                                                    if (value == null || value.trim().isEmpty) {
                                                       return 'Vui lòng nhập lý do từ chối';
                                                     }
                                                     return null;
@@ -398,9 +343,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                             ),
                                             actions: [
                                               TextButton(
-                                                onPressed:
-                                                    () =>
-                                                        Navigator.pop(context),
+                                                onPressed: () => Navigator.pop(context),
                                                 child: const Text(
                                                   'Hủy',
                                                   style: TextStyle(
@@ -411,21 +354,17 @@ class _ManageOrderState extends State<AdminOrder> {
                                               ),
                                               ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Colors.red.shade600,
+                                                  backgroundColor: Colors.red.shade600,
                                                 ),
                                                 onPressed: () async {
-                                                  if (formKey.currentState!
-                                                      .validate()) {
+                                                  if (formKey.currentState!.validate()) {
                                                     Navigator.pop(context);
 
-                                                    await AdminService()
-                                                        .updateStatusOrder(
-                                                          selectedOrder!
-                                                              .orderId,
-                                                          'reject',
-                                                          reasonController.text,
-                                                        );
+                                                    await AdminService().updateStatusOrder(
+                                                      selectedOrder!.orderId,
+                                                      'reject',
+                                                      reasonController.text,
+                                                    );
                                                     if (!context.mounted) {
                                                       return;
                                                     }
@@ -438,8 +377,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                                     await _loadOrders();
 
                                                     //cập nhật lại badge
-                                                    badgesController
-                                                        .fetchPendingApprovals();
+                                                    badgesController.fetchPendingApprovals();
 
                                                     setState(() {
                                                       selectedOrder = null;
@@ -486,20 +424,12 @@ class _ManageOrderState extends State<AdminOrder> {
     );
   }
 
-  Widget _infoRow(
-    String label,
-    String value, {
-    String? unit,
-    Color? valueColor,
-  }) {
+  Widget _infoRow(String label, String value, {String? unit, Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
+          Text(label, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(width: 8),
           Text(
             unit != null ? '$value $unit' : value,
@@ -530,63 +460,23 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('🔢 Cấn lằn:', order.canLan.toString()),
       _infoRow('🔪 Dao xả:', order.daoXa.toString()),
       _infoRow('🔧 Kết cấu:', order.formatterStructureOrder),
-      _infoRow(
-        '✂️ Cắt (Khách Hàng):',
-        Order.formatCurrency(order.lengthPaperCustomer),
-        unit: "cm",
-      ),
+      _infoRow('✂️ Cắt (Khách Hàng):', Order.formatCurrency(order.lengthPaperCustomer), unit: "cm"),
       _infoRow(
         '✂️ Cắt (Sản Xuất) :',
         Order.formatCurrency(order.lengthPaperManufacture),
         unit: "cm",
       ),
-      _infoRow(
-        '📏 Khổ (Khách Hàng):',
-        Order.formatCurrency(order.paperSizeCustomer),
-        unit: "cm",
-      ),
-      _infoRow(
-        '📏 Khổ (Sản Xuất):',
-        Order.formatCurrency(order.paperSizeManufacture),
-        unit: "cm",
-      ),
+      _infoRow('📏 Khổ (Khách Hàng):', Order.formatCurrency(order.paperSizeCustomer), unit: "cm"),
+      _infoRow('📏 Khổ (Sản Xuất):', Order.formatCurrency(order.paperSizeManufacture), unit: "cm"),
       _infoRow('📐 Đơn vị tính:', order.dvt),
-      _infoRow(
-        '🔢 Số lượng (Khách Hàng):',
-        order.quantityCustomer.toString(),
-        unit: "",
-      ),
-      _infoRow(
-        '🔢 Số lượng (Sản Xuất):',
-        order.quantityManufacture.toString(),
-        unit: "",
-      ),
-      _infoRow(
-        '📜 Số con:',
-        Order.formatCurrency(order.numberChild),
-        unit: "Con",
-      ),
-      _infoRow(
-        '🌍 Diện tích:',
-        Order.formatCurrency(order.acreage),
-        unit: 'm²',
-      ),
+      _infoRow('🔢 Số lượng (Khách Hàng):', order.quantityCustomer.toString(), unit: ""),
+      _infoRow('🔢 Số lượng (Sản Xuất):', order.quantityManufacture.toString(), unit: ""),
+      _infoRow('📜 Số con:', Order.formatCurrency(order.numberChild), unit: "Con"),
+      _infoRow('🌍 Diện tích:', Order.formatCurrency(order.acreage), unit: 'm²'),
       _infoRow('💲 Giá:', Order.formatCurrency(order.price), unit: "VNĐ"),
-      _infoRow(
-        '💵 Giá tấm:',
-        Order.formatCurrency(order.pricePaper),
-        unit: "VNĐ",
-      ),
-      _infoRow(
-        '💵 Chiết khấu:',
-        Order.formatCurrency(order.discount ?? 0),
-        unit: "VNĐ",
-      ),
-      _infoRow(
-        '💵 Lợi nhuận:',
-        Order.formatCurrency(order.profit),
-        unit: "VNĐ",
-      ),
+      _infoRow('💵 Giá tấm:', Order.formatCurrency(order.pricePaper), unit: "VNĐ"),
+      _infoRow('💵 Chiết khấu:', Order.formatCurrency(order.discount ?? 0), unit: "VNĐ"),
+      _infoRow('💵 Lợi nhuận:', Order.formatCurrency(order.profit), unit: "VNĐ"),
       _infoRow('💡 VAT:', order.vat.toString(), unit: "%"),
       _infoRow(
         '💰 Tổng tiền (VAT):',
@@ -631,19 +521,14 @@ class _ManageOrderState extends State<AdminOrder> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: infoRows.sublist(
-                      0,
-                      (infoRows.length / 2).ceil(),
-                    ), // nửa đầu
+                    children: infoRows.sublist(0, (infoRows.length / 2).ceil()), // nửa đầu
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: infoRows.sublist(
-                      (infoRows.length / 2).ceil(),
-                    ), // nửa sau
+                    children: infoRows.sublist((infoRows.length / 2).ceil()), // nửa sau
                   ),
                 ),
               ],
@@ -707,18 +592,12 @@ class _ManageOrderState extends State<AdminOrder> {
                         _infoRow('🧾 In mặt sau:', box.inMatSau.toString()),
                         _infoRow('📦 Đóng gói:', box.dongGoi.toString()),
                         _infoRow('🔲 Mã khuôn:', box.maKhuon.toString()),
-                        _infoRow(
-                          '✨ HD đặc biệt:',
-                          selectedOrder!.instructSpecial.toString(),
-                        ),
+                        _infoRow('✨ HD đặc biệt:', selectedOrder!.instructSpecial.toString()),
                         const SizedBox(height: 15),
 
                         const Text(
                           '🛠️ Các yêu cầu tùy chỉnh:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         const SizedBox(height: 8),
 
@@ -727,11 +606,7 @@ class _ManageOrderState extends State<AdminOrder> {
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             child: Row(
                               children: [
-                                for (
-                                  int j = i;
-                                  j < i + 3 && j < boolFields.length;
-                                  j++
-                                )
+                                for (int j = i; j < i + 3 && j < boolFields.length; j++)
                                   Expanded(
                                     child: Row(
                                       children: [
@@ -783,18 +658,12 @@ class _ManageOrderState extends State<AdminOrder> {
                                 fit: BoxFit.contain,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Center(
-                                    child: Text(
-                                      'Lỗi ảnh',
-                                      style: TextStyle(fontSize: 16),
-                                    ),
+                                    child: Text('Lỗi ảnh', style: TextStyle(fontSize: 16)),
                                   );
                                 },
                               )
                               : const Center(
-                                child: Text(
-                                  "Không có hình",
-                                  style: TextStyle(fontSize: 16),
-                                ),
+                                child: Text("Không có hình", style: TextStyle(fontSize: 16)),
                               ),
                     ),
                   ),

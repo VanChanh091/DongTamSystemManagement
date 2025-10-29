@@ -67,6 +67,9 @@ class _HomePageState extends State<HomePage> {
       CustomerPage(),
       ProductPage(),
 
+      //Employee
+      _buildPage(permission: 'HR', child: Employee()),
+
       // planning
       _buildPage(permission: 'plan', child: WaitingForPlanning()),
       _buildPage(permission: 'plan', child: TopTabPlanning()),
@@ -77,9 +80,6 @@ class _HomePageState extends State<HomePage> {
 
       //report
       TopTabReport(),
-
-      //Employee
-      _buildPage(permission: 'HR', child: Employee()),
 
       // admin
       _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),
@@ -204,17 +204,17 @@ class _HomePageState extends State<HomePage> {
             "Sản Phẩm",
             index: pages.indexWhere((w) => w is ProductPage),
           ),
+          _buildSidebarItem(
+            Symbols.people_outline,
+            "Nhân Viên",
+            index: pages.indexWhere((w) => w is Employee),
+          ),
           _buildPlanningMenu(pages),
           _buildManufactureMenu(pages),
           _buildSidebarItem(
             Symbols.assignment,
             "Lịch Sử Sản Xuất",
             index: pages.indexWhere((w) => w is TopTabReport),
-          ),
-          _buildSidebarItem(
-            Symbols.people_outline,
-            "Nhân Viên",
-            index: pages.indexWhere((w) => w is Employee),
           ),
           _buildApprovalMenu(pages),
           _buildSidebarItem(

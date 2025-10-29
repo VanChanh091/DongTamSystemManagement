@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 class Order {
   final String orderId;
   final String? flute, QC_box, canLan;
-  final String? day, matE, matB, matC, songE, songB, songC, songE2;
+  final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
   final String? instructSpecial, rejectReason;
   final String daoXa, dvt, status;
   final double lengthPaperCustomer, lengthPaperManufacture;
@@ -42,6 +42,7 @@ class Order {
     this.matE,
     this.matB,
     this.matC,
+    this.matE2,
     this.songE,
     this.songB,
     this.songC,
@@ -81,15 +82,8 @@ class Order {
   }
 
   //Acreage (m2) = lengthPaper * paperSize / 10000 * quantity
-  static double acreagePaper(
-    double lengthPaper,
-    double paperSize,
-    int quantity,
-  ) {
-    return lengthPaper *
-        paperSize /
-        10000 *
-        double.parse(quantity.toStringAsFixed(2));
+  static double acreagePaper(double lengthPaper, double paperSize, int quantity) {
+    return lengthPaper * paperSize / 10000 * double.parse(quantity.toStringAsFixed(2));
   }
 
   //Total price paper = (kg, cái) => price, else => lengthPaper * paperSize * price
@@ -113,10 +107,7 @@ class Order {
     return pricePaper * double.parse(quantity.toStringAsFixed(1));
   }
 
-  static double totalPriceAfterVAT({
-    required double totalPrice,
-    required int vat,
-  }) {
+  static double totalPriceAfterVAT({required double totalPrice, required int vat}) {
     if (vat == 0) {
       return totalPrice;
     }
@@ -124,7 +115,7 @@ class Order {
   }
 
   String get formatterStructureOrder {
-    final parts = [day, songE, matE, songB, matB, songC, matC, songE2];
+    final parts = [day, songE, matE, songB, matB, songC, matC, songE2, matE2];
     final formattedParts = <String>[];
 
     for (final part in parts) {
@@ -146,6 +137,7 @@ class Order {
     String songB,
     String songC,
     String songE2,
+    String matE2,
   ) {
     final layers =
         [
@@ -157,6 +149,7 @@ class Order {
           songB,
           songC,
           songE2,
+          matE2,
         ].where((e) => e.trim().isNotEmpty).toList();
 
     // Thu thập sóng (có thể trùng)
@@ -168,8 +161,7 @@ class Order {
 
     // Sắp xếp theo thứ tự E -> B -> C và loại trùng
     const fluteOrder = ['E', 'B', 'C'];
-    final uniqueFlutes =
-        fluteOrder.where((f) => flutesRaw.contains(f)).toList();
+    final uniqueFlutes = fluteOrder.where((f) => flutesRaw.contains(f)).toList();
 
     return '${layers.length}${uniqueFlutes.join()}';
   }
@@ -177,10 +169,7 @@ class Order {
   int getTotalByField(num? Function(PlanningPaper p) selector) {
     if (planningPaper == null || planningPaper!.isEmpty) return 0;
 
-    return planningPaper!.fold<int>(
-      0,
-      (sum, p) => sum + (selector(p)?.toInt() ?? 0),
-    );
+    return planningPaper!.fold<int>(0, (sum, p) => sum + (selector(p)?.toInt() ?? 0));
   }
 
   int get totalQtyProduced => getTotalByField((p) => p.qtyProduced);
@@ -200,6 +189,7 @@ class Order {
       matE: json['matE'] ?? "",
       matB: json['matB'] ?? "",
       matC: json['matC'] ?? "",
+      matE2: json['matE2'] ?? "",
       songE: json['songE'] ?? "",
       songB: json['songB'] ?? "",
       songC: json['songC'] ?? "",
@@ -225,17 +215,13 @@ class Order {
       isBox: json['isBox'] ?? false,
       status: json['status'] ?? "",
       rejectReason: json['rejectReason'] ?? "",
-      customer:
-          json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
-      product:
-          json['Product'] != null ? Product.fromJson(json['Product']) : null,
+      customer: json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
+      product: json['Product'] != null ? Product.fromJson(json['Product']) : null,
       box: json['box'] != null ? Box.fromJson(json['box']) : null,
       user: json['User'] != null ? UserUserModel.fromJson(json['User']) : null,
       planningPaper:
           json['Plannings'] != null
-              ? List<PlanningPaper>.from(
-                json['Plannings'].map((x) => PlanningPaper.fromJson(x)),
-              )
+              ? List<PlanningPaper>.from(json['Plannings'].map((x) => PlanningPaper.fromJson(x)))
               : [],
     );
   }
@@ -254,6 +240,7 @@ class Order {
       'matE': matE,
       'matB': matB,
       'matC': matC,
+      'matE2': matE2,
       'songE': songE,
       'songB': songB,
       'songC': songC,
@@ -271,9 +258,7 @@ class Order {
       'pricePaper': pricePaper,
       'discount': discount,
       'profit': profit,
-      'dateRequestShipping': DateFormat(
-        'yyyy-MM-dd',
-      ).format(dateRequestShipping),
+      'dateRequestShipping': DateFormat('yyyy-MM-dd').format(dateRequestShipping),
       'instructSpecial': instructSpecial,
       "isBox": isBox,
       'status': status,
