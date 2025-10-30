@@ -128,42 +128,45 @@ class Order {
   }
 
   //calculate flute
-  static String flutePaper(
-    String day,
-    String middle_1,
-    String middle_2,
-    String mat,
-    String songE,
-    String songB,
-    String songC,
-    String songE2,
-    String matE2,
-  ) {
+  static String flutePaper({
+    required String day,
+    required String matE,
+    required String matB,
+    required String matC,
+    required String matE2,
+    required String songE,
+    required String songB,
+    required String songC,
+    required String songE2,
+  }) {
     final layers =
         [
           day,
-          middle_1,
-          middle_2,
-          mat,
+          matE,
+          matB,
+          matC,
+          matE2,
           songE,
           songB,
           songC,
           songE2,
-          matE2,
         ].where((e) => e.trim().isNotEmpty).toList();
 
-    // Thu thập sóng (có thể trùng)
+    // Thu thập sóng theo thứ tự ưu tiên thực tế
     final flutesRaw = <String>[];
     if (songE.trim().isNotEmpty) flutesRaw.add('E');
     if (songB.trim().isNotEmpty) flutesRaw.add('B');
     if (songC.trim().isNotEmpty) flutesRaw.add('C');
     if (songE2.trim().isNotEmpty) flutesRaw.add('E');
 
-    // Sắp xếp theo thứ tự E -> B -> C và loại trùng
     const fluteOrder = ['E', 'B', 'C'];
-    final uniqueFlutes = fluteOrder.where((f) => flutesRaw.contains(f)).toList();
 
-    return '${layers.length}${uniqueFlutes.join()}';
+    final sortedFlutes = <String>[];
+    for (final f in fluteOrder) {
+      sortedFlutes.addAll(flutesRaw.where((x) => x == f));
+    }
+
+    return '${layers.length}${sortedFlutes.join()}';
   }
 
   int getTotalByField(num? Function(PlanningPaper p) selector) {

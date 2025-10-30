@@ -24,7 +24,7 @@ Widget buildingCard({required String title, required List<Widget> children}) {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: const BoxDecoration(
-            color: Color(0xffFFF2A6),
+            color: Color.fromARGB(255, 250, 235, 148),
             borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
           ),
           child: Text(

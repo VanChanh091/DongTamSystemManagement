@@ -10,7 +10,7 @@ import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
-import 'package:dongtam/utils/helper/building_card_form.dart';
+import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -136,7 +136,7 @@ class _OrderDialogState extends State<OrderDialog> {
     matEController.text = order.matE.toString();
     matBController.text = order.matB.toString();
     matCController.text = order.matC.toString();
-    matE2Controller.text = order.matC.toString();
+    matE2Controller.text = order.matE2.toString();
     songEController.text = order.songE.toString();
     songBController.text = order.songB.toString();
     songCController.text = order.songC.toString();
@@ -395,26 +395,26 @@ class _OrderDialogState extends State<OrderDialog> {
       songEValue = addPrefixIfNeeded(songEController.text, 'E');
       songBValue = addPrefixIfNeeded(songBController.text, 'B');
       songCValue = addPrefixIfNeeded(songCController.text, 'C');
-      songE2Value = addPrefixIfNeeded(songE2Controller.text, 'E2');
+      songE2Value = addPrefixIfNeeded(songE2Controller.text, 'E');
     } else {
       // update mode
       songEValue = addPrefixIfNeeded(songEController.text, 'E');
       songBValue = addPrefixIfNeeded(songBController.text, 'B');
       songCValue = addPrefixIfNeeded(songCController.text, 'C');
-      songE2Value = addPrefixIfNeeded(songE2Controller.text, 'E2');
+      songE2Value = addPrefixIfNeeded(songE2Controller.text, 'E');
     }
 
     // flute
     late String flutePaper = Order.flutePaper(
-      dayController.text,
-      matEController.text,
-      matBController.text,
-      matCController.text,
-      matE2Controller.text,
-      songEValue,
-      songBValue,
-      songCValue,
-      songE2Value,
+      day: dayController.text,
+      matE: matEController.text,
+      matB: matBController.text,
+      matC: matCController.text,
+      matE2: matE2Controller.text,
+      songE: songEValue,
+      songB: songBValue,
+      songC: songCValue,
+      songE2: songE2Value,
     );
 
     final newBox = Box(
@@ -571,6 +571,10 @@ class _OrderDialogState extends State<OrderDialog> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.order != null;
+
+    final List<Map<String, dynamic>> infoBasicRows = [];
+    final List<Map<String, dynamic>> costRows = [];
+    final List<Map<String, dynamic>> structureRows = [];
 
     //box
     List<Map<String, dynamic>> buildBoxes(bool isEnabled) {

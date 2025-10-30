@@ -20,24 +20,39 @@ void main() {
       expect(Order.acreagePaper(0, 300, 10), 0);
     });
 
-    // test("total price paper calculate", () {
-    //   // DVT đặc biệt
-    //   expect(Order.totalPricePaper('Kg', 100, 50, 200), 200);
-    //   expect(Order.totalPricePaper('Cái', 100, 50, 500), 500);
+    test("total price paper calculate", () {
+      expect(Order.totalPricePaper(dvt: 'M2', length: 100, size: 50, price: 200), 100);
+      expect(Order.totalPricePaper(dvt: 'Tấm', length: 200, size: 100, price: 500), 1000);
+      expect(
+        Order.totalPricePaper(
+          dvt: 'Tấm Bao Khổ',
+          length: 100,
+          size: 200,
+          price: 9999,
+          pricePaper: 888,
+        ),
+        888,
+      );
+      expect(Order.totalPricePaper(dvt: 'Kg', length: 100, size: 200, price: 777), 777);
+      expect(Order.totalPricePaper(dvt: 'Tấm Bao Khổ', length: 100, size: 100, price: 999), 0);
+    });
 
-    //   // DVT chuẩn
-    //   expect(
-    //     Order.totalPricePaper('M2', 100, 50, 200),
-    //     100,
-    //   ); // 100*50*200/10000
-    //   expect(Order.totalPricePaper('M2', 0, 50, 200), 0); // length = 0
-    //   expect(Order.totalPricePaper('M2', 100, 0, 200), 0); // size = 0
-    // });
-
-    test("total price order", () {
-      expect(Order.totalPriceOrder(5, 20), 100);
+    test('total price order', () {
+      expect(Order.totalPriceOrder(5, 20), 100); // 5 * 20
       expect(Order.totalPriceOrder(0, 20), 0); // quantity = 0
       expect(Order.totalPriceOrder(10, 0), 0); // price = 0
+      expect(Order.totalPriceOrder(-3, 50), -150); // quantity âm
+      expect(Order.totalPriceOrder(1, 12.5), 12.5); // price thập phân
+    });
+
+    test('totalPriceAfterVAT', () {
+      expect(Order.totalPriceAfterVAT(totalPrice: 100, vat: 0), equals(100)); // không VAT
+      expect(Order.totalPriceAfterVAT(totalPrice: 100, vat: 10), closeTo(110, 0.0001)); // +10%
+      expect(Order.totalPriceAfterVAT(totalPrice: 250, vat: 8), closeTo(270, 0.0001)); // +8%
+      expect(
+        Order.totalPriceAfterVAT(totalPrice: 1234.56, vat: 5),
+        closeTo(1296.288, 0.0001),
+      ); // kiểm sai số double
     });
 
     test("format currency", () {
@@ -48,11 +63,50 @@ void main() {
 
     test("flute paper", () {
       // Đủ layers + E, B
-      expect(Order.flutePaper('D', 'M1', '', 'Mat', 'E', 'B', '', '', ''), '5EB');
+      expect(
+        Order.flutePaper(
+          day: 'N150',
+          matE: 'N150',
+          matB: 'N150',
+          matC: '',
+          matE2: "N150",
+          songE: "EN150",
+          songB: "BMA140",
+          songC: '',
+          songE2: "EMA120",
+        ),
+        '7EEB',
+      );
       // Chỉ có D và E
-      expect(Order.flutePaper('D', '', '', '', 'E', '', '', '', ''), '2E');
+      expect(
+        Order.flutePaper(
+          day: 'D',
+          matE: '',
+          matB: '',
+          matC: '',
+          matE2: '',
+          songE: 'E',
+          songB: '',
+          songC: '',
+          songE2: '',
+        ),
+        '2E',
+      );
       // Không có flute nào
-      expect(Order.flutePaper('D', '', '', '', '', '', '', '', ''), '1');
+      expect(
+        Order.flutePaper(
+          day: 'D',
+          matE: '',
+          matB: '',
+          matC: '',
+          matE2: '',
+          songE: '',
+          songB: '',
+          songC: '',
+          songE2: '',
+        ),
+        '1',
+      );
     });
   });
 }

@@ -21,7 +21,7 @@ class PlanningPaper {
   final int planningId;
   final TimeOfDay? timeRunning;
   final int? sortPlanning;
-  final double? bottom, fluteE, fluteB, fluteC, knife, totalLoss;
+  final double? bottom, fluteE, fluteB, fluteC, fluteE2, knife, totalLoss;
   final String status;
   final bool hasBox;
 
@@ -53,6 +53,7 @@ class PlanningPaper {
     this.fluteE,
     this.fluteB,
     this.fluteC,
+    this.fluteE2,
     this.knife,
     this.totalLoss,
     this.sortPlanning,
@@ -132,6 +133,7 @@ class PlanningPaper {
       fluteE: toDouble(json['fluteE']),
       fluteB: toDouble(json['fluteB']),
       fluteC: toDouble(json['fluteC']),
+      fluteE2: toDouble(json['fluteE2']),
       knife: toDouble(json['knife']),
       totalLoss: toDouble(json['totalLoss']),
       sortPlanning: json['sortPlanning'] ?? 0,

@@ -467,52 +467,62 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildSidebarItem(IconData icon, String title, {int? index, VoidCallback? onTap}) {
-    if (index == null || index == -1) {
-      return const SizedBox.shrink();
-    }
+    final bool hasIndex = index != null && index != -1;
 
-    // item có index => theo dõi bằng Obx
-    return Obx(() {
-      final isSelected = sidebarController.selectedIndex.value == index;
+    return hasIndex
+        ? Obx(() {
+          final isSelected = sidebarController.selectedIndex.value == index;
 
-      return _isHovered
-          ? ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-            leading: Icon(
-              icon,
-              color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-            ),
-            title: Text(
-              title,
-              style: TextStyle(
-                color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                fontSize: 18,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            tileColor: isSelected ? Colors.white.withValues(alpha: 0.7) : Colors.transparent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            onTap: () async {
-              if (onTap != null) {
-                onTap();
-              } else {
-                bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);
-                if (canNavigate) {
-                  sidebarController.changePage(index);
-                }
-              }
-            },
-          )
-          : Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Center(
-              child: Icon(
-                icon,
-                color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-              ),
-            ),
-          );
-    });
+          return _isHovered
+              ? ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                leading: Icon(
+                  icon,
+                  color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+                ),
+                title: Text(
+                  title,
+                  style: TextStyle(
+                    color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+                    fontSize: 18,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                tileColor: isSelected ? Colors.white.withValues(alpha: 0.7) : Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                onTap: () async {
+                  if (onTap != null) {
+                    onTap();
+                  } else {
+                    bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);
+                    if (canNavigate) {
+                      sidebarController.changePage(index);
+                    }
+                  }
+                },
+              )
+              : Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Center(
+                  child: Icon(
+                    icon,
+                    color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+                  ),
+                ),
+              );
+        })
+        : _isHovered
+        ? ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          leading: Icon(icon, color: Colors.white),
+          title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 18)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          onTap: onTap,
+        )
+        : Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Center(child: Icon(icon, color: Colors.white)),
+        );
   }
 
   Widget _buildSubMenuItem(IconData icon, String title, int index, {Widget? leadingWrapper}) {

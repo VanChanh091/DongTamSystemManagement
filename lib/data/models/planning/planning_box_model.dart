@@ -8,7 +8,7 @@ class PlanningBox {
   final int planningBoxId;
 
   final int qtyPaper;
-  final String? day, matE, matB, matC, songE, songB, songC, songE2;
+  final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
   final double length, size;
 
   final int planningId;
@@ -25,6 +25,7 @@ class PlanningBox {
     this.matE,
     this.matB,
     this.matC,
+    this.matE2,
     this.songE,
     this.songB,
     this.songC,
@@ -41,7 +42,7 @@ class PlanningBox {
   });
 
   String get formatterStructureOrder {
-    final parts = [day, songE, matE, songB, matB, songC, matC, songE2];
+    final parts = [day, songE, matE, songB, matB, songC, matC, songE2, matE2];
     final formattedParts = <String>[];
 
     for (final part in parts) {
@@ -70,19 +71,15 @@ class PlanningBox {
   }
 
   //get one box
-  BoxMachineTime? getBoxMachineTimeByMachine(String machine) =>
-      _findByMachine(boxTimes, machine);
+  BoxMachineTime? getBoxMachineTimeByMachine(String machine) => _findByMachine(boxTimes, machine);
 
   //get all box
-  BoxMachineTime? getAllBoxMachineTime(String machine) =>
-      _findByMachine(allBoxTimes, machine);
+  BoxMachineTime? getAllBoxMachineTime(String machine) => _findByMachine(allBoxTimes, machine);
 
   TimeOverflowPlanning? getTimeOverflow(String machine) {
     if (timeOverflowPlanning == null) return null;
     try {
-      return timeOverflowPlanning?.firstWhere(
-        (item) => item.machine == machine,
-      );
+      return timeOverflowPlanning?.firstWhere((item) => item.machine == machine);
     } catch (e) {
       return null;
     }
@@ -96,6 +93,7 @@ class PlanningBox {
       matE: json['matE'] ?? "",
       matB: json['matB'] ?? "",
       matC: json['matC'] ?? "",
+      matE2: json['matE2'] ?? "",
       songE: json['songE'] ?? "",
       songB: json['songB'] ?? "",
       songC: json['songC'] ?? "",
@@ -109,16 +107,12 @@ class PlanningBox {
       timeOverflowPlanning:
           json['timeOverFlow'] != null
               ? List<TimeOverflowPlanning>.from(
-                json['timeOverFlow'].map(
-                  (x) => TimeOverflowPlanning.fromJson(x),
-                ),
+                json['timeOverFlow'].map((x) => TimeOverflowPlanning.fromJson(x)),
               )
               : [],
       boxTimes:
           json['boxTimes'] != null
-              ? List<BoxMachineTime>.from(
-                json['boxTimes'].map((x) => BoxMachineTime.fromJson(x)),
-              )
+              ? List<BoxMachineTime>.from(json['boxTimes'].map((x) => BoxMachineTime.fromJson(x)))
               : [],
       allBoxTimes:
           json['allBoxTimes'] != null

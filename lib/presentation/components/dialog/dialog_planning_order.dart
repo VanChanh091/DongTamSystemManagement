@@ -1,7 +1,8 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/utils/helper/building_card_form.dart';
+import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
+import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -372,10 +373,135 @@ class _PLanningDialogState extends State<PLanningDialog> {
       {
         "leftKey": "Sóng",
         "leftValue": songController.text,
-        "rightKey": "Hướng Dẫn Đặc Biệt",
-        "rightValue": instructSpecialController.text,
+        "rightKey": "Dao Xả",
+        "rightValue": daoXaOrderController.text,
       },
-      {"leftKey": "Dao Xả", "leftValue": daoXaOrderController.text},
+      {"leftKey": "HD Đặc Biệt", "leftValue": instructSpecialController.text},
+    ];
+
+    final List<Map<String, dynamic>> structureInfoRows = [
+      {
+        "leftKey": "Sóng E (g)",
+        "leftValue": ValidationPlanning.validateInput(
+          "Sóng E thay thế (g)",
+          songEReplaceController,
+          Symbols.airwave,
+        ),
+        "middleKey": "Sóng B (g)",
+        "middleValue": ValidationPlanning.validateInput(
+          "Sóng B thay thế (g)",
+          songBReplaceController,
+          Symbols.airwave,
+        ),
+        "rightKey": "Sóng C (g)",
+        "rightValue": ValidationPlanning.validateInput(
+          "Sóng C thay thế (g)",
+          songCReplaceController,
+          Symbols.airwave,
+        ),
+      },
+      {
+        "leftKey": "Mặt E (g)",
+        "leftValue": ValidationPlanning.validateInput(
+          "Mặt E thay thế (g)",
+          matEReplaceController,
+          Symbols.vertical_align_center,
+        ),
+        "middleKey": "Mặt B (g)",
+        "middleValue": ValidationPlanning.validateInput(
+          "Mặt B thay thế (g)",
+          matBReplaceController,
+          Symbols.vertical_align_center,
+        ),
+        "rightKey": "Mặt C (g)",
+        "rightValue": ValidationPlanning.validateInput(
+          "Mặt C thay thế (g)",
+          matCReplaceController,
+          Symbols.vertical_align_center,
+        ),
+      },
+      {
+        "leftKey": "Sóng E2 (g)",
+        "leftValue": ValidationPlanning.validateInput(
+          "Sóng E2 thay thế (g)",
+          songE2ReplaceController,
+          Symbols.airwave,
+        ),
+        "middleKey": "Mặt E2 (g)",
+        "middleValue": ValidationPlanning.validateInput(
+          "Mặt E2 thay thế (g)",
+          matE2ReplaceController,
+          Symbols.vertical_align_center,
+        ),
+        "rightKey": "Đáy (g)",
+        "rightValue": ValidationPlanning.validateInput(
+          "Đáy thay thế (g)",
+          dayReplaceController,
+          Symbols.vertical_align_bottom,
+        ),
+      },
+      {
+        "leftKey": "Kết Cấu",
+        "leftValue": ValidationPlanning.validateInput(
+          "Kết Cấu Thay thế",
+          structureController,
+          Symbols.waves,
+          readOnly: true,
+        ),
+      },
+    ];
+
+    final List<Map<String, dynamic>> manufactureInfoRows = [
+      {
+        "leftKey": "Dài sản xuất (cm)",
+        "leftValue": ValidationPlanning.validateInput(
+          "Dài sản xuất (cm)",
+          lengthPaperPlanningController,
+          Symbols.horizontal_distribute,
+        ),
+        "middleKey": "Khổ sản xuất (cm)",
+        "middleValue": ValidationPlanning.validateInput(
+          "Khổ sản xuất (cm)",
+          sizePaperPLaningController,
+          Symbols.horizontal_distribute,
+        ),
+        "rightKey": "Số Lớp Sóng",
+        "rightValue": ValidationPlanning.validateInput(
+          "Số Lớp Sóng",
+          fluteController,
+          Symbols.stacks,
+        ),
+      },
+      {
+        "leftKey": "Số Con",
+        "leftValue": ValidationPlanning.validateInput(
+          "Số Con",
+          numberChildController,
+          Symbols.numbers,
+        ),
+        "middleKey": "Kế hoạch chạy",
+        "middleValue": ValidationPlanning.validateInput(
+          "Kế hoạch chạy",
+          runningPlanController,
+          Symbols.production_quantity_limits,
+        ),
+        "rightKey": "Ghép Khổ",
+        "rightValue": ValidationPlanning.validateInput(
+          "Ghép Khổ",
+          ghepKhoController,
+          Symbols.layers,
+        ),
+      },
+      {
+        "leftKey": "Chọn Máy",
+        "leftValue": ValidationOrder.dropdownForTypes(machineList, chooseMachine, (value) {
+          setState(() => chooseMachine = value!);
+        }),
+        "middleKey": "",
+        "middleValue": SizedBox(),
+        "rightKey": "",
+        "rightValue": SizedBox(),
+      },
     ];
 
     return StatefulBuilder(
@@ -396,89 +522,13 @@ class _PLanningDialogState extends State<PLanningDialog> {
                     //order
                     buildingCard(
                       title: "📦 Thông Tin Đơn Hàng",
-                      children:
-                          orderInfoRows.map((row) {
-                            final leftKey = row['leftKey']?.toString().trim() ?? '';
-                            final leftValue = row['leftValue']?.toString().trim() ?? '';
-                            final rightKey = row['rightKey']?.toString().trim() ?? '';
-                            final rightValue = row['rightValue']?.toString().trim() ?? '';
-
-                            // Nếu tất cả đều rỗng -> bỏ qua
-                            final isEmptyRow = [
-                              leftKey,
-                              leftValue,
-                              rightKey,
-                              rightValue,
-                            ].every((e) => e.isEmpty);
-
-                            if (isEmptyRow) return const SizedBox.shrink();
-
-                            return Column(
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Left
-                                    Expanded(
-                                      flex: 1,
-                                      child: RichText(
-                                        text: TextSpan(
-                                          children: [
-                                            TextSpan(
-                                              text: leftKey.isNotEmpty ? "$leftKey: " : "",
-                                              style: GoogleFonts.inter(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: leftValue.isNotEmpty ? leftValue : "",
-                                              style: GoogleFonts.inter(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 16,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 25),
-
-                                    // Right
-                                    Expanded(
-                                      flex: 1,
-                                      child: RichText(
-                                        text: TextSpan(
-                                          children: [
-                                            TextSpan(
-                                              text: rightKey.isNotEmpty ? "$rightKey: " : "",
-                                              style: GoogleFonts.inter(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: rightValue.isNotEmpty ? rightValue : "",
-                                              style: GoogleFonts.inter(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 16,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const Divider(height: 18, thickness: 0.6, color: Color(0xFFE0E0E0)),
-                              ],
-                            );
-                          }).toList(),
+                      children: formatKeyValueRows(
+                        rows: orderInfoRows,
+                        labelWidth: 145,
+                        columnCount: 2,
+                      ),
                     ),
+
                     const SizedBox(height: 15),
 
                     // planning
@@ -491,116 +541,26 @@ class _PLanningDialogState extends State<PLanningDialog> {
                         ),
                         const SizedBox(height: 15),
 
-                        // 🧾 CẤU TRÚC GIẤY
+                        // CẤU TRÚC GIẤY
                         buildingCard(
-                          title: "🧾 CẤU TRÚC GIẤY",
-                          children: [
-                            buildFieldRow([
-                              ValidationPlanning.validateInput(
-                                "Sóng E thay thế (g)",
-                                songEReplaceController,
-                                Symbols.airwave,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Sóng B thay thế (g)",
-                                songBReplaceController,
-                                Symbols.airwave,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Sóng C thay thế (g)",
-                                songCReplaceController,
-                                Symbols.airwave,
-                              ),
-                            ]),
-                            buildFieldRow([
-                              ValidationPlanning.validateInput(
-                                "Mặt E thay thế (g)",
-                                matEReplaceController,
-                                Symbols.vertical_align_center,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Mặt B thay thế (g)",
-                                matBReplaceController,
-                                Symbols.vertical_align_center,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Mặt C thay thế (g)",
-                                matCReplaceController,
-                                Symbols.vertical_align_top,
-                              ),
-                            ]),
-                            buildFieldRow([
-                              ValidationPlanning.validateInput(
-                                "Đáy thay thế (g)",
-                                dayReplaceController,
-                                Symbols.vertical_align_bottom,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Sóng E2 thay thế (g)",
-                                songE2ReplaceController,
-                                Symbols.airwave,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Sóng E2 thay thế (g)",
-                                songE2ReplaceController,
-                                Symbols.airwave,
-                              ),
-                            ]),
-                            buildFieldRow([
-                              ValidationPlanning.validateInput(
-                                "Kết Cấu Thay thế",
-                                structureController,
-                                Symbols.waves,
-                                readOnly: true,
-                              ),
-                            ]),
-                          ],
+                          title: "🧾 CẤU TRÚC GIẤY THAY THẾ",
+                          children: formatKeyValueRows(
+                            rows: structureInfoRows,
+                            labelWidth: 170,
+                            centerAlign: true,
+                            columnCount: 3,
+                          ),
                         ),
 
-                        // 📏 THÔNG SỐ SẢN XUẤT
+                        // THÔNG SỐ SẢN XUẤT
                         buildingCard(
                           title: "📏 THÔNG SỐ SẢN XUẤT",
-                          children: [
-                            buildFieldRow([
-                              ValidationPlanning.validateInput(
-                                "Dài sản xuất (cm)",
-                                lengthPaperPlanningController,
-                                Symbols.horizontal_distribute,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Khổ sản xuất (cm)",
-                                sizePaperPLaningController,
-                                Symbols.horizontal_distribute,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Số Lớp Sóng",
-                                fluteController,
-                                Symbols.stacks,
-                              ),
-                            ]),
-                            buildFieldRow([
-                              ValidationPlanning.validateInput(
-                                "Kế hoạch chạy",
-                                runningPlanController,
-                                Symbols.production_quantity_limits,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Ghép Khổ",
-                                ghepKhoController,
-                                Symbols.layers,
-                              ),
-                              ValidationPlanning.validateInput(
-                                "Số Con",
-                                numberChildController,
-                                Symbols.numbers,
-                              ),
-                            ]),
-                            buildFieldRow([
-                              ValidationOrder.dropdownForTypes(machineList, chooseMachine, (value) {
-                                setState(() => chooseMachine = value!);
-                              }),
-                            ]),
-                          ],
+                          children: formatKeyValueRows(
+                            rows: manufactureInfoRows,
+                            labelWidth: 170,
+                            centerAlign: true,
+                            columnCount: 3,
+                          ),
                         ),
                       ],
                     ),
