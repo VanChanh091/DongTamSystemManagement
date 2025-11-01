@@ -26,7 +26,7 @@ class UserAdminModel {
     }
   }
 
-  static String formatRole(String role) {
+  static String formatRole({required String role}) {
     switch (role) {
       case 'admin':
         return 'Quản trị';
@@ -56,9 +56,7 @@ class UserAdminModel {
       "read": "Chỉ đọc",
     };
 
-    return permissions
-        .map((position) => permissionMap[position] ?? position)
-        .join(', ');
+    return permissions.map((position) => permissionMap[position] ?? position).join(', ');
   }
 
   //change JSON from api to object User

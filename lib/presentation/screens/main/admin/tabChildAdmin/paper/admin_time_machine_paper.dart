@@ -29,7 +29,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
   void initState() {
     super.initState();
 
-    if (userController.hasAnyRole(["admin"])) {
+    if (userController.hasAnyRole(roles: ["admin"])) {
       loadMachine();
     } else {
       futureAdminMachine = Future.error("NO_PERMISSION");
@@ -44,7 +44,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAccept = userController.hasAnyRole(["admin"]);
+    final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
 
     return Scaffold(
       body: Container(
@@ -87,10 +87,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
 
                                 //right
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     children: [
                                       // update
@@ -107,10 +104,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                           final dataToUpdate =
                                               updatedMachine
                                                   .where(
-                                                    (item) =>
-                                                        isSelected.contains(
-                                                          item.machineId,
-                                                        ),
+                                                    (item) => isSelected.contains(item.machineId),
                                                   )
                                                   .toList();
 
@@ -119,48 +113,32 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                             //   '⏫ Updating machineId: ${item.machineId}',
                                             // );
 
-                                            await AdminService()
-                                                .updateMachinePaper(
-                                                  item.machineId,
-                                                  {
-                                                    "timeChangeSize":
-                                                        item.timeChangeSize,
-                                                    "timeChangeSameSize":
-                                                        item.timeChangeSameSize,
-                                                    "speed2Layer":
-                                                        item.speed2Layer,
-                                                    "speed3Layer":
-                                                        item.speed3Layer,
-                                                    "speed4Layer":
-                                                        item.speed4Layer,
-                                                    "speed5Layer":
-                                                        item.speed5Layer,
-                                                    "speed6Layer":
-                                                        item.speed6Layer,
-                                                    "speed7Layer":
-                                                        item.speed7Layer,
-                                                    "paperRollSpeed":
-                                                        item.paperRollSpeed,
-                                                    "machinePerformance":
-                                                        item.machinePerformance,
-                                                    "machineName":
-                                                        item.machineName,
-                                                  },
-                                                );
+                                            await AdminService().updateMachinePaper(
+                                              machineId: item.machineId,
+                                              machineUpdate: {
+                                                "timeChangeSize": item.timeChangeSize,
+                                                "timeChangeSameSize": item.timeChangeSameSize,
+                                                "speed2Layer": item.speed2Layer,
+                                                "speed3Layer": item.speed3Layer,
+                                                "speed4Layer": item.speed4Layer,
+                                                "speed5Layer": item.speed5Layer,
+                                                "speed6Layer": item.speed6Layer,
+                                                "speed7Layer": item.speed7Layer,
+                                                "paperRollSpeed": item.paperRollSpeed,
+                                                "machinePerformance": item.machinePerformance,
+                                                "machineName": item.machineName,
+                                              },
+                                            );
                                           }
 
                                           loadMachine();
 
                                           if (!context.mounted) return;
-                                          showSnackBarSuccess(
-                                            context,
-                                            'Đã cập nhật thành công',
-                                          );
+                                          showSnackBarSuccess(context, 'Đã cập nhật thành công');
                                         },
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
-                                        backgroundColor:
-                                            themeController.buttonColor,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -175,38 +153,26 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                                       bool isDeleting = false;
 
                                                       return StatefulBuilder(
-                                                        builder: (
-                                                          context,
-                                                          setStateDialog,
-                                                        ) {
+                                                        builder: (context, setStateDialog) {
                                                           return AlertDialog(
-                                                            backgroundColor:
-                                                                Colors.white,
+                                                            backgroundColor: Colors.white,
                                                             shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    16,
-                                                                  ),
+                                                              borderRadius: BorderRadius.circular(
+                                                                16,
+                                                              ),
                                                             ),
                                                             title: const Row(
                                                               children: [
                                                                 Icon(
-                                                                  Icons
-                                                                      .warning_amber_rounded,
-                                                                  color:
-                                                                      Colors
-                                                                          .red,
+                                                                  Icons.warning_amber_rounded,
+                                                                  color: Colors.red,
                                                                   size: 30,
                                                                 ),
-                                                                SizedBox(
-                                                                  width: 8,
-                                                                ),
+                                                                SizedBox(width: 8),
                                                                 Text(
                                                                   "Xác nhận xoá",
                                                                   style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
+                                                                    fontWeight: FontWeight.bold,
                                                                   ),
                                                                 ),
                                                               ],
@@ -216,23 +182,16 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                                                     ? const Row(
                                                                       children: [
                                                                         CircularProgressIndicator(
-                                                                          strokeWidth:
-                                                                              2,
+                                                                          strokeWidth: 2,
                                                                         ),
-                                                                        SizedBox(
-                                                                          width:
-                                                                              12,
-                                                                        ),
-                                                                        Text(
-                                                                          "Đang xoá...",
-                                                                        ),
+                                                                        SizedBox(width: 12),
+                                                                        Text("Đang xoá..."),
                                                                       ],
                                                                     )
                                                                     : const Text(
                                                                       'Bạn có chắc chắn muốn xoá?',
                                                                       style: TextStyle(
-                                                                        fontSize:
-                                                                            16,
+                                                                        fontSize: 16,
                                                                       ),
                                                                     ),
                                                             actions:
@@ -247,63 +206,59 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                                                         child: const Text(
                                                                           "Huỷ",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
-                                                                            color:
-                                                                                Colors.black54,
+                                                                            color: Colors.black54,
                                                                           ),
                                                                         ),
                                                                       ),
                                                                       ElevatedButton(
                                                                         style: ElevatedButton.styleFrom(
-                                                                          backgroundColor: const Color(
-                                                                            0xffEA4346,
-                                                                          ),
+                                                                          backgroundColor:
+                                                                              const Color(
+                                                                                0xffEA4346,
+                                                                              ),
                                                                           foregroundColor:
                                                                               Colors.white,
                                                                           shape: RoundedRectangleBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              8,
-                                                                            ),
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(
+                                                                                  8,
+                                                                                ),
                                                                           ),
                                                                         ),
                                                                         onPressed: () async {
                                                                           setStateDialog(() {
-                                                                            isDeleting =
-                                                                                true;
+                                                                            isDeleting = true;
                                                                           });
 
-                                                                          for (int
-                                                                              id
+                                                                          for (int id
                                                                               in isSelected) {
-                                                                            await AdminService().deleteMachinePaper(
-                                                                              id,
-                                                                            );
+                                                                            await AdminService()
+                                                                                .deleteMachinePaper(
+                                                                                  machineId: id,
+                                                                                );
                                                                           }
 
                                                                           await Future.delayed(
                                                                             const Duration(
-                                                                              seconds:
-                                                                                  1,
+                                                                              seconds: 1,
                                                                             ),
                                                                           );
 
-                                                                          if (!context
-                                                                              .mounted) {
+                                                                          if (!context.mounted) {
                                                                             return;
                                                                           }
 
                                                                           setState(() {
                                                                             isSelected.clear();
                                                                             futureAdminMachine =
-                                                                                AdminService().getAllMachinePaper();
+                                                                                AdminService()
+                                                                                    .getAllMachinePaper();
                                                                           });
 
-                                                                          Navigator.pop(
-                                                                            context,
-                                                                          );
+                                                                          Navigator.pop(context);
 
                                                                           // Optional: Show success toast
                                                                           showSnackBarSuccess(
@@ -314,8 +269,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                                                         child: const Text(
                                                                           "Xoá",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
                                                                           ),
@@ -331,9 +285,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                                 : null,
                                         label: "Xóa",
                                         icon: Icons.delete,
-                                        backgroundColor: const Color(
-                                          0xffEA4346,
-                                        ),
+                                        backgroundColor: const Color(0xffEA4346),
                                       ),
                                     ],
                                   ),
@@ -361,11 +313,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                Icons.lock_outline,
-                                color: Colors.redAccent,
-                                size: 35,
-                              ),
+                              Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
                               SizedBox(width: 8),
                               Text(
                                 "Bạn không có quyền xem chức năng này",
@@ -384,10 +332,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                       return const Center(
                         child: Text(
                           "Không có đơn hàng nào",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                         ),
                       );
                     }
@@ -399,29 +344,20 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
-                          themeController.currentColor.value,
-                        ),
+                        headingRowColor: WidgetStatePropertyAll(themeController.currentColor.value),
                         columns: [
                           DataColumn(
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor: WidgetStateProperty.resolveWith<
-                                    Color
-                                  >((states) {
+                                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                                     if (states.contains(WidgetState.selected)) {
                                       return Colors.red;
                                     }
                                     return Colors.white;
                                   }),
-                                  checkColor: WidgetStateProperty.all<Color>(
-                                    Colors.white,
-                                  ),
-                                  side: const BorderSide(
-                                    color: Colors.black,
-                                    width: 1,
-                                  ),
+                                  checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                  side: const BorderSide(color: Colors.black, width: 1),
                                 ),
                               ),
                               child: Checkbox(
@@ -430,8 +366,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                   setState(() {
                                     selectedAll = value!;
                                     if (selectedAll) {
-                                      isSelected =
-                                          data.map((e) => e.machineId).toList();
+                                      isSelected = data.map((e) => e.machineId).toList();
                                     } else {
                                       isSelected.clear();
                                     }
@@ -460,31 +395,18 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                 Theme(
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
-                                      fillColor:
-                                          WidgetStateProperty.resolveWith<
-                                            Color
-                                          >((states) {
-                                            if (states.contains(
-                                              WidgetState.selected,
-                                            )) {
-                                              return Colors.red;
-                                            }
-                                            return Colors.white;
-                                          }),
-                                      checkColor:
-                                          WidgetStateProperty.all<Color>(
-                                            Colors.white,
-                                          ),
-                                      side: const BorderSide(
-                                        color: Colors.black,
-                                        width: 1,
-                                      ),
+                                      fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                                        if (states.contains(WidgetState.selected)) {
+                                          return Colors.red;
+                                        }
+                                        return Colors.white;
+                                      }),
+                                      checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                      side: const BorderSide(color: Colors.black, width: 1),
                                     ),
                                   ),
                                   child: Checkbox(
-                                    value: isSelected.contains(
-                                      machine.machineId,
-                                    ),
+                                    value: isSelected.contains(machine.machineId),
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
@@ -493,8 +415,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                           isSelected.remove(machine.machineId);
                                         }
 
-                                        selectedAll =
-                                            isSelected.length == data.length;
+                                        selectedAll = isSelected.length == data.length;
                                       });
                                     },
                                   ),
@@ -502,114 +423,111 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${machine.timeChangeSize.toString()} phút',
-                                  (value) {
+                                  text: '${machine.timeChangeSize.toString()} phút',
+                                  onChanged: (value) {
                                     setState(() {
-                                      machine.timeChangeSize =
-                                          int.tryParse(value) ?? 0;
+                                      machine.timeChangeSize = int.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  machine.timeChangeSameSize == 0
-                                      ? "0"
-                                      : '${machine.timeChangeSameSize.toString()} phút',
-                                  (value) {
+                                  text:
+                                      machine.timeChangeSameSize == 0
+                                          ? "0"
+                                          : '${machine.timeChangeSameSize.toString()} phút',
+                                  onChanged: (value) {
                                     setState(() {
-                                      machine.timeChangeSameSize =
-                                          int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed2Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed2Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed3Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed3Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed4Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed4Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed5Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed5Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed6Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed6Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(showText(machine.speed7Layer), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    machine.speed7Layer =
-                                        int.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  showText(machine.paperRollSpeed),
-                                  (value) {
-                                    setState(() {
-                                      machine.paperRollSpeed =
-                                          int.tryParse(value) ?? 0;
+                                      machine.timeChangeSameSize = int.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${machine.machinePerformance}%',
-                                  (value) {
+                                  text: showText(machine.speed2Layer),
+                                  onChanged: (value) {
                                     setState(() {
-                                      machine.machinePerformance =
-                                          double.tryParse(value) ?? 0;
+                                      machine.speed2Layer = int.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  machine.machineName.toString(),
-                                  null,
+                                  text: showText(machine.speed3Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed3Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed4Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed4Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed5Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed5Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed6Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed6Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed7Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed7Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.paperRollSpeed),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.paperRollSpeed = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: '${machine.machinePerformance}%',
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.machinePerformance = double.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: machine.machineName.toString(),
+                                  onChanged: null,
                                 ),
                               ),
                             ],

@@ -59,7 +59,7 @@ class _SignUpState extends State<SignUp> {
       return;
     }
 
-    bool success = await authService.sendOTP(emailController.text);
+    bool success = await authService.sendOTP(email: emailController.text);
     if (!mounted) return;
 
     if (success) {
@@ -71,17 +71,14 @@ class _SignUpState extends State<SignUp> {
   }
 
   void register() async {
-    await authService.verifyOTPChangePassword(
-      emailController.text,
-      otpController.text,
-    );
+    await authService.verifyOTPChangePassword(email: emailController.text, otp: otpController.text);
 
     bool success = await authService.register(
-      fullNameController.text,
-      emailController.text,
-      passwordController.text,
-      confirmPWController.text,
-      otpController.text,
+      fullName: fullNameController.text,
+      email: emailController.text,
+      password: passwordController.text,
+      confirmPW: confirmPWController.text,
+      otp: otpController.text,
     );
     if (!mounted) return;
 
@@ -109,13 +106,7 @@ class _SignUpState extends State<SignUp> {
           child: Row(
             children: [
               //logo
-              Expanded(
-                child: Image.asset(
-                  'assets/images/logoDT.png',
-                  height: 250,
-                  width: 250,
-                ),
-              ),
+              Expanded(child: Image.asset('assets/images/logoDT.png', height: 250, width: 250)),
 
               //form login
               Expanded(
@@ -140,10 +131,7 @@ class _SignUpState extends State<SignUp> {
                               const SizedBox(height: 20),
                               const Text(
                                 "Đăng ký",
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 40),
 
@@ -157,9 +145,7 @@ class _SignUpState extends State<SignUp> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                validator:
-                                    (value) =>
-                                        ValidationAuth.validateFullName(value),
+                                validator: (value) => ValidationAuth.validateFullName(value),
                               ),
                               const SizedBox(height: 22),
 
@@ -174,35 +160,23 @@ class _SignUpState extends State<SignUp> {
                                         labelText: "Email",
                                         prefixIcon: const Icon(Icons.mail),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
+                                          borderRadius: BorderRadius.circular(10),
                                         ),
                                       ),
-                                      validator:
-                                          (value) =>
-                                              ValidationAuth.validateEmail(
-                                                value,
-                                              ),
+                                      validator: (value) => ValidationAuth.validateEmail(value),
                                     ),
                                   ),
                                   const SizedBox(width: 10),
                                   Container(
                                     height: 47,
                                     decoration: BoxDecoration(
-                                      color:
-                                          isButtonEnabled
-                                              ? Colors.red.shade400
-                                              : Colors.grey,
+                                      color: isButtonEnabled ? Colors.red.shade400 : Colors.grey,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: TextButton(
-                                      onPressed:
-                                          isButtonEnabled ? sendOTP : null,
+                                      onPressed: isButtonEnabled ? sendOTP : null,
                                       child: Text(
-                                        isButtonEnabled
-                                            ? "Gửi mã"
-                                            : "Đợi $secondsRemaining s",
+                                        isButtonEnabled ? "Gửi mã" : "Đợi $secondsRemaining s",
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.white,
@@ -230,18 +204,14 @@ class _SignUpState extends State<SignUp> {
                                       });
                                     },
                                     icon: Icon(
-                                      isObscureText
-                                          ? Icons.visibility_off
-                                          : Icons.visibility,
+                                      isObscureText ? Icons.visibility_off : Icons.visibility,
                                     ),
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                validator:
-                                    (value) =>
-                                        ValidationAuth.validatePassword(value),
+                                validator: (value) => ValidationAuth.validatePassword(value),
                               ),
                               const SizedBox(height: 22),
 
@@ -259,9 +229,7 @@ class _SignUpState extends State<SignUp> {
                                       });
                                     },
                                     icon: Icon(
-                                      isObscureText
-                                          ? Icons.visibility_off
-                                          : Icons.visibility,
+                                      isObscureText ? Icons.visibility_off : Icons.visibility,
                                     ),
                                   ),
                                   border: OutlineInputBorder(
@@ -269,11 +237,10 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                 ),
                                 validator:
-                                    (value) =>
-                                        ValidationAuth.validateConfirmPassword(
-                                          passwordController.text,
-                                          value,
-                                        ),
+                                    (value) => ValidationAuth.validateConfirmPassword(
+                                      passwordController.text,
+                                      value,
+                                    ),
                               ),
                               const SizedBox(height: 22),
 

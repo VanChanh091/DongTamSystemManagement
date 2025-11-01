@@ -51,7 +51,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   @override
   void initState() {
     super.initState();
-    loadOrders(refresh: true, ownOnly: isSeenOrder);
+    loadOrders(ownOnly: isSeenOrder);
 
     columns = buildOrderColumns(themeController: themeController, userController: userController);
 
@@ -62,7 +62,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
     });
   }
 
-  void loadOrders({bool refresh = false, bool ownOnly = false}) {
+  void loadOrders({bool ownOnly = false}) {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
 
@@ -84,7 +84,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
           OrderService().getOrderAcceptAndPlanning(
             page: currentPage,
             pageSize: pageSize,
-            refresh: refresh,
             ownOnly: ownOnly,
           ),
         );
@@ -110,7 +109,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
           OrderService().getOrderAcceptAndPlanning(
             page: currentPage,
             pageSize: pageSize,
-            refresh: false,
             ownOnly: false,
           ),
         );
@@ -131,7 +129,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isManager = userController.hasAnyRole(['manager', 'admin']);
+    final bool isManager = userController.hasAnyRole(roles: ['manager', 'admin']);
 
     return Scaffold(
       body: Container(
@@ -263,7 +261,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                               isSeenOrder = !isSeenOrder;
                                             });
 
-                                            loadOrders(refresh: false, ownOnly: isSeenOrder);
+                                            loadOrders(ownOnly: isSeenOrder);
                                           },
                                           label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
                                           icon: null,
@@ -411,19 +409,19 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadOrders(refresh: false, ownOnly: isSeenOrder);
+                            loadOrders(ownOnly: isSeenOrder);
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadOrders(refresh: false, ownOnly: isSeenOrder);
+                            loadOrders(ownOnly: isSeenOrder);
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadOrders(refresh: false, ownOnly: isSeenOrder);
+                            loadOrders(ownOnly: isSeenOrder);
                           });
                         },
                       ),
@@ -437,7 +435,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
       ),
       floatingActionButton: Obx(
         () => FloatingActionButton(
-          onPressed: () => loadOrders(refresh: true, ownOnly: isSeenOrder),
+          onPressed: () => loadOrders(ownOnly: isSeenOrder),
           backgroundColor: themeController.buttonColor.value,
           child: const Icon(Icons.refresh, color: Colors.white),
         ),

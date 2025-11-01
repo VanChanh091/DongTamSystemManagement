@@ -3,10 +3,10 @@ import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:flutter/material.dart';
 
 class ValidationCustomer {
-  static Widget validateInput(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
+  static Widget validateInput({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
     bool readOnly = false,
     bool checkId = false,
     List<Customer>? allCustomers,

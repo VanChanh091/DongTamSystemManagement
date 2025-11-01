@@ -12,19 +12,13 @@ class CustomerService {
 
   // get all
   Future<Map<String, dynamic>> getAllCustomers({
-    bool refresh = false,
     int? page,
     int? pageSize,
     bool noPaging = false,
   }) async {
     return HelperService().fetchPaginatedData<Customer>(
       endpoint: "customer",
-      queryParameters: {
-        'page': page,
-        'pageSize': pageSize,
-        'refresh': refresh,
-        'noPaging': noPaging,
-      },
+      queryParameters: {'page': page, 'pageSize': pageSize, 'noPaging': noPaging},
       fromJson: (json) => Customer.fromJson(json),
       dataKey: 'customers',
     );
@@ -44,8 +38,27 @@ class CustomerService {
     );
   }
 
+  Future<Map<String, dynamic>> checkCustomerInOrders({required String customerId}) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        '/api/customer/orderCount',
+        queryParameters: {"customerId": customerId},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return response.data;
+    } catch (e, s) {
+      AppLogger.e("Check customer in orders failed\nError: $e\nStackTrace: $s");
+      throw Exception('Check customer in orders failed: $e');
+    }
+  }
+
   // add customer
-  Future<bool> addCustomer(Map<String, dynamic> customerData) async {
+  Future<bool> addCustomer({required Map<String, dynamic> customerData}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -64,7 +77,10 @@ class CustomerService {
   }
 
   // update customer
-  Future<bool> updateCustomer(String customerId, Map<String, dynamic> updateCustomer) async {
+  Future<bool> updateCustomer({
+    required String customerId,
+    required Map<String, dynamic> updateCustomer,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
       await dioService.put(
@@ -83,7 +99,7 @@ class CustomerService {
   }
 
   // delete customer
-  Future<bool> deleteCustomer(String customerId) async {
+  Future<bool> deleteCustomer({required String customerId}) async {
     try {
       final token = await SecureStorageService().getToken();
 

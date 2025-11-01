@@ -62,7 +62,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   void loadPlanning(bool refresh) {
     AppLogger.i("Loading all data manufacture box");
     setState(() {
-      futurePlanning = ensureMinLoading(ManufactureService().getPlanningBox(machine, refresh));
+      futurePlanning = ensureMinLoading(
+        ManufactureService().getPlanningBox(machine: machine, refresh: refresh),
+      );
 
       selectedPlanningIds.clear();
     });
@@ -246,7 +248,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                     //report production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasPermission("step2Production") &&
+                                          userController.hasPermission(
+                                                    permission: "step2Production",
+                                                  ) &&
                                                   canExecuteAction(
                                                     selectedPlanningIds:
                                                         selectedPlanningIds.map(int.parse).toList(),
@@ -303,7 +307,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                     //confirm production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasPermission("step2Production") &&
+                                          userController.hasPermission(
+                                                    permission: "step2Production",
+                                                  ) &&
                                                   canExecuteAction(
                                                     selectedPlanningIds:
                                                         selectedPlanningIds.map(int.parse).toList(),
@@ -327,8 +333,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
                                                 try {
                                                   await ManufactureService().confirmProducingBox(
-                                                    selectedPlanning.planningBoxId,
-                                                    machine,
+                                                    planningBoxId: selectedPlanning.planningBoxId,
+                                                    machine: machine,
                                                   );
 
                                                   loadPlanning(true);
@@ -592,7 +598,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                 .whereType<int>()
                 .toList();
 
-        final success = await PlanningService().pauseOrAcceptLackQty(planningIds, status);
+        final success = await PlanningService().pauseOrAcceptLackQty(
+          planningIds: planningIds,
+          newStatus: status,
+        );
         if (!context.mounted) return;
 
         if (success) {

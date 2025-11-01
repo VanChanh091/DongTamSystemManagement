@@ -17,10 +17,7 @@ Future<void> showThemeColorDialog(BuildContext context) async {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, color: Colors.white, size: 18),
-      label: Text(
-        text,
-        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold),
-      ),
+      label: Text(text, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
       style: ElevatedButton.styleFrom(
         backgroundColor: bgColor,
         foregroundColor: Colors.white,
@@ -36,10 +33,7 @@ Future<void> showThemeColorDialog(BuildContext context) async {
       return AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          "Chọn Màu Theme",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text("Chọn Màu Theme", style: TextStyle(fontWeight: FontWeight.bold)),
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: tempColor,
@@ -74,7 +68,7 @@ Future<void> showThemeColorDialog(BuildContext context) async {
           //confirm color
           formatButton(
             onPressed: () {
-              themeController.updateColor(tempColor);
+              themeController.updateColor(newColor: tempColor);
               Navigator.pop(context);
             },
             icon: Icons.check_circle,

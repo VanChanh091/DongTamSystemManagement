@@ -177,11 +177,15 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
                   ],
                 ),
               ] else if (value == 'typeProduct') ...[
-                ValidationOrder.dropdownForTypes(itemsTypeProduct, typeProduct, (value) {
-                  setState(() {
-                    typeProduct = value!;
-                  });
-                }),
+                ValidationOrder.dropdownForTypes(
+                  items: itemsTypeProduct,
+                  type: typeProduct,
+                  onChanged: (value) {
+                    setState(() {
+                      typeProduct = value!;
+                    });
+                  },
+                ),
               ],
             ],
           );

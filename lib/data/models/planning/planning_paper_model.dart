@@ -93,9 +93,9 @@ class PlanningPaper {
     return formattedParts.join('/');
   }
 
-  static String formatTimeOfDay(TimeOfDay time) {
-    final hour = time.hour.toString().padLeft(2, '0');
-    final minute = time.minute.toString().padLeft(2, '0');
+  static String formatTimeOfDay({required TimeOfDay timeOfDay}) {
+    final hour = timeOfDay.hour.toString().padLeft(2, '0');
+    final minute = timeOfDay.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
 

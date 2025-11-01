@@ -54,7 +54,7 @@ class _CustomerPageState extends State<CustomerPage> {
   @override
   void initState() {
     super.initState();
-    loadCustomer(true);
+    loadCustomer();
 
     columns = buildCustomerColumn(themeController: themeController);
 
@@ -65,7 +65,7 @@ class _CustomerPageState extends State<CustomerPage> {
     });
   }
 
-  void loadCustomer(bool refresh) {
+  void loadCustomer() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
 
@@ -84,11 +84,7 @@ class _CustomerPageState extends State<CustomerPage> {
         );
       } else {
         futureCustomer = ensureMinLoading(
-          CustomerService().getAllCustomers(
-            refresh: refresh,
-            page: currentPage,
-            pageSize: pageSize,
-          ),
+          CustomerService().getAllCustomers(page: currentPage, pageSize: pageSize),
         );
       }
 
@@ -111,7 +107,7 @@ class _CustomerPageState extends State<CustomerPage> {
 
       if (searchType == "Tất cả") {
         futureCustomer = ensureMinLoading(
-          CustomerService().getAllCustomers(refresh: false, page: currentPage, pageSize: pageSize),
+          CustomerService().getAllCustomers(page: currentPage, pageSize: pageSize),
         );
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
@@ -130,7 +126,7 @@ class _CustomerPageState extends State<CustomerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSale = userController.hasPermission("sale");
+    final bool isSale = userController.hasPermission(permission: "sale");
 
     return Scaffold(
       body: Container(
@@ -276,7 +272,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                               context: context,
                                               builder:
                                                   (_) => DialogExportCusOrProd(
-                                                    onCusOrProd: () => loadCustomer(false),
+                                                    onCusOrProd: () => loadCustomer(),
                                                   ),
                                             );
                                           },
@@ -294,7 +290,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                               builder:
                                                   (_) => CustomerDialog(
                                                     customer: null,
-                                                    onCustomerAddOrUpdate: () => loadCustomer(true),
+                                                    onCustomerAddOrUpdate: () => loadCustomer(),
                                                   ),
                                             );
                                           },
@@ -356,7 +352,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                                             (_) => CustomerDialog(
                                                               customer: customers.first,
                                                               onCustomerAddOrUpdate:
-                                                                  () => loadCustomer(true),
+                                                                  () => loadCustomer(),
                                                             ),
                                                       );
                                                     } catch (e, s) {
@@ -444,6 +440,20 @@ class _CustomerPageState extends State<CustomerPage> {
                           isScrollbarAlwaysShown: true,
                           columnWidthMode: ColumnWidthMode.auto,
                           selectionMode: SelectionMode.single,
+                          // allowColumnsDragging: true,
+                          // onColumnDragging: (DataGridColumnDragDetails details) {
+                          //   if (details.action == DataGridColumnDragAction.dropping &&
+                          //       details.to != null) {
+                          //     setState(() {
+                          //       final GridColumn dragColumn = columns[details.from];
+                          //       columns[details.from] = columns[details.to!];
+                          //       columns[details.to!] = dragColumn;
+
+                          //       customerDatasource.buildDataGridRows();
+                          //     });
+                          //   }
+                          //   return true;
+                          // },
                           headerRowHeight: 45,
                           rowHeight: 40,
                           columns: ColumnWidthTable.applySavedWidths(
@@ -503,19 +513,19 @@ class _CustomerPageState extends State<CustomerPage> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadCustomer(false);
+                            loadCustomer();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadCustomer(false);
+                            loadCustomer();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadCustomer(false);
+                            loadCustomer();
                           });
                         },
                       ),
@@ -528,7 +538,7 @@ class _CustomerPageState extends State<CustomerPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadCustomer(true),
+        onPressed: () => loadCustomer(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
@@ -552,13 +562,13 @@ class _CustomerPageState extends State<CustomerPage> {
     showLoadingDialog(context, message: "Đang xoá...");
 
     try {
-      await CustomerService().deleteCustomer(selectedCustomerId!);
+      await CustomerService().deleteCustomer(customerId: selectedCustomerId!);
       await Future.delayed(const Duration(seconds: 1));
 
       setState(() {
         selectedCustomerId = null;
       });
-      loadCustomer(true);
+      loadCustomer();
 
       if (!context.mounted) return;
 

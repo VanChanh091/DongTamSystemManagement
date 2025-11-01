@@ -13,13 +13,13 @@ class AuthService {
   final SecureStorageService secureStorage = SecureStorageService();
 
   //register
-  Future<bool> register(
-    String fullName,
-    String email,
-    String password,
-    String confirmPW,
-    String otp,
-  ) async {
+  Future<bool> register({
+    required String fullName,
+    required String email,
+    required String password,
+    required String confirmPW,
+    required String otp,
+  }) async {
     try {
       await dioService.post(
         "/auth/register",
@@ -41,7 +41,7 @@ class AuthService {
   }
 
   //login
-  Future<bool> login(String email, String password) async {
+  Future<bool> login({required String email, required String password}) async {
     try {
       final response = await dioService.post(
         "/auth/login",
@@ -68,9 +68,7 @@ class AuthService {
 
         return true;
       } else {
-        AppLogger.w(
-          "Login failed for email=$email, status=${response.statusCode}",
-        );
+        AppLogger.w("Login failed for email=$email, status=${response.statusCode}");
         return false;
       }
     } catch (e, s) {
@@ -90,12 +88,9 @@ class AuthService {
   }
 
   //get otp
-  Future<bool> sendOTP(String email) async {
+  Future<bool> sendOTP({required String email}) async {
     try {
-      final response = await dioService.post(
-        "/auth/getOtpCode",
-        data: {"email": email},
-      );
+      final response = await dioService.post("/auth/getOtpCode", data: {"email": email});
 
       if (response.statusCode == 201) {
         response.data['otp'];
@@ -112,16 +107,14 @@ class AuthService {
   }
 
   //verify otp
-  Future<bool> verifyOTPChangePassword(String email, String otp) async {
+  Future<bool> verifyOTPChangePassword({required String email, required String otp}) async {
     try {
       final response = await dioService.post(
         "/auth/verifyOTPChangePassword",
         data: {"email": email, "otpInput": otp},
       );
 
-      AppLogger.i(
-        "Verify OTP result: ${response.statusCode == 201 ? "success" : "failed"}",
-      );
+      AppLogger.i("Verify OTP result: ${response.statusCode == 201 ? "success" : "failed"}");
       return response.statusCode == 201;
     } catch (e, s) {
       AppLogger.e("Lỗi khi xác thực otp", error: e, stackTrace: s);
@@ -130,25 +123,18 @@ class AuthService {
   }
 
   //change password
-  Future<bool> changePassword(
-    String email,
-    String newPassword,
-    String confirmNewPW,
-  ) async {
+  Future<bool> changePassword({
+    required String email,
+    required String newPassword,
+    required String confirmNewPW,
+  }) async {
     try {
       final token = await secureStorage.getToken();
       final response = await dioService.post(
         "/auth/changePassword",
-        data: {
-          "email": email,
-          "newPassword": newPassword,
-          "confirmNewPW": confirmNewPW,
-        },
+        data: {"email": email, "newPassword": newPassword, "confirmNewPW": confirmNewPW},
         options: Options(
-          headers: {
-            "Authorization": "Bearer $token",
-            'Content-Type': 'application/json',
-          },
+          headers: {"Authorization": "Bearer $token", 'Content-Type': 'application/json'},
         ),
       );
 

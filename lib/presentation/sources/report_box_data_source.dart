@@ -14,20 +14,13 @@ class ReportBoxDatasource extends DataGridSource {
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayReported = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  ReportBoxDatasource({
-    required this.reportPapers,
-    this.selectedReportId,
-    required this.machine,
-  }) {
+  ReportBoxDatasource({required this.reportPapers, this.selectedReportId, required this.machine}) {
     buildDataGridRows();
 
     addColumnGroup(ColumnGroup(name: 'dateTimeRp', sortGroupRows: false));
   }
 
-  List<DataGridCell> buildReportInfoCell(
-    ReportBoxModel reportBox,
-    String machine,
-  ) {
+  List<DataGridCell> buildReportInfoCell(ReportBoxModel reportBox, String machine) {
     final orderCell = reportBox.planningBox!.order;
     final planningBoxCell = reportBox.planningBox!;
     final boxMachineTime = planningBoxCell.getBoxMachineTimeByMachine(machine);
@@ -35,61 +28,34 @@ class ReportBoxDatasource extends DataGridSource {
     return [
       //14 items
       DataGridCell<String>(columnName: "orderId", value: orderCell!.orderId),
-      DataGridCell<int>(
-        columnName: "reportBoxId",
-        value: reportBox.reportBoxId,
-      ),
-      DataGridCell<String>(
-        columnName: "customerName",
-        value: orderCell.customer?.customerName,
-      ),
+      DataGridCell<int>(columnName: "reportBoxId", value: reportBox.reportBoxId),
+      DataGridCell<String>(columnName: "customerName", value: orderCell.customer?.customerName),
       DataGridCell<String>(
         columnName: "dateShipping",
         value: formatter.format(orderCell.dateRequestShipping),
       ),
       DataGridCell<String>(
         columnName: "dayStartProduction",
-        value:
-            boxMachineTime?.dayStart != null
-                ? formatter.format(boxMachineTime!.dayStart!)
-                : '',
+        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : '',
       ),
       DataGridCell<String>(
         columnName: "dayReported",
         value: formatterDayReported.format(reportBox.dayReport),
       ),
-      DataGridCell<String?>(
-        columnName: "dateTimeRp",
-        value: formatter.format(reportBox.dayReport),
-      ),
-      DataGridCell<String>(
-        columnName: "structure",
-        value: planningBoxCell.formatterStructureOrder,
-      ),
+      DataGridCell<String?>(columnName: "dateTimeRp", value: formatter.format(reportBox.dayReport)),
+      DataGridCell<String>(columnName: "structure", value: planningBoxCell.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: orderCell.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: orderCell.QC_box ?? ""),
-      DataGridCell<String>(
-        columnName: "length",
-        value: '${planningBoxCell.length} cm',
-      ),
-      DataGridCell<String>(
-        columnName: "size",
-        value: '${planningBoxCell.size} cm',
-      ),
+      DataGridCell<String>(columnName: "length", value: '${planningBoxCell.length} cm'),
+      DataGridCell<String>(columnName: "size", value: '${planningBoxCell.size} cm'),
       DataGridCell<int>(columnName: 'child', value: orderCell.numberChild),
-      DataGridCell<int>(
-        columnName: "quantityOrd",
-        value: orderCell.quantityCustomer,
-      ),
-      DataGridCell<int>(
-        columnName: "qtyPaper",
-        value: planningBoxCell.qtyPaper,
-      ),
+      DataGridCell<int>(columnName: "quantityOrd", value: orderCell.quantityCustomer),
+      DataGridCell<int>(columnName: "qtyPaper", value: planningBoxCell.qtyPaper),
       DataGridCell<String>(
         columnName: "timeRunnings",
         value:
             boxMachineTime?.timeRunning != null
-                ? PlanningBox.formatTimeOfDay(boxMachineTime!.timeRunning!)
+                ? PlanningBox.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
                 : '',
       ),
     ];
@@ -116,57 +82,27 @@ class ReportBoxDatasource extends DataGridSource {
     }
 
     return [
-      DataGridCell<String>(
-        columnName: "qtyPrinted",
-        value: getQtyProduced("Máy In"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyCanLan",
-        value: getQtyProduced("Máy Cấn Lằn"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyCanMang",
-        value: getQtyProduced("Máy Cán Màng"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyXa",
-        value: getQtyProduced("Máy Xả"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyCatKhe",
-        value: getQtyProduced("Máy Cắt Khe"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyBe",
-        value: getQtyProduced("Máy Bế"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyDan",
-        value: getQtyProduced("Máy Dán"),
-      ),
-      DataGridCell<String>(
-        columnName: "qtyDongGhim",
-        value: getQtyProduced("Máy Đóng Ghim"),
-      ),
+      DataGridCell<String>(columnName: "qtyPrinted", value: getQtyProduced("Máy In")),
+      DataGridCell<String>(columnName: "qtyCanLan", value: getQtyProduced("Máy Cấn Lằn")),
+      DataGridCell<String>(columnName: "qtyCanMang", value: getQtyProduced("Máy Cán Màng")),
+      DataGridCell<String>(columnName: "qtyXa", value: getQtyProduced("Máy Xả")),
+      DataGridCell<String>(columnName: "qtyCatKhe", value: getQtyProduced("Máy Cắt Khe")),
+      DataGridCell<String>(columnName: "qtyBe", value: getQtyProduced("Máy Bế")),
+      DataGridCell<String>(columnName: "qtyDan", value: getQtyProduced("Máy Dán")),
+      DataGridCell<String>(columnName: "qtyDongGhim", value: getQtyProduced("Máy Đóng Ghim")),
       DataGridCell<int>(columnName: "lackOfQty", value: reportBox.lackOfQty),
 
       ...buildChildBoxCells(planningCell, machine),
 
       DataGridCell<String>(
         columnName: "dmWasteLoss",
-        value:
-            (boxMachineTime?.wasteBox ?? 0) > 0
-                ? '${boxMachineTime!.wasteBox} Cái'
-                : "0",
+        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? '${boxMachineTime!.wasteBox} Cái' : "0",
       ),
       DataGridCell<String>(
         columnName: "wasteLossRp",
         value: (reportBox.wasteLoss) > 0 ? '${reportBox.wasteLoss} Cái' : "0",
       ),
-      DataGridCell<String>(
-        columnName: "shiftManager",
-        value: reportBox.shiftManagement,
-      ),
+      DataGridCell<String>(columnName: "shiftManager", value: reportBox.shiftManagement),
     ];
   }
 
@@ -208,10 +144,7 @@ class ReportBoxDatasource extends DataGridSource {
     reportDataGridRows =
         reportPapers.map<DataGridRow>((report) {
           return DataGridRow(
-            cells: [
-              ...buildReportInfoCell(report, machine),
-              ...buildBoxCells(report, machine),
-            ],
+            cells: [...buildReportInfoCell(report, machine), ...buildBoxCells(report, machine)],
           );
         }).toList();
 
@@ -221,12 +154,7 @@ class ReportBoxDatasource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = [
-      'dan_1_Manh',
-      'dan_2_Manh',
-      'dongGhim1Manh',
-      'dongGhim2Manh',
-    ];
+    const boolColumns = ['dan_1_Manh', 'dan_2_Manh', 'dongGhim1Manh', 'dongGhim2Manh'];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
@@ -237,15 +165,9 @@ class ReportBoxDatasource extends DataGridSource {
   }
 
   @override
-  Widget? buildGroupCaptionCellWidget(
-    RowColumnIndex rowColumnIndex,
-    String summaryValue,
-  ) {
+  Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(
-      r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$',
-      caseSensitive: false,
-    );
+    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
     String displayDate = '';
@@ -275,10 +197,7 @@ class ReportBoxDatasource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final reportPaperId =
-        row
-            .getCells()
-            .firstWhere((cell) => cell.columnName == 'reportBoxId')
-            .value;
+        row.getCells().firstWhere((cell) => cell.columnName == 'reportBoxId').value;
     final isSelected = selectedReportId?.contains(reportPaperId);
 
     final Map<String, String> machineColumnMap = {
@@ -307,8 +226,7 @@ class ReportBoxDatasource extends DataGridSource {
 
             if (dataCell.columnName == "lackOfQty") {
               final int value = dataCell.value ?? 0;
-              final String display =
-                  value < 0 ? "+${value.abs()}" : value.toString();
+              final String display = value < 0 ? "+${value.abs()}" : value.toString();
 
               Color textColor = Colors.black;
 
@@ -322,9 +240,7 @@ class ReportBoxDatasource extends DataGridSource {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(color: Colors.grey.shade300, width: 1),
-                  ),
+                  border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
                 ),
                 child: Text(
                   display,

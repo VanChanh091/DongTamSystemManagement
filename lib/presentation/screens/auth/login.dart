@@ -44,8 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void login() async {
     bool success = await authService.login(
-      emailController.text,
-      passwordController.text,
+      email: emailController.text,
+      password: passwordController.text,
     );
 
     if (success) {
@@ -79,13 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Row(
             children: [
               //logo
-              Expanded(
-                child: Image.asset(
-                  'assets/images/logoDT.png',
-                  height: 250,
-                  width: 250,
-                ),
-              ),
+              Expanded(child: Image.asset('assets/images/logoDT.png', height: 250, width: 250)),
 
               //form login
               Expanded(
@@ -109,10 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 20),
                             const Text(
                               "Đăng nhập",
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 70),
 
@@ -137,17 +128,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 focusNode,
                                 onFieldSubmitted,
                               ) {
-                                textEditingController.text =
-                                    emailController.text;
-                                textEditingController
-                                    .selection = TextSelection.fromPosition(
-                                  TextPosition(
-                                    offset: textEditingController.text.length,
-                                  ),
+                                textEditingController.text = emailController.text;
+                                textEditingController.selection = TextSelection.fromPosition(
+                                  TextPosition(offset: textEditingController.text.length),
                                 );
                                 textEditingController.addListener(() {
-                                  emailController.value =
-                                      textEditingController.value;
+                                  emailController.value = textEditingController.value;
                                 });
 
                                 return TextFormField(
@@ -163,23 +149,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 );
                               },
-                              optionsViewBuilder: (
-                                context,
-                                onSelected,
-                                options,
-                              ) {
+                              optionsViewBuilder: (context, onSelected, options) {
                                 return Align(
                                   alignment: Alignment.topLeft,
                                   child: Material(
                                     elevation: 4.0,
                                     borderRadius: BorderRadius.circular(8),
                                     child: Container(
-                                      width:
-                                          MediaQuery.of(context).size.width *
-                                          0.9,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8,
-                                      ),
+                                      width: MediaQuery.of(context).size.width * 0.9,
+                                      padding: const EdgeInsets.symmetric(vertical: 8),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(10),
@@ -189,70 +167,47 @@ class _LoginScreenState extends State<LoginScreen> {
                                         shrinkWrap: true,
                                         itemCount: options.length,
                                         itemBuilder: (context, index) {
-                                          final option = options.elementAt(
-                                            index,
-                                          );
+                                          final option = options.elementAt(index);
                                           final hover = ValueNotifier(false);
 
                                           return ValueListenableBuilder<bool>(
                                             valueListenable: hover,
-                                            builder: (
-                                              context,
-                                              isHovering,
-                                              child,
-                                            ) {
+                                            builder: (context, isHovering, child) {
                                               return MouseRegion(
-                                                onEnter:
-                                                    (_) => hover.value = true,
-                                                onExit:
-                                                    (_) => hover.value = false,
+                                                onEnter: (_) => hover.value = true,
+                                                onExit: (_) => hover.value = false,
                                                 child: Container(
-                                                  color:
-                                                      isHovering
-                                                          ? Colors.blue.shade100
-                                                          : null,
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 8,
-                                                      ),
+                                                  color: isHovering ? Colors.blue.shade100 : null,
+                                                  padding: const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
                                                   child: Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                        MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Expanded(
                                                         child: InkWell(
-                                                          onTap:
-                                                              () => onSelected(
-                                                                option,
-                                                              ),
+                                                          onTap: () => onSelected(option),
                                                           child: Text(
                                                             option,
                                                             style: TextStyle(
                                                               fontSize: 15,
                                                               color:
                                                                   isHovering
-                                                                      ? Colors
-                                                                          .blue
-                                                                          .shade500
-                                                                      : Colors
-                                                                          .black,
+                                                                      ? Colors.blue.shade500
+                                                                      : Colors.black,
                                                             ),
                                                           ),
                                                         ),
                                                       ),
                                                       InkWell(
                                                         onTap: () async {
-                                                          await HintUserName
-                                                              .instance
-                                                              .removeOneUsername(
-                                                                option,
-                                                              );
+                                                          await HintUserName.instance
+                                                              .removeOneUsername(option);
 
                                                           setState(() {
-                                                            emailSuggestions
-                                                                .remove(option);
+                                                            emailSuggestions.remove(option);
                                                           });
                                                         },
                                                         child: const Icon(
@@ -297,18 +252,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                     });
                                   },
                                   icon: Icon(
-                                    isObscureText
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
+                                    isObscureText ? Icons.visibility_off : Icons.visibility,
                                   ),
                                 ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                               ),
-                              validator:
-                                  (value) =>
-                                      ValidationAuth.validatePassword(value),
+                              validator: (value) => ValidationAuth.validatePassword(value),
                             ),
                             const SizedBox(height: 5),
 

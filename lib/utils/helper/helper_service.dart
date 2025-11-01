@@ -20,20 +20,14 @@ class HelperService {
         '/api/$endpoint',
         queryParameters: queryParameters,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
       final data = response.data;
 
       final rawList = data['data'] as List;
-      final items =
-          rawList
-              .map((json) => fromJson(json as Map<String, dynamic>))
-              .toList();
+      final items = rawList.map((json) => fromJson(json as Map<String, dynamic>)).toList();
 
       return {
         dataKey: items,
@@ -41,9 +35,7 @@ class HelperService {
         'currentPage': data['currentPage'] ?? 1,
       };
     } catch (e, s) {
-      AppLogger.e(
-        "Failed to load data from $endpoint\nError: $e\nStackTrace: $s",
-      );
+      AppLogger.e("Failed to load data from $endpoint\nError: $e\nStackTrace: $s");
       throw Exception('Failed to load data from $endpoint: $e');
     }
   }
@@ -61,22 +53,15 @@ class HelperService {
         '/api/$endpoint',
         queryParameters: queryParameters,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
       final data = response.data['data'] as List;
 
-      return data
-          .map((json) => fromJson(json as Map<String, dynamic>))
-          .toList();
+      return data.map((json) => fromJson(json as Map<String, dynamic>)).toList();
     } catch (e, s) {
-      AppLogger.e(
-        "Failed to load data from $endpoint\nError: $e\nStackTrace: $s",
-      );
+      AppLogger.e("Failed to load data from $endpoint\nError: $e\nStackTrace: $s");
       throw Exception('Failed to load data from $endpoint: $e');
     }
   }

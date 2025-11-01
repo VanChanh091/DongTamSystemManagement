@@ -53,7 +53,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   void initState() {
     super.initState();
 
-    if (userController.hasPermission("plan")) {
+    if (userController.hasPermission(permission: "plan")) {
       loadPlanning(true);
     } else {
       futurePlanning = Future.error("NO_PERMISSION");
@@ -78,7 +78,9 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
   void loadPlanning(bool refresh) {
     setState(() {
-      futurePlanning = ensureMinLoading(PlanningService().getPlanningMachineBox(machine, refresh));
+      futurePlanning = ensureMinLoading(
+        PlanningService().getPlanningMachineBox(machine: machine, refresh: refresh),
+      );
 
       selectedPlanningIds.clear();
     });
@@ -99,22 +101,22 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         break;
       case 'Mã Đơn Hàng':
         setState(() {
-          futurePlanning = PlanningService().getOrderIdBox(keyword, machine);
+          futurePlanning = PlanningService().getOrderIdBox(orderId: keyword, machine: machine);
         });
         break;
       case 'Tên KH':
         setState(() {
-          futurePlanning = PlanningService().getCusNameBox(keyword, machine);
+          futurePlanning = PlanningService().getCusNameBox(customerName: keyword, machine: machine);
         });
         break;
       case 'Sóng':
         setState(() {
-          futurePlanning = PlanningService().getFluteBox(keyword, machine);
+          futurePlanning = PlanningService().getFluteBox(flute: keyword, machine: machine);
         });
         break;
       case 'QC Thùng':
         setState(() {
-          futurePlanning = PlanningService().getQcBox(keyword, machine);
+          futurePlanning = PlanningService().getQcBox(QC_box: keyword, machine: machine);
         });
         break;
       default:
@@ -132,7 +134,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPlan = userController.hasPermission("plan");
+    final bool isPlan = userController.hasPermission(permission: "plan");
 
     return Scaffold(
       body: Container(
@@ -421,11 +423,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
                                                         final result = await PlanningService()
                                                             .updateIndexWTimeRunningBox(
-                                                              machine,
-                                                              parsedDayStart,
-                                                              parsedTimeStart,
-                                                              parsedTotalTime,
-                                                              updateIndex,
+                                                              machine: machine,
+                                                              dayStart: parsedDayStart,
+                                                              timeStart: parsedTimeStart,
+                                                              totalTimeWorking: parsedTotalTime,
+                                                              updateIndex: updateIndex,
                                                             );
 
                                                         if (!context.mounted) {
@@ -906,7 +908,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
     if (confirm) {
       try {
-        final success = await PlanningService().acceptLackQtyBox(planningIds, status, machine);
+        final success = await PlanningService().acceptLackQtyBox(
+          planningBoxIds: planningIds,
+          newStatus: status,
+          machine: machine,
+        );
 
         if (!context.mounted) return;
 

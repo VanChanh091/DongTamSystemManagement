@@ -25,14 +25,8 @@ class ReportPaperDatasource extends DataGridSource {
 
     return [
       DataGridCell<String>(columnName: 'orderId', value: orderCell!.orderId),
-      DataGridCell<int>(
-        columnName: 'reportPaperId',
-        value: reportPaper.reportPaperId,
-      ),
-      DataGridCell<String>(
-        columnName: 'customerName',
-        value: orderCell.customer?.customerName,
-      ),
+      DataGridCell<int>(columnName: 'reportPaperId', value: reportPaper.reportPaperId),
+      DataGridCell<String>(columnName: 'customerName', value: orderCell.customer?.customerName),
       DataGridCell<String>(
         columnName: "dateShipping",
         value: formatter.format(orderCell.dateRequestShipping),
@@ -49,50 +43,26 @@ class ReportPaperDatasource extends DataGridSource {
         columnName: "dateTimeRp",
         value: formatter.format(reportPaper.dayReport),
       ),
-      DataGridCell<String>(
-        columnName: 'structure',
-        value: planningPaper.formatterStructureOrder,
-      ),
+      DataGridCell<String>(columnName: 'structure', value: planningPaper.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: orderCell.flute ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: orderCell.daoXa),
-      DataGridCell<String>(
-        columnName: 'length',
-        value: '${planningPaper.lengthPaperPlanning} cm',
-      ),
-      DataGridCell<String>(
-        columnName: 'size',
-        value: '${planningPaper.sizePaperPLaning} cm',
-      ),
+      DataGridCell<String>(columnName: 'length', value: '${planningPaper.lengthPaperPlanning} cm'),
+      DataGridCell<String>(columnName: 'size', value: '${planningPaper.sizePaperPLaning} cm'),
       DataGridCell<int>(columnName: 'child', value: orderCell.numberChild),
-      DataGridCell<String>(
-        columnName: 'khoCapGiay',
-        value: '${planningPaper.ghepKho} cm',
-      ),
-      DataGridCell<int>(
-        columnName: 'quantityOrd',
-        value: orderCell.quantityManufacture,
-      ),
-      DataGridCell<int>(
-        columnName: "runningPlanProd",
-        value: planningPaper.runningPlan,
-      ),
+      DataGridCell<String>(columnName: 'khoCapGiay', value: '${planningPaper.ghepKho} cm'),
+      DataGridCell<int>(columnName: 'quantityOrd', value: orderCell.quantityManufacture),
+      DataGridCell<int>(columnName: "runningPlanProd", value: planningPaper.runningPlan),
       // DataGridCell<int>(
       //   columnName: "qtyProduced",
       //   value: planningPaper.qtyProduced ?? 0,
       // ),
-      DataGridCell<int>(
-        columnName: "qtyReported",
-        value: reportPaper.qtyProduced,
-      ),
+      DataGridCell<int>(columnName: "qtyReported", value: reportPaper.qtyProduced),
       DataGridCell<int>(columnName: "lackOfQty", value: reportPaper.lackOfQty),
       DataGridCell<String>(
         columnName: 'timeRunningProd',
-        value: PlanningPaper.formatTimeOfDay(planningPaper.timeRunning!),
+        value: PlanningPaper.formatTimeOfDay(timeOfDay: planningPaper.timeRunning!),
       ),
-      DataGridCell<String>(
-        columnName: "HD_special",
-        value: orderCell.instructSpecial ?? '',
-      ),
+      DataGridCell<String>(columnName: "HD_special", value: orderCell.instructSpecial ?? ''),
       DataGridCell<String>(
         columnName: 'totalPrice',
         value: '${Order.formatCurrency(orderCell.totalPrice)} VND',
@@ -125,30 +95,15 @@ class ReportPaperDatasource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: 'totalLoss',
-        value:
-            planningPaper.totalLoss != 0
-                ? '${planningPaper.totalLoss} kg'
-                : "0",
+        value: planningPaper.totalLoss != 0 ? '${planningPaper.totalLoss} kg' : "0",
       ),
       DataGridCell<String>(
         columnName: 'qtyWasteRp',
-        value:
-            reportPaper.qtyWasteNorm != 0
-                ? '${reportPaper.qtyWasteNorm} kg'
-                : "0",
+        value: reportPaper.qtyWasteNorm != 0 ? '${reportPaper.qtyWasteNorm} kg' : "0",
       ),
-      DataGridCell<String>(
-        columnName: 'shiftProduct',
-        value: reportPaper.shiftProduction,
-      ),
-      DataGridCell<String>(
-        columnName: 'shiftManager',
-        value: reportPaper.shiftManagement,
-      ),
-      DataGridCell<bool>(
-        columnName: 'hasMadeBox',
-        value: reportPaper.planningPaper!.hasBox,
-      ),
+      DataGridCell<String>(columnName: 'shiftProduct', value: reportPaper.shiftProduction),
+      DataGridCell<String>(columnName: 'shiftManager', value: reportPaper.shiftManagement),
+      DataGridCell<bool>(columnName: 'hasMadeBox', value: reportPaper.planningPaper!.hasBox),
     ];
   }
 
@@ -172,10 +127,7 @@ class ReportPaperDatasource extends DataGridSource {
     reportDataGridRows =
         reportPapers.map<DataGridRow>((report) {
           return DataGridRow(
-            cells: [
-              ...buildReportInfoCells(report),
-              ...buildWasteNormCell(report),
-            ],
+            cells: [...buildReportInfoCells(report), ...buildWasteNormCell(report)],
           );
         }).toList();
 
@@ -183,15 +135,9 @@ class ReportPaperDatasource extends DataGridSource {
   }
 
   @override
-  Widget? buildGroupCaptionCellWidget(
-    RowColumnIndex rowColumnIndex,
-    String summaryValue,
-  ) {
+  Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(
-      r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$',
-      caseSensitive: false,
-    );
+    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
     String displayDate = '';
@@ -221,10 +167,7 @@ class ReportPaperDatasource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final reportPaperId =
-        row
-            .getCells()
-            .firstWhere((cell) => cell.columnName == 'reportPaperId')
-            .value;
+        row.getCells().firstWhere((cell) => cell.columnName == 'reportPaperId').value;
     final isSelected = selectedReportId?.contains(reportPaperId);
 
     Color backgroundColor;
@@ -257,8 +200,7 @@ class ReportPaperDatasource extends DataGridSource {
               }
             } else if (dataCell.columnName == "lackOfQty") {
               final int value = dataCell.value ?? 0;
-              final String display =
-                  value < 0 ? "+${value.abs()}" : value.toString();
+              final String display = value < 0 ? "+${value.abs()}" : value.toString();
 
               Color textColor = Colors.black;
               if (value > 0) {
@@ -271,9 +213,7 @@ class ReportPaperDatasource extends DataGridSource {
                 alignment: alignment,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(color: Colors.grey.shade300, width: 1),
-                  ),
+                  border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
                 ),
                 child: Text(
                   display,

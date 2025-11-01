@@ -28,19 +28,13 @@ class ThemeController extends GetxController {
     }
   }
 
-  Future<void> updateColor(Color newColor) async {
+  Future<void> updateColor({required Color newColor}) async {
     currentColor.value = newColor;
     buttonColor.value = newColor;
 
-    await _storage.write(
-      key: _keyThemeColor,
-      value: newColor.toARGB32().toRadixString(16),
-    );
+    await _storage.write(key: _keyThemeColor, value: newColor.toARGB32().toRadixString(16));
 
-    await _storage.write(
-      key: _keyButtonColor,
-      value: newColor.toARGB32().toRadixString(16),
-    );
+    await _storage.write(key: _keyButtonColor, value: newColor.toARGB32().toRadixString(16));
   }
 
   void resetColor() async {
@@ -50,10 +44,7 @@ class ThemeController extends GetxController {
     currentColor.value = defaultColor;
     buttonColor.value = defaultButtonColor;
 
-    await _storage.write(
-      key: _keyThemeColor,
-      value: defaultColor.toARGB32().toRadixString(16),
-    );
+    await _storage.write(key: _keyThemeColor, value: defaultColor.toARGB32().toRadixString(16));
     await _storage.write(
       key: _keyButtonColor,
       value: defaultButtonColor.toARGB32().toRadixString(16),

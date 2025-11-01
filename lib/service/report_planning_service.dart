@@ -132,7 +132,7 @@ class ReportPlanningService {
         }
 
         final now = DateTime.now();
-        final safeMachine = makeSafeFileName(machine);
+        final safeMachine = makeSafeFileName(input: machine);
         final fileName =
             "reportPaper_${safeMachine.toLowerCase()}_${now.toIso8601String().split('T')[0]}.xlsx";
         final file = File("$dirPath/$fileName");
@@ -190,7 +190,7 @@ class ReportPlanningService {
         }
 
         final now = DateTime.now();
-        final safeMachine = makeSafeFileName(machine);
+        final safeMachine = makeSafeFileName(input: machine);
         final fileName =
             "report-box-${safeMachine.toLowerCase()}-${now.toIso8601String().split('T')[0]}.xlsx";
         final file = File("$dirPath/$fileName");
@@ -209,7 +209,7 @@ class ReportPlanningService {
     }
   }
 
-  String makeSafeFileName(String input) {
+  String makeSafeFileName({required String input}) {
     // bỏ dấu tiếng Việt
     var result = removeDiacritics(input);
 

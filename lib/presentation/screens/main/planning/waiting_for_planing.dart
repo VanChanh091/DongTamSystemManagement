@@ -37,7 +37,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   void initState() {
     super.initState();
 
-    if (userController.hasPermission('plan')) {
+    if (userController.hasPermission(permission: 'plan')) {
       loadOrders(true);
     } else {
       futureOrdersAccept = Future.error("NO_PERMISSION");
@@ -54,14 +54,14 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
   void loadOrders(bool refresh) {
     setState(() {
-      futureOrdersAccept = ensureMinLoading(PlanningService().getOrderAccept(refresh));
+      futureOrdersAccept = ensureMinLoading(PlanningService().getOrderAccept(refresh: refresh));
       selectedOrderId = null;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isPlan = userController.hasPermission("plan");
+    final bool isPlan = userController.hasPermission(permission: "plan");
 
     return Scaffold(
       body: Container(

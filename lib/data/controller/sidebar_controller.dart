@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 class SidebarController extends GetxController {
   var selectedIndex = 0.obs;
 
-  void changePage(int index) {
+  void changePage({required int index}) {
     selectedIndex.value = index; // Cập nhật trang
   }
 

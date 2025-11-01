@@ -87,7 +87,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     try {
       if (selectedOption.value == 'role') {
         AppLogger.d("Cập nhật ROLE: $chosenRole cho user: $originalUserId");
-        success = await AdminService().updateUserRole(originalUserId, chosenRole);
+        success = await AdminService().updateUserRole(userId: originalUserId, newRole: chosenRole);
       } else if (selectedOption.value == 'permission') {
         List<String> updatedPermissions =
             permissionCheckStates.entries
@@ -96,7 +96,10 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                 .toList();
 
         AppLogger.d("Cập nhật PERMISSIONS: $updatedPermissions cho user: $originalUserId");
-        success = await AdminService().updateUserPermissions(originalUserId, updatedPermissions);
+        success = await AdminService().updateUserPermissions(
+          userId: originalUserId,
+          permissions: updatedPermissions,
+        );
       }
 
       if (success) {

@@ -131,7 +131,7 @@ class _EmployeeState extends State<Employee> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSale = userController.hasPermission("HR");
+    final bool isSale = userController.hasPermission(permission: "HR");
 
     return Scaffold(
       body: Container(

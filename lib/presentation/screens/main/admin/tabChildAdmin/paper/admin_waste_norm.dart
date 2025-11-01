@@ -29,7 +29,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
   void initState() {
     super.initState();
 
-    if (userController.hasAnyRole(["admin"])) {
+    if (userController.hasAnyRole(roles: ["admin"])) {
       loadWasteNorm();
     } else {
       futureAdminWasteNorm = Future.error("NO_PERMISSION");
@@ -44,7 +44,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAccept = userController.hasAnyRole(["admin"]);
+    final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
 
     return Scaffold(
       body: Container(
@@ -87,10 +87,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
 
                                 //right
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     children: [
                                       // update
@@ -107,10 +104,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                           final dataToUpdate =
                                               updatedWasteNorms
                                                   .where(
-                                                    (item) =>
-                                                        isSelected.contains(
-                                                          item.wasteNormId,
-                                                        ),
+                                                    (item) => isSelected.contains(item.wasteNormId),
                                                   )
                                                   .toList();
 
@@ -120,13 +114,11 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                             // );
 
                                             await AdminService().updateWasteNorm(
-                                              item.wasteNormId,
-                                              {
+                                              wasteNormId: item.wasteNormId,
+                                              wasteNormUpdate: {
                                                 "waveCrest": item.waveCrest,
-                                                "waveCrestSoft":
-                                                    item.waveCrestSoft,
-                                                "lossInProcess":
-                                                    item.lossInProcess,
+                                                "waveCrestSoft": item.waveCrestSoft,
+                                                "lossInProcess": item.lossInProcess,
                                                 "lossInSheetingAndSlitting":
                                                     item.lossInSheetingAndSlitting,
                                                 "machineName": item.machineName,
@@ -138,15 +130,11 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
 
                                           loadWasteNorm();
 
-                                          showSnackBarSuccess(
-                                            context,
-                                            'Đã cập nhật thành công',
-                                          );
+                                          showSnackBarSuccess(context, 'Đã cập nhật thành công');
                                         },
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
-                                        backgroundColor:
-                                            themeController.buttonColor,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -161,38 +149,26 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                       bool isDeleting = false;
 
                                                       return StatefulBuilder(
-                                                        builder: (
-                                                          context,
-                                                          setStateDialog,
-                                                        ) {
+                                                        builder: (context, setStateDialog) {
                                                           return AlertDialog(
-                                                            backgroundColor:
-                                                                Colors.white,
+                                                            backgroundColor: Colors.white,
                                                             shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    16,
-                                                                  ),
+                                                              borderRadius: BorderRadius.circular(
+                                                                16,
+                                                              ),
                                                             ),
                                                             title: const Row(
                                                               children: [
                                                                 Icon(
-                                                                  Icons
-                                                                      .warning_amber_rounded,
-                                                                  color:
-                                                                      Colors
-                                                                          .red,
+                                                                  Icons.warning_amber_rounded,
+                                                                  color: Colors.red,
                                                                   size: 30,
                                                                 ),
-                                                                SizedBox(
-                                                                  width: 8,
-                                                                ),
+                                                                SizedBox(width: 8),
                                                                 Text(
                                                                   "Xác nhận xoá",
                                                                   style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
+                                                                    fontWeight: FontWeight.bold,
                                                                   ),
                                                                 ),
                                                               ],
@@ -202,23 +178,16 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                                     ? const Row(
                                                                       children: [
                                                                         CircularProgressIndicator(
-                                                                          strokeWidth:
-                                                                              2,
+                                                                          strokeWidth: 2,
                                                                         ),
-                                                                        SizedBox(
-                                                                          width:
-                                                                              12,
-                                                                        ),
-                                                                        Text(
-                                                                          "Đang xoá...",
-                                                                        ),
+                                                                        SizedBox(width: 12),
+                                                                        Text("Đang xoá..."),
                                                                       ],
                                                                     )
                                                                     : const Text(
                                                                       'Bạn có chắc chắn muốn xoá?',
                                                                       style: TextStyle(
-                                                                        fontSize:
-                                                                            16,
+                                                                        fontSize: 16,
                                                                       ),
                                                                     ),
                                                             actions:
@@ -233,63 +202,59 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                                         child: const Text(
                                                                           "Huỷ",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
-                                                                            color:
-                                                                                Colors.black54,
+                                                                            color: Colors.black54,
                                                                           ),
                                                                         ),
                                                                       ),
                                                                       ElevatedButton(
                                                                         style: ElevatedButton.styleFrom(
-                                                                          backgroundColor: const Color(
-                                                                            0xffEA4346,
-                                                                          ),
+                                                                          backgroundColor:
+                                                                              const Color(
+                                                                                0xffEA4346,
+                                                                              ),
                                                                           foregroundColor:
                                                                               Colors.white,
                                                                           shape: RoundedRectangleBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              8,
-                                                                            ),
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(
+                                                                                  8,
+                                                                                ),
                                                                           ),
                                                                         ),
                                                                         onPressed: () async {
                                                                           setStateDialog(() {
-                                                                            isDeleting =
-                                                                                true;
+                                                                            isDeleting = true;
                                                                           });
 
-                                                                          for (int
-                                                                              id
+                                                                          for (int id
                                                                               in isSelected) {
-                                                                            await AdminService().deleteWasteNorm(
-                                                                              id,
-                                                                            );
+                                                                            await AdminService()
+                                                                                .deleteWasteNorm(
+                                                                                  wasteNormId: id,
+                                                                                );
                                                                           }
 
                                                                           await Future.delayed(
                                                                             const Duration(
-                                                                              seconds:
-                                                                                  1,
+                                                                              seconds: 1,
                                                                             ),
                                                                           );
 
-                                                                          if (!context
-                                                                              .mounted) {
+                                                                          if (!context.mounted) {
                                                                             return;
                                                                           }
 
                                                                           setState(() {
                                                                             isSelected.clear();
                                                                             futureAdminWasteNorm =
-                                                                                AdminService().getAllWasteNorm();
+                                                                                AdminService()
+                                                                                    .getAllWasteNorm();
                                                                           });
 
-                                                                          Navigator.pop(
-                                                                            context,
-                                                                          );
+                                                                          Navigator.pop(context);
 
                                                                           // Optional: Show success toast
                                                                           showSnackBarSuccess(
@@ -300,8 +265,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                                         child: const Text(
                                                                           "Xoá",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
                                                                           ),
@@ -317,9 +281,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                 : null,
                                         label: "Xóa",
                                         icon: Icons.delete,
-                                        backgroundColor: const Color(
-                                          0xffEA4346,
-                                        ),
+                                        backgroundColor: const Color(0xffEA4346),
                                       ),
                                     ],
                                   ),
@@ -347,11 +309,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                Icons.lock_outline,
-                                color: Colors.redAccent,
-                                size: 35,
-                              ),
+                              Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
                               SizedBox(width: 8),
                               Text(
                                 "Bạn không có quyền xem chức năng này",
@@ -370,10 +328,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                       return const Center(
                         child: Text(
                           "Không có đơn hàng nào",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                         ),
                       );
                     }
@@ -385,29 +340,20 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
-                          themeController.currentColor.value,
-                        ),
+                        headingRowColor: WidgetStatePropertyAll(themeController.currentColor.value),
                         columns: [
                           DataColumn(
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor: WidgetStateProperty.resolveWith<
-                                    Color
-                                  >((states) {
+                                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                                     if (states.contains(WidgetState.selected)) {
                                       return Colors.red;
                                     }
                                     return Colors.white;
                                   }),
-                                  checkColor: WidgetStateProperty.all<Color>(
-                                    Colors.white,
-                                  ),
-                                  side: const BorderSide(
-                                    color: Colors.black,
-                                    width: 1,
-                                  ),
+                                  checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                  side: const BorderSide(color: Colors.black, width: 1),
                                 ),
                               ),
                               child: Checkbox(
@@ -416,10 +362,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                   setState(() {
                                     selectedAll = value!;
                                     if (selectedAll) {
-                                      isSelected =
-                                          data
-                                              .map((e) => e.wasteNormId)
-                                              .toList();
+                                      isSelected = data.map((e) => e.wasteNormId).toList();
                                     } else {
                                       isSelected.clear();
                                     }
@@ -430,12 +373,8 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                           ),
                           DataColumn(label: styleText("Vô Giấy Đầu Sóng")),
                           DataColumn(label: styleText("Ra Giấy Đầu Mềm")),
-                          DataColumn(
-                            label: styleText("Hao phí Quá Trình Chạy"),
-                          ),
-                          DataColumn(
-                            label: styleText("Hao Phí Xả Tờ - Chia Khổ"),
-                          ),
+                          DataColumn(label: styleText("Hao phí Quá Trình Chạy")),
+                          DataColumn(label: styleText("Hao Phí Xả Tờ - Chia Khổ")),
                           DataColumn(label: styleText("Loại Máy")),
                         ],
                         rows: List<DataRow>.generate(data.length, (index) {
@@ -446,43 +385,27 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                 Theme(
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
-                                      fillColor:
-                                          WidgetStateProperty.resolveWith<
-                                            Color
-                                          >((states) {
-                                            if (states.contains(
-                                              WidgetState.selected,
-                                            )) {
-                                              return Colors.red;
-                                            }
-                                            return Colors.white;
-                                          }),
-                                      checkColor:
-                                          WidgetStateProperty.all<Color>(
-                                            Colors.white,
-                                          ),
-                                      side: const BorderSide(
-                                        color: Colors.black,
-                                        width: 1,
-                                      ),
+                                      fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                                        if (states.contains(WidgetState.selected)) {
+                                          return Colors.red;
+                                        }
+                                        return Colors.white;
+                                      }),
+                                      checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                      side: const BorderSide(color: Colors.black, width: 1),
                                     ),
                                   ),
                                   child: Checkbox(
-                                    value: isSelected.contains(
-                                      wasteNorm.wasteNormId,
-                                    ),
+                                    value: isSelected.contains(wasteNorm.wasteNormId),
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
                                           isSelected.add(wasteNorm.wasteNormId);
                                         } else {
-                                          isSelected.remove(
-                                            wasteNorm.wasteNormId,
-                                          );
+                                          isSelected.remove(wasteNorm.wasteNormId);
                                         }
 
-                                        selectedAll =
-                                            isSelected.length == data.length;
+                                        selectedAll = isSelected.length == data.length;
                                       });
                                     },
                                   ),
@@ -490,41 +413,38 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${wasteNorm.waveCrest.toString()}m',
-                                  (value) {
+                                  text: '${wasteNorm.waveCrest.toString()}m',
+                                  onChanged: (value) {
                                     setState(() {
-                                      wasteNorm.waveCrest =
-                                          double.tryParse(value) ?? 0;
+                                      wasteNorm.waveCrest = double.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${wasteNorm.waveCrestSoft.toString()}m',
-                                  (value) {
+                                  text: '${wasteNorm.waveCrestSoft.toString()}m',
+                                  onChanged: (value) {
                                     setState(() {
-                                      wasteNorm.waveCrestSoft =
-                                          double.tryParse(value) ?? 0;
+                                      wasteNorm.waveCrestSoft = double.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${wasteNorm.lossInProcess.toString()}%',
-                                  (value) {
+                                  text: '${wasteNorm.lossInProcess.toString()}%',
+                                  onChanged: (value) {
                                     setState(() {
-                                      wasteNorm.lossInProcess =
-                                          double.tryParse(value) ?? 0;
+                                      wasteNorm.lossInProcess = double.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${wasteNorm.lossInSheetingAndSlitting.toString()}m',
-                                  (value) {
+                                  text: '${wasteNorm.lossInSheetingAndSlitting.toString()}m',
+                                  onChanged: (value) {
                                     setState(() {
                                       wasteNorm.lossInSheetingAndSlitting =
                                           double.tryParse(value) ?? 0;
@@ -534,8 +454,8 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  wasteNorm.machineName.toString(),
-                                  null,
+                                  text: wasteNorm.machineName.toString(),
+                                  onChanged: null,
                                 ),
                               ),
                             ],

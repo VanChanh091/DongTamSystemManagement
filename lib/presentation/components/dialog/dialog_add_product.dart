@@ -83,8 +83,8 @@ class _ProductDialogState extends State<ProductDialog> {
         // Add new product
         AppLogger.d("Thêm sản phẩm mới: ${newProduct.productId}");
         await ProductService().addProduct(
-          newProduct.productId,
-          newProduct.toJson(),
+          prefix: newProduct.productId,
+          product: newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
 
@@ -94,8 +94,8 @@ class _ProductDialogState extends State<ProductDialog> {
         // Update existing product
         AppLogger.d("Cập nhật sản phẩm: ${newProduct.productId}");
         await ProductService().updateProductById(
-          newProduct.productId,
-          newProduct.toJson(),
+          productId: newProduct.productId,
+          productUpdated: newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
 
@@ -124,10 +124,10 @@ class _ProductDialogState extends State<ProductDialog> {
     widget.onProductAddOrUpdate();
   }
 
-  Widget validateInput(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
+  Widget validateInput({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
     bool readOnly = false,
     bool checkId = false,
   }) {
@@ -207,29 +207,33 @@ class _ProductDialogState extends State<ProductDialog> {
               children: [
                 const SizedBox(height: 15),
                 validateInput(
-                  "Mã Sản Phẩm",
-                  idController,
-                  Icons.code,
+                  label: "Mã Sản Phẩm",
+                  controller: idController,
+                  icon: Icons.code,
                   readOnly: isEdit,
                   checkId: !isEdit,
                 ),
 
                 const SizedBox(height: 15),
-                ValidationOrder.dropdownForTypes(itemsTypeProduct, typeProduct, (value) {
-                  setState(() {
-                    typeProduct = value!;
-                  });
-                }),
-
-                const SizedBox(height: 15),
-                validateInput(
-                  "Tên sản phẩm",
-                  nameProductController,
-                  Icons.production_quantity_limits,
+                ValidationOrder.dropdownForTypes(
+                  items: itemsTypeProduct,
+                  type: typeProduct,
+                  onChanged: (value) {
+                    setState(() {
+                      typeProduct = value!;
+                    });
+                  },
                 ),
 
                 const SizedBox(height: 15),
-                validateInput("Mã khuôn", maKhuonController, Icons.code),
+                validateInput(
+                  label: "Tên sản phẩm",
+                  controller: nameProductController,
+                  icon: Icons.production_quantity_limits,
+                ),
+
+                const SizedBox(height: 15),
+                validateInput(label: "Mã khuôn", controller: maKhuonController, icon: Icons.code),
 
                 const SizedBox(height: 15),
                 ElevatedButton.icon(

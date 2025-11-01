@@ -14,12 +14,11 @@ class OrderService {
   Future<Map<String, dynamic>> getOrderAcceptAndPlanning({
     int page = 1,
     int pageSize = 20,
-    bool refresh = false,
     bool ownOnly = false,
   }) async {
     return HelperService().fetchPaginatedData<Order>(
       endpoint: "order/accept-planning",
-      queryParameters: {'page': page, 'pageSize': pageSize, 'refresh': refresh, 'ownOnly': ownOnly},
+      queryParameters: {'page': page, 'pageSize': pageSize, 'ownOnly': ownOnly},
       fromJson: (json) => Order.fromJson(json),
       dataKey: 'orders',
     );
@@ -85,16 +84,16 @@ class OrderService {
   //===============================PENDING AND REJECT=====================================
 
   //get Order Pending And Reject
-  Future<List<Order>> getOrderPendingAndReject({bool refresh = false, bool ownOnly = false}) async {
+  Future<List<Order>> getOrderPendingAndReject({bool ownOnly = false}) async {
     return HelperService().fetchingData<Order>(
       endpoint: "order/pending-reject",
-      queryParameters: {'refresh': refresh, 'ownOnly': ownOnly},
+      queryParameters: {'ownOnly': ownOnly},
       fromJson: (json) => Order.fromJson(json),
     );
   }
 
   //add order
-  Future<Map<String, dynamic>> addOrders(Map<String, dynamic> orderData) async {
+  Future<Map<String, dynamic>> addOrders({required Map<String, dynamic> orderData}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -124,7 +123,10 @@ class OrderService {
   }
 
   //update order
-  Future<bool> updateOrderById(String orderId, Map<String, dynamic> orderUpdated) async {
+  Future<bool> updateOrderById({
+    required String orderId,
+    required Map<String, dynamic> orderUpdated,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -144,7 +146,7 @@ class OrderService {
   }
 
   //delete order
-  Future<bool> deleteOrder(String orderId) async {
+  Future<bool> deleteOrder({required String orderId}) async {
     try {
       final token = await SecureStorageService().getToken();
 

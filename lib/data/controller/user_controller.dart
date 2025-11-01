@@ -24,29 +24,27 @@ class UserController extends GetxController {
       }
 
       // Log tổng quan một lần
-      AppLogger.i(
-        "User data loaded → role: $role, permissions: ${permissions.length}",
-      );
+      AppLogger.i("User data loaded → role: $role, permissions: ${permissions.length}");
     } catch (e, s) {
       AppLogger.e("Error loading user data", error: e, stackTrace: s);
     }
   }
 
-  bool hasPermission(String permission) {
+  bool hasPermission({required String permission}) {
     if (role.value == "admin" || role.value == "manager") {
       return true;
     }
     return permissions.contains(permission);
   }
 
-  bool hasAnyPermission(List<String> permission) {
+  bool hasAnyPermission({required List<String> permission}) {
     if (role.value == "admin" || role.value == "manager") {
       return true;
     }
     return permissions.any((p) => permission.contains(p));
   }
 
-  bool hasAnyRole(List<String> roles) {
+  bool hasAnyRole({required List<String> roles}) {
     final result = roles.contains(role.value);
     return result;
   }

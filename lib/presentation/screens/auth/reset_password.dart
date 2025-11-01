@@ -24,9 +24,9 @@ class _ResetPasswordState extends State<ResetPassword> {
 
   void changePassword() async {
     bool success = await authService.changePassword(
-      widget.email,
-      passwordController.text,
-      confirmPwController.text,
+      email: widget.email,
+      newPassword: passwordController.text,
+      confirmNewPW: confirmPwController.text,
     );
     if (!mounted) return;
 
@@ -67,13 +67,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                       child: Column(
                         children: [
                           const SizedBox(height: 70),
-                          const Center(
-                            child: Icon(
-                              Icons.keyboard,
-                              size: 50,
-                              color: Colors.yellow,
-                            ),
-                          ),
+                          const Center(child: Icon(Icons.keyboard, size: 50, color: Colors.yellow)),
                           const SizedBox(height: 15),
 
                           const Center(
@@ -121,9 +115,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                       });
                                     },
                                     icon: Icon(
-                                      isObscureText
-                                          ? Icons.visibility_off
-                                          : Icons.visibility,
+                                      isObscureText ? Icons.visibility_off : Icons.visibility,
                                     ),
                                   ),
                                   border: OutlineInputBorder(
@@ -154,9 +146,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                       });
                                     },
                                     icon: Icon(
-                                      isObscureText
-                                          ? Icons.visibility_off
-                                          : Icons.visibility,
+                                      isObscureText ? Icons.visibility_off : Icons.visibility,
                                     ),
                                   ),
                                   border: OutlineInputBorder(

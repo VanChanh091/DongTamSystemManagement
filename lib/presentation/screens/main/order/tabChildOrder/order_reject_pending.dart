@@ -43,7 +43,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   @override
   void initState() {
     super.initState();
-    loadOrders(false, isSeenOrder);
+    loadOrders(ownOnly: isSeenOrder);
 
     columns = buildOrderColumns(themeController: themeController, userController: userController);
 
@@ -54,18 +54,18 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
     });
   }
 
-  void loadOrders(bool refresh, bool ownOnly) {
+  void loadOrders({required bool ownOnly}) {
     AppLogger.i("load all oder pending & reject");
     setState(() {
       futureOrdersPending = ensureMinLoading(
-        OrderService().getOrderPendingAndReject(refresh: refresh, ownOnly: ownOnly),
+        OrderService().getOrderPendingAndReject(ownOnly: ownOnly),
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isManager = userController.hasAnyRole(['manager', 'admin']);
+    final bool isManager = userController.hasAnyRole(roles: ['manager', 'admin']);
 
     return Scaffold(
       body: Container(
@@ -121,7 +121,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                           isSeenOrder = !isSeenOrder;
                                         });
 
-                                        loadOrders(false, isSeenOrder);
+                                        loadOrders(ownOnly: isSeenOrder);
                                       },
                                       label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
                                       icon: null,
@@ -140,7 +140,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                         (_) => OrderDialog(
                                           order: null,
                                           onOrderAddOrUpdate: (String newOrderId) {
-                                            loadOrders(true, isSeenOrder);
+                                            loadOrders(ownOnly: isSeenOrder);
                                             WidgetsBinding.instance.addPostFrameCallback((_) {
                                               Future.delayed(const Duration(milliseconds: 300), () {
                                                 _scrollToOrder(newOrderId);
@@ -177,7 +177,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                                     order: selectedOrder,
                                                     onOrderAddOrUpdate:
                                                         (String? newOrderId) =>
-                                                            loadOrders(true, isSeenOrder),
+                                                            loadOrders(ownOnly: isSeenOrder),
                                                   ),
                                             );
                                           } catch (e, s) {
@@ -330,7 +330,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
       ),
       floatingActionButton: Obx(
         () => FloatingActionButton(
-          onPressed: () => loadOrders(true, isSeenOrder),
+          onPressed: () => loadOrders(ownOnly: isSeenOrder),
           backgroundColor: themeController.buttonColor.value,
           child: const Icon(Icons.refresh, color: Colors.white),
         ),
@@ -370,12 +370,12 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
     showLoadingDialog(context, message: "Đang xoá...");
 
     try {
-      await OrderService().deleteOrder(selectedOrderId!);
+      await OrderService().deleteOrder(orderId: selectedOrderId!);
 
       badgesController.fetchPendingApprovals();
       await Future.delayed(const Duration(milliseconds: 500));
 
-      loadOrders(true, isSeenOrder);
+      loadOrders(ownOnly: isSeenOrder);
 
       if (!context.mounted) {
         return;

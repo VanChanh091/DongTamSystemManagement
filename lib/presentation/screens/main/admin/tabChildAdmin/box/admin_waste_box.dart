@@ -29,7 +29,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
   void initState() {
     super.initState();
 
-    if (userController.hasAnyRole(["admin"])) {
+    if (userController.hasAnyRole(roles: ["admin"])) {
       loadWasteBox();
     } else {
       futureAdminWasteNorm = Future.error("NO_PERMISSION");
@@ -44,7 +44,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAccept = userController.hasAnyRole(["admin"]);
+    final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
 
     return Scaffold(
       body: Container(
@@ -87,10 +87,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
 
                                 //right
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     children: [
                                       // update
@@ -107,10 +104,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                           final dataToUpdate =
                                               updatedWasteNorms
                                                   .where(
-                                                    (item) =>
-                                                        isSelected.contains(
-                                                          item.wasteBoxId,
-                                                        ),
+                                                    (item) => isSelected.contains(item.wasteBoxId),
                                                   )
                                                   .toList();
 
@@ -120,14 +114,11 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                             // );
 
                                             await AdminService().updateWasteBoxById(
-                                              item.wasteBoxId,
-                                              {
-                                                "colorNumberOnProduct":
-                                                    item.colorNumberOnProduct,
-                                                "paperNumberOnProduct":
-                                                    item.paperNumberOnProduct,
-                                                "totalLossOnTotalQty":
-                                                    item.totalLossOnTotalQty,
+                                              wasteNormId: item.wasteBoxId,
+                                              wasteNormUpdate: {
+                                                "colorNumberOnProduct": item.colorNumberOnProduct,
+                                                "paperNumberOnProduct": item.paperNumberOnProduct,
+                                                "totalLossOnTotalQty": item.totalLossOnTotalQty,
                                                 "machineName": item.machineName,
                                               },
                                             );
@@ -137,15 +128,11 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
 
                                           loadWasteBox();
 
-                                          showSnackBarSuccess(
-                                            context,
-                                            'Đã cập nhật thành công',
-                                          );
+                                          showSnackBarSuccess(context, 'Đã cập nhật thành công');
                                         },
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
-                                        backgroundColor:
-                                            themeController.buttonColor,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -160,38 +147,26 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                                       bool isDeleting = false;
 
                                                       return StatefulBuilder(
-                                                        builder: (
-                                                          context,
-                                                          setStateDialog,
-                                                        ) {
+                                                        builder: (context, setStateDialog) {
                                                           return AlertDialog(
-                                                            backgroundColor:
-                                                                Colors.white,
+                                                            backgroundColor: Colors.white,
                                                             shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    16,
-                                                                  ),
+                                                              borderRadius: BorderRadius.circular(
+                                                                16,
+                                                              ),
                                                             ),
                                                             title: const Row(
                                                               children: [
                                                                 Icon(
-                                                                  Icons
-                                                                      .warning_amber_rounded,
-                                                                  color:
-                                                                      Colors
-                                                                          .red,
+                                                                  Icons.warning_amber_rounded,
+                                                                  color: Colors.red,
                                                                   size: 30,
                                                                 ),
-                                                                SizedBox(
-                                                                  width: 8,
-                                                                ),
+                                                                SizedBox(width: 8),
                                                                 Text(
                                                                   "Xác nhận xoá",
                                                                   style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
+                                                                    fontWeight: FontWeight.bold,
                                                                   ),
                                                                 ),
                                                               ],
@@ -201,23 +176,16 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                                                     ? const Row(
                                                                       children: [
                                                                         CircularProgressIndicator(
-                                                                          strokeWidth:
-                                                                              2,
+                                                                          strokeWidth: 2,
                                                                         ),
-                                                                        SizedBox(
-                                                                          width:
-                                                                              12,
-                                                                        ),
-                                                                        Text(
-                                                                          "Đang xoá...",
-                                                                        ),
+                                                                        SizedBox(width: 12),
+                                                                        Text("Đang xoá..."),
                                                                       ],
                                                                     )
                                                                     : const Text(
                                                                       'Bạn có chắc chắn muốn xoá?',
                                                                       style: TextStyle(
-                                                                        fontSize:
-                                                                            16,
+                                                                        fontSize: 16,
                                                                       ),
                                                                     ),
                                                             actions:
@@ -232,63 +200,59 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                                                         child: const Text(
                                                                           "Huỷ",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
-                                                                            color:
-                                                                                Colors.black54,
+                                                                            color: Colors.black54,
                                                                           ),
                                                                         ),
                                                                       ),
                                                                       ElevatedButton(
                                                                         style: ElevatedButton.styleFrom(
-                                                                          backgroundColor: const Color(
-                                                                            0xffEA4346,
-                                                                          ),
+                                                                          backgroundColor:
+                                                                              const Color(
+                                                                                0xffEA4346,
+                                                                              ),
                                                                           foregroundColor:
                                                                               Colors.white,
                                                                           shape: RoundedRectangleBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              8,
-                                                                            ),
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(
+                                                                                  8,
+                                                                                ),
                                                                           ),
                                                                         ),
                                                                         onPressed: () async {
                                                                           setStateDialog(() {
-                                                                            isDeleting =
-                                                                                true;
+                                                                            isDeleting = true;
                                                                           });
 
-                                                                          for (int
-                                                                              id
+                                                                          for (int id
                                                                               in isSelected) {
-                                                                            await AdminService().deleteWasteBoxById(
-                                                                              id,
-                                                                            );
+                                                                            await AdminService()
+                                                                                .deleteWasteBoxById(
+                                                                                  wasteNormId: id,
+                                                                                );
                                                                           }
 
                                                                           await Future.delayed(
                                                                             const Duration(
-                                                                              seconds:
-                                                                                  1,
+                                                                              seconds: 1,
                                                                             ),
                                                                           );
 
-                                                                          if (!context
-                                                                              .mounted) {
+                                                                          if (!context.mounted) {
                                                                             return;
                                                                           }
 
                                                                           setState(() {
                                                                             isSelected.clear();
                                                                             futureAdminWasteNorm =
-                                                                                AdminService().getAllWasteBox();
+                                                                                AdminService()
+                                                                                    .getAllWasteBox();
                                                                           });
 
-                                                                          Navigator.pop(
-                                                                            context,
-                                                                          );
+                                                                          Navigator.pop(context);
 
                                                                           // Optional: Show success toast
                                                                           showSnackBarSuccess(
@@ -299,8 +263,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                                                         child: const Text(
                                                                           "Xoá",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
                                                                           ),
@@ -316,9 +279,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                                 : null,
                                         label: "Xóa",
                                         icon: Icons.delete,
-                                        backgroundColor: const Color(
-                                          0xffEA4346,
-                                        ),
+                                        backgroundColor: const Color(0xffEA4346),
                                       ),
                                     ],
                                   ),
@@ -346,11 +307,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                Icons.lock_outline,
-                                color: Colors.redAccent,
-                                size: 35,
-                              ),
+                              Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
                               SizedBox(width: 8),
                               Text(
                                 "Bạn không có quyền xem chức năng này",
@@ -369,10 +326,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                       return const Center(
                         child: Text(
                           "Không có đơn hàng nào",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                         ),
                       );
                     }
@@ -384,29 +338,20 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
-                          themeController.currentColor.value,
-                        ),
+                        headingRowColor: WidgetStatePropertyAll(themeController.currentColor.value),
                         columns: [
                           DataColumn(
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor: WidgetStateProperty.resolveWith<
-                                    Color
-                                  >((states) {
+                                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                                     if (states.contains(WidgetState.selected)) {
                                       return Colors.red;
                                     }
                                     return Colors.white;
                                   }),
-                                  checkColor: WidgetStateProperty.all<Color>(
-                                    Colors.white,
-                                  ),
-                                  side: const BorderSide(
-                                    color: Colors.black,
-                                    width: 1,
-                                  ),
+                                  checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                  side: const BorderSide(color: Colors.black, width: 1),
                                 ),
                               ),
                               child: Checkbox(
@@ -415,10 +360,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                   setState(() {
                                     selectedAll = value!;
                                     if (selectedAll) {
-                                      isSelected =
-                                          data
-                                              .map((e) => e.wasteBoxId)
-                                              .toList();
+                                      isSelected = data.map((e) => e.wasteBoxId).toList();
                                     } else {
                                       isSelected.clear();
                                     }
@@ -440,43 +382,27 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                 Theme(
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
-                                      fillColor:
-                                          WidgetStateProperty.resolveWith<
-                                            Color
-                                          >((states) {
-                                            if (states.contains(
-                                              WidgetState.selected,
-                                            )) {
-                                              return Colors.red;
-                                            }
-                                            return Colors.white;
-                                          }),
-                                      checkColor:
-                                          WidgetStateProperty.all<Color>(
-                                            Colors.white,
-                                          ),
-                                      side: const BorderSide(
-                                        color: Colors.black,
-                                        width: 1,
-                                      ),
+                                      fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                                        if (states.contains(WidgetState.selected)) {
+                                          return Colors.red;
+                                        }
+                                        return Colors.white;
+                                      }),
+                                      checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                      side: const BorderSide(color: Colors.black, width: 1),
                                     ),
                                   ),
                                   child: Checkbox(
-                                    value: isSelected.contains(
-                                      wasteNorm.wasteBoxId,
-                                    ),
+                                    value: isSelected.contains(wasteNorm.wasteBoxId),
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
                                           isSelected.add(wasteNorm.wasteBoxId);
                                         } else {
-                                          isSelected.remove(
-                                            wasteNorm.wasteBoxId,
-                                          );
+                                          isSelected.remove(wasteNorm.wasteBoxId);
                                         }
 
-                                        selectedAll =
-                                            isSelected.length == data.length;
+                                        selectedAll = isSelected.length == data.length;
                                       });
                                     },
                                   ),
@@ -484,41 +410,38 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  wasteNorm.colorNumberOnProduct.toString(),
-                                  (value) {
+                                  text: wasteNorm.colorNumberOnProduct.toString(),
+                                  onChanged: (value) {
                                     setState(() {
-                                      wasteNorm.colorNumberOnProduct =
-                                          int.tryParse(value) ?? 0;
+                                      wasteNorm.colorNumberOnProduct = int.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  wasteNorm.paperNumberOnProduct.toString(),
-                                  (value) {
+                                  text: wasteNorm.paperNumberOnProduct.toString(),
+                                  onChanged: (value) {
                                     setState(() {
-                                      wasteNorm.paperNumberOnProduct =
-                                          int.tryParse(value) ?? 0;
+                                      wasteNorm.paperNumberOnProduct = int.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${wasteNorm.totalLossOnTotalQty.toString()}%',
-                                  (value) {
+                                  text: '${wasteNorm.totalLossOnTotalQty.toString()}%',
+                                  onChanged: (value) {
                                     setState(() {
-                                      wasteNorm.totalLossOnTotalQty =
-                                          double.tryParse(value) ?? 0;
+                                      wasteNorm.totalLossOnTotalQty = double.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  wasteNorm.machineName.toString(),
-                                  null,
+                                  text: wasteNorm.machineName.toString(),
+                                  onChanged: null,
                                 ),
                               ),
                             ],

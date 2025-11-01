@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ValidationAdmin {
-  static Widget validateInput(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
+  static Widget validateInput({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
     bool readOnly = false,
     bool checkId = false,
     VoidCallback? onTap,
@@ -25,17 +25,12 @@ class ValidationAdmin {
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             fillColor:
                 readOnly
                     ? Colors.grey.shade300
-                    : (isFilled
-                        ? Colors.white
-                        : Color.fromARGB(255, 148, 236, 154)),
+                    : (isFilled ? Colors.white : Color.fromARGB(255, 148, 236, 154)),
             filled: true,
           ),
           onTap: onTap,

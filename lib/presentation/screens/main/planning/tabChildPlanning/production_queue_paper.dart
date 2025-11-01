@@ -17,7 +17,6 @@ import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -59,7 +58,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   void initState() {
     super.initState();
 
-    if (userController.hasPermission("plan")) {
+    if (userController.hasPermission(permission: "plan")) {
       loadPlanning(true);
     } else {
       futurePlanning = Future.error("NO_PERMISSION");
@@ -85,7 +84,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   void loadPlanning(bool refresh) {
     setState(() {
       futurePlanning = ensureMinLoading(
-        PlanningService().getPlanningPaperByMachine(machine, refresh),
+        PlanningService().getPlanningPaperByMachine(machine: machine, refresh: refresh),
       );
 
       selectedPlanningIds.clear();
@@ -107,23 +106,32 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         break;
       case 'Mã Đơn Hàng':
         setState(() {
-          futurePlanning = PlanningService().getPlanningByOrderId(keyword, machine);
+          futurePlanning = PlanningService().getPlanningByOrderId(
+            orderId: keyword,
+            machine: machine,
+          );
         });
         break;
       case 'Tên KH':
         setState(() {
-          futurePlanning = PlanningService().getPlanningByCustomerName(keyword, machine);
+          futurePlanning = PlanningService().getPlanningByCustomerName(
+            customerName: keyword,
+            machine: machine,
+          );
         });
         break;
       case 'Sóng':
         setState(() {
-          futurePlanning = PlanningService().getPlanningByFlute(keyword, machine);
+          futurePlanning = PlanningService().getPlanningByFlute(flute: keyword, machine: machine);
         });
         break;
       case 'Khổ Cấp Giấy':
         setState(() {
           try {
-            futurePlanning = PlanningService().getPlanningByGhepKho(int.parse(keyword), machine);
+            futurePlanning = PlanningService().getPlanningByGhepKho(
+              ghepKho: int.parse(keyword),
+              machine: machine,
+            );
           } catch (e) {
             showSnackBarError(context, 'Vui lòng nhập số hợp lệ cho khổ cấp giấy');
           }
@@ -145,7 +153,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPlan = userController.hasPermission("plan");
+    final bool isPlan = userController.hasPermission(permission: "plan");
 
     return Scaffold(
       body: Container(
@@ -435,11 +443,11 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
                                                         final result = await PlanningService()
                                                             .updateIndexWTimeRunning(
-                                                              machine,
-                                                              updateIndex,
-                                                              parsedDayStart,
-                                                              parsedTimeStart,
-                                                              parsedTotalTime,
+                                                              machine: machine,
+                                                              dayStart: parsedDayStart,
+                                                              timeStart: parsedTimeStart,
+                                                              totalTimeWorking: parsedTotalTime,
+                                                              updateIndex: updateIndex,
                                                             );
 
                                                         if (!context.mounted) {
@@ -823,6 +831,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                             columnNames: [
                               'bottom',
                               'fluteE',
+                              'fluteE2',
                               'fluteB',
                               'fluteC',
                               'knife',
@@ -886,33 +895,27 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     //                         LogicalKeyboardKey.shiftLeft,
                     //                       );
                     onSelectionChanged: (addedRows, removedRows) {
-                      if (addedRows.isEmpty) return;
-
-                      final isShiftPressed = HardwareKeyboard.instance.logicalKeysPressed.contains(
-                        LogicalKeyboardKey.shiftLeft,
-                      );
-
-                      final selectedRow = addedRows.first;
-                      final planningPaperId =
-                          selectedRow
-                              .getCells()
-                              .firstWhere((cell) => cell.columnName == 'planningId')
-                              .value
-                              .toString();
+                      if (addedRows.isEmpty && removedRows.isEmpty) return;
 
                       setState(() {
-                        if (isShiftPressed) {
-                          if (selectedPlanningIds.contains(planningPaperId)) {
-                            selectedPlanningIds.remove(planningPaperId);
-                          } else {
-                            selectedPlanningIds.add(planningPaperId);
-                          }
-                        } else {
-                          selectedPlanningIds
-                            ..clear()
-                            ..add(planningPaperId);
-                        }
+                        // Lấy selection thật sự từ controller (chuẩn nhất)
+                        final selectedRows = dataGridController.selectedRows;
 
+                        selectedPlanningIds =
+                            selectedRows
+                                .map((row) {
+                                  final cell = row.getCells().firstWhere(
+                                    (c) => c.columnName == 'planningId',
+                                    orElse:
+                                        () =>
+                                            const DataGridCell(columnName: 'planningId', value: ''),
+                                  );
+                                  return cell.value.toString();
+                                })
+                                .where((id) => id.isNotEmpty)
+                                .toList();
+
+                        // cập nhật highlight cho datasource
                         machinePaperDatasource.selectedPlanningIds = selectedPlanningIds;
                         machinePaperDatasource.notifyListeners();
                       });
@@ -1006,7 +1009,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
     if (confirm) {
       try {
-        final success = await PlanningService().pauseOrAcceptLackQty(planningIds, status);
+        final success = await PlanningService().pauseOrAcceptLackQty(
+          planningIds: planningIds,
+          newStatus: status,
+        );
 
         if (!context.mounted) return;
         if (success) {

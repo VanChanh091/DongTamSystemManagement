@@ -12,10 +12,10 @@ class ManufactureService {
   //===============================MANUFACTURE PAPER====================================
 
   //get planning paper
-  Future<List<PlanningPaper>> getPlanningPaper(
-    String machine,
-    bool refresh,
-  ) async {
+  Future<List<PlanningPaper>> getPlanningPaper({
+    required String machine,
+    required bool refresh,
+  }) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "manufacture/planningPaper",
       queryParameters: {"machine": machine, 'refresh': refresh},
@@ -24,13 +24,13 @@ class ManufactureService {
   }
 
   //create report for planning
-  Future<bool> createReportPaper(
-    int planningId,
-    int qtyProduced,
-    double qtyWasteNorm,
-    DateTime dayCompleted,
-    Map<String, dynamic> reportData,
-  ) async {
+  Future<bool> createReportPaper({
+    required int planningId,
+    required int qtyProduced,
+    required double qtyWasteNorm,
+    required DateTime dayCompleted,
+    required Map<String, dynamic> reportData,
+  }) async {
     final token = await SecureStorageService().getToken();
 
     final now = DateTime.now();
@@ -54,10 +54,7 @@ class ManufactureService {
           ...reportData,
         },
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -78,7 +75,7 @@ class ManufactureService {
     }
   }
 
-  Future<bool> confirmProducingPaper(int planningId) async {
+  Future<bool> confirmProducingPaper({required int planningId}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -86,10 +83,7 @@ class ManufactureService {
         '/api/manufacture/producingPaper',
         queryParameters: {"planningId": planningId},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -102,7 +96,7 @@ class ManufactureService {
 
   //===============================MANUFACTURE BOX====================================
   //get planning paper
-  Future<List<PlanningBox>> getPlanningBox(String machine, bool refresh) async {
+  Future<List<PlanningBox>> getPlanningBox({required String machine, required bool refresh}) async {
     return HelperService().fetchingData<PlanningBox>(
       endpoint: "manufacture/planningBox",
       queryParameters: {"machine": machine, 'refresh': refresh},
@@ -111,14 +105,14 @@ class ManufactureService {
   }
 
   //create report for planning
-  Future<bool> createReportBox(
-    int planningBoxId,
-    String machine,
-    DateTime dayCompleted,
-    int qtyProduced,
-    double rpWasteLoss,
-    String shiftManagement,
-  ) async {
+  Future<bool> createReportBox({
+    required int planningBoxId,
+    required String machine,
+    required DateTime dayCompleted,
+    required int qtyProduced,
+    required double rpWasteLoss,
+    required String shiftManagement,
+  }) async {
     final token = await SecureStorageService().getToken();
 
     final now = DateTime.now();
@@ -142,10 +136,7 @@ class ManufactureService {
           "shiftManagement": shiftManagement,
         },
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -166,7 +157,7 @@ class ManufactureService {
     }
   }
 
-  Future<bool> confirmProducingBox(int planningBoxId, String machine) async {
+  Future<bool> confirmProducingBox({required int planningBoxId, required String machine}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -174,10 +165,7 @@ class ManufactureService {
         '/api/manufacture/producingBox',
         queryParameters: {"planningBoxId": planningBoxId, "machine": machine},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 

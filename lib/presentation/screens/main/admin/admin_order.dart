@@ -268,9 +268,9 @@ class _ManageOrderState extends State<AdminOrder> {
                                     onPressed: () async {
                                       try {
                                         await AdminService().updateStatusOrder(
-                                          selectedOrder!.orderId,
-                                          'accept',
-                                          "",
+                                          orderId: selectedOrder!.orderId,
+                                          newStatus: 'accept',
+                                          rejectReason: "",
                                         );
                                         if (!context.mounted) return;
 
@@ -361,9 +361,9 @@ class _ManageOrderState extends State<AdminOrder> {
                                                     Navigator.pop(context);
 
                                                     await AdminService().updateStatusOrder(
-                                                      selectedOrder!.orderId,
-                                                      'reject',
-                                                      reasonController.text,
+                                                      orderId: selectedOrder!.orderId,
+                                                      newStatus: 'reject',
+                                                      rejectReason: reasonController.text,
                                                     );
                                                     if (!context.mounted) {
                                                       return;
@@ -428,15 +428,20 @@ class _ManageOrderState extends State<AdminOrder> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(width: 8),
-          Text(
-            unit != null ? '$value $unit' : value,
-            style: GoogleFonts.inter(
-              fontWeight: FontWeight.w500,
-              color: valueColor ?? Colors.black87,
-              fontSize: 16,
+          Expanded(
+            child: Text(
+              unit != null ? '$value $unit' : value,
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500,
+                color: valueColor ?? Colors.black87,
+                fontSize: 16,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
             ),
           ),
         ],
@@ -459,7 +464,7 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('📦 Quy cách thùng:', order.QC_box.toString()),
       _infoRow('🔢 Cấn lằn:', order.canLan.toString()),
       _infoRow('🔪 Dao xả:', order.daoXa.toString()),
-      _infoRow('🔧 Kết cấu:', order.formatterStructureOrder),
+      _infoRow('🔧 Kết cấu:', '${order.formatterStructureOrder} - ${order.flute}'),
       _infoRow('✂️ Cắt (Khách Hàng):', Order.formatCurrency(order.lengthPaperCustomer), unit: "cm"),
       _infoRow(
         '✂️ Cắt (Sản Xuất) :',

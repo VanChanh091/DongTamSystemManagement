@@ -72,7 +72,7 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'timeRunningProd',
         value:
             planning.timeRunning != null
-                ? PlanningPaper.formatTimeOfDay(planning.timeRunning!)
+                ? PlanningPaper.formatTimeOfDay(timeOfDay: planning.timeRunning!)
                 : '',
       ),
       DataGridCell<int>(columnName: 'quantityOrd', value: planning.order?.quantityManufacture ?? 0),
@@ -105,6 +105,10 @@ class MachinePaperDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: 'fluteE',
         value: planning.fluteE != 0 ? '${planning.fluteE} kg' : "0",
+      ),
+      DataGridCell<String>(
+        columnName: 'fluteE2',
+        value: planning.fluteE2 != 0 ? '${planning.fluteE2} kg' : "0",
       ),
       DataGridCell<String>(
         columnName: 'fluteB',
@@ -176,7 +180,7 @@ class MachinePaperDatasource extends DataGridSource {
   void moveRowUp(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
 
-    unsavedChange?.setUnsavedChanges(true);
+    unsavedChange?.setUnsavedChanges(value: true);
 
     List<PlanningPaper> selectedItems =
         planning.where((p) => idsToMove.contains(p.planningId.toString())).toList();
@@ -209,7 +213,7 @@ class MachinePaperDatasource extends DataGridSource {
   void moveRowDown(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
 
-    unsavedChange?.setUnsavedChanges(true);
+    unsavedChange?.setUnsavedChanges(value: true);
 
     List<PlanningPaper> selectedItems =
         planning.where((p) => idsToMove.contains(p.planningId.toString())).toList();

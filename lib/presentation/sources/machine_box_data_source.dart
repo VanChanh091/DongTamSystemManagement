@@ -62,7 +62,7 @@ class MachineBoxDatasource extends DataGridSource {
         columnName: "timeRunnings",
         value:
             boxMachineTime?.timeRunning != null
-                ? PlanningBox.formatTimeOfDay(boxMachineTime!.timeRunning!)
+                ? PlanningBox.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
                 : '',
       ),
     ];
@@ -181,7 +181,7 @@ class MachineBoxDatasource extends DataGridSource {
   void moveRowUp(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
 
-    unsavedChange?.setUnsavedChanges(true);
+    unsavedChange?.setUnsavedChanges(value: true);
 
     List<PlanningBox> selectedItems =
         planning.where((p) => idsToMove.contains(p.planningBoxId.toString())).toList();
@@ -214,7 +214,7 @@ class MachineBoxDatasource extends DataGridSource {
   void moveRowDown(List<String> idsToMove) {
     if (idsToMove.isEmpty) return;
 
-    unsavedChange?.setUnsavedChanges(true);
+    unsavedChange?.setUnsavedChanges(value: true);
 
     List<PlanningBox> selectedItems =
         planning.where((p) => idsToMove.contains(p.planningBoxId.toString())).toList();

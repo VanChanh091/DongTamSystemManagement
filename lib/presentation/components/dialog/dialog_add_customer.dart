@@ -80,7 +80,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
   //get all customer to check sdt
   Future<void> fetchAllCustomer() async {
     try {
-      final result = await CustomerService().getAllCustomers(refresh: false, noPaging: true);
+      final result = await CustomerService().getAllCustomers(noPaging: true);
 
       allCustomers = result['customers'] as List<Customer>;
     } catch (e, s) {
@@ -180,14 +180,17 @@ class _CustomerDialogState extends State<CustomerDialog> {
       if (widget.customer == null) {
         // add
         AppLogger.i("Thêm khách hàng mới: ${newCustomer.customerId}");
-        await CustomerService().addCustomer(newCustomer.toJson());
+        await CustomerService().addCustomer(customerData: newCustomer.toJson());
 
         if (!mounted) return; // check context
         showSnackBarSuccess(context, "Thêm thành công");
       } else {
         // update
         AppLogger.i("Cập nhật khách hàng: ${newCustomer.customerId}");
-        await CustomerService().updateCustomer(newCustomer.customerId, newCustomer.toJson());
+        await CustomerService().updateCustomer(
+          customerId: newCustomer.customerId,
+          updateCustomer: newCustomer.toJson(),
+        );
         if (!mounted) return;
         showSnackBarSuccess(context, "Cập nhật thành công");
       }
@@ -253,9 +256,9 @@ class _CustomerDialogState extends State<CustomerDialog> {
                           children: [
                             Expanded(
                               child: ValidationCustomer.validateInput(
-                                "Mã khách hàng",
-                                _idController,
-                                Icons.badge,
+                                label: "Mã khách hàng",
+                                controller: _idController,
+                                icon: Icons.badge,
                                 readOnly: isEdit,
                                 checkId: !isEdit,
                                 allCustomers: allCustomers,
@@ -265,9 +268,9 @@ class _CustomerDialogState extends State<CustomerDialog> {
                             const SizedBox(width: 15),
                             Expanded(
                               child: ValidationCustomer.validateInput(
-                                "Tên khách hàng",
-                                _nameController,
-                                Icons.person,
+                                label: "Tên khách hàng",
+                                controller: _nameController,
+                                icon: Icons.person,
                               ),
                             ),
                           ],
@@ -275,23 +278,23 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
-                          "Tên công ty",
-                          _companyNameController,
-                          Icons.business,
+                          label: "Tên công ty",
+                          controller: _companyNameController,
+                          icon: Icons.business,
                         ),
 
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
-                          "Địa chỉ công ty",
-                          _companyAddressController,
-                          Icons.location_city,
+                          label: "Địa chỉ công ty",
+                          controller: _companyAddressController,
+                          icon: Icons.location_city,
                         ),
 
                         const SizedBox(height: 15),
                         ValidationCustomer.validateInput(
-                          "Địa chỉ giao hàng",
-                          _shippingAddressController,
-                          Icons.local_shipping,
+                          label: "Địa chỉ giao hàng",
+                          controller: _shippingAddressController,
+                          icon: Icons.local_shipping,
                         ),
 
                         const SizedBox(height: 15),
@@ -299,17 +302,17 @@ class _CustomerDialogState extends State<CustomerDialog> {
                           children: [
                             Expanded(
                               child: ValidationCustomer.validateInput(
-                                "Khoảng Cách Giao Hàng",
-                                _distanceController,
-                                Icons.social_distance,
+                                label: "Khoảng Cách Giao Hàng",
+                                controller: _distanceController,
+                                icon: Icons.social_distance,
                               ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: ValidationCustomer.validateInput(
-                                "MST",
-                                _mstController,
-                                Icons.numbers,
+                                label: "MST",
+                                controller: _mstController,
+                                icon: Icons.numbers,
                                 allCustomers: allCustomers,
                                 currentCustomerId: widget.customer?.customerId,
                               ),
@@ -322,17 +325,17 @@ class _CustomerDialogState extends State<CustomerDialog> {
                           children: [
                             Expanded(
                               child: ValidationCustomer.validateInput(
-                                "SDT",
-                                _phoneController,
-                                Icons.phone,
+                                label: "SDT",
+                                controller: _phoneController,
+                                icon: Icons.phone,
                               ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: ValidationCustomer.validateInput(
-                                "Người Liên Hệ",
-                                _contactPersonController,
-                                Icons.person,
+                                label: "Người Liên Hệ",
+                                controller: _contactPersonController,
+                                icon: Icons.person,
                               ),
                             ),
                           ],
@@ -343,17 +346,17 @@ class _CustomerDialogState extends State<CustomerDialog> {
                           children: [
                             Expanded(
                               child: ValidationCustomer.validateInput(
-                                "Hạn Mức Công Nợ",
-                                _debtLimitController,
-                                Icons.money,
+                                label: "Hạn Mức Công Nợ",
+                                controller: _debtLimitController,
+                                icon: Icons.money,
                               ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: ValidationOrder.validateInput(
-                                "Hạn Thanh Toán",
-                                _timePaymentController,
-                                Symbols.calendar_month,
+                                label: "Hạn Thanh Toán",
+                                controller: _timePaymentController,
+                                icon: Symbols.calendar_month,
                                 readOnly: true,
                                 onTap: () async {
                                   DateTime? pickedDate = await showDatePicker(
@@ -396,20 +399,22 @@ class _CustomerDialogState extends State<CustomerDialog> {
                           children: [
                             Expanded(
                               child: ValidationCustomer.validateInput(
-                                "CSKH",
-                                _cskhController,
-                                Icons.support_agent,
+                                label: "CSKH",
+                                controller: _cskhController,
+                                icon: Icons.support_agent,
                               ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: ValidationOrder.dropdownForTypes(itemRating, typeRating, (
-                                value,
-                              ) {
-                                setState(() {
-                                  typeRating = value!;
-                                });
-                              }),
+                              child: ValidationOrder.dropdownForTypes(
+                                items: itemRating,
+                                type: typeRating,
+                                onChanged: (value) {
+                                  setState(() {
+                                    typeRating = value!;
+                                  });
+                                },
+                              ),
                             ),
                           ],
                         ),

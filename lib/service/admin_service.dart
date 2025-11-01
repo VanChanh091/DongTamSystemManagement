@@ -24,10 +24,7 @@ class AdminService {
       final response = await dioService.get(
         '/api/admin/',
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       final data = response.data['data'] as List;
@@ -41,11 +38,11 @@ class AdminService {
   }
 
   //update status order
-  Future<bool> updateStatusOrder(
-    String orderId,
-    String newStatus,
-    String rejectReason,
-  ) async {
+  Future<bool> updateStatusOrder({
+    required String orderId,
+    required String newStatus,
+    required String rejectReason,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -53,10 +50,7 @@ class AdminService {
         "/api/admin/updateStatus?id=$orderId",
         data: {"newStatus": newStatus, "rejectReason": rejectReason},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -83,10 +77,7 @@ class AdminService {
       final response = await dioService.get(
         '/api/admin/getAllMachinePaper',
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       final data = response.data['data'] as List;
@@ -105,9 +96,7 @@ class AdminService {
   }
 
   //get machine by Id
-  Future<List<AdminMachinePaperModel>> getMachinePaperById(
-    int machineId,
-  ) async {
+  Future<List<AdminMachinePaperModel>> getMachinePaperById({required int machineId}) async {
     return HelperService().fetchingData<AdminMachinePaperModel>(
       endpoint: "admin/getMachinePaperById",
       queryParameters: {'machineId': machineId},
@@ -116,10 +105,10 @@ class AdminService {
   }
 
   //update machine
-  Future<bool> updateMachinePaper(
-    int machineId,
-    Map<String, dynamic> machineUpdate,
-  ) async {
+  Future<bool> updateMachinePaper({
+    required int machineId,
+    required Map<String, dynamic> machineUpdate,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -128,10 +117,7 @@ class AdminService {
         queryParameters: {"machineId": machineId},
         data: machineUpdate,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       AppLogger.i("update machine=$machineId successfully");
@@ -143,7 +129,7 @@ class AdminService {
   }
 
   //delete machine
-  Future<bool> deleteMachinePaper(int machineId) async {
+  Future<bool> deleteMachinePaper({required int machineId}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -151,10 +137,7 @@ class AdminService {
         "/api/admin/deleteMachinePaper",
         queryParameters: {"machineId": machineId},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       AppLogger.i("Delete machine=$machineId successfully");
@@ -175,10 +158,7 @@ class AdminService {
       final response = await dioService.get(
         '/api/admin/getAllMachineBox',
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       final data = response.data['data'] as List;
@@ -197,7 +177,7 @@ class AdminService {
   }
 
   //get machine by Id
-  Future<List<AdminMachineBoxModel>> getMachineBoxById(int machineId) async {
+  Future<List<AdminMachineBoxModel>> getMachineBoxById({required int machineId}) async {
     return HelperService().fetchingData<AdminMachineBoxModel>(
       endpoint: "admin/getMachineBoxById",
       queryParameters: {'machineId': machineId},
@@ -206,10 +186,10 @@ class AdminService {
   }
 
   //update machine
-  Future<bool> updateMachineBox(
-    int machineId,
-    Map<String, dynamic> machineUpdate,
-  ) async {
+  Future<bool> updateMachineBox({
+    required int machineId,
+    required Map<String, dynamic> machineUpdate,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -218,10 +198,7 @@ class AdminService {
         queryParameters: {"machineId": machineId},
         data: machineUpdate,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
 
@@ -233,7 +210,7 @@ class AdminService {
   }
 
   //delete machine
-  Future<bool> deleteMachineBox(int machineId) async {
+  Future<bool> deleteMachineBox({required int machineId}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -241,10 +218,7 @@ class AdminService {
         "/api/admin/deleteMachineBox",
         queryParameters: {"machineId": machineId},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -264,10 +238,7 @@ class AdminService {
       final response = await dioService.get(
         '/api/admin/getAllUsers',
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       final List<dynamic> data = response.data['data'];
@@ -284,7 +255,7 @@ class AdminService {
   }
 
   //get user by name
-  Future<List<UserAdminModel>> getUserByName(String name) async {
+  Future<List<UserAdminModel>> getUserByName({required String name}) async {
     return HelperService().fetchingData<UserAdminModel>(
       endpoint: "admin/getUserByName",
       queryParameters: {"name": name},
@@ -293,7 +264,7 @@ class AdminService {
   }
 
   //get user by phone
-  Future<List<UserAdminModel>> getUserByPhone(String phone) async {
+  Future<List<UserAdminModel>> getUserByPhone({required String phone}) async {
     return HelperService().fetchingData<UserAdminModel>(
       endpoint: "admin/getUserByPhone",
       queryParameters: {"phone": phone},
@@ -302,9 +273,7 @@ class AdminService {
   }
 
   //get user by permission
-  Future<List<UserAdminModel>> getUserByPermission(
-    List<String> permissions,
-  ) async {
+  Future<List<UserAdminModel>> getUserByPermission({required List<String> permissions}) async {
     return HelperService().fetchingData<UserAdminModel>(
       endpoint: "admin/getUserByPermission",
       queryParameters: {'permission': permissions},
@@ -313,7 +282,7 @@ class AdminService {
   }
 
   //update role
-  Future<bool> updateUserRole(int userId, String newRole) async {
+  Future<bool> updateUserRole({required int userId, required String newRole}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -321,10 +290,7 @@ class AdminService {
         "/api/admin/updateRole",
         queryParameters: {"userId": userId, "newRole": newRole},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -335,10 +301,10 @@ class AdminService {
   }
 
   //update permissions
-  Future<bool> updateUserPermissions(
-    int userId,
-    List<String> permissions,
-  ) async {
+  Future<bool> updateUserPermissions({
+    required int userId,
+    required List<String> permissions,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -347,10 +313,7 @@ class AdminService {
         queryParameters: {"userId": userId},
         data: {"permissions": permissions},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -372,10 +335,7 @@ class AdminService {
         "/api/admin/resetPassword",
         data: {"userIds": userIds, "newPassword": newPassword},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -386,7 +346,7 @@ class AdminService {
   }
 
   //delete user
-  Future<bool> deleteUserById(int userId) async {
+  Future<bool> deleteUserById({required int userId}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -394,10 +354,7 @@ class AdminService {
         "/api/admin/deleteUser",
         queryParameters: {"userId": userId},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -417,10 +374,7 @@ class AdminService {
       final response = await dioService.get(
         '/api/admin/getAllWasteNorm',
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       final data = response.data['data'] as List;
@@ -437,7 +391,7 @@ class AdminService {
   }
 
   //get waste norm by Id
-  Future<List<AdminWasteNormModel>> getWasteNormById(int wasteNormId) async {
+  Future<List<AdminWasteNormModel>> getWasteNormById({required int wasteNormId}) async {
     return HelperService().fetchingData<AdminWasteNormModel>(
       endpoint: "admin/getWasteNormById",
       queryParameters: {'wasteNormId': wasteNormId},
@@ -446,10 +400,10 @@ class AdminService {
   }
 
   //update waste norm
-  Future<bool> updateWasteNorm(
-    int wasteNormId,
-    Map<String, dynamic> wasteNormUpdate,
-  ) async {
+  Future<bool> updateWasteNorm({
+    required int wasteNormId,
+    required Map<String, dynamic> wasteNormUpdate,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -458,10 +412,7 @@ class AdminService {
         queryParameters: {"wasteNormId": wasteNormId},
         data: wasteNormUpdate,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -472,7 +423,7 @@ class AdminService {
   }
 
   //delete waste norm
-  Future<bool> deleteWasteNorm(int wasteNormId) async {
+  Future<bool> deleteWasteNorm({required int wasteNormId}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -480,10 +431,7 @@ class AdminService {
         "/api/admin/deleteWasteNormById",
         queryParameters: {"wasteNormId": wasteNormId},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -503,10 +451,7 @@ class AdminService {
       final response = await dioService.get(
         '/api/admin/getAllWasteBox',
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       final data = response.data['data'] as List;
@@ -523,7 +468,7 @@ class AdminService {
   }
 
   //get waste box by Id
-  Future<List<AdminWasteBoxModel>> getWasteBoxById(int wasteNormId) async {
+  Future<List<AdminWasteBoxModel>> getWasteBoxById({required int wasteNormId}) async {
     return HelperService().fetchingData<AdminWasteBoxModel>(
       endpoint: "admin/getWasteBoxById",
       queryParameters: {'wasteNormId': wasteNormId},
@@ -532,10 +477,10 @@ class AdminService {
   }
 
   //update waste box
-  Future<bool> updateWasteBoxById(
-    int wasteNormId,
-    Map<String, dynamic> wasteNormUpdate,
-  ) async {
+  Future<bool> updateWasteBoxById({
+    required int wasteNormId,
+    required Map<String, dynamic> wasteNormUpdate,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -544,10 +489,7 @@ class AdminService {
         queryParameters: {"wasteNormId": wasteNormId},
         data: wasteNormUpdate,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -558,7 +500,7 @@ class AdminService {
   }
 
   //delete waste box
-  Future<bool> deleteWasteBoxById(int wasteNormId) async {
+  Future<bool> deleteWasteBoxById({required int wasteNormId}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -566,10 +508,7 @@ class AdminService {
         "/api/admin/deleteWasteBoxById",
         queryParameters: {"wasteNormId": wasteNormId},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -589,10 +528,7 @@ class AdminService {
       final response = await dioService.get(
         '/api/admin/getAllWaveCrest',
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       final data = response.data['data'] as List;
@@ -609,7 +545,7 @@ class AdminService {
   }
 
   //get wave crest by Id
-  Future<List<AdminWaveCrestModel>> getWaveCrestById(int waveCrestId) async {
+  Future<List<AdminWaveCrestModel>> getWaveCrestById({required int waveCrestId}) async {
     return HelperService().fetchingData<AdminWaveCrestModel>(
       endpoint: "admin/getWaveCrestById",
       queryParameters: {'waveCrestId': waveCrestId},
@@ -618,10 +554,10 @@ class AdminService {
   }
 
   //update wave crest
-  Future<bool> updateWaveCrest(
-    int waveCrestId,
-    Map<String, dynamic> waveCrestUpdate,
-  ) async {
+  Future<bool> updateWaveCrest({
+    required int waveCrestId,
+    required Map<String, dynamic> waveCrestUpdate,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -630,10 +566,7 @@ class AdminService {
         queryParameters: {"waveCrestId": waveCrestId},
         data: waveCrestUpdate,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;
@@ -644,7 +577,7 @@ class AdminService {
   }
 
   //delete wave crest
-  Future<bool> deleteWaveCrest(int waveCrestId) async {
+  Future<bool> deleteWaveCrest({required int waveCrestId}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -652,10 +585,7 @@ class AdminService {
         "/api/admin/deleteWaveCrestById",
         queryParameters: {"waveCrestId": waveCrestId},
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
       );
       return true;

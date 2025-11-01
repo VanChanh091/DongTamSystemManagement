@@ -50,9 +50,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
     columns = buildMachineColumns(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((
-      w,
-    ) {
+    ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -63,7 +61,7 @@ class _PaperProductionState extends State<PaperProduction> {
     AppLogger.i("Loading all data manufacture paper");
     setState(() {
       futurePlanning = ensureMinLoading(
-        ManufactureService().getPlanningPaper(machine, refresh),
+        ManufactureService().getPlanningPaper(machine: machine, refresh: refresh),
       );
 
       selectedPlanningIds.clear();
@@ -92,9 +90,7 @@ class _PaperProductionState extends State<PaperProduction> {
       builder:
           (ctx) => AlertDialog(
             backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             contentPadding: const EdgeInsets.all(20),
             titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
             actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
@@ -102,16 +98,9 @@ class _PaperProductionState extends State<PaperProduction> {
             title: const Center(
               child: Row(
                 children: [
-                  Icon(
-                    Icons.notifications_active,
-                    color: Colors.green,
-                    size: 28,
-                  ),
+                  Icon(Icons.notifications_active, color: Colors.green, size: 28),
                   SizedBox(width: 8),
-                  Text(
-                    'Thông báo',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  Text('Thông báo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -138,13 +127,8 @@ class _PaperProductionState extends State<PaperProduction> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 12,
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                 ),
                 child: const Text('OK', style: TextStyle(fontSize: 16)),
               ),
@@ -246,17 +230,11 @@ class _PaperProductionState extends State<PaperProduction> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(
-                                  125.0,
-                                  175.0,
-                                );
+                                final dropdownWidth = (maxWidth * 0.2).clamp(125.0, 175.0);
 
                                 return Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
@@ -264,53 +242,40 @@ class _PaperProductionState extends State<PaperProduction> {
                                     //report production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasAnyPermission([
-                                                    "machine1350",
-                                                    "machine1900",
-                                                    "machine2Layer",
-                                                    "MachineRollPaper",
-                                                  ]) &&
+                                          userController.hasAnyPermission(
+                                                    permission: [
+                                                      "machine1350",
+                                                      "machine1900",
+                                                      "machine2Layer",
+                                                      "MachineRollPaper",
+                                                    ],
+                                                  ) &&
                                                   canExecuteAction(
                                                     selectedPlanningIds:
-                                                        selectedPlanningIds
-                                                            .map(int.parse)
-                                                            .toList(),
+                                                        selectedPlanningIds.map(int.parse).toList(),
                                                     planningList: planningList,
                                                   )
                                               ? () async {
                                                 try {
-                                                  final int selectedPlanningId =
-                                                      int.parse(
-                                                        selectedPlanningIds
-                                                            .first,
-                                                      );
+                                                  final int selectedPlanningId = int.parse(
+                                                    selectedPlanningIds.first,
+                                                  );
 
-                                                  final selectedPlanning =
-                                                      planningList.firstWhere(
-                                                        (p) =>
-                                                            p.planningId ==
-                                                            selectedPlanningId,
-                                                        orElse:
-                                                            () =>
-                                                                throw Exception(
-                                                                  "Không tìm thấy kế hoạch",
-                                                                ),
-                                                      );
+                                                  final selectedPlanning = planningList.firstWhere(
+                                                    (p) => p.planningId == selectedPlanningId,
+                                                    orElse:
+                                                        () =>
+                                                            throw Exception(
+                                                              "Không tìm thấy kế hoạch",
+                                                            ),
+                                                  );
 
                                                   showDialog(
                                                     context: context,
                                                     builder:
-                                                        (
-                                                          _,
-                                                        ) => DialogReportProduction(
-                                                          planningId:
-                                                              selectedPlanning
-                                                                  .planningId,
-                                                          onReport:
-                                                              () =>
-                                                                  loadPlanning(
-                                                                    true,
-                                                                  ),
+                                                        (_) => DialogReportProduction(
+                                                          planningId: selectedPlanning.planningId,
+                                                          onReport: () => loadPlanning(true),
                                                         ),
                                                   );
                                                 } catch (e, s) {
@@ -328,55 +293,47 @@ class _PaperProductionState extends State<PaperProduction> {
                                               : null,
                                       label: "Báo Cáo SX",
                                       icon: Icons.assignment,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
 
                                     //confirm production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasAnyPermission([
-                                                    "machine1350",
-                                                    "machine1900",
-                                                    "machine2Layer",
-                                                    "MachineRollPaper",
-                                                  ]) &&
+                                          userController.hasAnyPermission(
+                                                    permission: [
+                                                      "machine1350",
+                                                      "machine1900",
+                                                      "machine2Layer",
+                                                      "MachineRollPaper",
+                                                    ],
+                                                  ) &&
                                                   canExecuteAction(
                                                     selectedPlanningIds:
-                                                        selectedPlanningIds
-                                                            .map(int.parse)
-                                                            .toList(),
+                                                        selectedPlanningIds.map(int.parse).toList(),
                                                     planningList: planningList,
                                                   )
                                               ? () async {
                                                 try {
                                                   // Lấy planningId (đang ở dạng String → convert sang int)
-                                                  final int selectedPlanningId =
-                                                      int.parse(
-                                                        selectedPlanningIds
-                                                            .first,
-                                                      );
+                                                  final int selectedPlanningId = int.parse(
+                                                    selectedPlanningIds.first,
+                                                  );
 
                                                   // Tìm planning tương ứng
-                                                  final selectedPlanning =
-                                                      planningList.firstWhere(
-                                                        (p) =>
-                                                            p.planningId ==
-                                                            selectedPlanningId,
-                                                        orElse:
-                                                            () =>
-                                                                throw Exception(
-                                                                  "Không tìm thấy kế hoạch",
-                                                                ),
-                                                      );
+                                                  final selectedPlanning = planningList.firstWhere(
+                                                    (p) => p.planningId == selectedPlanningId,
+                                                    orElse:
+                                                        () =>
+                                                            throw Exception(
+                                                              "Không tìm thấy kế hoạch",
+                                                            ),
+                                                  );
 
                                                   // Gửi yêu cầu xác nhận sản xuất
-                                                  await ManufactureService()
-                                                      .confirmProducingPaper(
-                                                        selectedPlanning
-                                                            .planningId,
-                                                      );
+                                                  await ManufactureService().confirmProducingPaper(
+                                                    planningId: selectedPlanning.planningId,
+                                                  );
 
                                                   if (!context.mounted) return;
 
@@ -398,8 +355,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                               : null,
                                       label: "Xác Nhận SX",
                                       icon: null,
-                                      backgroundColor:
-                                          themeController.buttonColor,
+                                      backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
 
@@ -429,18 +385,13 @@ class _PaperProductionState extends State<PaperProduction> {
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
-                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                            borderSide: const BorderSide(color: Colors.grey),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -467,10 +418,7 @@ class _PaperProductionState extends State<PaperProduction> {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: SizedBox(
                         height: 400,
-                        child: buildShimmerSkeletonTable(
-                          context: context,
-                          rowCount: 10,
-                        ),
+                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
                       ),
                     );
                   } else if (snapshot.hasError) {
@@ -479,10 +427,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
@@ -516,11 +461,7 @@ class _PaperProductionState extends State<PaperProduction> {
                       StackedHeaderRow(
                         cells: [
                           StackedHeaderCell(
-                            columnNames: [
-                              'quantityOrd',
-                              'runningPlanProd',
-                              'qtyProduced',
-                            ],
+                            columnNames: ['quantityOrd', 'runningPlanProd', 'qtyProduced'],
                             child: formatColumn(
                               label: 'Số Lượng',
                               themeController: themeController,
@@ -568,9 +509,7 @@ class _PaperProductionState extends State<PaperProduction> {
                       final planningPaperId =
                           selectedRow
                               .getCells()
-                              .firstWhere(
-                                (cell) => cell.columnName == 'planningId',
-                              )
+                              .firstWhere((cell) => cell.columnName == 'planningId')
                               .value
                               .toString();
 
@@ -581,8 +520,7 @@ class _PaperProductionState extends State<PaperProduction> {
                           selectedPlanningIds.add(planningPaperId);
                         }
 
-                        machinePaperDatasource.selectedPlanningIds =
-                            selectedPlanningIds;
+                        machinePaperDatasource.selectedPlanningIds = selectedPlanningIds;
                         machinePaperDatasource.notifyListeners();
                       });
                     },

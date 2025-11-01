@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
       return null;
     }
 
-    if (permission != null && !userController.hasAnyPermission([permission])) {
+    if (permission != null && !userController.hasAnyPermission(permission: [permission])) {
       return null;
     }
 
@@ -496,7 +496,7 @@ class _HomePageState extends State<HomePage> {
                   } else {
                     bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);
                     if (canNavigate) {
-                      sidebarController.changePage(index);
+                      sidebarController.changePage(index: index);
                     }
                   }
                 },
@@ -552,7 +552,7 @@ class _HomePageState extends State<HomePage> {
         onTap: () async {
           bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);
           if (canNavigate) {
-            sidebarController.changePage(index);
+            sidebarController.changePage(index: index);
           }
         },
       );

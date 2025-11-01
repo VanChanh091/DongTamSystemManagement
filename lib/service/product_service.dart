@@ -15,19 +15,13 @@ class ProductService {
 
   // get all
   Future<Map<String, dynamic>> getAllProducts({
-    bool refresh = false,
     bool noPaging = false,
     int? page,
     int? pageSize,
   }) async {
     return HelperService().fetchPaginatedData<Product>(
       endpoint: "product",
-      queryParameters: {
-        'refresh': refresh,
-        'noPaging': noPaging,
-        'page': page,
-        'pageSize': pageSize,
-      },
+      queryParameters: {'noPaging': noPaging, 'page': page, 'pageSize': pageSize},
       fromJson: (json) => Product.fromJson(json),
       dataKey: 'products',
     );
@@ -49,9 +43,9 @@ class ProductService {
   }
 
   //add product
-  Future<bool> addProduct(
-    String prefix,
-    Map<String, dynamic> product, {
+  Future<bool> addProduct({
+    required String prefix,
+    required Map<String, dynamic> product,
     Uint8List? imageBytes,
   }) async {
     try {
@@ -92,9 +86,9 @@ class ProductService {
   }
 
   //update product
-  Future<bool> updateProductById(
-    String productId,
-    Map<String, dynamic> productUpdated, {
+  Future<bool> updateProductById({
+    required String productId,
+    required Map<String, dynamic> productUpdated,
     Uint8List? imageBytes,
   }) async {
     try {
@@ -130,7 +124,7 @@ class ProductService {
   }
 
   //delete product
-  Future<bool> deleteProduct(String productId) async {
+  Future<bool> deleteProduct({required String productId}) async {
     try {
       final token = await SecureStorageService().getToken();
       if (token == null) {

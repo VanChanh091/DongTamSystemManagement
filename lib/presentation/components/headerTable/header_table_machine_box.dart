@@ -55,12 +55,7 @@ List<GridColumn> buildMachineBoxColumns({
     for (var item in machineBoxColumns)
       GridColumn(
         columnName: item['key']!,
-        label: Obx(
-          () => formatColumn(
-            label: item['title']!,
-            themeController: themeController,
-          ),
-        ),
+        label: Obx(() => formatColumn(label: item['title']!, themeController: themeController)),
         visible: item.containsKey("visible") ? item["visible"]! as bool : true,
       ),
   ];

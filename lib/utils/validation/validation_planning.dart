@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ValidationPlanning {
-  static Widget validateInput(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
+  static Widget validateInput({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
     bool readOnly = false,
     bool checkId = false,
     VoidCallback? onTap,
@@ -51,12 +51,12 @@ class ValidationPlanning {
     );
   }
 
-  static Widget dropdownForLayerType(
-    List<String> items,
-    String type,
-    Map<String, String> labels,
-    ValueChanged<String?> onChanged,
-  ) {
+  static Widget dropdownForLayerType({
+    required List<String> items,
+    required String type,
+    required Map<String, String> labels,
+    required ValueChanged<String?> onChanged,
+  }) {
     return DropdownButtonFormField<String>(
       value: items.contains(type) ? type : null,
       items:

@@ -26,6 +26,7 @@ final List<Map<String, dynamic>> machinePaperColumns = [
   {"key": "totalPriceAfterVAT", "title": "Tổng Tiền Sau VAT"},
   {"key": "bottom", "title": "Đáy"},
   {"key": "fluteE", "title": "Sóng E"},
+  {"key": "fluteE2", "title": "Sóng E2"},
   {"key": "fluteB", "title": "Sóng B"},
   {"key": "fluteC", "title": "Sóng C"},
   {"key": "knife", "title": "Dao"},
@@ -41,19 +42,12 @@ final List<Map<String, dynamic>> machinePaperColumns = [
   {"key": "planningId", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildMachineColumns({
-  required ThemeController themeController,
-}) {
+List<GridColumn> buildMachineColumns({required ThemeController themeController}) {
   return [
     for (var item in machinePaperColumns)
       GridColumn(
         columnName: item["key"]!,
-        label: Obx(
-          () => formatColumn(
-            label: item["title"]!,
-            themeController: themeController,
-          ),
-        ),
+        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
         visible: item.containsKey("visible") ? item["visible"]! as bool : true,
       ),
   ];

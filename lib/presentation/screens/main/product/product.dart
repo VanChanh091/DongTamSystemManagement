@@ -48,7 +48,7 @@ class _ProductPageState extends State<ProductPage> {
   @override
   void initState() {
     super.initState();
-    loadProduct(true);
+    loadProduct();
 
     columns = buildProductColumn(themeController: themeController);
 
@@ -59,7 +59,7 @@ class _ProductPageState extends State<ProductPage> {
     });
   }
 
-  void loadProduct(bool refresh) {
+  void loadProduct() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
 
@@ -78,7 +78,7 @@ class _ProductPageState extends State<ProductPage> {
         );
       } else {
         futureProduct = ensureMinLoading(
-          ProductService().getAllProducts(refresh: refresh, page: currentPage, pageSize: pageSize),
+          ProductService().getAllProducts(page: currentPage, pageSize: pageSize),
         );
       }
 
@@ -102,7 +102,7 @@ class _ProductPageState extends State<ProductPage> {
       if (searchType == "Tất cả") {
         AppLogger.i("searchProduct: tìm tất cả SP");
         futureProduct = ensureMinLoading(
-          ProductService().getAllProducts(refresh: false, page: currentPage, pageSize: pageSize),
+          ProductService().getAllProducts(page: currentPage, pageSize: pageSize),
         );
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
@@ -120,7 +120,7 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSale = userController.hasPermission("sale");
+    final bool isSale = userController.hasPermission(permission: "sale");
 
     return Scaffold(
       body: Container(
@@ -262,7 +262,7 @@ class _ProductPageState extends State<ProductPage> {
                                               builder:
                                                   (_) => DialogExportCusOrProd(
                                                     isProduct: true,
-                                                    onCusOrProd: () => loadProduct(false),
+                                                    onCusOrProd: () => loadProduct(),
                                                   ),
                                             );
                                           },
@@ -280,7 +280,7 @@ class _ProductPageState extends State<ProductPage> {
                                               builder:
                                                   (_) => ProductDialog(
                                                     product: null,
-                                                    onProductAddOrUpdate: () => loadProduct(true),
+                                                    onProductAddOrUpdate: () => loadProduct(),
                                                   ),
                                             );
                                           },
@@ -342,7 +342,7 @@ class _ProductPageState extends State<ProductPage> {
                                                             (_) => ProductDialog(
                                                               product: products.first,
                                                               onProductAddOrUpdate:
-                                                                  () => loadProduct(true),
+                                                                  () => loadProduct(),
                                                             ),
                                                       );
                                                     } catch (e, s) {
@@ -491,19 +491,19 @@ class _ProductPageState extends State<ProductPage> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadProduct(false);
+                            loadProduct();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadProduct(false);
+                            loadProduct();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadProduct(false);
+                            loadProduct();
                           });
                         },
                       ),
@@ -516,7 +516,7 @@ class _ProductPageState extends State<ProductPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadProduct(true),
+        onPressed: () => loadProduct(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
@@ -540,13 +540,13 @@ class _ProductPageState extends State<ProductPage> {
     showLoadingDialog(context, message: "Đang xoá...");
 
     try {
-      await ProductService().deleteProduct(selectedProductId!);
+      await ProductService().deleteProduct(productId: selectedProductId!);
       await Future.delayed(const Duration(seconds: 1));
 
       setState(() {
         selectedProductId = null;
       });
-      loadProduct(true);
+      loadProduct();
 
       if (!context.mounted) return;
 

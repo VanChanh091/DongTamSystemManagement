@@ -13,11 +13,11 @@ void main() {
   group("Order test method", () {
     test("acreage calculate", () {
       // bình thường
-      expect(Order.acreagePaper(200, 300, 10), 60);
+      expect(Order.acreagePaper(lengthPaper: 200, paperSize: 300, quantity: 10), 60);
       // quantity = 0
-      expect(Order.acreagePaper(200, 300, 0), 0);
+      expect(Order.acreagePaper(lengthPaper: 200, paperSize: 300, quantity: 0), 0);
       // length = 0
-      expect(Order.acreagePaper(0, 300, 10), 0);
+      expect(Order.acreagePaper(lengthPaper: 0, paperSize: 300, quantity: 10), 0);
     });
 
     test("total price paper calculate", () {
@@ -38,11 +38,11 @@ void main() {
     });
 
     test('total price order', () {
-      expect(Order.totalPriceOrder(5, 20), 100); // 5 * 20
-      expect(Order.totalPriceOrder(0, 20), 0); // quantity = 0
-      expect(Order.totalPriceOrder(10, 0), 0); // price = 0
-      expect(Order.totalPriceOrder(-3, 50), -150); // quantity âm
-      expect(Order.totalPriceOrder(1, 12.5), 12.5); // price thập phân
+      expect(Order.totalPriceOrder(quantity: 5, pricePaper: 20), 100); // 5 * 20
+      expect(Order.totalPriceOrder(quantity: 0, pricePaper: 20), 0); // quantity = 0
+      expect(Order.totalPriceOrder(quantity: 10, pricePaper: 0), 0); // price = 0
+      expect(Order.totalPriceOrder(quantity: -3, pricePaper: 50), -150); // quantity âm
+      expect(Order.totalPriceOrder(quantity: 1, pricePaper: 12.5), 12.5); // price thập phân
     });
 
     test('totalPriceAfterVAT', () {

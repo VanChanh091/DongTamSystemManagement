@@ -82,7 +82,11 @@ class Order {
   }
 
   //Acreage (m2) = lengthPaper * paperSize / 10000 * quantity
-  static double acreagePaper(double lengthPaper, double paperSize, int quantity) {
+  static double acreagePaper({
+    required double lengthPaper,
+    required double paperSize,
+    required int quantity,
+  }) {
     return lengthPaper * paperSize / 10000 * double.parse(quantity.toStringAsFixed(2));
   }
 
@@ -103,7 +107,7 @@ class Order {
   }
 
   //Total price = quantity * pricePaper
-  static double totalPriceOrder(int quantity, double pricePaper) {
+  static double totalPriceOrder({required int quantity, required double pricePaper}) {
     return pricePaper * double.parse(quantity.toStringAsFixed(1));
   }
 

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class ValidationOrder {
-  static Widget checkboxForBox(String label, ValueNotifier<bool> notifier, {bool enabled = true}) {
+  static Widget checkboxForBox({
+    required String label,
+    required ValueNotifier<bool> notifier,
+    bool enabled = true,
+  }) {
     return ValueListenableBuilder<bool>(
       valueListenable: notifier,
       builder: (context, checked, _) {
@@ -36,10 +40,10 @@ class ValidationOrder {
     );
   }
 
-  static Widget validateInput(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
+  static Widget validateInput({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
     bool readOnly = false,
     bool checkId = false,
     VoidCallback? onTap,
@@ -97,7 +101,11 @@ class ValidationOrder {
     );
   }
 
-  static Widget dropdownForTypes(List<String> items, String type, ValueChanged onChanged) {
+  static Widget dropdownForTypes({
+    required List<String> items,
+    required String type,
+    required ValueChanged onChanged,
+  }) {
     return DropdownButtonFormField<String>(
       value: items.contains(type) ? type : null,
       items:

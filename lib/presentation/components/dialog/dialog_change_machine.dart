@@ -43,7 +43,10 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
 
     try {
       AppLogger.i("Chuyển máy cho đơn hàng planningIds=$planningIds đến $chooseMachine");
-      await PlanningService().changeMachinePlanning(planningIds, chooseMachine);
+      await PlanningService().changeMachinePlanning(
+        newMachine: chooseMachine,
+        planningIds: planningIds,
+      );
 
       if (!mounted) return; // check context
       AppLogger.i("Chuyển đơn sang máy $chooseMachine thành công");
@@ -142,11 +145,15 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const SizedBox(height: 12),
-                          ValidationOrder.dropdownForTypes(machineList, chooseMachine, (value) {
-                            setState(() {
-                              chooseMachine = value!;
-                            });
-                          }),
+                          ValidationOrder.dropdownForTypes(
+                            items: machineList,
+                            type: chooseMachine,
+                            onChanged: (value) {
+                              setState(() {
+                                chooseMachine = value!;
+                              });
+                            },
+                          ),
                         ],
                       ),
                     ),

@@ -58,7 +58,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       return;
     }
 
-    bool success = await authService.sendOTP(emailController.text);
+    bool success = await authService.sendOTP(email: emailController.text);
 
     if (!mounted) return;
 
@@ -72,8 +72,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   void verifyOTP() async {
     bool success = await authService.verifyOTPChangePassword(
-      emailController.text,
-      otpController.text,
+      email: emailController.text,
+      otp: otpController.text,
     );
     if (!mounted) return;
     if (success) {
@@ -124,13 +124,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const SizedBox(height: 50),
-                            const Center(
-                              child: Icon(
-                                Icons.lock,
-                                size: 50,
-                                color: Colors.yellow,
-                              ),
-                            ),
+                            const Center(child: Icon(Icons.lock, size: 50, color: Colors.yellow)),
                             const SizedBox(height: 15),
 
                             const Center(
@@ -174,27 +168,20 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                     ),
-                                    validator:
-                                        (value) =>
-                                            ValidationAuth.validateEmail(value),
+                                    validator: (value) => ValidationAuth.validateEmail(value),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
                                 Container(
                                   height: 47,
                                   decoration: BoxDecoration(
-                                    color:
-                                        isButtonEnabled
-                                            ? Colors.red.shade400
-                                            : Colors.grey,
+                                    color: isButtonEnabled ? Colors.red.shade400 : Colors.grey,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: TextButton(
                                     onPressed: isButtonEnabled ? sendOTP : null,
                                     child: Text(
-                                      isButtonEnabled
-                                          ? "Gửi mã"
-                                          : "Đợi $secondsRemaining s",
+                                      isButtonEnabled ? "Gửi mã" : "Đợi $secondsRemaining s",
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: Colors.white,

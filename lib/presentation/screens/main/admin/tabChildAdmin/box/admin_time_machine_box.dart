@@ -29,7 +29,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
   void initState() {
     super.initState();
 
-    if (userController.hasAnyRole(["admin"])) {
+    if (userController.hasAnyRole(roles: ["admin"])) {
       loadMachine();
     } else {
       futureAdminMachine = Future.error("NO_PERMISSION");
@@ -44,7 +44,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAccept = userController.hasAnyRole(["admin"]);
+    final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
 
     return Scaffold(
       body: Container(
@@ -87,10 +87,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
 
                                 //right
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     children: [
                                       // update
@@ -110,10 +107,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                           final dataToUpdate =
                                               updatedMachine
                                                   .where(
-                                                    (item) =>
-                                                        isSelected.contains(
-                                                          item.machineId,
-                                                        ),
+                                                    (item) => isSelected.contains(item.machineId),
                                                   )
                                                   .toList();
 
@@ -122,18 +116,14 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                             //   '⏫ Updating machineId: ${item.machineId}',
                                             // );
 
-                                            await AdminService()
-                                                .updateMachineBox(
-                                                  item.machineId,
-                                                  {
-                                                    "timeToProduct":
-                                                        item.timeToProduct,
-                                                    "speedOfMachine":
-                                                        item.speedOfMachine,
-                                                    "machineName":
-                                                        item.machineName,
-                                                  },
-                                                );
+                                            await AdminService().updateMachineBox(
+                                              machineId: item.machineId,
+                                              machineUpdate: {
+                                                "timeToProduct": item.timeToProduct,
+                                                "speedOfMachine": item.speedOfMachine,
+                                                "machineName": item.machineName,
+                                              },
+                                            );
                                           }
 
                                           if (!context.mounted) return;
@@ -146,8 +136,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                         },
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
-                                        backgroundColor:
-                                            themeController.buttonColor,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -162,38 +151,26 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                       bool isDeleting = false;
 
                                                       return StatefulBuilder(
-                                                        builder: (
-                                                          context,
-                                                          setStateDialog,
-                                                        ) {
+                                                        builder: (context, setStateDialog) {
                                                           return AlertDialog(
-                                                            backgroundColor:
-                                                                Colors.white,
+                                                            backgroundColor: Colors.white,
                                                             shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    16,
-                                                                  ),
+                                                              borderRadius: BorderRadius.circular(
+                                                                16,
+                                                              ),
                                                             ),
                                                             title: const Row(
                                                               children: [
                                                                 Icon(
-                                                                  Icons
-                                                                      .warning_amber_rounded,
-                                                                  color:
-                                                                      Colors
-                                                                          .red,
+                                                                  Icons.warning_amber_rounded,
+                                                                  color: Colors.red,
                                                                   size: 30,
                                                                 ),
-                                                                SizedBox(
-                                                                  width: 8,
-                                                                ),
+                                                                SizedBox(width: 8),
                                                                 Text(
                                                                   "Xác nhận xoá",
                                                                   style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
+                                                                    fontWeight: FontWeight.bold,
                                                                   ),
                                                                 ),
                                                               ],
@@ -203,23 +180,16 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                                     ? const Row(
                                                                       children: [
                                                                         CircularProgressIndicator(
-                                                                          strokeWidth:
-                                                                              2,
+                                                                          strokeWidth: 2,
                                                                         ),
-                                                                        SizedBox(
-                                                                          width:
-                                                                              12,
-                                                                        ),
-                                                                        Text(
-                                                                          "Đang xoá...",
-                                                                        ),
+                                                                        SizedBox(width: 12),
+                                                                        Text("Đang xoá..."),
                                                                       ],
                                                                     )
                                                                     : const Text(
                                                                       'Bạn có chắc chắn muốn xoá?',
                                                                       style: TextStyle(
-                                                                        fontSize:
-                                                                            16,
+                                                                        fontSize: 16,
                                                                       ),
                                                                     ),
                                                             actions:
@@ -234,63 +204,59 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                                         child: const Text(
                                                                           "Huỷ",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
-                                                                            color:
-                                                                                Colors.black54,
+                                                                            color: Colors.black54,
                                                                           ),
                                                                         ),
                                                                       ),
                                                                       ElevatedButton(
                                                                         style: ElevatedButton.styleFrom(
-                                                                          backgroundColor: const Color(
-                                                                            0xffEA4346,
-                                                                          ),
+                                                                          backgroundColor:
+                                                                              const Color(
+                                                                                0xffEA4346,
+                                                                              ),
                                                                           foregroundColor:
                                                                               Colors.white,
                                                                           shape: RoundedRectangleBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              8,
-                                                                            ),
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(
+                                                                                  8,
+                                                                                ),
                                                                           ),
                                                                         ),
                                                                         onPressed: () async {
                                                                           setStateDialog(() {
-                                                                            isDeleting =
-                                                                                true;
+                                                                            isDeleting = true;
                                                                           });
 
-                                                                          for (int
-                                                                              id
+                                                                          for (int id
                                                                               in isSelected) {
-                                                                            await AdminService().deleteMachineBox(
-                                                                              id,
-                                                                            );
+                                                                            await AdminService()
+                                                                                .deleteMachineBox(
+                                                                                  machineId: id,
+                                                                                );
                                                                           }
 
                                                                           await Future.delayed(
                                                                             const Duration(
-                                                                              seconds:
-                                                                                  1,
+                                                                              seconds: 1,
                                                                             ),
                                                                           );
 
-                                                                          if (!context
-                                                                              .mounted) {
+                                                                          if (!context.mounted) {
                                                                             return;
                                                                           }
 
                                                                           setState(() {
                                                                             isSelected.clear();
                                                                             futureAdminMachine =
-                                                                                AdminService().getAllMachineBox();
+                                                                                AdminService()
+                                                                                    .getAllMachineBox();
                                                                           });
 
-                                                                          Navigator.pop(
-                                                                            context,
-                                                                          );
+                                                                          Navigator.pop(context);
 
                                                                           // Optional: Show success toast
                                                                           showSnackBarSuccess(
@@ -301,8 +267,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                                         child: const Text(
                                                                           "Xoá",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
                                                                           ),
@@ -346,11 +311,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                Icons.lock_outline,
-                                color: Colors.redAccent,
-                                size: 35,
-                              ),
+                              Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
                               SizedBox(width: 8),
                               Text(
                                 "Bạn không có quyền xem chức năng này",
@@ -369,10 +330,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                       return const Center(
                         child: Text(
                           "Không có đơn hàng nào",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                         ),
                       );
                     }
@@ -384,29 +342,20 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
-                          themeController.currentColor.value,
-                        ),
+                        headingRowColor: WidgetStatePropertyAll(themeController.currentColor.value),
                         columns: [
                           DataColumn(
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor: WidgetStateProperty.resolveWith<
-                                    Color
-                                  >((states) {
+                                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                                     if (states.contains(WidgetState.selected)) {
                                       return Colors.red;
                                     }
                                     return Colors.white;
                                   }),
-                                  checkColor: WidgetStateProperty.all<Color>(
-                                    Colors.white,
-                                  ),
-                                  side: const BorderSide(
-                                    color: Colors.black,
-                                    width: 1,
-                                  ),
+                                  checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                  side: const BorderSide(color: Colors.black, width: 1),
                                 ),
                               ),
                               child: Checkbox(
@@ -415,8 +364,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                   setState(() {
                                     selectedAll = value!;
                                     if (selectedAll) {
-                                      isSelected =
-                                          data.map((e) => e.machineId).toList();
+                                      isSelected = data.map((e) => e.machineId).toList();
                                     } else {
                                       isSelected.clear();
                                     }
@@ -437,31 +385,18 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                 Theme(
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
-                                      fillColor:
-                                          WidgetStateProperty.resolveWith<
-                                            Color
-                                          >((states) {
-                                            if (states.contains(
-                                              WidgetState.selected,
-                                            )) {
-                                              return Colors.red;
-                                            }
-                                            return Colors.white;
-                                          }),
-                                      checkColor:
-                                          WidgetStateProperty.all<Color>(
-                                            Colors.white,
-                                          ),
-                                      side: const BorderSide(
-                                        color: Colors.black,
-                                        width: 1,
-                                      ),
+                                      fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                                        if (states.contains(WidgetState.selected)) {
+                                          return Colors.red;
+                                        }
+                                        return Colors.white;
+                                      }),
+                                      checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                      side: const BorderSide(color: Colors.black, width: 1),
                                     ),
                                   ),
                                   child: Checkbox(
-                                    value: isSelected.contains(
-                                      machine.machineId,
-                                    ),
+                                    value: isSelected.contains(machine.machineId),
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
@@ -470,8 +405,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                           isSelected.remove(machine.machineId);
                                         }
 
-                                        selectedAll =
-                                            isSelected.length == data.length;
+                                        selectedAll = isSelected.length == data.length;
                                       });
                                     },
                                   ),
@@ -479,32 +413,31 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  '${machine.timeToProduct.toString()} phút',
-                                  (value) {
+                                  text: '${machine.timeToProduct.toString()} phút',
+                                  onChanged: (value) {
                                     setState(() {
-                                      machine.timeToProduct =
-                                          int.tryParse(value) ?? 0;
+                                      machine.timeToProduct = int.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  machine.speedOfMachine == 0
-                                      ? "0"
-                                      : '${machine.speedOfMachine.toString()} tờ/giờ',
-                                  (value) {
+                                  text:
+                                      machine.speedOfMachine == 0
+                                          ? "0"
+                                          : '${machine.speedOfMachine.toString()} tờ/giờ',
+                                  onChanged: (value) {
                                     setState(() {
-                                      machine.speedOfMachine =
-                                          int.tryParse(value) ?? 0;
+                                      machine.speedOfMachine = int.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  machine.machineName.toString(),
-                                  null,
+                                  text: machine.machineName.toString(),
+                                  onChanged: null,
                                 ),
                               ),
                             ],

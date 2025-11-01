@@ -9,7 +9,11 @@ Widget styleText(String text) {
 }
 
 //editing on table, update a little data
-Widget styleCellAdmin(String text, ValueChanged<String>? onChanged, {double width = 100}) {
+Widget styleCellAdmin({
+  required String text,
+  required ValueChanged<String>? onChanged,
+  double width = 100,
+}) {
   return SizedBox(
     width: double.infinity,
     child: TextFormField(
@@ -25,10 +29,10 @@ Widget styleCellAdmin(String text, ValueChanged<String>? onChanged, {double widt
   );
 }
 
-Widget styleCell(String text, {double? width}) {
+Widget styleCell({required String label, double? width}) {
   return SizedBox(
     width: width,
-    child: Text(text, maxLines: 2, style: const TextStyle(fontSize: 15)),
+    child: Text(label, maxLines: 2, style: const TextStyle(fontSize: 15)),
   );
 }
 

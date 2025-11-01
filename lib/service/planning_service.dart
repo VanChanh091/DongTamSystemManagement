@@ -15,7 +15,7 @@ class PlanningService {
   //===============================PLANNING ORDER====================================
 
   //get status order
-  Future<List<Order>> getOrderAccept(bool refresh) async {
+  Future<List<Order>> getOrderAccept({required bool refresh}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -41,7 +41,10 @@ class PlanningService {
   }
 
   //planning for order
-  Future<bool> planningOrder(Map<String, dynamic> orderPlanning, String orderId) async {
+  Future<bool> planningOrder({
+    required String orderId,
+    required Map<String, dynamic> orderPlanning,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -64,7 +67,10 @@ class PlanningService {
   //===============================PLANNING PAPER====================================
 
   //get planning by machine
-  Future<List<PlanningPaper>> getPlanningPaperByMachine(String machine, bool refresh) async {
+  Future<List<PlanningPaper>> getPlanningPaperByMachine({
+    required String machine,
+    required bool refresh,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -90,7 +96,10 @@ class PlanningService {
   }
 
   //get planning by customer name
-  Future<List<PlanningPaper>> getPlanningByCustomerName(String customerName, String machine) async {
+  Future<List<PlanningPaper>> getPlanningByCustomerName({
+    required String customerName,
+    required String machine,
+  }) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "planning/getCusNamePaper",
       queryParameters: {'customerName': customerName, 'machine': machine},
@@ -99,7 +108,10 @@ class PlanningService {
   }
 
   //get planning by orderId
-  Future<List<PlanningPaper>> getPlanningByOrderId(String orderId, String machine) async {
+  Future<List<PlanningPaper>> getPlanningByOrderId({
+    required String orderId,
+    required String machine,
+  }) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "planning/getOrderIdPaper",
       queryParameters: {'orderId': orderId, 'machine': machine},
@@ -108,7 +120,10 @@ class PlanningService {
   }
 
   //get planning by flute
-  Future<List<PlanningPaper>> getPlanningByFlute(String flute, String machine) async {
+  Future<List<PlanningPaper>> getPlanningByFlute({
+    required String flute,
+    required String machine,
+  }) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "planning/getFlutePaper",
       queryParameters: {'flute': flute, 'machine': machine},
@@ -117,7 +132,10 @@ class PlanningService {
   }
 
   //get planning by ghepKho
-  Future<List<PlanningPaper>> getPlanningByGhepKho(int ghepKho, String machine) async {
+  Future<List<PlanningPaper>> getPlanningByGhepKho({
+    required int ghepKho,
+    required String machine,
+  }) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "planning/getGhepKhoPaper",
       queryParameters: {'ghepKho': ghepKho, 'machine': machine},
@@ -126,7 +144,10 @@ class PlanningService {
   }
 
   //change machine
-  Future<bool> changeMachinePlanning(List<int> planningIds, String newMachine) async {
+  Future<bool> changeMachinePlanning({
+    required String newMachine,
+    required List<int> planningIds,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -146,13 +167,13 @@ class PlanningService {
   }
 
   //update index planning
-  Future<bool> updateIndexWTimeRunning(
-    String machine,
-    List<Map<String, dynamic>> updateIndex,
-    DateTime dayStart,
-    TimeOfDay timeStart,
-    int totalTimeWorking,
-  ) async {
+  Future<bool> updateIndexWTimeRunning({
+    required String machine,
+    required DateTime dayStart,
+    required TimeOfDay timeStart,
+    required int totalTimeWorking,
+    required List<Map<String, dynamic>> updateIndex,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -179,7 +200,10 @@ class PlanningService {
   }
 
   //pause order
-  Future<bool> pauseOrAcceptLackQty(List<int> planningIds, String newStatus) async {
+  Future<bool> pauseOrAcceptLackQty({
+    required List<int> planningIds,
+    required String newStatus,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -200,7 +224,10 @@ class PlanningService {
 
   //===============================PLANNING BOX====================================
 
-  Future<List<PlanningBox>> getPlanningMachineBox(String machine, bool refresh) async {
+  Future<List<PlanningBox>> getPlanningMachineBox({
+    required String machine,
+    required bool refresh,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -227,13 +254,13 @@ class PlanningService {
   }
 
   //update index planning
-  Future<bool> updateIndexWTimeRunningBox(
-    String machine,
-    DateTime dayStart,
-    TimeOfDay timeStart,
-    int totalTimeWorking,
-    List<Map<String, dynamic>> updateIndex,
-  ) async {
+  Future<bool> updateIndexWTimeRunningBox({
+    required String machine,
+    required DateTime dayStart,
+    required TimeOfDay timeStart,
+    required int totalTimeWorking,
+    required List<Map<String, dynamic>> updateIndex,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -260,7 +287,11 @@ class PlanningService {
   }
 
   //accept lack qty
-  Future<bool> acceptLackQtyBox(List<int> planningBoxIds, String newStatus, String machine) async {
+  Future<bool> acceptLackQtyBox({
+    required List<int> planningBoxIds,
+    required String newStatus,
+    required String machine,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -280,7 +311,10 @@ class PlanningService {
   }
 
   //get planning by orderId
-  Future<List<PlanningBox>> getOrderIdBox(String orderId, String machine) async {
+  Future<List<PlanningBox>> getOrderIdBox({
+    required String orderId,
+    required String machine,
+  }) async {
     return HelperService().fetchingData<PlanningBox>(
       endpoint: "planning/getOrderIdBox",
       queryParameters: {'machine': machine, 'orderId': orderId},
@@ -289,7 +323,10 @@ class PlanningService {
   }
 
   //get planning by customer name
-  Future<List<PlanningBox>> getCusNameBox(String customerName, String machine) async {
+  Future<List<PlanningBox>> getCusNameBox({
+    required String customerName,
+    required String machine,
+  }) async {
     return HelperService().fetchingData<PlanningBox>(
       endpoint: "planning/getCusNameBox",
       queryParameters: {'customerName': customerName, 'machine': machine},
@@ -298,7 +335,7 @@ class PlanningService {
   }
 
   //get planning by flute
-  Future<List<PlanningBox>> getFluteBox(String flute, String machine) async {
+  Future<List<PlanningBox>> getFluteBox({required String flute, required String machine}) async {
     return HelperService().fetchingData<PlanningBox>(
       endpoint: "planning/getFluteBox",
       queryParameters: {'flute': flute, 'machine': machine},
@@ -307,7 +344,7 @@ class PlanningService {
   }
 
   //get planning by ghepKho
-  Future<List<PlanningBox>> getQcBox(String QC_box, String machine) async {
+  Future<List<PlanningBox>> getQcBox({required String QC_box, required String machine}) async {
     return HelperService().fetchingData<PlanningBox>(
       endpoint: "planning/getQcBox",
       queryParameters: {'QC_box': QC_box, 'machine': machine},

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 class UnsavedChangeController extends GetxController {
   RxBool isUnsavedChanges = false.obs;
 
-  void setUnsavedChanges(bool value) {
+  void setUnsavedChanges({required bool value}) {
     if (isUnsavedChanges.value != value) {
       isUnsavedChanges.value = value;
     }

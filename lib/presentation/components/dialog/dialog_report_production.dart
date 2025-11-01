@@ -58,11 +58,11 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       if (widget.isPaper == true) {
         AppLogger.i("Báo cáo sản xuất giấy tấm: ${widget.planningId}");
         success = await ManufactureService().createReportPaper(
-          widget.planningId,
-          qtyProduced,
-          qtyWasteNorm,
-          completedDate,
-          reportData,
+          planningId: widget.planningId,
+          qtyProduced: qtyProduced,
+          qtyWasteNorm: qtyWasteNorm,
+          dayCompleted: completedDate,
+          reportData: reportData,
         );
       } else {
         if (widget.qtyPaper == null || widget.qtyPaper == 0) {
@@ -83,12 +83,12 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
         AppLogger.i("Báo cáo sản xuất thùng: ${widget.planningId}");
         success = await ManufactureService().createReportBox(
-          widget.planningId,
-          widget.machine ?? "",
-          completedDate,
-          qtyProduced,
-          qtyWasteNorm,
-          shiftManagementController.text,
+          planningBoxId: widget.planningId,
+          machine: widget.machine ?? "",
+          dayCompleted: completedDate,
+          qtyProduced: qtyProduced,
+          rpWasteLoss: qtyWasteNorm,
+          shiftManagement: shiftManagementController.text,
         );
       }
 
@@ -198,11 +198,15 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                 const SizedBox(height: 15),
 
                 if (widget.isPaper) ...[
-                  ValidationOrder.dropdownForTypes(itemShiftProduction, shiftProduction, (value) {
-                    setState(() {
-                      shiftProduction = value!;
-                    });
-                  }),
+                  ValidationOrder.dropdownForTypes(
+                    items: itemShiftProduction,
+                    type: shiftProduction,
+                    onChanged: (value) {
+                      setState(() {
+                        shiftProduction = value!;
+                      });
+                    },
+                  ),
                   const SizedBox(height: 10),
                 ],
               ],

@@ -32,7 +32,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
   void initState() {
     super.initState();
 
-    if (userController.hasAnyRole(["admin"])) {
+    if (userController.hasAnyRole(roles: ["admin"])) {
       futureUserAdmin = AdminService().getAllUsers();
     } else {
       futureUserAdmin = Future.error("NO_PERMISSION");
@@ -50,30 +50,26 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
       });
     } else if (searchType == "Theo Tên") {
       setState(() {
-        futureUserAdmin = AdminService().getUserByName(keyword);
+        futureUserAdmin = AdminService().getUserByName(name: keyword);
       });
     } else if (searchType == "Theo SDT") {
       setState(() {
-        futureUserAdmin = AdminService().getUserByPhone(keyword);
+        futureUserAdmin = AdminService().getUserByPhone(phone: keyword);
       });
     } else if (searchType == "Theo Quyền") {
       List<String> permissions =
-          keyword
-              .split(',')
-              .map((e) => e.trim())
-              .where((e) => e.isNotEmpty)
-              .toList();
+          keyword.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
 
       if (permissions.isEmpty) return;
       setState(() {
-        futureUserAdmin = AdminService().getUserByPermission(permissions);
+        futureUserAdmin = AdminService().getUserByPermission(permissions: permissions);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isAccept = userController.hasAnyRole(["admin"]);
+    final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
 
     return Scaffold(
       body: Container(
@@ -120,19 +116,15 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                     child: LayoutBuilder(
                                       builder: (context, constraints) {
                                         final maxWidth = constraints.maxWidth;
-                                        final dropdownWidth = (maxWidth * 0.2)
-                                            .clamp(120.0, 170.0);
-                                        final textInputWidth = (maxWidth * 0.3)
-                                            .clamp(200.0, 250.0);
+                                        final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
+                                        final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
 
                                         return Row(
                                           children: [
                                             //dropdown
                                             SizedBox(
                                               width: dropdownWidth,
-                                              child: DropdownButtonFormField<
-                                                String
-                                              >(
+                                              child: DropdownButtonFormField<String>(
                                                 value: searchType,
                                                 items:
                                                     [
@@ -141,9 +133,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                       "Theo SDT",
                                                       "Theo Quyền",
                                                     ].map((String value) {
-                                                      return DropdownMenuItem<
-                                                        String
-                                                      >(
+                                                      return DropdownMenuItem<String>(
                                                         value: value,
                                                         child: Text(value),
                                                       );
@@ -151,8 +141,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                 onChanged: (value) {
                                                   setState(() {
                                                     searchType = value!;
-                                                    isTextFieldEnabled =
-                                                        searchType != 'Tất cả';
+                                                    isTextFieldEnabled = searchType != 'Tất cả';
 
                                                     if (!isTextFieldEnabled) {
                                                       searchController.clear();
@@ -163,19 +152,13 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                   filled: true,
                                                   fillColor: Colors.white,
                                                   border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          10,
-                                                        ),
-                                                    borderSide: BorderSide(
-                                                      color: Colors.grey,
-                                                    ),
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    borderSide: BorderSide(color: Colors.grey),
                                                   ),
-                                                  contentPadding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 8,
-                                                      ),
+                                                  contentPadding: const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -188,20 +171,15 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                               child: TextField(
                                                 controller: searchController,
                                                 enabled: isTextFieldEnabled,
-                                                onSubmitted:
-                                                    (_) => searchUser(),
+                                                onSubmitted: (_) => searchUser(),
                                                 decoration: InputDecoration(
                                                   hintText: 'Tìm kiếm...',
                                                   border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
+                                                    borderRadius: BorderRadius.circular(12),
                                                   ),
-                                                  contentPadding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                      ),
+                                                  contentPadding: const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -214,8 +192,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                               },
                                               label: "Tìm kiếm",
                                               icon: Icons.search,
-                                              backgroundColor:
-                                                  themeController.buttonColor,
+                                              backgroundColor: themeController.buttonColor,
                                             ),
                                             const SizedBox(width: 10),
                                           ],
@@ -265,9 +242,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                               return;
                                             }
                                             final selectedUser = users.firstWhere(
-                                              (u) => selectedUserIds.contains(
-                                                u.userId,
-                                              ),
+                                              (u) => selectedUserIds.contains(u.userId),
                                               orElse: () {
                                                 AppLogger.e(
                                                   'Selected user not found after loading list.',
@@ -286,8 +261,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                     onPermissionOrRole: () {
                                                       setState(() {
                                                         futureUserAdmin =
-                                                            AdminService()
-                                                                .getAllUsers();
+                                                            AdminService().getAllUsers();
                                                       });
                                                     },
                                                   ),
@@ -295,8 +269,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                           },
                                           label: "Phân Quyền/Vai Trò",
                                           icon: Symbols.graph_5,
-                                          backgroundColor:
-                                              themeController.buttonColor,
+                                          backgroundColor: themeController.buttonColor,
                                         ),
                                         const SizedBox(width: 10),
 
@@ -312,77 +285,50 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                               return;
                                             }
 
-                                            final confirm = await showDialog<
-                                              bool
-                                            >(
+                                            final confirm = await showDialog<bool>(
                                               context: context,
                                               builder:
                                                   (context) => AlertDialog(
-                                                    backgroundColor:
-                                                        Colors.white,
+                                                    backgroundColor: Colors.white,
                                                     shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            16,
-                                                          ),
+                                                      borderRadius: BorderRadius.circular(16),
                                                     ),
                                                     title: const Text(
                                                       "Xác nhận đặt lại",
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
+                                                      style: TextStyle(fontWeight: FontWeight.bold),
                                                     ),
                                                     content: Text(
                                                       "Bạn có muốn mặt lại mật khẩu cho ${selectedUserIds.length} người dùng?",
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                      ),
+                                                      style: const TextStyle(fontSize: 16),
                                                     ),
                                                     actions: [
                                                       TextButton(
                                                         onPressed:
-                                                            () => Navigator.pop(
-                                                              context,
-                                                              false,
-                                                            ),
+                                                            () => Navigator.pop(context, false),
                                                         child: const Text(
                                                           "Huỷ",
                                                           style: TextStyle(
                                                             fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color:
-                                                                Colors.black54,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.black54,
                                                           ),
                                                         ),
                                                       ),
                                                       ElevatedButton(
                                                         style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              const Color(
-                                                                0xffEA4346,
-                                                              ),
-                                                          foregroundColor:
-                                                              Colors.white,
+                                                          backgroundColor: const Color(0xffEA4346),
+                                                          foregroundColor: Colors.white,
                                                           shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  8,
-                                                                ),
+                                                            borderRadius: BorderRadius.circular(8),
                                                           ),
                                                         ),
                                                         onPressed:
-                                                            () => Navigator.pop(
-                                                              context,
-                                                              true,
-                                                            ),
+                                                            () => Navigator.pop(context, true),
                                                         child: const Text(
                                                           "Xác nhận",
                                                           style: TextStyle(
                                                             fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.bold,
+                                                            fontWeight: FontWeight.bold,
                                                           ),
                                                         ),
                                                       ),
@@ -393,15 +339,12 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                             if (confirm == true) {
                                               try {
                                                 await Future.delayed(
-                                                  const Duration(
-                                                    milliseconds: 500,
-                                                  ),
+                                                  const Duration(milliseconds: 500),
                                                 );
 
-                                                await AdminService()
-                                                    .resetUserPassword(
-                                                      userIds: selectedUserIds,
-                                                    );
+                                                await AdminService().resetUserPassword(
+                                                  userIds: selectedUserIds,
+                                                );
 
                                                 if (!context.mounted) return;
 
@@ -411,25 +354,19 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                 );
 
                                                 setState(() {
-                                                  futureUserAdmin =
-                                                      AdminService()
-                                                          .getAllUsers();
+                                                  futureUserAdmin = AdminService().getAllUsers();
                                                   selectedUserIds.clear();
                                                   selectedAll = false;
                                                 });
                                               } catch (e) {
                                                 if (!context.mounted) return;
-                                                showSnackBarError(
-                                                  context,
-                                                  "Lỗi: $e",
-                                                );
+                                                showSnackBarError(context, "Lỗi: $e");
                                               }
                                             }
                                           },
                                           label: "Đặt lại mật khẩu",
                                           icon: Symbols.lock_reset,
-                                          backgroundColor:
-                                              themeController.buttonColor,
+                                          backgroundColor: themeController.buttonColor,
                                         ),
                                         const SizedBox(width: 10),
 
@@ -444,38 +381,26 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                         bool isDeleting = false;
 
                                                         return StatefulBuilder(
-                                                          builder: (
-                                                            context,
-                                                            setStateDialog,
-                                                          ) {
+                                                          builder: (context, setStateDialog) {
                                                             return AlertDialog(
-                                                              backgroundColor:
-                                                                  Colors.white,
+                                                              backgroundColor: Colors.white,
                                                               shape: RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius.circular(
-                                                                      16,
-                                                                    ),
+                                                                borderRadius: BorderRadius.circular(
+                                                                  16,
+                                                                ),
                                                               ),
                                                               title: const Row(
                                                                 children: [
                                                                   Icon(
-                                                                    Icons
-                                                                        .warning_amber_rounded,
-                                                                    color:
-                                                                        Colors
-                                                                            .red,
+                                                                    Icons.warning_amber_rounded,
+                                                                    color: Colors.red,
                                                                     size: 30,
                                                                   ),
-                                                                  SizedBox(
-                                                                    width: 8,
-                                                                  ),
+                                                                  SizedBox(width: 8),
                                                                   Text(
                                                                     "Xác nhận xoá",
                                                                     style: TextStyle(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
+                                                                      fontWeight: FontWeight.bold,
                                                                     ),
                                                                   ),
                                                                 ],
@@ -485,23 +410,16 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                                       ? Row(
                                                                         children: const [
                                                                           CircularProgressIndicator(
-                                                                            strokeWidth:
-                                                                                2,
+                                                                            strokeWidth: 2,
                                                                           ),
-                                                                          SizedBox(
-                                                                            width:
-                                                                                12,
-                                                                          ),
-                                                                          Text(
-                                                                            "Đang xoá...",
-                                                                          ),
+                                                                          SizedBox(width: 12),
+                                                                          Text("Đang xoá..."),
                                                                         ],
                                                                       )
                                                                       : Text(
                                                                         'Bạn có chắc chắn muốn xoá ${selectedUserIds.length} người dùng này?',
                                                                         style: const TextStyle(
-                                                                          fontSize:
-                                                                              16,
+                                                                          fontSize: 16,
                                                                         ),
                                                                       ),
                                                               actions:
@@ -516,46 +434,44 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                                           child: const Text(
                                                                             "Huỷ",
                                                                             style: TextStyle(
-                                                                              fontSize:
-                                                                                  16,
+                                                                              fontSize: 16,
                                                                               fontWeight:
                                                                                   FontWeight.bold,
-                                                                              color:
-                                                                                  Colors.black54,
+                                                                              color: Colors.black54,
                                                                             ),
                                                                           ),
                                                                         ),
                                                                         ElevatedButton(
                                                                           style: ElevatedButton.styleFrom(
-                                                                            backgroundColor: const Color(
-                                                                              0xffEA4346,
-                                                                            ),
+                                                                            backgroundColor:
+                                                                                const Color(
+                                                                                  0xffEA4346,
+                                                                                ),
                                                                             foregroundColor:
                                                                                 Colors.white,
                                                                             shape: RoundedRectangleBorder(
-                                                                              borderRadius: BorderRadius.circular(
-                                                                                8,
-                                                                              ),
+                                                                              borderRadius:
+                                                                                  BorderRadius.circular(
+                                                                                    8,
+                                                                                  ),
                                                                             ),
                                                                           ),
                                                                           onPressed: () async {
                                                                             setStateDialog(() {
-                                                                              isDeleting =
-                                                                                  true;
+                                                                              isDeleting = true;
                                                                             });
 
-                                                                            for (int
-                                                                                id
+                                                                            for (int id
                                                                                 in selectedUserIds) {
-                                                                              await AdminService().deleteUserById(
-                                                                                id,
-                                                                              );
+                                                                              await AdminService()
+                                                                                  .deleteUserById(
+                                                                                    userId: id,
+                                                                                  );
                                                                             }
 
                                                                             await Future.delayed(
                                                                               const Duration(
-                                                                                milliseconds:
-                                                                                    500,
+                                                                                milliseconds: 500,
                                                                               ),
                                                                             );
 
@@ -564,14 +480,14 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                                             }
 
                                                                             setState(() {
-                                                                              selectedUserIds.clear();
+                                                                              selectedUserIds
+                                                                                  .clear();
                                                                               futureUserAdmin =
-                                                                                  AdminService().getAllUsers();
+                                                                                  AdminService()
+                                                                                      .getAllUsers();
                                                                             });
 
-                                                                            Navigator.pop(
-                                                                              context,
-                                                                            );
+                                                                            Navigator.pop(context);
 
                                                                             // Optional: Show success toast
                                                                             showSnackBarSuccess(
@@ -582,8 +498,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                                           child: const Text(
                                                                             "Xoá",
                                                                             style: TextStyle(
-                                                                              fontSize:
-                                                                                  16,
+                                                                              fontSize: 16,
                                                                               fontWeight:
                                                                                   FontWeight.bold,
                                                                             ),
@@ -625,24 +540,15 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                       child: FutureBuilder<List<UserAdminModel>>(
                         future: futureUserAdmin,
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
                           } else if (snapshot.hasError) {
-                            if (snapshot.error.toString().contains(
-                              "NO_PERMISSION",
-                            )) {
+                            if (snapshot.error.toString().contains("NO_PERMISSION")) {
                               return const Center(
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(
-                                      Icons.lock_outline,
-                                      color: Colors.redAccent,
-                                      size: 35,
-                                    ),
+                                    Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
                                     SizedBox(width: 8),
                                     Text(
                                       "Bạn không có quyền xem chức năng này",
@@ -656,18 +562,12 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                 ),
                               );
                             }
-                            return Center(
-                              child: Text("Lỗi: ${snapshot.error}"),
-                            );
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
+                            return Center(child: Text("Lỗi: ${snapshot.error}"));
+                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                             return const Center(
                               child: Text(
                                 "Không có người dùng nào",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                ),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                               ),
                             );
                           }
@@ -686,25 +586,14 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                   label: Theme(
                                     data: Theme.of(context).copyWith(
                                       checkboxTheme: CheckboxThemeData(
-                                        fillColor:
-                                            WidgetStateProperty.resolveWith<
-                                              Color
-                                            >((states) {
-                                              if (states.contains(
-                                                WidgetState.selected,
-                                              )) {
-                                                return Colors.red;
-                                              }
-                                              return Colors.white;
-                                            }),
-                                        checkColor:
-                                            WidgetStateProperty.all<Color>(
-                                              Colors.white,
-                                            ),
-                                        side: const BorderSide(
-                                          color: Colors.black,
-                                          width: 1,
-                                        ),
+                                        fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                                          if (states.contains(WidgetState.selected)) {
+                                            return Colors.red;
+                                          }
+                                          return Colors.white;
+                                        }),
+                                        checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                        side: const BorderSide(color: Colors.black, width: 1),
                                       ),
                                     ),
                                     child: Checkbox(
@@ -713,10 +602,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                         setState(() {
                                           selectedAll = value!;
                                           if (selectedAll) {
-                                            selectedUserIds =
-                                                data
-                                                    .map((e) => e.userId)
-                                                    .toList();
+                                            selectedUserIds = data.map((e) => e.userId).toList();
                                           } else {
                                             selectedUserIds.clear();
                                           }
@@ -733,9 +619,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                 DataColumn(label: styleText("Quyền Truy Cập")),
                                 DataColumn(label: styleText("Hình Ảnh")),
                               ],
-                              rows: List<DataRow>.generate(data.length, (
-                                index,
-                              ) {
+                              rows: List<DataRow>.generate(data.length, (index) {
                                 final user = data[index];
                                 return DataRow(
                                   cells: [
@@ -743,75 +627,51 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                       Theme(
                                         data: Theme.of(context).copyWith(
                                           checkboxTheme: CheckboxThemeData(
-                                            fillColor:
-                                                WidgetStateProperty.resolveWith<
-                                                  Color
-                                                >((states) {
-                                                  if (states.contains(
-                                                    WidgetState.selected,
-                                                  )) {
-                                                    return Colors.red;
-                                                  }
-                                                  return Colors.white;
-                                                }),
-                                            checkColor:
-                                                WidgetStateProperty.all<Color>(
-                                                  Colors.white,
-                                                ),
-                                            side: const BorderSide(
-                                              color: Colors.black,
-                                              width: 1,
+                                            fillColor: WidgetStateProperty.resolveWith<Color>((
+                                              states,
+                                            ) {
+                                              if (states.contains(WidgetState.selected)) {
+                                                return Colors.red;
+                                              }
+                                              return Colors.white;
+                                            }),
+                                            checkColor: WidgetStateProperty.all<Color>(
+                                              Colors.white,
                                             ),
+                                            side: const BorderSide(color: Colors.black, width: 1),
                                           ),
                                         ),
                                         child: Checkbox(
-                                          value: selectedUserIds.contains(
-                                            user.userId,
-                                          ),
+                                          value: selectedUserIds.contains(user.userId),
                                           onChanged: (val) {
                                             setState(() {
                                               if (val == true) {
-                                                selectedUserIds.add(
-                                                  user.userId,
-                                                );
+                                                selectedUserIds.add(user.userId);
                                               } else {
-                                                selectedUserIds.remove(
-                                                  user.userId,
-                                                );
+                                                selectedUserIds.remove(user.userId);
                                               }
-                                              selectedAll =
-                                                  selectedUserIds.length ==
-                                                  data.length;
+                                              selectedAll = selectedUserIds.length == data.length;
                                             });
                                           },
                                         ),
                                       ),
                                     ),
-                                    DataCell(styleCell(user.fullName)),
-                                    DataCell(styleCell(user.email)),
+                                    DataCell(styleCell(label: user.fullName)),
+                                    DataCell(styleCell(label: user.email)),
                                     DataCell(
-                                      styleCell(
-                                        UserAdminModel.formatSex(
-                                          user.sex ?? "",
-                                        ),
-                                      ),
+                                      styleCell(label: UserAdminModel.formatSex(user.sex ?? "")),
                                     ),
-                                    DataCell(styleCell(user.phone ?? "")),
+                                    DataCell(styleCell(label: user.phone ?? "")),
                                     DataCell(
-                                      styleCell(
-                                        UserAdminModel.formatRole(user.role),
-                                      ),
+                                      styleCell(label: UserAdminModel.formatRole(role: user.role)),
                                     ),
                                     DataCell(
                                       styleCell(
-                                        UserAdminModel.formatPermissions(
-                                          user.permissions,
-                                        ),
+                                        label: UserAdminModel.formatPermissions(user.permissions),
                                       ),
                                     ),
                                     DataCell(
-                                      user.avatar != null &&
-                                              user.avatar!.isNotEmpty
+                                      user.avatar != null && user.avatar!.isNotEmpty
                                           ? TextButton(
                                             onPressed: () {
                                               // print(
@@ -822,31 +682,21 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                 barrierDismissible: true,
                                                 builder: (_) {
                                                   return GestureDetector(
-                                                    onTap:
-                                                        () =>
-                                                            Navigator.of(
-                                                              context,
-                                                            ).pop(),
+                                                    onTap: () => Navigator.of(context).pop(),
                                                     child: Scaffold(
-                                                      backgroundColor:
-                                                          Colors.black54,
+                                                      backgroundColor: Colors.black54,
                                                       body: Center(
                                                         child: GestureDetector(
                                                           onTap:
                                                               () {}, // Ngăn không cho nhấn vào ảnh đóng dialog
                                                           child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
+                                                            borderRadius: BorderRadius.circular(12),
                                                             child: SizedBox(
                                                               width: 600,
                                                               height: 600,
                                                               child: Image.network(
                                                                 user.avatar!,
-                                                                fit:
-                                                                    BoxFit
-                                                                        .contain,
+                                                                fit: BoxFit.contain,
                                                                 errorBuilder: (
                                                                   context,
                                                                   error,
@@ -854,26 +704,18 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                                 ) {
                                                                   AppLogger.e(
                                                                     "Lỗi khi tải hình ảnh",
-                                                                    error:
-                                                                        error,
-                                                                    stackTrace:
-                                                                        stackTrace,
+                                                                    error: error,
+                                                                    stackTrace: stackTrace,
                                                                   );
                                                                   return Container(
                                                                     width: 300,
                                                                     height: 300,
-                                                                    color:
-                                                                        Colors
-                                                                            .grey
-                                                                            .shade300,
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .center,
+                                                                    color: Colors.grey.shade300,
+                                                                    alignment: Alignment.center,
                                                                     child: const Text(
                                                                       "Lỗi ảnh",
                                                                       style: TextStyle(
-                                                                        color:
-                                                                            Colors.black,
+                                                                        color: Colors.black,
                                                                       ),
                                                                     ),
                                                                   );
@@ -892,8 +734,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                               'Xem ảnh',
                                               style: TextStyle(
                                                 color: Colors.blue,
-                                                decoration:
-                                                    TextDecoration.underline,
+                                                decoration: TextDecoration.underline,
                                               ),
                                             ),
                                           )

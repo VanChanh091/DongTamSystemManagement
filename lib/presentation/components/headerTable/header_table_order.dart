@@ -71,15 +71,10 @@ List<GridColumn> buildOrderColumns({
   return [
     for (var item in orderColumns)
       if (!item.containsKey("showIfRole") ||
-          userController.hasAnyRole(item["showIfRole"] as List<String>))
+          userController.hasAnyRole(roles: item["showIfRole"] as List<String>))
         GridColumn(
           columnName: item["key"]!,
-          label: Obx(
-            () => formatColumn(
-              label: item["title"]!,
-              themeController: themeController,
-            ),
-          ),
+          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
         ),
   ];
 }

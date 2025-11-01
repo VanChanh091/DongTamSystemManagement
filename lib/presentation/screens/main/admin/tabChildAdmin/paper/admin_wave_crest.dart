@@ -29,7 +29,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
   void initState() {
     super.initState();
 
-    if (userController.hasAnyRole(["admin"])) {
+    if (userController.hasAnyRole(roles: ["admin"])) {
       loadWaveCrest();
     } else {
       futureAdminWaveCrest = Future.error("NO_PERMISSION");
@@ -44,7 +44,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAccept = userController.hasAnyRole(["admin"]);
+    final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
 
     return Scaffold(
       body: Container(
@@ -87,10 +87,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
 
                                 //right
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 10,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     children: [
                                       // update
@@ -107,9 +104,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                           final dataToUpdate =
                                               updatedWaveCrest
                                                   .where(
-                                                    (
-                                                      item,
-                                                    ) => isSelected.contains(
+                                                    (item) => isSelected.contains(
                                                       item.waveCrestCoefficientId,
                                                     ),
                                                   )
@@ -120,32 +115,26 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                             //   '⏫ Updating waveCrestId: ${item.waveCrestCoefficientId}',
                                             // );
 
-                                            await AdminService()
-                                                .updateWaveCrest(
-                                                  item.waveCrestCoefficientId,
-                                                  {
-                                                    "fluteE_1": item.fluteE_1,
-                                                    "fluteE_2": item.fluteE_2,
-                                                    "fluteB": item.fluteB,
-                                                    "fluteC": item.fluteC,
-                                                    "machineName":
-                                                        item.machineName,
-                                                  },
-                                                );
+                                            await AdminService().updateWaveCrest(
+                                              waveCrestId: item.waveCrestCoefficientId,
+                                              waveCrestUpdate: {
+                                                "fluteE_1": item.fluteE_1,
+                                                "fluteE_2": item.fluteE_2,
+                                                "fluteB": item.fluteB,
+                                                "fluteC": item.fluteC,
+                                                "machineName": item.machineName,
+                                              },
+                                            );
                                           }
 
                                           if (!context.mounted) return;
 
                                           loadWaveCrest();
-                                          showSnackBarSuccess(
-                                            context,
-                                            'Đã cập nhật thành công',
-                                          );
+                                          showSnackBarSuccess(context, 'Đã cập nhật thành công');
                                         },
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
-                                        backgroundColor:
-                                            themeController.buttonColor,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -160,38 +149,26 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                                       bool isDeleting = false;
 
                                                       return StatefulBuilder(
-                                                        builder: (
-                                                          context,
-                                                          setStateDialog,
-                                                        ) {
+                                                        builder: (context, setStateDialog) {
                                                           return AlertDialog(
-                                                            backgroundColor:
-                                                                Colors.white,
+                                                            backgroundColor: Colors.white,
                                                             shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    16,
-                                                                  ),
+                                                              borderRadius: BorderRadius.circular(
+                                                                16,
+                                                              ),
                                                             ),
                                                             title: const Row(
                                                               children: [
                                                                 Icon(
-                                                                  Icons
-                                                                      .warning_amber_rounded,
-                                                                  color:
-                                                                      Colors
-                                                                          .red,
+                                                                  Icons.warning_amber_rounded,
+                                                                  color: Colors.red,
                                                                   size: 30,
                                                                 ),
-                                                                SizedBox(
-                                                                  width: 8,
-                                                                ),
+                                                                SizedBox(width: 8),
                                                                 Text(
                                                                   "Xác nhận xoá",
                                                                   style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
+                                                                    fontWeight: FontWeight.bold,
                                                                   ),
                                                                 ),
                                                               ],
@@ -201,23 +178,16 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                                                     ? const Row(
                                                                       children: [
                                                                         CircularProgressIndicator(
-                                                                          strokeWidth:
-                                                                              2,
+                                                                          strokeWidth: 2,
                                                                         ),
-                                                                        SizedBox(
-                                                                          width:
-                                                                              12,
-                                                                        ),
-                                                                        Text(
-                                                                          "Đang xoá...",
-                                                                        ),
+                                                                        SizedBox(width: 12),
+                                                                        Text("Đang xoá..."),
                                                                       ],
                                                                     )
                                                                     : const Text(
                                                                       'Bạn có chắc chắn muốn xoá?',
                                                                       style: TextStyle(
-                                                                        fontSize:
-                                                                            16,
+                                                                        fontSize: 16,
                                                                       ),
                                                                     ),
                                                             actions:
@@ -232,63 +202,59 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                                                         child: const Text(
                                                                           "Huỷ",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
-                                                                            color:
-                                                                                Colors.black54,
+                                                                            color: Colors.black54,
                                                                           ),
                                                                         ),
                                                                       ),
                                                                       ElevatedButton(
                                                                         style: ElevatedButton.styleFrom(
-                                                                          backgroundColor: const Color(
-                                                                            0xffEA4346,
-                                                                          ),
+                                                                          backgroundColor:
+                                                                              const Color(
+                                                                                0xffEA4346,
+                                                                              ),
                                                                           foregroundColor:
                                                                               Colors.white,
                                                                           shape: RoundedRectangleBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              8,
-                                                                            ),
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(
+                                                                                  8,
+                                                                                ),
                                                                           ),
                                                                         ),
                                                                         onPressed: () async {
                                                                           setStateDialog(() {
-                                                                            isDeleting =
-                                                                                true;
+                                                                            isDeleting = true;
                                                                           });
 
-                                                                          for (int
-                                                                              id
+                                                                          for (int id
                                                                               in isSelected) {
-                                                                            await AdminService().deleteWaveCrest(
-                                                                              id,
-                                                                            );
+                                                                            await AdminService()
+                                                                                .deleteWaveCrest(
+                                                                                  waveCrestId: id,
+                                                                                );
                                                                           }
 
                                                                           await Future.delayed(
                                                                             const Duration(
-                                                                              seconds:
-                                                                                  1,
+                                                                              seconds: 1,
                                                                             ),
                                                                           );
 
-                                                                          if (!context
-                                                                              .mounted) {
+                                                                          if (!context.mounted) {
                                                                             return;
                                                                           }
 
                                                                           setState(() {
                                                                             isSelected.clear();
                                                                             futureAdminWaveCrest =
-                                                                                AdminService().getAllWaveCrest();
+                                                                                AdminService()
+                                                                                    .getAllWaveCrest();
                                                                           });
 
-                                                                          Navigator.pop(
-                                                                            context,
-                                                                          );
+                                                                          Navigator.pop(context);
 
                                                                           // Optional: Show success toast
                                                                           showSnackBarSuccess(
@@ -299,8 +265,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                                                         child: const Text(
                                                                           "Xoá",
                                                                           style: TextStyle(
-                                                                            fontSize:
-                                                                                16,
+                                                                            fontSize: 16,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
                                                                           ),
@@ -344,11 +309,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                Icons.lock_outline,
-                                color: Colors.redAccent,
-                                size: 35,
-                              ),
+                              Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
                               SizedBox(width: 8),
                               Text(
                                 "Bạn không có quyền xem chức năng này",
@@ -367,10 +328,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                       return const Center(
                         child: Text(
                           "Không có đơn hàng nào",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                         ),
                       );
                     }
@@ -382,29 +340,20 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                       scrollDirection: Axis.vertical,
                       child: DataTable(
                         columnSpacing: 25,
-                        headingRowColor: WidgetStatePropertyAll(
-                          themeController.currentColor.value,
-                        ),
+                        headingRowColor: WidgetStatePropertyAll(themeController.currentColor.value),
                         columns: [
                           DataColumn(
                             label: Theme(
                               data: Theme.of(context).copyWith(
                                 checkboxTheme: CheckboxThemeData(
-                                  fillColor: WidgetStateProperty.resolveWith<
-                                    Color
-                                  >((states) {
+                                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                                     if (states.contains(WidgetState.selected)) {
                                       return Colors.red;
                                     }
                                     return Colors.white;
                                   }),
-                                  checkColor: WidgetStateProperty.all<Color>(
-                                    Colors.white,
-                                  ),
-                                  side: const BorderSide(
-                                    color: Colors.black,
-                                    width: 1,
-                                  ),
+                                  checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                  side: const BorderSide(color: Colors.black, width: 1),
                                 ),
                               ),
                               child: Checkbox(
@@ -414,11 +363,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                     selectedAll = value!;
                                     if (selectedAll) {
                                       isSelected =
-                                          data
-                                              .map(
-                                                (e) => e.waveCrestCoefficientId,
-                                              )
-                                              .toList();
+                                          data.map((e) => e.waveCrestCoefficientId).toList();
                                     } else {
                                       isSelected.clear();
                                     }
@@ -441,94 +386,76 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                                 Theme(
                                   data: Theme.of(context).copyWith(
                                     checkboxTheme: CheckboxThemeData(
-                                      fillColor:
-                                          WidgetStateProperty.resolveWith<
-                                            Color
-                                          >((states) {
-                                            if (states.contains(
-                                              WidgetState.selected,
-                                            )) {
-                                              return Colors.red;
-                                            }
-                                            return Colors.white;
-                                          }),
-                                      checkColor:
-                                          WidgetStateProperty.all<Color>(
-                                            Colors.white,
-                                          ),
-                                      side: const BorderSide(
-                                        color: Colors.black,
-                                        width: 1,
-                                      ),
+                                      fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                                        if (states.contains(WidgetState.selected)) {
+                                          return Colors.red;
+                                        }
+                                        return Colors.white;
+                                      }),
+                                      checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                                      side: const BorderSide(color: Colors.black, width: 1),
                                     ),
                                   ),
                                   child: Checkbox(
-                                    value: isSelected.contains(
-                                      waveCrest.waveCrestCoefficientId,
-                                    ),
+                                    value: isSelected.contains(waveCrest.waveCrestCoefficientId),
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
-                                          isSelected.add(
-                                            waveCrest.waveCrestCoefficientId,
-                                          );
+                                          isSelected.add(waveCrest.waveCrestCoefficientId);
                                         } else {
-                                          isSelected.remove(
-                                            waveCrest.waveCrestCoefficientId,
-                                          );
+                                          isSelected.remove(waveCrest.waveCrestCoefficientId);
                                         }
 
-                                        selectedAll =
-                                            isSelected.length == data.length;
+                                        selectedAll = isSelected.length == data.length;
                                       });
                                     },
                                   ),
                                 ),
                               ),
                               DataCell(
-                                styleCellAdmin(waveCrest.fluteE_1.toString(), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    waveCrest.fluteE_1 =
-                                        double.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(waveCrest.fluteE_2.toString(), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    waveCrest.fluteE_2 =
-                                        double.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(waveCrest.fluteB.toString(), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    waveCrest.fluteB =
-                                        double.tryParse(value) ?? 0;
-                                  });
-                                }),
-                              ),
-                              DataCell(
-                                styleCellAdmin(waveCrest.fluteC.toString(), (
-                                  value,
-                                ) {
-                                  setState(() {
-                                    waveCrest.fluteC =
-                                        double.tryParse(value) ?? 0;
-                                  });
-                                }),
+                                styleCellAdmin(
+                                  text: waveCrest.fluteE_1.toString(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      waveCrest.fluteE_1 = double.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  waveCrest.machineName.toString(),
-                                  null,
+                                  text: waveCrest.fluteE_2.toString(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      waveCrest.fluteE_2 = double.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: waveCrest.fluteB.toString(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      waveCrest.fluteB = double.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: waveCrest.fluteC.toString(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      waveCrest.fluteC = double.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: waveCrest.machineName.toString(),
+                                  onChanged: null,
                                 ),
                               ),
                             ],

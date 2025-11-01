@@ -276,7 +276,10 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     try {
       AppLogger.i("Lên kế hoạch cho 1 đơn hàng mới: $originalOrderId");
-      await PlanningService().planningOrder(newPlanning.toJson(), originalOrderId);
+      await PlanningService().planningOrder(
+        orderId: originalOrderId,
+        orderPlanning: newPlanning.toJson(),
+      );
 
       if (!mounted) return;
       showSnackBarSuccess(context, "Lưu thành công");
@@ -383,69 +386,69 @@ class _PLanningDialogState extends State<PLanningDialog> {
       {
         "leftKey": "Sóng E (g)",
         "leftValue": ValidationPlanning.validateInput(
-          "Sóng E thay thế (g)",
-          songEReplaceController,
-          Symbols.airwave,
+          label: "Sóng E thay thế (g)",
+          controller: songEReplaceController,
+          icon: Symbols.airwave,
         ),
         "middleKey": "Sóng B (g)",
         "middleValue": ValidationPlanning.validateInput(
-          "Sóng B thay thế (g)",
-          songBReplaceController,
-          Symbols.airwave,
+          label: "Sóng B thay thế (g)",
+          controller: songBReplaceController,
+          icon: Symbols.airwave,
         ),
         "rightKey": "Sóng C (g)",
         "rightValue": ValidationPlanning.validateInput(
-          "Sóng C thay thế (g)",
-          songCReplaceController,
-          Symbols.airwave,
+          label: "Sóng C thay thế (g)",
+          controller: songCReplaceController,
+          icon: Symbols.airwave,
         ),
       },
       {
         "leftKey": "Mặt E (g)",
         "leftValue": ValidationPlanning.validateInput(
-          "Mặt E thay thế (g)",
-          matEReplaceController,
-          Symbols.vertical_align_center,
+          label: "Mặt E thay thế (g)",
+          controller: matEReplaceController,
+          icon: Symbols.vertical_align_center,
         ),
         "middleKey": "Mặt B (g)",
         "middleValue": ValidationPlanning.validateInput(
-          "Mặt B thay thế (g)",
-          matBReplaceController,
-          Symbols.vertical_align_center,
+          label: "Mặt B thay thế (g)",
+          controller: matBReplaceController,
+          icon: Symbols.vertical_align_center,
         ),
         "rightKey": "Mặt C (g)",
         "rightValue": ValidationPlanning.validateInput(
-          "Mặt C thay thế (g)",
-          matCReplaceController,
-          Symbols.vertical_align_center,
+          label: "Mặt C thay thế (g)",
+          controller: matCReplaceController,
+          icon: Symbols.vertical_align_center,
         ),
       },
       {
         "leftKey": "Sóng E2 (g)",
         "leftValue": ValidationPlanning.validateInput(
-          "Sóng E2 thay thế (g)",
-          songE2ReplaceController,
-          Symbols.airwave,
+          label: "Sóng E2 thay thế (g)",
+          controller: songE2ReplaceController,
+          icon: Symbols.airwave,
         ),
         "middleKey": "Mặt E2 (g)",
         "middleValue": ValidationPlanning.validateInput(
-          "Mặt E2 thay thế (g)",
-          matE2ReplaceController,
-          Symbols.vertical_align_center,
+          label: "Mặt E2 thay thế (g)",
+          controller: matE2ReplaceController,
+          icon: Symbols.vertical_align_center,
         ),
         "rightKey": "Đáy (g)",
         "rightValue": ValidationPlanning.validateInput(
-          "Đáy thay thế (g)",
-          dayReplaceController,
-          Symbols.vertical_align_bottom,
+          label: "Đáy thay thế (g)",
+          controller: dayReplaceController,
+          icon: Symbols.vertical_align_bottom,
         ),
       },
       {
         "leftKey": "Kết Cấu",
         "leftValue": ValidationPlanning.validateInput(
-          "Kết Cấu Thay thế",
-          structureController,
-          Symbols.waves,
+          label: "Kết Cấu Thay thế",
+          controller: structureController,
+          icon: Symbols.waves,
           readOnly: true,
         ),
       },
@@ -455,48 +458,52 @@ class _PLanningDialogState extends State<PLanningDialog> {
       {
         "leftKey": "Dài sản xuất (cm)",
         "leftValue": ValidationPlanning.validateInput(
-          "Dài sản xuất (cm)",
-          lengthPaperPlanningController,
-          Symbols.horizontal_distribute,
+          label: "Dài sản xuất (cm)",
+          controller: lengthPaperPlanningController,
+          icon: Symbols.horizontal_distribute,
         ),
         "middleKey": "Khổ sản xuất (cm)",
         "middleValue": ValidationPlanning.validateInput(
-          "Khổ sản xuất (cm)",
-          sizePaperPLaningController,
-          Symbols.horizontal_distribute,
+          label: "Khổ sản xuất (cm)",
+          controller: sizePaperPLaningController,
+          icon: Symbols.horizontal_distribute,
         ),
         "rightKey": "Số Lớp Sóng",
         "rightValue": ValidationPlanning.validateInput(
-          "Số Lớp Sóng",
-          fluteController,
-          Symbols.stacks,
+          label: "Số Lớp Sóng",
+          controller: fluteController,
+          icon: Symbols.stacks,
         ),
       },
       {
         "leftKey": "Số Con",
         "leftValue": ValidationPlanning.validateInput(
-          "Số Con",
-          numberChildController,
-          Symbols.numbers,
+          label: "Số Con",
+          controller: numberChildController,
+          icon: Symbols.numbers,
         ),
         "middleKey": "Kế hoạch chạy",
         "middleValue": ValidationPlanning.validateInput(
-          "Kế hoạch chạy",
-          runningPlanController,
-          Symbols.production_quantity_limits,
+          label: "Kế hoạch chạy",
+          controller: runningPlanController,
+          icon: Symbols.production_quantity_limits,
         ),
         "rightKey": "Ghép Khổ",
         "rightValue": ValidationPlanning.validateInput(
-          "Ghép Khổ",
-          ghepKhoController,
-          Symbols.layers,
+          label: "Ghép Khổ",
+          controller: ghepKhoController,
+          icon: Symbols.layers,
         ),
       },
       {
         "leftKey": "Chọn Máy",
-        "leftValue": ValidationOrder.dropdownForTypes(machineList, chooseMachine, (value) {
-          setState(() => chooseMachine = value!);
-        }),
+        "leftValue": ValidationOrder.dropdownForTypes(
+          items: machineList,
+          type: chooseMachine,
+          onChanged: (value) {
+            setState(() => chooseMachine = value!);
+          },
+        ),
         "middleKey": "",
         "middleValue": SizedBox(),
         "rightKey": "",

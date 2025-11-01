@@ -47,7 +47,7 @@ Widget buildingCard({required String title, required List<Widget> children}) {
   );
 }
 
-Widget buildFieldRow(List<Widget> children, {List<int>? flexes}) {
+Widget buildFieldRow({required List<Widget> children, List<int>? flexes}) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: Row(

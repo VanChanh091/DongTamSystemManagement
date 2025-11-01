@@ -54,14 +54,14 @@ class PlanningBox {
     return formattedParts.join('/');
   }
 
-  static String formatTimeOfDay(TimeOfDay time) {
-    final hour = time.hour.toString().padLeft(2, '0');
-    final minute = time.minute.toString().padLeft(2, '0');
+  static String formatTimeOfDay({required TimeOfDay timeOfDay}) {
+    final hour = timeOfDay.hour.toString().padLeft(2, '0');
+    final minute = timeOfDay.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
 
   //get data of box time machine
-  BoxMachineTime? _findByMachine(List<BoxMachineTime>? list, String machine) {
+  BoxMachineTime? _findByMachine({required List<BoxMachineTime>? list, required String machine}) {
     if (list == null) return null;
     try {
       return list.firstWhere((item) => item.machine == machine);
@@ -71,12 +71,14 @@ class PlanningBox {
   }
 
   //get one box
-  BoxMachineTime? getBoxMachineTimeByMachine(String machine) => _findByMachine(boxTimes, machine);
+  BoxMachineTime? getBoxMachineTimeByMachine(String machine) =>
+      _findByMachine(list: boxTimes, machine: machine);
 
   //get all box
-  BoxMachineTime? getAllBoxMachineTime(String machine) => _findByMachine(allBoxTimes, machine);
+  BoxMachineTime? getAllBoxMachineTime(String machine) =>
+      _findByMachine(list: allBoxTimes, machine: machine);
 
-  TimeOverflowPlanning? getTimeOverflow(String machine) {
+  TimeOverflowPlanning? getTimeOverflow({required String machine}) {
     if (timeOverflowPlanning == null) return null;
     try {
       return timeOverflowPlanning?.firstWhere((item) => item.machine == machine);
