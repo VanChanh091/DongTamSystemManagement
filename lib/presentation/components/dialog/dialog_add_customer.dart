@@ -1,5 +1,7 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_service.dart';
+import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
+import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -232,6 +234,148 @@ class _CustomerDialogState extends State<CustomerDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.customer != null;
 
+    final List<Map<String, dynamic>> basicInfoRows = [
+      {
+        "leftKey": "Mã khách hàng",
+        "leftValue": ValidationCustomer.validateInput(
+          label: "Mã khách hàng",
+          controller: _idController,
+          icon: Icons.badge,
+          readOnly: isEdit,
+          checkId: !isEdit,
+          allCustomers: allCustomers,
+          currentCustomerId: widget.customer?.customerId,
+        ),
+        "rightKey": "Tên khách hàng",
+        "rightValue": ValidationCustomer.validateInput(
+          label: "Tên khách hàng",
+          controller: _nameController,
+          icon: Icons.person,
+        ),
+      },
+
+      {
+        "leftKey": "Tên công ty",
+        "leftValue": ValidationCustomer.validateInput(
+          label: "Tên công ty",
+          controller: _companyNameController,
+          icon: Icons.business,
+        ),
+        "rightKey": "Mã Số Thuế",
+        "rightValue": ValidationCustomer.validateInput(
+          label: "MST",
+          controller: _mstController,
+          icon: Icons.numbers,
+          allCustomers: allCustomers,
+          currentCustomerId: widget.customer?.customerId,
+        ),
+      },
+
+      {
+        "leftKey": "Địa chỉ công ty",
+        "leftValue": ValidationCustomer.validateInput(
+          label: "Địa chỉ công ty",
+          controller: _companyAddressController,
+          icon: Icons.location_city,
+        ),
+        "rightKey": "Địa chỉ giao hàng",
+        "rightValue": ValidationCustomer.validateInput(
+          label: "Địa chỉ giao hàng",
+          controller: _shippingAddressController,
+          icon: Icons.local_shipping,
+        ),
+      },
+
+      {
+        "leftKey": "Số Điện Thoại",
+        "leftValue": ValidationCustomer.validateInput(
+          label: "SDT",
+          controller: _phoneController,
+          icon: Icons.phone,
+        ),
+        "rightKey": "Người Liên Hệ",
+        "rightValue": ValidationCustomer.validateInput(
+          label: "Người Liên Hệ",
+          controller: _contactPersonController,
+          icon: Icons.person,
+        ),
+      },
+
+      {
+        "leftKey": "CSKH",
+        "leftValue": ValidationCustomer.validateInput(
+          label: "CSKH",
+          controller: _cskhController,
+          icon: Icons.support_agent,
+        ),
+        "rightKey": "",
+        "rightValue": SizedBox(),
+      },
+    ];
+
+    final List<Map<String, dynamic>> otherInfoRows = [
+      {
+        "leftKey": "Hạn Mức Công Nợ",
+        "leftValue": ValidationCustomer.validateInput(
+          label: "Hạn Mức Công Nợ",
+          controller: _debtLimitController,
+          icon: Icons.money,
+        ),
+        "rightKey": "Hạn Thanh Toán",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Hạn Thanh Toán",
+          controller: _timePaymentController,
+          icon: Symbols.calendar_month,
+          readOnly: true,
+          onTap: () async {
+            DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: timePayment ?? DateTime.now(),
+              firstDate: DateTime.now(),
+              lastDate: DateTime(2100),
+              builder: (BuildContext context, Widget? child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: ColorScheme.light(
+                      primary: Colors.blue,
+                      onPrimary: Colors.white,
+                      onSurface: Colors.black,
+                    ),
+                    dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
+                  ),
+                  child: child!,
+                );
+              },
+            );
+            if (pickedDate != null) {
+              setState(() {
+                timePayment = pickedDate;
+                _timePaymentController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+              });
+            }
+          },
+        ),
+      },
+      {
+        "leftKey": "Khoảng Cách Giao Hàng",
+        "leftValue": ValidationCustomer.validateInput(
+          label: "Khoảng Cách Giao Hàng",
+          controller: _distanceController,
+          icon: Icons.social_distance,
+        ),
+        "rightKey": "Đánh Giá",
+        "rightValue": ValidationOrder.dropdownForTypes(
+          items: itemRating,
+          type: typeRating,
+          onChanged: (value) {
+            setState(() {
+              typeRating = value!;
+            });
+          },
+        ),
+      },
+    ];
+
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -242,7 +386,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
         ),
       ),
       content: SizedBox(
-        width: ResponsiveSize.getWidth(context, ResponsiveType.small),
+        width: ResponsiveSize.getWidth(context, ResponsiveType.large),
         child:
             isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -251,172 +395,28 @@ class _CustomerDialogState extends State<CustomerDialog> {
                     key: formKey,
                     child: Column(
                       children: [
-                        const SizedBox(height: 15),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ValidationCustomer.validateInput(
-                                label: "Mã khách hàng",
-                                controller: _idController,
-                                icon: Icons.badge,
-                                readOnly: isEdit,
-                                checkId: !isEdit,
-                                allCustomers: allCustomers,
-                                currentCustomerId: widget.customer?.customerId,
-                              ),
-                            ),
-                            const SizedBox(width: 15),
-                            Expanded(
-                              child: ValidationCustomer.validateInput(
-                                label: "Tên khách hàng",
-                                controller: _nameController,
-                                icon: Icons.person,
-                              ),
-                            ),
-                          ],
+                        //basic info
+                        const SizedBox(height: 10),
+                        buildingCard(
+                          title: "Thông Tin Khách Hàng",
+                          children: formatKeyValueRows(
+                            rows: basicInfoRows,
+                            columnCount: 2,
+                            labelWidth: 150,
+                            centerAlign: true,
+                          ),
                         ),
+                        const SizedBox(height: 10),
 
-                        const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          label: "Tên công ty",
-                          controller: _companyNameController,
-                          icon: Icons.business,
-                        ),
-
-                        const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          label: "Địa chỉ công ty",
-                          controller: _companyAddressController,
-                          icon: Icons.location_city,
-                        ),
-
-                        const SizedBox(height: 15),
-                        ValidationCustomer.validateInput(
-                          label: "Địa chỉ giao hàng",
-                          controller: _shippingAddressController,
-                          icon: Icons.local_shipping,
-                        ),
-
-                        const SizedBox(height: 15),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ValidationCustomer.validateInput(
-                                label: "Khoảng Cách Giao Hàng",
-                                controller: _distanceController,
-                                icon: Icons.social_distance,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ValidationCustomer.validateInput(
-                                label: "MST",
-                                controller: _mstController,
-                                icon: Icons.numbers,
-                                allCustomers: allCustomers,
-                                currentCustomerId: widget.customer?.customerId,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 15),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ValidationCustomer.validateInput(
-                                label: "SDT",
-                                controller: _phoneController,
-                                icon: Icons.phone,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ValidationCustomer.validateInput(
-                                label: "Người Liên Hệ",
-                                controller: _contactPersonController,
-                                icon: Icons.person,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 15),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ValidationCustomer.validateInput(
-                                label: "Hạn Mức Công Nợ",
-                                controller: _debtLimitController,
-                                icon: Icons.money,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ValidationOrder.validateInput(
-                                label: "Hạn Thanh Toán",
-                                controller: _timePaymentController,
-                                icon: Symbols.calendar_month,
-                                readOnly: true,
-                                onTap: () async {
-                                  DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: timePayment ?? DateTime.now(),
-                                    firstDate: DateTime.now(),
-                                    lastDate: DateTime(2100),
-                                    builder: (BuildContext context, Widget? child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: Colors.blue,
-                                            onPrimary: Colors.white,
-                                            onSurface: Colors.black,
-                                          ),
-                                          dialogTheme: DialogThemeData(
-                                            backgroundColor: Colors.white12,
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
-                                  if (pickedDate != null) {
-                                    setState(() {
-                                      timePayment = pickedDate;
-                                      _timePaymentController.text = DateFormat(
-                                        'dd/MM/yyyy',
-                                      ).format(pickedDate);
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 15),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ValidationCustomer.validateInput(
-                                label: "CSKH",
-                                controller: _cskhController,
-                                icon: Icons.support_agent,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ValidationOrder.dropdownForTypes(
-                                items: itemRating,
-                                type: typeRating,
-                                onChanged: (value) {
-                                  setState(() {
-                                    typeRating = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
+                        //other info
+                        buildingCard(
+                          title: "Thông Tin Khác",
+                          children: formatKeyValueRows(
+                            rows: otherInfoRows,
+                            columnCount: 2,
+                            labelWidth: 150,
+                            centerAlign: true,
+                          ),
                         ),
                       ],
                     ),

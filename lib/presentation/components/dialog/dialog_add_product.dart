@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_service.dart';
+import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -188,6 +189,47 @@ class _ProductDialogState extends State<ProductDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.product != null;
 
+    final List<Map<String, dynamic>> productInfoRows = [
+      {
+        "leftKey": "Mã Sản Phẩm",
+        "leftValue": validateInput(
+          label: "Mã Sản Phẩm",
+          controller: idController,
+          icon: Icons.code,
+          readOnly: isEdit,
+          checkId: !isEdit,
+        ),
+      },
+      {
+        "leftKey": "Loại Sản Phẩm",
+        "leftValue": ValidationOrder.dropdownForTypes(
+          items: itemsTypeProduct,
+          type: typeProduct,
+          onChanged: (value) {
+            setState(() {
+              typeProduct = value!;
+            });
+          },
+        ),
+      },
+      {
+        "leftKey": "Tên sản phẩm",
+        "leftValue": validateInput(
+          label: "Tên sản phẩm",
+          controller: nameProductController,
+          icon: Icons.production_quantity_limits,
+        ),
+      },
+      {
+        "leftKey": "Mã khuôn",
+        "leftValue": validateInput(
+          label: "Mã khuôn",
+          controller: maKhuonController,
+          icon: Icons.code,
+        ),
+      },
+    ];
+
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -198,44 +240,22 @@ class _ProductDialogState extends State<ProductDialog> {
         ),
       ),
       content: SizedBox(
-        width: ResponsiveSize.getWidth(context, ResponsiveType.xSmall),
+        width: ResponsiveSize.getWidth(context, ResponsiveType.small),
         // height: 450,
         child: SingleChildScrollView(
           child: Form(
             key: formKey,
             child: Column(
               children: [
-                const SizedBox(height: 15),
-                validateInput(
-                  label: "Mã Sản Phẩm",
-                  controller: idController,
-                  icon: Icons.code,
-                  readOnly: isEdit,
-                  checkId: !isEdit,
+                const SizedBox(height: 10),
+                ...formatKeyValueRows(
+                  rows: productInfoRows,
+                  columnCount: 1,
+                  labelWidth: 150,
+                  centerAlign: true,
                 ),
+                const SizedBox(height: 10),
 
-                const SizedBox(height: 15),
-                ValidationOrder.dropdownForTypes(
-                  items: itemsTypeProduct,
-                  type: typeProduct,
-                  onChanged: (value) {
-                    setState(() {
-                      typeProduct = value!;
-                    });
-                  },
-                ),
-
-                const SizedBox(height: 15),
-                validateInput(
-                  label: "Tên sản phẩm",
-                  controller: nameProductController,
-                  icon: Icons.production_quantity_limits,
-                ),
-
-                const SizedBox(height: 15),
-                validateInput(label: "Mã khuôn", controller: maKhuonController, icon: Icons.code),
-
-                const SizedBox(height: 15),
                 ElevatedButton.icon(
                   onPressed: pickImage,
                   icon: const Icon(Icons.upload),
@@ -252,7 +272,7 @@ class _ProductDialogState extends State<ProductDialog> {
                 ),
                 if (pickedProductImage != null) ...[
                   const SizedBox(height: 15),
-                  Image.memory(pickedProductImage!, width: 350, height: 350, fit: BoxFit.contain),
+                  Image.memory(pickedProductImage!, width: 400, height: 400, fit: BoxFit.contain),
                 ] else if (productImageUrl != null) ...[
                   const SizedBox(height: 15),
                   Image.network(

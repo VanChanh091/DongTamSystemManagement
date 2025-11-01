@@ -3,10 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 List<Widget> formatKeyValueRows({
   required List<Map<String, dynamic>> rows,
-  int columnCount = 2, // số cột tùy chỉnh (1, 2, 3,...)
-  double labelWidth = 150,
+  required int columnCount,
+  required double labelWidth,
   bool centerAlign = false,
-  double spacing = 20, // khoảng cách giữa các cột
+  double spacing = 20,
 }) {
   return rows.map((row) {
     // Lấy tất cả các cặp key-value có trong row
@@ -23,10 +23,9 @@ List<Widget> formatKeyValueRows({
       }
     }
 
-    // Nếu không có cặp nào thì bỏ qua
     if (pairs.isEmpty) return const SizedBox.shrink();
 
-    // Nhóm cặp theo số cột (columnCount)
+    // Nhóm cặp theo số cột
     final groupedPairs = <List<MapEntry<String, dynamic>>>[];
     for (var i = 0; i < pairs.length; i += columnCount) {
       groupedPairs.add(pairs.sublist(i, (i + columnCount).clamp(0, pairs.length)));
@@ -72,6 +71,7 @@ Widget _buildKeyValue(String keyText, dynamic value, double labelWidth, bool cen
           style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 16),
         ),
       ),
+      const SizedBox(width: 5),
       Expanded(
         child: Padding(
           padding: const EdgeInsets.only(top: 2),
