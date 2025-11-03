@@ -53,7 +53,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   @override
   void initState() {
     super.initState();
-    loadReportBox(true);
+    loadReportBox();
 
     columns = buildReportBoxColumn(themeController: themeController);
 
@@ -64,7 +64,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     });
   }
 
-  void loadReportBox(bool refresh) {
+  void loadReportBox() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
 
@@ -89,7 +89,6 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
-            refresh: refresh,
           ),
         );
       }
@@ -118,7 +117,6 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
-            refresh: false,
           ),
         );
       } else {
@@ -140,7 +138,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     setState(() {
       machine = selectedMachine;
       selectedReportId.clear();
-      loadReportBox(true);
+      loadReportBox();
     });
   }
 
@@ -349,7 +347,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                       builder:
                                           (_) => DialogSelectExportExcel(
                                             selectedReportId: selectedReportId,
-                                            onPlanningIdsOrRangeDate: () => loadReportBox(false),
+                                            onPlanningIdsOrRangeDate: () => loadReportBox(),
                                             machine: machine,
                                             isBox: true,
                                           ),
@@ -538,19 +536,19 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadReportBox(false);
+                            loadReportBox();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadReportBox(false);
+                            loadReportBox();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadReportBox(false);
+                            loadReportBox();
                           });
                         },
                       ),
@@ -563,7 +561,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadReportBox(true),
+        onPressed: () => loadReportBox(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

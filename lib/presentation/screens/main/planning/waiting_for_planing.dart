@@ -38,7 +38,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
     super.initState();
 
     if (userController.hasPermission(permission: 'plan')) {
-      loadOrders(true);
+      loadOrders();
     } else {
       futureOrdersAccept = Future.error("NO_PERMISSION");
     }
@@ -52,9 +52,9 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
     });
   }
 
-  void loadOrders(bool refresh) {
+  void loadOrders() {
     setState(() {
-      futureOrdersAccept = ensureMinLoading(PlanningService().getOrderAccept(refresh: refresh));
+      futureOrdersAccept = ensureMinLoading(PlanningService().getOrderAccept());
       selectedOrderId = null;
     });
   }
@@ -125,7 +125,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                                       builder:
                                                           (_) => PLanningDialog(
                                                             order: selectedOrder,
-                                                            onPlanningOrder: () => loadOrders(true),
+                                                            onPlanningOrder: () => loadOrders(),
                                                           ),
                                                     );
                                                   } catch (e, s) {
@@ -272,7 +272,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
       floatingActionButton:
           isPlan
               ? FloatingActionButton(
-                onPressed: () => loadOrders(true),
+                onPressed: () => loadOrders(),
                 backgroundColor: themeController.buttonColor.value,
                 child: const Icon(Icons.refresh, color: Colors.white),
               )

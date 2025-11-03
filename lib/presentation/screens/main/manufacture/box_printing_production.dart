@@ -48,7 +48,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     super.initState();
 
     registerSocket();
-    loadPlanning(true);
+    loadPlanning();
 
     columns = buildMachineBoxColumns(machine: machine, themeController: themeController);
 
@@ -59,12 +59,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     });
   }
 
-  void loadPlanning(bool refresh) {
+  void loadPlanning() {
     AppLogger.i("Loading all data manufacture box");
     setState(() {
-      futurePlanning = ensureMinLoading(
-        ManufactureService().getPlanningBox(machine: machine, refresh: refresh),
-      );
+      futurePlanning = ensureMinLoading(ManufactureService().getPlanningBox(machine: machine));
 
       selectedPlanningIds.clear();
     });
@@ -115,7 +113,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(ctx).pop();
-                  loadPlanning(true);
+                  loadPlanning();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -162,7 +160,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     socketService.on('planningPaperUpdated', _onPlanningPaperUpdated);
 
     // load data cho máy mới
-    loadPlanning(true);
+    loadPlanning();
   }
 
   bool canExecuteAction({
@@ -278,7 +276,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                           planningId:
                                                               selectedPlanning.planningBoxId,
                                                           qtyPaper: selectedPlanning.qtyPaper,
-                                                          onReport: () => loadPlanning(true),
+                                                          onReport: () => loadPlanning(),
                                                           machine: machine,
                                                           isPaper: false,
                                                         ),
@@ -337,7 +335,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                     machine: machine,
                                                   );
 
-                                                  loadPlanning(true);
+                                                  loadPlanning();
                                                 } catch (e) {
                                                   if (!context.mounted) return;
                                                   showSnackBarError(
@@ -526,7 +524,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadPlanning(true),
+        onPressed: () => loadPlanning(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

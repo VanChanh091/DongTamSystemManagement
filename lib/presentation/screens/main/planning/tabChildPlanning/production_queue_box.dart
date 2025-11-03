@@ -54,7 +54,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     super.initState();
 
     if (userController.hasPermission(permission: "plan")) {
-      loadPlanning(true);
+      loadPlanning();
     } else {
       futurePlanning = Future.error("NO_PERMISSION");
     }
@@ -76,11 +76,9 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     totalTimeWorkingController.text = "12";
   }
 
-  void loadPlanning(bool refresh) {
+  void loadPlanning() {
     setState(() {
-      futurePlanning = ensureMinLoading(
-        PlanningService().getPlanningMachineBox(machine: machine, refresh: refresh),
-      );
+      futurePlanning = ensureMinLoading(PlanningService().getPlanningMachineBox(machine: machine));
 
       selectedPlanningIds.clear();
     });
@@ -97,7 +95,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
     switch (searchType) {
       case 'Tất cả':
-        loadPlanning(false);
+        loadPlanning();
         break;
       case 'Mã Đơn Hàng':
         setState(() {
@@ -128,7 +126,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
-      loadPlanning(true);
+      loadPlanning();
     });
   }
 
@@ -438,7 +436,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                             context,
                                                             "Cập nhật thành công",
                                                           );
-                                                          loadPlanning(true);
+                                                          loadPlanning();
                                                         }
                                                       } catch (e, s) {
                                                         if (!context.mounted) {
@@ -547,7 +545,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                               message: "Bạn có chắc muốn chấp nhận thiếu không?",
                                               successMessage: "Thực thi thành công",
                                               errorMessage: "Có lỗi xảy ra khi thực thi",
-                                              onSuccess: () => loadPlanning(true),
+                                              onSuccess: () => loadPlanning(),
                                             );
                                           }
                                         },
@@ -809,7 +807,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         () =>
             isPlan
                 ? FloatingActionButton(
-                  onPressed: () => loadPlanning(true),
+                  onPressed: () => loadPlanning(),
                   backgroundColor: themeController.buttonColor.value,
                   child: const Icon(Icons.refresh, color: Colors.white),
                 )

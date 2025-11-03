@@ -55,7 +55,7 @@ class _EmployeeState extends State<Employee> {
   @override
   void initState() {
     super.initState();
-    loadEmployee(true);
+    loadEmployee();
 
     columns = buildEmployeeColumn(themeController: themeController);
 
@@ -66,7 +66,7 @@ class _EmployeeState extends State<Employee> {
     });
   }
 
-  void loadEmployee(bool refresh) {
+  void loadEmployee() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
 
@@ -85,11 +85,7 @@ class _EmployeeState extends State<Employee> {
         );
       } else {
         futureEmployee = ensureMinLoading(
-          EmployeeService().getAllEmployees(
-            refresh: refresh,
-            page: currentPage,
-            pageSize: pageSize,
-          ),
+          EmployeeService().getAllEmployees(page: currentPage, pageSize: pageSize),
         );
       }
 
@@ -112,7 +108,7 @@ class _EmployeeState extends State<Employee> {
 
       if (searchType == "Tất cả") {
         futureEmployee = ensureMinLoading(
-          EmployeeService().getAllEmployees(refresh: false, page: currentPage, pageSize: pageSize),
+          EmployeeService().getAllEmployees(page: currentPage, pageSize: pageSize),
         );
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
@@ -278,7 +274,7 @@ class _EmployeeState extends State<Employee> {
                                               context: context,
                                               builder:
                                                   (_) => DialogExportEmployee(
-                                                    onEmployee: () => loadEmployee(false),
+                                                    onEmployee: () => loadEmployee(),
                                                   ),
                                             );
                                           },
@@ -296,7 +292,7 @@ class _EmployeeState extends State<Employee> {
                                               builder:
                                                   (_) => EmployeeDialog(
                                                     employee: null,
-                                                    onEmployeeAddOrUpdate: () => loadEmployee(true),
+                                                    onEmployeeAddOrUpdate: () => loadEmployee(),
                                                   ),
                                             );
                                           },
@@ -358,7 +354,7 @@ class _EmployeeState extends State<Employee> {
                                                             (_) => EmployeeDialog(
                                                               employee: employees.first,
                                                               onEmployeeAddOrUpdate:
-                                                                  () => loadEmployee(true),
+                                                                  () => loadEmployee(),
                                                             ),
                                                       );
                                                     } catch (e, s) {
@@ -504,19 +500,19 @@ class _EmployeeState extends State<Employee> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadEmployee(false);
+                            loadEmployee();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadEmployee(false);
+                            loadEmployee();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadEmployee(false);
+                            loadEmployee();
                           });
                         },
                       ),
@@ -529,7 +525,7 @@ class _EmployeeState extends State<Employee> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadEmployee(true),
+        onPressed: () => loadEmployee(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
@@ -559,7 +555,7 @@ class _EmployeeState extends State<Employee> {
       setState(() {
         selectedEmployeeId = null;
       });
-      loadEmployee(true);
+      loadEmployee();
 
       if (!context.mounted) return;
 

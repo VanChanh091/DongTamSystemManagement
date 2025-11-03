@@ -12,13 +12,10 @@ class ManufactureService {
   //===============================MANUFACTURE PAPER====================================
 
   //get planning paper
-  Future<List<PlanningPaper>> getPlanningPaper({
-    required String machine,
-    required bool refresh,
-  }) async {
+  Future<List<PlanningPaper>> getPlanningPaper({required String machine}) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "manufacture/planningPaper",
-      queryParameters: {"machine": machine, 'refresh': refresh},
+      queryParameters: {"machine": machine},
       fromJson: (json) => PlanningPaper.fromJson(json),
     );
   }
@@ -96,10 +93,10 @@ class ManufactureService {
 
   //===============================MANUFACTURE BOX====================================
   //get planning paper
-  Future<List<PlanningBox>> getPlanningBox({required String machine, required bool refresh}) async {
+  Future<List<PlanningBox>> getPlanningBox({required String machine}) async {
     return HelperService().fetchingData<PlanningBox>(
       endpoint: "manufacture/planningBox",
-      queryParameters: {"machine": machine, 'refresh': refresh},
+      queryParameters: {"machine": machine},
       fromJson: (json) => PlanningBox.fromJson(json),
     );
   }

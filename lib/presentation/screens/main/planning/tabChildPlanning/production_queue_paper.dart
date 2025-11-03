@@ -59,7 +59,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     super.initState();
 
     if (userController.hasPermission(permission: "plan")) {
-      loadPlanning(true);
+      loadPlanning();
     } else {
       futurePlanning = Future.error("NO_PERMISSION");
     }
@@ -81,10 +81,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     totalTimeWorkingController.text = "24";
   }
 
-  void loadPlanning(bool refresh) {
+  void loadPlanning() {
     setState(() {
       futurePlanning = ensureMinLoading(
-        PlanningService().getPlanningPaperByMachine(machine: machine, refresh: refresh),
+        PlanningService().getPlanningPaperByMachine(machine: machine),
       );
 
       selectedPlanningIds.clear();
@@ -102,7 +102,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
     switch (searchType) {
       case 'Tất cả':
-        loadPlanning(false);
+        loadPlanning();
         break;
       case 'Mã Đơn Hàng':
         setState(() {
@@ -147,7 +147,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     setState(() {
       machine = selectedMachine;
       selectedPlanningIds.clear();
-      loadPlanning(true);
+      loadPlanning();
     });
   }
 
@@ -459,7 +459,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                             context,
                                                             "Cập nhật thành công",
                                                           );
-                                                          loadPlanning(true);
+                                                          loadPlanning();
 
                                                           unsavedChangeController
                                                               .resetUnsavedChanges();
@@ -595,7 +595,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               builder:
                                                   (_) => ChangeMachineDialog(
                                                     planning: selectedPlans,
-                                                    onChangeMachine: () => loadPlanning(true),
+                                                    onChangeMachine: () => loadPlanning(),
                                                   ),
                                             );
                                             return;
@@ -610,7 +610,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               successMessage: "Dừng sản xuất thành công",
                                               errorMessage: "Có lỗi xảy ra khi dừng sản xuất",
                                               onSuccess: () {
-                                                loadPlanning(true);
+                                                loadPlanning();
                                                 badgesController.fetchPendingApprovals();
                                               },
                                             );
@@ -625,7 +625,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   "Bạn có chắc muốn hủy kế hoạch đơn này không?",
                                               successMessage: "Hủy thành công",
                                               errorMessage: "Có lỗi xảy ra khi hủy",
-                                              onSuccess: () => loadPlanning(true),
+                                              onSuccess: () => loadPlanning(),
                                             );
                                           } else if (value == 'acceptLack') {
                                             await handlePlanningAction(
@@ -637,7 +637,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               message: "Bạn có chắc muốn chấp nhận thiếu không?",
                                               successMessage: "Chấp nhận thành công",
                                               errorMessage: "Có lỗi xảy ra khi thực thi",
-                                              onSuccess: () => loadPlanning(true),
+                                              onSuccess: () => loadPlanning(),
                                             );
                                           }
                                         },
@@ -931,7 +931,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         () =>
             isPlan
                 ? FloatingActionButton(
-                  onPressed: () => loadPlanning(true),
+                  onPressed: () => loadPlanning(),
                   backgroundColor: themeController.buttonColor.value,
                   child: const Icon(Icons.refresh, color: Colors.white),
                 )

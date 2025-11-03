@@ -15,13 +15,12 @@ class PlanningService {
   //===============================PLANNING ORDER====================================
 
   //get status order
-  Future<List<Order>> getOrderAccept({required bool refresh}) async {
+  Future<List<Order>> getOrderAccept() async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/planning/',
-        queryParameters: {'refresh': refresh},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
@@ -67,16 +66,13 @@ class PlanningService {
   //===============================PLANNING PAPER====================================
 
   //get planning by machine
-  Future<List<PlanningPaper>> getPlanningPaperByMachine({
-    required String machine,
-    required bool refresh,
-  }) async {
+  Future<List<PlanningPaper>> getPlanningPaperByMachine({required String machine}) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/planning/byMachinePaper',
-        queryParameters: {'machine': machine, 'refresh': refresh},
+        queryParameters: {'machine': machine},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
@@ -224,16 +220,13 @@ class PlanningService {
 
   //===============================PLANNING BOX====================================
 
-  Future<List<PlanningBox>> getPlanningMachineBox({
-    required String machine,
-    required bool refresh,
-  }) async {
+  Future<List<PlanningBox>> getPlanningMachineBox({required String machine}) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
         '/api/planning/byMachineBox',
-        queryParameters: {'machine': machine, 'refresh': refresh},
+        queryParameters: {'machine': machine},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),

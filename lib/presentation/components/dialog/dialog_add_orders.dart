@@ -1176,7 +1176,7 @@ class _OrderDialogState extends State<OrderDialog> {
                 isEdit ? "Cập nhật" : "Thêm",
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  fontSize: 18,
                   color: Colors.white,
                 ),
               ),

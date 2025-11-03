@@ -107,7 +107,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
   //get all employee to check employeeCode
   Future<void> fetchAllCustomer() async {
     try {
-      final result = await EmployeeService().getAllEmployees(refresh: false, noPaging: true);
+      final result = await EmployeeService().getAllEmployees(noPaging: true);
 
       allEmployees = result['employees'] as List<EmployeeBasicInfo>;
 

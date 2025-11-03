@@ -53,7 +53,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   @override
   void initState() {
     super.initState();
-    loadReportPaper(true);
+    loadReportPaper();
 
     columns = buildReportPaperColumn(themeController: themeController);
 
@@ -64,7 +64,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     });
   }
 
-  void loadReportPaper(bool refresh) {
+  void loadReportPaper() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
 
@@ -89,7 +89,6 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
-            refresh: refresh,
           ),
         );
       }
@@ -142,7 +141,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     setState(() {
       machine = selectedMachine;
       selectedReportId.clear();
-      loadReportPaper(true);
+      loadReportPaper();
     });
   }
 
@@ -354,7 +353,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                       builder:
                                           (_) => DialogSelectExportExcel(
                                             selectedReportId: selectedReportId,
-                                            onPlanningIdsOrRangeDate: () => loadReportPaper(false),
+                                            onPlanningIdsOrRangeDate: () => loadReportPaper(),
                                             machine: machine,
                                           ),
                                     );
@@ -549,19 +548,19 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadReportPaper(false);
+                            loadReportPaper();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadReportPaper(false);
+                            loadReportPaper();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadReportPaper(false);
+                            loadReportPaper();
                           });
                         },
                       ),
@@ -574,7 +573,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadReportPaper(true),
+        onPressed: () => loadReportPaper(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

@@ -17,11 +17,10 @@ class ReportPlanningService {
     required String machine,
     required int page,
     required int pageSize,
-    bool refresh = false,
   }) async {
     return HelperService().fetchPaginatedData<ReportPaperModel>(
       endpoint: "report/reportPaper/",
-      queryParameters: {"machine": machine, "page": page, "pageSize": pageSize, "refresh": refresh},
+      queryParameters: {"machine": machine, "page": page, "pageSize": pageSize},
       fromJson: (json) => ReportPaperModel.fromJson(json),
       dataKey: 'reportPapers',
     );
@@ -34,7 +33,6 @@ class ReportPlanningService {
     required String machine,
     required int page,
     required int pageSize,
-    bool refresh = false,
   }) async {
     return HelperService().fetchPaginatedData<ReportPaperModel>(
       endpoint: "report/reportPaper/filter",
@@ -44,7 +42,6 @@ class ReportPlanningService {
         'machine': machine,
         'page': page,
         'pageSize': pageSize,
-        'refresh': refresh,
       },
       fromJson: (json) => ReportPaperModel.fromJson(json),
       dataKey: 'reportPapers',
@@ -56,11 +53,10 @@ class ReportPlanningService {
     required String machine,
     required int page,
     required int pageSize,
-    bool refresh = false,
   }) async {
     return HelperService().fetchPaginatedData<ReportBoxModel>(
       endpoint: "report/reportBox/",
-      queryParameters: {"machine": machine, "page": page, "pageSize": pageSize, "refresh": refresh},
+      queryParameters: {"machine": machine, "page": page, "pageSize": pageSize},
       fromJson: (json) => ReportBoxModel.fromJson(json),
       dataKey: 'reportBoxes',
     );
@@ -73,7 +69,6 @@ class ReportPlanningService {
     required String machine,
     required int page,
     required int pageSize,
-    bool refresh = false,
   }) async {
     return HelperService().fetchPaginatedData<ReportBoxModel>(
       endpoint: "report/reportBox/filter",
@@ -83,7 +78,6 @@ class ReportPlanningService {
         'machine': machine,
         'page': page,
         'pageSize': pageSize,
-        'refresh': refresh,
       },
       fromJson: (json) => ReportBoxModel.fromJson(json),
       dataKey: 'reportBoxes',

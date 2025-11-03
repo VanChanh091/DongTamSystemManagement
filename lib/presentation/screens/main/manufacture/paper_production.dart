@@ -46,7 +46,7 @@ class _PaperProductionState extends State<PaperProduction> {
     super.initState();
 
     registerSocket();
-    loadPlanning(true);
+    loadPlanning();
 
     columns = buildMachineColumns(themeController: themeController);
 
@@ -57,12 +57,10 @@ class _PaperProductionState extends State<PaperProduction> {
     });
   }
 
-  void loadPlanning(bool refresh) {
+  void loadPlanning() {
     AppLogger.i("Loading all data manufacture paper");
     setState(() {
-      futurePlanning = ensureMinLoading(
-        ManufactureService().getPlanningPaper(machine: machine, refresh: refresh),
-      );
+      futurePlanning = ensureMinLoading(ManufactureService().getPlanningPaper(machine: machine));
 
       selectedPlanningIds.clear();
     });
@@ -122,7 +120,7 @@ class _PaperProductionState extends State<PaperProduction> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(ctx).pop();
-                  loadPlanning(true);
+                  loadPlanning();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -158,7 +156,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
     socketService.on('planningPaperUpdated', _onPlanningPaperUpdated);
 
-    loadPlanning(true);
+    loadPlanning();
   }
   /* end socket */
 
@@ -275,7 +273,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                                     builder:
                                                         (_) => DialogReportProduction(
                                                           planningId: selectedPlanning.planningId,
-                                                          onReport: () => loadPlanning(true),
+                                                          onReport: () => loadPlanning(),
                                                         ),
                                                   );
                                                 } catch (e, s) {
@@ -337,8 +335,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
                                                   if (!context.mounted) return;
 
-                                                  // Reload lại danh sách
-                                                  loadPlanning(true);
+                                                  loadPlanning();
                                                 } catch (e, s) {
                                                   AppLogger.e(
                                                     "Lỗi khi xác nhận SX",
@@ -532,7 +529,7 @@ class _PaperProductionState extends State<PaperProduction> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadPlanning(true),
+        onPressed: () => loadPlanning(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
