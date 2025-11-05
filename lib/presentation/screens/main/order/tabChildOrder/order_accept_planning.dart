@@ -260,7 +260,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                                             setState(() {
                                               isSeenOrder = !isSeenOrder;
                                             });
-
                                             loadOrders(ownOnly: isSeenOrder);
                                           },
                                           label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",

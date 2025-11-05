@@ -73,16 +73,16 @@ class _SignUpState extends State<SignUp> {
   void register() async {
     await authService.verifyOTPChangePassword(email: emailController.text, otp: otpController.text);
 
-    bool success = await authService.register(
-      fullName: fullNameController.text,
-      email: emailController.text,
-      password: passwordController.text,
-      confirmPW: confirmPWController.text,
-      otp: otpController.text,
-    );
-    if (!mounted) return;
+    try {
+      await authService.register(
+        fullName: fullNameController.text,
+        email: emailController.text,
+        password: passwordController.text,
+        confirmPW: confirmPWController.text,
+        otp: otpController.text,
+      );
 
-    if (success) {
+      if (!mounted) return;
       showSnackBarSuccess(context, 'Đăng ký thành công');
       Navigator.push(
         context,
@@ -92,8 +92,9 @@ class _SignUpState extends State<SignUp> {
           child: LoginScreen(),
         ),
       );
-    } else {
-      showSnackBarError(context, 'Đăng ký thất bại');
+    } catch (e) {
+      if (!mounted) return;
+      showSnackBarError(context, e.toString().replaceAll("Exception:", "").trim());
     }
   }
 

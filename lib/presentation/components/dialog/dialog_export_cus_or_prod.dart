@@ -6,10 +6,9 @@ import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
 
 class DialogExportCusOrProd extends StatefulWidget {
-  final VoidCallback onCusOrProd;
   final bool isProduct;
 
-  const DialogExportCusOrProd({super.key, required this.onCusOrProd, this.isProduct = false});
+  const DialogExportCusOrProd({super.key, this.isProduct = false});
 
   @override
   State<DialogExportCusOrProd> createState() => _DialogExportCusOrProdState();
@@ -88,8 +87,6 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
       }
       if (!mounted) return;
       showSnackBarSuccess(context, "Xuất thành công");
-
-      widget.onCusOrProd();
 
       if (!mounted) return; // check context
       Navigator.of(context).pop();

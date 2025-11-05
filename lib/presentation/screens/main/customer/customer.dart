@@ -270,10 +270,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                           onPressed: () async {
                                             showDialog(
                                               context: context,
-                                              builder:
-                                                  (_) => DialogExportCusOrProd(
-                                                    onCusOrProd: () => loadCustomer(),
-                                                  ),
+                                              builder: (_) => DialogExportCusOrProd(),
                                             );
                                           },
                                           label: "Xuất Excel",

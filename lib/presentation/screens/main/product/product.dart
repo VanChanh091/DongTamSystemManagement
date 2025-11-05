@@ -260,10 +260,7 @@ class _ProductPageState extends State<ProductPage> {
                                             showDialog(
                                               context: context,
                                               builder:
-                                                  (_) => DialogExportCusOrProd(
-                                                    isProduct: true,
-                                                    onCusOrProd: () => loadProduct(),
-                                                  ),
+                                                  (_) => DialogExportCusOrProd(isProduct: true),
                                             );
                                           },
                                           label: "Xuất Excel",

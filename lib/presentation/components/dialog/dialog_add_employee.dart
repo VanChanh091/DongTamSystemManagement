@@ -404,7 +404,6 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
           label: "Mã Nhân Viên",
           controller: _employeeCodeController,
           icon: Symbols.person_pin,
-          readOnly: isEdit,
           allEmployees: allEmployees,
           currentEmployeeId: widget.employee?.employeeId,
         ),

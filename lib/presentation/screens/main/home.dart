@@ -469,6 +469,8 @@ class _HomePageState extends State<HomePage> {
   Widget _buildSidebarItem(IconData icon, String title, {int? index, VoidCallback? onTap}) {
     final bool hasIndex = index != null && index != -1;
 
+    if (!hasIndex && onTap == null) return const SizedBox.shrink();
+
     return hasIndex
         ? Obx(() {
           final isSelected = sidebarController.selectedIndex.value == index;

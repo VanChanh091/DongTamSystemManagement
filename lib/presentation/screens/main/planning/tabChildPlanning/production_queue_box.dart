@@ -73,7 +73,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         "${now.month.toString().padLeft(2, '0')}/"
         "${now.year}";
     timeStartController.text = '6:00';
-    totalTimeWorkingController.text = "12";
+    totalTimeWorkingController.text = "16";
   }
 
   void loadPlanning() {

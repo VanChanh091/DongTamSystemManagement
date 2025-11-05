@@ -6,7 +6,7 @@ class ValidationEmployee {
     required String label,
     required TextEditingController controller,
     required IconData icon,
-    bool readOnly = false,
+
     List<EmployeeBasicInfo>? allEmployees,
     int? currentEmployeeId,
   }) {
@@ -20,7 +20,7 @@ class ValidationEmployee {
 
         return TextFormField(
           controller: controller,
-          readOnly: readOnly,
+
           decoration: InputDecoration(
             labelText: label,
             labelStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -28,10 +28,7 @@ class ValidationEmployee {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             floatingLabelBehavior: FloatingLabelBehavior.always,
-            fillColor:
-                readOnly
-                    ? Colors.grey.shade300
-                    : (isFilled ? Colors.white : Color.fromARGB(255, 148, 236, 154)),
+            fillColor: isFilled ? Colors.white : Color.fromARGB(255, 148, 236, 154),
             filled: true,
           ),
           validator: (value) {

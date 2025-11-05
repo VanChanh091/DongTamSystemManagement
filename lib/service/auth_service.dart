@@ -34,9 +34,18 @@ class AuthService {
 
       AppLogger.i("Register successful for email=$email");
       return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final errorMsg = e.response?.data?['message'] ?? 'Unknown error';
+
+        // Chuyển lỗi lên submit() để xử lý theo mã lỗi
+        throw Exception(errorMsg);
+      } else {
+        throw Exception("Network Error: ${e.message}");
+      }
     } catch (e, s) {
       AppLogger.e("error register", error: e, stackTrace: s);
-      return false;
+      throw Exception('Failed to register: $e');
     }
   }
 
