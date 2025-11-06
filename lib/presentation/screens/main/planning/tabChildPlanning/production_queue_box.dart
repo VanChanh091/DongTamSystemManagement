@@ -777,21 +777,29 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                         ),
 
                     onSelectionChanged: (addedRows, removedRows) {
-                      final selectedRow = addedRows.first;
-                      final planningBoxId =
-                          selectedRow
-                              .getCells()
-                              .firstWhere((cell) => cell.columnName == 'planningBoxId')
-                              .value
-                              .toString();
+                      if (addedRows.isEmpty && removedRows.isEmpty) return;
 
                       setState(() {
-                        if (selectedPlanningIds.contains(planningBoxId)) {
-                          selectedPlanningIds.remove(planningBoxId);
-                        } else {
-                          selectedPlanningIds.add(planningBoxId);
-                        }
+                        // Lấy selection thật sự từ controller
+                        final selectedRows = dataGridController.selectedRows;
 
+                        selectedPlanningIds =
+                            selectedRows
+                                .map((row) {
+                                  final cell = row.getCells().firstWhere(
+                                    (c) => c.columnName == 'planningBoxId',
+                                    orElse:
+                                        () => const DataGridCell(
+                                          columnName: 'planningBoxId',
+                                          value: '',
+                                        ),
+                                  );
+                                  return cell.value.toString();
+                                })
+                                .where((id) => id.isNotEmpty)
+                                .toList();
+
+                        // cập nhật cho datasource
                         machineBoxDatasource.selectedPlanningIds = selectedPlanningIds;
                         machineBoxDatasource.notifyListeners();
                       });

@@ -502,21 +502,26 @@ class _PaperProductionState extends State<PaperProduction> {
                         ),
 
                     onSelectionChanged: (addedRows, removedRows) {
-                      final selectedRow = addedRows.first;
-                      final planningPaperId =
-                          selectedRow
-                              .getCells()
-                              .firstWhere((cell) => cell.columnName == 'planningId')
-                              .value
-                              .toString();
+                      if (addedRows.isEmpty && removedRows.isEmpty) return;
 
                       setState(() {
-                        if (selectedPlanningIds.contains(planningPaperId)) {
-                          selectedPlanningIds.remove(planningPaperId);
-                        } else {
-                          selectedPlanningIds.add(planningPaperId);
-                        }
+                        final selectedRows = dataGridController.selectedRows;
 
+                        selectedPlanningIds =
+                            selectedRows
+                                .map((row) {
+                                  final cell = row.getCells().firstWhere(
+                                    (c) => c.columnName == 'planningId',
+                                    orElse:
+                                        () =>
+                                            const DataGridCell(columnName: 'planningId', value: ''),
+                                  );
+                                  return cell.value.toString();
+                                })
+                                .where((id) => id.isNotEmpty)
+                                .toList();
+
+                        // cập nhật cho datasource
                         machinePaperDatasource.selectedPlanningIds = selectedPlanningIds;
                         machinePaperDatasource.notifyListeners();
                       });

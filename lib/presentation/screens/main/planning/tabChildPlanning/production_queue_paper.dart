@@ -603,12 +603,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             await handlePlanningAction(
                                               context: context,
                                               selectedPlanningIds: selectedPlanningIds,
+                                              planningList: machinePaperDatasource.planning,
                                               status: "stop",
                                               title: "Xác nhận dừng sản xuất",
                                               message:
                                                   "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
                                               successMessage: "Dừng sản xuất thành công",
-                                              errorMessage: "Có lỗi xảy ra khi dừng sản xuất",
+                                              errorMessage: "Có lỗi xảy ra khi thực thi",
                                               onSuccess: () {
                                                 loadPlanning();
                                                 badgesController.fetchPendingApprovals();
@@ -623,8 +624,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               title: "Xác nhận hủy kế hoạch",
                                               message:
                                                   "Bạn có chắc muốn hủy kế hoạch đơn này không?",
-                                              successMessage: "Hủy thành công",
-                                              errorMessage: "Có lỗi xảy ra khi hủy",
+                                              successMessage: "Hủy kế hoạch thành công",
+                                              errorMessage: "Có lỗi xảy ra khi thực thi",
                                               onSuccess: () => loadPlanning(),
                                             );
                                           } else if (value == 'acceptLack') {
@@ -635,7 +636,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               status: "complete",
                                               title: "Xác nhận thiếu số lượng",
                                               message: "Bạn có chắc muốn chấp nhận thiếu không?",
-                                              successMessage: "Chấp nhận thành công",
+                                              successMessage: "Chấp nhận thiếu thành công",
                                               errorMessage: "Có lỗi xảy ra khi thực thi",
                                               onSuccess: () => loadPlanning(),
                                             );
@@ -891,14 +892,11 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                           setState: setState,
                         ),
 
-                    //  final isShiftPressed = HardwareKeyboard.instance.logicalKeysPressed.contains(
-                    //                         LogicalKeyboardKey.shiftLeft,
-                    //                       );
                     onSelectionChanged: (addedRows, removedRows) {
                       if (addedRows.isEmpty && removedRows.isEmpty) return;
 
                       setState(() {
-                        // Lấy selection thật sự từ controller (chuẩn nhất)
+                        // Lấy selection thật sự từ controller
                         final selectedRows = dataGridController.selectedRows;
 
                         selectedPlanningIds =
@@ -915,7 +913,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                 .where((id) => id.isNotEmpty)
                                 .toList();
 
-                        // cập nhật highlight cho datasource
+                        // cập nhật cho datasource
                         machinePaperDatasource.selectedPlanningIds = selectedPlanningIds;
                         machinePaperDatasource.notifyListeners();
                       });
@@ -956,15 +954,18 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       return;
     }
 
+    //lấy tất cả planningId
     final planningIds =
         selectedPlanningIds
             .map((e) => int.tryParse(e))
-            .whereType<int>() // lọc bỏ phần tử null nếu parse fail
+            .whereType<int>() // lọc bỏ phần tử null
             .toList();
 
+    //lọc planningId có chứa trong mảng planningList
     final selectedPlannings =
         planningList?.where((p) => planningIds.contains(p.planningId)).toList() ?? [];
 
+    //pause or cancel order
     if (status == 'complete') {
       //check sort planning
       final hasNoSortPlanning = selectedPlannings.any(
@@ -977,7 +978,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
       //check dayCompleted
       final hasDayCompleted = selectedPlannings.any((p) => p.dayCompleted == null);
-
       if (hasDayCompleted) {
         showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
         return;
