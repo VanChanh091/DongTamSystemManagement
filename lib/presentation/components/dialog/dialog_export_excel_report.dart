@@ -165,7 +165,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     if (selectedRange == null)
                       const Text(
                         "Chưa chọn khoảng thời gian",

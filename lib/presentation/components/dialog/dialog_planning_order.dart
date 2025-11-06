@@ -505,9 +505,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
           },
         ),
         "middleKey": "",
-        "middleValue": SizedBox(),
+        "middleValue": const SizedBox(),
         "rightKey": "",
-        "rightValue": SizedBox(),
+        "rightValue": const SizedBox(),
       },
     ];
 

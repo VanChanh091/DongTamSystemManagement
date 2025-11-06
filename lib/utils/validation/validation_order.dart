@@ -81,7 +81,7 @@ class ValidationOrder {
                     label == "Số lượng (KH)" ||
                     label == "Khổ khách đặt (cm)" ||
                     label == "Số con" ||
-                    label == "Đơn giá") &&
+                    label == "Đơn giá (M2)") &&
                 (value == null || value.isEmpty)) {
               return 'Không được để trống';
             }

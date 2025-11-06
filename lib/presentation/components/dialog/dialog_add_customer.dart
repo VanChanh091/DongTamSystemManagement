@@ -309,7 +309,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
           icon: Icons.support_agent,
         ),
         "rightKey": "",
-        "rightValue": SizedBox(),
+        "rightValue": const SizedBox(),
       },
     ];
 

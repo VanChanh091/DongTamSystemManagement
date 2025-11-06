@@ -11,6 +11,7 @@ import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
+import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -575,9 +576,379 @@ class _OrderDialogState extends State<OrderDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.order != null;
 
-    // final List<Map<String, dynamic>> infoBasicRows = [];
-    // final List<Map<String, dynamic>> costRows = [];
-    // final List<Map<String, dynamic>> structureRows = [];
+    final List<Map<String, dynamic>> infoBasicRows = [
+      {
+        "leftKey": "Mã Đơn Hàng",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Mã Đơn Hàng",
+          controller: orderIdController,
+          icon: Symbols.orders,
+          readOnly: isEdit,
+          checkId: !isEdit,
+        ),
+        "middleKey": "QC Thùng",
+        "middleValue": ValidationOrder.validateInput(
+          label: "QC Thùng",
+          controller: qcBoxController,
+          icon: Symbols.deployed_code,
+        ),
+        "rightKey": "Ngày giao",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Ngày yêu cầu giao",
+          controller: dateShippingController,
+          icon: Symbols.calendar_month,
+          readOnly: true,
+          onTap: () async {
+            DateTime baseDate = dayReceive ?? DateTime.now();
+            DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: dateShipping ?? dayReceive,
+              firstDate: baseDate,
+              lastDate: DateTime(2100),
+              builder: (BuildContext context, Widget? child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: ColorScheme.light(
+                      primary: Colors.blue,
+                      onPrimary: Colors.white,
+                      onSurface: Colors.black,
+                    ),
+                    dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
+                  ),
+                  child: child!,
+                );
+              },
+            );
+            if (pickedDate != null) {
+              setState(() {
+                dateShipping = pickedDate;
+                dateShippingController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+              });
+            }
+          },
+        ),
+      },
+
+      {
+        "leftKey": "Mã Khách Hàng",
+        "leftValue": AutoCompleteField<Customer>(
+          controller: customerIdController,
+          labelText: "Mã Khách Hàng",
+          icon: Symbols.badge,
+          suggestionsCallback: (pattern) async {
+            final result = await CustomerService().getCustomerByField(
+              field: 'customerId',
+              keyword: pattern,
+            );
+            if (result['customers'] != null && result['customers'] is List<Customer>) {
+              return result['customers'] as List<Customer>;
+            }
+
+            return [];
+          },
+          displayStringForItem: (customer) => customer.customerId,
+          itemBuilder: (context, customer) {
+            return ListTile(
+              title: Text(customer.customerId),
+              subtitle: Text(customer.customerName),
+            );
+          },
+          onSelected: (customer) {
+            customerIdController.text = customer.customerId;
+            customerNameController.text = customer.customerName;
+            customerCompanyController.text = customer.companyName;
+          },
+          onPlusTap: () {
+            showDialog(
+              context: context,
+              builder:
+                  (_) => CustomerDialog(
+                    customer: null,
+                    onCustomerAddOrUpdate: () {
+                      fetchAllCustomers();
+                    },
+                  ),
+            );
+          },
+          onChanged: (value) {
+            if (value.isEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                customerNameController.clear();
+                customerCompanyController.clear();
+              });
+            }
+          },
+        ),
+        "middleKey": "Tên Khách Hàng",
+        "middleValue": ValidationOrder.validateInput(
+          label: "Tên Khách Hàng",
+          controller: customerNameController,
+          icon: Symbols.person,
+          readOnly: true,
+        ),
+        "rightKey": "Tên công ty",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Tên công ty KH",
+          controller: customerCompanyController,
+          icon: Symbols.business,
+          readOnly: true,
+        ),
+      },
+
+      {
+        "leftKey": "Mã Sản Phẩm",
+        "leftValue": AutoCompleteField<Product>(
+          controller: productIdController,
+          labelText: "Mã Sản Phẩm",
+          icon: Symbols.box,
+          suggestionsCallback: (pattern) async {
+            final result = await ProductService().getProductByField(
+              field: 'productId',
+              keyword: pattern,
+            );
+            if (result['products'] != null && result['products'] is List<Product>) {
+              return result['products'] as List<Product>;
+            }
+
+            return [];
+          },
+          displayStringForItem: (product) => product.productId,
+          itemBuilder: (context, product) {
+            return ListTile(
+              title: Text(product.productId),
+              subtitle: Text(product.productName ?? ""),
+            );
+          },
+          onSelected: (product) {
+            productIdController.text = product.productId;
+            typeProduct.text = product.typeProduct;
+            nameSpController.text = product.productName ?? "";
+            maKhuonController.text = product.maKhuon ?? "";
+          },
+          onPlusTap: () {
+            showDialog(
+              context: context,
+              builder:
+                  (_) => ProductDialog(
+                    product: null,
+                    onProductAddOrUpdate: () {
+                      fetchAllProduct();
+                    },
+                  ),
+            );
+          },
+          onChanged: (value) {
+            if (value.isEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                typeProduct.clear();
+                nameSpController.clear();
+                maKhuonController.clear();
+              });
+            }
+          },
+        ),
+        "middleKey": "Loại sản phẩm",
+        "middleValue": ValidationOrder.validateInput(
+          label: "Loại sản phẩm",
+          controller: typeProduct,
+          icon: Symbols.comment,
+          readOnly: true,
+        ),
+        "rightKey": "Tên sản phẩm",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Tên sản phẩm",
+          controller: nameSpController,
+          icon: Symbols.box,
+          readOnly: true,
+        ),
+      },
+
+      {
+        "leftKey": "Dài khách đặt",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Dài khách đặt (cm)",
+          controller: lengthCustomerController,
+          icon: Symbols.vertical_distribute,
+        ),
+        "middleKey": "Khổ khách đặt",
+        "middleValue": ValidationOrder.validateInput(
+          label: "Khổ khách đặt (cm)",
+          controller: sizeCustomerController,
+          icon: Symbols.horizontal_distribute,
+        ),
+        "rightKey": "Số lượng",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Số lượng (KH)",
+          controller: quantityCustomerController,
+          icon: Symbols.filter_9_plus,
+        ),
+      },
+
+      {
+        "leftKey": "Dài sản xuất",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Dài sản xuất (cm)",
+          controller: lengthManufactureController,
+          icon: Symbols.vertical_distribute,
+        ),
+        "middleKey": "Khổ sản xuất",
+        "middleValue": ValidationOrder.validateInput(
+          label: "Khổ sản xuất (cm)",
+          controller: sizeManufactureController,
+          icon: Symbols.horizontal_distribute,
+        ),
+        "rightKey": "Số lượng",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Số lượng (SX)",
+          controller: quantityManufactureController,
+          icon: Symbols.filter_9_plus,
+        ),
+      },
+
+      {
+        "leftKey": "Dao Tề",
+        "leftValue": ValidationOrder.dropdownForTypes(
+          items: itemsDaoXa,
+          type: typeDaoXa,
+          onChanged: (value) {
+            setState(() {
+              typeDaoXa = value!;
+            });
+          },
+        ),
+        "middleKey": "Số con",
+        "middleValue": ValidationOrder.validateInput(
+          label: "Số con",
+          controller: numberChildController,
+          icon: Symbols.box,
+        ),
+        "rightKey": "",
+        "rightValue": const SizedBox(),
+      },
+    ];
+
+    final List<Map<String, dynamic>> costRows = [
+      {
+        "leftKey": "Đơn giá",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Đơn giá (M2)",
+          controller: priceController,
+          icon: Symbols.price_change,
+        ),
+        "middleKey": "Chiết khấu",
+        "middleValue": ValidationOrder.validateInput(
+          label: "Chiết khấu",
+          controller: discountController,
+          icon: Symbols.price_change,
+        ),
+        "rightKey": "Lợi nhuận",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Lợi nhuận",
+          controller: profitController,
+          icon: Symbols.price_change,
+        ),
+      },
+      {
+        "leftKey": "VAT",
+        "leftValue": ValidationOrder.validateInput(
+          label: "VAT",
+          controller: vatController,
+          icon: Symbols.percent,
+        ),
+        "middleKey": "Giá Tấm Bao Khổ",
+        "middleValue": ValidationOrder.validateInput(
+          label: "Giá Tấm Bao Khổ (M2)",
+          controller: pricePaperController,
+          icon: Symbols.price_change,
+          readOnly: typeDVT != 'Tấm Bao Khổ',
+        ),
+        "rightKey": "Đơn Vị Tính",
+        "rightValue": ValidationOrder.dropdownForTypes(
+          items: itemsDvt,
+          type: typeDVT,
+          onChanged: (value) {
+            setState(() {
+              typeDVT = value!;
+            });
+          },
+        ),
+      },
+    ];
+
+    final List<Map<String, dynamic>> structureRows = [
+      {
+        "leftKey": "Mặt E",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Mặt E (g)",
+          controller: matEController,
+          icon: Symbols.vertical_align_center,
+        ),
+        "middle_1Key": "Mặt B",
+        "middle_1Value": ValidationOrder.validateInput(
+          label: "Mặt B (g)",
+          controller: matBController,
+          icon: Symbols.vertical_align_center,
+        ),
+        "middle_2Key": "Mặt C",
+        "middle_2Value": ValidationOrder.validateInput(
+          label: "Mặt C (g)",
+          controller: matCController,
+          icon: Symbols.vertical_align_center,
+        ),
+        "rightKey": "Mặt E2",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Mặt E2 (g)",
+          controller: matE2Controller,
+          icon: Symbols.vertical_align_center,
+        ),
+      },
+
+      {
+        "leftKey": "Sóng E",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Sóng E (g)",
+          controller: songEController,
+          icon: Symbols.airwave,
+        ),
+        "middle_1Key": "Sóng B",
+        "middle_1Value": ValidationOrder.validateInput(
+          label: "Sóng B (g)",
+          controller: songBController,
+          icon: Symbols.airwave,
+        ),
+        "middle_2Key": "Sóng C",
+        "middle_2Value": ValidationOrder.validateInput(
+          label: "Sóng C (g)",
+          controller: songCController,
+          icon: Symbols.airwave,
+        ),
+        "rightKey": "Sóng E2",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Sóng E2 (g)",
+          controller: songE2Controller,
+          icon: Symbols.airwave,
+        ),
+      },
+
+      {
+        "leftKey": "Đáy",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Đáy (g)",
+          controller: dayController,
+          icon: Symbols.vertical_align_bottom,
+        ),
+        "middle_1Key": "Cấn Lằn",
+        "middle_1Value": ValidationOrder.validateInput(
+          label: "Cấn Lằn",
+          controller: canLanController,
+          icon: Symbols.bottom_sheets,
+        ),
+        "middle_2Key": "",
+        "middle_2Value": const SizedBox(),
+        "rightKey": "",
+        "rightValue": const SizedBox(),
+      },
+    ];
 
     //box
     List<Map<String, dynamic>> buildBoxes(bool isEnabled) {
@@ -612,7 +983,7 @@ class _OrderDialogState extends State<OrderDialog> {
                 readOnly: true,
                 enabled: isEnabled,
               ),
-          'right': () => SizedBox(),
+          'right': () => const SizedBox(),
         },
         {
           'left':
@@ -711,361 +1082,35 @@ class _OrderDialogState extends State<OrderDialog> {
 
                         buildingCard(
                           title: "📃 Thông Tin Cơ Bản",
-                          children: [
-                            buildFieldRow(
-                              children: [
-                                ValidationOrder.validateInput(
-                                  label: "Mã Đơn Hàng",
-                                  controller: orderIdController,
-                                  icon: Symbols.orders,
-                                  readOnly: isEdit,
-                                  checkId: !isEdit,
-                                ),
-                                AutoCompleteField<Customer>(
-                                  controller: customerIdController,
-                                  labelText: "Mã Khách Hàng",
-                                  icon: Symbols.badge,
-                                  suggestionsCallback: (pattern) async {
-                                    final result = await CustomerService().getCustomerByField(
-                                      field: 'customerId',
-                                      keyword: pattern,
-                                    );
-                                    if (result['customers'] != null &&
-                                        result['customers'] is List<Customer>) {
-                                      return result['customers'] as List<Customer>;
-                                    }
-
-                                    return [];
-                                  },
-                                  displayStringForItem: (customer) => customer.customerId,
-                                  itemBuilder: (context, customer) {
-                                    return ListTile(
-                                      title: Text(customer.customerId),
-                                      subtitle: Text(customer.customerName),
-                                    );
-                                  },
-                                  onSelected: (customer) {
-                                    customerIdController.text = customer.customerId;
-                                    customerNameController.text = customer.customerName;
-                                    customerCompanyController.text = customer.companyName;
-                                  },
-                                  onPlusTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => CustomerDialog(
-                                            customer: null,
-                                            onCustomerAddOrUpdate: () {
-                                              fetchAllCustomers();
-                                            },
-                                          ),
-                                    );
-                                  },
-                                  onChanged: (value) {
-                                    if (value.isEmpty) {
-                                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                                        customerNameController.clear();
-                                        customerCompanyController.clear();
-                                      });
-                                    }
-                                  },
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Tên KH",
-                                  controller: customerNameController,
-                                  icon: Symbols.person,
-                                  readOnly: true,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Tên công ty KH",
-                                  controller: customerCompanyController,
-                                  icon: Symbols.business,
-                                  readOnly: true,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Ngày yêu cầu giao",
-                                  controller: dateShippingController,
-                                  icon: Symbols.calendar_month,
-                                  readOnly: true,
-                                  onTap: () async {
-                                    DateTime baseDate = dayReceive ?? DateTime.now();
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: dateShipping ?? dayReceive,
-                                      firstDate: baseDate,
-                                      lastDate: DateTime(2100),
-                                      builder: (BuildContext context, Widget? child) {
-                                        return Theme(
-                                          data: Theme.of(context).copyWith(
-                                            colorScheme: ColorScheme.light(
-                                              primary: Colors.blue,
-                                              onPrimary: Colors.white,
-                                              onSurface: Colors.black,
-                                            ),
-                                            dialogTheme: DialogThemeData(
-                                              backgroundColor: Colors.white12,
-                                            ),
-                                          ),
-                                          child: child!,
-                                        );
-                                      },
-                                    );
-                                    if (pickedDate != null) {
-                                      setState(() {
-                                        dateShipping = pickedDate;
-                                        dateShippingController.text = DateFormat(
-                                          'dd/MM/yyyy',
-                                        ).format(pickedDate);
-                                      });
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                            buildFieldRow(
-                              children: [
-                                AutoCompleteField<Product>(
-                                  controller: productIdController,
-                                  labelText: "Mã Sản Phẩm",
-                                  icon: Symbols.box,
-                                  suggestionsCallback: (pattern) async {
-                                    final result = await ProductService().getProductByField(
-                                      field: 'productId',
-                                      keyword: pattern,
-                                    );
-                                    if (result['products'] != null &&
-                                        result['products'] is List<Product>) {
-                                      return result['products'] as List<Product>;
-                                    }
-
-                                    return [];
-                                  },
-                                  displayStringForItem: (product) => product.productId,
-                                  itemBuilder: (context, product) {
-                                    return ListTile(
-                                      title: Text(product.productId),
-                                      subtitle: Text(product.productName ?? ""),
-                                    );
-                                  },
-                                  onSelected: (product) {
-                                    productIdController.text = product.productId;
-                                    typeProduct.text = product.typeProduct;
-                                    nameSpController.text = product.productName ?? "";
-                                    maKhuonController.text = product.maKhuon ?? "";
-                                  },
-                                  onPlusTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => ProductDialog(
-                                            product: null,
-                                            onProductAddOrUpdate: () {
-                                              fetchAllProduct();
-                                            },
-                                          ),
-                                    );
-                                  },
-                                  onChanged: (value) {
-                                    if (value.isEmpty) {
-                                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                                        typeProduct.clear();
-                                        nameSpController.clear();
-                                        maKhuonController.clear();
-                                      });
-                                    }
-                                  },
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Loại sản phẩm",
-                                  controller: typeProduct,
-                                  icon: Symbols.comment,
-                                  readOnly: true,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Tên sản phẩm",
-                                  controller: nameSpController,
-                                  icon: Symbols.box,
-                                  readOnly: true,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Số lượng (KH)",
-                                  controller: quantityCustomerController,
-                                  icon: Symbols.filter_9_plus,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Số lượng (SX)",
-                                  controller: quantityManufactureController,
-                                  icon: Symbols.filter_9_plus,
-                                ),
-                              ],
-                            ),
-                            buildFieldRow(
-                              children: [
-                                ValidationOrder.validateInput(
-                                  label: "QC Thùng",
-                                  controller: qcBoxController,
-                                  icon: Symbols.deployed_code,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Dài khách đặt (cm)",
-                                  controller: lengthCustomerController,
-                                  icon: Symbols.vertical_distribute,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Dài sản xuất (cm)",
-                                  controller: lengthManufactureController,
-                                  icon: Symbols.vertical_distribute,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Khổ khách đặt (cm)",
-                                  controller: sizeCustomerController,
-                                  icon: Symbols.horizontal_distribute,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Khổ sản xuất (cm)",
-                                  controller: sizeManufactureController,
-                                  icon: Symbols.horizontal_distribute,
-                                ),
-                              ],
-                            ),
-                            buildFieldRow(
-                              children: [
-                                ValidationOrder.dropdownForTypes(
-                                  items: itemsDaoXa,
-                                  type: typeDaoXa,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      typeDaoXa = value!;
-                                    });
-                                  },
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Số con",
-                                  controller: numberChildController,
-                                  icon: Symbols.box,
-                                ),
-                                SizedBox(),
-                                SizedBox(),
-                                SizedBox(),
-                              ],
-                            ),
-                          ],
+                          children: formatKeyValueRows(
+                            rows: infoBasicRows,
+                            labelWidth: 150,
+                            centerAlign: true,
+                            columnCount: 3,
+                          ),
                         ),
                         const SizedBox(height: 15),
 
                         buildingCard(
                           title: "📃 Chi Phí",
-                          children: [
-                            buildFieldRow(
-                              children: [
-                                ValidationOrder.validateInput(
-                                  label: "Đơn giá (M2)",
-                                  controller: priceController,
-                                  icon: Symbols.price_change,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Chiết khấu",
-                                  controller: discountController,
-                                  icon: Symbols.price_change,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Lợi nhuận",
-                                  controller: profitController,
-                                  icon: Symbols.price_change,
-                                ),
-                              ],
-                            ),
-                            buildFieldRow(
-                              children: [
-                                ValidationOrder.validateInput(
-                                  label: "VAT",
-                                  controller: vatController,
-                                  icon: Symbols.percent,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Giá Tấm Bao Khổ (M2)",
-                                  controller: pricePaperController,
-                                  icon: Symbols.price_change,
-                                  readOnly: typeDVT != 'Tấm Bao Khổ',
-                                ),
-                                ValidationOrder.dropdownForTypes(
-                                  items: itemsDvt,
-                                  type: typeDVT,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      typeDVT = value!;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
+                          children: formatKeyValueRows(
+                            rows: costRows,
+                            labelWidth: 150,
+                            centerAlign: true,
+                            columnCount: 3,
+                          ),
                         ),
                         const SizedBox(height: 15),
 
                         //structure
                         buildingCard(
                           title: "🗜 Kết Cấu Giấy",
-                          children: [
-                            buildFieldRow(
-                              children: [
-                                ValidationOrder.validateInput(
-                                  label: "Sóng E (g)",
-                                  controller: songEController,
-                                  icon: Symbols.airwave,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Sóng B (g)",
-                                  controller: songBController,
-                                  icon: Symbols.airwave,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Sóng C (g)",
-                                  controller: songCController,
-                                  icon: Symbols.airwave,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Sóng E2 (g)",
-                                  controller: songE2Controller,
-                                  icon: Symbols.airwave,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Đáy (g)",
-                                  controller: dayController,
-                                  icon: Symbols.vertical_align_bottom,
-                                ),
-                              ],
-                            ),
-                            buildFieldRow(
-                              children: [
-                                ValidationOrder.validateInput(
-                                  label: "Mặt E (g)",
-                                  controller: matEController,
-                                  icon: Symbols.vertical_align_center,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Mặt B (g)",
-                                  controller: matBController,
-                                  icon: Symbols.vertical_align_center,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Mặt C (g)",
-                                  controller: matCController,
-                                  icon: Symbols.vertical_align_center,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Mặt E2 (g)",
-                                  controller: matE2Controller,
-                                  icon: Symbols.vertical_align_center,
-                                ),
-                                ValidationOrder.validateInput(
-                                  label: "Cấn Lằn",
-                                  controller: canLanController,
-                                  icon: Symbols.bottom_sheets,
-                                ),
-                              ],
-                            ),
-                          ],
+                          children: formatKeyValueRows(
+                            rows: structureRows,
+                            labelWidth: 80,
+                            centerAlign: true,
+                            columnCount: 4,
+                          ),
                         ),
                       ],
                     ),

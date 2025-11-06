@@ -108,7 +108,7 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
 
               if (value == 'status') ...[
                 TextFormField(
@@ -132,7 +132,7 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
 
               if (value == 'joinDate') ...[
                 Column(
@@ -160,7 +160,7 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     if (selectedDate == null)
                       const Text(
                         "Chưa chọn thời gian",
