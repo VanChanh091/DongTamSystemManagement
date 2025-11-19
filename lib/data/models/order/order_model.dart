@@ -22,6 +22,7 @@ class Order {
   final DateTime dayReceiveOrder, dateRequestShipping;
   final bool isBox;
 
+  //association
   final String customerId, productId;
   final Customer? customer;
   final Product? product;
@@ -227,8 +228,10 @@ class Order {
       box: json['box'] != null ? Box.fromJson(json['box']) : null,
       user: json['User'] != null ? UserUserModel.fromJson(json['User']) : null,
       planningPaper:
-          json['Plannings'] != null
-              ? List<PlanningPaper>.from(json['Plannings'].map((x) => PlanningPaper.fromJson(x)))
+          json['PlanningPapers'] != null
+              ? List<PlanningPaper>.from(
+                json['PlanningPapers'].map((x) => PlanningPaper.fromJson(x)),
+              )
               : [],
     );
   }

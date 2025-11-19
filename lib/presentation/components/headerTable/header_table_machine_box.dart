@@ -6,7 +6,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 final List<Map<String, dynamic>> machineBoxColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
-  {"key": "dateShipping", "title": "Ngày Giao Dự Kiến"},
+  {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},

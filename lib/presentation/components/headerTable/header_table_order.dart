@@ -8,7 +8,7 @@ final List<Map<String, dynamic>> orderColumns = [
   // Order
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "dayReceive", "title": "Ngày Nhận"},
-  {"key": "dateShipping", "title": "Ngày Giao"},
+  {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "companyName", "title": "Tên Công Ty"},
   {"key": "typeProduct", "title": "Loại SP"},

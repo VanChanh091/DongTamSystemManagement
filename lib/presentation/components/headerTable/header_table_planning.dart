@@ -7,7 +7,7 @@ final List<Map<String, dynamic>> planningColumns = [
   // order
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "dayReceiveOrder", "title": "Ngày Nhận Đơn"},
-  {"key": "dateRequestShipping", "title": "Ngày YC Giao"},
+  {"key": "dateRequestShipping", "title": "Ngày Dự Kiến"},
   {"key": "companyName", "title": "Tên Công Ty"},
   {"key": "typeProduct", "title": "Loại SP"},
   {"key": "productName", "title": "Tên SP"},

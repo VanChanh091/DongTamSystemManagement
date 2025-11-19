@@ -52,10 +52,13 @@ class PlanningDataSource extends DataGridSource {
       DataGridCell<int>(columnName: 'runningPlan', value: order.totalQtyRunningPlan),
       DataGridCell<int>(columnName: 'quantityProduced', value: order.totalQtyProduced),
       DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
-      DataGridCell<String>(columnName: 'totalPrice', value: Order.formatCurrency(order.totalPrice)),
+      DataGridCell<String>(
+        columnName: 'totalPrice',
+        value: order.totalPrice > 0 ? '${Order.formatCurrency(order.totalPrice)} VND' : '0',
+      ),
       DataGridCell<String>(
         columnName: 'totalPriceAfterVAT',
-        value: Order.formatCurrency(order.totalPriceVAT),
+        value: order.totalPriceVAT > 0 ? '${Order.formatCurrency(order.totalPriceVAT)} VND' : "0",
       ),
       DataGridCell<bool>(columnName: 'haveMadeBox', value: order.isBox),
     ];

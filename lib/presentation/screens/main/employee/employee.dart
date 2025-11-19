@@ -375,7 +375,7 @@ class _EmployeeState extends State<Employee> {
                                         ),
                                         const SizedBox(width: 10),
 
-                                        //delete customers
+                                        //delete employee
                                         AnimatedButton(
                                           onPressed:
                                               isSale &&
@@ -477,12 +477,12 @@ class _EmployeeState extends State<Employee> {
                                       .firstWhere((cell) => cell.columnName == 'employeeId')
                                       .value;
 
-                              final selectedCustomer = employees.firstWhere(
+                              final selectedEmployee = employees.firstWhere(
                                 (e) => e.employeeId == employeeId,
                               );
 
                               setState(() {
-                                selectedEmployeeId = selectedCustomer.employeeId;
+                                selectedEmployeeId = selectedEmployee.employeeId;
                               });
                             } else {
                               setState(() {

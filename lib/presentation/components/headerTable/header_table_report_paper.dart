@@ -7,7 +7,7 @@ final List<Map<String, dynamic>> reportPaperColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "reportPaperId", "title": "", "visible": false},
   {"key": "customerName", "title": "Tên Khách Hàng"},
-  {"key": "dateShipping", "title": "Ngày YC Giao"},
+  {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "dayReported", "title": "Ngày Báo Cáo"},
   {"key": "dateTimeRp", "title": "", "visible": false},
@@ -41,19 +41,12 @@ final List<Map<String, dynamic>> reportPaperColumns = [
   {"key": "hasMadeBox", "title": "Làm Thùng?"},
 ];
 
-List<GridColumn> buildReportPaperColumn({
-  required ThemeController themeController,
-}) {
+List<GridColumn> buildReportPaperColumn({required ThemeController themeController}) {
   return [
     for (var item in reportPaperColumns)
       GridColumn(
         columnName: item["key"]!,
-        label: Obx(
-          () => formatColumn(
-            label: item["title"]!,
-            themeController: themeController,
-          ),
-        ),
+        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
         visible: item.containsKey("visible") ? item["visible"]! as bool : true,
       ),
   ];

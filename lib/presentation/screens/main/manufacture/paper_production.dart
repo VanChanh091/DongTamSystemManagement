@@ -48,7 +48,7 @@ class _PaperProductionState extends State<PaperProduction> {
     registerSocket();
     loadPlanning();
 
-    columns = buildMachineColumns(themeController: themeController);
+    columns = buildMachineColumns(themeController: themeController, page: "production");
 
     ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
       setState(() {
@@ -436,7 +436,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
-                    hasBox: true,
+                    page: 'production',
                   );
 
                   return SfDataGrid(
@@ -468,10 +468,11 @@ class _PaperProductionState extends State<PaperProduction> {
                             columnNames: [
                               'bottom',
                               'fluteE',
+                              'fluteE2',
                               'fluteB',
                               'fluteC',
                               'knife',
-                              'totalWasteLoss',
+                              'totalLoss',
                             ],
                             child: formatColumn(
                               label: 'Định Mức Phế Liệu',

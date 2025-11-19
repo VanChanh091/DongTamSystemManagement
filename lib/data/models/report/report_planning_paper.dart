@@ -37,9 +37,7 @@ class ReportPaperModel {
       shiftManagement: json['shiftManagement'] ?? "",
       planningId: json['planningId'] ?? 0,
       planningPaper:
-          json['Planning'] != null
-              ? PlanningPaper.fromJson(json['Planning'])
-              : null,
+          json['PlanningPaper'] != null ? PlanningPaper.fromJson(json['PlanningPaper']) : null,
     );
   }
 }

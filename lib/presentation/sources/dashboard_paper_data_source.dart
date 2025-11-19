@@ -1,0 +1,232 @@
+import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+
+class DashboardPaperDataSource extends DataGridSource {
+  List<PlanningPaper> dbPapers = [];
+  int? selectedDbPaperId;
+
+  late List<DataGridRow> dbPaperDataGridRows;
+  final formatter = DateFormat('dd/MM/yyyy');
+
+  DashboardPaperDataSource({required this.dbPapers, this.selectedDbPaperId}) {
+    buildDataGridRows();
+  }
+
+  List<DataGridCell> buildDbPaperCells(PlanningPaper paper) {
+    final order = paper.order;
+
+    return [
+      DataGridCell<String>(columnName: "orderId", value: paper.orderId),
+
+      //customer
+      DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
+      DataGridCell<String>(columnName: "companyName", value: order?.customer?.companyName ?? ""),
+
+      //product
+      DataGridCell<String>(columnName: "typeProduct", value: order?.product?.typeProduct ?? ""),
+      DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
+
+      DataGridCell<String>(
+        columnName: "dayReceive",
+        value: order?.dayReceiveOrder != null ? formatter.format(order!.dayReceiveOrder) : "",
+      ),
+      DataGridCell<String>(
+        columnName: "dateShipping",
+        value:
+            order?.dateRequestShipping != null ? formatter.format(order!.dateRequestShipping) : "",
+      ),
+      DataGridCell<String>(
+        columnName: "dayStartProduction",
+        value: paper.dayStart != null ? formatter.format(paper.dayStart!) : "",
+      ),
+      DataGridCell<String>(
+        columnName: "dayCompletedProd",
+        value: paper.dayCompleted != null ? formatter.format(paper.dayCompleted!) : "",
+      ),
+      DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
+      DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
+      DataGridCell<String>(columnName: 'khoCapGiay', value: '${paper.ghepKho} cm'),
+      DataGridCell<String>(columnName: 'daoXa', value: order?.daoXa ?? ''),
+      DataGridCell<String>(columnName: 'length', value: '${paper.lengthPaperPlanning} cm'),
+      DataGridCell<String>(columnName: 'size', value: '${paper.sizePaperPLaning} cm'),
+      DataGridCell<int>(columnName: 'child', value: paper.numberChild),
+
+      //quantity
+      DataGridCell<int>(columnName: 'quantityOrd', value: order?.quantityManufacture ?? 0),
+      DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
+      DataGridCell<int>(columnName: "runningPlanProd", value: paper.runningPlan),
+
+      DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ''),
+      DataGridCell<String>(
+        columnName: 'timeRunningProd',
+        value:
+            paper.timeRunning != null
+                ? PlanningPaper.formatTimeOfDay(timeOfDay: paper.timeRunning!)
+                : '',
+      ),
+
+      // order
+      ...buildOrderCells(paper),
+
+      //phe lieu
+      ...buildWasteAndManufactureCells(paper),
+
+      //box
+      ...buildBoxCells(paper),
+
+      //user
+      DataGridCell<String>(columnName: "staffOrder", value: order?.user?.fullName ?? ""),
+
+      //have box
+      DataGridCell<bool>(columnName: "haveMadeBox", value: paper.hasBox),
+
+      // hidden technical fields
+      DataGridCell<int>(columnName: "planningId", value: paper.planningId),
+    ];
+  }
+
+  List<DataGridCell> buildOrderCells(PlanningPaper paper) {
+    DataGridCell<String> buildPriceCell({required String columnName, required double value}) {
+      return DataGridCell<String>(
+        columnName: columnName,
+        value: value > 0 ? '${Order.formatCurrency(value)} VND' : '0',
+      );
+    }
+
+    final order = paper.order;
+
+    return [
+      DataGridCell<String>(columnName: "dvt", value: order?.dvt ?? ""),
+      DataGridCell<double>(columnName: "acreage", value: order?.acreage),
+      buildPriceCell(columnName: "price", value: order?.price ?? 0),
+      buildPriceCell(columnName: "pricePaper", value: order?.pricePaper ?? 0),
+      buildPriceCell(columnName: "discounts", value: order?.discount ?? 0),
+      buildPriceCell(columnName: "profitOrd", value: order?.profit ?? 0),
+      DataGridCell<String>(
+        columnName: "vat",
+        value: (order?.vat ?? 0) > 0 ? '${order?.vat}%' : "0",
+      ),
+      buildPriceCell(columnName: "totalPrice", value: order?.totalPrice ?? 0),
+      buildPriceCell(columnName: "totalPriceAfterVAT", value: order?.totalPriceVAT ?? 0),
+    ];
+  }
+
+  List<DataGridCell> buildWasteAndManufactureCells(PlanningPaper paper) {
+    DataGridCell<String> buildWasteCell({required String columnName, required double value}) {
+      return DataGridCell<String>(columnName: columnName, value: value != 0 ? '$value kg' : '0');
+    }
+
+    return [
+      //Phe lieu
+      buildWasteCell(columnName: 'bottom', value: paper.bottom ?? 0),
+      buildWasteCell(columnName: 'fluteE', value: paper.fluteE ?? 0),
+      buildWasteCell(columnName: 'fluteE2', value: paper.fluteE2 ?? 0),
+      buildWasteCell(columnName: 'fluteB', value: paper.fluteB ?? 0),
+      buildWasteCell(columnName: 'fluteC', value: paper.fluteC ?? 0),
+      buildWasteCell(columnName: 'knife', value: paper.knife ?? 0),
+      buildWasteCell(columnName: 'totalLoss', value: paper.totalLoss ?? 0),
+
+      //san xuat
+      buildWasteCell(columnName: 'qtyWastes', value: paper.qtyWasteNorm ?? 0),
+      DataGridCell<String>(columnName: "shiftProduct", value: paper.shiftProduction),
+      DataGridCell<String>(columnName: "shiftManager", value: paper.shiftManagement),
+    ];
+  }
+
+  List<DataGridCell> buildBoxCells(PlanningPaper paper) {
+    final box = paper.order?.box;
+
+    return [
+      DataGridCell<int>(columnName: "inMatTruoc", value: box?.inMatTruoc ?? 0),
+      DataGridCell<int>(columnName: "inMatSau", value: box?.inMatSau ?? 0),
+      DataGridCell<bool>(columnName: "chongTham", value: box?.chongTham ?? false),
+      DataGridCell<bool>(columnName: "canLanBox", value: box?.canLan ?? false),
+      DataGridCell<bool>(columnName: "canMang", value: box?.canMang ?? false),
+      DataGridCell<bool>(columnName: "xa", value: box?.Xa ?? false),
+      DataGridCell<bool>(columnName: "catKhe", value: box?.catKhe ?? false),
+      DataGridCell<bool>(columnName: "be", value: box?.be ?? false),
+      DataGridCell<String>(columnName: "maKhuon", value: box?.maKhuon ?? ""),
+      DataGridCell<bool>(columnName: "dan_1_Manh", value: box?.dan_1_Manh ?? false),
+      DataGridCell<bool>(columnName: "dan_2_Manh", value: box?.dan_2_Manh ?? false),
+      DataGridCell<bool>(columnName: "dongGhimMotManh", value: box?.dongGhim1Manh ?? false),
+      DataGridCell<bool>(columnName: "dongGhimHaiManh", value: box?.dongGhim2Manh ?? false),
+      DataGridCell<String>(columnName: "dongGoi", value: box?.dongGoi ?? ""),
+    ];
+  }
+
+  @override
+  List<DataGridRow> get rows => dbPaperDataGridRows;
+
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = [
+      "haveMadeBox",
+      "inMatTruoc",
+      "inMatSau",
+      "chongTham",
+      "canLanBox",
+      "canMang",
+      "xa",
+      "catKhe",
+      "be",
+      "dan_1_Manh",
+      "dan_2_Manh",
+      "dongGhimMotManh",
+      "dongGhimHaiManh",
+    ];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
+
+    return value?.toString() ?? '';
+  }
+
+  void buildDataGridRows() {
+    dbPaperDataGridRows =
+        dbPapers.map<DataGridRow>((paper) {
+          return DataGridRow(cells: buildDbPaperCells(paper));
+        }).toList();
+  }
+
+  @override
+  DataGridRowAdapter? buildRow(DataGridRow row) {
+    final planningId = row.getCells().firstWhere((cell) => cell.columnName == 'planningId').value;
+
+    Color backgroundColor;
+    if (selectedDbPaperId == planningId) {
+      backgroundColor = Colors.blue.withValues(alpha: 0.3);
+    } else {
+      backgroundColor = Colors.transparent;
+    }
+
+    return DataGridRowAdapter(
+      color: backgroundColor,
+      cells:
+          row.getCells().map<Widget>((dataCell) {
+            final cellText = _formatCellValueBool(dataCell);
+
+            Alignment alignment;
+            if (dataCell.value is num) {
+              alignment = Alignment.centerRight;
+            } else if (cellText == '✅') {
+              alignment = Alignment.center;
+            } else {
+              alignment = Alignment.centerLeft;
+            }
+
+            return formatDataTable(
+              label: _formatCellValueBool(dataCell),
+              alignment: alignment,
+              cellColor: backgroundColor,
+            );
+          }).toList(),
+    );
+  }
+}

@@ -2,14 +2,14 @@ import 'package:dongtam/presentation/screens/main/report/tabChildReport/report_p
 import 'package:dongtam/presentation/screens/main/report/tabChildReport/report_planning_paper.dart';
 import 'package:flutter/material.dart';
 
-class TopTabReport extends StatefulWidget {
-  const TopTabReport({super.key});
+class TopTabHistoryReport extends StatefulWidget {
+  const TopTabHistoryReport({super.key});
 
   @override
-  State<TopTabReport> createState() => _TopTabReportState();
+  State<TopTabHistoryReport> createState() => _TopTabHistoryReportState();
 }
 
-class _TopTabReportState extends State<TopTabReport> {
+class _TopTabHistoryReportState extends State<TopTabHistoryReport> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -22,17 +22,10 @@ class _TopTabReportState extends State<TopTabReport> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
-              tabs: const [
-                Tab(text: "Báo Cáo Giấy Tấm"),
-                Tab(text: "Báo Cáo SX Thùng"),
-              ],
+              tabs: const [Tab(text: "Báo Cáo Giấy Tấm"), Tab(text: "Báo Cáo SX Thùng")],
             ),
           ),
-          Expanded(
-            child: const TabBarView(
-              children: [ReportPlanningPaper(), ReportPlanningBox()],
-            ),
-          ),
+          Expanded(child: const TabBarView(children: [ReportPlanningPaper(), ReportPlanningBox()])),
         ],
       ),
     );

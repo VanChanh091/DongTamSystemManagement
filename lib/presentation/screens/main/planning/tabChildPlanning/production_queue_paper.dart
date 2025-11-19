@@ -64,7 +64,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       futurePlanning = Future.error("NO_PERMISSION");
     }
 
-    columns = buildMachineColumns(themeController: themeController);
+    columns = buildMachineColumns(themeController: themeController, page: "planning");
 
     ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
       setState(() {
@@ -800,7 +800,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     selectedPlanningIds: selectedPlanningIds,
                     unsavedChange: unsavedChangeController,
                     showGroup: showGroup,
-                    isShowPlanningPaper: true,
+                    page: 'planning',
                   );
 
                   return SfDataGrid(

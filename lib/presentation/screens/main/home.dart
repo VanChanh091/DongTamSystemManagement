@@ -10,6 +10,7 @@ import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_box.dart';
 import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
+import 'package:dongtam/presentation/screens/main/dashboard/top_tab_db_planning.dart';
 import 'package:dongtam/presentation/screens/main/employee/employee.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
@@ -17,7 +18,7 @@ import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
 import 'package:dongtam/presentation/screens/main/planning/top_tab_planning.dart';
 import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
-import 'package:dongtam/presentation/screens/main/report/top_tab_report.dart';
+import 'package:dongtam/presentation/screens/main/report/top_tab_history_report.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/color/theme_picker_color.dart';
@@ -78,8 +79,11 @@ class _HomePageState extends State<HomePage> {
       PaperProduction(),
       BoxPrintingProduction(),
 
-      //report
-      TopTabReport(),
+      //reporting hitstory
+      TopTabHistoryReport(),
+
+      //dashboard paper & box
+      TopTabDbPlanning(),
 
       // admin
       _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),
@@ -214,7 +218,12 @@ class _HomePageState extends State<HomePage> {
           _buildSidebarItem(
             Symbols.assignment,
             "Lịch Sử Sản Xuất",
-            index: pages.indexWhere((w) => w is TopTabReport),
+            index: pages.indexWhere((w) => w is TopTabHistoryReport),
+          ),
+          _buildSidebarItem(
+            Symbols.dual_screen,
+            "Tổng Hợp Sản Xuất",
+            index: pages.indexWhere((w) => w is TopTabDbPlanning),
           ),
           _buildApprovalMenu(pages),
           _buildSidebarItem(

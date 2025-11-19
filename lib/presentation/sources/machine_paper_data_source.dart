@@ -11,22 +11,22 @@ class MachinePaperDatasource extends DataGridSource {
   List<PlanningPaper> planning = [];
   List<String> selectedPlanningIds = [];
   UnsavedChangeController? unsavedChange;
-  bool isShowPlanningPaper;
   bool showGroup;
-  bool hasBox;
+  String page;
 
   late List<DataGridRow> planningDataGridRows;
+  late List<String> visibleColumns;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
+
   bool hasSortedInitially = false;
 
   MachinePaperDatasource({
     required this.planning,
     required this.selectedPlanningIds,
     required this.showGroup,
+    required this.page,
     this.unsavedChange,
-    this.isShowPlanningPaper = false,
-    this.hasBox = false,
   }) {
     buildDataGridRows();
 
@@ -39,17 +39,17 @@ class MachinePaperDatasource extends DataGridSource {
   List<DataGridCell> buildPlanningInfoCells(PlanningPaper planning) {
     return [
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
-      DataGridCell<String>(
-        columnName: 'customerName',
-        value: planning.order?.customer?.customerName ?? '',
-      ),
-      DataGridCell<String>(
-        columnName: "dateShipping",
-        value:
-            planning.order?.dateRequestShipping != null
-                ? formatter.format(planning.order!.dateRequestShipping)
-                : '',
-      ),
+
+      if (page == 'planning') ...[
+        DataGridCell<String>(
+          columnName: "dateShipping",
+          value:
+              planning.order?.dateRequestShipping != null
+                  ? formatter.format(planning.order!.dateRequestShipping)
+                  : '',
+        ),
+      ],
+
       DataGridCell<String?>(
         columnName: "dayStartProduction",
         value: planning.dayStart != null ? formatter.format(planning.dayStart!) : null,
@@ -61,13 +61,24 @@ class MachinePaperDatasource extends DataGridSource {
                 ? formatterDayCompleted.format(planning.dayCompleted!)
                 : null,
       ),
+      DataGridCell<String>(
+        columnName: 'customerName',
+        value: planning.order?.customer?.customerName ?? '',
+      ),
       DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
+      DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
       DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
       DataGridCell<String>(columnName: 'length', value: '${planning.lengthPaperPlanning} cm'),
       DataGridCell<String>(columnName: 'size', value: '${planning.sizePaperPLaning} cm'),
       DataGridCell<int>(columnName: 'child', value: planning.numberChild),
-      DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
+      DataGridCell<int>(columnName: 'quantityOrd', value: planning.order?.quantityManufacture ?? 0),
+      DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
+      DataGridCell<int>(columnName: "runningPlanProd", value: planning.runningPlan),
+      DataGridCell<String>(
+        columnName: "instructSpecial",
+        value: planning.order?.instructSpecial ?? '',
+      ),
       DataGridCell<String>(
         columnName: 'timeRunningProd',
         value:
@@ -75,63 +86,37 @@ class MachinePaperDatasource extends DataGridSource {
                 ? PlanningPaper.formatTimeOfDay(timeOfDay: planning.timeRunning!)
                 : '',
       ),
-      DataGridCell<int>(columnName: 'quantityOrd', value: planning.order?.quantityManufacture ?? 0),
-      DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
-      DataGridCell<int>(columnName: "runningPlanProd", value: planning.runningPlan),
-      DataGridCell<String>(columnName: "HD_special", value: planning.order?.instructSpecial ?? ''),
-      DataGridCell<String>(
-        columnName: 'totalPrice',
-        value:
-            (planning.order?.totalPrice ?? 0) > 0
-                ? '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND'
-                : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'totalPriceAfterVAT',
-        value:
-            (planning.order?.totalPriceVAT ?? 0) > 0
-                ? '${Order.formatCurrency(planning.order?.totalPriceVAT ?? 0)} VND'
-                : "0",
-      ),
+      if (page == "planning") ...[
+        DataGridCell<String>(
+          columnName: 'totalPrice',
+          value:
+              (planning.order?.totalPrice ?? 0) > 0
+                  ? '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND'
+                  : "0",
+        ),
+      ],
     ];
   }
 
   List<DataGridCell> buildWasteNormCell(PlanningPaper planning) {
+    DataGridCell<String> buildWasteCell({required String columnName, required double value}) {
+      return DataGridCell<String>(columnName: columnName, value: value != 0 ? '$value kg' : '0');
+    }
+
     return [
-      DataGridCell<String>(
-        columnName: 'bottom',
-        value: planning.bottom != 0 ? '${planning.bottom} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'fluteE',
-        value: planning.fluteE != 0 ? '${planning.fluteE} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'fluteE2',
-        value: planning.fluteE2 != 0 ? '${planning.fluteE2} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'fluteB',
-        value: planning.fluteB != 0 ? '${planning.fluteB} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'fluteC',
-        value: planning.fluteC != 0 ? '${planning.fluteC} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'knife',
-        value: planning.knife != 0 ? '${planning.knife} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'totalLoss',
-        value: planning.totalLoss != 0 ? '${planning.totalLoss} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'qtyWastes',
-        value: planning.qtyWasteNorm != 0 ? '${planning.qtyWasteNorm} kg' : "0",
-      ),
-      DataGridCell<String>(columnName: 'shiftProduct', value: planning.shiftProduction),
-      DataGridCell<String>(columnName: 'shiftManager', value: planning.shiftManagement),
+      buildWasteCell(columnName: 'bottom', value: planning.bottom ?? 0),
+      buildWasteCell(columnName: 'fluteE', value: planning.fluteE ?? 0),
+      buildWasteCell(columnName: 'fluteE2', value: planning.fluteE2 ?? 0),
+      buildWasteCell(columnName: 'fluteB', value: planning.fluteB ?? 0),
+      buildWasteCell(columnName: 'fluteC', value: planning.fluteC ?? 0),
+      buildWasteCell(columnName: 'knife', value: planning.knife ?? 0),
+      buildWasteCell(columnName: 'totalLoss', value: planning.totalLoss ?? 0),
+      buildWasteCell(columnName: 'qtyWastes', value: planning.qtyWasteNorm ?? 0),
+
+      if (page == 'planning') ...[
+        DataGridCell<String>(columnName: 'shiftProduct', value: planning.shiftProduction),
+        DataGridCell<String>(columnName: 'shiftManager', value: planning.shiftManagement),
+      ],
       DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
 
       // hidden technical fields
@@ -299,6 +284,7 @@ class MachinePaperDatasource extends DataGridSource {
     final sortPlanning = getCellValue<int>(row, 'index', 0);
     final status = getCellValue<String>(row, 'status', "");
     final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
+    final qtyProduced = getCellValue<int>(row, 'qtyProduced', 0);
     final totalLoss = getCellValue<String>(row, 'totalLoss', "0");
     final qtyWastes = getCellValue<String>(row, 'qtyWastes', "0");
 
@@ -333,7 +319,7 @@ class MachinePaperDatasource extends DataGridSource {
             }
 
             Color cellColor = Colors.transparent;
-            if (dataCell.columnName == "qtyProduced" && runningPlan > 0) {
+            if (dataCell.columnName == "qtyProduced" && qtyProduced < runningPlan) {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
             } else if (dataCell.columnName == "qtyWastes" && qtyWastesVal > totalWasteLossVal) {
               cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty

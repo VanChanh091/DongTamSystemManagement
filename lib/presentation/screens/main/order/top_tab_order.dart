@@ -22,16 +22,11 @@ class _TopTabOrderState extends State<TopTabOrder> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
-              tabs: [
-                Tab(text: "Trạng Thái Đơn Hàng"),
-                Tab(text: "Chờ Duyệt/Từ Chối"),
-              ],
+              tabs: [Tab(text: "Trạng Thái Đơn Hàng"), Tab(text: "Chờ Duyệt/Từ Chối")],
             ),
           ),
           Expanded(
-            child: const TabBarView(
-              children: [OrderAcceptAndPlanning(), OrderRejectAndPending()],
-            ),
+            child: const TabBarView(children: [OrderAcceptAndPlanning(), OrderRejectAndPending()]),
           ),
         ],
       ),

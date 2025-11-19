@@ -6,24 +6,31 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 final List<Map<String, dynamic>> machinePaperColumns = [
   // planning
   {"key": "orderId", "title": "Mã Đơn Hàng"},
-  {"key": "customerName", "title": "Tên Khách Hàng"},
-  {"key": "dateShipping", "title": "Ngày Giao Dự Kiến"},
+  {
+    "key": "dateShipping",
+    "title": "Ngày Dự Kiến",
+    "visiblePages": ["planning"],
+  },
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
+  {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
+  {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
   {"key": "daoXa", "title": "Dao Xả"},
   {"key": "length", "title": "Dài"},
   {"key": "size", "title": "Khổ"},
   {"key": "child", "title": "Số Con"},
-  {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
-  {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
   {"key": "quantityOrd", "title": "Đơn Hàng"},
   {"key": "qtyProduced", "title": "Đã Sản Xuất"},
   {"key": "runningPlanProd", "title": "Kế Hoạch Chạy"},
-  {"key": "HD_special", "title": "HD Đặc Biệt"},
-  {"key": "totalPrice", "title": "Tổng Tiền"},
-  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền Sau VAT"},
+  {"key": "instructSpecial", "title": "HD Đặc Biệt"},
+  {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
+  {
+    "key": "totalPrice",
+    "title": "Tổng Tiền",
+    "visiblePages": ["planning"],
+  },
   {"key": "bottom", "title": "Đáy"},
   {"key": "fluteE", "title": "Sóng E"},
   {"key": "fluteE2", "title": "Sóng E2"},
@@ -32,8 +39,16 @@ final List<Map<String, dynamic>> machinePaperColumns = [
   {"key": "knife", "title": "Dao"},
   {"key": "totalLoss", "title": "Tổng PL"},
   {"key": "qtyWastes", "title": "PL Thực Tế"},
-  {"key": "shiftProduct", "title": "Ca Sản Xuất"},
-  {"key": "shiftManager", "title": "Trưởng Máy"},
+  {
+    "key": "shiftProduct",
+    "title": "Ca Sản Xuất",
+    "visiblePages": ["planning"],
+  },
+  {
+    "key": "shiftManager",
+    "title": "Trưởng Máy",
+    "visiblePages": ["planning"],
+  },
   {"key": "haveMadeBox", "title": "Làm Thùng?"},
 
   // hidden technical fields
@@ -42,13 +57,17 @@ final List<Map<String, dynamic>> machinePaperColumns = [
   {"key": "planningId", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildMachineColumns({required ThemeController themeController}) {
+List<GridColumn> buildMachineColumns({
+  required ThemeController themeController,
+  required String page,
+}) {
   return [
     for (var item in machinePaperColumns)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+      if (!item.containsKey("visiblePages") || (item["visiblePages"] as List).contains(page))
+        GridColumn(
+          columnName: item["key"]!,
+          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
+          visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+        ),
   ];
 }
