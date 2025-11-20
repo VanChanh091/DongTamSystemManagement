@@ -4,18 +4,18 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> headerDbPaper = [
-  // planning
+  // Order
   {"key": "orderId", "title": "Mã Đơn Hàng"},
 
-  //customer
+  // Customer
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "companyName", "title": "Tên Công Ty"},
 
-  //product
+  // Product
   {"key": "typeProduct", "title": "Loại SP"},
   {"key": "productName", "title": "Tên SP"},
 
-  //planning
+  // Planning Paper fields
   {"key": "dayReceive", "title": "Nhận Đơn"},
   {"key": "dateShipping", "title": "Dự Kiến"},
   {"key": "dayStartProduction", "title": "Sản Xuất"},
@@ -28,7 +28,7 @@ const List<Map<String, dynamic>> headerDbPaper = [
   {"key": "size", "title": "Khổ"},
   {"key": "child", "title": "Số Con"},
 
-  //quantity
+  // Quantity
   {"key": "quantityOrd", "title": "Đơn Hàng"},
   {"key": "qtyProduced", "title": "Đã Sản Xuất"},
   {"key": "runningPlanProd", "title": "Kế Hoạch Chạy"},
@@ -36,7 +36,7 @@ const List<Map<String, dynamic>> headerDbPaper = [
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
   {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
 
-  //order
+  // Order money
   {"key": "dvt", "title": "DVT"},
   {"key": "acreage", "title": "Diện Tích"},
   {"key": "price", "title": "Đơn Giá"},
@@ -47,7 +47,7 @@ const List<Map<String, dynamic>> headerDbPaper = [
   {"key": "totalPrice", "title": "Tổng Tiền"},
   {"key": "totalPriceAfterVAT", "title": "Tổng Tiền Sau VAT"},
 
-  //Phe lieu
+  // Phế liệu
   {"key": "bottom", "title": "Đáy"},
   {"key": "fluteE", "title": "Sóng E"},
   {"key": "fluteE2", "title": "Sóng E2"},
@@ -56,34 +56,19 @@ const List<Map<String, dynamic>> headerDbPaper = [
   {"key": "knife", "title": "Dao"},
   {"key": "totalLoss", "title": "Tổng PL"},
 
-  //san xuat
+  // Sản xuất
   {"key": "qtyWastes", "title": "PL Thực Tế"},
   {"key": "shiftProduct", "title": "Ca Sản Xuất"},
   {"key": "shiftManager", "title": "Trưởng Máy"},
+  {"key": "machine", "title": "Loại Máy"},
 
-  // Box
-  {"key": "inMatTruoc", "title": "In Mặt Trước"},
-  {"key": "inMatSau", "title": "In Mặt Sau"},
-  {"key": "chongTham", "title": "Chống Thấm"},
-  {"key": "canLanBox", "title": "Cấn Lằn"},
-  {"key": "canMang", "title": "Cán Màng"},
-  {"key": "xa", "title": "Xả"},
-  {"key": "catKhe", "title": "Cắt Khe"},
-  {"key": "be", "title": "Bế"},
-  {"key": "maKhuon", "title": "Mã Khuôn"},
-  {"key": "dan_1_Manh", "title": "Dán 1 Mảnh"},
-  {"key": "dan_2_Manh", "title": "Dán 2 Mảnh"},
-  {"key": "dongGhimMotManh", "title": "Đóng Ghim 1 Mảnh"},
-  {"key": "dongGhimHaiManh", "title": "Đóng Ghim 2 Mảnh"},
-  {"key": "dongGoi", "title": "Đóng Gói"},
+  // Staff
+  {"key": "User.fullName", "title": "Nhân Viên"},
 
-  //user
-  {"key": "staffOrder", "title": "Nhân Viên"},
+  // Have Box?
+  {"key": "hasBox", "title": "Làm Thùng?"},
 
-  //have box
-  {"key": "haveMadeBox", "title": "Làm Thùng?"},
-
-  // hidden technical fields
+  // Hidden
   {"key": "planningId", "title": "", "visible": false},
 ];
 

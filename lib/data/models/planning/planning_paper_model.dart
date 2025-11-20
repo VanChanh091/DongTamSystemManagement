@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class PlanningPaper {
   final String orderId;
   final Order? order;
   final TimeOverflowPlanning? timeOverflowPlanning;
+  final List<PlanningStage>? stages;
 
   PlanningPaper({
     required this.planningId,
@@ -68,6 +70,7 @@ class PlanningPaper {
     required this.orderId,
     this.order,
     this.timeOverflowPlanning,
+    this.stages,
   });
 
   String get formatterStructureOrder {
@@ -148,6 +151,10 @@ class PlanningPaper {
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
       timeOverflowPlanning:
           json['timeOverFlow'] != null ? TimeOverflowPlanning.fromJson(json['timeOverFlow']) : null,
+      stages:
+          json['stages'] != null
+              ? List<PlanningStage>.from(json['stages'].map((x) => PlanningStage.fromJson(x)))
+              : [],
     );
   }
 

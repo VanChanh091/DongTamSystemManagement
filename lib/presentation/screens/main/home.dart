@@ -10,7 +10,7 @@ import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_box.dart';
 import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
-import 'package:dongtam/presentation/screens/main/dashboard/top_tab_db_planning.dart';
+import 'package:dongtam/presentation/screens/main/dashboard/dashboard_planning.dart';
 import 'package:dongtam/presentation/screens/main/employee/employee.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
@@ -82,8 +82,8 @@ class _HomePageState extends State<HomePage> {
       //reporting hitstory
       TopTabHistoryReport(),
 
-      //dashboard paper & box
-      TopTabDbPlanning(),
+      //dashboard planning
+      DashboardPlanning(),
 
       // admin
       _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),
@@ -223,7 +223,7 @@ class _HomePageState extends State<HomePage> {
           _buildSidebarItem(
             Symbols.dual_screen,
             "Tổng Hợp Sản Xuất",
-            index: pages.indexWhere((w) => w is TopTabDbPlanning),
+            index: pages.indexWhere((w) => w is DashboardPlanning),
           ),
           _buildApprovalMenu(pages),
           _buildSidebarItem(

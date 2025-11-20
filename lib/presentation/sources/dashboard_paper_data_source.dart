@@ -75,9 +75,6 @@ class DashboardPaperDataSource extends DataGridSource {
       //phe lieu
       ...buildWasteAndManufactureCells(paper),
 
-      //box
-      ...buildBoxCells(paper),
-
       //user
       DataGridCell<String>(columnName: "staffOrder", value: order?.user?.fullName ?? ""),
 
@@ -134,51 +131,28 @@ class DashboardPaperDataSource extends DataGridSource {
       buildWasteCell(columnName: 'qtyWastes', value: paper.qtyWasteNorm ?? 0),
       DataGridCell<String>(columnName: "shiftProduct", value: paper.shiftProduction),
       DataGridCell<String>(columnName: "shiftManager", value: paper.shiftManagement),
-    ];
-  }
-
-  List<DataGridCell> buildBoxCells(PlanningPaper paper) {
-    final box = paper.order?.box;
-
-    return [
-      DataGridCell<int>(columnName: "inMatTruoc", value: box?.inMatTruoc ?? 0),
-      DataGridCell<int>(columnName: "inMatSau", value: box?.inMatSau ?? 0),
-      DataGridCell<bool>(columnName: "chongTham", value: box?.chongTham ?? false),
-      DataGridCell<bool>(columnName: "canLanBox", value: box?.canLan ?? false),
-      DataGridCell<bool>(columnName: "canMang", value: box?.canMang ?? false),
-      DataGridCell<bool>(columnName: "xa", value: box?.Xa ?? false),
-      DataGridCell<bool>(columnName: "catKhe", value: box?.catKhe ?? false),
-      DataGridCell<bool>(columnName: "be", value: box?.be ?? false),
-      DataGridCell<String>(columnName: "maKhuon", value: box?.maKhuon ?? ""),
-      DataGridCell<bool>(columnName: "dan_1_Manh", value: box?.dan_1_Manh ?? false),
-      DataGridCell<bool>(columnName: "dan_2_Manh", value: box?.dan_2_Manh ?? false),
-      DataGridCell<bool>(columnName: "dongGhimMotManh", value: box?.dongGhim1Manh ?? false),
-      DataGridCell<bool>(columnName: "dongGhimHaiManh", value: box?.dongGhim2Manh ?? false),
-      DataGridCell<String>(columnName: "dongGoi", value: box?.dongGoi ?? ""),
+      DataGridCell<String>(columnName: "machine", value: paper.chooseMachine),
     ];
   }
 
   @override
   List<DataGridRow> get rows => dbPaperDataGridRows;
 
+  void buildDataGridRows() {
+    dbPaperDataGridRows =
+        dbPapers.map<DataGridRow>((paper) {
+          final cells = buildDbPaperCells(paper);
+
+          // debugPrint("Row has ${cells.length} cells");
+
+          return DataGridRow(cells: cells);
+        }).toList();
+  }
+
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = [
-      "haveMadeBox",
-      "inMatTruoc",
-      "inMatSau",
-      "chongTham",
-      "canLanBox",
-      "canMang",
-      "xa",
-      "catKhe",
-      "be",
-      "dan_1_Manh",
-      "dan_2_Manh",
-      "dongGhimMotManh",
-      "dongGhimHaiManh",
-    ];
+    const boolColumns = ["haveMadeBox"];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
@@ -186,13 +160,6 @@ class DashboardPaperDataSource extends DataGridSource {
     }
 
     return value?.toString() ?? '';
-  }
-
-  void buildDataGridRows() {
-    dbPaperDataGridRows =
-        dbPapers.map<DataGridRow>((paper) {
-          return DataGridRow(cells: buildDbPaperCells(paper));
-        }).toList();
   }
 
   @override
@@ -221,11 +188,7 @@ class DashboardPaperDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(
-              label: _formatCellValueBool(dataCell),
-              alignment: alignment,
-              cellColor: backgroundColor,
-            );
+            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
           }).toList(),
     );
   }

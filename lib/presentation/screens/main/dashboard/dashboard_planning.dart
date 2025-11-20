@@ -2,7 +2,9 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_db_paper.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_stages.dart';
 import 'package:dongtam/presentation/sources/dashboard_paper_data_source.dart';
+import 'package:dongtam/presentation/sources/stages_data_source.dart';
 import 'package:dongtam/service/dashboard_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
@@ -16,33 +18,31 @@ import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class DashboardPapers extends StatefulWidget {
-  const DashboardPapers({super.key});
+class DashboardPlanning extends StatefulWidget {
+  const DashboardPlanning({super.key});
 
   @override
-  State<DashboardPapers> createState() => _DashboardPapersState();
+  State<DashboardPlanning> createState() => _DashboardPlanningState();
 }
 
-class _DashboardPapersState extends State<DashboardPapers> {
+class _DashboardPlanningState extends State<DashboardPlanning> {
   late Future<Map<String, dynamic>> futureDbPaper;
   late DashboardPaperDataSource dbPaperDatasource;
-  late List<GridColumn> columns;
+  late List<GridColumn> columnsPaper;
+  late List<GridColumn> columnsStages;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  final Map<String, String> searchFieldMap = {
-    "Theo Mã": "planningId",
-    "Theo Tên KH": "customerName",
-    "Theo CSKH": "cskh",
-    "Theo SDT": "phone",
-  };
+  final Map<String, String> searchFieldMap = {};
 
   TextEditingController searchController = TextEditingController();
-  Map<String, double> columnWidths = {}; //map header table
+  Map<String, double> columnWidthsPlanning = {};
+  Map<String, double> columnWidthsStage = {};
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   String searchType = "Tất cả";
   int? selectedDbPaperId;
+  PlanningPaper? selectedPaper;
 
   int currentPage = 1;
   int pageSize = 30;
@@ -53,11 +53,18 @@ class _DashboardPapersState extends State<DashboardPapers> {
     super.initState();
     loadDbPaper();
 
-    columns = buildDbPaperColumn(themeController: themeController);
+    columnsPaper = buildDbPaperColumn(themeController: themeController);
+    columnsStages = buildStageColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'dbPaper', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: 'dashboard', columns: columnsPaper).then((w) {
       setState(() {
-        columnWidths = w;
+        columnWidthsPlanning = w;
+      });
+    });
+
+    ColumnWidthTable.loadWidths(tableKey: 'stage', columns: columnsStages).then((w) {
+      setState(() {
+        columnWidthsStage = w;
       });
     });
   }
@@ -72,7 +79,7 @@ class _DashboardPapersState extends State<DashboardPapers> {
         AppLogger.i("loadDbPaper: isSearching=true, keyword='$keyword'");
 
         // futureDbPaper = ensureMinLoading(
-        //   DashboardService().getCustomerByField(
+        //   DashboardService().getAllDataDashboard(
         //     field: selectedField,
         //     keyword: keyword,
         //     page: currentPage,
@@ -81,7 +88,7 @@ class _DashboardPapersState extends State<DashboardPapers> {
         // );
       } else {
         futureDbPaper = ensureMinLoading(
-          DashboardService().getAllDataPaper(page: currentPage, pageSize: pageSize),
+          DashboardService().getAllDataDashboard(page: currentPage, pageSize: pageSize),
         );
       }
 
@@ -104,7 +111,7 @@ class _DashboardPapersState extends State<DashboardPapers> {
 
       if (searchType == "Tất cả") {
         futureDbPaper = ensureMinLoading(
-          DashboardService().getAllDataPaper(page: currentPage, pageSize: pageSize),
+          DashboardService().getAllDataDashboard(page: currentPage, pageSize: pageSize),
         );
       } else {
         // final selectedField = searchFieldMap[searchType] ?? "";
@@ -297,7 +304,7 @@ class _DashboardPapersState extends State<DashboardPapers> {
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['planningPapers'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['dashboard'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có khách hàng nào",
@@ -307,7 +314,7 @@ class _DashboardPapersState extends State<DashboardPapers> {
                   }
 
                   final data = snapshot.data!;
-                  final dbPapers = data['planningPapers'] as List<PlanningPaper>;
+                  final dbPapers = data['dashboard'] as List<PlanningPaper>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
@@ -320,129 +327,182 @@ class _DashboardPapersState extends State<DashboardPapers> {
                     children: [
                       //table
                       Expanded(
-                        child: SfDataGrid(
-                          source: dbPaperDatasource,
-                          isScrollbarAlwaysShown: true,
-                          columnWidthMode: ColumnWidthMode.auto,
-                          selectionMode: SelectionMode.single,
-                          headerRowHeight: 35,
-                          rowHeight: 40,
-                          columns: ColumnWidthTable.applySavedWidths(
-                            columns: columns,
-                            widths: columnWidths,
-                          ),
-                          stackedHeaderRows: <StackedHeaderRow>[
-                            StackedHeaderRow(
-                              cells: [
-                                StackedHeaderCell(
-                                  columnNames: [
-                                    "dayReceive",
-                                    "dateShipping",
-                                    "dayStartProduction",
-                                    "dayCompletedProd",
-                                  ],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: 'Ngày',
-                                      themeController: themeController,
-                                    ),
-                                  ),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: SfDataGrid(
+                                source: dbPaperDatasource,
+                                isScrollbarAlwaysShown: true,
+                                columnWidthMode: ColumnWidthMode.auto,
+                                selectionMode: SelectionMode.single,
+                                headerRowHeight: 35,
+                                rowHeight: 38,
+                                columns: ColumnWidthTable.applySavedWidths(
+                                  columns: columnsPaper,
+                                  widths: columnWidthsPlanning,
                                 ),
-                                StackedHeaderCell(
-                                  columnNames: ['quantityOrd', 'qtyProduced', 'runningPlanProd'],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: 'Số Lượng',
-                                      themeController: themeController,
-                                    ),
+                                stackedHeaderRows: <StackedHeaderRow>[
+                                  StackedHeaderRow(
+                                    cells: [
+                                      StackedHeaderCell(
+                                        columnNames: [
+                                          "dayReceive",
+                                          "dateShipping",
+                                          "dayStartProduction",
+                                          "dayCompletedProd",
+                                        ],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Ngày',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: [
+                                          'quantityOrd',
+                                          'qtyProduced',
+                                          'runningPlanProd',
+                                        ],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Số Lượng',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: [
+                                          'bottom',
+                                          'fluteE',
+                                          'fluteE2',
+                                          'fluteB',
+                                          'fluteC',
+                                          'knife',
+                                          'totalLoss',
+                                        ],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Định Mức Phế Liệu',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: [
+                                          'inMatTruoc',
+                                          'inMatSau',
+                                          'canLanBox',
+                                          'canMang',
+                                          'xa',
+                                          'catKhe',
+                                          'be',
+                                          'dan_1_Manh',
+                                          'dan_2_Manh',
+                                          'dongGhimMotManh',
+                                          'dongGhimHaiManh',
+                                          'chongTham',
+                                          'dongGoi',
+                                          'maKhuon',
+                                        ],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Công Đoạn 2',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                StackedHeaderCell(
-                                  columnNames: [
-                                    'bottom',
-                                    'fluteE',
-                                    'fluteE2',
-                                    'fluteB',
-                                    'fluteC',
-                                    'knife',
-                                    'totalLoss',
-                                  ],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: 'Định Mức Phế Liệu',
-                                      themeController: themeController,
+                                ],
+
+                                //auto resize
+                                allowColumnsResizing: true,
+                                columnResizeMode: ColumnResizeMode.onResize,
+
+                                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                onColumnResizeUpdate:
+                                    (details) => GridResizeHelper.onResizeUpdate(
+                                      details: details,
+                                      columns: columnsPaper,
+                                      setState: setState,
                                     ),
-                                  ),
-                                ),
-                                StackedHeaderCell(
-                                  columnNames: [
-                                    'inMatTruoc',
-                                    'inMatSau',
-                                    'canLanBox',
-                                    'canMang',
-                                    'xa',
-                                    'catKhe',
-                                    'be',
-                                    'dan_1_Manh',
-                                    'dan_2_Manh',
-                                    'dongGhimMotManh',
-                                    'dongGhimHaiManh',
-                                    'chongTham',
-                                    'dongGoi',
-                                    'maKhuon',
-                                  ],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: 'Công Đoạn 2',
-                                      themeController: themeController,
+                                onColumnResizeEnd:
+                                    (details) => GridResizeHelper.onResizeEnd(
+                                      details: details,
+                                      tableKey: 'dashboard',
+                                      columnWidths: columnWidthsPlanning,
+                                      setState: setState,
                                     ),
-                                  ),
-                                ),
-                              ],
+
+                                onSelectionChanged: (addedRows, removedRows) {
+                                  if (addedRows.isNotEmpty) {
+                                    final selectedRow = addedRows.first;
+                                    final planningId =
+                                        selectedRow
+                                            .getCells()
+                                            .firstWhere((cell) => cell.columnName == 'planningId')
+                                            .value;
+
+                                    final selectedDbPaper = dbPapers.firstWhere(
+                                      (paper) => paper.planningId == planningId,
+                                    );
+
+                                    setState(() {
+                                      selectedDbPaperId = selectedDbPaper.planningId;
+                                      selectedPaper = selectedDbPaper;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      selectedDbPaperId = null;
+                                      selectedPaper = null;
+                                    });
+                                  }
+                                },
+                              ),
                             ),
+
+                            selectedPaper != null
+                                ? Expanded(
+                                  flex: 1,
+                                  child: AnimatedSize(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    child: SfDataGrid(
+                                      source: StagesDataSource(stages: selectedPaper?.stages ?? []),
+                                      headerRowHeight: 35,
+                                      rowHeight: 35,
+                                      columnWidthMode: ColumnWidthMode.fill,
+                                      selectionMode: SelectionMode.single,
+                                      columns: ColumnWidthTable.applySavedWidths(
+                                        columns: columnsStages,
+                                        widths: columnWidthsStage,
+                                      ),
+
+                                      //auto resize
+                                      allowColumnsResizing: true,
+                                      columnResizeMode: ColumnResizeMode.onResize,
+
+                                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                      onColumnResizeUpdate:
+                                          (details) => GridResizeHelper.onResizeUpdate(
+                                            details: details,
+                                            columns: columnsStages,
+                                            setState: setState,
+                                          ),
+                                      onColumnResizeEnd:
+                                          (details) => GridResizeHelper.onResizeEnd(
+                                            details: details,
+                                            tableKey: 'stage',
+                                            columnWidths: columnWidthsStage,
+                                            setState: setState,
+                                          ),
+                                    ),
+                                  ),
+                                )
+                                : const SizedBox.shrink(),
                           ],
-
-                          //auto resize
-                          allowColumnsResizing: true,
-                          columnResizeMode: ColumnResizeMode.onResize,
-
-                          onColumnResizeStart: GridResizeHelper.onResizeStart,
-                          onColumnResizeUpdate:
-                              (details) => GridResizeHelper.onResizeUpdate(
-                                details: details,
-                                columns: columns,
-                                setState: setState,
-                              ),
-                          onColumnResizeEnd:
-                              (details) => GridResizeHelper.onResizeEnd(
-                                details: details,
-                                tableKey: 'dbPaper',
-                                columnWidths: columnWidths,
-                                setState: setState,
-                              ),
-
-                          onSelectionChanged: (addedRows, removedRows) {
-                            if (addedRows.isNotEmpty) {
-                              final selectedRow = addedRows.first;
-                              final planningId =
-                                  selectedRow
-                                      .getCells()
-                                      .firstWhere((cell) => cell.columnName == 'planningId')
-                                      .value;
-
-                              final selectedDbPaper = dbPapers.firstWhere(
-                                (paper) => paper.planningId == planningId,
-                              );
-
-                              setState(() {
-                                selectedDbPaperId = selectedDbPaper.planningId;
-                              });
-                            } else {
-                              setState(() {
-                                selectedDbPaperId = null;
-                              });
-                            }
-                          },
                         ),
                       ),
 

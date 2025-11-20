@@ -7,12 +7,15 @@ import 'package:dongtam/utils/helper/helper_service.dart';
 class DashboardService {
   final Dio dioService = DioClient().dio;
 
-  Future<Map<String, dynamic>> getAllDataPaper({required int page, required int pageSize}) async {
+  Future<Map<String, dynamic>> getAllDataDashboard({
+    required int page,
+    required int pageSize,
+  }) async {
     return HelperService().fetchPaginatedData<PlanningPaper>(
       endpoint: "dashboard/paper",
       queryParameters: {'page': page, 'pageSize': pageSize},
       fromJson: (json) => PlanningPaper.fromJson(json),
-      dataKey: 'planningPapers',
+      dataKey: 'dashboard',
     );
   }
 
