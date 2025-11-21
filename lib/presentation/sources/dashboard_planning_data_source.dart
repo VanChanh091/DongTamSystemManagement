@@ -6,13 +6,14 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class DashboardPaperDataSource extends DataGridSource {
-  List<PlanningPaper> dbPapers = [];
+  List<PlanningPaper> dbPlanning = [];
   int? selectedDbPaperId;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
+  final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  DashboardPaperDataSource({required this.dbPapers, this.selectedDbPaperId}) {
+  DashboardPaperDataSource({required this.dbPlanning, this.selectedDbPaperId}) {
     buildDataGridRows();
   }
 
@@ -45,7 +46,7 @@ class DashboardPaperDataSource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: "dayCompletedProd",
-        value: paper.dayCompleted != null ? formatter.format(paper.dayCompleted!) : "",
+        value: paper.dayCompleted != null ? formatterDayCompleted.format(paper.dayCompleted!) : "",
       ),
       DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
@@ -77,9 +78,6 @@ class DashboardPaperDataSource extends DataGridSource {
 
       //user
       DataGridCell<String>(columnName: "staffOrder", value: order?.user?.fullName ?? ""),
-
-      //have box
-      DataGridCell<bool>(columnName: "haveMadeBox", value: paper.hasBox),
 
       // hidden technical fields
       DataGridCell<int>(columnName: "planningId", value: paper.planningId),
@@ -140,26 +138,13 @@ class DashboardPaperDataSource extends DataGridSource {
 
   void buildDataGridRows() {
     dbPaperDataGridRows =
-        dbPapers.map<DataGridRow>((paper) {
+        dbPlanning.map<DataGridRow>((paper) {
           final cells = buildDbPaperCells(paper);
 
           // debugPrint("Row has ${cells.length} cells");
 
           return DataGridRow(cells: cells);
         }).toList();
-  }
-
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = ["haveMadeBox"];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
-    }
-
-    return value?.toString() ?? '';
   }
 
   @override
@@ -177,18 +162,14 @@ class DashboardPaperDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            final cellText = _formatCellValueBool(dataCell);
-
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == '✅') {
-              alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
           }).toList(),
     );
   }

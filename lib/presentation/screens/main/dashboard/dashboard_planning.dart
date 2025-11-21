@@ -1,9 +1,9 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_db_paper.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_db_planning.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_stages.dart';
-import 'package:dongtam/presentation/sources/dashboard_paper_data_source.dart';
+import 'package:dongtam/presentation/sources/dashboard_planning_data_source.dart';
 import 'package:dongtam/presentation/sources/stages_data_source.dart';
 import 'package:dongtam/service/dashboard_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
@@ -45,7 +45,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
   PlanningPaper? selectedPaper;
 
   int currentPage = 1;
-  int pageSize = 30;
+  int pageSize = 25;
   int pageSizeSearch = 20;
 
   @override
@@ -314,12 +314,12 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                   }
 
                   final data = snapshot.data!;
-                  final dbPapers = data['dashboard'] as List<PlanningPaper>;
+                  final dbPlanning = data['dashboard'] as List<PlanningPaper>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
                   dbPaperDatasource = DashboardPaperDataSource(
-                    dbPapers: dbPapers,
+                    dbPlanning: dbPlanning,
                     selectedDbPaperId: selectedDbPaperId,
                   );
 
@@ -445,7 +445,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                             .firstWhere((cell) => cell.columnName == 'planningId')
                                             .value;
 
-                                    final selectedDbPaper = dbPapers.firstWhere(
+                                    final selectedDbPaper = dbPlanning.firstWhere(
                                       (paper) => paper.planningId == planningId,
                                     );
 

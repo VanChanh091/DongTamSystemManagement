@@ -7,15 +7,15 @@ const List<Map<String, dynamic>> headerStage = [
   {"key": "machine", "title": "Loại Máy"},
   {"key": "dayStart", "title": "Ngày SX"},
   {"key": "dayCompleted", "title": "Ngày Hoàn Thành"},
-  {"key": "runningPlan", "title": "Kế Hoạch Chạy"},
   {"key": "timeRunning", "title": "Thời Gian Chạy"},
-  {"key": "qtyProduced", "title": "Sl Đã SX"},
+  {"key": "runningPlan", "title": "Kế Hoạch Chạy"},
+  {"key": "qtyProduced", "title": "SL Đã SX"},
   {"key": "wasteBox", "title": "PL Thực Tế"},
   {"key": "rpWasteLoss", "title": "PL Hao Hụt"},
   {"key": "shiftManagement", "title": "Trưởng Máy"},
 
   //hide
-  {"key": "timeRunning", "title": "TG Chạy", "visible": false},
+  {"key": "planningBoxId", "title": "", "visible": false},
 ];
 
 List<GridColumn> buildStageColumn({required ThemeController themeController}) {

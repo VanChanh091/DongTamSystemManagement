@@ -27,6 +27,7 @@ class HelperService {
       final data = response.data;
 
       final rawList = data['data'] as List;
+
       final items = rawList.map((json) => fromJson(json as Map<String, dynamic>)).toList();
 
       return {

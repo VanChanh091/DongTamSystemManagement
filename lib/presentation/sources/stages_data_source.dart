@@ -10,6 +10,7 @@ class StagesDataSource extends DataGridSource {
 
   late List<DataGridRow> stagesDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
+  final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   StagesDataSource({required this.stages}) {
     buildDataGridRows();
@@ -24,20 +25,20 @@ class StagesDataSource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: "dayCompleted",
-        value: stage.dayCompleted != null ? formatter.format(stage.dayCompleted!) : "",
+        value: stage.dayCompleted != null ? formatterDayCompleted.format(stage.dayCompleted!) : "",
       ),
-      DataGridCell<int>(columnName: "runningPlan", value: stage.runningPlan),
       DataGridCell<String>(
         columnName: "timeRunning",
         value:
             stage.timeRunning != null
                 ? PlanningPaper.formatTimeOfDay(timeOfDay: stage.timeRunning!)
-                : "",
+                : '',
       ),
+      DataGridCell<int>(columnName: "runningPlan", value: stage.runningPlan),
       DataGridCell<int>(columnName: "qtyProduced", value: stage.qtyProduced),
       DataGridCell<double>(columnName: "wasteBox", value: stage.wasteBox),
       DataGridCell<double>(columnName: "rpWasteLoss", value: stage.rpWasteLoss),
-      DataGridCell<String>(columnName: "shiftManagement", value: stage.shiftManagement),
+      DataGridCell<String>(columnName: "shiftManagement", value: stage.shiftManagement ?? ''),
 
       //hide
       DataGridCell<int>(columnName: "planningBoxId", value: stage.planningBoxId),
@@ -50,7 +51,8 @@ class StagesDataSource extends DataGridSource {
   void buildDataGridRows() {
     stagesDataGridRows =
         stages.map<DataGridRow>((stage) {
-          return DataGridRow(cells: buildStagesCells(stage));
+          final cells = buildStagesCells(stage);
+          return DataGridRow(cells: cells);
         }).toList();
   }
 

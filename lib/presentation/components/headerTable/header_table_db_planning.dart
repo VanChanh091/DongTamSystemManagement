@@ -63,10 +63,7 @@ const List<Map<String, dynamic>> headerDbPaper = [
   {"key": "machine", "title": "Loại Máy"},
 
   // Staff
-  {"key": "User.fullName", "title": "Nhân Viên"},
-
-  // Have Box?
-  {"key": "hasBox", "title": "Làm Thùng?"},
+  {"key": "staffOrder", "title": "Nhân Viên"},
 
   // Hidden
   {"key": "planningId", "title": "", "visible": false},

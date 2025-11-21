@@ -14,6 +14,8 @@ class PlanningStage {
   final String? shiftManagement;
 
   PlanningStage({
+    required this.planningBoxId,
+    required this.machine,
     this.dayStart,
     this.dayCompleted,
     this.timeRunning,
@@ -21,22 +23,30 @@ class PlanningStage {
     this.runningPlan,
     this.wasteBox,
     this.rpWasteLoss,
-    required this.machine,
     this.shiftManagement,
-    required this.planningBoxId,
   });
 
   factory PlanningStage.fromJson(Map<String, dynamic> json) {
     return PlanningStage(
-      dayStart: json['dayStart'] != null ? DateTime.tryParse(json['dayStart']) : null,
-      dayCompleted: json['dayCompleted'] != null ? DateTime.tryParse(json['dayCompleted']) : null,
+      planningBoxId: json['planningBoxId'],
+      dayStart:
+          json['dayStart'] != null && json['dayStart'] != ''
+              ? DateTime.tryParse(json['dayStart'])
+              : null,
+      dayCompleted:
+          json['dayCompleted'] != null && json['dayCompleted'] != ''
+              ? DateTime.tryParse(json['dayCompleted'])
+              : null,
+      timeRunning:
+          json['timeRunning'] != null && json['timeRunning'] != ''
+              ? parseTimeOfDay(json['timeRunning'])
+              : null,
       qtyProduced: json['qtyProduced'] ?? 0,
       runningPlan: json['runningPlan'] ?? 0,
-      wasteBox: json['wasteBox'] != null ? toDouble(json['wasteBox']) : null,
-      rpWasteLoss: json['rpWasteLoss'] != null ? toDouble(json['rpWasteLoss']) : null,
+      wasteBox: toDouble(json['wasteBox']),
+      rpWasteLoss: toDouble(json['rpWasteLoss']),
       machine: json['machine'] ?? "",
       shiftManagement: json['shiftManagement'] ?? "",
-      planningBoxId: json['planningBoxId'],
     );
   }
 }
