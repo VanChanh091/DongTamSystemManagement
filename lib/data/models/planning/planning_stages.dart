@@ -1,3 +1,4 @@
+import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,8 @@ class PlanningStage {
   final String machine;
   final String? shiftManagement;
 
+  final TimeOverflowPlanning? timeOverflow;
+
   PlanningStage({
     required this.planningBoxId,
     required this.machine,
@@ -24,6 +27,8 @@ class PlanningStage {
     this.wasteBox,
     this.rpWasteLoss,
     this.shiftManagement,
+
+    this.timeOverflow,
   });
 
   factory PlanningStage.fromJson(Map<String, dynamic> json) {
@@ -47,6 +52,8 @@ class PlanningStage {
       rpWasteLoss: toDouble(json['rpWasteLoss']),
       machine: json['machine'] ?? "",
       shiftManagement: json['shiftManagement'] ?? "",
+      timeOverflow:
+          json['timeOverFlow'] != null ? TimeOverflowPlanning.fromJson(json['timeOverFlow']) : null,
     );
   }
 }

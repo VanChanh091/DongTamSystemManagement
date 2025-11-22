@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 
@@ -19,12 +19,11 @@ class DashboardService {
     );
   }
 
-  Future<Map<String, dynamic>> getAllDataBox({required int page, required int pageSize}) async {
-    return HelperService().fetchPaginatedData<PlanningBox>(
-      endpoint: "dashboard/box",
-      queryParameters: {'page': page, 'pageSize': pageSize},
-      fromJson: (json) => PlanningBox.fromJson(json),
-      dataKey: 'planningBoxes',
+  Future<List<PlanningStage>> getDbPlanningDetail({required int planningId}) async {
+    return HelperService().fetchingData(
+      endpoint: 'dashboard/getDetail',
+      queryParameters: {'planningId': planningId},
+      fromJson: (json) => PlanningStage.fromJson(json),
     );
   }
 }

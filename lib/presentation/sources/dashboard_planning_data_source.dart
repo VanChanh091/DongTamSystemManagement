@@ -48,6 +48,14 @@ class DashboardPaperDataSource extends DataGridSource {
         columnName: "dayCompletedProd",
         value: paper.dayCompleted != null ? formatterDayCompleted.format(paper.dayCompleted!) : "",
       ),
+      DataGridCell<String>(
+        columnName: "dayCompletedOvfl",
+        value:
+            paper.timeOverflowPlanning?.overflowDayCompleted != null
+                ? formatterDayCompleted.format(paper.timeOverflowPlanning!.overflowDayCompleted!)
+                : "",
+      ),
+
       DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${paper.ghepKho} cm'),
@@ -61,7 +69,6 @@ class DashboardPaperDataSource extends DataGridSource {
       DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
       DataGridCell<int>(columnName: "runningPlanProd", value: paper.runningPlan),
 
-      DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ''),
       DataGridCell<String>(
         columnName: 'timeRunningProd',
         value:
@@ -69,6 +76,16 @@ class DashboardPaperDataSource extends DataGridSource {
                 ? PlanningPaper.formatTimeOfDay(timeOfDay: paper.timeRunning!)
                 : '',
       ),
+      DataGridCell<String>(
+        columnName: 'timeRunningOvfl',
+        value:
+            paper.timeOverflowPlanning?.overflowTimeRunning != null
+                ? PlanningPaper.formatTimeOfDay(
+                  timeOfDay: paper.timeOverflowPlanning!.overflowTimeRunning!,
+                )
+                : '',
+      ),
+      DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ''),
 
       // order
       ...buildOrderCells(paper),

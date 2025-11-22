@@ -28,10 +28,24 @@ class StagesDataSource extends DataGridSource {
         value: stage.dayCompleted != null ? formatterDayCompleted.format(stage.dayCompleted!) : "",
       ),
       DataGridCell<String>(
+        columnName: "dayCompletedOvfl",
+        value:
+            stage.timeOverflow?.overflowDayCompleted != null
+                ? formatterDayCompleted.format(stage.timeOverflow!.overflowDayCompleted!)
+                : "",
+      ),
+      DataGridCell<String>(
         columnName: "timeRunning",
         value:
             stage.timeRunning != null
                 ? PlanningPaper.formatTimeOfDay(timeOfDay: stage.timeRunning!)
+                : '',
+      ),
+      DataGridCell<String>(
+        columnName: "timeRunningOvfl",
+        value:
+            stage.timeOverflow?.overflowTimeRunning != null
+                ? PlanningPaper.formatTimeOfDay(timeOfDay: stage.timeOverflow!.overflowTimeRunning!)
                 : '',
       ),
       DataGridCell<int>(columnName: "runningPlan", value: stage.runningPlan),

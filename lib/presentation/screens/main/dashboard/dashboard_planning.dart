@@ -1,6 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_db_planning.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_stages.dart';
 import 'package:dongtam/presentation/sources/dashboard_planning_data_source.dart';
@@ -42,7 +43,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   String searchType = "Tất cả";
   int? selectedDbPaperId;
-  PlanningPaper? selectedPaper;
+  List<PlanningStage> selectedStages = [];
 
   int currentPage = 1;
   int pageSize = 25;
@@ -351,6 +352,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                           "dateShipping",
                                           "dayStartProduction",
                                           "dayCompletedProd",
+                                          "dayCompletedOvfl",
                                         ],
                                         child: Obx(
                                           () => formatColumn(
@@ -368,6 +370,15 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                         child: Obx(
                                           () => formatColumn(
                                             label: 'Số Lượng',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: ['timeRunningProd', 'timeRunningOvfl'],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Thời Gian',
                                             themeController: themeController,
                                           ),
                                         ),
@@ -436,42 +447,52 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                       setState: setState,
                                     ),
 
-                                onSelectionChanged: (addedRows, removedRows) {
-                                  if (addedRows.isNotEmpty) {
-                                    final selectedRow = addedRows.first;
-                                    final planningId =
-                                        selectedRow
-                                            .getCells()
-                                            .firstWhere((cell) => cell.columnName == 'planningId')
-                                            .value;
-
-                                    final selectedDbPaper = dbPlanning.firstWhere(
-                                      (paper) => paper.planningId == planningId,
-                                    );
-
-                                    setState(() {
-                                      selectedDbPaperId = selectedDbPaper.planningId;
-                                      selectedPaper = selectedDbPaper;
-                                    });
-                                  } else {
+                                onSelectionChanged: (addedRows, removedRows) async {
+                                  if (addedRows.isEmpty) {
                                     setState(() {
                                       selectedDbPaperId = null;
-                                      selectedPaper = null;
                                     });
+                                    return;
                                   }
+
+                                  final selectedRow = addedRows.first;
+
+                                  final planningId =
+                                      selectedRow
+                                          .getCells()
+                                          .firstWhere((cell) => cell.columnName == 'planningId')
+                                          .value;
+
+                                  // Lấy data của list (summary)
+                                  final selectedDbPaper = dbPlanning.firstWhere(
+                                    (paper) => paper.planningId == planningId,
+                                  );
+
+                                  setState(() {
+                                    selectedDbPaperId = selectedDbPaper.planningId;
+                                  });
+
+                                  final stages = await DashboardService().getDbPlanningDetail(
+                                    planningId: selectedDbPaper.planningId,
+                                  );
+
+                                  setState(() {
+                                    selectedStages = stages;
+                                  });
                                 },
                               ),
                             ),
 
-                            selectedPaper != null
+                            selectedStages.isNotEmpty
                                 ? Expanded(
                                   flex: 1,
                                   child: AnimatedSize(
                                     duration: const Duration(milliseconds: 300),
                                     curve: Curves.easeInOut,
                                     child: SfDataGrid(
-                                      source: StagesDataSource(stages: selectedPaper?.stages ?? []),
-                                      headerRowHeight: 35,
+                                      source: StagesDataSource(stages: selectedStages),
+                                      isScrollbarAlwaysShown: true,
+                                      headerRowHeight: 30,
                                       rowHeight: 35,
                                       columnWidthMode: ColumnWidthMode.fill,
                                       selectionMode: SelectionMode.single,
@@ -479,6 +500,52 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                         columns: columnsStages,
                                         widths: columnWidthsStage,
                                       ),
+                                      stackedHeaderRows: <StackedHeaderRow>[
+                                        StackedHeaderRow(
+                                          cells: [
+                                            StackedHeaderCell(
+                                              columnNames: [
+                                                "dayStart",
+                                                "dayCompleted",
+                                                "dayCompletedOvfl",
+                                              ],
+                                              child: Obx(
+                                                () => formatColumn(
+                                                  label: 'Ngày',
+                                                  themeController: themeController,
+                                                ),
+                                              ),
+                                            ),
+                                            StackedHeaderCell(
+                                              columnNames: ["timeRunning", "timeRunningOvfl"],
+                                              child: Obx(
+                                                () => formatColumn(
+                                                  label: 'Thời Gian',
+                                                  themeController: themeController,
+                                                ),
+                                              ),
+                                            ),
+                                            StackedHeaderCell(
+                                              columnNames: ["runningPlan", "qtyProduced"],
+                                              child: Obx(
+                                                () => formatColumn(
+                                                  label: 'Số Lượng',
+                                                  themeController: themeController,
+                                                ),
+                                              ),
+                                            ),
+                                            StackedHeaderCell(
+                                              columnNames: ["wasteBox", "rpWasteLoss"],
+                                              child: Obx(
+                                                () => formatColumn(
+                                                  label: 'Phế Liệu',
+                                                  themeController: themeController,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
 
                                       //auto resize
                                       allowColumnsResizing: true,

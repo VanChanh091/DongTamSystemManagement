@@ -15,11 +15,14 @@ const List<Map<String, dynamic>> headerDbPaper = [
   {"key": "typeProduct", "title": "Loại SP"},
   {"key": "productName", "title": "Tên SP"},
 
-  // Planning Paper fields
+  //day
   {"key": "dayReceive", "title": "Nhận Đơn"},
   {"key": "dateShipping", "title": "Dự Kiến"},
   {"key": "dayStartProduction", "title": "Sản Xuất"},
   {"key": "dayCompletedProd", "title": "Hoàn Thành"},
+  {"key": "dayCompletedOvfl", "title": "Hoàn Thành (Tràn)"},
+
+  //other fields
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
@@ -33,8 +36,11 @@ const List<Map<String, dynamic>> headerDbPaper = [
   {"key": "qtyProduced", "title": "Đã Sản Xuất"},
   {"key": "runningPlanProd", "title": "Kế Hoạch Chạy"},
 
+  //time running
+  {"key": "timeRunningProd", "title": "Chạy"},
+  {"key": "timeRunningOvfl", "title": "Tràn"},
+
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
-  {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
 
   // Order money
   {"key": "dvt", "title": "DVT"},

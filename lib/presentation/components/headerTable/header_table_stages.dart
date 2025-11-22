@@ -5,9 +5,11 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> headerStage = [
   {"key": "machine", "title": "Loại Máy"},
-  {"key": "dayStart", "title": "Ngày SX"},
-  {"key": "dayCompleted", "title": "Ngày Hoàn Thành"},
-  {"key": "timeRunning", "title": "Thời Gian Chạy"},
+  {"key": "dayStart", "title": "Sản Xuất"},
+  {"key": "dayCompleted", "title": "Hoàn Thành"},
+  {"key": "dayCompletedOvfl", "title": "Hoàn Thành (Tràn)"},
+  {"key": "timeRunning", "title": "Chạy"},
+  {"key": "timeRunningOvfl", "title": "Tràn"},
   {"key": "runningPlan", "title": "Kế Hoạch Chạy"},
   {"key": "qtyProduced", "title": "SL Đã SX"},
   {"key": "wasteBox", "title": "PL Thực Tế"},
