@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_export_db_planning.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_db_planning.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_stages.dart';
 import 'package:dongtam/presentation/sources/dashboard_planning_data_source.dart';
@@ -33,7 +34,14 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
   late List<GridColumn> columnsStages;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  final Map<String, String> searchFieldMap = {};
+  final Map<String, String> searchFieldMap = {
+    "Theo Mã Đơn": "orderId",
+    "Ghép Khổ": "ghepKho",
+    "Theo Máy": "machine",
+    "Tên Khách Hàng": "customerName",
+    "Tên Công Ty": "companyName",
+    "Tên Nhân Viên": "username",
+  };
 
   TextEditingController searchController = TextEditingController();
   Map<String, double> columnWidthsPlanning = {};
@@ -72,21 +80,21 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
 
   void loadDbPaper() {
     setState(() {
-      // final String selectedField = searchFieldMap[searchType] ?? "";
+      final String selectedField = searchFieldMap[searchType] ?? "";
 
       String keyword = searchController.text.trim().toLowerCase();
 
       if (isSearching && searchType != "Tất cả") {
         AppLogger.i("loadDbPaper: isSearching=true, keyword='$keyword'");
 
-        // futureDbPaper = ensureMinLoading(
-        //   DashboardService().getAllDataDashboard(
-        //     field: selectedField,
-        //     keyword: keyword,
-        //     page: currentPage,
-        //     pageSize: pageSizeSearch,
-        //   ),
-        // );
+        futureDbPaper = ensureMinLoading(
+          DashboardService().getDbPlanningByFields(
+            field: selectedField,
+            keyword: keyword,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
       } else {
         futureDbPaper = ensureMinLoading(
           DashboardService().getAllDataDashboard(page: currentPage, pageSize: pageSize),
@@ -94,6 +102,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
       }
 
       selectedDbPaperId = null;
+      selectedStages = [];
     });
   }
 
@@ -115,17 +124,20 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
           DashboardService().getAllDataDashboard(page: currentPage, pageSize: pageSize),
         );
       } else {
-        // final selectedField = searchFieldMap[searchType] ?? "";
+        final selectedField = searchFieldMap[searchType] ?? "";
 
-        // futureDbPaper = ensureMinLoading(
-        //   DashboardService().getCustomerByField(
-        //     field: selectedField,
-        //     keyword: keyword,
-        //     page: currentPage,
-        //     pageSize: pageSizeSearch,
-        //   ),
-        // );
+        futureDbPaper = ensureMinLoading(
+          DashboardService().getDbPlanningByFields(
+            field: selectedField,
+            keyword: keyword,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
       }
+
+      selectedDbPaperId = null;
+      selectedStages = [];
     });
   }
 
@@ -174,7 +186,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
+                                final dropdownWidth = (maxWidth * 0.2).clamp(170.0, 200.0);
                                 final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
 
                                 return Row(
@@ -187,10 +199,12 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                         items:
                                             [
                                               'Tất cả',
-                                              "Theo Mã",
-                                              "Theo Tên KH",
-                                              "Theo CSKH",
-                                              "Theo SDT",
+                                              "Theo Mã Đơn",
+                                              "Ghép Khổ",
+                                              "Theo Máy",
+                                              "Tên Khách Hàng",
+                                              "Tên Công Ty",
+                                              "Tên Nhân Viên",
                                             ].map((String value) {
                                               return DropdownMenuItem<String>(
                                                 value: value,
@@ -269,10 +283,10 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                 //export excel
                                 AnimatedButton(
                                   onPressed: () async {
-                                    // showDialog(
-                                    //   context: context,
-                                    //   builder: (_) => DialogExportCusOrProd(),
-                                    // );
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => DialogExportDbPlannings(),
+                                    );
                                   },
                                   label: "Xuất Excel",
                                   icon: Symbols.export_notes,

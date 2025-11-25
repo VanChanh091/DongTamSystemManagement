@@ -60,7 +60,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   }
 
   void loadPlanning() {
-    AppLogger.i("Loading all data manufacture box");
     setState(() {
       futurePlanning = ensureMinLoading(ManufactureService().getPlanningBox(machine: machine));
 
