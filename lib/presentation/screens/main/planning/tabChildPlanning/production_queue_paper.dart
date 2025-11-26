@@ -39,9 +39,15 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
+  final Map<String, String> searchFieldMap = {
+    'Mã Đơn Hàng': "orderId",
+    'Tên KH': "customerName",
+    'Khổ Cấp Giấy': "ghepKho",
+    "Theo Sóng": "flute",
+  };
+  String searchType = "Tất cả";
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
-  String searchType = "Tất cả";
   String machine = "Máy 1350";
   DateTime selectedDate = DateTime.now();
   DateTime? dayStart = DateTime.now();
@@ -83,9 +89,25 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
   void loadPlanning() {
     setState(() {
-      futurePlanning = ensureMinLoading(
-        PlanningService().getPlanningPaperByMachine(machine: machine),
-      );
+      final String selectedField = searchFieldMap[searchType] ?? "";
+
+      String keyword = searchController.text.trim().toLowerCase();
+
+      if (searchType != "Tất cả") {
+        AppLogger.i("loadPlanning: keyword='$keyword'");
+
+        futurePlanning = ensureMinLoading(
+          PlanningService().getPlanningPaperSearch(
+            field: selectedField,
+            keyword: keyword,
+            machine: machine,
+          ),
+        );
+      } else {
+        futurePlanning = ensureMinLoading(
+          PlanningService().getPlanningPaperByMachine(machine: machine),
+        );
+      }
 
       selectedPlanningIds.clear();
     });
@@ -100,46 +122,23 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       return;
     }
 
-    switch (searchType) {
-      case 'Tất cả':
-        loadPlanning();
-        break;
-      case 'Mã Đơn Hàng':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByOrderId(
-            orderId: keyword,
+    setState(() {
+      if (searchType == "Tất cả") {
+        futurePlanning = ensureMinLoading(
+          PlanningService().getPlanningPaperByMachine(machine: machine),
+        );
+      } else {
+        final selectedField = searchFieldMap[searchType] ?? "";
+
+        futurePlanning = ensureMinLoading(
+          PlanningService().getPlanningPaperSearch(
+            field: selectedField,
+            keyword: keyword,
             machine: machine,
-          );
-        });
-        break;
-      case 'Tên KH':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByCustomerName(
-            customerName: keyword,
-            machine: machine,
-          );
-        });
-        break;
-      case 'Sóng':
-        setState(() {
-          futurePlanning = PlanningService().getPlanningByFlute(flute: keyword, machine: machine);
-        });
-        break;
-      case 'Khổ Cấp Giấy':
-        setState(() {
-          try {
-            futurePlanning = PlanningService().getPlanningByGhepKho(
-              ghepKho: int.parse(keyword),
-              machine: machine,
-            );
-          } catch (e) {
-            showSnackBarError(context, 'Vui lòng nhập số hợp lệ cho khổ cấp giấy');
-          }
-        });
-        break;
-      default:
-        break;
-    }
+          ),
+        );
+      }
+    });
   }
 
   void changeMachine(String selectedMachine) {
@@ -195,8 +194,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                     'Tất cả',
                                                     'Mã Đơn Hàng',
                                                     'Tên KH',
-                                                    "Sóng",
                                                     'Khổ Cấp Giấy',
+                                                    "Theo Sóng",
                                                   ].map((String value) {
                                                     return DropdownMenuItem<String>(
                                                       value: value,

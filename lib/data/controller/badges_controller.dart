@@ -27,8 +27,6 @@ class BadgesController extends GetxController {
     try {
       final result = await PlanningService().getPlanningStop();
       numberPlanningStop.value = (result["totalPlannings"] ?? 0) as int;
-
-      print(numberPlanningStop);
     } catch (e) {
       numberPlanningStop.value = 0;
     }

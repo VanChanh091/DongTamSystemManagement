@@ -91,50 +91,15 @@ class PlanningService {
     }
   }
 
-  //get planning by customer name
-  Future<List<PlanningPaper>> getPlanningByCustomerName({
-    required String customerName,
+  //get planning paper by field
+  Future<List<PlanningPaper>> getPlanningPaperSearch({
+    required String field,
+    required String keyword,
     required String machine,
   }) async {
     return HelperService().fetchingData<PlanningPaper>(
-      endpoint: "planning/getCusNamePaper",
-      queryParameters: {'customerName': customerName, 'machine': machine},
-      fromJson: (json) => PlanningPaper.fromJson(json),
-    );
-  }
-
-  //get planning by orderId
-  Future<List<PlanningPaper>> getPlanningByOrderId({
-    required String orderId,
-    required String machine,
-  }) async {
-    return HelperService().fetchingData<PlanningPaper>(
-      endpoint: "planning/getOrderIdPaper",
-      queryParameters: {'orderId': orderId, 'machine': machine},
-      fromJson: (json) => PlanningPaper.fromJson(json),
-    );
-  }
-
-  //get planning by flute
-  Future<List<PlanningPaper>> getPlanningByFlute({
-    required String flute,
-    required String machine,
-  }) async {
-    return HelperService().fetchingData<PlanningPaper>(
-      endpoint: "planning/getFlutePaper",
-      queryParameters: {'flute': flute, 'machine': machine},
-      fromJson: (json) => PlanningPaper.fromJson(json),
-    );
-  }
-
-  //get planning by ghepKho
-  Future<List<PlanningPaper>> getPlanningByGhepKho({
-    required int ghepKho,
-    required String machine,
-  }) async {
-    return HelperService().fetchingData<PlanningPaper>(
-      endpoint: "planning/getGhepKhoPaper",
-      queryParameters: {'ghepKho': ghepKho, 'machine': machine},
+      endpoint: "planning/filterPaper",
+      queryParameters: {'machine': machine, 'field': field, 'keyword': keyword},
       fromJson: (json) => PlanningPaper.fromJson(json),
     );
   }
@@ -246,6 +211,19 @@ class PlanningService {
     }
   }
 
+  //get planning paper by field
+  Future<List<PlanningBox>> getPlanningBoxSearch({
+    required String field,
+    required String keyword,
+    required String machine,
+  }) async {
+    return HelperService().fetchingData<PlanningBox>(
+      endpoint: "planning/filterBox",
+      queryParameters: {'machine': machine, 'field': field, 'keyword': keyword},
+      fromJson: (json) => PlanningBox.fromJson(json),
+    );
+  }
+
   //update index planning
   Future<bool> updateIndexWTimeRunningBox({
     required String machine,
@@ -301,48 +279,6 @@ class PlanningService {
       AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
       throw Exception('Failed to pause machine: $e');
     }
-  }
-
-  //get planning by orderId
-  Future<List<PlanningBox>> getOrderIdBox({
-    required String orderId,
-    required String machine,
-  }) async {
-    return HelperService().fetchingData<PlanningBox>(
-      endpoint: "planning/getOrderIdBox",
-      queryParameters: {'machine': machine, 'orderId': orderId},
-      fromJson: (json) => PlanningBox.fromJson(json),
-    );
-  }
-
-  //get planning by customer name
-  Future<List<PlanningBox>> getCusNameBox({
-    required String customerName,
-    required String machine,
-  }) async {
-    return HelperService().fetchingData<PlanningBox>(
-      endpoint: "planning/getCusNameBox",
-      queryParameters: {'customerName': customerName, 'machine': machine},
-      fromJson: (json) => PlanningBox.fromJson(json),
-    );
-  }
-
-  //get planning by flute
-  Future<List<PlanningBox>> getFluteBox({required String flute, required String machine}) async {
-    return HelperService().fetchingData<PlanningBox>(
-      endpoint: "planning/getFluteBox",
-      queryParameters: {'flute': flute, 'machine': machine},
-      fromJson: (json) => PlanningBox.fromJson(json),
-    );
-  }
-
-  //get planning by ghepKho
-  Future<List<PlanningBox>> getQcBox({required String QC_box, required String machine}) async {
-    return HelperService().fetchingData<PlanningBox>(
-      endpoint: "planning/getQcBox",
-      queryParameters: {'QC_box': QC_box, 'machine': machine},
-      fromJson: (json) => PlanningBox.fromJson(json),
-    );
   }
 
   //===============================PLANNING STOP====================================

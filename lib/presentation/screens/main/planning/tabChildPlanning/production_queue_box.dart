@@ -34,9 +34,14 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
+  final Map<String, String> searchFieldMap = {
+    'Mã Đơn Hàng': "orderId",
+    'Tên KH': "customerName",
+    'Quy Cách': "QcBox",
+  };
+  String searchType = "Tất cả";
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
-  String searchType = "Tất cả";
   String machine = "Máy In";
   DateTime? dayStart = DateTime.now();
   DateTime selectedDate = DateTime.now();
@@ -78,7 +83,25 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
   void loadPlanning() {
     setState(() {
-      futurePlanning = ensureMinLoading(PlanningService().getPlanningMachineBox(machine: machine));
+      final String selectedField = searchFieldMap[searchType] ?? "";
+
+      String keyword = searchController.text.trim().toLowerCase();
+
+      if (searchType != "Tất cả") {
+        AppLogger.i("loadPlanning: keyword='$keyword'");
+
+        futurePlanning = ensureMinLoading(
+          PlanningService().getPlanningBoxSearch(
+            field: selectedField,
+            keyword: keyword,
+            machine: machine,
+          ),
+        );
+      } else {
+        futurePlanning = ensureMinLoading(
+          PlanningService().getPlanningMachineBox(machine: machine),
+        );
+      }
 
       selectedPlanningIds.clear();
     });
@@ -93,32 +116,23 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
       return;
     }
 
-    switch (searchType) {
-      case 'Tất cả':
-        loadPlanning();
-        break;
-      case 'Mã Đơn Hàng':
-        setState(() {
-          futurePlanning = PlanningService().getOrderIdBox(orderId: keyword, machine: machine);
-        });
-        break;
-      case 'Tên KH':
-        setState(() {
-          futurePlanning = PlanningService().getCusNameBox(customerName: keyword, machine: machine);
-        });
-        break;
-      case 'Sóng':
-        setState(() {
-          futurePlanning = PlanningService().getFluteBox(flute: keyword, machine: machine);
-        });
-        break;
-      case 'QC Thùng':
-        setState(() {
-          futurePlanning = PlanningService().getQcBox(QC_box: keyword, machine: machine);
-        });
-        break;
-      default:
-    }
+    setState(() {
+      if (searchType == "Tất cả") {
+        futurePlanning = ensureMinLoading(
+          PlanningService().getPlanningMachineBox(machine: machine),
+        );
+      } else {
+        final selectedField = searchFieldMap[searchType] ?? "";
+
+        futurePlanning = ensureMinLoading(
+          PlanningService().getPlanningBoxSearch(
+            field: selectedField,
+            keyword: keyword,
+            machine: machine,
+          ),
+        );
+      }
+    });
   }
 
   void changeMachine(String selectedMachine) {
@@ -174,8 +188,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                     'Tất cả',
                                                     'Mã Đơn Hàng',
                                                     'Tên KH',
-                                                    "Sóng",
-                                                    'QC Thùng',
+                                                    'Quy Cách',
                                                   ].map((String value) {
                                                     return DropdownMenuItem<String>(
                                                       value: value,
