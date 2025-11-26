@@ -12,6 +12,7 @@ class HelperService {
     required Map<String, dynamic> queryParameters,
     required T Function(Map<String, dynamic>) fromJson,
     required String dataKey,
+    String? totalKey,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -30,11 +31,17 @@ class HelperService {
 
       final items = rawList.map((json) => fromJson(json as Map<String, dynamic>)).toList();
 
-      return {
+      final result = {
         dataKey: items,
         'totalPages': data['totalPages'] ?? 1,
         'currentPage': data['currentPage'] ?? 1,
       };
+
+      if (totalKey != null && totalKey.isNotEmpty) {
+        result[totalKey] = data[totalKey] ?? 0;
+      }
+
+      return result;
     } catch (e, s) {
       AppLogger.e("Failed to load data from $endpoint\nError: $e\nStackTrace: $s");
       throw Exception('Failed to load data from $endpoint: $e');

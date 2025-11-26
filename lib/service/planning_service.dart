@@ -344,4 +344,16 @@ class PlanningService {
       fromJson: (json) => PlanningBox.fromJson(json),
     );
   }
+
+  //===============================PLANNING STOP====================================
+
+  Future<Map<String, dynamic>> getPlanningStop({int? page, int? pageSize}) async {
+    return HelperService().fetchPaginatedData<PlanningPaper>(
+      endpoint: "planning/getPlanningStop",
+      queryParameters: {'page': page, 'pageSize': pageSize},
+      fromJson: (json) => PlanningPaper.fromJson(json),
+      dataKey: 'plannings',
+      totalKey: 'totalPlannings',
+    );
+  }
 }

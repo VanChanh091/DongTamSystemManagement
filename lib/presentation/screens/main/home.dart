@@ -15,6 +15,7 @@ import 'package:dongtam/presentation/screens/main/employee/employee.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
+import 'package:dongtam/presentation/screens/main/planning/planning_stop.dart';
 import 'package:dongtam/presentation/screens/main/planning/top_tab_planning.dart';
 import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
@@ -74,6 +75,7 @@ class _HomePageState extends State<HomePage> {
       // planning
       _buildPage(permission: 'plan', child: WaitingForPlanning()),
       _buildPage(permission: 'plan', child: TopTabPlanning()),
+      _buildPage(permission: 'plan', child: PlanningStop()),
 
       // manufacture
       PaperProduction(),
@@ -240,24 +242,39 @@ class _HomePageState extends State<HomePage> {
   Widget _buildPlanningMenu(List<Widget> pages) {
     final waitingIndex = pages.indexWhere((w) => w is WaitingForPlanning);
     final planningIndex = pages.indexWhere((w) => w is TopTabPlanning);
+    final planningStopIndex = pages.indexWhere((w) => w is PlanningStop);
 
-    if (waitingIndex == -1 && planningIndex == -1) {
+    if (waitingIndex == -1 && planningIndex == -1 && planningStopIndex == -1) {
       return const SizedBox.shrink();
     }
 
+    final badgesController = Get.find<BadgesController>();
+
     return Obx(() {
       final selected = sidebarController.selectedIndex.value;
-      final isParentSelected = selected == waitingIndex || selected == planningIndex;
+      final isParentSelected =
+          selected == waitingIndex || selected == planningIndex || selected == planningStopIndex;
 
       return Column(
         children: [
           _isHovered
               ? ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: Icon(
-                  Icons.schedule,
-                  color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                ),
+                leading: Obx(() {
+                  final count = badgesController.numberPlanningStop.value;
+                  if (count == 0) {
+                    return Icon(
+                      Icons.schedule,
+                      color:
+                          isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+                    );
+                  }
+
+                  return Badge.count(
+                    count: count,
+                    child: const Icon(Icons.schedule, color: Colors.white),
+                  );
+                }),
                 title: Text(
                   "Kế Hoạch",
                   style: TextStyle(
@@ -277,11 +294,29 @@ class _HomePageState extends State<HomePage> {
               : Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Center(
-                  child: Icon(
-                    Icons.schedule,
-                    color:
-                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                  ),
+                  child: Obx(() {
+                    final count = badgesController.numberPlanningStop.value;
+                    if (count == 0) {
+                      return Icon(
+                        Icons.schedule,
+                        color:
+                            isParentSelected
+                                ? const Color.fromARGB(255, 252, 220, 41)
+                                : Colors.white,
+                      );
+                    }
+                    return Badge(
+                      smallSize: 8, // chấm đỏ nhỏ
+                      backgroundColor: Colors.red,
+                      child: Icon(
+                        Icons.schedule,
+                        color:
+                            isParentSelected
+                                ? const Color.fromARGB(255, 252, 220, 41)
+                                : Colors.white,
+                      ),
+                    );
+                  }),
                 ),
               ),
           if (_isHovered && _isPlanningExpanded) ...[
@@ -292,6 +327,22 @@ class _HomePageState extends State<HomePage> {
                 Icons.production_quantity_limits_outlined,
                 "Hàng Chờ Sản Xuất",
                 planningIndex,
+              ),
+            if (planningStopIndex != -1)
+              _buildSubMenuItem(
+                Symbols.queue,
+                "Chờ Xử Lý",
+                planningStopIndex,
+                leadingWrapper: Obx(() {
+                  final count = badgesController.numberPlanningStop.value;
+                  if (count == 0) {
+                    return const Icon(Icons.queue, color: Colors.white);
+                  }
+                  return Badge.count(
+                    count: count,
+                    child: const Icon(Icons.queue, color: Colors.white),
+                  );
+                }),
               ),
           ],
         ],

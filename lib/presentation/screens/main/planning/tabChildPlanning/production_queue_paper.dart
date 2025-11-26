@@ -613,6 +613,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               onSuccess: () {
                                                 loadPlanning();
                                                 badgesController.fetchPendingApprovals();
+                                                badgesController.fetchPlannignStop();
                                               },
                                             );
                                           } else if (value == 'reject') {

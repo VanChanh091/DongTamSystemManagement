@@ -322,7 +322,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                   } else if (!snapshot.hasData || snapshot.data!['dashboard'].isEmpty) {
                     return const Center(
                       child: Text(
-                        "Không có khách hàng nào",
+                        "Không có đơn hàng nào",
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );

@@ -30,7 +30,6 @@ class _ManageOrderState extends State<AdminOrder> {
   @override
   void initState() {
     super.initState();
-
     _loadOrders();
   }
 
