@@ -292,4 +292,32 @@ class PlanningService {
       totalKey: 'totalPlannings',
     );
   }
+
+  //update index planning
+  Future<bool> cancelOrContinuePlannning({
+    required List<int> planningId,
+    required String action,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/planning/updateStopById",
+        data: {'planningId': planningId, "action": action},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      if (action == "cancel") {
+        AppLogger.e("Failed to cancel planning", error: e, stackTrace: s);
+      } else {
+        AppLogger.e("Failed to continue planning", error: e, stackTrace: s);
+      }
+
+      throw Exception('Failed to update planning: $e');
+    }
+  }
 }

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -80,32 +81,41 @@ class _ProductDialogState extends State<ProductDialog> {
     );
 
     try {
-      if (widget.product == null) {
-        // Add new product
-        AppLogger.d("Thêm sản phẩm mới: ${newProduct.productId}");
-        await ProductService().addProduct(
-          prefix: newProduct.productId,
-          product: newProduct.toJson(),
-          imageBytes: pickedProductImage,
-        );
+      final bool isAdd = widget.product == null;
 
-        if (!mounted) return; // check context
-        showSnackBarSuccess(context, 'Thêm thành công');
-      } else {
-        // Update existing product
-        AppLogger.d("Cập nhật sản phẩm: ${newProduct.productId}");
-        await ProductService().updateProductById(
-          productId: newProduct.productId,
-          productUpdated: newProduct.toJson(),
-          imageBytes: pickedProductImage,
-        );
+      AppLogger.i(
+        isAdd
+            ? "Thêm sản phẩm mới: ${newProduct.productId}"
+            : "Cập nhật sản phẩm: ${newProduct.productId}",
+      );
 
-        if (!mounted) return;
-        showSnackBarSuccess(context, 'Cập nhật thành công');
-      }
+      isAdd
+          ? await ProductService().addProduct(
+            prefix: newProduct.productId,
+            product: newProduct.toJson(),
+            imageBytes: pickedProductImage,
+          )
+          : await ProductService().updateProductById(
+            productId: newProduct.productId,
+            productUpdated: newProduct.toJson(),
+            imageBytes: pickedProductImage,
+          );
+
+      // Show loading
+      if (!mounted) return;
+      showLoadingDialog(context);
+      await Future.delayed(const Duration(seconds: 1));
 
       if (!mounted) return;
+      Navigator.pop(context); // đóng dialog loading
+
+      // Thông báo thành công
+      if (!mounted) return;
+      showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
+
       widget.onProductAddOrUpdate();
+
+      if (!mounted) return;
       Navigator.of(context).pop();
     } catch (e, s) {
       if (e.toString().contains("productId existed")) {

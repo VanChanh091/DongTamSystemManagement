@@ -12,6 +12,7 @@ import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -478,24 +479,34 @@ class _OrderDialogState extends State<OrderDialog> {
     );
 
     try {
+      final bool isAdd = widget.order == null;
       String? orderId;
-      if (widget.order == null) {
-        AppLogger.i("Thêm đơn hàng mới: ${newOrder.orderId}");
+
+      AppLogger.i(
+        isAdd ? "Thêm đơn hàng mới: ${newOrder.orderId}" : "Cập nhật đơn hàng: ${newOrder.orderId}",
+      );
+
+      if (isAdd) {
         final response = await OrderService().addOrders(orderData: newOrder.toJson());
         orderId = response['orderId'];
-
-        if (!mounted) return; // check context
-        showSnackBarSuccess(context, "Lưu thành công");
       } else {
-        AppLogger.i("Cập nhật đơn hàng: ${newOrder.orderId}");
         await OrderService().updateOrderById(
           orderId: originalOrderId,
           orderUpdated: newOrder.toJson(),
         );
-
-        if (!mounted) return; // check context
-        showSnackBarSuccess(context, 'Cập nhật thành công');
       }
+
+      // Show loading
+      if (!mounted) return;
+      showLoadingDialog(context);
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (!mounted) return;
+      Navigator.pop(context); // đóng dialog loading
+
+      // Thông báo thành công
+      if (!mounted) return;
+      showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
 
       //fetch lại badge sau khi add/update
       badgesController.fetchPendingApprovals();
@@ -506,11 +517,11 @@ class _OrderDialogState extends State<OrderDialog> {
       Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return;
-      if (widget.order == null) {
-        AppLogger.e("Lỗi khi thêm đơn hàng", error: e, stackTrace: s);
-      } else {
-        AppLogger.e("Lỗi khi sửa đơn hàng", error: e, stackTrace: s);
-      }
+      AppLogger.e(
+        widget.order == null ? "Lỗi khi thêm đơn hàng" : "Lỗi khi sửa đơn hàng",
+        error: e,
+        stackTrace: s,
+      );
 
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
     }

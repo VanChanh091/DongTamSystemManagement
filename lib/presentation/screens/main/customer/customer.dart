@@ -368,6 +368,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                           icon: Symbols.construction,
                                           backgroundColor: themeController.buttonColor,
                                         ),
+
                                         const SizedBox(width: 10),
 
                                         //delete customers

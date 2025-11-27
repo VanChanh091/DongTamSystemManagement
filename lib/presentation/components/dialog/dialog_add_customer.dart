@@ -2,6 +2,7 @@ import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -179,26 +180,36 @@ class _CustomerDialogState extends State<CustomerDialog> {
     );
 
     try {
-      if (widget.customer == null) {
-        // add
-        AppLogger.i("Thêm khách hàng mới: ${newCustomer.customerId}");
-        await CustomerService().addCustomer(customerData: newCustomer.toJson());
+      final bool isAdd = widget.customer == null;
 
-        if (!mounted) return; // check context
-        showSnackBarSuccess(context, "Thêm thành công");
-      } else {
-        // update
-        AppLogger.i("Cập nhật khách hàng: ${newCustomer.customerId}");
-        await CustomerService().updateCustomer(
-          customerId: newCustomer.customerId,
-          updateCustomer: newCustomer.toJson(),
-        );
-        if (!mounted) return;
-        showSnackBarSuccess(context, "Cập nhật thành công");
-      }
+      AppLogger.i(
+        isAdd
+            ? "Thêm khách hàng mới: ${newCustomer.customerId}"
+            : "Cập nhật khách hàng: ${newCustomer.customerId}",
+      );
+
+      isAdd
+          ? await CustomerService().addCustomer(customerData: newCustomer.toJson())
+          : await CustomerService().updateCustomer(
+            customerId: newCustomer.customerId,
+            updateCustomer: newCustomer.toJson(),
+          );
+
+      // Show loading
+      if (!mounted) return;
+      showLoadingDialog(context);
+      await Future.delayed(const Duration(seconds: 1));
 
       if (!mounted) return;
+      Navigator.pop(context); // đóng dialog loading
+
+      // Thông báo thành công
+      if (!mounted) return;
+      showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
+
       widget.onCustomerAddOrUpdate();
+
+      if (!mounted) return;
       Navigator.of(context).pop();
     } catch (e, s) {
       if (widget.customer == null) {

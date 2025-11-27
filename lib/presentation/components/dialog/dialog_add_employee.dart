@@ -4,6 +4,7 @@ import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/validation/validation_employee.dart';
@@ -158,25 +159,36 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
     );
 
     try {
-      if (widget.employee == null) {
-        // add
-        await EmployeeService().addEmployee(employeeData: newEmployee.toJson());
+      final bool isAdd = widget.employee == null;
 
-        if (!mounted) return; // check context
-        showSnackBarSuccess(context, "Thêm thành công");
-      } else {
-        // update
-        AppLogger.i("Cập nhật khách hàng: ${widget.employee!.employeeId}");
-        await EmployeeService().updateEmployee(
-          employeeId: widget.employee!.employeeId,
-          updateEmployeeData: newEmployee.toJson(),
-        );
-        if (!mounted) return;
-        showSnackBarSuccess(context, "Cập nhật thành công");
-      }
+      AppLogger.i(
+        isAdd
+            ? "Thêm nhân viên mới: ${widget.employee!.fullName}"
+            : "Cập nhật nhân viên: ${widget.employee!.fullName}",
+      );
+
+      isAdd
+          ? await EmployeeService().addEmployee(employeeData: newEmployee.toJson())
+          : await EmployeeService().updateEmployee(
+            employeeId: widget.employee!.employeeId,
+            updateEmployeeData: newEmployee.toJson(),
+          );
+
+      // Show loading
+      if (!mounted) return;
+      showLoadingDialog(context);
+      await Future.delayed(const Duration(seconds: 1));
 
       if (!mounted) return;
+      Navigator.pop(context); // đóng dialog loading
+
+      // Thông báo thành công
+      if (!mounted) return;
+      showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
+
       widget.onEmployeeAddOrUpdate();
+
+      if (!mounted) return;
       Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return;

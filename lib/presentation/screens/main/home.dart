@@ -331,7 +331,7 @@ class _HomePageState extends State<HomePage> {
             if (planningStopIndex != -1)
               _buildSubMenuItem(
                 Symbols.queue,
-                "Chờ Xử Lý",
+                "Hàng Chờ Xử Lý",
                 planningStopIndex,
                 leadingWrapper: Obx(() {
                   final count = badgesController.numberPlanningStop.value;

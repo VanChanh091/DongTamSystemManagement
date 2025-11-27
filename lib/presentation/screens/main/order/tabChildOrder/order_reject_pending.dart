@@ -373,7 +373,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
       await OrderService().deleteOrder(orderId: selectedOrderId!);
 
       badgesController.fetchPendingApprovals();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
 
       loadOrders(ownOnly: isSeenOrder);
 

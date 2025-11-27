@@ -4,7 +4,9 @@ import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/machine_paper_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -14,6 +16,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class PlanningStop extends StatefulWidget {
@@ -31,14 +34,12 @@ class _PlanningStopState extends State<PlanningStop> {
   final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
-  final Map<String, String> searchFieldMap = {};
 
   TextEditingController searchController = TextEditingController();
   Map<String, double> columnWidths = {}; //map header table
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
-  bool isSearching = false; //dùng để phân trang cho tìm kiếm
-  String searchType = "Tất cả";
+
   List<String> selectedPlanningIds = [];
 
   int currentPage = 1;
@@ -61,60 +62,11 @@ class _PlanningStopState extends State<PlanningStop> {
 
   void loadPlanning() {
     setState(() {
-      // final String selectedField = searchFieldMap[searchType] ?? "";
-
-      String keyword = searchController.text.trim().toLowerCase();
-
-      if (isSearching && searchType != "Tất cả") {
-        AppLogger.i("loadPlanning: isSearching=true, keyword='$keyword'");
-
-        // futurePlanning = ensureMinLoading(
-        //   PlanningService().getCustomerByField(
-        //     field: selectedField,
-        //     keyword: keyword,
-        //     page: currentPage,
-        //     pageSize: pageSizeSearch,
-        //   ),
-        // );
-      } else {
-        futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningStop(page: currentPage, pageSize: pageSize),
-        );
-      }
+      futurePlanning = ensureMinLoading(
+        PlanningService().getPlanningStop(page: currentPage, pageSize: pageSize),
+      );
 
       selectedPlanningIds.clear();
-    });
-  }
-
-  void searchPlanning() {
-    String keyword = searchController.text.trim().toLowerCase();
-    AppLogger.i("searchPlanning: searchType=$searchType, keyword='$keyword'");
-
-    if (isTextFieldEnabled && keyword.isEmpty) {
-      AppLogger.w("searchPlanning: search bị bỏ qua vì keyword trống");
-      return;
-    }
-
-    setState(() {
-      currentPage = 1;
-      isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningStop(page: currentPage, pageSize: pageSize),
-        );
-      } else {
-        // final selectedField = searchFieldMap[searchType] ?? "";
-
-        // futurePlanning = ensureMinLoading(
-        //   PlanningService().getCustomerByField(
-        //     field: selectedField,
-        //     keyword: keyword,
-        //     page: currentPage,
-        //     pageSize: pageSizeSearch,
-        //   ),
-        // );
-      }
     });
   }
 
@@ -158,90 +110,7 @@ class _PlanningStopState extends State<PlanningStop> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         //left button
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
-                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
-
-                                return Row(
-                                  children: [
-                                    //dropdown
-                                    SizedBox(
-                                      width: dropdownWidth,
-                                      child: DropdownButtonFormField<String>(
-                                        value: searchType,
-                                        items:
-                                            ['Tất cả'].map((String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            searchType = value!;
-                                            isTextFieldEnabled = searchType != 'Tất cả';
-
-                                            searchController.clear();
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                            borderSide: const BorderSide(color: Colors.grey),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //input
-                                    SizedBox(
-                                      width: textInputWidth,
-                                      height: 50,
-                                      child: TextField(
-                                        controller: searchController,
-                                        enabled: isTextFieldEnabled,
-                                        onSubmitted: (_) => searchPlanning(),
-                                        decoration: InputDecoration(
-                                          hintText: 'Tìm kiếm...',
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //find
-                                    AnimatedButton(
-                                      onPressed: () {
-                                        searchPlanning();
-                                      },
-                                      label: "Tìm kiếm",
-                                      icon: Icons.search,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                        ),
+                        Expanded(flex: 1, child: SizedBox()),
 
                         //right button
                         Expanded(
@@ -252,7 +121,22 @@ class _PlanningStopState extends State<PlanningStop> {
                                 isSale
                                     ? Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [SizedBox()],
+                                      children: [
+                                        handleCancelOrContinue(
+                                          isSale: isSale,
+                                          action: 'continue',
+                                          label: "Tiếp Tục Chạy",
+                                          iconData: Symbols.check,
+                                        ),
+                                        const SizedBox(width: 10),
+
+                                        handleCancelOrContinue(
+                                          isSale: isSale,
+                                          action: 'cancel',
+                                          label: "Hủy Đơn",
+                                          iconData: Symbols.cancel,
+                                        ),
+                                      ],
                                     )
                                     : const SizedBox.shrink(),
                           ),
@@ -462,6 +346,64 @@ class _PlanningStopState extends State<PlanningStop> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget handleCancelOrContinue({
+    required bool isSale,
+    required String action,
+    required String label,
+    required IconData iconData,
+  }) {
+    return AnimatedButton(
+      onPressed:
+          isSale
+              ? () async {
+                if (selectedPlanningIds.isEmpty) {
+                  showSnackBarError(context, 'Vui lòng chọn kế hoạch cần thao tác');
+                  return;
+                }
+
+                final confirm = await showConfirmDialog(
+                  context: context,
+                  title: "⚠️ Xác nhận",
+                  content: "Bạn có chắc muốn thực hiện thao tác này?",
+                  confirmText: "Ok",
+                  confirmColor: const Color(0xffEA4346),
+                );
+
+                if (!confirm) return;
+
+                if (!mounted) return;
+                showLoadingDialog(context);
+
+                try {
+                  await PlanningService().cancelOrContinuePlannning(
+                    planningId:
+                        selectedPlanningIds
+                            .map((e) => int.tryParse(e.toString()))
+                            .whereType<int>()
+                            .toList(),
+                    action: action,
+                  );
+                  loadPlanning();
+
+                  if (!mounted) return;
+                  Navigator.of(context).pop();
+                  showSnackBarSuccess(context, "Thao tác thành công");
+                } catch (e, s) {
+                  if (mounted) Navigator.of(context).pop();
+                  AppLogger.e("Error in cancelOrContinue: $e", stackTrace: s);
+
+                  if (mounted) {
+                    showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+                  }
+                }
+              }
+              : null,
+      label: label,
+      icon: iconData,
+      backgroundColor: action == 'cancel' ? const Color(0xffEA4346) : themeController.buttonColor,
     );
   }
 }
