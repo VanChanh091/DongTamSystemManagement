@@ -34,6 +34,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
   late List<GridColumn> columnsStages;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+
   final Map<String, String> searchFieldMap = {
     "Theo Mã Đơn": "orderId",
     "Ghép Khổ": "ghepKho",
@@ -42,6 +43,17 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
     "Tên Công Ty": "companyName",
     "Tên Nhân Viên": "username",
   };
+  String searchType = "Tất cả";
+
+  final Map<String, String> statusFieldMap = {
+    "Hoàn Thành": "complete",
+    "Đã Sắp Xếp": "planning",
+    "Thiếu Số Lượng": "lackQty",
+    "Đang Sản Xuất": "producing",
+    "Bị Dừng": "stop",
+    "Bị Hủy": "cancel",
+  };
+  String status = "Đã Sắp Xếp";
 
   TextEditingController searchController = TextEditingController();
   Map<String, double> columnWidthsPlanning = {};
@@ -49,7 +61,6 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
-  String searchType = "Tất cả";
   int? selectedDbPaperId;
   List<PlanningStage> selectedStages = [];
 
@@ -81,6 +92,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
   void loadDbPaper() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
+      final String selectedStatus = statusFieldMap[status] ?? "";
 
       String keyword = searchController.text.trim().toLowerCase();
 
@@ -97,7 +109,11 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
         );
       } else {
         futureDbPaper = ensureMinLoading(
-          DashboardService().getAllDataDashboard(page: currentPage, pageSize: pageSize),
+          DashboardService().getAllDataDashboard(
+            page: currentPage,
+            pageSize: pageSize,
+            status: selectedStatus,
+          ),
         );
       }
 
@@ -116,12 +132,18 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
     }
 
     setState(() {
+      final String selectedStatus = statusFieldMap[status] ?? "";
+
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
 
       if (searchType == "Tất cả") {
         futureDbPaper = ensureMinLoading(
-          DashboardService().getAllDataDashboard(page: currentPage, pageSize: pageSize),
+          DashboardService().getAllDataDashboard(
+            page: currentPage,
+            pageSize: pageSize,
+            status: selectedStatus,
+          ),
         );
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
@@ -138,6 +160,16 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
 
       selectedDbPaperId = null;
       selectedStages = [];
+    });
+  }
+
+  void changeStatus(String selectedStatus) {
+    AppLogger.i("changeStatusDbPaper | from=$status -> to=$selectedStatus");
+
+    setState(() {
+      status = selectedStatus;
+      selectedStages.clear();
+      loadDbPaper();
     });
   }
 
@@ -291,6 +323,46 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                   label: "Xuất Excel",
                                   icon: Symbols.export_notes,
                                   backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
+                                //choose machine
+                                SizedBox(
+                                  width: 180,
+                                  child: DropdownButtonFormField<String>(
+                                    value: status,
+                                    items:
+                                        [
+                                          "Hoàn Thành",
+                                          "Đã Sắp Xếp",
+                                          "Đang Sản Xuất",
+                                          "Thiếu Số Lượng",
+                                          "Bị Dừng",
+                                          "Bị Hủy",
+                                        ].map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        changeStatus(value);
+                                      }
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(color: Colors.grey),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: 10),
                               ],

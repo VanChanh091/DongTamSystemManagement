@@ -3,6 +3,7 @@ import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -281,11 +282,21 @@ class _PLanningDialogState extends State<PLanningDialog> {
         orderPlanning: newPlanning.toJson(),
       );
 
+      // Show loading
+      if (!mounted) return;
+      showLoadingDialog(context);
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (!mounted) return;
+      Navigator.pop(context); // đóng dialog loading
+
+      // Thông báo thành công
       if (!mounted) return;
       showSnackBarSuccess(context, "Lưu thành công");
 
-      if (!mounted) return;
       widget.onPlanningOrder();
+
+      if (!mounted) return;
       Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return;

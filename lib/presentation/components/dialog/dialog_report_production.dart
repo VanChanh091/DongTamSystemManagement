@@ -100,13 +100,18 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       }
     } catch (e, s) {
       if (!mounted) return;
-      final message = e.toString();
 
-      if (message.contains('403')) {
-        showSnackBarError(context, 'Bạn không có quyền báo cáo máy này.');
-      } else {
-        AppLogger.e("Lỗi khi báo cáo sản xuất", error: e, stackTrace: s);
-        showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      final err = extractError(e);
+      switch (err['errorCode']) {
+        case "ACCESS_DENIED":
+          showSnackBarError(context, 'Bạn không có quyền báo cáo máy này.');
+          break;
+        case "INVALID_MACHINE":
+          showSnackBarError(context, 'Máy không hợp lệ.');
+          break;
+        default:
+          AppLogger.e("Lỗi khi báo cáo sản xuất", error: e, stackTrace: s);
+          showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
       }
     }
   }

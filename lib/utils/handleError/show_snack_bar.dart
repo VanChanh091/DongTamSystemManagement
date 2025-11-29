@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -19,4 +20,15 @@ void showSnackBarError(BuildContext context, String message) {
       duration: const Duration(seconds: 2),
     ),
   );
+}
+
+Map<String, dynamic> extractError(Object e) {
+  if (e is Map<String, dynamic>) return e;
+
+  try {
+    final decoded = jsonDecode(e.toString());
+    if (decoded is Map<String, dynamic>) return decoded;
+  } catch (_) {}
+
+  return {"status": null, "message": e.toString(), "errorCode": null};
 }

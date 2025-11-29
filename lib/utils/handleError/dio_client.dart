@@ -22,10 +22,7 @@ class DioClient {
     dio = Dio(
       BaseOptions(
         baseUrl: AppInfo.BASE_URL,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
+        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 15),
       ),
@@ -38,9 +35,7 @@ class DioClient {
             final message = e.response?.data?['message'] ?? "";
 
             if (message.toString().toLowerCase().contains('expired')) {
-              AppLogger.w(
-                "🔁 Token expired — clearing storage and redirecting to login",
-              );
+              AppLogger.w("🔁 Token expired — clearing storage and redirecting to login");
 
               if (!_isShowingDialog) {
                 _isShowingDialog = true;
@@ -50,20 +45,14 @@ class DioClient {
                     title: const Center(
                       child: Text(
                         'Phiên đăng nhập đã hết hạn',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                     ),
                     content: const Text(
                       'Vui lòng đăng nhập lại để tiếp tục sử dụng ứng dụng.',
                       style: TextStyle(fontSize: 16),
                     ),
-                    actionsPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
+                    actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     actions: [
                       ElevatedButton(
                         onPressed: () async {
@@ -82,13 +71,8 @@ class DioClient {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xff78D761),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 10,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
                         child: const Text(
                           'Đăng nhập lại',
@@ -105,7 +89,7 @@ class DioClient {
                 );
               }
 
-              return;
+              return handler.next(e);
             }
           }
 

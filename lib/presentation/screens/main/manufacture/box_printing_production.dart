@@ -604,7 +604,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                 .toList();
 
         final success = await PlanningService().pauseOrAcceptLackQty(
-          planningIds: planningIds,
+          ids: planningIds,
           newStatus: status,
         );
         if (!context.mounted) return;

@@ -16,10 +16,11 @@ class DashboardService {
   Future<Map<String, dynamic>> getAllDataDashboard({
     required int page,
     required int pageSize,
+    required String status,
   }) async {
     return HelperService().fetchPaginatedData<PlanningPaper>(
       endpoint: "dashboard/paper",
-      queryParameters: {'page': page, 'pageSize': pageSize},
+      queryParameters: {'page': page, 'pageSize': pageSize, 'status': status},
       fromJson: (json) => PlanningPaper.fromJson(json),
       dataKey: 'dashboard',
     );

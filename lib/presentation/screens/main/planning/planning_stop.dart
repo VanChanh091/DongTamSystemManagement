@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
@@ -31,6 +32,7 @@ class _PlanningStopState extends State<PlanningStop> {
   late MachinePaperDatasource machinePaperDatasource;
   late List<GridColumn> columns;
   final DataGridController dataGridController = DataGridController();
+  final badgesController = Get.find<BadgesController>();
   final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
@@ -124,7 +126,7 @@ class _PlanningStopState extends State<PlanningStop> {
                                       children: [
                                         handleCancelOrContinue(
                                           isSale: isSale,
-                                          action: 'continue',
+                                          action: 'planning',
                                           label: "Tiếp Tục Chạy",
                                           iconData: Symbols.check,
                                         ),
@@ -378,7 +380,7 @@ class _PlanningStopState extends State<PlanningStop> {
                 showLoadingDialog(context);
 
                 try {
-                  await PlanningService().cancelOrContinuePlannning(
+                  final success = await PlanningService().cancelOrContinuePlannning(
                     planningId:
                         selectedPlanningIds
                             .map((e) => int.tryParse(e.toString()))
@@ -386,7 +388,11 @@ class _PlanningStopState extends State<PlanningStop> {
                             .toList(),
                     action: action,
                   );
-                  loadPlanning();
+
+                  if (success) {
+                    badgesController.fetchPlanningStop();
+                    loadPlanning();
+                  }
 
                   if (!mounted) return;
                   Navigator.of(context).pop();

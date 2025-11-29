@@ -10,7 +10,7 @@ class BadgesController extends GetxController {
   void onInit() {
     super.onInit();
     fetchPendingApprovals();
-    fetchPlannignStop();
+    fetchPlanningStop();
   }
 
   // Hàm gọi API để lấy số đơn chờ duyệt
@@ -23,7 +23,7 @@ class BadgesController extends GetxController {
     }
   }
 
-  Future<void> fetchPlannignStop() async {
+  Future<void> fetchPlanningStop() async {
     try {
       final result = await PlanningService().getPlanningStop();
       numberPlanningStop.value = (result["totalPlannings"] ?? 0) as int;

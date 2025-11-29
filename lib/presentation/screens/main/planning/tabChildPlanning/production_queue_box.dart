@@ -6,9 +6,12 @@ import 'package:dongtam/presentation/components/headerTable/header_table_machine
 import 'package:dongtam/presentation/sources/machine_box_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/helper/toolbar/left_button_search.dart';
+import 'package:dongtam/utils/helper/toolbar/time_and_day_planning.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
@@ -91,15 +94,16 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         AppLogger.i("loadPlanning: keyword='$keyword'");
 
         futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningBoxSearch(
+          PlanningService().getPlanningSearch(
             field: selectedField,
             keyword: keyword,
             machine: machine,
+            isBox: true,
           ),
         );
       } else {
         futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningMachineBox(machine: machine),
+          PlanningService().getPlanningByMachine(machine: machine, isBox: true),
         );
       }
 
@@ -119,16 +123,17 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     setState(() {
       if (searchType == "Tất cả") {
         futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningMachineBox(machine: machine),
+          PlanningService().getPlanningByMachine(machine: machine, isBox: true),
         );
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningBoxSearch(
+          PlanningService().getPlanningSearch(
             field: selectedField,
             keyword: keyword,
             machine: machine,
+            isBox: true,
           ),
         );
       }
@@ -168,89 +173,22 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                               //left button
                               Expanded(
                                 flex: 1,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      final maxWidth = constraints.maxWidth;
-                                      final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
-                                      final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
+                                child: LeftButtonSearch(
+                                  selectedType: searchType,
+                                  types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Quy Cách'],
+                                  onTypeChanged: (value) {
+                                    setState(() {
+                                      searchType = value;
+                                      isTextFieldEnabled = searchType != 'Tất cả';
 
-                                      return Row(
-                                        children: [
-                                          //dropdown
-                                          SizedBox(
-                                            width: dropdownWidth,
-                                            child: DropdownButtonFormField<String>(
-                                              value: searchType,
-                                              items:
-                                                  [
-                                                    'Tất cả',
-                                                    'Mã Đơn Hàng',
-                                                    'Tên KH',
-                                                    'Quy Cách',
-                                                  ].map((String value) {
-                                                    return DropdownMenuItem<String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  searchType = value!;
-                                                  isTextFieldEnabled = searchType != 'Tất cả';
+                                      searchController.clear();
+                                    });
+                                  },
+                                  controller: searchController,
+                                  textFieldEnabled: isTextFieldEnabled,
+                                  buttonColor: themeController.buttonColor.value,
 
-                                                  searchController.clear();
-                                                });
-                                              },
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(color: Colors.grey),
-                                                ),
-                                                contentPadding: const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 8,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-
-                                          // input
-                                          SizedBox(
-                                            width: textInputWidth,
-                                            height: 50,
-                                            child: TextField(
-                                              controller: searchController,
-                                              enabled: isTextFieldEnabled,
-                                              onSubmitted: (_) => searchPlanning(),
-                                              decoration: InputDecoration(
-                                                hintText: 'Tìm kiếm...',
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                contentPadding: const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-
-                                          // find
-                                          AnimatedButton(
-                                            onPressed: () => searchPlanning(),
-                                            label: "Tìm kiếm",
-                                            icon: Icons.search,
-                                            backgroundColor: themeController.buttonColor,
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ),
+                                  onSearch: () => searchPlanning(),
                                 ),
                               ),
 
@@ -433,12 +371,13 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                         // );
 
                                                         final result = await PlanningService()
-                                                            .updateIndexWTimeRunningBox(
+                                                            .updateIndexWTimeRunning(
                                                               machine: machine,
                                                               dayStart: parsedDayStart,
                                                               timeStart: parsedTimeStart,
                                                               totalTimeWorking: parsedTotalTime,
                                                               updateIndex: updateIndex,
+                                                              isBox: true,
                                                             );
 
                                                         if (!context.mounted) {
@@ -497,6 +436,66 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                         label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
                                         icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
                                         backgroundColor: themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      AnimatedButton(
+                                        onPressed: () async {
+                                          if (selectedPlanningIds.isEmpty) {
+                                            showSnackBarError(
+                                              context,
+                                              'Vui lòng chọn kế hoạch cần thao tác',
+                                            );
+                                            return;
+                                          }
+
+                                          final confirm = await showConfirmDialog(
+                                            context: context,
+                                            title: "⚠️ Xác nhận",
+                                            content: "Xác nhận hoàn thành kế hoạch này?",
+                                            confirmText: "Ok",
+                                            confirmColor: const Color(0xffEA4346),
+                                          );
+
+                                          if (!confirm) return;
+
+                                          if (!context.mounted) return;
+                                          showLoadingDialog(context);
+
+                                          try {
+                                            final planningIds =
+                                                selectedPlanningIds
+                                                    .map((e) => int.tryParse(e.toString()))
+                                                    .whereType<int>()
+                                                    .toList();
+
+                                            final success = await PlanningService()
+                                                .confirmCompletePlanning(ids: planningIds);
+
+                                            if (success) {
+                                              loadPlanning();
+                                            }
+
+                                            if (!context.mounted) return;
+                                            Navigator.of(context).pop();
+                                            showSnackBarSuccess(context, "Thao tác thành công");
+                                          } catch (e, s) {
+                                            if (mounted) Navigator.of(context).pop();
+                                            AppLogger.e(
+                                              "Error in update status planning: $e",
+                                              stackTrace: s,
+                                            );
+
+                                            if (mounted) {
+                                              showSnackBarError(
+                                                context,
+                                                'Có lỗi xảy ra, vui lòng thử lại',
+                                              );
+                                            }
+                                          }
+                                        },
+                                        label: "Hoàn Thành",
+                                        icon: Symbols.check,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -583,66 +582,10 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
                           //set day and time for time running
                           const SizedBox(height: 5),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 12),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                // Ngày bắt đầu
-                                _buildLabelAndUnderlineInput(
-                                  label: "Ngày bắt đầu:",
-                                  controller: dayStartController,
-                                  width: 120,
-                                  readOnly: true,
-                                  onTap: () async {
-                                    final selected = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime.now(),
-                                      lastDate: DateTime(2100),
-                                      builder: (BuildContext context, Widget? child) {
-                                        return Theme(
-                                          data: Theme.of(context).copyWith(
-                                            colorScheme: ColorScheme.light(
-                                              primary: Colors.blue,
-                                              onPrimary: Colors.white,
-                                              onSurface: Colors.black,
-                                            ),
-                                            dialogTheme: DialogThemeData(
-                                              backgroundColor: Colors.white12,
-                                            ),
-                                          ),
-                                          child: child!,
-                                        );
-                                      },
-                                    );
-                                    if (selected != null) {
-                                      dayStartController.text =
-                                          "${selected.day.toString().padLeft(2, '0')}/"
-                                          "${selected.month.toString().padLeft(2, '0')}/"
-                                          "${selected.year}";
-                                    }
-                                  },
-                                ),
-                                const SizedBox(width: 32),
-
-                                // Giờ bắt đầu
-                                _buildLabelAndUnderlineInput(
-                                  label: "Giờ bắt đầu:",
-                                  controller: timeStartController,
-                                  width: 60,
-                                ),
-                                const SizedBox(width: 32),
-
-                                // Tổng giờ làm
-                                _buildLabelAndUnderlineInput(
-                                  label: "Tổng giờ làm:",
-                                  controller: totalTimeWorkingController,
-                                  width: 40,
-                                  inputType: TextInputType.number,
-                                ),
-                              ],
-                            ),
+                          TimeAndDayPlanning(
+                            dayStartController: dayStartController,
+                            timeStartController: timeStartController,
+                            totalTimeWorkingController: totalTimeWorkingController,
                           ),
                         ],
                       )
@@ -927,10 +870,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
     if (confirm) {
       try {
-        final success = await PlanningService().acceptLackQtyBox(
-          planningBoxIds: planningIds,
+        final success = await PlanningService().pauseOrAcceptLackQty(
+          ids: planningIds,
           newStatus: status,
           machine: machine,
+          isBox: true,
         );
 
         if (!context.mounted) return;
@@ -944,37 +888,5 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         showSnackBarError(context, errorMessage);
       }
     }
-  }
-
-  Widget _buildLabelAndUnderlineInput({
-    required String label,
-    required TextEditingController controller,
-    required double width,
-    TextInputType? inputType,
-    void Function()? onTap,
-    bool readOnly = false,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
-        const SizedBox(width: 8),
-        SizedBox(
-          width: width,
-          child: TextFormField(
-            controller: controller,
-            keyboardType: inputType ?? TextInputType.text,
-            readOnly: readOnly,
-            decoration: InputDecoration(
-              isDense: true,
-              border: UnderlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(vertical: 5),
-              hintText: '',
-            ),
-            onTap: onTap,
-          ),
-        ),
-      ],
-    );
   }
 }

@@ -12,6 +12,187 @@ import 'package:intl/intl.dart';
 class PlanningService {
   final Dio dioService = DioClient().dio;
 
+  //===============================PLANNING PAPER & BOX==============================
+
+  //get planning by machine
+  Future<List<T>> getPlanningByMachine<T>({required String machine, bool isBox = false}) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final endpoint = isBox ? 'byMachineBox' : 'byMachinePaper';
+
+      final response = await dioService.get(
+        '/api/planning/$endpoint',
+        queryParameters: {'machine': machine},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      final List<dynamic> planningData = response.data['data'];
+
+      return planningData.map<T>((json) {
+        if (isBox) {
+          return PlanningBox.fromJson(json) as T;
+        } else {
+          return PlanningPaper.fromJson(json) as T;
+        }
+      }).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        throw Exception("NO_PERMISSION");
+      }
+      rethrow;
+    } catch (e, s) {
+      AppLogger.e("Failed to get planning", error: e, stackTrace: s);
+      throw Exception('Failed to get planning: $e');
+    }
+  }
+
+  //get planning paper by field
+  Future<List<T>> getPlanningSearch<T>({
+    required String field,
+    required String keyword,
+    required String machine,
+    bool isBox = false,
+  }) async {
+    final endpoint = isBox ? "filterBox" : "filterPaper";
+
+    return HelperService().fetchingData<T>(
+      endpoint: "planning/$endpoint",
+      queryParameters: {'machine': machine, 'field': field, 'keyword': keyword},
+      fromJson: (json) {
+        if (isBox) {
+          return PlanningBox.fromJson(json) as T;
+        } else {
+          return PlanningPaper.fromJson(json) as T;
+        }
+      },
+    );
+  }
+
+  //confirm complete
+  Future<bool> confirmCompletePlanning({
+    required List<int> ids,
+    String? machine,
+    bool isBox = false,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final data = {
+        if (isBox) "planningBoxIds": ids else "planningIds": ids,
+        if (machine != null) "machine": machine,
+      };
+      final endpoint = isBox ? "confirmBox" : "confirmPaper";
+
+      await dioService.put(
+        "/api/planning/$endpoint",
+        data: data,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to confirm complete planning", error: e, stackTrace: s);
+      throw Exception('Failed to confirm complete planning: $e');
+    }
+  }
+
+  //pause or accept lack qty
+  Future<bool> pauseOrAcceptLackQty({
+    required List<int> ids,
+    required String newStatus,
+    String? machine,
+    bool isBox = false,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final data = {
+        if (isBox) "planningBoxIds": ids else "planningIds": ids,
+        "newStatus": newStatus,
+        if (machine != null) "machine": machine,
+      };
+
+      final endpoint = isBox ? "pauseOrAcceptLackQtyPaper" : "acceptLackQtyBox";
+
+      await dioService.put(
+        "/api/planning/$endpoint",
+        data: data,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
+      throw Exception('Failed to pause machine: $e');
+    }
+  }
+
+  //update index planning
+  Future<bool> updateIndexWTimeRunning({
+    required String machine,
+    required DateTime dayStart,
+    required TimeOfDay timeStart,
+    required int totalTimeWorking,
+    required List<Map<String, dynamic>> updateIndex,
+    bool isBox = false,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final endpoint = isBox ? 'updateIndex_TimeRunningBox' : 'updateIndex_TimeRunningPaper';
+
+      await dioService.post(
+        "/api/planning/$endpoint",
+        data: {
+          'machine': machine,
+          "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
+          "timeStart":
+              "${timeStart.hour.toString().padLeft(2, '0')}:${timeStart.minute.toString().padLeft(2, '0')}",
+          "totalTimeWorking": totalTimeWorking,
+          "updateIndex": updateIndex,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to update planning", error: e, stackTrace: s);
+      throw Exception('Failed to update planning: $e');
+    }
+  }
+
+  //change machine paper
+  Future<bool> changeMachinePlanning({
+    required String newMachine,
+    required List<int> planningIds,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/planning/changeMachinePaper",
+        data: {"planningIds": planningIds, "newMachine": newMachine},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to update orders", error: e, stackTrace: s);
+      throw Exception('Failed to update orders: $e');
+    }
+  }
+
   //===============================PLANNING ORDER====================================
 
   //get status order
@@ -60,224 +241,6 @@ class PlanningService {
     } catch (e, s) {
       AppLogger.e("Failed to plan order", error: e, stackTrace: s);
       throw Exception('Failed to plan order: $e');
-    }
-  }
-
-  //===============================PLANNING PAPER====================================
-
-  //get planning by machine
-  Future<List<PlanningPaper>> getPlanningPaperByMachine({required String machine}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/planning/byMachinePaper',
-        queryParameters: {'machine': machine},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      final List<dynamic> planningData = response.data['data'];
-      return planningData.map((json) => PlanningPaper.fromJson(json)).toList();
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 403) {
-        throw Exception("NO_PERMISSION");
-      }
-      rethrow;
-    } catch (e, s) {
-      AppLogger.e("Failed to get planning", error: e, stackTrace: s);
-      throw Exception('Failed to get planning: $e');
-    }
-  }
-
-  //get planning paper by field
-  Future<List<PlanningPaper>> getPlanningPaperSearch({
-    required String field,
-    required String keyword,
-    required String machine,
-  }) async {
-    return HelperService().fetchingData<PlanningPaper>(
-      endpoint: "planning/filterPaper",
-      queryParameters: {'machine': machine, 'field': field, 'keyword': keyword},
-      fromJson: (json) => PlanningPaper.fromJson(json),
-    );
-  }
-
-  //change machine
-  Future<bool> changeMachinePlanning({
-    required String newMachine,
-    required List<int> planningIds,
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        "/api/planning/changeMachinePaper",
-        data: {"planningIds": planningIds, "newMachine": newMachine},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update orders", error: e, stackTrace: s);
-      throw Exception('Failed to update orders: $e');
-    }
-  }
-
-  //update index planning
-  Future<bool> updateIndexWTimeRunning({
-    required String machine,
-    required DateTime dayStart,
-    required TimeOfDay timeStart,
-    required int totalTimeWorking,
-    required List<Map<String, dynamic>> updateIndex,
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        "/api/planning/updateIndex_TimeRunningPaper",
-        data: {
-          'machine': machine,
-          "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
-          "timeStart":
-              "${timeStart.hour.toString().padLeft(2, '0')}:${timeStart.minute.toString().padLeft(2, '0')}",
-          "totalTimeWorking": totalTimeWorking,
-          "updateIndex": updateIndex,
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update planning", error: e, stackTrace: s);
-      throw Exception('Failed to update planning: $e');
-    }
-  }
-
-  //pause order
-  Future<bool> pauseOrAcceptLackQty({
-    required List<int> planningIds,
-    required String newStatus,
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        "/api/planning/pauseOrAcceptLackQtyPaper",
-        data: {'planningIds': planningIds, "newStatus": newStatus},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
-      throw Exception('Failed to pause machine: $e');
-    }
-  }
-
-  //===============================PLANNING BOX====================================
-
-  Future<List<PlanningBox>> getPlanningMachineBox({required String machine}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/planning/byMachineBox',
-        queryParameters: {'machine': machine},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      final List<dynamic> planningData = response.data['data'];
-      // print(planningData);
-      return planningData.map((json) => PlanningBox.fromJson(json)).toList();
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 403) {
-        throw Exception("NO_PERMISSION");
-      }
-      rethrow;
-    } catch (e, s) {
-      AppLogger.e("Failed to get planning", error: e, stackTrace: s);
-      throw Exception('Failed to get planning: $e');
-    }
-  }
-
-  //get planning paper by field
-  Future<List<PlanningBox>> getPlanningBoxSearch({
-    required String field,
-    required String keyword,
-    required String machine,
-  }) async {
-    return HelperService().fetchingData<PlanningBox>(
-      endpoint: "planning/filterBox",
-      queryParameters: {'machine': machine, 'field': field, 'keyword': keyword},
-      fromJson: (json) => PlanningBox.fromJson(json),
-    );
-  }
-
-  //update index planning
-  Future<bool> updateIndexWTimeRunningBox({
-    required String machine,
-    required DateTime dayStart,
-    required TimeOfDay timeStart,
-    required int totalTimeWorking,
-    required List<Map<String, dynamic>> updateIndex,
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        "/api/planning/updateIndex_TimeRunningBox",
-        data: {
-          'machine': machine,
-          "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
-          "timeStart":
-              "${timeStart.hour.toString().padLeft(2, '0')}:${timeStart.minute.toString().padLeft(2, '0')}",
-          "totalTimeWorking": totalTimeWorking,
-          "updateIndex": updateIndex,
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update planning", error: e, stackTrace: s);
-      throw Exception('Failed to update planning: $e');
-    }
-  }
-
-  //accept lack qty
-  Future<bool> acceptLackQtyBox({
-    required List<int> planningBoxIds,
-    required String newStatus,
-    required String machine,
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        "/api/planning/acceptLackQtyBox",
-        data: {"planningBoxIds": planningBoxIds, "newStatus": newStatus, "machine": machine},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
-      throw Exception('Failed to pause machine: $e');
     }
   }
 

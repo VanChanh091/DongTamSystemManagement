@@ -58,11 +58,11 @@ class ManufactureService {
       return true;
     } on DioException catch (e) {
       if (e.response != null) {
-        final statusCode = e.response?.statusCode;
-        final errorMsg = e.response?.data?['message'] ?? 'Unknown error';
-
-        // Chuyển lỗi lên submit() để xử lý theo mã lỗi
-        throw Exception("HTTP $statusCode: $errorMsg");
+        throw {
+          "status": e.response?.statusCode,
+          "message": e.response?.data?['message'],
+          "errorCode": e.response?.data?['errorCode'],
+        };
       } else {
         throw Exception("Network Error: ${e.message}");
       }
@@ -140,11 +140,11 @@ class ManufactureService {
       return true;
     } on DioException catch (e) {
       if (e.response != null) {
-        final statusCode = e.response?.statusCode;
-        final errorMsg = e.response?.data?['message'] ?? 'Unknown error';
-
-        // Chuyển lỗi lên submit() để xử lý theo mã lỗi
-        throw Exception("HTTP $statusCode: $errorMsg");
+        throw {
+          "status": e.response?.statusCode,
+          "message": e.response?.data?['message'],
+          "errorCode": e.response?.data?['errorCode'],
+        };
       } else {
         throw Exception("Network Error: ${e.message}");
       }
