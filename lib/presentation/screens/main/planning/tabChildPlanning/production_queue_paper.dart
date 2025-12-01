@@ -7,13 +7,13 @@ import 'package:dongtam/presentation/components/dialog/dialog_change_machine.dar
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/machine_paper_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/helper/toolbar/left_button_search.dart';
-import 'package:dongtam/utils/helper/toolbar/time_and_day_planning.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
+import 'package:dongtam/presentation/components/shared/planning/time_and_day_planning.dart';
 import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -205,35 +205,18 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       // nút lên xuống
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.arrow_upward),
-                                            onPressed:
-                                                selectedPlanningIds.isNotEmpty
-                                                    ? () {
-                                                      setState(() {
-                                                        machinePaperDatasource.moveRowUp(
-                                                          selectedPlanningIds,
-                                                        );
-                                                      });
-                                                    }
-                                                    : null,
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.arrow_downward),
-                                            onPressed:
-                                                selectedPlanningIds.isNotEmpty
-                                                    ? () {
-                                                      setState(() {
-                                                        machinePaperDatasource.moveRowDown(
-                                                          selectedPlanningIds,
-                                                        );
-                                                      });
-                                                    }
-                                                    : null,
-                                          ),
-                                        ],
+                                      rowMoveButtons(
+                                        enabled: selectedPlanningIds.isNotEmpty,
+                                        onMoveUp: () {
+                                          setState(() {
+                                            machinePaperDatasource.moveRowUp(selectedPlanningIds);
+                                          });
+                                        },
+                                        onMoveDown: () {
+                                          setState(() {
+                                            machinePaperDatasource.moveRowDown(selectedPlanningIds);
+                                          });
+                                        },
                                       ),
                                       const SizedBox(width: 20),
 
@@ -352,6 +335,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
                                                         final List<String> timeParts =
                                                             timeStartController.text.split(':');
+
                                                         final TimeOfDay parsedTimeStart = TimeOfDay(
                                                           hour: int.parse(timeParts[0]),
                                                           minute: int.parse(timeParts[1]),
@@ -428,6 +412,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             ),
                                         ],
                                       ),
+
                                       const SizedBox(width: 10),
 
                                       //group/unGroup
@@ -501,6 +486,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         },
                                         label: "Hoàn Thành",
                                         icon: Symbols.check,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -679,7 +665,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
                           //set day and time for time running
                           const SizedBox(height: 5),
-                          TimeAndDayPlanning(
+                          timeAndDayPlanning(
+                            context: context,
                             dayStartController: dayStartController,
                             timeStartController: timeStartController,
                             totalTimeWorkingController: totalTimeWorkingController,
@@ -937,7 +924,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       return;
     }
 
-    //UI
     bool confirm = await showConfirmDialog(
       context: context,
       title: title,

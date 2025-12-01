@@ -5,13 +5,13 @@ import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
 import 'package:dongtam/presentation/sources/machine_box_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/helper/toolbar/left_button_search.dart';
-import 'package:dongtam/utils/helper/toolbar/time_and_day_planning.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
+import 'package:dongtam/presentation/components/shared/planning/time_and_day_planning.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
@@ -180,7 +180,6 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                     setState(() {
                                       searchType = value;
                                       isTextFieldEnabled = searchType != 'Tất cả';
-
                                       searchController.clear();
                                     });
                                   },
@@ -201,35 +200,18 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       // nút lên xuống
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.arrow_upward),
-                                            onPressed:
-                                                selectedPlanningIds.isNotEmpty
-                                                    ? () {
-                                                      setState(() {
-                                                        machineBoxDatasource.moveRowUp(
-                                                          selectedPlanningIds,
-                                                        );
-                                                      });
-                                                    }
-                                                    : null,
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.arrow_downward),
-                                            onPressed:
-                                                selectedPlanningIds.isNotEmpty
-                                                    ? () {
-                                                      setState(() {
-                                                        machineBoxDatasource.moveRowDown(
-                                                          selectedPlanningIds,
-                                                        );
-                                                      });
-                                                    }
-                                                    : null,
-                                          ),
-                                        ],
+                                      rowMoveButtons(
+                                        enabled: selectedPlanningIds.isNotEmpty,
+                                        onMoveUp: () {
+                                          setState(() {
+                                            machineBoxDatasource.moveRowUp(selectedPlanningIds);
+                                          });
+                                        },
+                                        onMoveDown: () {
+                                          setState(() {
+                                            machineBoxDatasource.moveRowDown(selectedPlanningIds);
+                                          });
+                                        },
                                       ),
                                       const SizedBox(width: 20),
 
@@ -424,6 +406,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                             ),
                                         ],
                                       ),
+
                                       const SizedBox(width: 10),
 
                                       //group/unGroup
@@ -496,6 +479,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                         },
                                         label: "Hoàn Thành",
                                         icon: Symbols.check,
+                                        backgroundColor: themeController.buttonColor,
                                       ),
                                       const SizedBox(width: 10),
 
@@ -582,7 +566,8 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
                           //set day and time for time running
                           const SizedBox(height: 5),
-                          TimeAndDayPlanning(
+                          timeAndDayPlanning(
+                            context: context,
                             dayStartController: dayStartController,
                             timeStartController: timeStartController,
                             totalTimeWorkingController: totalTimeWorkingController,
@@ -826,47 +811,12 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
       return;
     }
 
-    bool confirm =
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-              content: Text(
-                message,
-                style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text(
-                    "Huỷ",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffEA4346),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text(
-                    "Xác nhận",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
+    bool confirm = await showConfirmDialog(
+      context: context,
+      title: title,
+      content: message,
+      confirmText: "Xác nhận",
+    );
 
     if (confirm) {
       try {

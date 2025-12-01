@@ -5,10 +5,10 @@ import 'package:dongtam/presentation/components/dialog/dialog_export_cus_or_prod
 import 'package:dongtam/presentation/components/headerTable/header_table_customer.dart';
 import 'package:dongtam/presentation/sources/customer_data_source.dart';
 import 'package:dongtam/service/customer_service.dart';
-import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/pagination_controls.dart';
+import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -550,7 +550,6 @@ class _CustomerPageState extends State<CustomerPage> {
       title: "⚠️ Xác nhận xoá",
       content: "Bạn có chắc chắn muốn xoá khách hàng này?",
       confirmText: "Xoá",
-      confirmColor: const Color(0xffEA4346),
     );
 
     if (!confirm) return;

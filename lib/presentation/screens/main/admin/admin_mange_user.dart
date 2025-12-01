@@ -3,7 +3,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_permission_role.dart';
 import 'package:dongtam/service/admin_service.dart';
-import 'package:dongtam/utils/helper/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
