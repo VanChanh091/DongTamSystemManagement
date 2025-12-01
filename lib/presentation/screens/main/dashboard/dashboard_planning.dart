@@ -5,6 +5,7 @@ import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_export_db_planning.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_db_planning.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_stages.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/dashboard_planning_data_source.dart';
 import 'package:dongtam/presentation/sources/stages_data_source.dart';
 import 'package:dongtam/service/dashboard_service.dart';
@@ -71,7 +72,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
   @override
   void initState() {
     super.initState();
-    loadDbPaper();
+    loadDashboard();
 
     columnsPaper = buildDbPaperColumn(themeController: themeController);
     columnsStages = buildStageColumn(themeController: themeController);
@@ -89,7 +90,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
     });
   }
 
-  void loadDbPaper() {
+  void loadDashboard() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
       final String selectedStatus = statusFieldMap[status] ?? "";
@@ -122,7 +123,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
     });
   }
 
-  void searchDbPaper() {
+  void searchDashboard() {
     String keyword = searchController.text.trim().toLowerCase();
     AppLogger.i("searchDbPaper: searchType=$searchType, keyword='$keyword'");
 
@@ -169,7 +170,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
     setState(() {
       status = selectedStatus;
       selectedStages.clear();
-      loadDbPaper();
+      loadDashboard();
     });
   }
 
@@ -213,94 +214,30 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                         //left button
                         Expanded(
                           flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(170.0, 200.0);
-                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
-
-                                return Row(
-                                  children: [
-                                    //dropdown
-                                    SizedBox(
-                                      width: dropdownWidth,
-                                      child: DropdownButtonFormField<String>(
-                                        value: searchType,
-                                        items:
-                                            [
-                                              'Tất cả',
-                                              "Theo Mã Đơn",
-                                              "Ghép Khổ",
-                                              "Theo Máy",
-                                              "Tên Khách Hàng",
-                                              "Tên Công Ty",
-                                              "Tên Nhân Viên",
-                                            ].map((String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            searchType = value!;
-                                            isTextFieldEnabled = searchType != 'Tất cả';
-
-                                            searchController.clear();
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                            borderSide: const BorderSide(color: Colors.grey),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //input
-                                    SizedBox(
-                                      width: textInputWidth,
-                                      height: 50,
-                                      child: TextField(
-                                        controller: searchController,
-                                        enabled: isTextFieldEnabled,
-                                        onSubmitted: (_) => searchDbPaper(),
-                                        decoration: InputDecoration(
-                                          hintText: 'Tìm kiếm...',
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //find
-                                    AnimatedButton(
-                                      onPressed: () {
-                                        searchDbPaper();
-                                      },
-                                      label: "Tìm kiếm",
-                                      icon: Icons.search,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
+                          child: LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const [
+                              'Tất cả',
+                              "Theo Mã Đơn",
+                              "Ghép Khổ",
+                              "Theo Máy",
+                              "Tên Khách Hàng",
+                              "Tên Công Ty",
+                              "Tên Nhân Viên",
+                            ],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = value != 'Tất cả';
+                                searchController.clear();
+                              });
+                            },
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
+                            onSearch: () => searchDashboard(),
+                            minDropdownWidth: 170,
+                            maxDropdownWidth: 200,
                           ),
                         ),
 
@@ -666,19 +603,19 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadDbPaper();
+                            loadDashboard();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadDbPaper();
+                            loadDashboard();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadDbPaper();
+                            loadDashboard();
                           });
                         },
                       ),
@@ -691,7 +628,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadDbPaper(),
+        onPressed: () => loadDashboard(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

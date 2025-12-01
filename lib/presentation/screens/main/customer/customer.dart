@@ -3,6 +3,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_export_cus_or_prod.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_customer.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/customer_data_source.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -166,92 +167,27 @@ class _CustomerPageState extends State<CustomerPage> {
                         //left button
                         Expanded(
                           flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
-                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
+                          child: LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const [
+                              'Tất cả',
+                              "Theo Mã",
+                              "Theo Tên KH",
+                              "Theo CSKH",
+                              "Theo SDT",
+                            ],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = searchType != 'Tất cả';
+                                searchController.clear();
+                              });
+                            },
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
 
-                                return Row(
-                                  children: [
-                                    //dropdown
-                                    SizedBox(
-                                      width: dropdownWidth,
-                                      child: DropdownButtonFormField<String>(
-                                        value: searchType,
-                                        items:
-                                            [
-                                              'Tất cả',
-                                              "Theo Mã",
-                                              "Theo Tên KH",
-                                              "Theo CSKH",
-                                              "Theo SDT",
-                                            ].map((String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            searchType = value!;
-                                            isTextFieldEnabled = searchType != 'Tất cả';
-
-                                            searchController.clear();
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                            borderSide: const BorderSide(color: Colors.grey),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //input
-                                    SizedBox(
-                                      width: textInputWidth,
-                                      height: 50,
-                                      child: TextField(
-                                        controller: searchController,
-                                        enabled: isTextFieldEnabled,
-                                        onSubmitted: (_) => searchCustomer(),
-                                        decoration: InputDecoration(
-                                          hintText: 'Tìm kiếm...',
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //find
-                                    AnimatedButton(
-                                      onPressed: () {
-                                        searchCustomer();
-                                      },
-                                      label: "Tìm kiếm",
-                                      icon: Icons.search,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
+                            onSearch: () => searchCustomer(),
                           ),
                         ),
 
@@ -368,7 +304,6 @@ class _CustomerPageState extends State<CustomerPage> {
                                           icon: Symbols.construction,
                                           backgroundColor: themeController.buttonColor,
                                         ),
-
                                         const SizedBox(width: 10),
 
                                         //delete customers
@@ -377,7 +312,23 @@ class _CustomerPageState extends State<CustomerPage> {
                                               isSale &&
                                                       selectedCustomerId != null &&
                                                       selectedCustomerId!.isNotEmpty
-                                                  ? () => _confirmDelete(context)
+                                                  ? () async {
+                                                    await showDeleteConfirmHelper(
+                                                      context: context,
+                                                      title: "⚠️ Xác nhận xoá",
+                                                      content:
+                                                          "Bạn có chắc chắn muốn xoá khách hàng này?",
+                                                      onDelete: () async {
+                                                        await CustomerService().deleteCustomer(
+                                                          customerId: selectedCustomerId!,
+                                                        );
+                                                      },
+                                                      onSuccess: () {
+                                                        setState(() => selectedCustomerId = null);
+                                                        loadCustomer();
+                                                      },
+                                                    );
+                                                  }
                                                   : null,
                                           label: "Xóa",
                                           icon: Icons.delete,
@@ -541,40 +492,5 @@ class _CustomerPageState extends State<CustomerPage> {
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
-  }
-
-  Future<void> _confirmDelete(BuildContext context) async {
-    //show confirm dialog
-    final confirm = await showConfirmDialog(
-      context: context,
-      title: "⚠️ Xác nhận xoá",
-      content: "Bạn có chắc chắn muốn xoá khách hàng này?",
-      confirmText: "Xoá",
-    );
-
-    if (!confirm) return;
-
-    //show deleteing dialog
-    if (!context.mounted) return;
-    showLoadingDialog(context, message: "Đang xoá...");
-
-    try {
-      await CustomerService().deleteCustomer(customerId: selectedCustomerId!);
-      await Future.delayed(const Duration(seconds: 1));
-
-      setState(() {
-        selectedCustomerId = null;
-      });
-      loadCustomer();
-
-      if (!context.mounted) return;
-
-      Navigator.pop(context);
-      showSnackBarSuccess(context, "Xoá thành công");
-    } catch (e, s) {
-      Navigator.pop(context);
-      AppLogger.e("Lỗi khi xoá khách hàng", error: e, stackTrace: s);
-      showSnackBarError(context, "Không thể xoá khách hàng");
-    }
   }
 }

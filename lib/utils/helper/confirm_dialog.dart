@@ -1,3 +1,5 @@
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 
 Future<bool> showConfirmDialog({
@@ -79,4 +81,45 @@ Future<void> showLoadingDialog(BuildContext context, {String message = "Đang x�
       );
     },
   );
+}
+
+Future<void> showDeleteConfirmHelper({
+  required BuildContext context,
+  required String title,
+  required String content,
+  required Future<void> Function() onDelete,
+  required VoidCallback onSuccess,
+  String loadingMessage = "Đang xoá...",
+  String successMessage = "Xoá thành công",
+  String errorMessage = "Lỗi khi xoá",
+}) async {
+  final confirm = await showConfirmDialog(
+    context: context,
+    title: title,
+    content: content,
+    confirmText: "Xoá",
+    confirmColor: const Color(0xffEA4346),
+  );
+
+  if (!confirm) return;
+
+  //show deleteing dialog
+  if (!context.mounted) return;
+  showLoadingDialog(context, message: loadingMessage);
+
+  try {
+    await onDelete();
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    if (!context.mounted) return;
+    Navigator.pop(context);
+
+    showSnackBarSuccess(context, successMessage);
+
+    onSuccess();
+  } catch (e, s) {
+    Navigator.pop(context);
+    AppLogger.e(errorMessage, error: e, stackTrace: s);
+    showSnackBarError(context, errorMessage);
+  }
 }

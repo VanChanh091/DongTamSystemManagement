@@ -5,7 +5,6 @@ import 'package:dongtam/presentation/components/dialog/dialog_report_production.
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
 import 'package:dongtam/presentation/sources/machine_box_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
-import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
@@ -227,6 +226,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        //left button
                         SizedBox(),
 
                         //right button
@@ -536,87 +536,5 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
-  }
-
-  Future<void> handlePlanningAction({
-    required BuildContext context,
-    required List<String> selectedPlanningIds,
-    required String status,
-    required String title,
-    required String message,
-    required String successMessage,
-    required String errorMessage,
-    required VoidCallback onSuccess,
-  }) async {
-    if (selectedPlanningIds.isEmpty) {
-      showSnackBarError(context, "Chưa chọn kế hoạch cần thực hiện");
-      return;
-    }
-
-    bool confirm =
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-              content: Text(
-                message,
-                style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text(
-                    "Huỷ",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffEA4346),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text(
-                    "Xác nhận",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
-
-    if (confirm) {
-      try {
-        final planningIds =
-            selectedPlanningIds
-                .map((orderId) => orderIdToPlanningId[orderId])
-                .whereType<int>()
-                .toList();
-
-        final success = await PlanningService().pauseOrAcceptLackQty(
-          ids: planningIds,
-          newStatus: status,
-        );
-        if (!context.mounted) return;
-
-        if (success) {
-          showSnackBarSuccess(context, successMessage);
-          onSuccess();
-        }
-      } catch (e) {
-        if (!context.mounted) return;
-        showSnackBarError(context, errorMessage);
-      }
-    }
   }
 }

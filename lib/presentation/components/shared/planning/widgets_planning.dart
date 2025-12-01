@@ -1,4 +1,10 @@
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 Widget timeAndDayPlanning({
   required BuildContext context,
@@ -110,5 +116,58 @@ Widget rowMoveButtons({
       IconButton(icon: const Icon(Icons.arrow_upward), onPressed: enabled ? onMoveUp : null),
       IconButton(icon: const Icon(Icons.arrow_downward), onPressed: enabled ? onMoveDown : null),
     ],
+  );
+}
+
+Widget confirmCompleteButton({
+  required BuildContext context,
+  required List<String> selectedIds,
+  required Future<bool> Function(List<int> ids) onConfirmComplete,
+  required VoidCallback onReload,
+  required Rx<Color> backgroundColor,
+}) {
+  return AnimatedButton(
+    onPressed: () async {
+      if (selectedIds.isEmpty) {
+        showSnackBarError(context, 'Vui lòng chọn kế hoạch cần thao tác');
+        return;
+      }
+
+      final confirm = await showConfirmDialog(
+        context: context,
+        title: "⚠️ Xác nhận",
+        content: "Xác nhận hoàn thành kế hoạch này?",
+        confirmText: "Ok",
+        confirmColor: const Color(0xffEA4346),
+      );
+
+      if (!confirm) return;
+
+      if (!context.mounted) return;
+      showLoadingDialog(context);
+
+      try {
+        final ids = selectedIds.map((e) => int.tryParse(e.toString())).whereType<int>().toList();
+
+        final success = await onConfirmComplete(ids);
+        if (success) {
+          onReload();
+        }
+
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
+        showSnackBarSuccess(context, "Thao tác thành công");
+      } catch (e, s) {
+        if (context.mounted) Navigator.of(context).pop();
+        AppLogger.e("Error in update status planning: $e", stackTrace: s);
+
+        if (context.mounted) {
+          showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+        }
+      }
+    },
+    label: "Hoàn Thành",
+    icon: Symbols.check,
+    backgroundColor: backgroundColor,
   );
 }

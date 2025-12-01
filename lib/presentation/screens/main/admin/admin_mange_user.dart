@@ -2,8 +2,10 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_permission_role.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -83,6 +85,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
               width: double.infinity,
               child: Column(
                 children: [
+                  //title
                   SizedBox(
                     height: 35,
                     width: double.infinity,
@@ -97,6 +100,8 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                       ),
                     ),
                   ),
+
+                  //button
                   SizedBox(
                     height: 70,
                     width: double.infinity,
@@ -108,97 +113,21 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                 //left button
                                 Expanded(
                                   flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: LayoutBuilder(
-                                      builder: (context, constraints) {
-                                        final maxWidth = constraints.maxWidth;
-                                        final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
-                                        final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
+                                  child: LeftButtonSearch(
+                                    selectedType: searchType,
+                                    types: const ['Tất cả', "Theo Tên", "Theo SDT", "Theo Quyền"],
+                                    onTypeChanged: (value) {
+                                      setState(() {
+                                        searchType = value;
+                                        isTextFieldEnabled = value != 'Tất cả';
+                                        searchController.clear();
+                                      });
+                                    },
+                                    controller: searchController,
+                                    textFieldEnabled: isTextFieldEnabled,
+                                    buttonColor: themeController.buttonColor,
 
-                                        return Row(
-                                          children: [
-                                            //dropdown
-                                            SizedBox(
-                                              width: dropdownWidth,
-                                              child: DropdownButtonFormField<String>(
-                                                value: searchType,
-                                                items:
-                                                    [
-                                                      'Tất cả',
-                                                      "Theo Tên",
-                                                      "Theo SDT",
-                                                      "Theo Quyền",
-                                                    ].map((String value) {
-                                                      return DropdownMenuItem<String>(
-                                                        value: value,
-                                                        child: Text(value),
-                                                      );
-                                                    }).toList(),
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    searchType = value!;
-                                                    isTextFieldEnabled = searchType != 'Tất cả';
-
-                                                    if (!isTextFieldEnabled) {
-                                                      searchController.clear();
-                                                    }
-                                                  });
-                                                },
-                                                decoration: InputDecoration(
-                                                  filled: true,
-                                                  fillColor: Colors.white,
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    borderSide: BorderSide(color: Colors.grey),
-                                                  ),
-                                                  contentPadding: const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 8,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            // input
-                                            SizedBox(
-                                              width: textInputWidth,
-                                              height: 50,
-                                              child: TextField(
-                                                controller: searchController,
-                                                enabled: isTextFieldEnabled,
-                                                onSubmitted: (_) => searchUser(),
-                                                decoration: InputDecoration(
-                                                  hintText: 'Tìm kiếm...',
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(12),
-                                                  ),
-                                                  contentPadding: const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            // find
-                                            AnimatedButton(
-                                              onPressed: () {
-                                                searchUser();
-                                              },
-                                              label: "Tìm kiếm",
-                                              icon: Icons.search,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
+                                    onSearch: () => searchUser(),
                                   ),
                                 ),
 
@@ -285,58 +214,15 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                               return;
                                             }
 
-                                            final confirm = await showDialog<bool>(
+                                            bool confirm = await showConfirmDialog(
                                               context: context,
-                                              builder:
-                                                  (context) => AlertDialog(
-                                                    backgroundColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                    ),
-                                                    title: const Text(
-                                                      "Xác nhận đặt lại",
-                                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                                    ),
-                                                    content: Text(
-                                                      "Bạn có muốn mặt lại mật khẩu cho ${selectedUserIds.length} người dùng?",
-                                                      style: const TextStyle(fontSize: 16),
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed:
-                                                            () => Navigator.pop(context, false),
-                                                        child: const Text(
-                                                          "Huỷ",
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.black54,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      ElevatedButton(
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: const Color(0xffEA4346),
-                                                          foregroundColor: Colors.white,
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius: BorderRadius.circular(8),
-                                                          ),
-                                                        ),
-                                                        onPressed:
-                                                            () => Navigator.pop(context, true),
-                                                        child: const Text(
-                                                          "Xác nhận",
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                              title: "Xác nhận đặt lại",
+                                              content:
+                                                  "Bạn có muốn mặt lại mật khẩu cho ${selectedUserIds.length} người dùng?",
+                                              confirmText: "Xác nhận",
                                             );
 
-                                            if (confirm == true) {
+                                            if (confirm) {
                                               try {
                                                 await Future.delayed(
                                                   const Duration(milliseconds: 500),

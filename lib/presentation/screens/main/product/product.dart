@@ -4,6 +4,7 @@ import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_export_cus_or_prod.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_product.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/product_data_source.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -159,88 +160,21 @@ class _ProductPageState extends State<ProductPage> {
                         //left button
                         Expanded(
                           flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
-                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
+                          child: LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const ['Tất cả', "Theo Mã", "Theo Tên SP"],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = value != 'Tất cả';
+                                searchController.clear();
+                              });
+                            },
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
 
-                                return Row(
-                                  children: [
-                                    //dropdown
-                                    SizedBox(
-                                      width: dropdownWidth,
-                                      child: DropdownButtonFormField<String>(
-                                        value: searchType,
-                                        items:
-                                            ['Tất cả', "Theo Mã", "Theo Tên SP"].map((
-                                              String value,
-                                            ) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            searchType = value!;
-                                            isTextFieldEnabled = searchType != 'Tất cả';
-
-                                            searchController.clear();
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                            borderSide: const BorderSide(color: Colors.grey),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //input
-                                    SizedBox(
-                                      width: textInputWidth,
-                                      height: 50,
-                                      child: TextField(
-                                        controller: searchController,
-                                        enabled: isTextFieldEnabled,
-                                        onSubmitted: (_) => searchProduct(),
-                                        decoration: InputDecoration(
-                                          hintText: 'Tìm kiếm...',
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //find
-                                    AnimatedButton(
-                                      onPressed: () {
-                                        searchProduct();
-                                      },
-                                      label: "Tìm kiếm",
-                                      icon: Icons.search,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
+                            onSearch: () => searchProduct(),
                           ),
                         ),
 
@@ -366,7 +300,23 @@ class _ProductPageState extends State<ProductPage> {
                                               isSale &&
                                                       selectedProductId != null &&
                                                       selectedProductId!.isNotEmpty
-                                                  ? () => _confirmDelete(context)
+                                                  ? () async {
+                                                    await showDeleteConfirmHelper(
+                                                      context: context,
+                                                      title: "⚠️ Xác nhận xoá",
+                                                      content:
+                                                          "Bạn có chắc chắn muốn xoá sản phẩm này?",
+                                                      onDelete: () async {
+                                                        await ProductService().deleteProduct(
+                                                          productId: selectedProductId!,
+                                                        );
+                                                      },
+                                                      onSuccess: () {
+                                                        setState(() => selectedProductId = null);
+                                                        loadProduct();
+                                                      },
+                                                    );
+                                                  }
                                                   : null,
                                           label: "Xóa",
                                           icon: Icons.delete,
@@ -518,41 +468,5 @@ class _ProductPageState extends State<ProductPage> {
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
-  }
-
-  Future<void> _confirmDelete(BuildContext context) async {
-    //show confirm dialog
-    final confirm = await showConfirmDialog(
-      context: context,
-      title: "⚠️ Xác nhận xoá",
-      content: "Bạn có chắc chắn muốn xoá sản phẩm này?",
-      confirmText: "Xoá",
-      confirmColor: const Color(0xffEA4346),
-    );
-
-    if (!confirm) return;
-
-    //show deleteing dialog
-    if (!context.mounted) return;
-    showLoadingDialog(context, message: "Đang xoá...");
-
-    try {
-      await ProductService().deleteProduct(productId: selectedProductId!);
-      await Future.delayed(const Duration(seconds: 1));
-
-      setState(() {
-        selectedProductId = null;
-      });
-      loadProduct();
-
-      if (!context.mounted) return;
-
-      Navigator.pop(context);
-      showSnackBarSuccess(context, 'Xoá thành công');
-    } catch (e, s) {
-      Navigator.pop(context);
-      AppLogger.e("Lỗi khi xoá sản phẩm", error: e, stackTrace: s);
-      showSnackBarError(context, "Không thể xoá sản phẩm");
-    }
   }
 }

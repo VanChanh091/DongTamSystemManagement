@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/order_data_source.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -168,111 +169,39 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                         //button
                         Expanded(
                           flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
-                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
-
-                                return Row(
-                                  children: [
-                                    // dropdown
-                                    SizedBox(
-                                      width: dropdownWidth,
-                                      child: DropdownButtonFormField<String>(
-                                        value: searchType,
-                                        items:
-                                            [
-                                              'Tất cả',
-                                              "Tên KH",
-                                              "Tên SP",
-                                              "QC Thùng",
-                                              'Đơn giá',
-                                            ].map((String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            searchType = value!;
-                                            isTextFieldEnabled = searchType != 'Tất cả';
-
-                                            searchController.clear();
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                            borderSide: const BorderSide(color: Colors.grey),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(width: 10),
-
-                                    // input
-                                    SizedBox(
-                                      width: textInputWidth,
-                                      height: 50,
-                                      child: TextField(
-                                        controller: searchController,
-                                        enabled: isTextFieldEnabled,
-                                        onSubmitted: (_) => searchOrders(),
-                                        decoration: InputDecoration(
-                                          hintText: 'Tìm kiếm...',
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    // find
-                                    AnimatedButton(
-                                      onPressed: () {
-                                        searchOrders();
-                                      },
-                                      label: "Tìm kiếm",
-                                      icon: Icons.search,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //see all/see only
-                                    isManager
-                                        ? AnimatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              isSeenOrder = !isSeenOrder;
-                                            });
-                                            loadOrders(ownOnly: isSeenOrder);
-                                          },
-                                          label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
-                                          icon: null,
-                                          backgroundColor: themeController.buttonColor,
-                                        )
-                                        : const SizedBox.shrink(),
-                                  ],
-                                );
-                              },
-                            ),
+                          child: LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const ['Tất cả', "Tên KH", "Tên SP", "QC Thùng", 'Đơn giá'],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = value != 'Tất cả';
+                                searchController.clear();
+                              });
+                            },
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
+                            onSearch: () => searchOrders(),
+                            extraWidgets: [
+                              isManager
+                                  ? AnimatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        isSeenOrder = !isSeenOrder;
+                                      });
+                                      loadOrders(ownOnly: isSeenOrder);
+                                    },
+                                    label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
+                                    icon: null,
+                                    backgroundColor: themeController.buttonColor,
+                                  )
+                                  : const SizedBox.shrink(),
+                            ],
                           ),
                         ),
+
+                        //right button
                         Expanded(flex: 1, child: Container()),
                       ],
                     ),
@@ -296,9 +225,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData ||
-                      //get data from paging
-                      snapshot.data!['orders'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['orders'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",

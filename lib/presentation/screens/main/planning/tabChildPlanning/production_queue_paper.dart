@@ -5,6 +5,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_change_machine.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
+import 'package:dongtam/presentation/components/shared/planning/save_planning.dart';
 import 'package:dongtam/presentation/sources/machine_paper_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -13,7 +14,7 @@ import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/planning/time_and_day_planning.dart';
+import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -71,6 +72,14 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     } else {
       futurePlanning = Future.error("NO_PERMISSION");
     }
+
+    machinePaperDatasource = MachinePaperDatasource(
+      planning: [],
+      selectedPlanningIds: selectedPlanningIds,
+      unsavedChange: unsavedChangeController,
+      showGroup: showGroup,
+      page: 'planning',
+    );
 
     columns = buildMachineColumns(themeController: themeController, page: "planning");
 
@@ -190,8 +199,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                   },
                                   controller: searchController,
                                   textFieldEnabled: isTextFieldEnabled,
-                                  buttonColor: themeController.buttonColor.value,
-
+                                  buttonColor: themeController.buttonColor,
                                   onSearch: () => searchPlanning(),
                                 ),
                               ),
@@ -221,198 +229,23 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                       const SizedBox(width: 20),
 
                                       // save
-                                      Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          AnimatedButton(
-                                            onPressed:
-                                                isLoading
-                                                    ? null
-                                                    : () async {
-                                                      if (dayStartController.text.isEmpty ||
-                                                          timeStartController.text.isEmpty ||
-                                                          totalTimeWorkingController.text.isEmpty) {
-                                                        showSnackBarError(
-                                                          context,
-                                                          "Vui lòng nhập đầy đủ ngày bắt đầu, giờ bắt đầu và tổng thời gian.",
-                                                        );
-                                                        return;
-                                                      }
-
-                                                      setState(() => isLoading = true);
-
-                                                      try {
-                                                        final List<DataGridRow> visibleRows =
-                                                            machinePaperDatasource.rows;
-
-                                                        // 1️⃣ Lấy các đơn chưa complete và gán sortPlanning
-                                                        final List<Map<String, dynamic>>
-                                                        updateIndex =
-                                                            visibleRows
-                                                                .asMap()
-                                                                .entries
-                                                                .where((entry) {
-                                                                  final status =
-                                                                      entry.value
-                                                                          .getCells()
-                                                                          .firstWhere(
-                                                                            (cell) =>
-                                                                                cell.columnName ==
-                                                                                "status",
-                                                                            orElse:
-                                                                                () => DataGridCell(
-                                                                                  columnName:
-                                                                                      'status',
-                                                                                  value: null,
-                                                                                ),
-                                                                          )
-                                                                          .value;
-
-                                                                  return status != 'complete';
-                                                                })
-                                                                .map((entry) {
-                                                                  final planningId =
-                                                                      entry.value
-                                                                          .getCells()
-                                                                          .firstWhere(
-                                                                            (cell) =>
-                                                                                cell.columnName ==
-                                                                                "planningId",
-                                                                          )
-                                                                          .value;
-
-                                                                  return {
-                                                                    "planningId": planningId,
-                                                                    "sortPlanning": entry.key + 1,
-                                                                  };
-                                                                })
-                                                                .toList();
-
-                                                        // 2️⃣ Lấy 1 đơn complete cuối cùng (để BE tính timeRunning, không update sortPlanning)
-                                                        DataGridRow? lastCompleteRow;
-
-                                                        for (var row in visibleRows.reversed) {
-                                                          final status =
-                                                              row
-                                                                  .getCells()
-                                                                  .firstWhere(
-                                                                    (cell) =>
-                                                                        cell.columnName == "status",
-                                                                    orElse:
-                                                                        () => DataGridCell(
-                                                                          columnName: 'status',
-                                                                          value: null,
-                                                                        ),
-                                                                  )
-                                                                  .value;
-
-                                                          if (status == 'complete') {
-                                                            lastCompleteRow = row;
-                                                            break;
-                                                          }
-                                                        }
-
-                                                        if (lastCompleteRow != null) {
-                                                          final planningId =
-                                                              lastCompleteRow
-                                                                  .getCells()
-                                                                  .firstWhere(
-                                                                    (cell) =>
-                                                                        cell.columnName ==
-                                                                        "planningId",
-                                                                  )
-                                                                  .value;
-
-                                                          updateIndex.add({
-                                                            "planningId": planningId,
-                                                          });
-                                                        }
-
-                                                        // 3️⃣ Parse ngày, giờ, tổng thời gian
-                                                        final DateTime parsedDayStart = DateFormat(
-                                                          'dd/MM/yyyy',
-                                                        ).parse(dayStartController.text);
-
-                                                        final List<String> timeParts =
-                                                            timeStartController.text.split(':');
-
-                                                        final TimeOfDay parsedTimeStart = TimeOfDay(
-                                                          hour: int.parse(timeParts[0]),
-                                                          minute: int.parse(timeParts[1]),
-                                                        );
-
-                                                        final int parsedTotalTime =
-                                                            int.tryParse(
-                                                              totalTimeWorkingController.text,
-                                                            ) ??
-                                                            0;
-
-                                                        // 4️⃣ Gửi xuống BE
-                                                        // print(
-                                                        //   "=== Các đơn sẽ gửi xuống BE ===",
-                                                        // );
-                                                        // for (var item
-                                                        //     in updateIndex) {
-                                                        //   print(item);
-                                                        // }
-                                                        // print(
-                                                        //   "================================",
-                                                        // );
-
-                                                        final result = await PlanningService()
-                                                            .updateIndexWTimeRunning(
-                                                              machine: machine,
-                                                              dayStart: parsedDayStart,
-                                                              timeStart: parsedTimeStart,
-                                                              totalTimeWorking: parsedTotalTime,
-                                                              updateIndex: updateIndex,
-                                                            );
-
-                                                        if (!context.mounted) {
-                                                          return;
-                                                        }
-
-                                                        if (result) {
-                                                          showSnackBarSuccess(
-                                                            context,
-                                                            "Cập nhật thành công",
-                                                          );
-                                                          loadPlanning();
-
-                                                          unsavedChangeController
-                                                              .resetUnsavedChanges();
-                                                        }
-                                                      } catch (e, s) {
-                                                        showSnackBarError(context, "Lỗi cập nhật");
-                                                        AppLogger.e(
-                                                          "Lỗi khi lưu",
-                                                          error: e,
-                                                          stackTrace: s,
-                                                        );
-                                                      } finally {
-                                                        setState(() => isLoading = false);
-                                                      }
-                                                    },
-                                            label: "Lưu",
-                                            icon: Icons.save,
-                                            backgroundColor: themeController.buttonColor,
-                                          ),
-
-                                          if (isLoading)
-                                            const Positioned(
-                                              right: 10,
-                                              child: SizedBox(
-                                                width: 18,
-                                                height: 18,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                        ],
+                                      SavePlanning(
+                                        isLoading: isLoading,
+                                        dayStartController: dayStartController,
+                                        timeStartController: timeStartController,
+                                        totalTimeWorkingController: totalTimeWorkingController,
+                                        rows: machinePaperDatasource.rows,
+                                        idColumn: 'planningId',
+                                        isBox: false,
+                                        backgroundColor: themeController.buttonColor,
+                                        machine: machine,
+                                        onSuccess: () {
+                                          loadPlanning();
+                                          unsavedChangeController.resetUnsavedChanges();
+                                        },
+                                        onStartLoading: () => setState(() => isLoading = true),
+                                        onEndLoading: () => setState(() => isLoading = false),
                                       ),
-
                                       const SizedBox(width: 10),
 
                                       //group/unGroup
@@ -429,64 +262,16 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                       const SizedBox(width: 10),
 
                                       //confirm complete
-                                      AnimatedButton(
-                                        onPressed: () async {
-                                          if (selectedPlanningIds.isEmpty) {
-                                            showSnackBarError(
-                                              context,
-                                              'Vui lòng chọn kế hoạch cần thao tác',
-                                            );
-                                            return;
-                                          }
-
-                                          final confirm = await showConfirmDialog(
-                                            context: context,
-                                            title: "⚠️ Xác nhận",
-                                            content: "Xác nhận hoàn thành kế hoạch này?",
-                                            confirmText: "Ok",
-                                            confirmColor: const Color(0xffEA4346),
+                                      confirmCompleteButton(
+                                        context: context,
+                                        selectedIds: selectedPlanningIds,
+                                        onConfirmComplete: (ids) async {
+                                          return await PlanningService().confirmCompletePlanning(
+                                            ids: ids,
                                           );
-
-                                          if (!confirm) return;
-
-                                          if (!context.mounted) return;
-                                          showLoadingDialog(context);
-
-                                          try {
-                                            final planningIds =
-                                                selectedPlanningIds
-                                                    .map((e) => int.tryParse(e.toString()))
-                                                    .whereType<int>()
-                                                    .toList();
-
-                                            final success = await PlanningService()
-                                                .confirmCompletePlanning(ids: planningIds);
-
-                                            if (success) {
-                                              loadPlanning();
-                                            }
-
-                                            if (!context.mounted) return;
-                                            Navigator.of(context).pop();
-                                            showSnackBarSuccess(context, "Thao tác thành công");
-                                          } catch (e, s) {
-                                            if (mounted) Navigator.of(context).pop();
-                                            AppLogger.e(
-                                              "Error in update status planning: $e",
-                                              stackTrace: s,
-                                            );
-
-                                            if (mounted) {
-                                              showSnackBarError(
-                                                context,
-                                                'Có lỗi xảy ra, vui lòng thử lại',
-                                              );
-                                            }
-                                          }
                                         },
-                                        label: "Hoàn Thành",
-                                        icon: Symbols.check,
                                         backgroundColor: themeController.buttonColor,
+                                        onReload: () => loadPlanning(),
                                       ),
                                       const SizedBox(width: 10),
 

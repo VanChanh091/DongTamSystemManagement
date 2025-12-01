@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/report/report_planning_paper.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_export_excel_report.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_report_paper.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/report_paper_data_source.dart';
 import 'package:dongtam/service/report_planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -187,153 +188,87 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                         //left button
                         Expanded(
                           flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final maxWidth = constraints.maxWidth;
-                                final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
-                                final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
+                          child: LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const [
+                              'Tất cả',
+                              "Theo Mã ĐH",
+                              'Tên KH',
+                              "Ngày Báo Cáo",
+                              "SL Báo Cáo",
+                              "Ghép Khổ",
+                              "Quản Ca",
+                            ],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = value != 'Tất cả';
+                                searchController.clear();
+                              });
+                            },
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
+                            onSearch: () => searchReportPaper(),
+                            customInputBuilder: (inputWidth) {
+                              if (searchType != 'Ngày Báo Cáo') return null;
 
-                                return Row(
-                                  children: [
-                                    //dropdown
-                                    SizedBox(
-                                      width: dropdownWidth,
-                                      child: DropdownButtonFormField<String>(
-                                        value: searchType,
-                                        items:
-                                            [
-                                              'Tất cả',
-                                              "Theo Mã ĐH",
-                                              'Tên KH',
-                                              "Ngày Báo Cáo",
-                                              "SL Báo Cáo",
-                                              "Ghép Khổ",
-                                              "Quản Ca",
-                                            ].map((String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            searchType = value!;
-                                            isTextFieldEnabled = searchType != 'Tất cả';
+                              return SizedBox(
+                                width: inputWidth,
+                                height: 50,
+                                child: InkWell(
+                                  onTap: () async {
+                                    final now = DateTime.now();
 
-                                            searchController.clear();
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                            borderSide: const BorderSide(color: Colors.grey),
+                                    DateTime? picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: now,
+                                      firstDate: DateTime(2020),
+                                      lastDate: DateTime(2100),
+                                      builder: (BuildContext context, Widget? child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme: ColorScheme.light(
+                                              primary: Colors.blue,
+                                              onPrimary: Colors.white,
+                                              onSurface: Colors.black,
+                                            ),
+                                            dialogTheme: DialogThemeData(
+                                              backgroundColor: Colors.white12,
+                                            ),
                                           ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
+                                          child: child!,
+                                        );
+                                      },
+                                    );
+
+                                    if (picked != null) {
+                                      final displayDate = DateFormat('dd/MM/yyyy').format(picked);
+
+                                      setState(() {
+                                        dateController.text =
+                                            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+
+                                        searchController.text = displayDate;
+                                      });
+                                    }
+                                  },
+                                  child: IgnorePointer(
+                                    child: TextField(
+                                      controller: searchController,
+                                      decoration: InputDecoration(
+                                        hintText: 'Chọn ngày...',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
                                         ),
+                                        suffixIcon: const Icon(Icons.calendar_today),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                                       ),
                                     ),
-                                    const SizedBox(width: 10),
-
-                                    //date picker or input
-                                    searchType == 'Ngày Báo Cáo'
-                                        ? SizedBox(
-                                          width: textInputWidth,
-                                          height: 50,
-                                          child: InkWell(
-                                            onTap: () async {
-                                              final now = DateTime.now();
-
-                                              DateTime? picked = await showDatePicker(
-                                                context: context,
-                                                initialDate: now,
-                                                firstDate: DateTime(2020),
-                                                lastDate: DateTime(2100),
-                                                builder: (BuildContext context, Widget? child) {
-                                                  return Theme(
-                                                    data: Theme.of(context).copyWith(
-                                                      colorScheme: ColorScheme.light(
-                                                        primary: Colors.blue,
-                                                        onPrimary: Colors.white,
-                                                        onSurface: Colors.black,
-                                                      ),
-                                                      dialogTheme: DialogThemeData(
-                                                        backgroundColor: Colors.white12,
-                                                      ),
-                                                    ),
-                                                    child: child!,
-                                                  );
-                                                },
-                                              );
-
-                                              if (picked != null) {
-                                                final displayDate = DateFormat(
-                                                  'dd/MM/yyyy',
-                                                ).format(picked);
-
-                                                setState(() {
-                                                  dateController.text =
-                                                      "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-
-                                                  searchController.text = displayDate;
-                                                });
-                                              }
-                                            },
-                                            child: IgnorePointer(
-                                              child: TextField(
-                                                controller: searchController,
-                                                decoration: InputDecoration(
-                                                  hintText: 'Chọn ngày...',
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(12),
-                                                  ),
-                                                  suffixIcon: const Icon(Icons.calendar_today),
-                                                  contentPadding: const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                        : SizedBox(
-                                          width: textInputWidth,
-                                          height: 50,
-                                          child: TextField(
-                                            controller: searchController,
-                                            enabled: isTextFieldEnabled,
-                                            onSubmitted: (_) => searchReportPaper(),
-                                            decoration: InputDecoration(
-                                              hintText: 'Tìm kiếm...',
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                              contentPadding: const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    const SizedBox(width: 10),
-
-                                    // find
-                                    AnimatedButton(
-                                      onPressed: () => searchReportPaper(),
-                                      label: "Tìm kiếm",
-                                      icon: Icons.search,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                    const SizedBox(width: 10),
-                                  ],
-                                );
-                              },
-                            ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
 

@@ -12,7 +12,6 @@ import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -198,7 +197,23 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                               AnimatedButton(
                                 onPressed:
                                     selectedOrderId != null && selectedOrderId!.isNotEmpty
-                                        ? () => _confirmDelete(context)
+                                        ? () async {
+                                          await showDeleteConfirmHelper(
+                                            context: context,
+                                            title: "⚠️ Xác nhận xoá",
+                                            content: "Bạn có chắc chắn muốn xoá đơn hàng này?",
+                                            onDelete: () async {
+                                              await OrderService().deleteOrder(
+                                                orderId: selectedOrderId!,
+                                              );
+                                            },
+                                            onSuccess: () {
+                                              setState(() => selectedOrderId = null);
+                                              badgesController.fetchPendingApprovals();
+                                              loadOrders(ownOnly: isSeenOrder);
+                                            },
+                                          );
+                                        }
                                         : null,
                                 label: "Xóa",
                                 icon: Icons.delete,
@@ -350,42 +365,6 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
       });
     } else {
       AppLogger.d("Không tìm thấy đơn hàng mới trong bảng.");
-    }
-  }
-
-  Future<void> _confirmDelete(BuildContext context) async {
-    //show confirm dialog
-    final confirm = await showConfirmDialog(
-      context: context,
-      title: "⚠️ Xác nhận xoá",
-      content: "Bạn có chắc chắn muốn xoá đơn hàng này?",
-      confirmText: "Xoá",
-      confirmColor: const Color(0xffEA4346),
-    );
-
-    if (!confirm) return;
-
-    //show deleteing dialog
-    if (!context.mounted) return;
-    showLoadingDialog(context, message: "Đang xoá...");
-
-    try {
-      await OrderService().deleteOrder(orderId: selectedOrderId!);
-
-      badgesController.fetchPendingApprovals();
-      await Future.delayed(const Duration(seconds: 1));
-
-      loadOrders(ownOnly: isSeenOrder);
-
-      if (!context.mounted) {
-        return;
-      }
-      Navigator.pop(context);
-      showSnackBarSuccess(context, 'Xoá thành công');
-    } catch (e, s) {
-      Navigator.pop(context);
-      AppLogger.e("Lỗi khi xoá khách hàng", error: e, stackTrace: s);
-      showSnackBarError(context, "Không thể xoá khách hàng");
     }
   }
 }

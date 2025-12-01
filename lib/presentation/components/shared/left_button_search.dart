@@ -1,5 +1,6 @@
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LeftButtonSearch extends StatelessWidget {
   final String selectedType;
@@ -12,7 +13,15 @@ class LeftButtonSearch extends StatelessWidget {
   final bool textFieldEnabled;
   final String buttonLabel;
   final IconData buttonIcon;
-  final Color? buttonColor;
+  final Rx<Color>? buttonColor;
+
+  final double minDropdownWidth;
+  final double maxDropdownWidth;
+  final double minInputWidth;
+  final double maxInputWidth;
+
+  final List<Widget> extraWidgets;
+  final Widget? Function(double width)? customInputBuilder;
 
   const LeftButtonSearch({
     super.key,
@@ -25,6 +34,14 @@ class LeftButtonSearch extends StatelessWidget {
     this.buttonLabel = "Tìm kiếm",
     this.buttonIcon = Icons.search,
     this.buttonColor,
+
+    this.minDropdownWidth = 120.0,
+    this.maxDropdownWidth = 170.0,
+    this.minInputWidth = 200.0,
+    this.maxInputWidth = 250.0,
+
+    this.extraWidgets = const [],
+    this.customInputBuilder,
   });
 
   @override
@@ -36,8 +53,27 @@ class LeftButtonSearch extends StatelessWidget {
           final maxWidth = constraints.maxWidth;
 
           // giữ y nguyên logic của ông
-          final dropdownWidth = (maxWidth * 0.2).clamp(120.0, 170.0);
-          final textInputWidth = (maxWidth * 0.3).clamp(200.0, 250.0);
+          final dropdownWidth = (maxWidth * 0.2).clamp(minDropdownWidth, maxDropdownWidth);
+          final textInputWidth = (maxWidth * 0.3).clamp(minInputWidth, maxInputWidth);
+
+          Widget? custom = customInputBuilder?.call(textInputWidth);
+
+          Widget inputWidget =
+              custom ??
+              SizedBox(
+                width: textInputWidth,
+                height: 50,
+                child: TextField(
+                  controller: controller,
+                  enabled: textFieldEnabled,
+                  onSubmitted: (_) => onSearch(),
+                  decoration: InputDecoration(
+                    hintText: 'Tìm kiếm...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                ),
+              );
 
           return Row(
             children: [
@@ -60,26 +96,10 @@ class LeftButtonSearch extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(width: 10),
 
               // Input
-              SizedBox(
-                width: textInputWidth,
-                height: 50,
-                child: TextField(
-                  controller: controller,
-                  enabled: textFieldEnabled,
-                  onSubmitted: (_) => onSearch(),
-                  decoration: InputDecoration(
-                    hintText: 'Tìm kiếm...',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 10),
+              ...[inputWidget, const SizedBox(width: 10)],
 
               // Button
               AnimatedButton(
@@ -88,6 +108,9 @@ class LeftButtonSearch extends StatelessWidget {
                 icon: Icons.search,
                 backgroundColor: buttonColor,
               ),
+
+              const SizedBox(width: 10),
+              ...extraWidgets,
             ],
           );
         },
