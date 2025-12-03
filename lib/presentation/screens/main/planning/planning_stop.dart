@@ -68,6 +68,7 @@ class _PlanningStopState extends State<PlanningStop> {
         PlanningService().getPlanningStop(page: currentPage, pageSize: pageSize),
       );
 
+      badgesController.fetchPlanningStop();
       selectedPlanningIds.clear();
     });
   }

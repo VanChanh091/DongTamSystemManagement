@@ -49,6 +49,17 @@ class MachineBoxDatasource extends DataGridSource {
                 ? formatter.format(planning.order!.dateRequestShipping)
                 : '',
       ),
+      DataGridCell<String>(
+        columnName: "dayStartProduction",
+        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : '',
+      ),
+      DataGridCell<String>(
+        columnName: "dayCompletedProd",
+        value:
+            boxMachineTime?.dayCompleted != null
+                ? formatterDayCompleted.format(boxMachineTime!.dayCompleted!)
+                : '',
+      ),
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: planning.order?.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
@@ -112,20 +123,11 @@ class MachineBoxDatasource extends DataGridSource {
         columnName: "shiftManager",
         value: boxMachineTime?.shiftManagement ?? "",
       ),
+
+      // hidden
       DataGridCell<String>(columnName: "status", value: boxMachineTime?.status),
       DataGridCell<int>(columnName: "index", value: boxMachineTime?.sortPlanning ?? 0),
       DataGridCell<int>(columnName: "planningBoxId", value: planning.planningBoxId),
-      DataGridCell<String>(
-        columnName: "dayStartProduction",
-        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : '',
-      ),
-      DataGridCell<String>(
-        columnName: "dayCompletedProd",
-        value:
-            boxMachineTime?.dayCompleted != null
-                ? formatterDayCompleted.format(boxMachineTime!.dayCompleted!)
-                : '',
-      ),
     ];
   }
 

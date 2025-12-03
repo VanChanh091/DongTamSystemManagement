@@ -117,7 +117,7 @@ class PlanningService {
         if (machine != null) "machine": machine,
       };
 
-      final endpoint = isBox ? "pauseOrAcceptLackQtyPaper" : "acceptLackQtyBox";
+      final endpoint = isBox ? "acceptLackQtyBox" : "pauseOrAcceptLackQtyPaper";
 
       await dioService.put(
         "/api/planning/$endpoint",

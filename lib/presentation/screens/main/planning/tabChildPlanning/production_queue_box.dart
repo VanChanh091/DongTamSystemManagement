@@ -68,14 +68,6 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
       futurePlanning = Future.error("NO_PERMISSION");
     }
 
-    machineBoxDatasource = MachineBoxDatasource(
-      planning: [],
-      selectedPlanningIds: selectedPlanningBoxIds,
-      unsavedChange: unsavedChangeController,
-      machine: machine,
-      showGroup: showGroup,
-    );
-
     columns = buildMachineBoxColumns(machine: machine, themeController: themeController);
 
     ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((w) {
@@ -232,7 +224,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                         dayStartController: dayStartController,
                                         timeStartController: timeStartController,
                                         totalTimeWorkingController: totalTimeWorkingController,
-                                        rows: machineBoxDatasource.rows,
+                                        getRows: () => machineBoxDatasource.rows,
                                         idColumn: 'planningBoxId',
                                         isBox: true,
                                         backgroundColor: themeController.buttonColor,
@@ -276,44 +268,21 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                       const SizedBox(width: 10),
 
                                       //choose machine
-                                      SizedBox(
-                                        width: 175,
-                                        child: DropdownButtonFormField<String>(
-                                          value: machine,
-                                          items:
-                                              [
-                                                'Máy In',
-                                                "Máy Bế",
-                                                "Máy Xả",
-                                                "Máy Dán",
-                                                'Máy Cấn Lằn',
-                                                "Máy Cắt Khe",
-                                                "Máy Cán Màng",
-                                                "Máy Đóng Ghim",
-                                              ].map((String value) {
-                                                return DropdownMenuItem<String>(
-                                                  value: value,
-                                                  child: Text(value),
-                                                );
-                                              }).toList(),
-                                          onChanged: (value) {
-                                            if (value != null) {
-                                              changeMachine(value);
-                                            }
-                                          },
-                                          decoration: InputDecoration(
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                              borderSide: const BorderSide(color: Colors.grey),
-                                            ),
-                                            contentPadding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 8,
-                                            ),
-                                          ),
-                                        ),
+                                      buildMachineDropdown(
+                                        value: machine,
+                                        items: const [
+                                          'Máy In',
+                                          "Máy Bế",
+                                          "Máy Xả",
+                                          "Máy Dán",
+                                          'Máy Cấn Lằn',
+                                          "Máy Cắt Khe",
+                                          "Máy Cán Màng",
+                                          "Máy Đóng Ghim",
+                                        ],
+                                        onChanged: (value) {
+                                          if (value != null) changeMachine(value);
+                                        },
                                       ),
                                       const SizedBox(width: 10),
 

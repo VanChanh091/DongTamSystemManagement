@@ -73,14 +73,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       futurePlanning = Future.error("NO_PERMISSION");
     }
 
-    machinePaperDatasource = MachinePaperDatasource(
-      planning: [],
-      selectedPlanningIds: selectedPlanningIds,
-      unsavedChange: unsavedChangeController,
-      showGroup: showGroup,
-      page: 'planning',
-    );
-
     columns = buildMachineColumns(themeController: themeController, page: "planning");
 
     ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
@@ -226,6 +218,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                           });
                                         },
                                       ),
+
                                       const SizedBox(width: 20),
 
                                       // save
@@ -234,7 +227,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         dayStartController: dayStartController,
                                         timeStartController: timeStartController,
                                         totalTimeWorkingController: totalTimeWorkingController,
-                                        rows: machinePaperDatasource.rows,
+                                        getRows: () => machinePaperDatasource.rows,
                                         idColumn: 'planningId',
                                         isBox: false,
                                         backgroundColor: themeController.buttonColor,
@@ -246,6 +239,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         onStartLoading: () => setState(() => isLoading = true),
                                         onEndLoading: () => setState(() => isLoading = false),
                                       ),
+
                                       const SizedBox(width: 10),
 
                                       //group/unGroup
@@ -276,49 +270,27 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                       const SizedBox(width: 10),
 
                                       //choose machine
-                                      SizedBox(
-                                        width: 175,
-                                        child: DropdownButtonFormField<String>(
-                                          value: machine,
-                                          items:
-                                              [
-                                                'Máy 1350',
-                                                "Máy 1900",
-                                                "Máy 2 Lớp",
-                                                "Máy Quấn Cuồn",
-                                              ].map((String value) {
-                                                return DropdownMenuItem<String>(
-                                                  value: value,
-                                                  child: Text(value),
-                                                );
-                                              }).toList(),
-                                          onChanged: (value) async {
-                                            if (value == null) return;
+                                      buildMachineDropdown(
+                                        value: machine,
+                                        items: const [
+                                          'Máy 1350',
+                                          "Máy 1900",
+                                          "Máy 2 Lớp",
+                                          "Máy Quấn Cuồn",
+                                        ],
+                                        onChanged: (value) async {
+                                          if (value == null) return;
 
-                                            bool canChange = await UnsavedChangeDialog(
-                                              unsavedChangeController,
-                                            );
+                                          bool canChange = await UnsavedChangeDialog(
+                                            unsavedChangeController,
+                                          );
 
-                                            if (canChange) {
-                                              changeMachine(value);
-                                            } else {
-                                              // reset dropdown về máy cũ
-                                              setState(() {});
-                                            }
-                                          },
-                                          decoration: InputDecoration(
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                              borderSide: const BorderSide(color: Colors.grey),
-                                            ),
-                                            contentPadding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 8,
-                                            ),
-                                          ),
-                                        ),
+                                          if (canChange) {
+                                            changeMachine(value);
+                                          } else {
+                                            setState(() {}); // reset dropdown về máy cũ
+                                          }
+                                        },
                                       ),
                                       const SizedBox(width: 10),
 

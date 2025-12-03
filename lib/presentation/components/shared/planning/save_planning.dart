@@ -12,7 +12,7 @@ class SavePlanning extends StatelessWidget {
   final TextEditingController dayStartController;
   final TextEditingController timeStartController;
   final TextEditingController totalTimeWorkingController;
-  final List<DataGridRow> rows;
+  final List<DataGridRow> Function() getRows;
 
   final String idColumn; // "planningId" hoặc "planningBoxId"
   final bool isBox;
@@ -29,7 +29,7 @@ class SavePlanning extends StatelessWidget {
     required this.dayStartController,
     required this.timeStartController,
     required this.totalTimeWorkingController,
-    required this.rows,
+    required this.getRows,
     required this.idColumn,
     required this.isBox,
     required this.backgroundColor,
@@ -49,6 +49,8 @@ class SavePlanning extends StatelessWidget {
               isLoading
                   ? null
                   : () async {
+                    final rows = getRows();
+
                     if (dayStartController.text.isEmpty ||
                         timeStartController.text.isEmpty ||
                         totalTimeWorkingController.text.isEmpty) {
@@ -135,16 +137,11 @@ class SavePlanning extends StatelessWidget {
                           int.tryParse(totalTimeWorkingController.text) ?? 0;
 
                       // 4️⃣ Gửi xuống BE
-                      // print(
-                      //   "=== Các đơn sẽ gửi xuống BE ===",
-                      // );
-                      // for (var item
-                      //     in updateIndex) {
-                      //   print(item);
-                      // }
-                      // print(
-                      //   "================================",
-                      // );
+                      print("=== Các đơn sẽ gửi xuống BE ===");
+                      for (var item in updateIndex) {
+                        print(item);
+                      }
+                      print("================================");
 
                       final result = await PlanningService().updateIndexWTimeRunning(
                         machine: machine,

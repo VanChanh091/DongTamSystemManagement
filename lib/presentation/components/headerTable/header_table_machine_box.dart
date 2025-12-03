@@ -7,6 +7,8 @@ final List<Map<String, dynamic>> machineBoxColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
+  {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
+  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},
@@ -43,8 +45,6 @@ final List<Map<String, dynamic>> machineBoxColumns = [
   {"key": "status", "title": "", "visible": false},
   {"key": "index", "title": "Index", "visible": false},
   {"key": "planningBoxId", "title": "", "visible": false},
-  {"key": "dayStartProduction", "title": "Ngày Sản Xuất", "visible": false},
-  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành", "visible": false},
 ];
 
 List<GridColumn> buildMachineBoxColumns({

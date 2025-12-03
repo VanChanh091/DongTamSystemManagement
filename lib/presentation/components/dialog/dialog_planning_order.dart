@@ -285,7 +285,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       // Show loading
       if (!mounted) return;
       showLoadingDialog(context);
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(milliseconds: 700));
 
       if (!mounted) return;
       Navigator.pop(context); // đóng dialog loading

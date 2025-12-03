@@ -171,3 +171,28 @@ Widget confirmCompleteButton({
     backgroundColor: backgroundColor,
   );
 }
+
+Widget buildMachineDropdown({
+  required String value,
+  required List<String> items,
+  required void Function(String?) onChanged,
+  double width = 175,
+}) {
+  return SizedBox(
+    width: width,
+    child: DropdownButtonFormField<String>(
+      value: value,
+      items: items.map((String v) => DropdownMenuItem<String>(value: v, child: Text(v))).toList(),
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.grey),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+    ),
+  );
+}
