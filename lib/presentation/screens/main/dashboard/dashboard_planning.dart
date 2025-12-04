@@ -194,7 +194,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        "TỔNG HỢP SẢN XUẤT GIẤY TẤM",
+                        "TỔNG HỢP SẢN XUẤT",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,

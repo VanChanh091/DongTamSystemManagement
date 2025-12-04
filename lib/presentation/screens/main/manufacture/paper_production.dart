@@ -174,7 +174,12 @@ class _PaperProductionState extends State<PaperProduction> {
     );
 
     // disable nếu đã complete
-    return selectedPlanning.status != "complete";
+    if (selectedPlanning.status == "complete") return false;
+
+    // ❌ disable nếu sản xuất đủ số lượng rồi
+    if ((selectedPlanning.qtyProduced ?? 0) >= selectedPlanning.runningPlan) return false;
+
+    return true;
   }
 
   @override
@@ -293,6 +298,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                       icon: Icons.assignment,
                                       backgroundColor: themeController.buttonColor,
                                     ),
+
                                     const SizedBox(width: 10),
 
                                     //confirm production

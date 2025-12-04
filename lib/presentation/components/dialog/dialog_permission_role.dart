@@ -31,28 +31,30 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "sale",
     "plan",
     "HR",
-    "accountant",
-    "design",
     "production",
     "machine1350",
     "machine1900",
     "machine2Layer",
     "MachineRollPaper",
     "step2Production",
+    'QC',
+    // "accountant",
+    // "design",
     "read",
   ];
   final Map<String, String> permissionsLabels = {
     "sale": "Kinh doanh",
     "plan": "Kế hoạch",
     "HR": "Nhân sự",
-    "accountant": "Kế toán",
-    "design": "Thiết kế",
     "production": "Sản xuất",
     "machine1350": "Máy 1350",
     "machine1900": "Máy 1900",
     "machine2Layer": "Máy 2 Lớp",
     "MachineRollPaper": "Máy Quấn Cuồn",
     "step2Production": "Công Đoạn 2",
+    'QC': "Chất Lượng",
+    //  "accountant": "Kế toán",
+    // "design": "Thiết kế",
     "read": "Chỉ đọc",
   };
 
@@ -173,13 +175,14 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
               ValueListenableBuilder<String?>(
                 valueListenable: selectedOption,
                 builder: (context, value, _) {
-                  if (value != 'role') return const SizedBox();
-                  return dropdownForTypes(
-                    roles,
-                    chosenRole,
-                    (val) => setState(() => chosenRole = val!),
-                    labelMap: roleLabels,
-                  );
+                  return value == 'role'
+                      ? dropdownForTypes(
+                        roles,
+                        chosenRole,
+                        (val) => setState(() => chosenRole = val!),
+                        labelMap: roleLabels,
+                      )
+                      : const SizedBox.shrink();
                 },
               ),
 
@@ -191,39 +194,44 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                   child: ValueListenableBuilder<String?>(
                     valueListenable: selectedOption,
                     builder: (context, value, _) {
-                      if (value != 'permission') return const SizedBox();
-                      return Column(
-                        children:
-                            permissions.map((perm) {
-                              return ValueListenableBuilder<bool>(
-                                valueListenable: permissionCheckStates[perm]!,
-                                builder: (context, checked, _) {
-                                  return Theme(
-                                    data: Theme.of(context).copyWith(
-                                      checkboxTheme: CheckboxThemeData(
-                                        fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-                                          if (states.contains(WidgetState.selected)) {
-                                            return Colors.red;
-                                          }
-                                          return Colors.white;
-                                        }),
-                                        checkColor: WidgetStateProperty.all<Color>(Colors.white),
-                                        side: const BorderSide(color: Colors.black, width: 1),
-                                      ),
-                                    ),
-                                    child: CheckboxListTile(
-                                      title: Text(permissionsLabels[perm] ?? perm),
-                                      value: checked,
-                                      onChanged: (val) {
-                                        permissionCheckStates[perm]!.value = val ?? false;
-                                      },
-                                      controlAffinity: ListTileControlAffinity.leading,
-                                    ),
+                      return value == 'permission'
+                          ? Column(
+                            children:
+                                permissions.map((perm) {
+                                  return ValueListenableBuilder<bool>(
+                                    valueListenable: permissionCheckStates[perm]!,
+                                    builder: (context, checked, _) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          checkboxTheme: CheckboxThemeData(
+                                            fillColor: WidgetStateProperty.resolveWith<Color>((
+                                              states,
+                                            ) {
+                                              if (states.contains(WidgetState.selected)) {
+                                                return Colors.red;
+                                              }
+                                              return Colors.white;
+                                            }),
+                                            checkColor: WidgetStateProperty.all<Color>(
+                                              Colors.white,
+                                            ),
+                                            side: const BorderSide(color: Colors.black, width: 1),
+                                          ),
+                                        ),
+                                        child: CheckboxListTile(
+                                          title: Text(permissionsLabels[perm] ?? perm),
+                                          value: checked,
+                                          onChanged: (val) {
+                                            permissionCheckStates[perm]!.value = val ?? false;
+                                          },
+                                          controlAffinity: ListTileControlAffinity.leading,
+                                        ),
+                                      );
+                                    },
                                   );
-                                },
-                              );
-                            }).toList(),
-                      );
+                                }).toList(),
+                          )
+                          : const SizedBox.shrink();
                     },
                   ),
                 ),
@@ -232,7 +240,6 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
           ),
         ),
       ),
-
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [

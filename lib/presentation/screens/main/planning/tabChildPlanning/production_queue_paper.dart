@@ -36,7 +36,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   late Future<List<PlanningPaper>> futurePlanning;
   late MachinePaperDatasource machinePaperDatasource;
   late List<GridColumn> columns;
-  final DataGridController dataGridController = DataGridController();
+
+  final dataGridController = DataGridController();
   final unsavedChangeController = Get.find<UnsavedChangeController>();
   final badgesController = Get.find<BadgesController>();
   final themeController = Get.find<ThemeController>();
@@ -48,15 +49,20 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     'Khổ Cấp Giấy': "ghepKho",
     "Theo Sóng": "flute",
   };
+
   String searchType = "Tất cả";
+  String machine = "Máy 1350";
+
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
-  String machine = "Máy 1350";
+
   DateTime selectedDate = DateTime.now();
   DateTime? dayStart = DateTime.now();
+
   bool isLoading = false;
   bool isTextFieldEnabled = false;
   bool showGroup = true;
+  bool isNewDay = false;
 
   TextEditingController searchController = TextEditingController();
   TextEditingController dayStartController = TextEditingController();
@@ -218,7 +224,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                           });
                                         },
                                       ),
-
                                       const SizedBox(width: 20),
 
                                       // save
@@ -239,7 +244,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         onStartLoading: () => setState(() => isLoading = true),
                                         onEndLoading: () => setState(() => isLoading = false),
                                       ),
-
                                       const SizedBox(width: 10),
 
                                       //group/unGroup

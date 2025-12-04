@@ -141,7 +141,8 @@ class PlanningService {
     required TimeOfDay timeStart,
     required int totalTimeWorking,
     required List<Map<String, dynamic>> updateIndex,
-    bool isBox = false,
+    required bool isNewDay,
+    bool isBox = false, //check paper or box
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -157,6 +158,7 @@ class PlanningService {
               "${timeStart.hour.toString().padLeft(2, '0')}:${timeStart.minute.toString().padLeft(2, '0')}",
           "totalTimeWorking": totalTimeWorking,
           "updateIndex": updateIndex,
+          'isNewDay': isNewDay,
         },
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},

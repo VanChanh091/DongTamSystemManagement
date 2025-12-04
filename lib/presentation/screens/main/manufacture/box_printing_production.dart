@@ -177,8 +177,15 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     final boxTimes = selectedPlanning.boxTimes;
     if (boxTimes == null || boxTimes.isEmpty) return false;
 
-    final status = boxTimes.first.status;
-    return status != "complete";
+    final box = boxTimes.first;
+
+    // disable nếu đã complete
+    if (box.status == "complete") return false;
+
+    // ❌ disable nếu sản xuất đủ số lượng rồi
+    if ((box.qtyProduced ?? 0) >= box.runningPlan) return false;
+
+    return true;
   }
 
   @override
