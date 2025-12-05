@@ -16,6 +16,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class BoxPrintingProduction extends StatefulWidget {
@@ -164,6 +165,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
     required List<PlanningBox> planningList,
+    bool isQC = false,
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
@@ -179,11 +181,15 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
     final box = boxTimes.first;
 
-    // disable nếu đã complete
-    if (box.status == "complete") return false;
+    if (isQC) {
+      return (box.qtyProduced ?? 0) <= 0;
+    } else {
+      // disable nếu đã complete
+      if (box.status == "complete") return false;
 
-    // ❌ disable nếu sản xuất đủ số lượng rồi
-    if ((box.qtyProduced ?? 0) >= box.runningPlan) return false;
+      // ❌ disable nếu sản xuất đủ số lượng rồi
+      if ((box.qtyProduced ?? 0) >= box.runningPlan) return false;
+    }
 
     return true;
   }
@@ -198,6 +204,24 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
   @override
   Widget build(BuildContext context) {
+    //QC check
+    final bool isQC = userController.hasAnyPermission(permission: ["QC"]);
+    final bool qcShouldDisable =
+        isQC &&
+        canExecuteAction(
+          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
+          planningList: planningList,
+          isQC: true,
+        );
+
+    //production check
+    final bool isProduction =
+        userController.hasPermission(permission: "step2Production") &&
+        canExecuteAction(
+          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
+          planningList: planningList,
+        );
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -249,17 +273,21 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                 return Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
+                                    //inbound warehouse
+                                    isQC
+                                        ? AnimatedButton(
+                                          onPressed: qcShouldDisable ? null : () {},
+                                          label: "Nhập Kho",
+                                          icon: Symbols.input,
+                                          backgroundColor: themeController.buttonColor,
+                                        )
+                                        : const SizedBox.shrink(),
+                                    const SizedBox(width: 10),
+
                                     //report production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasPermission(
-                                                    permission: "step2Production",
-                                                  ) &&
-                                                  canExecuteAction(
-                                                    selectedPlanningIds:
-                                                        selectedPlanningIds.map(int.parse).toList(),
-                                                    planningList: planningList,
-                                                  )
+                                          isProduction
                                               ? () async {
                                                 try {
                                                   final int selectedPlanningBoxId = int.parse(
@@ -305,20 +333,12 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                       icon: Icons.assignment,
                                       backgroundColor: themeController.buttonColor,
                                     ),
-
                                     const SizedBox(width: 10),
 
                                     //confirm production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasPermission(
-                                                    permission: "step2Production",
-                                                  ) &&
-                                                  canExecuteAction(
-                                                    selectedPlanningIds:
-                                                        selectedPlanningIds.map(int.parse).toList(),
-                                                    planningList: planningList,
-                                                  )
+                                          isProduction
                                               ? () async {
                                                 //get planning first
                                                 final int selectedPlanningBoxId = int.parse(

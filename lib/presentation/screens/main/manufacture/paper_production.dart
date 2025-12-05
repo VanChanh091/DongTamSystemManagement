@@ -16,6 +16,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class PaperProduction extends StatefulWidget {
@@ -40,6 +41,7 @@ class _PaperProductionState extends State<PaperProduction> {
   DateTime? dayStart = DateTime.now();
   String machine = "Máy 1350";
   bool showGroup = true;
+  bool isQCDisabled = false;
 
   @override
   void initState() {
@@ -163,21 +165,24 @@ class _PaperProductionState extends State<PaperProduction> {
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
     required List<PlanningPaper> planningList,
+    bool isQC = false,
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
-    final int selectedPlanningId = selectedPlanningIds.first;
-
     final selectedPlanning = planningList.firstWhere(
-      (p) => p.planningId == selectedPlanningId,
+      (p) => p.planningId == selectedPlanningIds.first,
       orElse: () => throw Exception("Không tìm thấy kế hoạch"),
     );
 
-    // disable nếu đã complete
-    if (selectedPlanning.status == "complete") return false;
+    if (isQC) {
+      return (selectedPlanning.qtyProduced ?? 0) <= 0;
+    } else {
+      // disable nếu đã complete
+      if (selectedPlanning.status == "complete") return false;
 
-    // ❌ disable nếu sản xuất đủ số lượng rồi
-    if ((selectedPlanning.qtyProduced ?? 0) >= selectedPlanning.runningPlan) return false;
+      // ❌ disable nếu sản xuất đủ số lượng rồi
+      if ((selectedPlanning.qtyProduced ?? 0) >= selectedPlanning.runningPlan) return false;
+    }
 
     return true;
   }
@@ -192,6 +197,27 @@ class _PaperProductionState extends State<PaperProduction> {
 
   @override
   Widget build(BuildContext context) {
+    //QC check
+    final bool isQC = userController.hasAnyPermission(permission: ["QC"]);
+
+    final bool qcShouldDisable =
+        isQC &&
+        canExecuteAction(
+          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
+          planningList: planningList,
+          isQC: true,
+        );
+
+    //production check
+    final bool isProduction =
+        userController.hasAnyPermission(
+          permission: ["machine1350", "machine1900", "machine2Layer", "MachineRollPaper"],
+        ) &&
+        canExecuteAction(
+          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
+          planningList: planningList,
+        );
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -242,22 +268,21 @@ class _PaperProductionState extends State<PaperProduction> {
                                 return Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
+                                    //inbound warehouse
+                                    isQC
+                                        ? AnimatedButton(
+                                          onPressed: qcShouldDisable ? null : () {},
+                                          label: "Nhập Kho",
+                                          icon: Symbols.input,
+                                          backgroundColor: themeController.buttonColor,
+                                        )
+                                        : const SizedBox.shrink(),
+                                    const SizedBox(width: 10),
+
                                     //report production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasAnyPermission(
-                                                    permission: [
-                                                      "machine1350",
-                                                      "machine1900",
-                                                      "machine2Layer",
-                                                      "MachineRollPaper",
-                                                    ],
-                                                  ) &&
-                                                  canExecuteAction(
-                                                    selectedPlanningIds:
-                                                        selectedPlanningIds.map(int.parse).toList(),
-                                                    planningList: planningList,
-                                                  )
+                                          isProduction
                                               ? () async {
                                                 try {
                                                   final int selectedPlanningId = int.parse(
@@ -298,25 +323,12 @@ class _PaperProductionState extends State<PaperProduction> {
                                       icon: Icons.assignment,
                                       backgroundColor: themeController.buttonColor,
                                     ),
-
                                     const SizedBox(width: 10),
 
                                     //confirm production
                                     AnimatedButton(
                                       onPressed:
-                                          userController.hasAnyPermission(
-                                                    permission: [
-                                                      "machine1350",
-                                                      "machine1900",
-                                                      "machine2Layer",
-                                                      "MachineRollPaper",
-                                                    ],
-                                                  ) &&
-                                                  canExecuteAction(
-                                                    selectedPlanningIds:
-                                                        selectedPlanningIds.map(int.parse).toList(),
-                                                    planningList: planningList,
-                                                  )
+                                          isProduction
                                               ? () async {
                                                 try {
                                                   // Lấy planningId (đang ở dạng String → convert sang int)

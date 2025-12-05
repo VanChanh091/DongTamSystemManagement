@@ -10,6 +10,7 @@ class ReportPaperModel {
   final String shiftProduction;
   final String shiftManagement;
 
+  //FK
   final int planningId;
   final PlanningPaper? planningPaper;
 
