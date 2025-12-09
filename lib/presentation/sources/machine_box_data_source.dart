@@ -316,7 +316,7 @@ class MachineBoxDatasource extends DataGridSource {
     final status = getCellValue<String>(row, 'status', "");
     final dmWasteLoss = getCellValue<String>(row, 'dmWasteLoss', "0");
     final wasteActually = getCellValue<String>(row, 'wasteActually', "0");
-    final qtyOrder = getCellValue<int>(row, 'quantityOrd', 0);
+    final needProd = getCellValue<int>(row, 'needProd', 0);
 
     final Map<String, String> machineColumnMap = {
       'qtyPrinted': "Máy In",
@@ -365,17 +365,12 @@ class MachineBoxDatasource extends DataGridSource {
               cellColor = Colors.red.withValues(alpha: 0.5);
             }
 
-            //tô màu cho sl giấy tấm
-            if (dataCell.columnName == 'quantityOrd' && qtyOrder == 0) {
-              cellColor = Colors.red.withValues(alpha: 0.5);
-            }
-
             // Kiểm tra cột máy dựa vào map
             final machineColumnName = machineColumnMap[dataCell.columnName];
 
             if (machineColumnName != null && machineColumnName == machine && status != "complete") {
               final qty = (dataCell.value is int) ? dataCell.value as int : 0;
-              if (qty < qtyOrder) {
+              if (qty < needProd) {
                 cellColor = Colors.red.withValues(alpha: 0.5);
               }
             }

@@ -172,4 +172,23 @@ class ManufactureService {
       throw Exception('Failed to confirm producing box: $e');
     }
   }
+
+  Future<bool> updateRequestStockCheck({required int planningBoxId}) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        '/api/manufacture/requestCheck',
+        queryParameters: {"planningBoxId": planningBoxId},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to update request check", error: e, stackTrace: s);
+      throw Exception('Failed to update request check: $e');
+    }
+  }
 }

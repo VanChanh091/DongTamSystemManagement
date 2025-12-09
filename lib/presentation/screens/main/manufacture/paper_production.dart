@@ -276,7 +276,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                           icon: Symbols.input,
                                           backgroundColor: themeController.buttonColor,
                                         )
-                                        : const SizedBox.shrink(),
+                                        : SizedBox.shrink(),
                                     const SizedBox(width: 10),
 
                                     //report production

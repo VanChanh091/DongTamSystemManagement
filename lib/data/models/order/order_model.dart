@@ -3,7 +3,6 @@ import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/data/models/user/user_user_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound_history.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:intl/intl.dart';
 

@@ -9,6 +9,7 @@ class BoxMachineTime {
   final int? qtyProduced;
   final String machine;
   final String? shiftManagement;
+  final bool isRequestCheck;
   final String status;
   final int? sortPlanning;
 
@@ -23,6 +24,7 @@ class BoxMachineTime {
     this.qtyProduced,
     required this.machine,
     this.shiftManagement,
+    required this.isRequestCheck,
     required this.status,
     this.sortPlanning,
   });
@@ -54,6 +56,7 @@ class BoxMachineTime {
       qtyProduced: json['qtyProduced'] ?? 0,
       machine: json['machine'] ?? "",
       shiftManagement: json['shiftManagement'] ?? "",
+      isRequestCheck: json['isRequestCheck'] ?? false,
       status: json['status'] ?? "",
       sortPlanning: json['sortPlanning'] ?? 0,
     );
