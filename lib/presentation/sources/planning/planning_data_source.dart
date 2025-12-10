@@ -64,17 +64,6 @@ class PlanningDataSource extends DataGridSource {
     ];
   }
 
-  String formatStatus(String status) {
-    if (status == 'accept') {
-      return 'Chấp nhận';
-    } else if (status == 'reject') {
-      return "Từ chối";
-    } else if (status == 'planning') {
-      return "Đã lên kế hoạch";
-    }
-    return "Chờ Duyệt";
-  }
-
   @override
   List<DataGridRow> get rows => orderDataGridRows;
 

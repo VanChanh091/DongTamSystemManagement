@@ -4,7 +4,7 @@ import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-final List<Map<String, dynamic>> orderColumns = [
+final List<Map<String, dynamic>> _orderColumns = [
   // Order
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "dayReceive", "title": "Ngày Nhận"},
@@ -69,7 +69,7 @@ List<GridColumn> buildOrderColumns({
   required UserController userController,
 }) {
   return [
-    for (var item in orderColumns)
+    for (var item in _orderColumns)
       if (!item.containsKey("showIfRole") ||
           userController.hasAnyRole(roles: item["showIfRole"] as List<String>))
         GridColumn(

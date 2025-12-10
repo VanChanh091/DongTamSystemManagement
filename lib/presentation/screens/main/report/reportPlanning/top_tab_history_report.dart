@@ -1,5 +1,5 @@
-import 'package:dongtam/presentation/screens/main/report/tabChildReport/report_planning_box.dart';
-import 'package:dongtam/presentation/screens/main/report/tabChildReport/report_planning_paper.dart';
+import 'package:dongtam/presentation/screens/main/report/reportPlanning/tabChildReport/report_planning_box.dart';
+import 'package:dongtam/presentation/screens/main/report/reportPlanning/tabChildReport/report_planning_paper.dart';
 import 'package:flutter/material.dart';
 
 class TopTabHistoryReport extends StatefulWidget {

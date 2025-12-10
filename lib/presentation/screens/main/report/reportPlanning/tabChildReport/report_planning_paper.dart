@@ -1,9 +1,9 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/models/report/report_planning_box.dart';
+import 'package:dongtam/data/models/report/report_planning_paper.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_export_excel_report.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_report_box.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_report_paper.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/sources/report_box_data_source.dart';
+import 'package:dongtam/presentation/sources/report/report_paper_data_source.dart';
 import 'package:dongtam/service/report_planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
@@ -18,32 +18,32 @@ import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class ReportPlanningBox extends StatefulWidget {
-  const ReportPlanningBox({super.key});
+class ReportPlanningPaper extends StatefulWidget {
+  const ReportPlanningPaper({super.key});
 
   @override
-  State<ReportPlanningBox> createState() => _ReportPlanningBoxState();
+  State<ReportPlanningPaper> createState() => _ReportPlanningPaperState();
 }
 
-class _ReportPlanningBoxState extends State<ReportPlanningBox> {
-  late Future<Map<String, dynamic>> futureReportBox;
-  late ReportBoxDatasource reportBoxDatasource;
+class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
+  late Future<Map<String, dynamic>> futureReportPaper;
+  late ReportPaperDatasource reportPaperDatasource;
   late List<GridColumn> columns;
+  final themeController = Get.find<ThemeController>();
   final Map<String, String> searchFieldMap = {
     "Theo Mã ĐH": "orderId",
     "Tên KH": "customerName",
     "Ngày Báo Cáo": "dayReported",
     "SL Báo Cáo": "qtyProduced",
-    "QC Thùng": "QcBox",
+    "Ghép Khổ": "ghepKho",
     "Quản Ca": "shiftManagement",
   };
-  final themeController = Get.find<ThemeController>();
+  List<int> selectedReportId = [];
   TextEditingController searchController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   Map<String, double> columnWidths = {};
   String searchType = "Tất cả";
-  String machine = "Máy In";
-  List<int> selectedReportId = [];
+  String machine = "Máy 1350";
   bool isTextFieldEnabled = false;
   bool isSearching = false;
 
@@ -54,29 +54,29 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   @override
   void initState() {
     super.initState();
-    loadReportBox();
+    loadReportPaper();
 
-    columns = buildReportBoxColumn(themeController: themeController);
+    columns = buildReportPaperColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'reportBox', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: 'reportPaper', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
     });
   }
 
-  void loadReportBox() {
+  void loadReportPaper() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
 
       String keyword = searchController.text.trim().toLowerCase();
       String date = dateController.text.trim().toLowerCase();
 
-      AppLogger.d("loadReportBox | search keyword=$keyword | date=$date");
-
       if (isSearching && searchType != "Tất cả") {
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getReportBoxByField(
+        AppLogger.d("loadReportPaper: isSearching=true | keyword=$keyword | date=$date");
+
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getReportPaperByField(
             field: selectedField,
             keyword: keyword,
             machine: machine,
@@ -85,8 +85,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
           ),
         );
       } else {
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getReportBox(
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getReportPaper(
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
@@ -96,15 +96,16 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     });
   }
 
-  void searchReportBox() {
+  void searchReportPaper() {
     String keyword = searchController.text.trim().toLowerCase();
     String date = dateController.text.trim().toLowerCase();
+
     AppLogger.i(
-      "searchReportBox => searchType=$searchType | keyword=$keyword | date=$date | machine=$machine",
+      "searchReportPaper => searchType=$searchType | keyword=$keyword | date=$date | machine=$machine",
     );
 
     if (isTextFieldEnabled && keyword.isEmpty) {
-      AppLogger.w("searchReportBox => searchType=$searchType nhưng keyword rỗng");
+      AppLogger.w("searchReportPaper => searchType=$searchType nhưng keyword rỗng");
       return;
     }
 
@@ -113,8 +114,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
       isSearching = (searchType != "Tất cả");
 
       if (searchType == "Tất cả") {
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getReportBox(
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getReportPaper(
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
@@ -123,12 +124,14 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
-        futureReportBox = ReportPlanningService().getReportBoxByField(
-          field: selectedField,
-          keyword: keyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
+        futureReportPaper = ensureMinLoading(
+          ReportPlanningService().getReportPaperByField(
+            field: selectedField,
+            keyword: keyword,
+            machine: machine,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
         );
       }
     });
@@ -139,7 +142,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     setState(() {
       machine = selectedMachine;
       selectedReportId.clear();
-      loadReportBox();
+      loadReportPaper();
     });
   }
 
@@ -157,13 +160,14 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
               width: double.infinity,
               child: Column(
                 children: [
+                  //title
                   SizedBox(
                     height: 35,
                     width: double.infinity,
                     child: Center(
                       child: Obx(
                         () => Text(
-                          "LỊCH SỬ BÁO CÁO THÙNG",
+                          "LỊCH SỬ BÁO CÁO GIẤY TẤM",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
@@ -173,6 +177,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                       ),
                     ),
                   ),
+
+                  //button
                   SizedBox(
                     height: 70,
                     width: double.infinity,
@@ -190,7 +196,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                               'Tên KH',
                               "Ngày Báo Cáo",
                               "SL Báo Cáo",
-                              "QC Thùng",
+                              "Ghép Khổ",
                               "Quản Ca",
                             ],
                             onTypeChanged: (value) {
@@ -203,7 +209,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                             controller: searchController,
                             textFieldEnabled: isTextFieldEnabled,
                             buttonColor: themeController.buttonColor,
-                            onSearch: () => searchReportBox(),
+                            onSearch: () => searchReportPaper(),
                             customInputBuilder: (inputWidth) {
                               if (searchType != 'Ngày Báo Cáo') return null;
 
@@ -282,9 +288,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                       builder:
                                           (_) => DialogSelectExportExcel(
                                             selectedReportId: selectedReportId,
-                                            onPlanningIdsOrRangeDate: () => loadReportBox(),
+                                            onPlanningIdsOrRangeDate: () => loadReportPaper(),
                                             machine: machine,
-                                            isBox: true,
                                           ),
                                     );
                                   },
@@ -300,16 +305,9 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                   child: DropdownButtonFormField<String>(
                                     value: machine,
                                     items:
-                                        [
-                                          'Máy In',
-                                          "Máy Bế",
-                                          "Máy Xả",
-                                          "Máy Dán",
-                                          'Máy Cấn Lằn',
-                                          "Máy Cắt Khe",
-                                          "Máy Cán Màng",
-                                          "Máy Đóng Ghim",
-                                        ].map((String value) {
+                                        ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"].map((
+                                          String value,
+                                        ) {
                                           return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value),
@@ -349,7 +347,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
             //table
             Expanded(
               child: FutureBuilder(
-                future: futureReportBox,
+                future: futureReportPaper,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Padding(
@@ -361,7 +359,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['reportBoxes'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['reportPapers'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có báo cáo nào",
@@ -371,27 +369,29 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                   }
 
                   final data = snapshot.data!;
-                  final reportBoxes = data['reportBoxes'] as List<ReportBoxModel>;
+                  final reportPapers = data['reportPapers'] as List<ReportPaperModel>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
-                  reportBoxDatasource = ReportBoxDatasource(
-                    reportPapers: reportBoxes,
+                  reportPaperDatasource = ReportPaperDatasource(
+                    reportPapers: reportPapers,
                     selectedReportId: selectedReportId,
-                    machine: machine,
                   );
+
+                  reportPaperDatasource.notifyListeners();
 
                   return Column(
                     children: [
                       //table
                       Expanded(
                         child: SfDataGrid(
-                          source: reportBoxDatasource,
+                          source: reportPaperDatasource,
                           isScrollbarAlwaysShown: true,
                           allowExpandCollapseGroup: true, // Bật grouping
                           autoExpandGroups: true,
                           columnWidthMode: ColumnWidthMode.auto,
-                          selectionMode: SelectionMode.single,
+                          navigationMode: GridNavigationMode.row,
+                          selectionMode: SelectionMode.multiple,
                           headerRowHeight: 35,
                           rowHeight: 40,
                           columns: ColumnWidthTable.applySavedWidths(
@@ -403,18 +403,30 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                               cells: [
                                 StackedHeaderCell(
                                   columnNames: [
-                                    'qtyPrinted',
-                                    'qtyCanLan',
-                                    'qtyCanMang',
-                                    'qtyXa',
-                                    'qtyCatKhe',
-                                    'qtyBe',
-                                    'qtyDan',
-                                    'qtyDongGhim',
+                                    'quantityOrd',
+                                    'runningPlanProd',
+                                    'qtyReported',
+                                    'LackOfQty',
                                   ],
                                   child: Obx(
                                     () => formatColumn(
-                                      label: 'Báo Cáo Số Lượng Các Công Đoạn',
+                                      label: 'Số Lượng',
+                                      themeController: themeController,
+                                    ),
+                                  ),
+                                ),
+                                StackedHeaderCell(
+                                  columnNames: [
+                                    'bottom',
+                                    'fluteE',
+                                    'fluteB',
+                                    'fluteC',
+                                    'knife',
+                                    'totalLoss',
+                                  ],
+                                  child: Obx(
+                                    () => formatColumn(
+                                      label: 'Định Mức Phế Liệu',
                                       themeController: themeController,
                                     ),
                                   ),
@@ -437,7 +449,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                           onColumnResizeEnd:
                               (details) => GridResizeHelper.onResizeEnd(
                                 details: details,
-                                tableKey: 'reportBox',
+                                tableKey: 'reportPaper',
                                 columnWidths: columnWidths,
                                 setState: setState,
                               ),
@@ -448,7 +460,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                 final reportPaperId =
                                     row
                                         .getCells()
-                                        .firstWhere((cell) => cell.columnName == 'reportBoxId')
+                                        .firstWhere((cell) => cell.columnName == 'reportPaperId')
                                         .value;
                                 if (selectedReportId.contains(reportPaperId)) {
                                   selectedReportId.remove(reportPaperId);
@@ -457,8 +469,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                 }
                               }
 
-                              reportBoxDatasource.selectedReportId = selectedReportId;
-                              reportBoxDatasource.notifyListeners();
+                              reportPaperDatasource.selectedReportId = selectedReportId;
+                              reportPaperDatasource.notifyListeners();
                             });
                           },
                         ),
@@ -471,19 +483,19 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadReportBox();
+                            loadReportPaper();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadReportBox();
+                            loadReportPaper();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadReportBox();
+                            loadReportPaper();
                           });
                         },
                       ),
@@ -496,7 +508,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadReportBox(),
+        onPressed: () => loadReportPaper(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

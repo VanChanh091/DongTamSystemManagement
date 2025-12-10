@@ -3,7 +3,7 @@ import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-const List<Map<String, dynamic>> headerCustomer = [
+const List<Map<String, dynamic>> _headerCustomer = [
   {"key": "customerId", "title": "Mã Khách Hàng"},
   {"key": "maSoThue", "title": "Mã Số Thuế"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
@@ -21,19 +21,12 @@ const List<Map<String, dynamic>> headerCustomer = [
   {"key": "rateCustomer", "title": "Đánh Giá"},
 ];
 
-List<GridColumn> buildCustomerColumn({
-  required ThemeController themeController,
-}) {
+List<GridColumn> buildCustomerColumn({required ThemeController themeController}) {
   return [
-    for (var item in headerCustomer)
+    for (var item in _headerCustomer)
       GridColumn(
         columnName: item["key"]!,
-        label: Obx(
-          () => formatColumn(
-            label: item["title"]!,
-            themeController: themeController,
-          ),
-        ),
+        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
         visible: item.containsKey("visible") ? item["visible"]! as bool : true,
       ),
   ];

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/data/models/warehouse/inbound_history.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
@@ -24,6 +25,14 @@ class WarehouseService {
       endpoint: "warehouse/getBoxWaiting",
       queryParameters: const {},
       fromJson: (json) => PlanningBox.fromJson(json),
+    );
+  }
+
+  Future<List<PlanningStage>> getDbPlanningDetail({required int planningBoxId}) async {
+    return HelperService().fetchingData(
+      endpoint: 'warehouse/getBoxDetail',
+      queryParameters: {'planningBoxId': planningBoxId},
+      fromJson: (json) => PlanningStage.fromJson(json),
     );
   }
 

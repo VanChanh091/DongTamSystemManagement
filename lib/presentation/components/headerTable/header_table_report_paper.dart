@@ -3,7 +3,7 @@ import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-final List<Map<String, dynamic>> reportPaperColumns = [
+final List<Map<String, dynamic>> _reportPaperColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "reportPaperId", "title": "", "visible": false},
   {"key": "customerName", "title": "Tên Khách Hàng"},
@@ -43,7 +43,7 @@ final List<Map<String, dynamic>> reportPaperColumns = [
 
 List<GridColumn> buildReportPaperColumn({required ThemeController themeController}) {
   return [
-    for (var item in reportPaperColumns)
+    for (var item in _reportPaperColumns)
       GridColumn(
         columnName: item["key"]!,
         label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),

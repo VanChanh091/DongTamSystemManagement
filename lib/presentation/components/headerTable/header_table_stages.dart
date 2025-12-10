@@ -3,7 +3,7 @@ import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-const List<Map<String, dynamic>> headerStage = [
+const List<Map<String, dynamic>> _headerStage = [
   {"key": "machine", "title": "Loại Máy"},
   {"key": "dayStart", "title": "Sản Xuất"},
   {"key": "dayCompleted", "title": "Hoàn Thành"},
@@ -22,7 +22,7 @@ const List<Map<String, dynamic>> headerStage = [
 
 List<GridColumn> buildStageColumn({required ThemeController themeController}) {
   return [
-    for (var item in headerStage)
+    for (var item in _headerStage)
       GridColumn(
         columnName: item["key"]!,
         label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),

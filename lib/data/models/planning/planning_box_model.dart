@@ -91,6 +91,7 @@ class PlanningBox {
     return PlanningBox(
       planningBoxId: json['planningBoxId'],
       qtyPaper: json['qtyPaper'] ?? 0,
+
       day: json['day'] ?? "",
       matE: json['matE'] ?? "",
       matB: json['matB'] ?? "",

@@ -19,8 +19,10 @@ import 'package:dongtam/presentation/screens/main/planning/planning_stop.dart';
 import 'package:dongtam/presentation/screens/main/planning/top_tab_planning.dart';
 import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
-import 'package:dongtam/presentation/screens/main/report/report_inbound_history.dart';
-import 'package:dongtam/presentation/screens/main/report/top_tab_history_report.dart';
+import 'package:dongtam/presentation/screens/main/report/report_warehouse/report_inbound_history.dart';
+import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart';
+import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
+import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/color/theme_picker_color.dart';
@@ -54,6 +56,7 @@ class _HomePageState extends State<HomePage> {
   bool _isManufactureExpanded = false;
   bool _isReportExpanded = false;
   bool _isApprovalExpanded = false;
+  bool _isWaitingExpanded = false;
 
   @override
   void initState() {
@@ -82,6 +85,10 @@ class _HomePageState extends State<HomePage> {
       // manufacture
       PaperProduction(),
       BoxPrintingProduction(),
+
+      //waiting check
+      _buildPage(permission: 'QC', child: WaitingCheckPaper()),
+      _buildPage(permission: 'QC', child: WaitingCheckBox()),
 
       //reporting hitstory
       TopTabHistoryReport(),
@@ -220,6 +227,7 @@ class _HomePageState extends State<HomePage> {
           ),
           _buildPlanningMenu(pages),
           _buildManufactureMenu(pages),
+          _buildWaitingCheckMenu(pages),
           _buildReportMenu(pages),
           _buildSidebarItem(
             Symbols.dual_screen,
@@ -381,11 +389,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 trailing: Icon(
-                  _isReportExpanded ? Icons.expand_less : Icons.expand_more,
+                  _isManufactureExpanded ? Icons.expand_less : Icons.expand_more,
                   color: Colors.white,
                   size: 20,
                 ),
-                onTap: () => setState(() => _isReportExpanded = !_isReportExpanded),
+                onTap: () => setState(() => _isManufactureExpanded = !_isManufactureExpanded),
               )
               : Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -397,9 +405,68 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-          if (_isHovered && _isReportExpanded) ...[
+          if (_isHovered && _isManufactureExpanded) ...[
             if (paperIndex != -1) _buildSubMenuItem(Icons.article, "Giấy Tấm", paperIndex),
             if (boxIndex != -1) _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", boxIndex),
+          ],
+        ],
+      );
+    });
+  }
+
+  //waiting check
+  Widget _buildWaitingCheckMenu(List<Widget> pages) {
+    final waitingPaperIndex = pages.indexWhere((w) => w is WaitingCheckPaper);
+    final waitingBoxIndex = pages.indexWhere((w) => w is WaitingCheckBox);
+
+    if (waitingPaperIndex == -1 && waitingBoxIndex == -1) {
+      return const SizedBox.shrink();
+    }
+
+    return Obx(() {
+      final selected = sidebarController.selectedIndex.value;
+      final isParentSelected = selected == waitingPaperIndex || selected == waitingBoxIndex;
+
+      return Column(
+        children: [
+          _isHovered
+              ? ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                leading: Icon(
+                  Symbols.home_storage,
+                  color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+                ),
+                title: Text(
+                  "Hàng Chờ Kiểm",
+                  style: TextStyle(
+                    color:
+                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+                    fontSize: 18,
+                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                trailing: Icon(
+                  _isWaitingExpanded ? Icons.expand_less : Icons.expand_more,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                onTap: () => setState(() => _isWaitingExpanded = !_isWaitingExpanded),
+              )
+              : Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Center(
+                  child: Icon(
+                    Symbols.home_storage,
+                    color:
+                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+                  ),
+                ),
+              ),
+          if (_isHovered && _isWaitingExpanded) ...[
+            if (waitingPaperIndex != -1)
+              _buildSubMenuItem(Icons.article, "Giấy Tấm", waitingPaperIndex),
+            if (waitingBoxIndex != -1)
+              _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", waitingBoxIndex),
           ],
         ],
       );
@@ -438,11 +505,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 trailing: Icon(
-                  _isManufactureExpanded ? Icons.expand_less : Icons.expand_more,
+                  _isReportExpanded ? Icons.expand_less : Icons.expand_more,
                   color: Colors.white,
                   size: 20,
                 ),
-                onTap: () => setState(() => _isManufactureExpanded = !_isManufactureExpanded),
+                onTap: () => setState(() => _isReportExpanded = !_isReportExpanded),
               )
               : Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -454,7 +521,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-          if (_isHovered && _isManufactureExpanded) ...[
+          if (_isHovered && _isReportExpanded) ...[
             if (reportManu != -1) _buildSubMenuItem(Icons.article, "Lịch Sử Sản Xuất", reportManu),
             if (reportInbound != -1)
               _buildSubMenuItem(Symbols.package_2, "Lịch Sử Nhập Kho", reportInbound),

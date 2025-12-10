@@ -3,7 +3,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
-import 'package:dongtam/presentation/sources/machine_paper_data_source.dart';
+import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -16,7 +16,6 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class PaperProduction extends StatefulWidget {
@@ -38,10 +37,8 @@ class _PaperProductionState extends State<PaperProduction> {
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
   List<PlanningPaper> planningList = [];
-  DateTime? dayStart = DateTime.now();
   String machine = "Máy 1350";
   bool showGroup = true;
-  bool isQCDisabled = false;
 
   @override
   void initState() {
@@ -174,15 +171,11 @@ class _PaperProductionState extends State<PaperProduction> {
       orElse: () => throw Exception("Không tìm thấy kế hoạch"),
     );
 
-    if (isQC) {
-      return (selectedPlanning.qtyProduced ?? 0) <= 0;
-    } else {
-      // disable nếu đã complete
-      if (selectedPlanning.status == "complete") return false;
+    // disable nếu đã complete
+    if (selectedPlanning.status == "complete") return false;
 
-      // ❌ disable nếu sản xuất đủ số lượng rồi
-      if ((selectedPlanning.qtyProduced ?? 0) >= selectedPlanning.runningPlan) return false;
-    }
+    // ❌ disable nếu sản xuất đủ số lượng rồi
+    if ((selectedPlanning.qtyProduced ?? 0) >= selectedPlanning.runningPlan) return false;
 
     return true;
   }
@@ -197,17 +190,6 @@ class _PaperProductionState extends State<PaperProduction> {
 
   @override
   Widget build(BuildContext context) {
-    //QC check
-    final bool isQC = userController.hasAnyPermission(permission: ["QC"]);
-
-    final bool qcShouldDisable =
-        isQC &&
-        canExecuteAction(
-          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
-          planningList: planningList,
-          isQC: true,
-        );
-
     //production check
     final bool isProduction =
         userController.hasAnyPermission(
@@ -268,17 +250,6 @@ class _PaperProductionState extends State<PaperProduction> {
                                 return Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    //inbound warehouse
-                                    isQC
-                                        ? AnimatedButton(
-                                          onPressed: qcShouldDisable ? null : () {},
-                                          label: "Nhập Kho",
-                                          icon: Symbols.input,
-                                          backgroundColor: themeController.buttonColor,
-                                        )
-                                        : SizedBox.shrink(),
-                                    const SizedBox(width: 10),
-
                                     //report production
                                     AnimatedButton(
                                       onPressed:

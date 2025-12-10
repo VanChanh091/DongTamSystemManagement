@@ -3,7 +3,7 @@ import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-const List<Map<String, dynamic>> headerProduct = [
+const List<Map<String, dynamic>> _headerProduct = [
   {"key": "productId", "title": "Mã Sản Phẩm"},
   {"key": "typeProduct", "title": "Loại Sản Phẩm"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
@@ -17,20 +17,13 @@ double? getColumnWidth(String key) {
   return double.nan;
 }
 
-List<GridColumn> buildProductColumn({
-  required ThemeController themeController,
-}) {
+List<GridColumn> buildProductColumn({required ThemeController themeController}) {
   return [
-    for (var item in headerProduct)
+    for (var item in _headerProduct)
       GridColumn(
         columnName: item["key"]!,
         width: getColumnWidth(item["key"]!) ?? double.nan,
-        label: Obx(
-          () => formatColumn(
-            label: item["title"]!,
-            themeController: themeController,
-          ),
-        ),
+        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
       ),
   ];
 }

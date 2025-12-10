@@ -3,7 +3,7 @@ import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-final List<Map<String, dynamic>> machinePaperColumns = [
+final List<Map<String, dynamic>> _machinePaperColumns = [
   // planning
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {
@@ -62,7 +62,7 @@ List<GridColumn> buildMachineColumns({
   required String page,
 }) {
   return [
-    for (var item in machinePaperColumns)
+    for (var item in _machinePaperColumns)
       if (!item.containsKey("visiblePages") || (item["visiblePages"] as List).contains(page))
         GridColumn(
           columnName: item["key"]!,

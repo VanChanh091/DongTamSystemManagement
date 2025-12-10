@@ -16,6 +16,7 @@ class MachineBoxDatasource extends DataGridSource {
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
+
   bool hasSortedInitially = false;
 
   MachineBoxDatasource({

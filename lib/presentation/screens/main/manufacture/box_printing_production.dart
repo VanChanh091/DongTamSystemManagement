@@ -3,7 +3,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
-import 'package:dongtam/presentation/sources/machine_box_data_source.dart';
+import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -16,7 +16,6 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class BoxPrintingProduction extends StatefulWidget {
@@ -34,12 +33,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   final themeController = Get.find<ThemeController>();
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
-  final Map<String, int> orderIdToPlanningId = {};
   final DataGridController dataGridController = DataGridController();
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
   List<PlanningBox> planningList = [];
-  DateTime? dayStart = DateTime.now();
   String machine = "Máy In";
   bool showGroup = true;
 
@@ -181,15 +178,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
     final box = boxTimes.first;
 
-    if (isQC) {
-      return (box.qtyProduced ?? 0) <= 0;
-    } else {
-      // disable nếu đã complete
-      if (box.status == "complete") return false;
+    // disable nếu đã complete
+    if (box.status == "complete") return false;
 
-      // ❌ disable nếu sản xuất đủ số lượng rồi
-      if ((box.qtyProduced ?? 0) >= box.runningPlan) return false;
-    }
+    // ❌ disable nếu sản xuất đủ số lượng rồi
+    if ((box.qtyProduced ?? 0) >= box.runningPlan) return false;
 
     return true;
   }
@@ -204,16 +197,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
   @override
   Widget build(BuildContext context) {
-    //QC check
-    final bool isQC = userController.hasAnyPermission(permission: ["QC"]);
-    final bool qcShouldDisable =
-        isQC &&
-        canExecuteAction(
-          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
-          planningList: planningList,
-          isQC: true,
-        );
-
     //production check
     final bool isProduction =
         userController.hasPermission(permission: "step2Production") &&
@@ -273,17 +256,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                 return Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    //inbound warehouse
-                                    isQC
-                                        ? AnimatedButton(
-                                          onPressed: qcShouldDisable ? null : () {},
-                                          label: "Nhập Kho",
-                                          icon: Symbols.input,
-                                          backgroundColor: themeController.buttonColor,
-                                        )
-                                        : const SizedBox.shrink(),
-                                    const SizedBox(width: 10),
-
                                     //report production
                                     AnimatedButton(
                                       onPressed:
@@ -494,9 +466,39 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                               'qtyDan',
                               'qtyDongGhim',
                             ],
-                            child: formatColumn(
-                              label: 'Số Lượng Của Các Công Đoạn',
-                              themeController: themeController,
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Số Lượng Của Các Công Đoạn',
+                                themeController: themeController,
+                              ),
+                            ),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: ["quantityOrd", "qtyPaper", "needProd"],
+                            child: Obx(
+                              () =>
+                                  formatColumn(label: 'Số Lượng', themeController: themeController),
+                            ),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: ["inMatTruoc", "inMatSau"],
+                            child: Obx(
+                              () => formatColumn(label: 'In Ấn', themeController: themeController),
+                            ),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: ["dan_1_Manh", "dan_2_Manh"],
+                            child: Obx(
+                              () => formatColumn(label: 'Dán', themeController: themeController),
+                            ),
+                          ),
+                          StackedHeaderCell(
+                            columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
+                            child: Obx(
+                              () => formatColumn(
+                                label: 'Đóng Ghim',
+                                themeController: themeController,
+                              ),
                             ),
                           ),
                         ],
