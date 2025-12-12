@@ -43,6 +43,9 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
   {"key": "wasteActually", "title": "PL Báo Cáo"},
   {"key": "shiftManager", "title": "Trưởng Máy"},
 
+  //isRequestCheck
+  {"key": "statusRequest", "title": "Kiểm Hàng"},
+
   // hidden technical fields
   {"key": "status", "title": "", "visible": false},
   {"key": "index", "title": "Index", "visible": false},

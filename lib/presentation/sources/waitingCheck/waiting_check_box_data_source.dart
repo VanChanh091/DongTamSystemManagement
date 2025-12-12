@@ -30,7 +30,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
         columnName: "dateShipping",
         value:
             planning.order?.dateRequestShipping != null
-                ? formatter.format(planning.order!.dateRequestShipping)
+                ? formatter.format(planning.order!.dateRequestShipping!)
                 : '',
       ),
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),

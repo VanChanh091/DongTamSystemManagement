@@ -38,7 +38,7 @@ class DashboardPaperDataSource extends DataGridSource {
       DataGridCell<String>(
         columnName: "dateShipping",
         value:
-            order?.dateRequestShipping != null ? formatter.format(order!.dateRequestShipping) : "",
+            order?.dateRequestShipping != null ? formatter.format(order!.dateRequestShipping!) : "",
       ),
       DataGridCell<String>(
         columnName: "dayStartProduction",

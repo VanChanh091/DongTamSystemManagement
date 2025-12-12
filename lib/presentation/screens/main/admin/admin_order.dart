@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class AdminOrder extends StatefulWidget {
   const AdminOrder({super.key});
@@ -187,12 +188,26 @@ class _ManageOrderState extends State<AdminOrder> {
                                                   horizontal: 16,
                                                   vertical: 10,
                                                 ),
-                                                title: Text(
-                                                  "Mã đơn: ${ordersPending.orderId}",
-                                                  style: GoogleFonts.inter(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 15,
-                                                  ),
+                                                title: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      "Mã đơn: ${ordersPending.orderId}",
+                                                      style: GoogleFonts.inter(
+                                                        fontWeight: FontWeight.w600,
+                                                        fontSize: 15,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 6),
+
+                                                    Icon(
+                                                      ordersPending.isBox
+                                                          ? Symbols.package_2
+                                                          : Symbols.article,
+                                                      size: 18,
+                                                      color: Colors.orange,
+                                                    ),
+                                                  ],
                                                 ),
                                                 subtitle: Text(
                                                   'Sản phẩm: ${ordersPending.product.productName}',
@@ -455,7 +470,7 @@ class _ManageOrderState extends State<AdminOrder> {
     final infoRows = [
       _infoRow('🧾 Mã đơn:', order.orderId),
       _infoRow('📅 Ngày nhận:', formatter.format(order.dayReceiveOrder)),
-      _infoRow('🚚 Ngày giao:', formatter.format(order.dateRequestShipping)),
+      _infoRow('🚚 Ngày giao:', formatter.format(order.dateRequestShipping!)),
       _infoRow('👤 Tên khách hàng:', order.customer!.customerName),
       _infoRow('🏢 Tên công ty:', order.customer!.companyName),
       _infoRow('📦 Loại sản phẩm:', order.product!.typeProduct),
@@ -477,7 +492,7 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('🔢 Số lượng (Sản Xuất):', order.quantityManufacture.toString(), unit: ""),
       _infoRow('📜 Số con:', Order.formatCurrency(order.numberChild), unit: "Con"),
       _infoRow('🌍 Diện tích:', Order.formatCurrency(order.acreage), unit: 'm²'),
-      _infoRow('💲 Giá:', Order.formatCurrency(order.price), unit: "VNĐ"),
+      _infoRow('💲 Giá:', Order.formatCurrency(order.price), unit: 'VNĐ/${order.dvt}'),
       _infoRow('💵 Giá tấm:', Order.formatCurrency(order.pricePaper), unit: "VNĐ"),
       _infoRow('💵 Chiết khấu:', Order.formatCurrency(order.discount ?? 0), unit: "VNĐ"),
       _infoRow('💵 Lợi nhuận:', Order.formatCurrency(order.profit), unit: "VNĐ"),

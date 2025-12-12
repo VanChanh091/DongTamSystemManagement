@@ -3,7 +3,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_box_waiting.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_stages.dart';
+import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
 import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_box_data_source.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -186,6 +186,48 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                                   columns: columnsBox,
                                   widths: columnWidthsPlanning,
                                 ),
+                                stackedHeaderRows: <StackedHeaderRow>[
+                                  StackedHeaderRow(
+                                    cells: [
+                                      StackedHeaderCell(
+                                        columnNames: ["quantityOrd", "qtyPaper"],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Số Lượng',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: ["inMatTruoc", "inMatSau"],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'In Ấn',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: ["dan_1_Manh", "dan_2_Manh"],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Dán',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Đóng Ghim',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
 
                                 //auto resize
                                 allowColumnsResizing: true,

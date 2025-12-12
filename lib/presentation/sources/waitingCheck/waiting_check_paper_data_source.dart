@@ -90,6 +90,9 @@ class WaitingCheckPaperDataSource extends DataGridSource {
 
       DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
 
+      //status request
+      DataGridCell<String>(columnName: "statusRequest", value: planning.statusRequest),
+
       // hidden technical fields
       DataGridCell<String>(columnName: "status", value: planning.status),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
@@ -114,6 +117,20 @@ class WaitingCheckPaperDataSource extends DataGridSource {
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
       return value == true ? '✅' : '';
+    }
+
+    if (dataCell.columnName == "statusRequest") {
+      switch (value) {
+        case "requested":
+          return "Chờ nhập kho";
+        case "reject":
+          return "Từ chối";
+        case "complete":
+          return "Đã nhập kho";
+        case "none":
+        default:
+          return "";
+      }
     }
 
     return value?.toString() ?? '';

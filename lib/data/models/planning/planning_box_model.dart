@@ -11,6 +11,8 @@ class PlanningBox {
   final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
   final double length, size;
 
+  final String statusRequest;
+
   final int planningId;
   final String orderId;
   final Order? order;
@@ -32,6 +34,7 @@ class PlanningBox {
     this.songE2,
     required this.length,
     required this.size,
+    required this.statusRequest,
 
     required this.planningId,
     required this.orderId,
@@ -103,6 +106,7 @@ class PlanningBox {
       songE2: json['songE2'] ?? "",
       length: toDouble(json['length']),
       size: toDouble(json['size']),
+      statusRequest: json['statusRequest'],
 
       orderId: json['orderId'] ?? "",
       planningId: json['planningId'] ?? 0,

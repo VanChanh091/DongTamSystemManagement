@@ -1,31 +1,31 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 
-class InboundHistory {
+class InboundHistoryModel {
   final int inboundId;
   final DateTime dateInbound;
   final int qtyPaper;
-  final int inboundQty;
+  final int qtyInbound;
 
   //FK
   final String orderId;
   final Order? order;
 
-  InboundHistory({
+  InboundHistoryModel({
     required this.inboundId,
     required this.dateInbound,
     required this.qtyPaper,
-    required this.inboundQty,
+    required this.qtyInbound,
 
     required this.orderId,
     required this.order,
   });
 
-  factory InboundHistory.fromJson(Map<String, dynamic> json) {
-    return InboundHistory(
+  factory InboundHistoryModel.fromJson(Map<String, dynamic> json) {
+    return InboundHistoryModel(
       inboundId: json['inboundId'],
       dateInbound: DateTime.parse(json['dateInbound']),
-      qtyPaper: json['inboundQty'] ?? 0,
-      inboundQty: json['inboundQty'] ?? 0,
+      qtyPaper: json['qtyPaper'] ?? 0,
+      qtyInbound: json['qtyInbound'] ?? 0,
 
       orderId: json['orderId'] ?? 0,
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,

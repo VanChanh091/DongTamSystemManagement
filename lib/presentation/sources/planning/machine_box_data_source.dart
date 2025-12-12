@@ -47,7 +47,7 @@ class MachineBoxDatasource extends DataGridSource {
         columnName: "dateShipping",
         value:
             planning.order?.dateRequestShipping != null
-                ? formatter.format(planning.order!.dateRequestShipping)
+                ? formatter.format(planning.order!.dateRequestShipping!)
                 : '',
       ),
       DataGridCell<String>(
@@ -124,6 +124,9 @@ class MachineBoxDatasource extends DataGridSource {
         columnName: "shiftManager",
         value: boxMachineTime?.shiftManagement ?? "",
       ),
+
+      //isRequestCheck
+      DataGridCell<String>(columnName: "statusRequest", value: planning.statusRequest),
 
       // hidden
       DataGridCell<String>(columnName: "status", value: boxMachineTime?.status),
@@ -269,8 +272,22 @@ class MachineBoxDatasource extends DataGridSource {
     const boolColumns = ['dan_1_Manh', 'dan_2_Manh', 'dongGhim1Manh', 'dongGhim2Manh'];
 
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
+      if (value == null) return "";
+      return value == true ? '✅' : "";
+    }
+
+    if (dataCell.columnName == "statusRequest") {
+      switch (value) {
+        case "requested":
+          return "Chờ nhập kho";
+        case "reject":
+          return "Từ chối";
+        case "complete":
+          return "Đã nhập kho";
+        case "none":
+        default:
+          return "";
+      }
     }
 
     return value?.toString() ?? '';

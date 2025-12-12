@@ -1,6 +1,6 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 
-class OutboundHistory {
+class OutboundHistoryModel {
   final int outboundId;
   final DateTime dateOutbound;
   final String outboundSlipCode;
@@ -10,7 +10,7 @@ class OutboundHistory {
   final String orderId;
   final Order? order;
 
-  OutboundHistory({
+  OutboundHistoryModel({
     required this.outboundId,
     required this.dateOutbound,
     required this.outboundSlipCode,
@@ -21,8 +21,8 @@ class OutboundHistory {
     required this.order,
   });
 
-  factory OutboundHistory.fromJson(Map<String, dynamic> json) {
-    return OutboundHistory(
+  factory OutboundHistoryModel.fromJson(Map<String, dynamic> json) {
+    return OutboundHistoryModel(
       outboundId: json['outboundId'],
       dateOutbound: DateTime.parse(json['dateOutbound']),
       outboundSlipCode: json['outboundSlipCode'] ?? "",

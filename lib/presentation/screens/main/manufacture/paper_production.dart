@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
+import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
@@ -16,6 +16,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class PaperProduction extends StatefulWidget {
@@ -162,7 +163,6 @@ class _PaperProductionState extends State<PaperProduction> {
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
     required List<PlanningPaper> planningList,
-    bool isQC = false,
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
@@ -340,7 +340,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                               }
                                               : null,
                                       label: "Xác Nhận SX",
-                                      icon: null,
+                                      icon: Symbols.done_outline,
                                       backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),

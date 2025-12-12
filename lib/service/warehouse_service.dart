@@ -87,25 +87,28 @@ class WarehouseService {
 
   //============================INBOUND HISTORY================================
 
-  Future<Map<String, dynamic>> getAllEmployees({required int page, required int pageSize}) async {
-    return HelperService().fetchPaginatedData<InboundHistory>(
+  Future<Map<String, dynamic>> getAllInboundHistory({
+    required int page,
+    required int pageSize,
+  }) async {
+    return HelperService().fetchPaginatedData<InboundHistoryModel>(
       endpoint: "warehouse/inbound",
       queryParameters: {'page': page, 'pageSize': pageSize},
-      fromJson: (json) => InboundHistory.fromJson(json),
+      fromJson: (json) => InboundHistoryModel.fromJson(json),
       dataKey: 'inbounds',
     );
   }
 
-  Future<Map<String, dynamic>> getEmployeeByField({
+  Future<Map<String, dynamic>> getInboundByField({
     required String field,
     required String keyword,
     required int page,
     required int pageSize,
   }) async {
-    return HelperService().fetchPaginatedData<InboundHistory>(
+    return HelperService().fetchPaginatedData<InboundHistoryModel>(
       endpoint: 'warehouse/inbound/filter',
       queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
-      fromJson: (json) => InboundHistory.fromJson(json),
+      fromJson: (json) => InboundHistoryModel.fromJson(json),
       dataKey: 'inbounds',
     );
   }

@@ -28,7 +28,7 @@ class OrderDataSource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: 'dateShipping',
-        value: formatter.format(order.dateRequestShipping),
+        value: formatter.format(order.dateRequestShipping!),
       ),
       DataGridCell<String>(columnName: 'customerName', value: order.customer?.customerName ?? ''),
       DataGridCell<String>(columnName: 'companyName', value: order.customer?.companyName ?? ''),

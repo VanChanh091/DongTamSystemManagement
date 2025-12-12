@@ -51,6 +51,9 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   },
   {"key": "haveMadeBox", "title": "Làm Thùng?"},
 
+  //isRequestCheck
+  {"key": "statusRequest", "title": "Kiểm Hàng"},
+
   // hidden technical fields
   {"key": "status", "title": "", "visible": false},
   {"key": "index", "title": "Index", "visible": false},

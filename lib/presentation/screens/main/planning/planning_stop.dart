@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
+import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';

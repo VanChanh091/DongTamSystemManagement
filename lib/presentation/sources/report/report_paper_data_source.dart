@@ -29,7 +29,7 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: 'customerName', value: orderCell.customer?.customerName),
       DataGridCell<String>(
         columnName: "dateShipping",
-        value: formatter.format(orderCell.dateRequestShipping),
+        value: formatter.format(orderCell.dateRequestShipping!),
       ),
       DataGridCell<String>(
         columnName: "dayStartProduction",

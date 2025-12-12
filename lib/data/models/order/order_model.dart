@@ -19,7 +19,8 @@ class Order {
   final int quantityCustomer, quantityManufacture;
   final int numberChild;
   final int? vat;
-  final DateTime dayReceiveOrder, dateRequestShipping;
+  final DateTime? dateRequestShipping;
+  final DateTime dayReceiveOrder;
   final bool isBox;
 
   //association
@@ -218,7 +219,10 @@ class Order {
       profit: toDouble(json['profit']),
       totalPrice: toDouble(json['totalPrice']),
       totalPriceVAT: toDouble(json['totalPriceVAT']),
-      dateRequestShipping: DateTime.parse(json['dateRequestShipping']),
+      dateRequestShipping:
+          json['dateRequestShipping'] != null && json['dateRequestShipping'] != ''
+              ? DateTime.tryParse(json['dateRequestShipping'])
+              : null,
       instructSpecial: json['instructSpecial'] ?? "",
       isBox: json['isBox'] ?? false,
       status: json['status'] ?? "",
@@ -268,7 +272,7 @@ class Order {
       'pricePaper': pricePaper,
       'discount': discount,
       'profit': profit,
-      'dateRequestShipping': DateFormat('yyyy-MM-dd').format(dateRequestShipping),
+      'dateRequestShipping': DateFormat('yyyy-MM-dd').format(dateRequestShipping!),
       'instructSpecial': instructSpecial,
       "isBox": isBox,
       'status': status,

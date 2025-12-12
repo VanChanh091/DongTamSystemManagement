@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/report/report_planning_box.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_export_excel_report.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_report_box.dart';
+import 'package:dongtam/presentation/components/headerTable/report/header_table_report_box.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/report/report_box_data_source.dart';
 import 'package:dongtam/service/report_planning_service.dart';

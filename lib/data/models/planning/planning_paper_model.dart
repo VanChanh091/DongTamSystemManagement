@@ -24,6 +24,8 @@ class PlanningPaper {
   final int? sortPlanning;
   final double? bottom, fluteE, fluteB, fluteC, fluteE2, knife, totalLoss;
   final String status;
+  final String? statusRequest;
+
   final bool hasBox;
 
   //association
@@ -60,6 +62,7 @@ class PlanningPaper {
     this.totalLoss,
     this.sortPlanning,
     required this.status,
+    this.statusRequest,
     this.dayCompleted,
     this.qtyProduced,
     this.qtyWasteNorm,
@@ -141,6 +144,7 @@ class PlanningPaper {
       totalLoss: toDouble(json['totalLoss']),
       sortPlanning: json['sortPlanning'] ?? 0,
       status: json['status'] ?? "",
+      statusRequest: json['statusRequest'] ?? "",
       qtyProduced: json['qtyProduced'] ?? 0,
       qtyWasteNorm: toDouble(json['qtyWasteNorm']),
       shiftManagement: json['shiftManagement'] ?? "",

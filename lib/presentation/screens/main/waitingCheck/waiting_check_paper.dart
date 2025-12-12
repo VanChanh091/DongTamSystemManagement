@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
+import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_paper_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';

@@ -81,7 +81,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           }
         }
 
-        AppLogger.i("Báo cáo sản xuất thùng: ${widget.planningId}");
+        AppLogger.i("Báo cáo sản xuất thùng: ID = ${widget.planningId}");
         success = await ManufactureService().createReportBox(
           planningBoxId: widget.planningId,
           machine: widget.machine ?? "",

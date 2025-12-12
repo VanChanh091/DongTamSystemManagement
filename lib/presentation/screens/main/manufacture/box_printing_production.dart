@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_machine_box.dart';
+import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart';
 import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
@@ -16,6 +16,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class BoxPrintingProduction extends StatefulWidget {
@@ -162,7 +163,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
     required List<PlanningBox> planningList,
-    bool isQC = false,
+    bool isRequest = false,
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
@@ -182,9 +183,15 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     if (box.status == "complete") return false;
 
     // ❌ disable nếu sản xuất đủ số lượng rồi
-    if ((box.qtyProduced ?? 0) >= box.runningPlan) return false;
+    // if ((box.qtyProduced ?? 0) >= box.runningPlan) return false;
 
-    return true;
+    if (isRequest) {
+      return (box.qtyProduced ?? 0) > 0;
+    } else {
+      return (box.qtyProduced ?? 0) < box.runningPlan;
+    }
+
+    // return true;
   }
 
   @override
@@ -203,6 +210,14 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
         canExecuteAction(
           selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
           planningList: planningList,
+        );
+
+    final bool canRequestCheck =
+        userController.hasPermission(permission: "step2Production") &&
+        canExecuteAction(
+          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
+          planningList: planningList,
+          isRequest: true,
         );
 
     return Scaffold(
@@ -334,6 +349,12 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                   );
 
                                                   loadPlanning();
+
+                                                  if (!context.mounted) return;
+                                                  showSnackBarSuccess(
+                                                    context,
+                                                    "Xác nhận sản xuất thành công",
+                                                  );
                                                 } catch (e) {
                                                   if (!context.mounted) return;
                                                   showSnackBarError(
@@ -344,7 +365,56 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                               }
                                               : null,
                                       label: "Xác Nhận SX",
-                                      icon: null,
+                                      icon: Symbols.done_outline,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 10),
+
+                                    //send quest check quality
+                                    AnimatedButton(
+                                      onPressed:
+                                          canRequestCheck
+                                              ? () async {
+                                                //get planning first
+                                                final int selectedPlanningBoxId = int.parse(
+                                                  selectedPlanningIds.first,
+                                                );
+
+                                                // find planning by planningId
+                                                final selectedPlanning = planningList.firstWhere(
+                                                  (p) => p.planningBoxId == selectedPlanningBoxId,
+                                                  orElse:
+                                                      () =>
+                                                          throw Exception(
+                                                            "Không tìm thấy kế hoạch",
+                                                          ),
+                                                );
+
+                                                try {
+                                                  await ManufactureService()
+                                                      .updateRequestStockCheck(
+                                                        planningBoxId:
+                                                            selectedPlanning.planningBoxId,
+                                                      );
+
+                                                  loadPlanning();
+
+                                                  if (!context.mounted) return;
+                                                  showSnackBarSuccess(
+                                                    context,
+                                                    "Gửi yêu cầu kiểm tra thành công",
+                                                  );
+                                                } catch (e) {
+                                                  if (!context.mounted) return;
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Có lỗi khi xác nhận SX: $e",
+                                                  );
+                                                }
+                                              }
+                                              : null,
+                                      label: "Yêu Cầu Kiểm",
+                                      icon: Symbols.send,
                                       backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),

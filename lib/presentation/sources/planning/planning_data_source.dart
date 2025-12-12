@@ -24,7 +24,7 @@ class PlanningDataSource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: 'dateRequestShipping',
-        value: formatter.format(order.dateRequestShipping),
+        value: formatter.format(order.dateRequestShipping!),
       ),
       DataGridCell<String>(columnName: 'companyName', value: order.customer?.companyName ?? ''),
       DataGridCell<String>(columnName: 'typeProduct', value: order.product?.typeProduct ?? ''),
