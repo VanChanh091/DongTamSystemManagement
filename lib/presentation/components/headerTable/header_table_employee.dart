@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerCustomer = [
-  {"key": "employeeId", "title": "", "visible": false},
   {"key": "employeeCode", "title": "Mã Nhân Viên"},
   {"key": "fullName", "title": "Tên Nhân Viên"},
   {"key": "joinDate", "title": "Ngày Vào Làm"},
@@ -26,6 +25,9 @@ const List<Map<String, dynamic>> _headerCustomer = [
   {"key": "phoneNumber", "title": "Số Điện Thoại"},
   {"key": "emergencyPhone", "title": "SDT (Khẩn Cấp)"},
   {"key": "status", "title": "Tình Trạng"},
+
+  //hidden
+  {"key": "employeeId", "title": "", "visible": false},
 ];
 
 List<GridColumn> buildEmployeeColumn({required ThemeController themeController}) {

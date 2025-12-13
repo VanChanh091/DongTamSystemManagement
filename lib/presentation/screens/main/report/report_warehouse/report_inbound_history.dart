@@ -1,5 +1,5 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/models/warehouse/inbound_history.dart';
+import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
 import 'package:dongtam/presentation/components/headerTable/report/header_report_inbound.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/report/report_inbound_data_source.dart';

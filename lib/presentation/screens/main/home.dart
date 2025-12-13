@@ -23,6 +23,7 @@ import 'package:dongtam/presentation/screens/main/report/report_warehouse/report
 import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
+import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/color/theme_picker_color.dart';
@@ -89,6 +90,9 @@ class _HomePageState extends State<HomePage> {
       //waiting check
       _buildPage(permission: 'QC', child: WaitingCheckPaper()),
       _buildPage(permission: 'QC', child: WaitingCheckBox()),
+
+      //outbound
+      OutboundHistory(),
 
       //reporting hitstory
       TopTabHistoryReport(),
@@ -228,6 +232,11 @@ class _HomePageState extends State<HomePage> {
           _buildPlanningMenu(pages),
           _buildManufactureMenu(pages),
           _buildWaitingCheckMenu(pages),
+          _buildSidebarItem(
+            Symbols.warehouse,
+            "Xuất Kho",
+            index: pages.indexWhere((w) => w is OutboundHistory),
+          ),
           _buildReportMenu(pages),
           _buildSidebarItem(
             Symbols.dual_screen,

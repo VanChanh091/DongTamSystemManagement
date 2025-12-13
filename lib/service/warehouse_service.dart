@@ -2,7 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
-import 'package:dongtam/data/models/warehouse/inbound_history.dart';
+import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
+import 'package:dongtam/data/models/warehouse/outbound_detail_model.dart';
+import 'package:dongtam/data/models/warehouse/outbound_history_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -114,4 +116,46 @@ class WarehouseService {
   }
 
   //============================OUTBOUND HISTORY===============================
+
+  //get outbound
+  Future<Map<String, dynamic>> getOutboundHistory({
+    required int page,
+    required int pageSize,
+  }) async {
+    return HelperService().fetchPaginatedData<OutboundHistoryModel>(
+      endpoint: "warehouse/outbound",
+      queryParameters: {"page": page, "pageSize": pageSize},
+      fromJson: (json) => OutboundHistoryModel.fromJson(json),
+      dataKey: 'outbounds',
+    );
+  }
+
+  //get outbound detail
+  Future<List<OutboundDetailModel>> getOutboundDetail({required int outboundId}) async {
+    return HelperService().fetchingData(
+      endpoint: 'warehouse/outbound/detail',
+      queryParameters: {'outboundId': outboundId},
+      fromJson: (json) => OutboundDetailModel.fromJson(json),
+    );
+  }
+
+  //create outbound
+  Future<bool> createOutbound({required List<Map<String, dynamic>> list}) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.post(
+        'warehouse/createOutbound',
+        data: {"outboundDetails": list},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to create outbound", error: e, stackTrace: s);
+      throw Exception('Failed to create outbound: $e');
+    }
+  }
 }
