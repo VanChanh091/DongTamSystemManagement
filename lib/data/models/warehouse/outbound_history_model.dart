@@ -33,7 +33,7 @@ class OutboundHistoryModel {
       totalPriceOrder: toDouble(json['totalPriceOrder']),
       totalPriceVAT: toDouble(json['totalPriceVAT']),
       totalPricePayment: toDouble(json['totalPricePayment']),
-      totalOutboundQty: json['outboundQty'] ?? 0,
+      totalOutboundQty: json['totalOutboundQty'] ?? 0,
 
       detail:
           json['detail'] != null

@@ -132,9 +132,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
   }
 
   void fillDataOrderToPlanning() {
-    int leftQty =
-        (int.tryParse(quantityOrderController.text) ?? 0) - (widget.order?.totalQtyProduced ?? 0);
-
     final fieldPairs = {
       dayReplaceController: dayOrderController,
       matEReplaceController: matEOrderController,
@@ -153,7 +150,10 @@ class _PLanningDialogState extends State<PLanningDialog> {
       target.text = source.text;
     });
 
+    int leftQty =
+        (int.tryParse(quantityOrderController.text) ?? 0) - (widget.order?.totalQtyProduced ?? 0);
     runningPlanController.text = leftQty.toString();
+
     fluteController.text = extractNumbers(songController.text);
 
     //structure replace
@@ -509,6 +509,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
           label: "Kế hoạch chạy",
           controller: runningPlanController,
           icon: Symbols.production_quantity_limits,
+          qtyProduced: widget.order?.totalQtyProduced,
+          quantityOrderController: quantityOrderController,
         ),
       },
 

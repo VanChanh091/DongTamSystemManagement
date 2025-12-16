@@ -8,13 +8,13 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportPaperDatasource extends DataGridSource {
   List<ReportPaperModel> reportPapers = [];
-  List<int>? selectedReportId;
+  List<int> selectedReportId;
 
   late List<DataGridRow> reportDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayReported = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  ReportPaperDatasource({required this.reportPapers, this.selectedReportId}) {
+  ReportPaperDatasource({required this.reportPapers, required this.selectedReportId}) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: 'dateTimeRp', sortGroupRows: false));
   }
@@ -168,7 +168,7 @@ class ReportPaperDatasource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final reportPaperId =
         row.getCells().firstWhere((cell) => cell.columnName == 'reportPaperId').value;
-    final isSelected = selectedReportId?.contains(reportPaperId);
+    final isSelected = selectedReportId.contains(reportPaperId);
 
     Color backgroundColor;
     if (isSelected == true) {

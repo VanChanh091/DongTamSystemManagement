@@ -29,6 +29,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   late Future<Map<String, dynamic>> futureReportPaper;
   late ReportPaperDatasource reportPaperDatasource;
   late List<GridColumn> columns;
+
+  final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
   final Map<String, String> searchFieldMap = {
     "Theo Mã ĐH": "orderId",
@@ -93,6 +95,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
           ),
         );
       }
+
+      selectedReportId.clear();
     });
   }
 
@@ -385,6 +389,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                       //table
                       Expanded(
                         child: SfDataGrid(
+                          controller: dataGridController,
                           source: reportPaperDatasource,
                           isScrollbarAlwaysShown: true,
                           allowExpandCollapseGroup: true, // Bật grouping
@@ -455,20 +460,29 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                               ),
 
                           onSelectionChanged: (addedRows, removedRows) {
-                            setState(() {
-                              for (var row in addedRows) {
-                                final reportPaperId =
-                                    row
-                                        .getCells()
-                                        .firstWhere((cell) => cell.columnName == 'reportPaperId')
-                                        .value;
-                                if (selectedReportId.contains(reportPaperId)) {
-                                  selectedReportId.remove(reportPaperId);
-                                } else {
-                                  selectedReportId.add(reportPaperId);
-                                }
-                              }
+                            if (addedRows.isEmpty && removedRows.isEmpty) return;
 
+                            setState(() {
+                              // Lấy selection thật sự từ controller
+                              final selectedRows = dataGridController.selectedRows;
+
+                              selectedReportId =
+                                  selectedRows
+                                      .map((row) {
+                                        final cell = row.getCells().firstWhere(
+                                          (c) => c.columnName == 'reportPaperId',
+                                          orElse:
+                                              () => const DataGridCell(
+                                                columnName: 'reportPaperId',
+                                                value: '',
+                                              ),
+                                        );
+                                        return int.tryParse(cell.value.toString()) ?? 0;
+                                      })
+                                      .where((id) => id != 0)
+                                      .toList();
+
+                              // cập nhật cho datasource
                               reportPaperDatasource.selectedReportId = selectedReportId;
                               reportPaperDatasource.notifyListeners();
                             });

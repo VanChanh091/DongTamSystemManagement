@@ -19,7 +19,6 @@ class EmployeeDataSource extends DataGridSource {
     final companyInfo = employee.companyInfo;
 
     return [
-      DataGridCell<int>(columnName: "employeeId", value: employee.employeeId),
       DataGridCell<String>(columnName: "employeeCode", value: companyInfo?.employeeCode ?? ""),
       DataGridCell<String>(columnName: "fullName", value: employee.fullName),
       DataGridCell<String>(
@@ -47,6 +46,9 @@ class EmployeeDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "phoneNumber", value: employee.phoneNumber),
       DataGridCell<String>(columnName: "emergencyPhone", value: companyInfo?.emergencyPhone ?? ""),
       DataGridCell<String>(columnName: "status", value: companyInfo?.status ?? ""),
+
+      //hidden
+      DataGridCell<int>(columnName: "employeeId", value: employee.employeeId),
     ];
   }
 

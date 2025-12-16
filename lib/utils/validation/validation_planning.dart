@@ -8,6 +8,9 @@ class ValidationPlanning {
     bool readOnly = false,
     bool checkId = false,
     VoidCallback? onTap,
+
+    TextEditingController? quantityOrderController,
+    int? qtyProduced,
   }) {
     return StatefulBuilder(
       builder: (context, setState) {
@@ -41,6 +44,28 @@ class ValidationPlanning {
                 return "Ghép khổ phải lớn hơn 0";
               } else if (!RegExp(r'^\d+$').hasMatch(value)) {
                 return "Ghép Khổ chỉ được chứa số";
+              }
+            } else if (label == "Kế hoạch chạy") {
+              if (quantityOrderController != null && qtyProduced != null) {
+                final runningPlan = int.parse(value ?? "");
+                final quantityOrder = int.tryParse(quantityOrderController.text) ?? 0;
+
+                if (runningPlan <= 0) {
+                  return "Kế hoạch chạy phải lớn hơn 0";
+                }
+
+                // case 1: chưa có lần sx
+                if (qtyProduced == 0) {
+                  if (runningPlan > quantityOrder) {
+                    return "Không được vượt quá số lượng đơn hàng";
+                  }
+                }
+                // case 2: đã có lần sx
+                else {
+                  if (runningPlan + qtyProduced > quantityOrder) {
+                    return "Vượt quá số lượng đơn hàng";
+                  }
+                }
               }
             }
             return null;
