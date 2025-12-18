@@ -38,55 +38,6 @@ class WarehouseService {
     );
   }
 
-  Future<bool> inboundQtyWarehouse({
-    required int inboundQty,
-    int? planningId,
-    int? planningBoxId,
-    bool isBox = false,
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final endpoint = isBox ? "inboundBox" : "inboundPaper";
-      final params = {
-        if (isBox) "planningBoxId": planningBoxId else "planningId": planningId,
-        "inboundQty": inboundQty,
-      };
-
-      await dioService.post(
-        '/api/warehouse/$endpoint',
-        queryParameters: params,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to inbound paper", error: e, stackTrace: s);
-      throw Exception('Failed to inbound paper: $e');
-    }
-  }
-
-  Future<bool> inboundQtyPaper({required int planningId, required int inboundQty}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        '/api/warehouse/inboundPaper',
-        queryParameters: {"planningId": planningId, "inboundQty": inboundQty},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to inbound paper", error: e, stackTrace: s);
-      throw Exception('Failed to inbound paper: $e');
-    }
-  }
-
   //============================INBOUND HISTORY================================
 
   Future<Map<String, dynamic>> getAllInboundHistory({

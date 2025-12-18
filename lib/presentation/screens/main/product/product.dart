@@ -1,8 +1,8 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_add_product.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_export_cus_or_prod.dart';
+import 'package:dongtam/presentation/components/dialog/add/dialog_add_product.dart';
+import 'package:dongtam/presentation/components/dialog/export/dialog_export_cus_or_prod.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_product.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/product_data_source.dart';

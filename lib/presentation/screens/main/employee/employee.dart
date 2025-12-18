@@ -1,8 +1,8 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/employee/employee_basic_info.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_add_employee.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_export_employee.dart';
+import 'package:dongtam/presentation/components/dialog/add/dialog_add_employee.dart';
+import 'package:dongtam/presentation/components/dialog/export/dialog_export_employee.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_employee.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/employee_data_source.dart';

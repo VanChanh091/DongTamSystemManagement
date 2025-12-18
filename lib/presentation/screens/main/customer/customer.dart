@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_add_customer.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_export_cus_or_prod.dart';
+import 'package:dongtam/presentation/components/dialog/add/dialog_add_customer.dart';
+import 'package:dongtam/presentation/components/dialog/export/dialog_export_cus_or_prod.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_customer.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/customer_data_source.dart';

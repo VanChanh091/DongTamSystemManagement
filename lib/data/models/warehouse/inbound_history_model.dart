@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/data/models/qualityControl/qc_session_model.dart';
 
 class InboundHistoryModel {
   final int inboundId;
@@ -10,6 +11,9 @@ class InboundHistoryModel {
   final String orderId;
   final Order? order;
 
+  final int qcSessionId;
+  final QcSessionModel? QcSession;
+
   InboundHistoryModel({
     required this.inboundId,
     required this.dateInbound,
@@ -17,7 +21,10 @@ class InboundHistoryModel {
     required this.qtyInbound,
 
     required this.orderId,
-    required this.order,
+    this.order,
+
+    required this.qcSessionId,
+    this.QcSession,
   });
 
   factory InboundHistoryModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +36,9 @@ class InboundHistoryModel {
 
       orderId: json['orderId'] ?? 0,
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
+
+      qcSessionId: json['qcSessionId'] ?? 0,
+      QcSession: json['QcSession'] != null ? QcSessionModel.fromJson(json['QcSession']) : null,
     );
   }
 }

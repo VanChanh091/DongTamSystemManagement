@@ -1,10 +1,13 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/presentation/components/dialog/qualityControl/dialog_check_qc_paper.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_paper_data_source.dart';
+import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -40,7 +43,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
   void initState() {
     super.initState();
 
-    loadPaper();
+    loadPaperWaiting();
 
     columns = buildMachineColumns(themeController: themeController, page: "production");
 
@@ -51,7 +54,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
     });
   }
 
-  void loadPaper() {
+  void loadPaperWaiting() {
     AppLogger.i("Loading all data waiting check paper");
     setState(() {
       futurePlanning = ensureMinLoading(WarehouseService().getPaperWaitingChecked());
@@ -114,9 +117,71 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                                   children: [
                                     //inbound warehouse
                                     AnimatedButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        final int selectedPlanningId = int.parse(
+                                          selectedPlanningIds.first,
+                                        );
+
+                                        final selectedPlanning = planningList.firstWhere(
+                                          (p) => p.planningId == selectedPlanningId,
+                                          orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+                                        );
+
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (_) => DialogCheckQcPaper(
+                                                planningId: selectedPlanning.planningId,
+                                                onQcSessionAddOrUpdate: () => loadPaperWaiting(),
+                                                type: 'paper',
+                                              ),
+                                        );
+                                      },
                                       label: "Nhập Kho",
                                       icon: Symbols.input,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 10),
+
+                                    //confirm Finalized Session
+                                    AnimatedButton(
+                                      onPressed: () async {
+                                        try {
+                                          final int selectedPlanningId = int.parse(
+                                            selectedPlanningIds.first,
+                                          );
+
+                                          // Tìm planning tương ứng
+                                          final selectedPlanning = planningList.firstWhere(
+                                            (p) => p.planningId == selectedPlanningId,
+                                            orElse:
+                                                () => throw Exception("Không tìm thấy kế hoạch"),
+                                          );
+
+                                          // Gửi yêu cầu xác nhận sản xuất
+                                          await QualityControlService().confirmFinalizeSession(
+                                            planningId: selectedPlanning.planningId,
+                                            isPaper: true,
+                                          );
+
+                                          if (!context.mounted) return;
+
+                                          loadPaperWaiting();
+                                        } catch (e, s) {
+                                          AppLogger.e(
+                                            "Lỗi khi xác nhận SX",
+                                            error: e,
+                                            stackTrace: s,
+                                          );
+                                          if (!context.mounted) return;
+                                          showSnackBarError(
+                                            context,
+                                            "Có lỗi khi hoàn thành phiên kiểm tra: $e",
+                                          );
+                                        }
+                                      },
+                                      label: "Hoàn Tất Nhập",
+                                      icon: Symbols.done_outline,
                                       backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
@@ -262,7 +327,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadPaper(),
+        onPressed: () => loadPaperWaiting(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
