@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/dialog/qualityControl/dialog_check_qc_paper.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_check_qc.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_paper_data_source.dart';
 import 'package:dongtam/service/quality_control_service.dart';
@@ -63,8 +63,33 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
     });
   }
 
+  bool canExecuteAction({
+    required List<int> selectedPlanningIds,
+    required List<PlanningPaper> planningList,
+  }) {
+    if (selectedPlanningIds.length != 1) return false;
+
+    final selectedPlanning = planningList.firstWhere(
+      (p) => p.planningId == selectedPlanningIds.first,
+      orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+    );
+
+    // disable nếu đã complete
+    if (selectedPlanning.status == "complete") return false;
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
+    //QC Check
+    final bool qcCheck =
+        userController.hasPermission(permission: 'QC') &&
+        canExecuteAction(
+          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
+          planningList: planningList,
+        );
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -117,26 +142,34 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                                   children: [
                                     //inbound warehouse
                                     AnimatedButton(
-                                      onPressed: () {
-                                        final int selectedPlanningId = int.parse(
-                                          selectedPlanningIds.first,
-                                        );
+                                      onPressed:
+                                          qcCheck
+                                              ? () async {
+                                                final int selectedPlanningId = int.parse(
+                                                  selectedPlanningIds.first,
+                                                );
 
-                                        final selectedPlanning = planningList.firstWhere(
-                                          (p) => p.planningId == selectedPlanningId,
-                                          orElse: () => throw Exception("Không tìm thấy kế hoạch"),
-                                        );
+                                                final selectedPlanning = planningList.firstWhere(
+                                                  (p) => p.planningId == selectedPlanningId,
+                                                  orElse:
+                                                      () =>
+                                                          throw Exception(
+                                                            "Không tìm thấy kế hoạch",
+                                                          ),
+                                                );
 
-                                        showDialog(
-                                          context: context,
-                                          builder:
-                                              (_) => DialogCheckQcPaper(
-                                                planningId: selectedPlanning.planningId,
-                                                onQcSessionAddOrUpdate: () => loadPaperWaiting(),
-                                                type: 'paper',
-                                              ),
-                                        );
-                                      },
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (_) => DialogCheckQC(
+                                                        planningId: selectedPlanning.planningId,
+                                                        onQcSessionAddOrUpdate:
+                                                            () => loadPaperWaiting(),
+                                                        type: 'paper',
+                                                      ),
+                                                );
+                                              }
+                                              : null,
                                       label: "Nhập Kho",
                                       icon: Symbols.input,
                                       backgroundColor: themeController.buttonColor,
@@ -145,42 +178,54 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
 
                                     //confirm Finalized Session
                                     AnimatedButton(
-                                      onPressed: () async {
-                                        try {
-                                          final int selectedPlanningId = int.parse(
-                                            selectedPlanningIds.first,
-                                          );
+                                      onPressed:
+                                          qcCheck
+                                              ? () async {
+                                                try {
+                                                  final int selectedPlanningId = int.parse(
+                                                    selectedPlanningIds.first,
+                                                  );
 
-                                          // Tìm planning tương ứng
-                                          final selectedPlanning = planningList.firstWhere(
-                                            (p) => p.planningId == selectedPlanningId,
-                                            orElse:
-                                                () => throw Exception("Không tìm thấy kế hoạch"),
-                                          );
+                                                  // Tìm planning tương ứng
+                                                  final selectedPlanning = planningList.firstWhere(
+                                                    (p) => p.planningId == selectedPlanningId,
+                                                    orElse:
+                                                        () =>
+                                                            throw Exception(
+                                                              "Không tìm thấy kế hoạch",
+                                                            ),
+                                                  );
 
-                                          // Gửi yêu cầu xác nhận sản xuất
-                                          await QualityControlService().confirmFinalizeSession(
-                                            planningId: selectedPlanning.planningId,
-                                            isPaper: true,
-                                          );
+                                                  // Gửi yêu cầu xác nhận sản xuất
+                                                  await QualityControlService()
+                                                      .confirmFinalizeSession(
+                                                        planningId: selectedPlanning.planningId,
+                                                        isPaper: true,
+                                                      );
 
-                                          if (!context.mounted) return;
+                                                  if (!context.mounted) return;
 
-                                          loadPaperWaiting();
-                                        } catch (e, s) {
-                                          AppLogger.e(
-                                            "Lỗi khi xác nhận SX",
-                                            error: e,
-                                            stackTrace: s,
-                                          );
-                                          if (!context.mounted) return;
-                                          showSnackBarError(
-                                            context,
-                                            "Có lỗi khi hoàn thành phiên kiểm tra: $e",
-                                          );
-                                        }
-                                      },
-                                      label: "Hoàn Tất Nhập",
+                                                  loadPaperWaiting();
+
+                                                  showSnackBarSuccess(
+                                                    context,
+                                                    "Xác nhận hoàn thành phiên kiểm tra thành công",
+                                                  );
+                                                } catch (e, s) {
+                                                  AppLogger.e(
+                                                    "Lỗi khi xác nhận SX",
+                                                    error: e,
+                                                    stackTrace: s,
+                                                  );
+                                                  if (!context.mounted) return;
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Có lỗi khi hoàn thành phiên kiểm tra: $e",
+                                                  );
+                                                }
+                                              }
+                                              : null,
+                                      label: "Hoàn Thành",
                                       icon: Symbols.done_outline,
                                       backgroundColor: themeController.buttonColor,
                                     ),

@@ -1,5 +1,5 @@
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound_detail_model.dart';
+import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

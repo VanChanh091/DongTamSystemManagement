@@ -24,6 +24,9 @@ const List<Map<String, dynamic>> _headerBoxWaiting = [
   {"key": "dongGhim1Manh", "title": "1 Mảnh"},
   {"key": "dongGhim2Manh", "title": "2 Mảnh"},
 
+  //statusRequest
+  {"key": "statusRequest", "title": "Trạng Thái"},
+
   // hidden technical fields
   {"key": "planningBoxId", "title": "", "visible": false},
 ];

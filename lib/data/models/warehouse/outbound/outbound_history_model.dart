@@ -1,4 +1,4 @@
-import 'package:dongtam/data/models/warehouse/outbound_detail_model.dart';
+import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 
 class OutboundHistoryModel {

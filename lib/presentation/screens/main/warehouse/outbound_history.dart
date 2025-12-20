@@ -1,14 +1,14 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/warehouse/outbound_detail_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound_history_model.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_db_planning.dart';
+import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
+import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
+import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_table_ob_detail.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_table_ob_history.dart';
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/outbound/ob_detail_data_source.dart';
 import 'package:dongtam/presentation/sources/outbound/ob_history_data_source.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
@@ -17,7 +17,7 @@ import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class OutboundHistory extends StatefulWidget {
@@ -217,16 +217,19 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                //export excel
                                 AnimatedButton(
                                   onPressed: () async {
                                     showDialog(
                                       context: context,
-                                      builder: (_) => DialogExportDbPlannings(),
+                                      builder:
+                                          (_) => OutBoundDialog(
+                                            outboundHistory: null,
+                                            onOutboundHistory: () => loadOutbound(),
+                                          ),
                                     );
                                   },
-                                  label: "Xuất Excel",
-                                  icon: Symbols.export_notes,
+                                  label: "Xuất Kho",
+                                  icon: Symbols.input,
                                   backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 10),

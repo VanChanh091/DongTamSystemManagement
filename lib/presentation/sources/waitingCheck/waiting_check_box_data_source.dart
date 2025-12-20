@@ -44,6 +44,9 @@ class WaitingCheckBoxDataSource extends DataGridSource {
 
       ...buildChildBoxCells(planning),
 
+      //status request
+      DataGridCell<String>(columnName: "statusRequest", value: planning.statusRequest),
+
       //hidden field
       DataGridCell<int>(columnName: "planningBoxId", value: planning.planningBoxId),
     ];
@@ -90,6 +93,20 @@ class WaitingCheckBoxDataSource extends DataGridSource {
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
       return value == true ? '✅' : '';
+    }
+
+    if (dataCell.columnName == "statusRequest") {
+      switch (value) {
+        case "requested":
+          return "Chờ nhập kho";
+        case "reject":
+          return "Từ chối";
+        case "inbounded":
+          return "Đã nhập kho";
+        case "none":
+        default:
+          return "";
+      }
     }
 
     return value?.toString() ?? '';

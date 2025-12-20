@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
+import 'package:dongtam/presentation/components/dialog/dialog_check_qc.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_box_waiting.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
@@ -68,8 +69,38 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
     });
   }
 
+  // bool canExecuteAction({
+  //   required int selectedPlanningIds,
+  //   required List<PlanningBox> planningList,
+  //   bool isRequest = false,
+  // }) {
+  //   if (selectedPlanningIds.length != 1) return false;
+
+  //   final int selectedPlanningBoxId = selectedPlanningIds.first;
+
+  //   final selectedPlanning = planningList.firstWhere(
+  //     (p) => p.planningBoxId == selectedPlanningBoxId,
+  //     orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+  //   );
+
+  //   final boxTimes = selectedPlanning.boxTimes;
+  //   if (boxTimes == null || boxTimes.isEmpty) return false;
+
+  //   final box = boxTimes.first;
+
+  //   // disable nếu đã complete
+  //   if (box.status == "complete") return false;
+
+  //   return true;
+  // }
+
   @override
   Widget build(BuildContext context) {
+    //QC Check
+    // final bool qcCheck =
+    //     userController.hasPermission(permission: 'QC') &&
+    //     canExecuteAction(selectedPlanningIds: selectedPlanningBoxIds, planningList: planningList);
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -118,7 +149,17 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                               children: [
                                 //inbound warehouse
                                 AnimatedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => DialogCheckQC(
+                                            planningBoxId: selectedPlanningBoxIds!,
+                                            onQcSessionAddOrUpdate: () => loadBoxWaiting(),
+                                            type: 'box',
+                                          ),
+                                    );
+                                  },
                                   label: "Nhập Kho",
                                   icon: Symbols.input,
                                   backgroundColor: themeController.buttonColor,

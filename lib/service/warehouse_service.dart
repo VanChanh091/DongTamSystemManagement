@@ -3,8 +3,8 @@ import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound_detail_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound_history_model.dart';
+import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
+import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -96,7 +96,7 @@ class WarehouseService {
       final token = await SecureStorageService().getToken();
 
       await dioService.post(
-        'warehouse/createOutbound',
+        '/api/warehouse/createOutbound',
         data: {"outboundDetails": list},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},

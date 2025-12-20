@@ -88,11 +88,7 @@ class QualityControlService {
 
       await dioService.put(
         '/api/qc/confirmFinalize',
-        queryParameters: {
-          "planningId": planningId,
-          'planningBoxId': planningBoxId,
-          "isPaper": isPaper,
-        },
+        data: {"planningId": planningId, 'planningBoxId': planningBoxId, "isPaper": isPaper},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),

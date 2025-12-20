@@ -3,13 +3,13 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class AutoCompleteField<T> extends StatefulWidget {
   final TextEditingController controller;
-  final Future<List<T>> Function(String pattern) suggestionsCallback;
-  final Widget Function(BuildContext context, T item) itemBuilder;
-  final void Function(T selectedItem) onSelected;
   final String labelText;
   final IconData icon;
+  final Future<List<T>> Function(String pattern) suggestionsCallback;
+  final Widget Function(BuildContext context, T item) itemBuilder;
   final String Function(T item) displayStringForItem;
   final VoidCallback? onPlusTap;
+  final void Function(T selectedItem) onSelected;
   final void Function(String) onChanged;
 
   const AutoCompleteField({
@@ -82,15 +82,9 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
             prefixIcon: Icon(widget.icon),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             floatingLabelBehavior: FloatingLabelBehavior.always,
-            fillColor:
-                isFilled
-                    ? const Color.fromARGB(255, 148, 236, 154)
-                    : Colors.white,
+            fillColor: isFilled ? const Color.fromARGB(255, 148, 236, 154) : Colors.white,
             filled: true,
             suffixIcon:
                 widget.onPlusTap != null
@@ -112,10 +106,8 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
 
       constraints: const BoxConstraints(maxHeight: 200),
       emptyBuilder:
-          (context) => const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text('Không tìm thấy dữ liệu.'),
-          ),
+          (context) =>
+              const Padding(padding: EdgeInsets.all(8.0), child: Text('Không tìm thấy dữ liệu.')),
     );
   }
 }

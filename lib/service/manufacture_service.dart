@@ -173,13 +173,16 @@ class ManufactureService {
     }
   }
 
-  Future<bool> updateRequestStockCheck({required int planningBoxId}) async {
+  Future<bool> updateRequestStockCheck({
+    required int planningBoxId,
+    required String machine,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
         '/api/manufacture/requestCheck',
-        queryParameters: {"planningBoxId": planningBoxId},
+        queryParameters: {"planningBoxId": planningBoxId, 'machine': machine},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),

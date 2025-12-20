@@ -8,23 +8,24 @@ import 'package:dongtam/utils/helper/reponsive_size.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 
-class DialogCheckQcPaper extends StatefulWidget {
-  final int planningId;
+class DialogCheckQC extends StatefulWidget {
+  final int? planningId, planningBoxId;
   final VoidCallback onQcSessionAddOrUpdate;
   final String type;
 
-  const DialogCheckQcPaper({
+  const DialogCheckQC({
     super.key,
-    required this.planningId,
+    this.planningId,
+    this.planningBoxId,
     required this.onQcSessionAddOrUpdate,
     required this.type,
   });
 
   @override
-  State<DialogCheckQcPaper> createState() => _DialogCheckQcPaperState();
+  State<DialogCheckQC> createState() => _DialogCheckQcPaperState();
 }
 
-class _DialogCheckQcPaperState extends State<DialogCheckQcPaper> {
+class _DialogCheckQcPaperState extends State<DialogCheckQC> {
   late Future<List<QcCriteriaModel>> futureCriteria;
 
   final formKey = GlobalKey<FormState>();
@@ -55,7 +56,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQcPaper> {
     }
 
     try {
-      AppLogger.i("Thêm phiên kiểm tra mới");
+      AppLogger.i("Thêm phiên kiểm tra mới cho ${widget.type == 'paper' ? "giấy" : "thùng"}");
 
       final submitSamples =
           samples.entries.map((entry) {
@@ -66,6 +67,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQcPaper> {
         inboundQty: int.parse(qtyController.text),
         processType: widget.type,
         planningId: widget.planningId,
+        planningBoxId: widget.planningBoxId,
         totalSample: submitSamples.length,
         samples: submitSamples,
       );
@@ -164,7 +166,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQcPaper> {
           return TableRow(
             children: [
               Padding(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 child: Text(
                   "Mẫu $sampleIndex",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -212,10 +214,19 @@ class _DialogCheckQcPaperState extends State<DialogCheckQcPaper> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            validator: (v) {
+            validator: (value) {
               if (!enabled) return null;
-              if (v == null || v.isEmpty) {
+              if (value == null || value.isEmpty) {
                 return "Vui lòng nhập số lượng";
+              }
+
+              final qty = int.tryParse(value);
+              if (qty == null) {
+                return "Chỉ chấp nhận số nguyên";
+              }
+
+              if (qty <= 0) {
+                return "Số lượng phải lớn hơn 0";
               }
               return null;
             },

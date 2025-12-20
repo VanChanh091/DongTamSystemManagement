@@ -190,8 +190,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     } else {
       return (box.qtyProduced ?? 0) < box.runningPlan;
     }
-
-    // return true;
   }
 
   @override
@@ -395,6 +393,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                       .updateRequestStockCheck(
                                                         planningBoxId:
                                                             selectedPlanning.planningBoxId,
+                                                        machine: machine,
                                                       );
 
                                                   loadPlanning();
