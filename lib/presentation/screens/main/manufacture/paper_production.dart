@@ -218,7 +218,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        "DANH SÁCH GIẤY TẤM CHỜ SẢN XUẤT",
+                        "LỊCH SẢN XUẤT GIẤY TẤM",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,

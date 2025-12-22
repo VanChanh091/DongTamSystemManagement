@@ -117,10 +117,6 @@ class _OrderDialogState extends State<OrderDialog> {
     fetchAllCustomers();
     fetchAllProduct();
     addListenerForField();
-
-    // debounce
-    customerIdController.addListener(_onCustomerIdChanged);
-    productIdController.addListener(_onProductIdChanged);
   }
 
   //init data to update
@@ -190,108 +186,6 @@ class _OrderDialogState extends State<OrderDialog> {
     chongThamChecked = ValueNotifier<bool>(box.chongTham ?? false);
     dongGoiController.text = box.dongGoi ?? "";
     maKhuonController.text = box.maKhuon ?? "";
-  }
-
-  Future<void> getCustomerById(String customerId) async {
-    try {
-      final result = await CustomerService().getCustomerByField(
-        field: 'customerId',
-        keyword: customerId,
-      );
-      if (customerId != lastSearchedCustomerId) return;
-
-      final customerData = result['customers'] as List<Customer>;
-
-      if (customerData.isNotEmpty) {
-        final customer = customerData.first;
-
-        if (mounted) {
-          setState(() {
-            customerNameController.text = customer.customerName;
-            customerCompanyController.text = customer.companyName;
-          });
-        }
-      } else {
-        AppLogger.w("Không tìm thấy khách hàng với id=$customerId");
-        if (mounted) {
-          setState(() {
-            customerNameController.clear();
-            customerCompanyController.clear();
-          });
-
-          showSnackBarError(context, 'Không tìm thấy khách hàng');
-        }
-      }
-    } catch (e, s) {
-      AppLogger.e("Lỗi khi tìm khách hàng id=$customerId", error: e, stackTrace: s);
-    }
-  }
-
-  Future<void> getProductById(String productId) async {
-    try {
-      final result = await ProductService().getProductByField(
-        field: 'productId',
-        keyword: productId,
-      );
-      if (productId != lastSearchedProductId) return;
-
-      final productData = result['products'] as List<Product>;
-
-      if (productData.isNotEmpty) {
-        final product = productData.first;
-
-        if (mounted) {
-          setState(() {
-            typeProduct.text = product.typeProduct;
-            nameSpController.text = product.productName ?? "";
-            maKhuonController.text = product.maKhuon ?? "";
-          });
-        }
-      } else {
-        AppLogger.w("Không tìm thấy khách hàng với id=$productId");
-        if (mounted) {
-          setState(() {
-            nameSpController.clear();
-            typeProduct.clear();
-            maKhuonController.clear();
-          });
-
-          showSnackBarError(context, "Không tìm thấy sản phẩm");
-        }
-      }
-    } catch (e, s) {
-      AppLogger.e("Lỗi khi tìm sản phẩm id=$productId", error: e, stackTrace: s);
-    }
-  }
-
-  // debounce to get customerId
-  void _onCustomerIdChanged() {
-    if (_customerIdDebounce?.isActive ?? false) _customerIdDebounce!.cancel();
-
-    final input = customerIdController.text.trim();
-
-    _customerIdDebounce = Timer(Duration(milliseconds: 800), () {
-      if (input.isNotEmpty) {
-        AppLogger.i("Trigger search customerId=$input");
-        lastSearchedCustomerId = input;
-        getCustomerById(input);
-      }
-    });
-  }
-
-  // debounce to get productId
-  void _onProductIdChanged() {
-    if (_productIdDebounce?.isActive ?? false) _productIdDebounce!.cancel();
-
-    final input = productIdController.text.trim();
-
-    _productIdDebounce = Timer(Duration(milliseconds: 800), () {
-      if (input.isNotEmpty) {
-        AppLogger.i("Trigger search productId=$input");
-        lastSearchedProductId = input;
-        getProductById(input);
-      }
-    });
   }
 
   Future<void> fetchAllCustomers() async {
@@ -578,8 +472,6 @@ class _OrderDialogState extends State<OrderDialog> {
     isBoxChecked = ValueNotifier<bool>(false);
     dongGoiController.dispose();
     maKhuonController.dispose();
-    customerIdController.removeListener(_onCustomerIdChanged);
-    productIdController.removeListener(_onProductIdChanged);
     _customerIdDebounce?.cancel();
     _productIdDebounce?.cancel();
   }

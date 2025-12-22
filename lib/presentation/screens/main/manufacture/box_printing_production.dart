@@ -236,7 +236,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        "DANH SÁCH CÔNG ĐOẠN 2 CHỜ SẢN XUẤT",
+                        "LỊCH SẢN XUẤT THÙNG",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,

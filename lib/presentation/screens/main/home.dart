@@ -27,12 +27,14 @@ import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dar
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/color/theme_picker_color.dart';
+import 'package:dongtam/utils/helper/sidebar_expanded_menu.dart';
 import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -52,12 +54,15 @@ class _HomePageState extends State<HomePage> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
-  bool _isHovered = false;
+  bool _isSidebarOpen = false;
   bool _isPlanningExpanded = false;
   bool _isManufactureExpanded = false;
   bool _isReportExpanded = false;
   bool _isApprovalExpanded = false;
   bool _isWaitingExpanded = false;
+
+  static const double _sidebarOpenWidth = 300;
+  static const double _sidebarCollapsedWidth = 60;
 
   @override
   void initState() {
@@ -160,12 +165,18 @@ class _HomePageState extends State<HomePage> {
   Widget buildSidebar() {
     final pages = getPages();
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+
+      onTap: () {
+        if (!_isSidebarOpen) {
+          setState(() => _isSidebarOpen = true);
+        }
+      },
+
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: _isHovered ? 300 : 60,
+        width: _isSidebarOpen ? _sidebarOpenWidth : _sidebarCollapsedWidth,
         decoration: _sidebarDecoration(themeController.currentColor.value),
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -175,17 +186,18 @@ class _HomePageState extends State<HomePage> {
                 child: IntrinsicHeight(
                   child: Column(
                     children: [
-                      const SizedBox(height: 20),
-                      //logo DT
-                      if (_isHovered)
+                      const SizedBox(height: 8),
+                      if (_isSidebarOpen)
                         _buildLogoSection()
                       else
-                        Image.asset('assets/images/logoDT.png', width: 40, height: 40),
-                      const SizedBox(height: 20),
-                      //menu
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 6),
+                          child: Image.asset('assets/images/logoDT.png', width: 40, height: 40),
+                        ),
+                      const SizedBox(height: 16),
+
                       Expanded(child: _buildMenuList(pages)),
                       const Divider(color: Colors.white70),
-                      //logo logout
                       _buildLogoutSection(),
                     ],
                   ),
@@ -271,96 +283,68 @@ class _HomePageState extends State<HomePage> {
       final isParentSelected =
           selected == waitingIndex || selected == planningIndex || selected == planningStopIndex;
 
-      return Column(
-        children: [
-          _isHovered
-              ? ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: Obx(() {
-                  final count = badgesController.numberPlanningStop.value;
-                  if (count == 0) {
-                    return Icon(
-                      Icons.schedule,
-                      color:
-                          isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                    );
-                  }
+      final leadingWithBadge = Obx(() {
+        final count = badgesController.numberPlanningStop.value;
 
-                  return Badge.count(
-                    count: count,
-                    child: const Icon(Icons.schedule, color: Colors.white),
-                  );
-                }),
-                title: Text(
-                  "Kế Hoạch",
-                  style: TextStyle(
-                    color:
-                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                    fontSize: 18,
-                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-                trailing: Icon(
-                  _isPlanningExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onTap: () => setState(() => _isPlanningExpanded = !_isPlanningExpanded),
-              )
-              : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Center(
-                  child: Obx(() {
-                    final count = badgesController.numberPlanningStop.value;
-                    if (count == 0) {
-                      return Icon(
-                        Icons.schedule,
-                        color:
-                            isParentSelected
-                                ? const Color.fromARGB(255, 252, 220, 41)
-                                : Colors.white,
-                      );
-                    }
-                    return Badge(
-                      smallSize: 8, // chấm đỏ nhỏ
-                      backgroundColor: Colors.red,
-                      child: Icon(
-                        Icons.schedule,
-                        color:
-                            isParentSelected
-                                ? const Color.fromARGB(255, 252, 220, 41)
-                                : Colors.white,
-                      ),
-                    );
-                  }),
-                ),
-              ),
-          if (_isHovered && _isPlanningExpanded) ...[
-            if (waitingIndex != -1)
-              _buildSubMenuItem(Icons.outbox_rounded, "Chờ Lên Kế Hoạch", waitingIndex),
-            if (planningIndex != -1)
-              _buildSubMenuItem(
-                Icons.production_quantity_limits_outlined,
-                "Hàng Chờ Sản Xuất",
-                planningIndex,
-              ),
-            if (planningStopIndex != -1)
-              _buildSubMenuItem(
-                Symbols.queue,
-                "Hàng Chờ Xử Lý",
-                planningStopIndex,
-                leadingWrapper: Obx(() {
-                  final count = badgesController.numberPlanningStop.value;
-                  if (count == 0) {
-                    return const Icon(Icons.queue, color: Colors.white);
-                  }
-                  return Badge.count(
-                    count: count,
-                    child: const Icon(Icons.queue, color: Colors.white),
-                  );
-                }),
-              ),
-          ],
+        if (_isSidebarOpen) {
+          if (count == 0) {
+            return Icon(
+              Icons.schedule,
+              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+            );
+          }
+          return Badge.count(count: count, child: const Icon(Icons.schedule, color: Colors.white));
+        } else {
+          if (count == 0) {
+            return Icon(
+              Icons.schedule,
+              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+            );
+          }
+          return Badge(
+            smallSize: 8,
+            backgroundColor: Colors.red,
+            child: Icon(
+              Icons.schedule,
+              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+            ),
+          );
+        }
+      });
+
+      return SidebarExpandedMenu(
+        isSidebarOpen: _isSidebarOpen,
+        isExpanded: _isPlanningExpanded,
+        onToggle: () => setState(() => _isPlanningExpanded = !_isPlanningExpanded),
+        isParentSelected: isParentSelected,
+        title: "Kế Hoạch",
+        icon: Icons.schedule,
+        leading: leadingWithBadge,
+        children: [
+          if (waitingIndex != -1)
+            _buildSubMenuItem(Icons.outbox_rounded, "Chờ Lên Kế Hoạch", waitingIndex),
+          if (planningIndex != -1)
+            _buildSubMenuItem(
+              Icons.production_quantity_limits_outlined,
+              "Hàng Chờ Sản Xuất",
+              planningIndex,
+            ),
+          if (planningStopIndex != -1)
+            _buildSubMenuItem(
+              Symbols.queue,
+              "Hàng Chờ Xử Lý",
+              planningStopIndex,
+              leadingWrapper: Obx(() {
+                final count = badgesController.numberPlanningStop.value;
+                if (count == 0) {
+                  return const Icon(Icons.queue, color: Colors.white);
+                }
+                return Badge.count(
+                  count: count,
+                  child: const Icon(Icons.queue, color: Colors.white),
+                );
+              }),
+            ),
         ],
       );
     });
@@ -379,45 +363,16 @@ class _HomePageState extends State<HomePage> {
       final selected = sidebarController.selectedIndex.value;
       final isParentSelected = selected == paperIndex || selected == boxIndex;
 
-      return Column(
+      return SidebarExpandedMenu(
+        isSidebarOpen: _isSidebarOpen,
+        isExpanded: _isManufactureExpanded,
+        onToggle: () => setState(() => _isManufactureExpanded = !_isManufactureExpanded),
+        isParentSelected: isParentSelected,
+        title: "Sản Xuất",
+        icon: Symbols.manufacturing,
         children: [
-          _isHovered
-              ? ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: Icon(
-                  Symbols.manufacturing,
-                  color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                ),
-                title: Text(
-                  "Sản Xuất",
-                  style: TextStyle(
-                    color:
-                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                    fontSize: 18,
-                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-                trailing: Icon(
-                  _isManufactureExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onTap: () => setState(() => _isManufactureExpanded = !_isManufactureExpanded),
-              )
-              : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Center(
-                  child: Icon(
-                    Symbols.manufacturing,
-                    color:
-                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                  ),
-                ),
-              ),
-          if (_isHovered && _isManufactureExpanded) ...[
-            if (paperIndex != -1) _buildSubMenuItem(Icons.article, "Giấy Tấm", paperIndex),
-            if (boxIndex != -1) _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", boxIndex),
-          ],
+          if (paperIndex != -1) _buildSubMenuItem(Icons.article, "Giấy Tấm", paperIndex),
+          if (boxIndex != -1) _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", boxIndex),
         ],
       );
     });
@@ -436,47 +391,18 @@ class _HomePageState extends State<HomePage> {
       final selected = sidebarController.selectedIndex.value;
       final isParentSelected = selected == waitingPaperIndex || selected == waitingBoxIndex;
 
-      return Column(
+      return SidebarExpandedMenu(
+        isSidebarOpen: _isSidebarOpen,
+        isExpanded: _isWaitingExpanded,
+        onToggle: () => setState(() => _isWaitingExpanded = !_isWaitingExpanded),
+        isParentSelected: isParentSelected,
+        title: "Hàng Chờ Kiểm",
+        icon: Symbols.home_storage,
         children: [
-          _isHovered
-              ? ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: Icon(
-                  Symbols.home_storage,
-                  color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                ),
-                title: Text(
-                  "Hàng Chờ Kiểm",
-                  style: TextStyle(
-                    color:
-                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                    fontSize: 18,
-                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-                trailing: Icon(
-                  _isWaitingExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onTap: () => setState(() => _isWaitingExpanded = !_isWaitingExpanded),
-              )
-              : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Center(
-                  child: Icon(
-                    Symbols.home_storage,
-                    color:
-                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                  ),
-                ),
-              ),
-          if (_isHovered && _isWaitingExpanded) ...[
-            if (waitingPaperIndex != -1)
-              _buildSubMenuItem(Icons.article, "Giấy Tấm", waitingPaperIndex),
-            if (waitingBoxIndex != -1)
-              _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", waitingBoxIndex),
-          ],
+          if (waitingPaperIndex != -1)
+            _buildSubMenuItem(Icons.article, "Giấy Tấm", waitingPaperIndex),
+          if (waitingBoxIndex != -1)
+            _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", waitingBoxIndex),
         ],
       );
     });
@@ -495,46 +421,17 @@ class _HomePageState extends State<HomePage> {
       final selected = sidebarController.selectedIndex.value;
       final isParentSelected = selected == reportManu || selected == reportInbound;
 
-      return Column(
+      return SidebarExpandedMenu(
+        isSidebarOpen: _isSidebarOpen,
+        isExpanded: _isReportExpanded,
+        onToggle: () => setState(() => _isReportExpanded = !_isReportExpanded),
+        isParentSelected: isParentSelected,
+        title: "Lịch Sử",
+        icon: Symbols.contract,
         children: [
-          _isHovered
-              ? ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: Icon(
-                  Symbols.contract,
-                  color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                ),
-                title: Text(
-                  "Lịch Sử",
-                  style: TextStyle(
-                    color:
-                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                    fontSize: 18,
-                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-                trailing: Icon(
-                  _isReportExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onTap: () => setState(() => _isReportExpanded = !_isReportExpanded),
-              )
-              : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Center(
-                  child: Icon(
-                    Symbols.contract,
-                    color:
-                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                  ),
-                ),
-              ),
-          if (_isHovered && _isReportExpanded) ...[
-            if (reportManu != -1) _buildSubMenuItem(Icons.article, "Lịch Sử Sản Xuất", reportManu),
-            if (reportInbound != -1)
-              _buildSubMenuItem(Symbols.package_2, "Lịch Sử Nhập Kho", reportInbound),
-          ],
+          if (reportManu != -1) _buildSubMenuItem(Icons.article, "Lịch Sử Sản Xuất", reportManu),
+          if (reportInbound != -1)
+            _buildSubMenuItem(Symbols.package_2, "Lịch Sử Nhập Kho", reportInbound),
         ],
       );
     });
@@ -564,96 +461,71 @@ class _HomePageState extends State<HomePage> {
           selected == adminBoxIndex ||
           selected == manageUserIndex;
 
-      return Column(
+      final leadingWithBadge = Obx(() {
+        final count = badgesController.numberBadges.value;
+
+        if (_isSidebarOpen) {
+          if (count == 0) {
+            return Icon(
+              Icons.admin_panel_settings,
+              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+            );
+          }
+          return Badge.count(
+            count: count,
+            child: const Icon(Icons.admin_panel_settings, color: Colors.white),
+          );
+        } else {
+          if (count == 0) {
+            return Icon(
+              Icons.admin_panel_settings,
+              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+            );
+          }
+          return Badge(
+            smallSize: 8, // chấm đỏ nhỏ
+            backgroundColor: Colors.red,
+            child: Icon(
+              Icons.admin_panel_settings,
+              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+            ),
+          );
+        }
+      });
+
+      return SidebarExpandedMenu(
+        isSidebarOpen: _isSidebarOpen,
+        isExpanded: _isApprovalExpanded,
+        onToggle:
+            () => setState(() {
+              _isApprovalExpanded = !_isApprovalExpanded;
+            }),
+        isParentSelected: isParentSelected,
+        title: "Quản Lý",
+        icon: Icons.admin_panel_settings,
+        leading: leadingWithBadge,
         children: [
-          _isHovered
-              ? ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: Obx(() {
-                  final count = badgesController.numberBadges.value;
-                  if (count == 0) {
-                    return Icon(
-                      Icons.admin_panel_settings,
-                      color:
-                          isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                    );
-                  }
-                  return Badge.count(
-                    count: count,
-                    child: const Icon(Icons.admin_panel_settings, color: Colors.white),
-                  );
-                }),
-                title: Text(
-                  "Quản Lý",
-                  style: TextStyle(
-                    color:
-                        isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                    fontSize: 18,
-                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-                trailing: Icon(
-                  _isApprovalExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onTap:
-                    () => setState(() {
-                      _isApprovalExpanded = !_isApprovalExpanded;
-                    }),
-              )
-              : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Center(
-                  child: Obx(() {
-                    final count = badgesController.numberBadges.value;
-                    if (count == 0) {
-                      return Icon(
-                        Icons.admin_panel_settings,
-                        color:
-                            isParentSelected
-                                ? const Color.fromARGB(255, 252, 220, 41)
-                                : Colors.white,
-                      );
-                    }
-                    return Badge(
-                      smallSize: 8, // chấm đỏ nhỏ
-                      backgroundColor: Colors.red,
-                      child: Icon(
-                        Icons.admin_panel_settings,
-                        color:
-                            isParentSelected
-                                ? const Color.fromARGB(255, 252, 220, 41)
-                                : Colors.white,
-                      ),
-                    );
-                  }),
-                ),
-              ),
-          if (_isHovered && _isApprovalExpanded) ...[
-            if (adminOrderIndex != -1)
-              _buildSubMenuItem(
-                Icons.pending_actions,
-                "Chờ Duyệt",
-                adminOrderIndex,
-                leadingWrapper: Obx(() {
-                  final count = badgesController.numberBadges.value;
-                  if (count == 0) {
-                    return const Icon(Icons.pending_actions, color: Colors.white);
-                  }
-                  return Badge.count(
-                    count: count,
-                    child: const Icon(Icons.pending_actions, color: Colors.white),
-                  );
-                }),
-              ),
-            if (adminPaperIndex != -1)
-              _buildSubMenuItem(Icons.gif_box, "Máy Sóng Và Phế Liệu", adminPaperIndex),
-            if (adminBoxIndex != -1)
-              _buildSubMenuItem(Icons.gif_box, "In Ấn Và Phế Liệu", adminBoxIndex),
-            if (manageUserIndex != -1)
-              _buildSubMenuItem(Icons.person, "Người Dùng", manageUserIndex),
-          ],
+          if (adminOrderIndex != -1)
+            _buildSubMenuItem(
+              Icons.pending_actions,
+              "Chờ Duyệt",
+              adminOrderIndex,
+              leadingWrapper: Obx(() {
+                final count = badgesController.numberBadges.value;
+                if (count == 0) {
+                  return const Icon(Icons.pending_actions, color: Colors.white);
+                }
+                return Badge.count(
+                  count: count,
+                  child: const Icon(Icons.pending_actions, color: Colors.white),
+                );
+              }),
+            ),
+          if (adminPaperIndex != -1)
+            _buildSubMenuItem(Icons.gif_box, "Máy Sóng Và Phế Liệu", adminPaperIndex),
+          if (adminBoxIndex != -1)
+            _buildSubMenuItem(Icons.gif_box, "In Ấn Và Phế Liệu", adminBoxIndex),
+          if (manageUserIndex != -1) _buildSubMenuItem(Icons.person, "Người Dùng", manageUserIndex),
         ],
       );
     });
@@ -668,7 +540,7 @@ class _HomePageState extends State<HomePage> {
         ? Obx(() {
           final isSelected = sidebarController.selectedIndex.value == index;
 
-          return _isHovered
+          return _isSidebarOpen
               ? ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 leading: Icon(
@@ -706,7 +578,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
         })
-        : _isHovered
+        : _isSidebarOpen
         ? ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
           leading: Icon(icon, color: Colors.white),
@@ -730,7 +602,7 @@ class _HomePageState extends State<HomePage> {
         leading:
             leadingWrapper ??
             Icon(icon, color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white),
-        contentPadding: EdgeInsets.only(left: _isHovered ? 32 : 16),
+        contentPadding: EdgeInsets.only(left: _isSidebarOpen ? 32 : 16),
         title: Text(
           title,
           style: TextStyle(
@@ -767,7 +639,7 @@ class _HomePageState extends State<HomePage> {
 
   //logout
   Widget _buildLogoutSection() {
-    return _isHovered
+    return _isSidebarOpen
         ? ListTile(
           leading: const Icon(Icons.logout, color: Colors.white),
           title: const Text("Đăng xuất", style: TextStyle(color: Colors.white, fontSize: 18)),
@@ -790,9 +662,13 @@ class _HomePageState extends State<HomePage> {
         children: [
           Image.asset('assets/images/logoDT.png', width: 150, height: 150),
           const SizedBox(height: 5),
-          const Text(
+          Text(
             'Bao Bì Đồng Tâm',
-            style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
@@ -803,48 +679,68 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Row(
+      body: Stack(
         children: [
-          buildSidebar(),
-          Expanded(
-            child: Obx(() {
-              final pages = getPages();
-              final index = sidebarController.selectedIndex.value;
+          // UI chính
+          Row(
+            children: [
+              buildSidebar(),
+              Expanded(
+                child: Obx(() {
+                  final pages = getPages();
+                  final index = sidebarController.selectedIndex.value;
 
-              // Xác định trang hiện tại
-              Widget page;
-              if (index < 0 || index >= pages.length) {
-                page = Center(key: ValueKey('not_found'), child: Text("Trang không tồn tại"));
-              } else {
-                page = Container(
-                  key: ValueKey(index), // key duy nhất cho mỗi trang
-                  child: pages[index],
-                );
-              }
+                  Widget page;
+                  if (index < 0 || index >= pages.length) {
+                    page = Center(key: ValueKey('not_found'), child: Text("Trang không tồn tại"));
+                  } else {
+                    page = Container(key: ValueKey(index), child: pages[index]);
+                  }
 
-              // AnimatedSwitcher cho hiệu ứng chuyển trang
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                transitionBuilder: (child, animation) {
-                  final offsetAnimation = Tween<Offset>(
-                    begin: const Offset(0.05, 0),
-                    end: Offset.zero,
-                  ).animate(
-                    CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeInOut, // cong mượt hơn
-                    ),
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    transitionBuilder: (child, animation) {
+                      final offsetAnimation = Tween<Offset>(
+                        begin: const Offset(0.05, 0),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut));
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(position: offsetAnimation, child: child),
+                      );
+                    },
+                    child: page,
                   );
-
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(position: offsetAnimation, child: child),
-                  );
-                },
-                child: page,
-              );
-            }),
+                }),
+              ),
+            ],
           ),
+
+          // ✅ [CHANGED] Overlay bắt click ngoài sidebar để tự đóng
+          if (_isSidebarOpen)
+            Positioned(
+              left: _sidebarOpenWidth, // phủ phần bên phải sidebar
+              top: 0,
+              right: 0,
+              bottom: 0,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  setState(() {
+                    _isSidebarOpen = false;
+
+                    // ✅ [CHANGED] optional: thu gọn thì đóng submenu
+                    _isPlanningExpanded = false;
+                    _isManufactureExpanded = false;
+                    _isReportExpanded = false;
+                    _isApprovalExpanded = false;
+                    _isWaitingExpanded = false;
+                  });
+                },
+                child: const SizedBox.expand(),
+              ),
+            ),
         ],
       ),
     );
