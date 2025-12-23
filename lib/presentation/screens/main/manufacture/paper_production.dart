@@ -41,6 +41,13 @@ class _PaperProductionState extends State<PaperProduction> {
   String machine = "Máy 1350";
   bool showGroup = true;
 
+  Map<String, String> permissionToMachineMap = {
+    "machine1350": "Máy 1350",
+    "machine1900": "Máy 1900",
+    "machine2Layer": "Máy 2 Lớp",
+    "MachineRollPaper": "Máy Quấn Cuồn",
+  };
+
   @override
   void initState() {
     super.initState();
@@ -160,6 +167,15 @@ class _PaperProductionState extends State<PaperProduction> {
   }
   /* end socket */
 
+  bool userHasPermissionForMachine({
+    required UserController userController,
+    required String machine,
+  }) {
+    return permissionToMachineMap.entries.any(
+      (entry) => entry.value == machine && userController.hasPermission(permission: entry.key),
+    );
+  }
+
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
     required List<PlanningPaper> planningList,
@@ -176,6 +192,14 @@ class _PaperProductionState extends State<PaperProduction> {
 
     // ❌ disable nếu sản xuất đủ số lượng rồi
     if ((selectedPlanning.qtyProduced ?? 0) >= selectedPlanning.runningPlan) return false;
+
+    // ❌ đứng sai máy
+    if (!userHasPermissionForMachine(
+      userController: userController,
+      machine: selectedPlanning.chooseMachine,
+    )) {
+      return false;
+    }
 
     return true;
   }

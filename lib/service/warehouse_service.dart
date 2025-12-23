@@ -90,6 +90,15 @@ class WarehouseService {
     );
   }
 
+  //get outbound detail
+  // Future<List<OutboundDetailModel>> getOutboundDetail({required int outboundId}) async {
+  //   return HelperService().fetchingData(
+  //     endpoint: 'warehouse/outbound/detail',
+  //     queryParameters: {'outboundId': outboundId},
+  //     fromJson: (json) => OutboundDetailModel.fromJson(json),
+  //   );
+  // }
+
   //create outbound
   Future<bool> createOutbound({required List<Map<String, dynamic>> list}) async {
     try {

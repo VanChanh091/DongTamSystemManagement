@@ -23,18 +23,22 @@ class EmployeeDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "fullName", value: employee.fullName),
       DataGridCell<String>(
         columnName: "joinDate",
-        value: companyInfo?.joinDate != null ? formatter.format(companyInfo!.joinDate) : '',
+        value: companyInfo?.joinDate != null ? formatter.format(companyInfo!.joinDate!) : '',
       ),
       DataGridCell<String>(columnName: "department", value: companyInfo?.department ?? ""),
       DataGridCell<String>(columnName: "position", value: companyInfo?.position ?? ""),
       DataGridCell<String>(columnName: "gender", value: employee.gender),
-      DataGridCell<String>(columnName: "birthday", value: formatter.format(employee.birthday)),
+      DataGridCell<String>(
+        columnName: "birthday",
+        value: employee.birthday != null ? formatter.format(employee.birthday!) : "",
+      ),
       DataGridCell<String>(columnName: "birthPlace", value: employee.birthPlace),
       DataGridCell<String>(columnName: "homeTown", value: employee.homeTown),
       DataGridCell<String>(columnName: "citizenId", value: employee.citizenId),
       DataGridCell<String>(
         columnName: "citizenDate",
-        value: formatter.format(employee.citizenIssuedDate),
+        value:
+            employee.citizenIssuedDate != null ? formatter.format(employee.citizenIssuedDate!) : "",
       ),
       DataGridCell<String>(columnName: "citizenIssuedPlace", value: employee.citizenIssuedPlace),
       DataGridCell<String>(columnName: "permanentAddress", value: employee.permanentAddress),

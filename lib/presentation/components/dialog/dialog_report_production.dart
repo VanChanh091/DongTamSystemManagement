@@ -1,3 +1,5 @@
+import 'package:dongtam/data/models/employee/employee_basic_info.dart';
+import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -27,6 +29,8 @@ class DialogReportProduction extends StatefulWidget {
 }
 
 class _DialogReportProductionState extends State<DialogReportProduction> {
+  late Future<List<EmployeeBasicInfo>> futureEmployee;
+
   final formKey = GlobalKey<FormState>();
 
   final qtyProducedController = TextEditingController();
@@ -36,6 +40,14 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   late String shiftProduction = "Ca 1";
   final List<String> itemShiftProduction = ["Ca 1", "Ca 2", "Ca 3"];
   final shiftManagementController = TextEditingController();
+
+  String? shiftManagementSelected;
+
+  @override
+  void initState() {
+    super.initState();
+    futureEmployee = EmployeeService().getEmployeeByPosition();
+  }
 
   void submit() async {
     if (!formKey.currentState!.validate()) {
@@ -49,8 +61,10 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
       final DateTime completedDate = DateTime.now();
 
+      final String shiftManagement = shiftManagementSelected ?? "";
+
       final Map<String, dynamic> reportData = {
-        "shiftManagement": shiftManagementController.text,
+        "shiftManagement": shiftManagement,
         "shiftProduction": shiftProduction,
       };
 
@@ -88,7 +102,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           dayCompleted: completedDate,
           qtyProduced: qtyProduced,
           rpWasteLoss: qtyWasteNorm,
-          shiftManagement: shiftManagementController.text,
+          shiftManagement: shiftManagement,
         );
       }
 
@@ -197,20 +211,95 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                 const SizedBox(height: 15),
 
                 validateInput("Phế Liệu Thực Tế", qtyWasteNormController, Symbols.box),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
 
-                validateInput("Trưởng Máy", shiftManagementController, Symbols.person),
-                const SizedBox(height: 15),
+                FormField<String>(
+                  validator: (_) {
+                    if ((shiftManagementSelected ?? "").trim().isEmpty) {
+                      return "Vui lòng chọn Trưởng Máy";
+                    }
+                    return null;
+                  },
+                  builder: (state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FutureBuilder<List<EmployeeBasicInfo>>(
+                          future: futureEmployee,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: LinearProgressIndicator(),
+                              );
+                            }
+
+                            if (snapshot.hasError) {
+                              return Text("Lỗi tải trưởng máy: ${snapshot.error}");
+                            }
+
+                            final employees = snapshot.data ?? [];
+                            final items =
+                                employees.map((e) => e.fullName).whereType<String>().toList();
+
+                            if (items.isEmpty) {
+                              return const Text("Không có dữ liệu trưởng máy");
+                            }
+
+                            // set default lần đầu (nếu chưa chọn)
+                            shiftManagementSelected ??= items.first;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Trưởng Máy",
+                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(height: 6),
+                                ValidationOrder.dropdownForTypes(
+                                  items: items,
+                                  type: shiftManagementSelected!,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      shiftManagementSelected = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        if (state.hasError)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6, left: 12),
+                            child: Text(
+                              state.errorText!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
 
                 if (widget.isPaper) ...[
-                  ValidationOrder.dropdownForTypes(
-                    items: itemShiftProduction,
-                    type: shiftProduction,
-                    onChanged: (value) {
-                      setState(() {
-                        shiftProduction = value!;
-                      });
-                    },
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Ca Sản Xuất", style: TextStyle(fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 6),
+                      ValidationOrder.dropdownForTypes(
+                        items: itemShiftProduction,
+                        type: shiftProduction,
+                        onChanged: (value) {
+                          setState(() {
+                            shiftProduction = value!;
+                          });
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                 ],

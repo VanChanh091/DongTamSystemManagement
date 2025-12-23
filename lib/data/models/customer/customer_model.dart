@@ -55,8 +55,7 @@ class Customer {
       debtCurrent: toDouble(json['debtCurrent']),
       debtLimit: toDouble(json['debtLimit']),
       timePayment:
-          json['timePayment'] != null &&
-                  json['timePayment'].toString().isNotEmpty
+          json['timePayment'] != null && json['timePayment'].toString().isNotEmpty
               ? DateTime.tryParse(json['timePayment'].toString())
               : null,
       rateCustomer: json['rateCustomer'] ?? "",

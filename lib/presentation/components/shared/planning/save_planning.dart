@@ -191,6 +191,7 @@ class SavePlanning extends StatelessWidget {
       final totalWorking = int.tryParse(totalTimeWorkingController.text) ?? 0;
 
       // 4️⃣ Gửi xuống BE
+      // EX: {planningId: 2, sortPlanning: 1}
       // print("=== Các đơn sẽ gửi xuống BE ===");
       // for (var item in updateIndex) {
       //   print(item);

@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 final List<Map<String, dynamic>> _machinePaperColumns = [
   // planning
   {"key": "orderId", "title": "Mã Đơn Hàng"},
+
   {
     "key": "dateShipping",
     "title": "Ngày Dự Kiến",
@@ -13,7 +14,9 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   },
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
+
   {"key": "customerName", "title": "Tên Khách Hàng"},
+
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
@@ -21,9 +24,16 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   {"key": "length", "title": "Dài"},
   {"key": "size", "title": "Khổ"},
   {"key": "child", "title": "Số Con"},
+
   {"key": "quantityOrd", "title": "Đơn Hàng"},
   {"key": "qtyProduced", "title": "Đã Sản Xuất"},
   {"key": "runningPlanProd", "title": "Kế Hoạch Chạy"},
+  {
+    "key": "inboundQty",
+    "title": "Đã Nhập Kho",
+    "visiblePages": ["checking"],
+  },
+
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
   {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
   {
@@ -31,6 +41,7 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
     "title": "Tổng Tiền",
     "visiblePages": ["planning"],
   },
+
   {"key": "bottom", "title": "Đáy"},
   {"key": "fluteE", "title": "Sóng E"},
   {"key": "fluteE2", "title": "Sóng E2"},
@@ -39,6 +50,7 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   {"key": "knife", "title": "Dao"},
   {"key": "totalLoss", "title": "Tổng PL"},
   {"key": "qtyWastes", "title": "PL Thực Tế"},
+
   {
     "key": "shiftProduct",
     "title": "Ca Sản Xuất",

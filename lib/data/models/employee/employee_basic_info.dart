@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 class EmployeeBasicInfo {
   final int employeeId;
-  final DateTime birthday, citizenIssuedDate;
+  final DateTime? birthday, citizenIssuedDate;
   final String? homeTown, educationSystem, major;
   final String fullName, gender, birthPlace, educationLevel, phoneNumber;
   final String citizenId, citizenIssuedPlace, permanentAddress, temporaryAddress, ethnicity;
@@ -36,7 +36,10 @@ class EmployeeBasicInfo {
       employeeId: json['employeeId'] ?? 0,
       fullName: json['fullName'] ?? "",
       gender: json['gender'] ?? "",
-      birthday: DateTime.parse(json['birthday']),
+      birthday:
+          json['birthday'] != null && json['birthday'] != ''
+              ? DateTime.tryParse(json['birthday'])
+              : null,
       birthPlace: json['birthPlace'] ?? "",
       homeTown: json['homeTown'] ?? "",
       educationLevel: json['educationLevel'] ?? "",
@@ -44,7 +47,10 @@ class EmployeeBasicInfo {
       educationSystem: json['educationSystem'] ?? "",
       major: json['major'] ?? "",
       citizenId: json['citizenId'] ?? "",
-      citizenIssuedDate: DateTime.parse(json['citizenIssuedDate']),
+      citizenIssuedDate:
+          json['citizenIssuedDate'] != null && json['citizenIssuedDate'] != ''
+              ? DateTime.tryParse(json['citizenIssuedDate'])
+              : null,
       citizenIssuedPlace: json['citizenIssuedPlace'] ?? "",
       permanentAddress: json['permanentAddress'] ?? "",
       temporaryAddress: json['temporaryAddress'] ?? "",
@@ -58,7 +64,7 @@ class EmployeeBasicInfo {
     return {
       "fullName": fullName,
       "gender": gender,
-      "birthday": DateFormat('yyyy-MM-dd').format(birthday),
+      "birthday": DateFormat('yyyy-MM-dd').format(birthday!),
       "birthPlace": birthPlace,
       "homeTown": homeTown,
       "educationLevel": educationLevel,
@@ -66,7 +72,7 @@ class EmployeeBasicInfo {
       "educationSystem": educationSystem,
       "major": major,
       "citizenId": citizenId,
-      "citizenIssuedDate": DateFormat('yyyy-MM-dd').format(citizenIssuedDate),
+      "citizenIssuedDate": DateFormat('yyyy-MM-dd').format(citizenIssuedDate!),
       "citizenIssuedPlace": citizenIssuedPlace,
       "permanentAddress": permanentAddress,
       "temporaryAddress": temporaryAddress,

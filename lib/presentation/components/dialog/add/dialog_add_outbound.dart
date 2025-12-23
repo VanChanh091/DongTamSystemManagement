@@ -52,11 +52,6 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
   final qtyOutboundController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   void clearController() {
     orderIdController.clear();
     customerNameController.clear();

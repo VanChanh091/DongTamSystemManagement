@@ -69,7 +69,7 @@ class MachineBoxDatasource extends DataGridSource {
       DataGridCell<int>(columnName: 'child', value: planning.order?.numberChild ?? 0),
       DataGridCell<int>(columnName: "quantityOrd", value: planning.order?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),
-      DataGridCell<int>(columnName: "needProd", value: boxMachineTime?.runningPlan ?? 0),
+      DataGridCell<int>(columnName: "needProd", value: boxMachineTime?.remainRunningPlan ?? 0),
       DataGridCell<String>(
         columnName: "timeRunnings",
         value:

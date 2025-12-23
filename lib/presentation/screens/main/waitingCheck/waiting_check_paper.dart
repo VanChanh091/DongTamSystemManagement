@@ -45,7 +45,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
 
     loadPaperWaiting();
 
-    columns = buildMachineColumns(themeController: themeController, page: "production");
+    columns = buildMachineColumns(themeController: themeController, page: "checking");
 
     ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
       setState(() {
@@ -295,7 +295,12 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                       StackedHeaderRow(
                         cells: [
                           StackedHeaderCell(
-                            columnNames: ['quantityOrd', 'runningPlanProd', 'qtyProduced'],
+                            columnNames: [
+                              'quantityOrd',
+                              'runningPlanProd',
+                              'qtyProduced',
+                              "inboundQty",
+                            ],
                             child: formatColumn(
                               label: 'Số Lượng',
                               themeController: themeController,

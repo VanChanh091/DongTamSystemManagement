@@ -39,6 +39,14 @@ class EmployeeService {
     );
   }
 
+  Future<List<EmployeeBasicInfo>> getEmployeeByPosition() async {
+    return HelperService().fetchingData(
+      endpoint: 'employee/getByPosition',
+      queryParameters: const {},
+      fromJson: (json) => EmployeeBasicInfo.fromJson(json),
+    );
+  }
+
   // add employee
   Future<bool> addEmployee({required Map<String, dynamic> employeeData}) async {
     try {

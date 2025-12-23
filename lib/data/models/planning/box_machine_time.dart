@@ -29,6 +29,13 @@ class BoxMachineTime {
     this.sortPlanning,
   });
 
+  int get remainRunningPlan {
+    final rp = runningPlan;
+    final produced = qtyProduced ?? 0;
+    final remain = rp - produced;
+    return remain > 0 ? remain : 0;
+  }
+
   static String formatTimeOfDay({required TimeOfDay timeOfDay}) {
     final hour = timeOfDay.hour.toString().padLeft(2, '0');
     final minute = timeOfDay.minute.toString().padLeft(2, '0');

@@ -45,11 +45,11 @@ class ValidationEmployee {
                     label == 'Số CCCD' ||
                     label == 'Ngày Cấp' ||
                     label == 'Nơi Cấp' ||
+                    label == 'Ngày Cấp' ||
                     label == 'ĐC Thường Trú' ||
-                    label == 'ĐC Tạm Trú' ||
                     label == 'Mã Nhân Viên' ||
-                    label == 'Số Liên Hệ Khẩn Cấp' ||
-                    label == 'Trạng Thái Làm Việc') &&
+                    label == 'Ngày Tham Gia' ||
+                    label == 'Chức Vụ') &&
                 (value == null || value.isEmpty)) {
               return 'Vui lòng nhập $label';
             }

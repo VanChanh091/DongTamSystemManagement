@@ -32,6 +32,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
   final Map<String, String> searchFieldMap = {
+    "Mã Đơn": "orderId",
     "Tên KH": "customerName",
     "Tên SP": "productName",
     "QC Thùng": "qcBox",
@@ -171,7 +172,14 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                           flex: 1,
                           child: LeftButtonSearch(
                             selectedType: searchType,
-                            types: const ['Tất cả', "Tên KH", "Tên SP", "QC Thùng", 'Đơn giá'],
+                            types: const [
+                              'Tất cả',
+                              "Mã Đơn",
+                              "Tên KH",
+                              "Tên SP",
+                              "QC Thùng",
+                              'Đơn giá',
+                            ],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;

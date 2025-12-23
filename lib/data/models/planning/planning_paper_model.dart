@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
+import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +34,7 @@ class PlanningPaper {
   final Order? order;
   final TimeOverflowPlanning? timeOverflowPlanning;
   final List<PlanningStage>? stages;
+  final List<InboundHistoryModel>? inbound;
 
   PlanningPaper({
     required this.planningId,
@@ -74,6 +76,7 @@ class PlanningPaper {
     this.order,
     this.timeOverflowPlanning,
     this.stages,
+    this.inbound,
   });
 
   String get formatterStructureOrder {
@@ -99,10 +102,17 @@ class PlanningPaper {
     return formattedParts.join('/');
   }
 
+  int get getTotalQtyInbound => inbound?.fold(0, (sum, e) => sum! + e.qtyInbound) ?? 0;
+
   static String formatTimeOfDay({required TimeOfDay timeOfDay}) {
     final hour = timeOfDay.hour.toString().padLeft(2, '0');
     final minute = timeOfDay.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
+  }
+
+  int get remainRunningPlan {
+    final remain = runningPlan - (qtyProduced ?? 0);
+    return remain > 0 ? remain : 0;
   }
 
   factory PlanningPaper.fromJson(Map<String, dynamic> json) {
@@ -158,6 +168,12 @@ class PlanningPaper {
       stages:
           json['stages'] != null
               ? List<PlanningStage>.from(json['stages'].map((x) => PlanningStage.fromJson(x)))
+              : [],
+      inbound:
+          json['inbound'] != null
+              ? List<InboundHistoryModel>.from(
+                json['inbound'].map((x) => InboundHistoryModel.fromJson(x)),
+              )
               : [],
     );
   }

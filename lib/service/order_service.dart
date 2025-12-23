@@ -39,48 +39,6 @@ class OrderService {
     );
   }
 
-  //get by product name
-  Future<Map<String, dynamic>> getOrderByProductName({
-    String inputProductName = "",
-    int page = 1,
-    int pageSize = 20,
-  }) async {
-    return HelperService().fetchPaginatedData<Order>(
-      endpoint: "order/productName",
-      queryParameters: {'productName': inputProductName, 'page': page, 'pageSize': pageSize},
-      fromJson: (json) => Order.fromJson(json),
-      dataKey: 'orders',
-    );
-  }
-
-  //get by QC box
-  Future<Map<String, dynamic>> getOrderByQcBox({
-    String inputQcBox = "",
-    int page = 1,
-    int pageSize = 20,
-  }) async {
-    return HelperService().fetchPaginatedData<Order>(
-      endpoint: "order/qcBox",
-      queryParameters: {'QcBox': inputQcBox, 'page': page, 'pageSize': pageSize},
-      fromJson: (json) => Order.fromJson(json),
-      dataKey: 'orders',
-    );
-  }
-
-  //get by price
-  Future<Map<String, dynamic>> getOrderByPrice({
-    String price = "",
-    int page = 1,
-    int pageSize = 20,
-  }) async {
-    return HelperService().fetchPaginatedData<Order>(
-      endpoint: "order/price",
-      queryParameters: {'price': price, 'page': page, 'pageSize': pageSize},
-      fromJson: (json) => Order.fromJson(json),
-      dataKey: 'orders',
-    );
-  }
-
   //===============================PENDING AND REJECT=====================================
 
   //get Order Pending And Reject

@@ -75,7 +75,7 @@ class MachinePaperDatasource extends DataGridSource {
 
       DataGridCell<int>(columnName: 'quantityOrd', value: planning.order?.quantityManufacture ?? 0),
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
-      DataGridCell<int>(columnName: "runningPlanProd", value: planning.runningPlan),
+      DataGridCell<int>(columnName: "runningPlanProd", value: planning.remainRunningPlan),
 
       DataGridCell<String>(
         columnName: "instructSpecial",

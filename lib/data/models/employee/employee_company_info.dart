@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 class EmployeeCompanyInfo {
   final int companyInfoId;
   final String employeeCode;
-  final DateTime joinDate;
+  final DateTime? joinDate;
   final String department;
   final String position;
   final String emergencyPhone;
@@ -23,7 +23,10 @@ class EmployeeCompanyInfo {
     return EmployeeCompanyInfo(
       companyInfoId: json['companyInfoId'] ?? 0,
       employeeCode: json['employeeCode'] ?? "",
-      joinDate: DateTime.parse(json['joinDate']),
+      joinDate:
+          json['joinDate'] != null && json['joinDate'] != ''
+              ? DateTime.tryParse(json['joinDate'])
+              : null,
       department: json['department'] ?? "",
       position: json['position'] ?? "",
       emergencyPhone: json['emergencyPhone'] ?? "",
@@ -34,7 +37,7 @@ class EmployeeCompanyInfo {
   Map<String, dynamic> toJson() {
     return {
       "employeeCode": employeeCode,
-      "joinDate": DateFormat('yyyy-MM-dd').format(joinDate),
+      "joinDate": DateFormat('yyyy-MM-dd').format(joinDate!),
       "department": department,
       "position": position,
       "emergencyPhone": emergencyPhone,

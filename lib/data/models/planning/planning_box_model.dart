@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/box_machine_time.dart';
 import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
+import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,7 @@ class PlanningBox {
   final List<TimeOverflowPlanning>? timeOverflowPlanning;
   final List<BoxMachineTime>? boxTimes;
   final List<BoxMachineTime>? allBoxTimes;
+  final List<InboundHistoryModel>? inbound;
 
   PlanningBox({
     required this.planningBoxId,
@@ -42,6 +44,7 @@ class PlanningBox {
     this.timeOverflowPlanning,
     this.boxTimes,
     this.allBoxTimes,
+    this.inbound,
   });
 
   String get formatterStructureOrder {
@@ -125,6 +128,12 @@ class PlanningBox {
           json['allBoxTimes'] != null
               ? List<BoxMachineTime>.from(
                 json['allBoxTimes'].map((x) => BoxMachineTime.fromJson(x)),
+              )
+              : [],
+      inbound:
+          json['inbound'] != null
+              ? List<InboundHistoryModel>.from(
+                json['inbound'].map((x) => InboundHistoryModel.fromJson(x)),
               )
               : [],
     );

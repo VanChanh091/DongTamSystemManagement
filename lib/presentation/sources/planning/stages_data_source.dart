@@ -48,7 +48,7 @@ class StagesDataSource extends DataGridSource {
                 ? PlanningPaper.formatTimeOfDay(timeOfDay: stage.timeOverflow!.overflowTimeRunning!)
                 : '',
       ),
-      DataGridCell<int>(columnName: "runningPlan", value: stage.runningPlan),
+      DataGridCell<int>(columnName: "runningPlan", value: stage.remainRunningPlan),
       DataGridCell<int>(columnName: "qtyProduced", value: stage.qtyProduced),
       DataGridCell<double>(columnName: "wasteBox", value: stage.wasteBox),
       DataGridCell<double>(columnName: "rpWasteLoss", value: stage.rpWasteLoss),

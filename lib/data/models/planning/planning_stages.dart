@@ -31,6 +31,11 @@ class PlanningStage {
     this.timeOverflow,
   });
 
+  int get remainRunningPlan {
+    final remain = (runningPlan ?? 0) - (qtyProduced ?? 0);
+    return remain > 0 ? remain : 0;
+  }
+
   factory PlanningStage.fromJson(Map<String, dynamic> json) {
     return PlanningStage(
       planningBoxId: json['planningBoxId'],
