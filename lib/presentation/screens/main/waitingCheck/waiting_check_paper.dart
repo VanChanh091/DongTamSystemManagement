@@ -75,7 +75,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
     );
 
     // disable nếu đã complete
-    if (selectedPlanning.status == "complete") return false;
+    if (selectedPlanning.statusRequest == "finalize") return false;
 
     return true;
   }

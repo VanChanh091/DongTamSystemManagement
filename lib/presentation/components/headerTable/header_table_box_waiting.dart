@@ -15,6 +15,7 @@ const List<Map<String, dynamic>> _headerBoxWaiting = [
   {"key": "child", "title": "Số Con"},
   {"key": "quantityOrd", "title": "Đơn Hàng"},
   {"key": "qtyPaper", "title": "Giấy Tấm"},
+  {"key": "inboundQty", "title": "Đã Nhập Kho"},
 
   //checked
   {"key": "inMatTruoc", "title": "Mặt Trước"},

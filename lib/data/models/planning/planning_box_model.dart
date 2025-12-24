@@ -93,6 +93,8 @@ class PlanningBox {
     }
   }
 
+  int get getTotalQtyInbound => inbound?.fold(0, (sum, e) => sum! + e.qtyInbound) ?? 0;
+
   factory PlanningBox.fromJson(Map<String, dynamic> json) {
     return PlanningBox(
       planningBoxId: json['planningBoxId'],

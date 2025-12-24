@@ -13,7 +13,6 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
     "visiblePages": ["planning"],
   },
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
-  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
 
   {"key": "customerName", "title": "Tên Khách Hàng"},
 
@@ -61,6 +60,9 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
     "title": "Trưởng Máy",
     "visiblePages": ["planning"],
   },
+
+  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
+
   {"key": "haveMadeBox", "title": "Làm Thùng?"},
 
   //statusRequest

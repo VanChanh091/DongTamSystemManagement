@@ -1,46 +1,34 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
-import 'package:dongtam/presentation/components/headerTable/warehouse/header_report_inbound.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/sources/warehouse/report_inbound_data_source.dart';
+import 'package:dongtam/data/models/warehouse/inventory_model.dart';
+import 'package:dongtam/presentation/components/headerTable/warehouse/header_inventory.dart';
+import 'package:dongtam/presentation/sources/warehouse/inventory_data_source.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class ReportInboundHistory extends StatefulWidget {
-  const ReportInboundHistory({super.key});
+class Inventory extends StatefulWidget {
+  const Inventory({super.key});
 
   @override
-  State<ReportInboundHistory> createState() => _ReportInboundHistoryState();
+  State<Inventory> createState() => _InventoryState();
 }
 
-class _ReportInboundHistoryState extends State<ReportInboundHistory> {
-  late Future<Map<String, dynamic>> futureReportInbound;
-  late ReportInboundDataSource reportInboundDataSource;
+class _InventoryState extends State<Inventory> {
+  late Future<Map<String, dynamic>> futureInventory;
+  late InventoryDataSource inventoryDataSource;
   late List<GridColumn> columns;
-  final themeController = Get.find<ThemeController>();
   final dataGridController = DataGridController();
-  final Map<String, String> searchFieldMap = {
-    "Theo Mã ĐH": "orderId",
-    "Tên KH": "customerName",
-    "Ngày Báo Cáo": "dayReported",
-    "SL Báo Cáo": "qtyProduced",
-    "Ghép Khổ": "ghepKho",
-    "Quản Ca": "shiftManagement",
-  };
-  List<int> selectedInboundId = [];
+  final themeController = Get.find<ThemeController>();
+
+  List<int> selectedInventoryId = [];
   TextEditingController searchController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
   Map<String, double> columnWidths = {};
   String searchType = "Tất cả";
   bool isTextFieldEnabled = false;
@@ -55,9 +43,9 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
     super.initState();
     loadReportInbound();
 
-    columns = buildReportInboundColumn(themeController: themeController);
+    columns = buildInventoryColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'reportInbound', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: 'inventory', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -66,46 +54,12 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
 
   void loadReportInbound() {
     setState(() {
-      futureReportInbound = ensureMinLoading(
-        WarehouseService().getAllInboundHistory(page: currentPage, pageSize: pageSize),
+      futureInventory = ensureMinLoading(
+        WarehouseService().getAllInventory(page: currentPage, pageSize: pageSize),
       );
     });
 
-    selectedInboundId.clear();
-  }
-
-  void searchReportInbound() {
-    String keyword = searchController.text.trim().toLowerCase();
-    String date = dateController.text.trim().toLowerCase();
-
-    AppLogger.i("searchReportInbound => searchType=$searchType | keyword=$keyword | date=$date");
-
-    if (isTextFieldEnabled && keyword.isEmpty) {
-      AppLogger.w("searchReportInbound => searchType=$searchType nhưng keyword rỗng");
-      return;
-    }
-
-    setState(() {
-      currentPage = 1;
-      isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futureReportInbound = ensureMinLoading(
-          WarehouseService().getAllInboundHistory(page: currentPage, pageSize: pageSize),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        futureReportInbound = ensureMinLoading(
-          WarehouseService().getInboundByField(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      }
-    });
+    selectedInventoryId.clear();
   }
 
   @override
@@ -129,7 +83,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                     child: Center(
                       child: Obx(
                         () => Text(
-                          "LỊCH SỬ NHẬP KHO",
+                          "HÀNG TỒN KHO",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
@@ -148,91 +102,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         //left button
-                        Expanded(
-                          flex: 1,
-                          child: LeftButtonSearch(
-                            selectedType: searchType,
-                            types: const [
-                              'Tất cả',
-                              "Theo Mã ĐH",
-                              'Tên KH',
-                              "Ngày Báo Cáo",
-                              "SL Báo Cáo",
-                              "Ghép Khổ",
-                              "Quản Ca",
-                            ],
-                            onTypeChanged: (value) {
-                              setState(() {
-                                searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
-                              });
-                            },
-                            controller: searchController,
-                            textFieldEnabled: isTextFieldEnabled,
-                            buttonColor: themeController.buttonColor,
-                            onSearch: () => searchReportInbound(),
-                            customInputBuilder: (inputWidth) {
-                              if (searchType != 'Ngày Báo Cáo') return null;
-
-                              return SizedBox(
-                                width: inputWidth,
-                                height: 50,
-                                child: InkWell(
-                                  onTap: () async {
-                                    final now = DateTime.now();
-
-                                    DateTime? picked = await showDatePicker(
-                                      context: context,
-                                      initialDate: now,
-                                      firstDate: DateTime(2020),
-                                      lastDate: DateTime(2100),
-                                      builder: (BuildContext context, Widget? child) {
-                                        return Theme(
-                                          data: Theme.of(context).copyWith(
-                                            colorScheme: ColorScheme.light(
-                                              primary: Colors.blue,
-                                              onPrimary: Colors.white,
-                                              onSurface: Colors.black,
-                                            ),
-                                            dialogTheme: DialogThemeData(
-                                              backgroundColor: Colors.white12,
-                                            ),
-                                          ),
-                                          child: child!,
-                                        );
-                                      },
-                                    );
-
-                                    if (picked != null) {
-                                      final displayDate = DateFormat('dd/MM/yyyy').format(picked);
-
-                                      setState(() {
-                                        dateController.text =
-                                            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-
-                                        searchController.text = displayDate;
-                                      });
-                                    }
-                                  },
-                                  child: IgnorePointer(
-                                    child: TextField(
-                                      controller: searchController,
-                                      decoration: InputDecoration(
-                                        hintText: 'Chọn ngày...',
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        suffixIcon: const Icon(Icons.calendar_today),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                        SizedBox(),
 
                         //right button
                         Expanded(
@@ -249,7 +119,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                                   //     context: context,
                                   //     builder:
                                   //         (_) => DialogSelectExportExcel(
-                                  //           selectedInboundId: selectedInboundId,
+                                  //           selectedInventoryId: selectedInventoryId,
                                   //           onPlanningIdsOrRangeDate: () => loadReportInbound(),
                                   //           machine: machine,
                                   //         ),
@@ -275,7 +145,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
             //table
             Expanded(
               child: FutureBuilder(
-                future: futureReportInbound,
+                future: futureInventory,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Padding(
@@ -287,7 +157,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['inbounds'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['inventories'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có báo cáo nào",
@@ -297,13 +167,13 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                   }
 
                   final data = snapshot.data!;
-                  final reportInbounds = data['inbounds'] as List<InboundHistoryModel>;
+                  final inventory = data['inventories'] as List<InventoryModel>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
-                  reportInboundDataSource = ReportInboundDataSource(
-                    reportInbounds: reportInbounds,
-                    selectedInboundId: selectedInboundId,
+                  inventoryDataSource = InventoryDataSource(
+                    inventory: inventory,
+                    selectedInventoryId: selectedInventoryId,
                   );
 
                   return Column(
@@ -312,11 +182,11 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                       Expanded(
                         child: SfDataGrid(
                           controller: dataGridController,
-                          source: reportInboundDataSource,
+                          source: inventoryDataSource,
                           isScrollbarAlwaysShown: true,
                           allowExpandCollapseGroup: true, // Bật grouping
                           autoExpandGroups: true,
-                          columnWidthMode: ColumnWidthMode.auto,
+                          columnWidthMode: ColumnWidthMode.fill,
                           navigationMode: GridNavigationMode.row,
                           selectionMode: SelectionMode.multiple,
                           headerRowHeight: 35,
@@ -325,21 +195,21 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                             columns: columns,
                             widths: columnWidths,
                           ),
-                          stackedHeaderRows: <StackedHeaderRow>[
-                            StackedHeaderRow(
-                              cells: [
-                                StackedHeaderCell(
-                                  columnNames: ['quantityOrd', 'qtyPaper', 'qtyInbound'],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: 'Số Lượng',
-                                      themeController: themeController,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                          // stackedHeaderRows: <StackedHeaderRow>[
+                          //   StackedHeaderRow(
+                          //     cells: [
+                          //       StackedHeaderCell(
+                          //         columnNames: ['quantityOrd', 'qtyPaper', 'qtyInbound'],
+                          //         child: Obx(
+                          //           () => formatColumn(
+                          //             label: 'Số Lượng',
+                          //             themeController: themeController,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ],
 
                           //auto resize
                           allowColumnsResizing: true,
@@ -355,7 +225,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                           onColumnResizeEnd:
                               (details) => GridResizeHelper.onResizeEnd(
                                 details: details,
-                                tableKey: 'reportInbound',
+                                tableKey: 'inventory',
                                 columnWidths: columnWidths,
                                 setState: setState,
                               ),
@@ -366,14 +236,14 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                             setState(() {
                               final selectedRows = dataGridController.selectedRows;
 
-                              selectedInboundId =
+                              selectedInventoryId =
                                   selectedRows
                                       .map((row) {
                                         final cell = row.getCells().firstWhere(
-                                          (c) => c.columnName == 'inboundId',
+                                          (c) => c.columnName == 'inventoryId',
                                           orElse:
                                               () => const DataGridCell(
-                                                columnName: 'inboundId',
+                                                columnName: 'inventoryId',
                                                 value: '',
                                               ),
                                         );
@@ -384,8 +254,8 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                                       .cast<int>()
                                       .toList();
 
-                              reportInboundDataSource.selectedInboundId = selectedInboundId;
-                              reportInboundDataSource.notifyListeners();
+                              inventoryDataSource.selectedInventoryId = selectedInventoryId;
+                              inventoryDataSource.notifyListeners();
                             });
                           },
                         ),

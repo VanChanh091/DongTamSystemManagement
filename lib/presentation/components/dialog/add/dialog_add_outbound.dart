@@ -2,7 +2,6 @@ import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
@@ -50,6 +49,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   final discountController = TextEditingController();
   final priceController = TextEditingController();
 
+  final remainingQtyController = TextEditingController();
   final qtyOutboundController = TextEditingController();
 
   void clearController() {
@@ -190,12 +190,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           labelText: "Mã Đơn Hàng",
           icon: Symbols.box,
           suggestionsCallback: (pattern) async {
-            final result = await OrderService().getOrderByField(field: 'orderId', keyword: pattern);
-            if (result['orders'] != null && result['orders'] is List<Order>) {
-              return result['orders'] as List<Order>;
-            }
-
-            return [];
+            if (pattern.trim().length < 2) return [];
+            return await WarehouseService().searchOrderIds(orderId: pattern);
           },
           displayStringForItem: (order) => order.orderId,
           itemBuilder: (context, order) {
@@ -204,19 +200,30 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
               subtitle: Text(order.customer?.customerName ?? ""),
             );
           },
-          onSelected: (order) {
-            customerNameController.text = order.customer?.customerName ?? "";
-            companyNameController.text = order.customer?.companyName ?? "";
-            saleNameController.text = order.user?.fullName ?? "";
-            typeProductController.text = order.product?.typeProduct ?? "";
-            productNameController.text = order.product?.productName ?? "";
-            fluteController.text = order.flute ?? "";
-            qcBoxController.text = order.QC_box ?? "";
-            dvtController.text = order.dvt;
-            quantityCustomerController.text = order.quantityCustomer.toStringAsFixed(1);
-            discountController.text = order.discount.toString();
-            priceController.text = order.price.toStringAsFixed(1);
+          onSelected: (order) async {
+            orderIdController.text = order.orderId;
+
+            final selectedOrder = await WarehouseService().getOrderInboundQty(
+              orderId: order.orderId,
+            );
+
+            if (selectedOrder == null) return;
+
+            customerNameController.text = selectedOrder.customer?.customerName ?? "";
+            companyNameController.text = selectedOrder.customer?.companyName ?? "";
+            saleNameController.text = selectedOrder.user?.fullName ?? "";
+            typeProductController.text = selectedOrder.product?.typeProduct ?? "";
+            productNameController.text = selectedOrder.product?.productName ?? "";
+            fluteController.text = selectedOrder.flute ?? "";
+            qcBoxController.text = selectedOrder.QC_box ?? "";
+            dvtController.text = selectedOrder.dvt;
+            quantityCustomerController.text = selectedOrder.quantityCustomer.toStringAsFixed(1);
+            discountController.text = selectedOrder.discount.toString();
+            priceController.text = selectedOrder.price.toStringAsFixed(1);
+
+            remainingQtyController.text = selectedOrder.remainingQty.toString();
           },
+
           onChanged: (value) {
             if (value.isEmpty) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -351,7 +358,43 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           SizedBox(
-                            width: 360,
+                            width: 260,
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Số lượng còn lại:",
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: remainingQtyController,
+                                    readOnly: true,
+                                    decoration: InputDecoration(
+                                      hintText: "0",
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 15,
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      fillColor: Colors.grey.shade300,
+                                      filled: true,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+
+                          SizedBox(
+                            width: 320,
                             child: Row(
                               children: [
                                 Text(
@@ -373,7 +416,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                       isDense: true,
                                       contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 20,
-                                        vertical: 16,
+                                        vertical: 15,
                                       ),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),

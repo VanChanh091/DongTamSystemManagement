@@ -8,7 +8,6 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
-  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},
@@ -42,6 +41,8 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
   {"key": "dmWasteLoss", "title": "Định Mức PL"},
   {"key": "wasteActually", "title": "PL Báo Cáo"},
   {"key": "shiftManager", "title": "Trưởng Máy"},
+
+  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
 
   //isRequestCheck
   {"key": "statusRequest", "title": "Kiểm Hàng"},

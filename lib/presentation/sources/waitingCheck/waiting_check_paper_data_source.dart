@@ -36,13 +36,6 @@ class WaitingCheckPaperDataSource extends DataGridSource {
         columnName: "dayStartProduction",
         value: planning.dayStart != null ? formatter.format(planning.dayStart!) : null,
       ),
-      DataGridCell<String?>(
-        columnName: "dayCompletedProd",
-        value:
-            planning.dayCompleted != null
-                ? formatterDayCompleted.format(planning.dayCompleted!)
-                : null,
-      ),
       DataGridCell<String>(
         columnName: 'customerName',
         value: planning.order?.customer?.customerName ?? '',
@@ -88,6 +81,14 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       buildWasteCell(columnName: 'knife', value: planning.knife ?? 0),
       buildWasteCell(columnName: 'totalLoss', value: planning.totalLoss ?? 0),
       buildWasteCell(columnName: 'qtyWastes', value: planning.qtyWasteNorm ?? 0),
+
+      DataGridCell<String?>(
+        columnName: "dayCompletedProd",
+        value:
+            planning.dayCompleted != null
+                ? formatterDayCompleted.format(planning.dayCompleted!)
+                : null,
+      ),
 
       DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
 

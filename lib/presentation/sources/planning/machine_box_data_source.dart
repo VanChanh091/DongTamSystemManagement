@@ -54,13 +54,6 @@ class MachineBoxDatasource extends DataGridSource {
         columnName: "dayStartProduction",
         value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : '',
       ),
-      DataGridCell<String>(
-        columnName: "dayCompletedProd",
-        value:
-            boxMachineTime?.dayCompleted != null
-                ? formatterDayCompleted.format(boxMachineTime!.dayCompleted!)
-                : '',
-      ),
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: planning.order?.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
@@ -123,6 +116,14 @@ class MachineBoxDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: "shiftManager",
         value: boxMachineTime?.shiftManagement ?? "",
+      ),
+
+      DataGridCell<String>(
+        columnName: "dayCompletedProd",
+        value:
+            boxMachineTime?.dayCompleted != null
+                ? formatterDayCompleted.format(boxMachineTime!.dayCompleted!)
+                : '',
       ),
 
       //isRequestCheck

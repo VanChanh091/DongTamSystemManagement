@@ -68,6 +68,10 @@ class DashboardPaperDataSource extends DataGridSource {
       DataGridCell<int>(columnName: 'quantityOrd', value: order?.quantityManufacture ?? 0),
       DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
       DataGridCell<int>(columnName: "runningPlanProd", value: paper.runningPlan),
+      DataGridCell<int>(
+        columnName: "totalOutbound",
+        value: paper.order?.Inventory?.totalQtyOutbound ?? 0,
+      ),
 
       DataGridCell<String>(
         columnName: 'timeRunningProd',

@@ -35,6 +35,7 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "quantityOrd", "title": "Đơn Hàng"},
   {"key": "qtyProduced", "title": "Đã Sản Xuất"},
   {"key": "runningPlanProd", "title": "Kế Hoạch Chạy"},
+  {"key": "totalOutbound", "title": "Đã Xuất"},
 
   //time running
   {"key": "timeRunningProd", "title": "Chạy"},

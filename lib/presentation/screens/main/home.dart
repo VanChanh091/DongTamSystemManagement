@@ -23,6 +23,7 @@ import 'package:dongtam/presentation/screens/main/report/report_warehouse/report
 import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
+import 'package:dongtam/presentation/screens/main/warehouse/inventory.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
@@ -60,6 +61,7 @@ class _HomePageState extends State<HomePage> {
   bool _isReportExpanded = false;
   bool _isApprovalExpanded = false;
   bool _isWaitingExpanded = false;
+  bool _isWarehouseExpanded = false;
 
   static const double _sidebarOpenWidth = 300;
   static const double _sidebarCollapsedWidth = 60;
@@ -98,6 +100,7 @@ class _HomePageState extends State<HomePage> {
 
       //outbound
       OutboundHistory(),
+      Inventory(),
 
       //reporting hitstory
       TopTabHistoryReport(),
@@ -244,11 +247,7 @@ class _HomePageState extends State<HomePage> {
           _buildPlanningMenu(pages),
           _buildManufactureMenu(pages),
           _buildWaitingCheckMenu(pages),
-          _buildSidebarItem(
-            Symbols.warehouse,
-            "Xuất Kho",
-            index: pages.indexWhere((w) => w is OutboundHistory),
-          ),
+          _buildWarehouseMenu(pages),
           _buildReportMenu(pages),
           _buildSidebarItem(
             Symbols.dual_screen,
@@ -432,6 +431,34 @@ class _HomePageState extends State<HomePage> {
           if (reportManu != -1) _buildSubMenuItem(Icons.article, "Lịch Sử Sản Xuất", reportManu),
           if (reportInbound != -1)
             _buildSubMenuItem(Symbols.package_2, "Lịch Sử Nhập Kho", reportInbound),
+        ],
+      );
+    });
+  }
+
+  //build warehouse
+  Widget _buildWarehouseMenu(List<Widget> pages) {
+    final outbound = pages.indexWhere((w) => w is OutboundHistory);
+    final inventory = pages.indexWhere((w) => w is Inventory);
+
+    if (outbound == -1 && inventory == -1) {
+      return const SizedBox.shrink();
+    }
+
+    return Obx(() {
+      final selected = sidebarController.selectedIndex.value;
+      final isParentSelected = selected == outbound || selected == inventory;
+
+      return SidebarExpandedMenu(
+        isSidebarOpen: _isSidebarOpen,
+        isExpanded: _isWarehouseExpanded,
+        onToggle: () => setState(() => _isWarehouseExpanded = !_isWarehouseExpanded),
+        isParentSelected: isParentSelected,
+        title: "Xuất và Tồn Kho",
+        icon: Symbols.warehouse,
+        children: [
+          if (outbound != -1) _buildSubMenuItem(Symbols.lab_profile, "Xuất Kho", outbound),
+          if (inventory != -1) _buildSubMenuItem(Symbols.garage_home, "Tồn Kho", inventory),
         ],
       );
     });

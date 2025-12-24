@@ -54,13 +54,6 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: "dayStartProduction",
         value: planning.dayStart != null ? formatter.format(planning.dayStart!) : null,
       ),
-      DataGridCell<String?>(
-        columnName: "dayCompletedProd",
-        value:
-            planning.dayCompleted != null
-                ? formatterDayCompleted.format(planning.dayCompleted!)
-                : null,
-      ),
       DataGridCell<String>(
         columnName: 'customerName',
         value: planning.order?.customer?.customerName ?? '',
@@ -119,6 +112,15 @@ class MachinePaperDatasource extends DataGridSource {
         DataGridCell<String>(columnName: 'shiftProduct', value: planning.shiftProduction),
         DataGridCell<String>(columnName: 'shiftManager', value: planning.shiftManagement),
       ],
+
+      DataGridCell<String?>(
+        columnName: "dayCompletedProd",
+        value:
+            planning.dayCompleted != null
+                ? formatterDayCompleted.format(planning.dayCompleted!)
+                : null,
+      ),
+
       DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
 
       //status request

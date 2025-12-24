@@ -3,6 +3,7 @@ import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/data/models/user/user_user_model.dart';
+import 'package:dongtam/data/models/warehouse/inventory_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:intl/intl.dart';
 
@@ -23,6 +24,9 @@ class Order {
   final DateTime dayReceiveOrder;
   final bool isBox;
 
+  //temp field
+  final int? remainingQty;
+
   //association
   final String customerId, productId;
   final Customer? customer;
@@ -30,6 +34,7 @@ class Order {
   final Box? box;
   final UserUserModel? user;
   final List<PlanningPaper>? planningPaper;
+  final InventoryModel? Inventory;
 
   Order({
     required this.orderId,
@@ -71,11 +76,14 @@ class Order {
     required this.totalPriceVAT,
     required this.isBox,
 
+    this.remainingQty,
+
     this.customer,
     this.box,
     this.product,
     this.user,
     this.planningPaper,
+    this.Inventory,
   });
 
   //format number
@@ -227,6 +235,9 @@ class Order {
       isBox: json['isBox'] ?? false,
       status: json['status'] ?? "",
       rejectReason: json['rejectReason'] ?? "",
+
+      remainingQty: json['remainingQty'] ?? 0,
+
       customer: json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
       product: json['Product'] != null ? Product.fromJson(json['Product']) : null,
       box: json['box'] != null ? Box.fromJson(json['box']) : null,

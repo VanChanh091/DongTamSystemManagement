@@ -49,6 +49,10 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
     });
   }
 
+  bool isRowAllChecked(Map<String, bool> checklist) {
+    return criteriaList.every((c) => checklist[c.criteriaCode] == true);
+  }
+
   void submit() async {
     if (!formKey.currentState!.validate()) {
       AppLogger.w("Form không hợp lệ, dừng submit");
@@ -167,11 +171,30 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                child: Text(
-                  "Mẫu $sampleIndex",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Mẫu $sampleIndex",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(width: 6),
+                    Checkbox(
+                      value: isRowAllChecked(checklist),
+                      activeColor: Colors.green,
+                      checkColor: Colors.white,
+                      onChanged: (val) {
+                        setState(() {
+                          for (final c in criteriaList) {
+                            checklist[c.criteriaCode] = val ?? false;
+                          }
+                        });
+                      },
+                    ),
+                  ],
                 ),
               ),
+
               ...criteriaList.map(
                 (c) => Center(
                   child: Checkbox(

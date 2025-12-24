@@ -41,6 +41,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
       DataGridCell<int>(columnName: 'child', value: planning.order?.numberChild ?? 0),
       DataGridCell<int>(columnName: "quantityOrd", value: planning.order?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),
+      DataGridCell<int>(columnName: "inboundQty", value: planning.getTotalQtyInbound),
 
       ...buildChildBoxCells(planning),
 

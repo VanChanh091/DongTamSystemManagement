@@ -8,10 +8,13 @@ import 'package:dongtam/presentation/components/headerTable/planning/header_tabl
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
 import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_box_data_source.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -69,37 +72,32 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
     });
   }
 
-  // bool canExecuteAction({
-  //   required int selectedPlanningIds,
-  //   required List<PlanningBox> planningList,
-  //   bool isRequest = false,
-  // }) {
-  //   if (selectedPlanningIds.length != 1) return false;
+  bool canExecuteAction({
+    required int? selectedPlanningBoxIds,
+    required List<PlanningBox> planningList,
+  }) {
+    if (selectedPlanningBoxIds == null) return false;
 
-  //   final int selectedPlanningBoxId = selectedPlanningIds.first;
+    final selectedPlanning = planningList.firstWhere(
+      (p) => p.planningBoxId == selectedPlanningBoxIds,
+      orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+    );
 
-  //   final selectedPlanning = planningList.firstWhere(
-  //     (p) => p.planningBoxId == selectedPlanningBoxId,
-  //     orElse: () => throw Exception("Không tìm thấy kế hoạch"),
-  //   );
+    // disable nếu đã complete
+    if (selectedPlanning.statusRequest == "finalize") return false;
 
-  //   final boxTimes = selectedPlanning.boxTimes;
-  //   if (boxTimes == null || boxTimes.isEmpty) return false;
-
-  //   final box = boxTimes.first;
-
-  //   // disable nếu đã complete
-  //   if (box.status == "complete") return false;
-
-  //   return true;
-  // }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
     //QC Check
-    // final bool qcCheck =
-    //     userController.hasPermission(permission: 'QC') &&
-    //     canExecuteAction(selectedPlanningIds: selectedPlanningBoxIds, planningList: planningList);
+    final bool qcCheck =
+        userController.hasPermission(permission: 'QC') &&
+        canExecuteAction(
+          selectedPlanningBoxIds: selectedPlanningBoxIds,
+          planningList: planningList,
+        );
 
     return Scaffold(
       body: Container(
@@ -149,21 +147,78 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                               children: [
                                 //inbound warehouse
                                 AnimatedButton(
-                                  onPressed: () async {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => DialogCheckQC(
-                                            planningBoxId: selectedPlanningBoxIds!,
-                                            onQcSessionAddOrUpdate: () => loadBoxWaiting(),
-                                            type: 'box',
-                                          ),
-                                    );
-                                  },
+                                  onPressed:
+                                      qcCheck
+                                          ? () async {
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (_) => DialogCheckQC(
+                                                    planningBoxId: selectedPlanningBoxIds!,
+                                                    onQcSessionAddOrUpdate: () => loadBoxWaiting(),
+                                                    type: 'box',
+                                                  ),
+                                            );
+                                          }
+                                          : null,
                                   label: "Nhập Kho",
                                   icon: Symbols.input,
                                   backgroundColor: themeController.buttonColor,
                                 ),
+                                const SizedBox(width: 10),
+
+                                //confirm Finalized Session
+                                AnimatedButton(
+                                  onPressed:
+                                      qcCheck
+                                          ? () async {
+                                            try {
+                                              if (selectedPlanningBoxIds == null) return;
+
+                                              final int selectedPlanningBoxId =
+                                                  selectedPlanningBoxIds!;
+
+                                              // Tìm planning tương ứng
+                                              final selectedPlanning = planningList.firstWhere(
+                                                (p) => p.planningBoxId == selectedPlanningBoxId,
+                                                orElse:
+                                                    () =>
+                                                        throw Exception("Không tìm thấy kế hoạch"),
+                                              );
+
+                                              // Gửi yêu cầu xác nhận sản xuất
+                                              await QualityControlService().confirmFinalizeSession(
+                                                planningBoxId: selectedPlanning.planningBoxId,
+                                                isPaper: false,
+                                              );
+
+                                              if (!context.mounted) return;
+
+                                              loadBoxWaiting();
+
+                                              showSnackBarSuccess(
+                                                context,
+                                                "Xác nhận hoàn thành phiên kiểm tra thành công",
+                                              );
+                                            } catch (e, s) {
+                                              AppLogger.e(
+                                                "Lỗi khi xác nhận SX",
+                                                error: e,
+                                                stackTrace: s,
+                                              );
+                                              if (!context.mounted) return;
+                                              showSnackBarError(
+                                                context,
+                                                "Có lỗi khi hoàn thành phiên kiểm tra: $e",
+                                              );
+                                            }
+                                          }
+                                          : null,
+                                  label: "Hoàn Thành",
+                                  icon: Symbols.done_outline,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+
                                 const SizedBox(width: 10),
                               ],
                             ),
@@ -231,7 +286,7 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                                   StackedHeaderRow(
                                     cells: [
                                       StackedHeaderCell(
-                                        columnNames: ["quantityOrd", "qtyPaper"],
+                                        columnNames: ["quantityOrd", "qtyPaper", "inboundQty"],
                                         child: Obx(
                                           () => formatColumn(
                                             label: 'Số Lượng',
