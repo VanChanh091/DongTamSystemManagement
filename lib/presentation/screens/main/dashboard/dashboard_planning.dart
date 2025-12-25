@@ -389,6 +389,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                           'quantityOrd',
                                           'qtyProduced',
                                           'runningPlanProd',
+                                          "totalOutbound",
                                         ],
                                         child: Obx(
                                           () => formatColumn(

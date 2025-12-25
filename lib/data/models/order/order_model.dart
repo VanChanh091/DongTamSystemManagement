@@ -248,6 +248,7 @@ class Order {
                 json['PlanningPapers'].map((x) => PlanningPaper.fromJson(x)),
               )
               : [],
+      Inventory: json['Inventory'] != null ? InventoryModel.fromJson(json['Inventory']) : null,
     );
   }
 

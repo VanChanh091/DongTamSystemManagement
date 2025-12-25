@@ -158,7 +158,7 @@ class MachinePaperDatasource extends DataGridSource {
           return "Chờ nhập kho";
         case "reject":
           return "Từ chối";
-        case "complete":
+        case "inbounded":
           return "Đã nhập kho";
         case "none":
         default:

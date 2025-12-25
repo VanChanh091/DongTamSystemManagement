@@ -195,6 +195,28 @@ class PlanningService {
     }
   }
 
+  //notify planning
+  Future<bool> notifyUpdatePlanning({required String machine, required bool isPaper}) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final keyName = isPaper ? "planningPaperUpdated" : "planningBoxUpdated";
+
+      await dioService.post(
+        "/api/planning/notifyPlanning",
+        data: {'machine': machine, "keyName": keyName},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to notify planning", error: e, stackTrace: s);
+      throw Exception('Failed to notify planning: $e');
+    }
+  }
+
   //===============================PLANNING ORDER====================================
 
   //get status order

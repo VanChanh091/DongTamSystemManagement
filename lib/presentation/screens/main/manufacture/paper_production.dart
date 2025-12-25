@@ -65,7 +65,6 @@ class _PaperProductionState extends State<PaperProduction> {
   }
 
   void loadPlanning() {
-    AppLogger.i("Loading all data manufacture paper");
     setState(() {
       futurePlanning = ensureMinLoading(ManufactureService().getPlanningPaper(machine: machine));
 
@@ -152,6 +151,7 @@ class _PaperProductionState extends State<PaperProduction> {
       selectedPlanningIds.clear();
     });
 
+    // rời room cũ
     await socketService.leaveRoom(oldRoom);
 
     // gỡ listener cũ

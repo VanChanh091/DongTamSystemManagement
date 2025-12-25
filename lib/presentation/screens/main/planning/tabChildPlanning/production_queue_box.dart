@@ -305,6 +305,41 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                               onSuccess: () => loadPlanning(),
                                             );
                                           }
+                                          if (value == 'notify') {
+                                            if (!context.mounted) return;
+
+                                            bool confirm = await showConfirmDialog(
+                                              context: context,
+                                              title: "Xác Nhận Lịch Sản Xuất",
+                                              content: "Bạn có muốn gửi lịch sản xuất này không?",
+                                              confirmText: "Xác nhận",
+                                              confirmColor: const Color(0xffEA4346),
+                                            );
+
+                                            if (confirm) {
+                                              try {
+                                                final success = await PlanningService()
+                                                    .notifyUpdatePlanning(
+                                                      machine: machine,
+                                                      isPaper: false,
+                                                    );
+
+                                                if (!context.mounted) return;
+                                                if (success) {
+                                                  showSnackBarSuccess(
+                                                    context,
+                                                    "Gửi lịch sản xuất thành công",
+                                                  );
+                                                }
+                                              } catch (e) {
+                                                if (!context.mounted) return;
+                                                showSnackBarError(
+                                                  context,
+                                                  "Lỗi khi gửi lịch sản xuất",
+                                                );
+                                              }
+                                            }
+                                          }
                                         },
                                         itemBuilder:
                                             (BuildContext context) => [
@@ -313,6 +348,13 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                                 child: ListTile(
                                                   leading: Icon(Icons.approval_outlined),
                                                   title: Text('Chấp Nhận Thiếu SL'),
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'notify',
+                                                child: ListTile(
+                                                  leading: Icon(Symbols.send),
+                                                  title: Text('Xác Nhận Kế Hoạch SX'),
                                                 ),
                                               ),
                                             ],

@@ -39,9 +39,7 @@ class SocketService {
     );
 
     // errors
-    _socket!.onConnectError(
-      (err) => AppLogger.e("❌ Connect error", error: err),
-    );
+    _socket!.onConnectError((err) => AppLogger.e("❌ Connect error", error: err));
     _socket!.onError((err) => AppLogger.e("❌ Socket error", error: err));
     _socket!.onDisconnect((reason) {
       _isConnected = false;
@@ -59,7 +57,7 @@ class SocketService {
     final room = 'machine_${machineName.toLowerCase().replaceAll(' ', '_')}';
     if (_socket == null || !_socket!.connected) await connectSocket();
     _socket!.emit('join-machine', room);
-    AppLogger.i("➡️ join-machine $room");
+    AppLogger.i("➡️ join-machine: $room");
   }
 
   /// Leave a room (server must implement socket.on("leave-room", ...))

@@ -65,8 +65,17 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     });
   }
 
+  /* start socket */
   String _machineRoomName(String machineName) =>
       'machine_${machineName.toLowerCase().replaceAll(' ', '_')}';
+
+  Future<void> registerSocket() async {
+    AppLogger.i("registerSocket: join room machine=$machine");
+    socketService.joinMachineRoom(machine);
+
+    socketService.off('planningBoxUpdated');
+    socketService.on('planningBoxUpdated', _onPlanningPaperUpdated);
+  }
 
   void _onPlanningPaperUpdated(dynamic data) {
     if (!mounted) return;
@@ -125,16 +134,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     );
   }
 
-  Future<void> registerSocket() async {
-    AppLogger.i("registerSocket: join room machine=$machine");
-    socketService.joinMachineRoom(machine);
-
-    socketService.off('planningPaperUpdated');
-    socketService.on('planningPaperUpdated', _onPlanningPaperUpdated);
-  }
-
   Future<void> changeMachine(String machineName) async {
-    // room cũ
     final oldRoom = _machineRoomName(machine);
     AppLogger.i("changeMachine: from=$oldRoom to=$machineName");
 
@@ -144,21 +144,22 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
       selectedPlanningIds.clear();
     });
 
-    // rời room cũ (server cần xử lý leave-room)
+    // rời room cũ
     await socketService.leaveRoom(oldRoom);
 
     // gỡ listener cũ
-    socketService.off('planningPaperUpdated');
+    socketService.off('planningBoxUpdated');
 
     // join room mới và đăng ký listener
     await socketService.joinMachineRoom(machineName);
     AppLogger.i("changeMachine: joined newRoom=$machineName");
 
-    socketService.on('planningPaperUpdated', _onPlanningPaperUpdated);
+    socketService.on('planningBoxUpdated', _onPlanningPaperUpdated);
 
     // load data cho máy mới
     loadPlanning();
   }
+  /* end socket */
 
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
@@ -196,7 +197,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   void dispose() {
     final room = _machineRoomName(machine);
     socketService.leaveRoom(room);
-    socketService.off('planningPaperUpdated');
+    socketService.off('planningBoxUpdated');
     super.dispose();
   }
 

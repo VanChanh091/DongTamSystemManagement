@@ -31,6 +31,7 @@ class DashboardPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "typeProduct", value: order?.product?.typeProduct ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
 
+      //day
       DataGridCell<String>(
         columnName: "dayReceive",
         value: order?.dayReceiveOrder != null ? formatter.format(order!.dayReceiveOrder) : "",
@@ -56,6 +57,7 @@ class DashboardPaperDataSource extends DataGridSource {
                 : "",
       ),
 
+      //other fields
       DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${paper.ghepKho} cm'),
@@ -73,6 +75,7 @@ class DashboardPaperDataSource extends DataGridSource {
         value: paper.order?.Inventory?.totalQtyOutbound ?? 0,
       ),
 
+      //time running
       DataGridCell<String>(
         columnName: 'timeRunningProd',
         value:
