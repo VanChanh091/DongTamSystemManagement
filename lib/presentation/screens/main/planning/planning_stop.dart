@@ -360,7 +360,7 @@ class _PlanningStopState extends State<PlanningStop> {
   }) {
     return AnimatedButton(
       onPressed:
-          isSale
+          isSale && selectedPlanningIds.isEmpty
               ? () async {
                 if (selectedPlanningIds.isEmpty) {
                   showSnackBarError(context, 'Vui lòng chọn kế hoạch cần thao tác');

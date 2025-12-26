@@ -6,10 +6,10 @@ import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.d
 import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_detail.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_history.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/warehouse/outbound/ob_detail_data_source.dart';
 import 'package:dongtam/presentation/sources/warehouse/outbound/ob_history_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -180,34 +180,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         //left button
-                        Expanded(
-                          flex: 1,
-                          child: LeftButtonSearch(
-                            selectedType: searchType,
-                            types: const [
-                              'Tất cả',
-                              "Theo Mã Đơn",
-                              "Ghép Khổ",
-                              "Theo Máy",
-                              "Tên Khách Hàng",
-                              "Tên Công Ty",
-                              "Tên Nhân Viên",
-                            ],
-                            onTypeChanged: (value) {
-                              setState(() {
-                                searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
-                              });
-                            },
-                            controller: searchController,
-                            textFieldEnabled: isTextFieldEnabled,
-                            buttonColor: themeController.buttonColor,
-                            onSearch: () => searchOutbound(),
-                            minDropdownWidth: 170,
-                            maxDropdownWidth: 200,
-                          ),
-                        ),
+                        const SizedBox(),
 
                         //right button
                         Expanded(
@@ -217,13 +190,14 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                //outbound
                                 AnimatedButton(
                                   onPressed: () async {
                                     showDialog(
                                       context: context,
                                       builder:
                                           (_) => OutBoundDialog(
-                                            outboundHistory: null,
+                                            outbound: null,
                                             onOutboundHistory: () => loadOutbound(),
                                           ),
                                     );
@@ -233,6 +207,71 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                   backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 10),
+
+                                //update
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedOutboundId != null
+                                          ? () async {
+                                            try {
+                                              final data = await futureOutbound;
+                                              final orders =
+                                                  data['outbounds'] as List<OutboundHistoryModel>;
+                                              final selectedOutbound = orders.firstWhere(
+                                                (order) => order.outboundId == selectedOutboundId,
+                                              );
+
+                                              if (!context.mounted) return;
+
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => OutBoundDialog(
+                                                      outbound: selectedOutbound,
+                                                      onOutboundHistory: () => loadOutbound(),
+                                                    ),
+                                              );
+                                            } catch (e, s) {
+                                              AppLogger.e(
+                                                "Lỗi không tìm thấy phiếu xuất kho",
+                                                error: e,
+                                                stackTrace: s,
+                                              );
+                                            }
+                                          }
+                                          : null,
+                                  label: "Sửa",
+                                  icon: Symbols.construction,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
+                                //delete
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedOutboundId != null
+                                          ? () async {
+                                            await showDeleteConfirmHelper(
+                                              context: context,
+                                              title: "⚠️ Xác nhận xoá",
+                                              content:
+                                                  "Bạn có chắc chắn muốn hủy phiếu xuất kho này?",
+                                              onDelete: () async {
+                                                await WarehouseService().deleteOutbound(
+                                                  outboundId: selectedOutboundId!,
+                                                );
+                                              },
+                                              onSuccess: () {
+                                                setState(() => selectedOutboundId = null);
+                                                loadOutbound();
+                                              },
+                                            );
+                                          }
+                                          : null,
+                                  label: "Hủy Phiếu",
+                                  icon: Icons.delete,
+                                  backgroundColor: const Color(0xffEA4346),
+                                ),
                               ],
                             ),
                           ),

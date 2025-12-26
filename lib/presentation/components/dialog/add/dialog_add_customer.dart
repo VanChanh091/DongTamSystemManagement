@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
@@ -9,6 +10,7 @@ import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_customer.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -24,10 +26,12 @@ class CustomerDialog extends StatefulWidget {
 
 class _CustomerDialogState extends State<CustomerDialog> {
   final formKey = GlobalKey<FormState>();
-  List<Customer> allCustomers = [];
-  bool isLoading = true;
+  final userController = Get.find<UserController>();
   final List<String> itemRating = ["Xấu", "Bình Thường", "Tốt", "VIP"];
   late String typeRating = "Bình Thường";
+
+  List<Customer> allCustomers = [];
+  bool isLoading = true;
 
   final _idController = TextEditingController();
   final _nameController = TextEditingController();
@@ -244,6 +248,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.customer != null;
+    final bool canEditDebtLimit =
+        widget.customer == null ? true : userController.hasAnyRole(roles: ['admin', 'manager']);
 
     final List<Map<String, dynamic>> basicInfoRows = [
       {
@@ -331,6 +337,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
           label: "Hạn Mức Công Nợ",
           controller: _debtLimitController,
           icon: Icons.money,
+          readOnly: !canEditDebtLimit,
         ),
         "rightKey": "Hạn Thanh Toán",
         "rightValue": ValidationOrder.validateInput(

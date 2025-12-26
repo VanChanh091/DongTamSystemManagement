@@ -224,17 +224,10 @@ class _ProductPageState extends State<ProductPage> {
                                         // update
                                         AnimatedButton(
                                           onPressed:
-                                              isSale
+                                              isSale &&
+                                                      selectedProductId != null &&
+                                                      selectedProductId!.isNotEmpty
                                                   ? () async {
-                                                    if (selectedProductId == null ||
-                                                        selectedProductId!.isEmpty) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        'Vui lòng chọn sản phẩm cần sửa',
-                                                      );
-                                                      return;
-                                                    }
-
                                                     try {
                                                       final result = await ProductService()
                                                           .getProductByField(

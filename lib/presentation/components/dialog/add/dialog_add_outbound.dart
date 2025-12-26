@@ -17,10 +17,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class OutBoundDialog extends StatefulWidget {
-  final OutboundHistoryModel? outboundHistory;
+  final OutboundHistoryModel? outbound;
   final VoidCallback onOutboundHistory;
 
-  const OutBoundDialog({super.key, this.outboundHistory, required this.onOutboundHistory});
+  const OutBoundDialog({super.key, this.outbound, required this.onOutboundHistory});
 
   @override
   State<OutBoundDialog> createState() => _OutBoundDialogState();
@@ -47,10 +47,43 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
   final quantityCustomerController = TextEditingController();
   final discountController = TextEditingController();
-  final priceController = TextEditingController();
+  final pricePaperController = TextEditingController();
 
   final remainingQtyController = TextEditingController();
   final qtyOutboundController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.outbound != null) {
+      outboundInitState();
+    }
+  }
+
+  Future<void> outboundInitState() async {
+    final outboundUpdate = widget.outbound!;
+    AppLogger.i("Khởi tạo form với outboundId=${outboundUpdate.outboundId}");
+
+    try {
+      final result = await WarehouseService().getOutboundDetail(
+        outboundId: outboundUpdate.outboundId,
+      );
+
+      final items = result.map((e) => OutboundTempItem.fromDetailModel(e)).toList();
+
+      if (!mounted) return;
+      setState(() {
+        tempItems
+          ..clear()
+          ..addAll(items);
+      });
+    } catch (e, s) {
+      AppLogger.e("Lỗi load outbound detail", error: e, stackTrace: s);
+      if (!mounted) return;
+      showSnackBarError(context, "Không thể tải chi tiết phiếu xuất kho");
+    }
+  }
 
   void clearController() {
     orderIdController.clear();
@@ -64,8 +97,9 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     dvtController.clear();
     quantityCustomerController.clear();
     discountController.clear();
-    priceController.clear();
+    pricePaperController.clear();
     qtyOutboundController.clear();
+    remainingQtyController.clear();
   }
 
   void addToTempTable() {
@@ -84,9 +118,9 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       companyName: companyNameController.text,
       saleName: saleNameController.text,
       flute: fluteController.text,
-      qcBox: qcBoxController.text,
+      QC_box: qcBoxController.text,
       dvt: dvtController.text,
-      price: double.tryParse(priceController.text) ?? 0,
+      pricePaper: double.tryParse(pricePaperController.text) ?? 0,
       quantityCustomer: double.tryParse(quantityCustomerController.text) ?? 0,
       discount: double.tryParse(discountController.text) ?? 0,
       qtyOutbound: int.tryParse(qtyOutboundController.text) ?? 0,
@@ -112,26 +146,34 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     typeProductController.text = outbound.typeProduct;
     productNameController.text = outbound.productName;
     fluteController.text = outbound.flute ?? "";
-    qcBoxController.text = outbound.qcBox ?? "";
+    qcBoxController.text = outbound.QC_box ?? "";
     dvtController.text = outbound.dvt;
     quantityCustomerController.text = outbound.quantityCustomer.toString();
     discountController.text = outbound.discount.toString();
-    priceController.text = outbound.price.toString();
+    pricePaperController.text = outbound.pricePaper.toString();
     qtyOutboundController.text = outbound.qtyOutbound.toString();
   }
 
   void submit() async {
     try {
-      final bool isAdd = widget.outboundHistory == null;
+      final bool isAdd = widget.outbound == null;
 
       AppLogger.i(isAdd ? "Thêm phiếu xuất kho mới" : "Cập nhật phiếu xuất kho");
 
-      await WarehouseService().createOutbound(
-        list:
-            tempItems.map((outbound) {
-              return {"orderId": outbound.orderId, "outboundQty": outbound.qtyOutbound};
-            }).toList(),
-      );
+      isAdd
+          ? await WarehouseService().createOutbound(
+            list:
+                tempItems.map((outbound) {
+                  return {"orderId": outbound.orderId, "outboundQty": outbound.qtyOutbound};
+                }).toList(),
+          )
+          : await WarehouseService().updateOutbound(
+            outboundId: widget.outbound!.outboundId,
+            list:
+                tempItems.map((outbound) {
+                  return {"orderId": outbound.orderId, "outboundQty": outbound.qtyOutbound};
+                }).toList(),
+          );
 
       // Show loading
       if (!mounted) return;
@@ -150,7 +192,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       if (!mounted) return;
       Navigator.of(context).pop();
     } catch (e, s) {
-      if (widget.outboundHistory == null) {
+      if (widget.outbound == null) {
         AppLogger.e("Lỗi khi thêm phiếu xuất kho", error: e, stackTrace: s);
       } else {
         AppLogger.e("Lỗi khi sửa phiếu xuất kho", error: e, stackTrace: s);
@@ -170,7 +212,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     companyNameController.dispose();
     qcBoxController.dispose();
     quantityCustomerController.dispose();
-    priceController.dispose();
+    pricePaperController.dispose();
     discountController.dispose();
     dvtController.dispose();
     saleNameController.dispose();
@@ -180,7 +222,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final isEdit = widget.outboundHistory != null;
+    final isEdit = widget.outbound != null;
 
     final List<Map<String, dynamic>> infoOrderRows = [
       {
@@ -219,7 +261,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             dvtController.text = selectedOrder.dvt;
             quantityCustomerController.text = selectedOrder.quantityCustomer.toStringAsFixed(1);
             discountController.text = selectedOrder.discount.toString();
-            priceController.text = selectedOrder.price.toStringAsFixed(1);
+            pricePaperController.text = selectedOrder.pricePaper.toStringAsFixed(1);
 
             remainingQtyController.text = selectedOrder.remainingQty.toString();
           },
@@ -305,7 +347,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         "middleKey": "Đơn giá",
         "middleValue": ValidationOrder.validateInput(
           label: "Đơn giá (M2)",
-          controller: priceController,
+          controller: pricePaperController,
           icon: Symbols.price_change,
           readOnly: true,
         ),
@@ -488,7 +530,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                             buildHeader("Quy Cách"),
                             buildHeader("DVT"),
                             buildHeader("Số Lượng Xuất"),
-                            buildHeader("Đơn Giá"),
+                            buildHeader("Giá Tấm"),
                             buildHeader(""),
                           ],
 
@@ -512,10 +554,10 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                     buildCell(e.customerName),
                                     buildCell(e.typeProduct),
                                     buildCell(e.productName),
-                                    buildCell(e.qcBox ?? ""),
+                                    buildCell(e.QC_box ?? ""),
                                     buildCell(e.dvt),
                                     buildCell(e.qtyOutbound.toString()),
-                                    buildCell(e.price.toString()),
+                                    buildCell(e.pricePaper.toString()),
                                     DataCell(
                                       IconButton(
                                         icon: const Icon(Icons.delete_outline, color: Colors.red),

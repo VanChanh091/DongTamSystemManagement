@@ -44,7 +44,7 @@ class InventoryDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'dvt', value: order?.dvt ?? ""),
       DataGridCell<String>(
         columnName: 'price',
-        value: '${Order.formatCurrency(order?.price ?? 0)} VNĐ',
+        value: '${Order.formatCurrency(order?.pricePaper ?? 0)} VNĐ',
       ),
       DataGridCell<String>(columnName: 'vat', value: '${order?.vat ?? 0}%'),
       DataGridCell<String>(
@@ -60,7 +60,10 @@ class InventoryDataSource extends DataGridSource {
       DataGridCell<int>(columnName: 'qtyInventory', value: inventory.qtyInventory),
       DataGridCell<String>(
         columnName: 'valueInventory',
-        value: '${Order.formatCurrency(inventory.valueInventory)} VNĐ',
+        value:
+            inventory.valueInventory > 0
+                ? '${Order.formatCurrency(inventory.valueInventory)} VNĐ'
+                : "0",
       ),
 
       //hidden

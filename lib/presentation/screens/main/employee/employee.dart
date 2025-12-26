@@ -241,16 +241,10 @@ class _EmployeeState extends State<Employee> {
                                         // update
                                         AnimatedButton(
                                           onPressed:
-                                              isSale
+                                              isSale &&
+                                                      selectedEmployeeId != null &&
+                                                      selectedEmployeeId! > 0
                                                   ? () async {
-                                                    if (selectedEmployeeId == null) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        'Vui lòng chọn nhân viên cần sửa',
-                                                      );
-                                                      return;
-                                                    }
-
                                                     try {
                                                       final result = await EmployeeService()
                                                           .getEmployeeByField(

@@ -30,6 +30,7 @@ class ObHistoryDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "outboundSlipCode", value: outbounds.outboundSlipCode),
       DataGridCell<String>(columnName: "customerName", value: customer!.customerName),
       DataGridCell<String>(columnName: "companyName", value: customer.companyName),
+      DataGridCell<int>(columnName: "totalOutboundQty", value: outbounds.totalOutboundQty),
       DataGridCell<String>(
         columnName: "totalPriceOrder",
         value: '${Order.formatCurrency(outbounds.totalPriceOrder)} VNĐ',
@@ -42,7 +43,6 @@ class ObHistoryDataSource extends DataGridSource {
         columnName: "totalPricePayment",
         value: '${Order.formatCurrency(outbounds.totalPricePayment)} VNĐ',
       ),
-      DataGridCell<int>(columnName: "totalOutboundQty", value: outbounds.totalOutboundQty),
 
       //hidden
       DataGridCell<int>(columnName: "outboundId", value: outbounds.outboundId),

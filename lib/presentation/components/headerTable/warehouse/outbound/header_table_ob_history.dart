@@ -8,10 +8,10 @@ const List<Map<String, dynamic>> _headerOutboundHistory = [
   {"key": "outboundSlipCode", "title": "Mã Số PXK"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "companyName", "title": "Tên Công Ty"},
+  {"key": "totalOutboundQty", "title": "Số Lượng Xuất"},
   {"key": "totalPriceOrder", "title": "Tổng Tiền Hàng"},
   {"key": "totalPriceVAT", "title": "Tiền Thuế"},
   {"key": "totalPricePayment", "title": "Tổng Tiền Thanh Toán"},
-  {"key": "totalOutboundQty", "title": "Số Lượng Xuất"},
 
   //hidden
   {"key": "outboundId", "title": "", "visible": false},

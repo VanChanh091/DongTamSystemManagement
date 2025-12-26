@@ -94,7 +94,7 @@ class WarehouseService {
 
   Future<List<Order>> searchOrderIds({required String orderId}) async {
     return HelperService().fetchingData(
-      endpoint: 'warehouse/searchOrderIds',
+      endpoint: 'warehouse/outbound/searchOrderIds',
       queryParameters: {'orderId': orderId},
       fromJson: (json) => Order.fromJson(json),
     );
@@ -103,7 +103,7 @@ class WarehouseService {
   //get get Order Inbound Qty
   Future<Order?> getOrderInboundQty({required String orderId}) async {
     return HelperService().fetchSingleData(
-      endpoint: 'warehouse/getOrderInboundQty',
+      endpoint: 'warehouse/outbound/getInboundQty',
       queryParameters: {'orderId': orderId},
       fromJson: (json) => Order.fromJson(json),
     );
@@ -115,7 +115,7 @@ class WarehouseService {
       final token = await SecureStorageService().getToken();
 
       await dioService.post(
-        '/api/warehouse/createOutbound',
+        '/api/warehouse/outbound/createOutbound',
         data: {"outboundDetails": list},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
@@ -126,6 +126,47 @@ class WarehouseService {
     } catch (e, s) {
       AppLogger.e("Failed to create outbound", error: e, stackTrace: s);
       throw Exception('Failed to create outbound: $e');
+    }
+  }
+
+  Future<bool> updateOutbound({
+    required int outboundId,
+    required List<Map<String, dynamic>> list,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        '/api/warehouse/outbound/updateOutbound',
+        data: {"outboundId": outboundId, "outboundDetails": list},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to update outbound", error: e, stackTrace: s);
+      throw Exception('Failed to update outbound: $e');
+    }
+  }
+
+  Future<bool> deleteOutbound({required int outboundId}) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.delete(
+        '/api/warehouse/outbound/deleteOutbound',
+        queryParameters: {"outboundId": outboundId},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to delete outbound", error: e, stackTrace: s);
+      throw Exception('Failed to delete outbound: $e');
     }
   }
 

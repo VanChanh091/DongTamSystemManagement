@@ -12,7 +12,7 @@ const List<Map<String, dynamic>> _headerOutboundDetail = [
   {"key": "dvt", "title": "DVT"},
   {"key": "deliveredQty", "title": "Đã Giao"},
   {"key": "outboundQty", "title": "Số Lượng Xuất"},
-  {"key": "price", "title": "Giá Tiền"},
+  {"key": "price", "title": "Giá Tấm"},
   {"key": "discount", "title": "Chiết Khấu"},
   {"key": "totalPriceOutbound", "title": "Thành Tiền"},
 

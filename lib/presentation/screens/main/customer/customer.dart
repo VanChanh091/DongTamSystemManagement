@@ -236,17 +236,10 @@ class _CustomerPageState extends State<CustomerPage> {
                                         // update
                                         AnimatedButton(
                                           onPressed:
-                                              isSale
+                                              isSale &&
+                                                      selectedCustomerId != null &&
+                                                      selectedCustomerId!.isNotEmpty
                                                   ? () async {
-                                                    if (selectedCustomerId == null ||
-                                                        selectedCustomerId!.isEmpty) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        'Vui lòng chọn khách hàng cần sửa',
-                                                      );
-                                                      return;
-                                                    }
-
                                                     try {
                                                       final result = await CustomerService()
                                                           .getCustomerByField(
