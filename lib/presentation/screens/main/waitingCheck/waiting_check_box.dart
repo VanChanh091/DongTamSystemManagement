@@ -38,9 +38,9 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
 
   Map<String, double> columnWidthsPlanning = {};
   Map<String, double> columnWidthsStage = {};
-  int? selectedPlanningBoxIds;
   List<PlanningBox> planningList = [];
   List<PlanningStage> selectedStages = [];
+  int? selectedPlanningBoxIds;
 
   @override
   void initState() {

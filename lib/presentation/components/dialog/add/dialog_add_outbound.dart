@@ -152,6 +152,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     discountController.text = outbound.discount.toString();
     pricePaperController.text = outbound.pricePaper.toString();
     qtyOutboundController.text = outbound.qtyOutbound.toString();
+    remainingQtyController.text = outbound.qtyInventory.toString();
   }
 
   void submit() async {

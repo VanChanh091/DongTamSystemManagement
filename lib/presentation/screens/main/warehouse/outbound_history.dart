@@ -9,6 +9,7 @@ import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/sources/warehouse/outbound/ob_detail_data_source.dart';
 import 'package:dongtam/presentation/sources/warehouse/outbound/ob_history_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
@@ -190,6 +191,38 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                //export pdf
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedOutboundId != null
+                                          ? () async {
+                                            final confirm = await showConfirmDialog(
+                                              context: context,
+                                              title: "Lập phiếu xuất kho",
+                                              content: "Bạn muốn lập phiếu xuất kho cho đơn này?",
+                                              confirmText: "Xác Nhận",
+                                              confirmColor: const Color(0xffEA4346),
+                                            );
+
+                                            if (confirm) {
+                                              await WarehouseService().exportFilePDFOutbound(
+                                                outboundId: selectedOutboundId!,
+                                              );
+
+                                              if (!context.mounted) return;
+                                              showSnackBarSuccess(
+                                                context,
+                                                "Lập phiếu xuất kho thành công",
+                                              );
+                                            }
+                                          }
+                                          : null,
+                                  label: "Xuất Excel",
+                                  icon: Symbols.export_notes,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
                                 //outbound
                                 AnimatedButton(
                                   onPressed: () async {

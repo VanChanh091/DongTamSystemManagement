@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/qualityControl/qc_sample_result_model.dart';
 import 'package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart';
 import 'package:dongtam/data/models/qualityControl/qc_session_model.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -130,6 +131,16 @@ class QualityControlService {
       );
 
       return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException(
+          status: e.response?.statusCode,
+          message: e.response?.data?['message'],
+          errorCode: e.response?.data?['errorCode'],
+        );
+      } else {
+        throw Exception("Network Error: ${e.message}");
+      }
     } catch (e, s) {
       AppLogger.e("Failed to submit QC", error: e, stackTrace: s);
       throw Exception('Failed to submit QC: $e');

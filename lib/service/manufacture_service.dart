@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -58,11 +59,11 @@ class ManufactureService {
       return true;
     } on DioException catch (e) {
       if (e.response != null) {
-        throw {
-          "status": e.response?.statusCode,
-          "message": e.response?.data?['message'],
-          "errorCode": e.response?.data?['errorCode'],
-        };
+        throw ApiException(
+          status: e.response?.statusCode,
+          message: e.response?.data?['message'],
+          errorCode: e.response?.data?['errorCode'],
+        );
       } else {
         throw Exception("Network Error: ${e.message}");
       }
@@ -85,6 +86,16 @@ class ManufactureService {
       );
 
       return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException(
+          status: e.response?.statusCode,
+          message: e.response?.data?['message'],
+          errorCode: e.response?.data?['errorCode'],
+        );
+      } else {
+        throw Exception("Network Error: ${e.message}");
+      }
     } catch (e, s) {
       AppLogger.e("Failed to confirm producing paper", error: e, stackTrace: s);
       throw Exception('Failed to confirm producing paper: $e');
@@ -167,6 +178,16 @@ class ManufactureService {
       );
 
       return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException(
+          status: e.response?.statusCode,
+          message: e.response?.data?['message'],
+          errorCode: e.response?.data?['errorCode'],
+        );
+      } else {
+        throw Exception("Network Error: ${e.message}");
+      }
     } catch (e, s) {
       AppLogger.e("Failed to confirm producing box", error: e, stackTrace: s);
       throw Exception('Failed to confirm producing box: $e');

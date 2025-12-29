@@ -1,4 +1,5 @@
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -146,9 +147,9 @@ Widget confirmCompleteButton({
       if (!context.mounted) return;
       showLoadingDialog(context);
 
-      try {
-        final ids = selectedIds.map((e) => int.tryParse(e.toString())).whereType<int>().toList();
+      final ids = selectedIds.map((e) => int.tryParse(e.toString())).whereType<int>().toList();
 
+      try {
         final success = await onConfirmComplete(ids);
         if (success) {
           onReload();
@@ -157,6 +158,16 @@ Widget confirmCompleteButton({
         if (!context.mounted) return;
         Navigator.of(context).pop();
         showSnackBarSuccess(context, "Thao tác thành công");
+      } on ApiException catch (e) {
+        Navigator.of(context).pop();
+
+        final errorText = switch (e.errorCode) {
+          'LACK_QUANTITY' => 'Chưa đủ số lượng để hoàn thành',
+          'NO_INBOUND_HISTORY' => 'Mã $ids chưa từng được nhập kho',
+          _ => 'Có lỗi xảy ra, vui lòng thử lại',
+        };
+
+        showSnackBarError(context, errorText);
       } catch (e, s) {
         if (context.mounted) Navigator.of(context).pop();
         AppLogger.e("Error in update status planning: $e", stackTrace: s);

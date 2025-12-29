@@ -2,6 +2,7 @@ import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
 import 'package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart';
 import 'package:dongtam/service/admin/admin_criteria_service.dart';
 import 'package:dongtam/service/quality_control_service.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
@@ -33,10 +34,12 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
 
   List<QcCriteriaModel> criteriaList = [];
   Map<int, Map<String, bool>> samples = {};
+  String? inboundQtyError;
 
   @override
   void initState() {
     super.initState();
+
     futureCriteria = AdminCriteriaService().getAllQcCriteria(type: widget.type);
   }
 
@@ -76,6 +79,9 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
         samples: submitSamples,
       );
 
+      // clear lỗi
+      setState(() => inboundQtyError = null);
+
       // Show loading
       if (!mounted) return;
       showLoadingDialog(context);
@@ -92,6 +98,13 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
 
       if (!mounted) return;
       Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      setState(() {
+        inboundQtyError = switch (e.errorCode) {
+          'INBOUND_EXCEED_PRODUCED' => 'Số lượng nhập kho vượt quá số lượng sản xuất',
+          _ => null,
+        };
+      });
     } catch (e, s) {
       if (!mounted) return;
       AppLogger.e("Lỗi khi thêm phiên QC", error: e, stackTrace: s);
@@ -236,6 +249,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
               fillColor: enabled ? Colors.white : Colors.grey.shade200,
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              errorText: inboundQtyError,
             ),
             validator: (value) {
               if (!enabled) return null;

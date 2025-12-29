@@ -14,6 +14,7 @@ class OutboundTempItem {
   final double? discount;
   final double pricePaper;
   final int qtyOutbound;
+  final int? qtyInventory;
 
   OutboundTempItem({
     required this.orderId,
@@ -29,6 +30,7 @@ class OutboundTempItem {
     this.discount,
     required this.pricePaper,
     required this.qtyOutbound,
+    this.qtyInventory,
   });
 
   factory OutboundTempItem.fromDetailModel(OutboundDetailModel detail) {
@@ -54,6 +56,7 @@ class OutboundTempItem {
 
       pricePaper: detail.price.toDouble(),
       qtyOutbound: detail.outboundQty,
+      qtyInventory: detail.order?.Inventory?.qtyInventory ?? 0,
     );
   }
 }

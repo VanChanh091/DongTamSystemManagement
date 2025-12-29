@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_service.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive_size.dart';
@@ -101,7 +102,7 @@ class _ProductDialogState extends State<ProductDialog> {
             imageBytes: pickedProductImage,
           );
 
-      // Show loading
+      // Show loadingonProductAddOrUpdate
       if (!mounted) return;
       showLoadingDialog(context);
       await Future.delayed(const Duration(seconds: 1));
@@ -110,29 +111,30 @@ class _ProductDialogState extends State<ProductDialog> {
       Navigator.pop(context); // đóng dialog loading
 
       // Thông báo thành công
-      if (!mounted) return;
       showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
 
       widget.onProductAddOrUpdate();
 
-      if (!mounted) return;
       Navigator.of(context).pop();
-    } catch (e, s) {
-      if (e.toString().contains("productId existed")) {
-        return showSnackBarError(context, 'Mã khách hàng đã tồn tại');
-      } else {
-        if (widget.product == null) {
-          AppLogger.e("Lỗi khi thêm sản phẩm", error: e, stackTrace: s);
-        } else {
-          AppLogger.e("Lỗi khi sửa sản phẩm", error: e, stackTrace: s);
-        }
+    } on ApiException catch (e) {
+      final errorText = switch (e.errorCode) {
+        'PREFIX_ALREADY_EXISTS' => 'Tiền mã sản phẩm đã tồn tại',
+        _ => 'Có lỗi xảy ra, vui lòng thử lại',
+      };
 
-        if (!mounted) return;
-        return showSnackBarError(context, 'Lỗi: không thể lưu dữ liệu');
+      if (mounted) {
+        showSnackBarError(context, errorText);
       }
-    }
+    } catch (e, s) {
+      if (widget.product == null) {
+        AppLogger.e("Lỗi khi thêm sản phẩm", error: e, stackTrace: s);
+      } else {
+        AppLogger.e("Lỗi khi sửa sản phẩm", error: e, stackTrace: s);
+      }
 
-    widget.onProductAddOrUpdate();
+      if (!mounted) return;
+      return showSnackBarError(context, 'Lỗi: không thể lưu dữ liệu');
+    }
   }
 
   Widget validateInput({

@@ -2,7 +2,6 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/warehouse/inventory_model.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_inventory.dart';
 import 'package:dongtam/presentation/sources/warehouse/inventory_data_source.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
@@ -10,7 +9,6 @@ import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class Inventory extends StatefulWidget {
@@ -113,24 +111,24 @@ class _InventoryState extends State<Inventory> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 //export excel
-                                AnimatedButton(
-                                  // onPressed: () async {
-                                  //   showDialog(
-                                  //     context: context,
-                                  //     builder:
-                                  //         (_) => DialogSelectExportExcel(
-                                  //           selectedInventoryId: selectedInventoryId,
-                                  //           onPlanningIdsOrRangeDate: () => loadReportInbound(),
-                                  //           machine: machine,
-                                  //         ),
-                                  //   );
-                                  // },
-                                  onPressed: () {},
-                                  label: "Xuất Excel",
-                                  icon: Symbols.export_notes,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
-                                const SizedBox(width: 10),
+                                // AnimatedButton(
+                                //   // onPressed: () async {
+                                //   //   showDialog(
+                                //   //     context: context,
+                                //   //     builder:
+                                //   //         (_) => DialogSelectExportExcel(
+                                //   //           selectedInventoryId: selectedInventoryId,
+                                //   //           onPlanningIdsOrRangeDate: () => loadReportInbound(),
+                                //   //           machine: machine,
+                                //   //         ),
+                                //   //   );
+                                //   // },
+                                //   onPressed: () {},
+                                //   label: "Xuất Excel",
+                                //   icon: Symbols.export_notes,
+                                //   backgroundColor: themeController.buttonColor,
+                                // ),
+                                // const SizedBox(width: 10),
                               ],
                             ),
                           ),
