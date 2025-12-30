@@ -52,7 +52,7 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "profitOrd", "title": "Lợi Nhuận"},
   {"key": "vat", "title": "VAT"},
   {"key": "totalPrice", "title": "Tổng Tiền"},
-  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền Sau VAT"},
+  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền VAT"},
 
   //Waste
   {"key": "bottom", "title": "Đáy"},

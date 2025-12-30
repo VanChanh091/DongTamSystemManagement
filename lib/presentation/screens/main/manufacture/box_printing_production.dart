@@ -7,6 +7,7 @@ import 'package:dongtam/presentation/sources/planning/machine_box_data_source.da
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -354,6 +355,16 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                     context,
                                                     "Xác nhận sản xuất thành công",
                                                   );
+                                                } on ApiException catch (e) {
+                                                  final errorText = switch (e.errorCode) {
+                                                    'PLANNING_COMPLETED' =>
+                                                      'Đơn hàng đã hoàn thành',
+                                                    _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                  };
+
+                                                  if (mounted) {
+                                                    showSnackBarError(context, errorText);
+                                                  }
                                                 } catch (e) {
                                                   if (!context.mounted) return;
                                                   showSnackBarError(
@@ -404,6 +415,18 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                     context,
                                                     "Gửi yêu cầu kiểm tra thành công",
                                                   );
+                                                } on ApiException catch (e) {
+                                                  final errorText = switch (e.errorCode) {
+                                                    'PLANNING_ALREADY_REQUESTED' =>
+                                                      "Đơn này đã yêu cầu kiểm tra rồi",
+                                                    'STEP_QUANTITY_EQUAL_ZERO' =>
+                                                      "Có công đoạn chưa có số lượng, không thể yêu cầu nhập kho.",
+                                                    _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                  };
+
+                                                  if (mounted) {
+                                                    showSnackBarError(context, errorText);
+                                                  }
                                                 } catch (e) {
                                                   if (!context.mounted) return;
                                                   showSnackBarError(

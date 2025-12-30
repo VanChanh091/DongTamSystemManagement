@@ -3,6 +3,7 @@ import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.da
 import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/service/warehouse_service.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
@@ -30,6 +31,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   final formKey = GlobalKey<FormState>();
   String lastSearchedOrderId = "";
   int? editingIndex; // null = add, != null = update
+  String? errRemainQty;
 
   final List<OutboundTempItem> tempItems = [];
 
@@ -109,6 +111,20 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       showSnackBarError(context, "Đơn hàng này đã được thêm");
       return;
     }
+
+    int qtyOutbound = (int.tryParse(qtyOutboundController.text) ?? 0);
+    int remainQty = (int.tryParse(remainingQtyController.text) ?? 0);
+
+    if (qtyOutbound > remainQty) {
+      setState(() {
+        errRemainQty = 'Vượt quá số lượng tồn';
+      });
+      return;
+    }
+
+    setState(() {
+      errRemainQty = null;
+    });
 
     final newOutboundItem = OutboundTempItem(
       orderId: orderIdController.text,
@@ -192,6 +208,16 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
       if (!mounted) return;
       Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      final errorText = switch (e.errorCode) {
+        'EMPTY_ORDER_LIST' => "Phải chọn ít nhất 1 đơn hàng",
+        'CUSTOMER_MISMATCH' => "Các đơn hàng không cùng khách hàng",
+        _ => 'Có lỗi xảy ra, vui lòng thử lại',
+      };
+
+      if (mounted) {
+        showSnackBarError(context, errorText);
+      }
     } catch (e, s) {
       if (widget.outbound == null) {
         AppLogger.e("Lỗi khi thêm phiếu xuất kho", error: e, stackTrace: s);
@@ -464,6 +490,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
+                                      errorText: errRemainQty,
                                     ),
                                     validator: (value) {
                                       if (value == null || value.trim().isEmpty) {

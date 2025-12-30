@@ -285,6 +285,8 @@ class MachineBoxDatasource extends DataGridSource {
           return "Từ chối";
         case "inbounded":
           return "Đã nhập kho";
+        case "finalize":
+          return "Chốt nhập kho";
         case "none":
         default:
           return "";

@@ -108,9 +108,18 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       }
 
       if (success) {
+        // Show loading
         if (!mounted) return;
+        showLoadingDialog(context);
+        await Future.delayed(const Duration(seconds: 1));
+
+        if (!mounted) return;
+        Navigator.pop(context); // đóng dialog loading
+
         showSnackBarSuccess(context, 'Báo cáo sản xuất thành công');
         widget.onReport();
+
+        if (!mounted) return;
         Navigator.of(context).pop();
       }
     } on ApiException catch (e) {

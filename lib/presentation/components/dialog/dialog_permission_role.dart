@@ -38,8 +38,9 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "MachineRollPaper",
     "step2Production",
     'QC',
-    // "accountant",
-    // "design",
+    "accountant",
+    "design",
+    "delivery",
     "read",
   ];
   final Map<String, String> permissionsLabels = {
@@ -52,9 +53,10 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "machine2Layer": "Máy 2 Lớp",
     "MachineRollPaper": "Máy Quấn Cuồn",
     "step2Production": "Công Đoạn 2",
-    'QC': "Chất Lượng",
-    //  "accountant": "Kế toán",
-    // "design": "Thiết kế",
+    "QC": "Chất Lượng",
+    "accountant": "Kế toán",
+    "design": "Thiết kế",
+    "delivery": "Giao Hàng",
     "read": "Chỉ đọc",
   };
 

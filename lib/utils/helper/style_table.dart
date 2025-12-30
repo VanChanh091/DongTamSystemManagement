@@ -55,18 +55,33 @@ Widget formatDataTable({
   required String label,
   required Alignment alignment,
   Color cellColor = Colors.transparent,
+
+  Widget? leading, // icon ⚠️
+  BorderSide? leftBorder, // viền trái cảnh báo
 }) {
   return Container(
     alignment: alignment,
     decoration: BoxDecoration(
       color: cellColor,
-      border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
+      border: Border(
+        right: BorderSide(color: Colors.grey.shade300, width: 1),
+        left: leftBorder ?? BorderSide.none,
+      ),
     ),
     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-    child: Text(
-      label,
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: Text(
+            label,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          ),
+        ),
+        const SizedBox(width: 5),
+        if (leading != null) ...[leading, const SizedBox(width: 4)],
+      ],
     ),
   );
 }

@@ -73,6 +73,16 @@ class QualityControlService {
       );
 
       return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException(
+          status: e.response?.statusCode,
+          message: e.response?.data?['message'],
+          errorCode: e.response?.data?['errorCode'],
+        );
+      } else {
+        throw Exception("Network Error: ${e.message}");
+      }
     } catch (e, s) {
       AppLogger.e("Failed to update QC sample result", error: e, stackTrace: s);
       throw Exception('Failed to update QC sample result: $e');

@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
       _buildPage(permission: 'QC', child: WaitingCheckBox()),
 
       //outbound
-      OutboundHistory(),
+      _buildPage(permission: 'delivery', child: OutboundHistory()),
       Inventory(),
 
       //reporting hitstory

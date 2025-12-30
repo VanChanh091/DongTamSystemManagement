@@ -91,13 +91,12 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
       Navigator.pop(context); // đóng dialog loading
 
       // Thông báo thành công
-      if (!mounted) return;
       showSnackBarSuccess(context, "Báo cáo thành công");
 
       widget.onQcSessionAddOrUpdate();
 
       if (!mounted) return;
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(); //đóng dialog QC
     } on ApiException catch (e) {
       setState(() {
         inboundQtyError = switch (e.errorCode) {

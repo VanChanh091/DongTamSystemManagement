@@ -160,6 +160,8 @@ class MachinePaperDatasource extends DataGridSource {
           return "Từ chối";
         case "inbounded":
           return "Đã nhập kho";
+        case "finalize":
+          return "Chốt nhập kho";
         case "none":
         default:
           return "";
@@ -265,6 +267,19 @@ class MachinePaperDatasource extends DataGridSource {
     buildDataGridRows();
   }
 
+  //check ghepKho is same
+  String? getKhoAtRow(int rowIndex) {
+    if (rowIndex <= 0 || rowIndex >= planningDataGridRows.length) return null;
+
+    final row = planningDataGridRows[rowIndex];
+    final cell = row.getCells().firstWhere(
+      (c) => c.columnName == 'khoCapGiay',
+      orElse: () => const DataGridCell<String>(columnName: 'khoCapGiay', value: ''),
+    );
+
+    return cell.value?.toString();
+  }
+
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
@@ -296,12 +311,22 @@ class MachinePaperDatasource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
+    // ===== Index row =====
+    final int rowIndex = planningDataGridRows.indexOf(row);
+
+    final String? currentKho = getKhoAtRow(rowIndex);
+    final String? prevKho = getKhoAtRow(rowIndex - 1);
+
+    // ===== chuyển khổ =====
+    final bool isKhoTransition =
+        rowIndex > 0 && currentKho != null && prevKho != null && currentKho != prevKho;
+
+    // ===== select and row color =====
     final planningId =
-        row.getCells().firstWhere((cell) => cell.columnName == 'planningId').value.toString();
+        row.getCells().firstWhere((c) => c.columnName == 'planningId').value.toString();
 
     final isSelected = selectedPlanningIds.contains(planningId);
 
-    // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);
     final status = getCellValue<String>(row, 'status', "");
     final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
@@ -309,49 +334,63 @@ class MachinePaperDatasource extends DataGridSource {
     final totalLoss = getCellValue<String>(row, 'totalLoss', "0");
     final qtyWastes = getCellValue<String>(row, 'qtyWastes', "0");
 
-    // Chuyển từ "10 kg" -> 10.0
     final totalWasteLossVal = double.tryParse(totalLoss.replaceAll(' kg', '')) ?? 0;
     final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(' kg', '')) ?? 0;
 
     Color? rowColor;
     if (isSelected) {
-      rowColor = Colors.blue.withValues(alpha: 0.3); //selected row
+      rowColor = Colors.blue.withValues(alpha: 0.3);
     } else if (sortPlanning > 0 && status == "producing") {
-      rowColor = Colors.orange.withValues(alpha: 0.4); //confirm production
+      rowColor = Colors.orange.withValues(alpha: 0.4);
     } else if (sortPlanning > 0 && status == "complete") {
-      rowColor = Colors.green.withValues(alpha: 0.3); //have completed
+      rowColor = Colors.green.withValues(alpha: 0.3);
     } else if (sortPlanning == 0) {
-      rowColor = Colors.amberAccent.withValues(alpha: 0.3); //no sorting
+      rowColor = Colors.amberAccent.withValues(alpha: 0.3);
     }
 
-    return DataGridRowAdapter(
-      color: rowColor,
-      cells:
-          row.getCells().map<Widget>((dataCell) {
-            final cellText = _formatCellValueBool(dataCell);
+    // ===== color warning change ghepKho =====
+    final Color? transitionColor = isKhoTransition ? Colors.orange : null;
 
-            Alignment alignment;
-            if (dataCell.value is num) {
-              alignment = Alignment.centerRight;
-            } else if (cellText == '✅') {
-              alignment = Alignment.center;
-            } else {
-              alignment = Alignment.centerLeft;
-            }
+    // ===== Build cells =====
+    final widgets =
+        row.getCells().asMap().entries.map<Widget>((entry) {
+          final int cellIndex = entry.key;
+          final DataGridCell dataCell = entry.value;
 
-            Color cellColor = Colors.transparent;
-            if (dataCell.columnName == "qtyProduced" && qtyProduced < runningPlan) {
-              cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
-            } else if (dataCell.columnName == "qtyWastes" && qtyWastesVal > totalWasteLossVal) {
-              cellColor = Colors.red.withValues(alpha: 0.5); //lack of qty
-            }
+          final cellText = _formatCellValueBool(dataCell);
 
-            return formatDataTable(
-              label: _formatCellValueBool(dataCell),
-              alignment: alignment,
-              cellColor: cellColor,
-            );
-          }).toList(),
-    );
+          Alignment alignment;
+          if (dataCell.value is num) {
+            alignment = Alignment.centerRight;
+          } else if (cellText == '✅') {
+            alignment = Alignment.center;
+          } else {
+            alignment = Alignment.centerLeft;
+          }
+
+          Color cellColor = Colors.transparent;
+          if (dataCell.columnName == "qtyProduced" && qtyProduced < runningPlan) {
+            cellColor = Colors.red.withValues(alpha: 0.5);
+          } else if (dataCell.columnName == "qtyWastes" && qtyWastesVal > totalWasteLossVal) {
+            cellColor = Colors.red.withValues(alpha: 0.5);
+          }
+
+          return formatDataTable(
+            label: cellText,
+            alignment: alignment,
+            cellColor: cellColor,
+            leading:
+                dataCell.columnName == 'khoCapGiay' && isKhoTransition
+                    ? Icon(Icons.warning_amber_rounded, size: 16, color: transitionColor)
+                    : null,
+
+            leftBorder:
+                cellIndex == 0 && transitionColor != null
+                    ? BorderSide(color: transitionColor, width: 4)
+                    : null,
+          );
+        }).toList();
+
+    return DataGridRowAdapter(color: rowColor, cells: widgets);
   }
 }

@@ -7,6 +7,7 @@ import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -349,6 +350,16 @@ class _PaperProductionState extends State<PaperProduction> {
                                                   if (!context.mounted) return;
 
                                                   loadPlanning();
+                                                } on ApiException catch (e) {
+                                                  final errorText = switch (e.errorCode) {
+                                                    'PLANNING_HAS_COMPLETED' =>
+                                                      'Đơn hàng đã hoàn thành',
+                                                    _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                  };
+
+                                                  if (mounted) {
+                                                    showSnackBarError(context, errorText);
+                                                  }
                                                 } catch (e, s) {
                                                   AppLogger.e(
                                                     "Lỗi khi xác nhận SX",
