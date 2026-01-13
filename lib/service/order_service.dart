@@ -85,40 +85,15 @@ class OrderService {
     required String orderId,
     required Map<String, dynamic> orderUpdated,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        "/api/order/orders",
-        queryParameters: {'orderId': orderId},
-        data: orderUpdated,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update orders", error: e, stackTrace: s);
-      throw Exception('Failed to update orders: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: 'order/orders',
+      queryParameters: {'orderId': orderId},
+      dataUpdated: orderUpdated,
+    );
   }
 
   //delete order
   Future<bool> deleteOrder({required String orderId}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.delete(
-        '/api/order/orders',
-        queryParameters: {'id': orderId},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to delete orders", error: e, stackTrace: s);
-      throw Exception('Failed to delete orders: $e');
-    }
+    return HelperService().deleteItem(endpoint: 'order/orders', queryParameters: {'id': orderId});
   }
 }

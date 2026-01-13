@@ -46,6 +46,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
   final _dayCreatedController = TextEditingController();
   final _debtLimitController = TextEditingController();
   final _timePaymentController = TextEditingController();
+  final _customerSourceController = TextEditingController();
   DateTime? dayCreated;
   DateTime? timePayment;
 
@@ -74,6 +75,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _cskhController.text = customer.cskh;
     _contactPersonController.text = customer.contactPerson ?? "";
     _debtLimitController.text = widget.customer!.debtLimit?.toString() ?? "0";
+    _customerSourceController.text = customer.customerSource;
 
     //dropdown
     typeRating = customer.rateCustomer ?? "";
@@ -181,6 +183,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       debtLimit: double.tryParse(_debtLimitController.text) ?? 0,
       timePayment: timePayment ?? DateTime.now(),
       rateCustomer: typeRating,
+      customerSource: _customerSourceController.text,
     );
 
     try {
@@ -242,6 +245,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _dayCreatedController.dispose();
     _debtLimitController.dispose();
     _timePaymentController.dispose();
+    _customerSourceController.dispose();
     super.dispose();
   }
 
@@ -325,8 +329,12 @@ class _CustomerDialogState extends State<CustomerDialog> {
           controller: _cskhController,
           icon: Icons.support_agent,
         ),
-        "rightKey": "",
-        "rightValue": const SizedBox(),
+        "rightKey": "Nguồn Khách Hàng",
+        "rightValue": ValidationCustomer.validateInput(
+          label: "Nguồn Khách Hàng",
+          controller: _customerSourceController,
+          icon: Icons.source,
+        ),
       },
     ];
 

@@ -2,68 +2,48 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_db_planning.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_db_planning.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/dashboard_planning_data_source.dart';
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
 import 'package:dongtam/service/dashboard_service.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class DashboardPlanning extends StatefulWidget {
-  const DashboardPlanning({super.key});
+class DeliveryEstimateTime extends StatefulWidget {
+  const DeliveryEstimateTime({super.key});
 
   @override
-  State<DashboardPlanning> createState() => _DashboardPlanningState();
+  State<DeliveryEstimateTime> createState() => _DeliveryEstimateTimeState();
 }
 
-class _DashboardPlanningState extends State<DashboardPlanning> {
-  late Future<Map<String, dynamic>> futureDbPaper;
-  late DashboardPaperDataSource dbPaperDatasource;
+class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
+  late Future<Map<String, dynamic>> futurePaper;
+  late DashboardPaperDataSource planningDatasource;
   late List<GridColumn> columnsPaper;
   late List<GridColumn> columnsStages;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
-  final Map<String, String> searchFieldMap = {
-    "Theo Mã Đơn": "orderId",
-    "Ghép Khổ": "ghepKho",
-    "Theo Máy": "machine",
-    "Tên Khách Hàng": "customerName",
-    "Tên Công Ty": "companyName",
-    "Tên Nhân Viên": "username",
-  };
-  String searchType = "Tất cả";
-
-  final Map<String, String> statusFieldMap = {
-    "Hoàn Thành": "complete",
-    "Đã Sắp Xếp": "planning",
-    "Thiếu Số Lượng": "lackQty",
-    "Đang Sản Xuất": "producing",
-    "Bị Dừng": "stop",
-    "Bị Hủy": "cancel",
-  };
-  String status = "Hoàn Thành";
-
-  TextEditingController searchController = TextEditingController();
   Map<String, double> columnWidthsPlanning = {};
   Map<String, double> columnWidthsStage = {};
-  bool selectedAll = false;
-  bool isTextFieldEnabled = false;
-  bool isSearching = false; //dùng để phân trang cho tìm kiếm
-  int? selectedDbPaperId;
   List<PlanningStage> selectedStages = [];
+  bool selectedAll = false;
+  int? selectedPaperId;
+
+  TextEditingController dayStartController = TextEditingController();
+  TextEditingController estimateTimeController = TextEditingController();
 
   int currentPage = 1;
   int pageSize = 25;
@@ -72,12 +52,11 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
   @override
   void initState() {
     super.initState();
-    loadDashboard();
 
-    columnsPaper = buildDbPaperColumn(themeController: themeController, page: "dashboard");
+    columnsPaper = buildDbPaperColumn(themeController: themeController, page: 'delivery');
     columnsStages = buildStageColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'dashboard', columns: columnsPaper).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: 'estimateTime', columns: columnsPaper).then((w) {
       setState(() {
         columnWidthsPlanning = w;
       });
@@ -88,89 +67,49 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
         columnWidthsStage = w;
       });
     });
+
+    final now = DateTime.now();
+    dayStartController.text =
+        "${now.day.toString().padLeft(2, '0')}/"
+        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.year}";
+    estimateTimeController.text = '17:00';
+
+    loadPlanningEstimate();
   }
 
-  void loadDashboard() {
+  void loadPlanningEstimate() {
+    final dayStart = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
+
     setState(() {
-      final String selectedField = searchFieldMap[searchType] ?? "";
-      final String selectedStatus = statusFieldMap[status] ?? "";
+      futurePaper = ensureMinLoading(
+        DeliveryService().getPlanningEstimateTime(
+          page: currentPage,
+          pageSize: pageSize,
+          dayStart: dayStart,
+          estimateTime: estimateTimeController.text,
+        ),
+      );
 
-      String keyword = searchController.text.trim().toLowerCase();
-
-      if (isSearching && searchType != "Tất cả") {
-        AppLogger.i("loadDbPaper: isSearching=true, keyword='$keyword'");
-
-        futureDbPaper = ensureMinLoading(
-          DashboardService().getDbPlanningByFields(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else {
-        futureDbPaper = ensureMinLoading(
-          DashboardService().getAllDataDashboard(
-            page: currentPage,
-            pageSize: pageSize,
-            status: selectedStatus,
-          ),
-        );
-      }
-
-      selectedDbPaperId = null;
+      selectedPaperId = null;
       selectedStages = [];
     });
   }
 
   void searchDashboard() {
-    String keyword = searchController.text.trim().toLowerCase();
-    AppLogger.i("searchDbPaper: searchType=$searchType, keyword='$keyword'");
-
-    if (isTextFieldEnabled && keyword.isEmpty) {
-      AppLogger.w("searchDbPaper: search bị bỏ qua vì keyword trống");
-      return;
-    }
-
+    final dayStart = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
     setState(() {
-      final String selectedStatus = statusFieldMap[status] ?? "";
+      futurePaper = ensureMinLoading(
+        DeliveryService().getPlanningEstimateTime(
+          page: currentPage,
+          pageSize: pageSize,
+          dayStart: dayStart,
+          estimateTime: estimateTimeController.text,
+        ),
+      );
 
-      currentPage = 1;
-      isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futureDbPaper = ensureMinLoading(
-          DashboardService().getAllDataDashboard(
-            page: currentPage,
-            pageSize: pageSize,
-            status: selectedStatus,
-          ),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        futureDbPaper = ensureMinLoading(
-          DashboardService().getDbPlanningByFields(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      }
-
-      selectedDbPaperId = null;
+      selectedPaperId = null;
       selectedStages = [];
-    });
-  }
-
-  void changeStatus(String selectedStatus) {
-    AppLogger.i("changeStatusDbPaper | from=$status -> to=$selectedStatus");
-
-    setState(() {
-      status = selectedStatus;
-      selectedStages.clear();
-      loadDashboard();
     });
   }
 
@@ -184,7 +123,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
           children: [
             //button
             SizedBox(
-              height: 105,
+              height: 125,
               width: double.infinity,
               child: Column(
                 children: [
@@ -194,7 +133,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        "TỔNG HỢP SẢN XUẤT",
+                        "DANH SÁCH HÀNG CHỜ GIAO & DỰ KIẾN",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
@@ -206,104 +145,100 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
 
                   //button
                   SizedBox(
-                    height: 70,
+                    height: 90,
                     width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
                       children: [
-                        //left button
-                        Expanded(
-                          flex: 1,
-                          child: LeftButtonSearch(
-                            selectedType: searchType,
-                            types: const [
-                              'Tất cả',
-                              "Theo Mã Đơn",
-                              "Ghép Khổ",
-                              "Theo Máy",
-                              "Tên Khách Hàng",
-                              "Tên Công Ty",
-                              "Tên Nhân Viên",
-                            ],
-                            onTypeChanged: (value) {
-                              setState(() {
-                                searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
-                              });
-                            },
-                            controller: searchController,
-                            textFieldEnabled: isTextFieldEnabled,
-                            buttonColor: themeController.buttonColor,
-                            onSearch: () => searchDashboard(),
-                            minDropdownWidth: 170,
-                            maxDropdownWidth: 200,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            //left button
+                            const SizedBox(),
+
+                            //right button
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    //filter
+                                    AnimatedButton(
+                                      onPressed: () => loadPlanningEstimate(),
+                                      label: 'Lọc Đơn',
+                                      icon: Symbols.filter_alt,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 10),
+
+                                    //confirm delivery
+                                    AnimatedButton(
+                                      onPressed: () {},
+                                      label: 'Xác Nhận Giao',
+                                      icon: Symbols.confirmation_number,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 10),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
 
-                        //right button
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                //export excel
-                                AnimatedButton(
-                                  onPressed: () async {
-                                    showDialog(
-                                      context: context,
-                                      builder: (_) => DialogExportDbPlannings(),
-                                    );
-                                  },
-                                  label: "Xuất Excel",
-                                  icon: Symbols.export_notes,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
-                                const SizedBox(width: 10),
-
-                                //choose machine
-                                SizedBox(
-                                  width: 180,
-                                  child: DropdownButtonFormField<String>(
-                                    value: status,
-                                    items:
-                                        [
-                                          "Hoàn Thành",
-                                          "Đã Sắp Xếp",
-                                          "Đang Sản Xuất",
-                                          "Thiếu Số Lượng",
-                                          "Bị Dừng",
-                                          "Bị Hủy",
-                                        ].map((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        changeStatus(value);
-                                      }
+                        //set day and estimate time
+                        const SizedBox(height: 5),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Ngày giao
+                              buildLabelAndUnderlineInput(
+                                label: "Ngày giao:",
+                                controller: dayStartController,
+                                width: 120,
+                                readOnly: true,
+                                onTap: () async {
+                                  final selected = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2100),
+                                    builder: (BuildContext context, Widget? child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: ColorScheme.light(
+                                            primary: Colors.blue,
+                                            onPrimary: Colors.white,
+                                            onSurface: Colors.black,
+                                          ),
+                                          dialogTheme: DialogThemeData(
+                                            backgroundColor: Colors.white12,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
                                     },
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                              ],
-                            ),
+                                  );
+                                  if (selected != null) {
+                                    dayStartController.text =
+                                        "${selected.day.toString().padLeft(2, '0')}/"
+                                        "${selected.month.toString().padLeft(2, '0')}/"
+                                        "${selected.year}";
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 32),
+
+                              // Giờ dự kiến
+                              buildLabelAndUnderlineInput(
+                                label: "Giờ dự kiến:",
+                                controller: estimateTimeController,
+                                width: 60,
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -316,7 +251,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
             // table
             Expanded(
               child: FutureBuilder(
-                future: futureDbPaper,
+                future: futurePaper,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Padding(
@@ -328,7 +263,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['dashboard'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['plannings'].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
@@ -338,14 +273,14 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                   }
 
                   final data = snapshot.data!;
-                  final dbPlanning = data['dashboard'] as List<PlanningPaper>;
+                  final dbPlanning = data['plannings'] as List<PlanningPaper>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
-                  dbPaperDatasource = DashboardPaperDataSource(
+                  planningDatasource = DashboardPaperDataSource(
                     dbPlanning: dbPlanning,
-                    selectedDbPaperId: selectedDbPaperId,
-                    page: "dashboard",
+                    selectedDbPaperId: selectedPaperId,
+                    page: 'delivery',
                   );
 
                   return Column(
@@ -357,7 +292,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                             Expanded(
                               flex: 2,
                               child: SfDataGrid(
-                                source: dbPaperDatasource,
+                                source: planningDatasource,
                                 isScrollbarAlwaysShown: true,
                                 columnWidthMode: ColumnWidthMode.auto,
                                 selectionMode: SelectionMode.single,
@@ -408,47 +343,6 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                           ),
                                         ),
                                       ),
-                                      StackedHeaderCell(
-                                        columnNames: [
-                                          'bottom',
-                                          'fluteE',
-                                          'fluteE2',
-                                          'fluteB',
-                                          'fluteC',
-                                          'knife',
-                                          'totalLoss',
-                                        ],
-                                        child: Obx(
-                                          () => formatColumn(
-                                            label: 'Định Mức Phế Liệu',
-                                            themeController: themeController,
-                                          ),
-                                        ),
-                                      ),
-                                      StackedHeaderCell(
-                                        columnNames: [
-                                          'inMatTruoc',
-                                          'inMatSau',
-                                          'canLanBox',
-                                          'canMang',
-                                          'xa',
-                                          'catKhe',
-                                          'be',
-                                          'dan_1_Manh',
-                                          'dan_2_Manh',
-                                          'dongGhimMotManh',
-                                          'dongGhimHaiManh',
-                                          'chongTham',
-                                          'dongGoi',
-                                          'maKhuon',
-                                        ],
-                                        child: Obx(
-                                          () => formatColumn(
-                                            label: 'Công Đoạn 2',
-                                            themeController: themeController,
-                                          ),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ],
@@ -467,7 +361,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                 onColumnResizeEnd:
                                     (details) => GridResizeHelper.onResizeEnd(
                                       details: details,
-                                      tableKey: 'dashboard',
+                                      tableKey: 'plannings',
                                       columnWidths: columnWidthsPlanning,
                                       setState: setState,
                                     ),
@@ -475,7 +369,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                 onSelectionChanged: (addedRows, removedRows) async {
                                   if (addedRows.isEmpty) {
                                     setState(() {
-                                      selectedDbPaperId = null;
+                                      selectedPaperId = null;
                                     });
                                     return;
                                   }
@@ -494,7 +388,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                   );
 
                                   setState(() {
-                                    selectedDbPaperId = selectedDbPaper.planningId;
+                                    selectedPaperId = selectedDbPaper.planningId;
                                   });
 
                                   final stages = await DashboardService().getDbPlanningDetail(
@@ -605,19 +499,19 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadDashboard();
+                            loadPlanningEstimate();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadDashboard();
+                            loadPlanningEstimate();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadDashboard();
+                            loadPlanningEstimate();
                           });
                         },
                       ),
@@ -630,7 +524,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadDashboard(),
+        onPressed: () => loadPlanningEstimate(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

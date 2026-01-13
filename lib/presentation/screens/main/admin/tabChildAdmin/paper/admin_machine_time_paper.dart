@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/admin/admin_machine_box_model.dart';
-import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/data/models/admin/admin_machine_paper_model.dart';
+import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -9,20 +9,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class AdminMachineBox extends StatefulWidget {
-  const AdminMachineBox({super.key});
+class AdminMachinePaper extends StatefulWidget {
+  const AdminMachinePaper({super.key});
 
   @override
-  State<AdminMachineBox> createState() => _AdminMachineBoxState();
+  State<AdminMachinePaper> createState() => _AdminMachinePaperState();
 }
 
-class _AdminMachineBoxState extends State<AdminMachineBox> {
-  late Future<List<AdminMachineBoxModel>> futureAdminMachine;
+class _AdminMachinePaperState extends State<AdminMachinePaper> {
+  late Future<List<AdminMachinePaperModel>> futureAdminMachine;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   int? selectedMachine;
   List<int> isSelected = [];
-  List<AdminMachineBoxModel> updatedMachine = [];
+  List<AdminMachinePaperModel> updatedMachine = [];
   bool selectedAll = false;
 
   @override
@@ -38,7 +38,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
 
   void loadMachine() {
     setState(() {
-      futureAdminMachine = AdminService().getAllMachineBox();
+      futureAdminMachine = AdminService().getAllMachinePaper();
     });
   }
 
@@ -64,7 +64,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                     child: Center(
                       child: Obx(
                         () => Text(
-                          "THỜI GIAN VÀ TỐC ĐỘ LÀM THÙNG",
+                          "THỜI GIAN VÀ TỐC ĐỘ MÁY SÓNG",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
@@ -93,10 +93,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                       // update
                                       AnimatedButton(
                                         onPressed: () async {
-                                          final localContext = context;
-
                                           if (isSelected.isEmpty) {
-                                            if (!mounted) return;
                                             showSnackBarError(
                                               context,
                                               "Chưa chọn thông tin cần cập nhật",
@@ -116,23 +113,28 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                             //   '⏫ Updating machineId: ${item.machineId}',
                                             // );
 
-                                            await AdminService().updateMachineBox(
+                                            await AdminService().updateMachinePaper(
                                               machineId: item.machineId,
                                               machineUpdate: {
-                                                "timeToProduct": item.timeToProduct,
-                                                "speedOfMachine": item.speedOfMachine,
+                                                "timeChangeSize": item.timeChangeSize,
+                                                "timeChangeSameSize": item.timeChangeSameSize,
+                                                "speed2Layer": item.speed2Layer,
+                                                "speed3Layer": item.speed3Layer,
+                                                "speed4Layer": item.speed4Layer,
+                                                "speed5Layer": item.speed5Layer,
+                                                "speed6Layer": item.speed6Layer,
+                                                "speed7Layer": item.speed7Layer,
+                                                "paperRollSpeed": item.paperRollSpeed,
+                                                "machinePerformance": item.machinePerformance,
                                                 "machineName": item.machineName,
                                               },
                                             );
                                           }
 
-                                          if (!context.mounted) return;
                                           loadMachine();
 
-                                          showSnackBarSuccess(
-                                            localContext,
-                                            'Đã cập nhật thành công',
-                                          );
+                                          if (!context.mounted) return;
+                                          showSnackBarSuccess(context, 'Đã cập nhật thành công');
                                         },
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
@@ -234,7 +236,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                                           for (int id
                                                                               in isSelected) {
                                                                             await AdminService()
-                                                                                .deleteMachineBox(
+                                                                                .deleteMachinePaper(
                                                                                   machineId: id,
                                                                                 );
                                                                           }
@@ -253,7 +255,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                                             isSelected.clear();
                                                                             futureAdminMachine =
                                                                                 AdminService()
-                                                                                    .getAllMachineBox();
+                                                                                    .getAllMachinePaper();
                                                                           });
 
                                                                           Navigator.pop(context);
@@ -283,7 +285,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                                                 : null,
                                         label: "Xóa",
                                         icon: Icons.delete,
-                                        backgroundColor: Color(0xffEA4346),
+                                        backgroundColor: const Color(0xffEA4346),
                                       ),
                                     ],
                                   ),
@@ -300,7 +302,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: FutureBuilder<List<AdminMachineBoxModel>>(
+                child: FutureBuilder<List<AdminMachinePaperModel>>(
                   future: futureAdminMachine,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -373,8 +375,16 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                               ),
                             ),
                           ),
-                          DataColumn(label: styleText("Thời Gian Lên Bài")),
-                          DataColumn(label: styleText("Tốc Độ Máy")),
+                          DataColumn(label: styleText("Tgian đổi khổ")),
+                          DataColumn(label: styleText("Tgian đổi cùng khổ")),
+                          DataColumn(label: styleText("Tốc độ 2 lớp")),
+                          DataColumn(label: styleText("Tốc độ 3 lớp")),
+                          DataColumn(label: styleText("Tốc độ 4 lớp")),
+                          DataColumn(label: styleText("Tốc độ 5 lớp")),
+                          DataColumn(label: styleText("Tốc độ 6 lớp")),
+                          DataColumn(label: styleText("Tốc độ 7 lớp")),
+                          DataColumn(label: styleText("Tốc độ quấn cuồn")),
+                          DataColumn(label: styleText("Hiệu suất")),
                           DataColumn(label: styleText("Loại Máy")),
                         ],
                         rows: List<DataRow>.generate(data.length, (index) {
@@ -413,10 +423,10 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  text: '${machine.timeToProduct.toString()} phút',
+                                  text: '${machine.timeChangeSize.toString()} phút',
                                   onChanged: (value) {
                                     setState(() {
-                                      machine.timeToProduct = int.tryParse(value) ?? 0;
+                                      machine.timeChangeSize = int.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
@@ -424,12 +434,92 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                               DataCell(
                                 styleCellAdmin(
                                   text:
-                                      machine.speedOfMachine == 0
+                                      machine.timeChangeSameSize == 0
                                           ? "0"
-                                          : '${machine.speedOfMachine.toString()} tờ/giờ',
+                                          : '${machine.timeChangeSameSize.toString()} phút',
                                   onChanged: (value) {
                                     setState(() {
-                                      machine.speedOfMachine = int.tryParse(value) ?? 0;
+                                      machine.timeChangeSameSize = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed2Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed2Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed3Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed3Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed4Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed4Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed5Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed5Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed6Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed6Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.speed7Layer),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.speed7Layer = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: showText(machine.paperRollSpeed),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.paperRollSpeed = int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: '${machine.machinePerformance}%',
+                                  onChanged: (value) {
+                                    setState(() {
+                                      machine.machinePerformance = double.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),
@@ -460,7 +550,7 @@ class _AdminMachineBoxState extends State<AdminMachineBox> {
                   backgroundColor: themeController.buttonColor.value,
                   child: const Icon(Icons.refresh, color: Colors.white),
                 )
-                : SizedBox.shrink(),
+                : const SizedBox.shrink(),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/admin/admin_waste_box_model.dart';
+import 'package:dongtam/data/models/admin/admin_flute_ratio_model.dart';
 import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -9,20 +9,23 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class AdminWasteBox extends StatefulWidget {
-  const AdminWasteBox({super.key});
+class AdminFluteRatio extends StatefulWidget {
+  const AdminFluteRatio({super.key});
 
   @override
-  State<AdminWasteBox> createState() => _AdminWasteBoxState();
+  State<AdminFluteRatio> createState() => _AdminFluteRatioState();
 }
 
-class _AdminWasteBoxState extends State<AdminWasteBox> {
-  late Future<List<AdminWasteBoxModel>> futureAdminWasteNorm;
+class _AdminFluteRatioState extends State<AdminFluteRatio> {
+  late Future<List<AdminFluteRatioModel>> futureFluteRatio;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  int? selectedWasteNorm;
+
+  List<AdminFluteRatioModel> updatedFluteRatio = [];
+  List<AdminFluteRatioModel> draftFluteRatio = [];
+  List<AdminFluteRatioModel> tableData = [];
   List<int> isSelected = [];
-  List<AdminWasteBoxModel> updatedWasteNorms = [];
+  int? selectedFluteRatioId;
   bool selectedAll = false;
 
   @override
@@ -30,16 +33,18 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
     super.initState();
 
     if (userController.hasAnyRole(roles: ["admin"])) {
-      loadWasteBox();
+      loadFluteRatio();
     } else {
-      futureAdminWasteNorm = Future.error("NO_PERMISSION");
+      futureFluteRatio = Future.error("NO_PERMISSION");
     }
   }
 
-  void loadWasteBox() {
+  void loadFluteRatio() {
     setState(() {
-      futureAdminWasteNorm = AdminService().getAllWasteBox();
+      futureFluteRatio = AdminService().getAllFluteRatio();
     });
+
+    isSelected.clear();
   }
 
   @override
@@ -64,7 +69,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                     child: Center(
                       child: Obx(
                         () => Text(
-                          "ĐỊNH MỨC PHẾ LIỆU THÙNG",
+                          "ĐỘ CAO SÓNG",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
@@ -74,6 +79,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                       ),
                     ),
                   ),
+
                   SizedBox(
                     height: 60,
                     width: double.infinity,
@@ -90,46 +96,105 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     children: [
+                                      //add
+                                      AnimatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            final newRow = AdminFluteRatioModel(
+                                              fluteRatioId: null,
+                                              fluteName: '',
+                                              ratio: 0,
+                                              isDraft: true,
+                                            );
+
+                                            tableData.insert(0, newRow);
+                                            draftFluteRatio.add(newRow);
+                                          });
+                                        },
+
+                                        label: "Thêm dòng",
+                                        icon: Icons.add,
+                                        backgroundColor: themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+
                                       // update
                                       AnimatedButton(
                                         onPressed: () async {
-                                          if (isSelected.isEmpty) {
+                                          // CASE ADD: row mới (draft, chưa có id)
+                                          final rowsToAdd =
+                                              tableData
+                                                  .where(
+                                                    (e) =>
+                                                        e.isDraft &&
+                                                        e.fluteRatioId == null &&
+                                                        e.fluteName.trim().isNotEmpty &&
+                                                        e.ratio > 0,
+                                                  )
+                                                  .toList();
+
+                                          // CASE UPDATE: row có id + được chọn
+                                          final rowsToUpdate =
+                                              tableData
+                                                  .where(
+                                                    (e) =>
+                                                        e.fluteRatioId != null &&
+                                                        isSelected.contains(e.fluteRatioId),
+                                                  )
+                                                  .toList();
+
+                                          // check tick checkbox
+                                          final hasUpdateRow = tableData.any(
+                                            (e) => e.fluteRatioId != null,
+                                          );
+
+                                          if (rowsToAdd.isEmpty &&
+                                              hasUpdateRow &&
+                                              rowsToUpdate.isEmpty) {
                                             showSnackBarError(
                                               context,
-                                              "Chưa chọn thông tin cần cập nhật",
+                                              "Chưa chọn dòng cần cập nhật",
                                             );
                                             return;
                                           }
 
-                                          final dataToUpdate =
-                                              updatedWasteNorms
-                                                  .where(
-                                                    (item) => isSelected.contains(item.wasteBoxId),
-                                                  )
-                                                  .toList();
-
-                                          for (final item in dataToUpdate) {
-                                            // print(
-                                            //   '⏫ Updating wasteNormId: ${item.wasteBoxId}',
-                                            // );
-
-                                            await AdminService().updateWasteBoxById(
-                                              wasteNormId: item.wasteBoxId,
-                                              wasteNormUpdate: {
-                                                "colorNumberOnProduct": item.colorNumberOnProduct,
-                                                "paperNumberOnProduct": item.paperNumberOnProduct,
-                                                "totalLossOnTotalQty": item.totalLossOnTotalQty,
-                                                "machineName": item.machineName,
+                                          // ================== ADD ==================
+                                          for (final e in rowsToAdd) {
+                                            await AdminService().addFluteRatio(
+                                              fluteRatioData: {
+                                                "fluteName": e.fluteName,
+                                                "ratio": e.ratio,
                                               },
                                             );
                                           }
 
+                                          // ================== UPDATE ==================
+                                          for (final e in rowsToUpdate) {
+                                            await AdminService().updateFluteRatio(
+                                              fluteRatioId: e.fluteRatioId!,
+                                              fluteRatioUpdate: {
+                                                "fluteName": e.fluteName,
+                                                "ratio": e.ratio,
+                                              },
+                                            );
+                                          }
+
+                                          setState(() {
+                                            tableData.clear();
+                                            draftFluteRatio.clear();
+                                            isSelected.clear();
+                                            selectedAll = false;
+                                          });
+
+                                          loadFluteRatio();
+
                                           if (!context.mounted) return;
-
-                                          loadWasteBox();
-
-                                          showSnackBarSuccess(context, 'Đã cập nhật thành công');
+                                          showSnackBarSuccess(
+                                            context,
+                                            "Đã lưu thay đổi thành công",
+                                          );
                                         },
+
                                         label: "Lưu Thay Đổi",
                                         icon: Symbols.save,
                                         backgroundColor: themeController.buttonColor,
@@ -230,8 +295,8 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                                                           for (int id
                                                                               in isSelected) {
                                                                             await AdminService()
-                                                                                .deleteWasteBoxById(
-                                                                                  wasteNormId: id,
+                                                                                .deleteFluteRatio(
+                                                                                  fluteRatioId: id,
                                                                                 );
                                                                           }
 
@@ -247,10 +312,10 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
 
                                                                           setState(() {
                                                                             isSelected.clear();
-                                                                            futureAdminWasteNorm =
-                                                                                AdminService()
-                                                                                    .getAllWasteBox();
+                                                                            tableData.clear();
                                                                           });
+
+                                                                          loadFluteRatio();
 
                                                                           Navigator.pop(context);
 
@@ -296,8 +361,8 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: FutureBuilder<List<AdminWasteBoxModel>>(
-                  future: futureAdminWasteNorm,
+                child: FutureBuilder<List<AdminFluteRatioModel>>(
+                  future: futureFluteRatio,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -331,8 +396,19 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                       );
                     }
 
-                    final data = snapshot.data!;
-                    updatedWasteNorms = data;
+                    if (snapshot.hasData && tableData.isEmpty) {
+                      tableData =
+                          snapshot.data!
+                              .map(
+                                (e) => AdminFluteRatioModel(
+                                  fluteRatioId: e.fluteRatioId,
+                                  fluteName: e.fluteName,
+                                  ratio: e.ratio,
+                                  isDraft: false,
+                                ),
+                              )
+                              .toList();
+                    }
 
                     return SingleChildScrollView(
                       scrollDirection: Axis.vertical,
@@ -360,7 +436,11 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                   setState(() {
                                     selectedAll = value!;
                                     if (selectedAll) {
-                                      isSelected = data.map((e) => e.wasteBoxId).toList();
+                                      isSelected =
+                                          tableData
+                                              .map((e) => e.fluteRatioId)
+                                              .whereType<int>()
+                                              .toList();
                                     } else {
                                       isSelected.clear();
                                     }
@@ -369,14 +449,17 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                               ),
                             ),
                           ),
-                          DataColumn(label: styleText("Số Màu Lên Bài")),
-                          DataColumn(label: styleText("Số Tờ Lên Bài")),
-                          DataColumn(label: styleText("Hao Phí Trên Tổng SL")),
-                          DataColumn(label: styleText("Loại Máy")),
+                          DataColumn(label: styleText("Tên Sóng")),
+                          DataColumn(label: styleText("Độ Cao Sóng")),
                         ],
-                        rows: List<DataRow>.generate(data.length, (index) {
-                          final wasteNorm = data[index];
+                        rows: List<DataRow>.generate(tableData.length, (index) {
+                          final fluteRatio = tableData[index];
                           return DataRow(
+                            key: ValueKey(fluteRatio.fluteRatioId ?? fluteRatio.hashCode),
+                            color:
+                                fluteRatio.fluteRatioId == null
+                                    ? WidgetStateProperty.all(Colors.yellow.withValues(alpha: 0.2))
+                                    : null,
                             cells: [
                               DataCell(
                                 Theme(
@@ -393,55 +476,45 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                     ),
                                   ),
                                   child: Checkbox(
-                                    value: isSelected.contains(wasteNorm.wasteBoxId),
-                                    onChanged: (val) {
-                                      setState(() {
-                                        if (val == true) {
-                                          isSelected.add(wasteNorm.wasteBoxId);
-                                        } else {
-                                          isSelected.remove(wasteNorm.wasteBoxId);
-                                        }
+                                    value:
+                                        fluteRatio.fluteRatioId != null &&
+                                        isSelected.contains(fluteRatio.fluteRatioId),
 
-                                        selectedAll = isSelected.length == data.length;
-                                      });
-                                    },
+                                    onChanged:
+                                        fluteRatio.fluteRatioId == null
+                                            ? null
+                                            : (val) {
+                                              setState(() {
+                                                if (val == true) {
+                                                  isSelected.add(fluteRatio.fluteRatioId!);
+                                                } else {
+                                                  isSelected.remove(fluteRatio.fluteRatioId);
+                                                }
+                                                selectedAll =
+                                                    isSelected.length == snapshot.data!.length;
+                                              });
+                                            },
                                   ),
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  text: wasteNorm.colorNumberOnProduct.toString(),
+                                  text: fluteRatio.fluteName.toString(),
                                   onChanged: (value) {
                                     setState(() {
-                                      wasteNorm.colorNumberOnProduct = int.tryParse(value) ?? 0;
+                                      fluteRatio.fluteName = value;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  text: wasteNorm.paperNumberOnProduct.toString(),
+                                  text: fluteRatio.ratio.toString(),
                                   onChanged: (value) {
                                     setState(() {
-                                      wasteNorm.paperNumberOnProduct = int.tryParse(value) ?? 0;
+                                      fluteRatio.ratio = double.tryParse(value) ?? 0;
                                     });
                                   },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: '${wasteNorm.totalLossOnTotalQty.toString()}%',
-                                  onChanged: (value) {
-                                    setState(() {
-                                      wasteNorm.totalLossOnTotalQty = double.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: wasteNorm.machineName.toString(),
-                                  onChanged: null,
                                 ),
                               ),
                             ],
@@ -460,11 +533,11 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
         () =>
             isAccept
                 ? FloatingActionButton(
-                  onPressed: loadWasteBox,
+                  onPressed: loadFluteRatio,
                   backgroundColor: themeController.buttonColor.value,
                   child: const Icon(Icons.refresh, color: Colors.white),
                 )
-                : SizedBox.shrink(),
+                : const SizedBox.shrink(),
       ),
     );
   }

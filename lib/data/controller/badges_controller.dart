@@ -1,4 +1,4 @@
-import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:get/get.dart';
 

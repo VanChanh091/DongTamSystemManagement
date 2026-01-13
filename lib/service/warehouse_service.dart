@@ -109,24 +109,17 @@ class WarehouseService {
     return HelperService().fetchSingleData(
       endpoint: 'warehouse/outbound/getInboundQty',
       queryParameters: {'orderId': orderId},
-      fromJson: (json) => Order.fromJson(json),
+      parser: (json) => Order.fromJson(json as Map<String, dynamic>),
     );
   }
 
   //create outbound
   Future<bool> createOutbound({required List<Map<String, dynamic>> list}) async {
     try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        '/api/warehouse/outbound/createOutbound',
-        data: {"outboundDetails": list},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
+      return await HelperService().addItem(
+        endpoint: 'warehouse/outbound/createOutbound',
+        itemData: {'outboundDetails': list},
       );
-
-      return true;
     } on DioException catch (e) {
       if (e.response != null) {
         throw ApiException(
@@ -134,12 +127,8 @@ class WarehouseService {
           message: e.response?.data?['message'],
           errorCode: e.response?.data?['errorCode'],
         );
-      } else {
-        throw Exception("Network Error: ${e.message}");
       }
-    } catch (e, s) {
-      AppLogger.e("Failed to create outbound", error: e, stackTrace: s);
-      throw Exception('Failed to create outbound: $e');
+      throw Exception("Network Error: ${e.message}");
     }
   }
 
@@ -147,41 +136,18 @@ class WarehouseService {
     required int outboundId,
     required List<Map<String, dynamic>> list,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        '/api/warehouse/outbound/updateOutbound',
-        data: {"outboundId": outboundId, "outboundDetails": list},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update outbound", error: e, stackTrace: s);
-      throw Exception('Failed to update outbound: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: 'warehouse/outbound/updateOutbound',
+      queryParameters: const {},
+      dataUpdated: {"outboundId": outboundId, "outboundDetails": list},
+    );
   }
 
   Future<bool> deleteOutbound({required int outboundId}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.delete(
-        '/api/warehouse/outbound/deleteOutbound',
-        queryParameters: {"outboundId": outboundId},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to delete outbound", error: e, stackTrace: s);
-      throw Exception('Failed to delete outbound: $e');
-    }
+    return HelperService().deleteItem(
+      endpoint: 'warehouse/outbound/deleteOutbound',
+      queryParameters: {'outboundId': outboundId},
+    );
   }
 
   Future<File?> exportFilePDFOutbound({required int outboundId}) async {

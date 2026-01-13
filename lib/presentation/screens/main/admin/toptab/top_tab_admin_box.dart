@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_time_machine_box.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_machine_time_box.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_waste_box.dart';
 import 'package:flutter/material.dart';
 
@@ -22,17 +22,10 @@ class _TopTabAdminState extends State<TopTabAdminBox> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
-              tabs: const [
-                Tab(text: "Thời Gian Làm Thùng"),
-                Tab(text: "Định Mức PL Thùng"),
-              ],
+              tabs: const [Tab(text: "Thời Gian Làm Thùng"), Tab(text: "Định Mức PL Thùng")],
             ),
           ),
-          Expanded(
-            child: const TabBarView(
-              children: [AdminMachineBox(), AdminWasteBox()],
-            ),
-          ),
+          Expanded(child: const TabBarView(children: [AdminMachineBox(), AdminWasteBox()])),
         ],
       ),
     );

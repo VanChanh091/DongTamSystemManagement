@@ -56,6 +56,7 @@ class CustomerDatasource extends DataGridSource {
                 : "0",
       ),
       DataGridCell<String>(columnName: "CSKH", value: customer.cskh),
+      DataGridCell<String>(columnName: "customerSource", value: customer.customerSource),
       DataGridCell<String>(columnName: "rateCustomer", value: customer.rateCustomer ?? ""),
     ];
   }

@@ -217,7 +217,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                             }
                                           }
                                           : null,
-                                  label: "Xuất Excel",
+                                  label: "Xuất file",
                                   icon: Symbols.export_notes,
                                   backgroundColor: themeController.buttonColor,
                                 ),

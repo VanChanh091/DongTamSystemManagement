@@ -74,7 +74,7 @@ Widget _buildKeyValue(String keyText, dynamic value, double labelWidth, bool cen
       const SizedBox(width: 5),
       Expanded(
         child: Padding(
-          padding: const EdgeInsets.only(top: 2),
+          padding: const EdgeInsets.only(top: 2, left: 3),
           child:
               value is Widget
                   ? value

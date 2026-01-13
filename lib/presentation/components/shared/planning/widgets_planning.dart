@@ -19,7 +19,7 @@ Widget timeAndDayPlanning({
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Ngày bắt đầu
-        _buildLabelAndUnderlineInput(
+        buildLabelAndUnderlineInput(
           label: "Ngày bắt đầu:",
           controller: dayStartController,
           width: 120,
@@ -55,7 +55,7 @@ Widget timeAndDayPlanning({
         const SizedBox(width: 32),
 
         // Giờ bắt đầu
-        _buildLabelAndUnderlineInput(
+        buildLabelAndUnderlineInput(
           label: "Giờ bắt đầu:",
           controller: timeStartController,
           width: 60,
@@ -63,7 +63,7 @@ Widget timeAndDayPlanning({
         const SizedBox(width: 32),
 
         // Tổng giờ làm
-        _buildLabelAndUnderlineInput(
+        buildLabelAndUnderlineInput(
           label: "Tổng giờ làm:",
           controller: totalTimeWorkingController,
           width: 40,
@@ -74,7 +74,7 @@ Widget timeAndDayPlanning({
   );
 }
 
-Widget _buildLabelAndUnderlineInput({
+Widget buildLabelAndUnderlineInput({
   required String label,
   required TextEditingController controller,
   required double width,
@@ -163,7 +163,7 @@ Widget confirmCompleteButton({
 
         final errorText = switch (e.errorCode) {
           'LACK_QUANTITY' => 'Chưa đủ số lượng để hoàn thành',
-          'NO_INBOUND_HISTORY' => 'Mã $ids chưa từng được nhập kho',
+          'PLANNING_NOT_FINALIZED' => e.message!,
           _ => 'Có lỗi xảy ra, vui lòng thử lại',
         };
 

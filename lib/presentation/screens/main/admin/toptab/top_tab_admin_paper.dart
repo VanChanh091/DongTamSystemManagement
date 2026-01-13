@@ -1,4 +1,5 @@
-import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_time_machine_paper.dart';
+import 'package:dongtam/presentation/screens/main/admin/admin_flute_ratio.dart';
+import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_machine_time_paper.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_waste_norm.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_wave_crest.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class _TopTabAdminPaperState extends State<TopTabAdminPaper> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Column(
         children: [
           Container(
@@ -27,6 +28,7 @@ class _TopTabAdminPaperState extends State<TopTabAdminPaper> {
                 Tab(text: "Thời Gian Máy Sóng"),
                 Tab(text: "Định Mức PL Giấy"),
                 Tab(text: "Hệ Số Máy Sóng"),
+                Tab(text: "Độ Cao Sóng"),
               ],
             ),
           ),
@@ -36,6 +38,7 @@ class _TopTabAdminPaperState extends State<TopTabAdminPaper> {
                 AdminMachinePaper(),
                 AdminWasteNorm(),
                 AdminWaveCrest(),
+                AdminFluteRatio(),
               ],
             ),
           ),

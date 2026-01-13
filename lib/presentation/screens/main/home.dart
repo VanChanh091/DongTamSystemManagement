@@ -4,13 +4,18 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
+import 'package:dongtam/presentation/screens/main/admin/admin_criteria.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
-import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_box.dart';
-import 'package:dongtam/presentation/screens/main/admin/top_tab_admin_paper.dart';
+import 'package:dongtam/presentation/screens/main/admin/admin_vehicle.dart';
+import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart';
+import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard_planning.dart';
+import 'package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart';
+import 'package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart';
+import 'package:dongtam/presentation/screens/main/delivery/delivery_planning.dart';
 import 'package:dongtam/presentation/screens/main/employee/employee.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
@@ -62,6 +67,7 @@ class _HomePageState extends State<HomePage> {
   bool _isApprovalExpanded = false;
   bool _isWaitingExpanded = false;
   bool _isWarehouseExpanded = false;
+  bool _isDeliveryExpanded = false;
 
   static const double _sidebarOpenWidth = 300;
   static const double _sidebarCollapsedWidth = 60;
@@ -102,6 +108,11 @@ class _HomePageState extends State<HomePage> {
       _buildPage(permission: 'delivery', child: OutboundHistory()),
       Inventory(),
 
+      //delivery
+      _buildPage(permission: 'plan', child: DeliveryEstimateTime()),
+      _buildPage(permission: 'plan', child: DeliveryPlanning()),
+      DeliverySchedule(),
+
       //reporting hitstory
       TopTabHistoryReport(),
       ReportInboundHistory(),
@@ -113,6 +124,8 @@ class _HomePageState extends State<HomePage> {
       _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),
       _buildPage(roles: ['admin'], child: TopTabAdminPaper()),
       _buildPage(roles: ['admin'], child: TopTabAdminBox()),
+      _buildPage(roles: ['admin', 'manager'], child: AdminVehicle()),
+      _buildPage(roles: ['admin'], child: AdminCriteria()),
       _buildPage(roles: ['admin'], child: AdminMangeUser()),
     ].whereType<Widget>().toList(); // lọc bỏ null
   }
@@ -248,6 +261,7 @@ class _HomePageState extends State<HomePage> {
           _buildManufactureMenu(pages),
           _buildWaitingCheckMenu(pages),
           _buildWarehouseMenu(pages),
+          _buildDeliveryMenu(pages),
           _buildReportMenu(pages),
           _buildSidebarItem(
             Symbols.dual_screen,
@@ -464,17 +478,54 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  //build delivery
+  Widget _buildDeliveryMenu(List<Widget> pages) {
+    final estimateTime = pages.indexWhere((w) => w is DeliveryEstimateTime);
+    final planning = pages.indexWhere((w) => w is DeliveryPlanning);
+    final schedule = pages.indexWhere((w) => w is DeliverySchedule);
+
+    if (estimateTime == -1 && planning == -1 && schedule == -1) {
+      return const SizedBox.shrink();
+    }
+
+    return Obx(() {
+      final selected = sidebarController.selectedIndex.value;
+      final isParentSelected =
+          selected == estimateTime || selected == planning || selected == schedule;
+
+      return SidebarExpandedMenu(
+        isSidebarOpen: _isSidebarOpen,
+        isExpanded: _isDeliveryExpanded,
+        onToggle: () => setState(() => _isDeliveryExpanded = !_isDeliveryExpanded),
+        isParentSelected: isParentSelected,
+        title: "Giao Hàng",
+        icon: Symbols.airport_shuttle,
+        children: [
+          if (estimateTime != -1)
+            _buildSubMenuItem(Symbols.pending_actions, "Hàng Chờ Xác Nhận", estimateTime),
+          if (planning != -1)
+            _buildSubMenuItem(Symbols.calendar_add_on, "Kế Hoạch Giao Hàng", planning),
+          if (schedule != -1) _buildSubMenuItem(Symbols.schedule, "Lịch Giao Hàng", schedule),
+        ],
+      );
+    });
+  }
+
   //admin
   Widget _buildApprovalMenu(List<Widget> pages) {
     final adminOrderIndex = pages.indexWhere((w) => w is AdminOrder);
     final adminPaperIndex = pages.indexWhere((w) => w is TopTabAdminPaper);
     final adminBoxIndex = pages.indexWhere((w) => w is TopTabAdminBox);
     final manageUserIndex = pages.indexWhere((w) => w is AdminMangeUser);
+    final vehicleFluteRatio = pages.indexWhere((w) => w is AdminVehicle);
+    final adminCriteria = pages.indexWhere((w) => w is AdminCriteria);
 
     if (adminOrderIndex == -1 &&
         adminPaperIndex == -1 &&
         adminBoxIndex == -1 &&
-        manageUserIndex == -1) {
+        manageUserIndex == -1 &&
+        vehicleFluteRatio == -1 &&
+        adminCriteria == -1) {
       return const SizedBox.shrink();
     }
 
@@ -486,7 +537,9 @@ class _HomePageState extends State<HomePage> {
           selected == adminOrderIndex ||
           selected == adminPaperIndex ||
           selected == adminBoxIndex ||
-          selected == manageUserIndex;
+          selected == manageUserIndex ||
+          selected == vehicleFluteRatio ||
+          selected == adminCriteria;
 
       final leadingWithBadge = Obx(() {
         final count = badgesController.numberBadges.value;
@@ -549,9 +602,13 @@ class _HomePageState extends State<HomePage> {
               }),
             ),
           if (adminPaperIndex != -1)
-            _buildSubMenuItem(Icons.gif_box, "Máy Sóng Và Phế Liệu", adminPaperIndex),
+            _buildSubMenuItem(Icons.gif_box, "Máy Sóng và Phế Liệu", adminPaperIndex),
           if (adminBoxIndex != -1)
-            _buildSubMenuItem(Icons.gif_box, "In Ấn Và Phế Liệu", adminBoxIndex),
+            _buildSubMenuItem(Icons.gif_box, "In Ấn và Phế Liệu", adminBoxIndex),
+          if (adminCriteria != -1)
+            _buildSubMenuItem(Icons.rule, "Tiêu Chí Sản Xuất", adminCriteria),
+          if (vehicleFluteRatio != -1)
+            _buildSubMenuItem(Symbols.directions_car, "Xe Giao Hàng", vehicleFluteRatio),
           if (manageUserIndex != -1) _buildSubMenuItem(Icons.person, "Người Dùng", manageUserIndex),
         ],
       );

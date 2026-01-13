@@ -17,7 +17,7 @@ class CustomerService {
     bool noPaging = false,
   }) async {
     return HelperService().fetchPaginatedData<Customer>(
-      endpoint: "customer",
+      endpoint: "customer/getAllCustomer",
       queryParameters: {'page': page, 'pageSize': pageSize, 'noPaging': noPaging},
       fromJson: (json) => Customer.fromJson(json),
       dataKey: 'customers',
@@ -59,21 +59,7 @@ class CustomerService {
 
   // add customer
   Future<bool> addCustomer({required Map<String, dynamic> customerData}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        "/api/customer/",
-        data: customerData,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to add customer", error: e, stackTrace: s);
-      throw Exception('Failed to add customer: $e');
-    }
+    return HelperService().addItem(endpoint: "customer/newCustomer", itemData: customerData);
   }
 
   // update customer
@@ -81,40 +67,19 @@ class CustomerService {
     required String customerId,
     required Map<String, dynamic> updateCustomer,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-      await dioService.put(
-        "/api/customer/customerUp",
-        queryParameters: {"customerId": customerId},
-        data: updateCustomer,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update customer", error: e, stackTrace: s);
-      throw Exception('Failed to update customer: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: "customer/updateCus",
+      queryParameters: {"customerId": customerId},
+      dataUpdated: updateCustomer,
+    );
   }
 
   // delete customer
   Future<bool> deleteCustomer({required String customerId}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.delete(
-        "/api/customer/customerDel",
-        queryParameters: {"customerId": customerId},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to delete customer", error: e, stackTrace: s);
-      throw Exception('Failed to delete customer: $e');
-    }
+    return HelperService().deleteItem(
+      endpoint: "customer/deleteCus",
+      queryParameters: {"customerId": customerId},
+    );
   }
 
   //export customer

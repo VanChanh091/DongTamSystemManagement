@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class AdminCriteriaService {
   final Dio dioService = DioClient().dio;
@@ -16,82 +14,25 @@ class AdminCriteriaService {
     );
   }
 
-  Future<bool> createNewCriteria({
-    required String processType,
-    required String criteriaCode,
-    required String criteriaName,
-    required bool isRequired,
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        '/api/admin/newCriteria',
-        data: {
-          "processType": processType,
-          "criteriaCode": criteriaCode,
-          "criteriaName": criteriaName,
-          "isRequired": isRequired,
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to create criteria", error: e, stackTrace: s);
-      throw Exception('Failed to create criteria: $e');
-    }
+  Future<bool> createNewCriteria({required Map<String, dynamic> criteriaData}) async {
+    return HelperService().addItem(endpoint: 'admin/newCriteria', itemData: criteriaData);
   }
 
   Future<bool> updateCriteria({
     required int qcCriteriaId,
-    required String processType,
-    required String criteriaCode,
-    required String criteriaName,
-    required bool isRequired,
+    required Map<String, dynamic> criteriaUpdated,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        '/api/admin/updateCriteria',
-        queryParameters: {"qcCriteriaId": qcCriteriaId},
-        data: {
-          "processType": processType,
-          "criteriaCode": criteriaCode,
-          "criteriaName": criteriaName,
-          "isRequired": isRequired,
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update criteria", error: e, stackTrace: s);
-      throw Exception('Failed to update criteria: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: 'admin/updateCriteria',
+      queryParameters: {"qcCriteriaId": qcCriteriaId},
+      dataUpdated: criteriaUpdated,
+    );
   }
 
   Future<bool> deleteCriteria({required int qcCriteriaId}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        '/api/admin/deleteCriteria',
-        queryParameters: {"qcCriteriaId": qcCriteriaId},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update criteria", error: e, stackTrace: s);
-      throw Exception('Failed to update criteria: $e');
-    }
+    return HelperService().deleteItem(
+      endpoint: 'admin/deleteCriteria',
+      queryParameters: {'qcCriteriaId': qcCriteriaId},
+    );
   }
 }

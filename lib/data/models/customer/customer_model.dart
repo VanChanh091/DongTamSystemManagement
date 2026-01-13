@@ -17,6 +17,7 @@ class Customer {
   final double? debtLimit;
   final DateTime? timePayment;
   final String? rateCustomer;
+  final String customerSource;
 
   Customer({
     required this.customerId,
@@ -33,7 +34,8 @@ class Customer {
     this.debtCurrent,
     required this.debtLimit,
     this.timePayment,
-    required this.rateCustomer,
+    this.rateCustomer,
+    required this.customerSource,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) {
@@ -59,6 +61,7 @@ class Customer {
               ? DateTime.tryParse(json['timePayment'].toString())
               : null,
       rateCustomer: json['rateCustomer'] ?? "",
+      customerSource: json['customerSource'] ?? "",
     );
   }
 
@@ -78,6 +81,7 @@ class Customer {
       "debtLimit": debtLimit,
       "timePayment": DateFormat('yyyy-MM-dd').format(timePayment!),
       "rateCustomer": rateCustomer,
+      "customerSource": customerSource,
     };
   }
 }

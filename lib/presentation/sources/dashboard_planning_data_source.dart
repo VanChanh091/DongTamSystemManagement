@@ -8,12 +8,13 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class DashboardPaperDataSource extends DataGridSource {
   List<PlanningPaper> dbPlanning = [];
   int? selectedDbPaperId;
+  String page;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  DashboardPaperDataSource({required this.dbPlanning, this.selectedDbPaperId}) {
+  DashboardPaperDataSource({required this.dbPlanning, this.selectedDbPaperId, required this.page}) {
     buildDataGridRows();
   }
 
@@ -30,6 +31,9 @@ class DashboardPaperDataSource extends DataGridSource {
       //product
       DataGridCell<String>(columnName: "typeProduct", value: order?.product?.typeProduct ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
+
+      //structure
+      DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
 
       //day
       DataGridCell<String>(
@@ -58,7 +62,6 @@ class DashboardPaperDataSource extends DataGridSource {
       ),
 
       //other fields
-      DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${paper.ghepKho} cm'),
       DataGridCell<String>(columnName: 'daoXa', value: order?.daoXa ?? ''),
@@ -98,7 +101,7 @@ class DashboardPaperDataSource extends DataGridSource {
       ...buildOrderCells(paper),
 
       //phe lieu
-      ...buildWasteAndManufactureCells(paper),
+      if (page == "dashboard") ...[...buildWasteAndManufactureCells(paper)],
 
       //user
       DataGridCell<String>(columnName: "staffOrder", value: order?.user?.fullName ?? ""),
@@ -120,17 +123,21 @@ class DashboardPaperDataSource extends DataGridSource {
 
     return [
       DataGridCell<String>(columnName: "dvt", value: order?.dvt ?? ""),
-      DataGridCell<double>(columnName: "acreage", value: order?.acreage),
+      if (page == "dashboard") ...[
+        DataGridCell<double>(columnName: "acreage", value: order?.acreage),
+      ],
       buildPriceCell(columnName: "price", value: order?.price ?? 0),
-      buildPriceCell(columnName: "pricePaper", value: order?.pricePaper ?? 0),
-      buildPriceCell(columnName: "discounts", value: order?.discount ?? 0),
-      buildPriceCell(columnName: "profitOrd", value: order?.profit ?? 0),
-      DataGridCell<String>(
-        columnName: "vat",
-        value: (order?.vat ?? 0) > 0 ? '${order?.vat}%' : "0",
-      ),
-      buildPriceCell(columnName: "totalPrice", value: order?.totalPrice ?? 0),
-      buildPriceCell(columnName: "totalPriceAfterVAT", value: order?.totalPriceVAT ?? 0),
+      if (page == "dashboard") ...[
+        buildPriceCell(columnName: "pricePaper", value: order?.pricePaper ?? 0),
+        buildPriceCell(columnName: "discounts", value: order?.discount ?? 0),
+        buildPriceCell(columnName: "profitOrd", value: order?.profit ?? 0),
+        DataGridCell<String>(
+          columnName: "vat",
+          value: (order?.vat ?? 0) > 0 ? '${order?.vat}%' : "0",
+        ),
+        buildPriceCell(columnName: "totalPrice", value: order?.totalPrice ?? 0),
+        buildPriceCell(columnName: "totalPriceAfterVAT", value: order?.totalPriceVAT ?? 0),
+      ],
     ];
   }
 

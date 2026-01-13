@@ -26,22 +26,11 @@ class QualityControlService {
     required int totalSample,
     required String status,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        '/api/qc/updateSession',
-        data: {"qcSessionId": qcSessionId, "status": status, "totalSample": totalSample},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update session", error: e, stackTrace: s);
-      throw Exception('Failed to update session: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: "qc/updateSession",
+      queryParameters: const {},
+      dataUpdated: {"qcSessionId": qcSessionId, "status": status, "totalSample": totalSample},
+    );
   }
 
   //============================QC SAMPLE==================================
@@ -56,15 +45,17 @@ class QualityControlService {
 
   Future<bool> updateResult({
     required int qcSessionId,
+    int? sampleIndex = 3,
     required List<QcSampleSubmitModel> samples,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
 
-      await dioService.post(
+      await dioService.put(
         '/api/qc/updateResult',
         data: {
           "qcSessionId": qcSessionId,
+          "sampleIndex": sampleIndex,
           "samples": samples.map((sample) => sample.toJson()).toList(),
         },
         options: Options(
@@ -94,22 +85,11 @@ class QualityControlService {
     int? planningBoxId,
     required bool isPaper,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        '/api/qc/confirmFinalize',
-        data: {"planningId": planningId, 'planningBoxId': planningBoxId, "isPaper": isPaper},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to confirm finalize session", error: e, stackTrace: s);
-      throw Exception('Failed to confirm finalize session: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: "qc/confirmFinalize",
+      queryParameters: {},
+      dataUpdated: {"planningId": planningId, 'planningBoxId': planningBoxId, "isPaper": isPaper},
+    );
   }
 
   //===========================ORCHESTRATOR================================

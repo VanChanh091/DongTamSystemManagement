@@ -75,7 +75,7 @@ class _PlanningStopState extends State<PlanningStop> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSale = userController.hasPermission(permission: "sale");
+    final bool isPlan = userController.hasPermission(permission: "plan");
 
     return Scaffold(
       body: Container(
@@ -121,12 +121,12 @@ class _PlanningStopState extends State<PlanningStop> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             child:
-                                isSale
+                                isPlan
                                     ? Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         handleCancelOrContinue(
-                                          isSale: isSale,
+                                          isPlan: isPlan,
                                           action: 'planning',
                                           label: "Tiếp Tục Chạy",
                                           iconData: Symbols.check,
@@ -134,7 +134,7 @@ class _PlanningStopState extends State<PlanningStop> {
                                         const SizedBox(width: 10),
 
                                         handleCancelOrContinue(
-                                          isSale: isSale,
+                                          isPlan: isPlan,
                                           action: 'cancel',
                                           label: "Hủy Đơn",
                                           iconData: Symbols.cancel,
@@ -353,20 +353,15 @@ class _PlanningStopState extends State<PlanningStop> {
   }
 
   Widget handleCancelOrContinue({
-    required bool isSale,
+    required bool isPlan,
     required String action,
     required String label,
     required IconData iconData,
   }) {
     return AnimatedButton(
       onPressed:
-          isSale && selectedPlanningIds.isEmpty
+          isPlan && selectedPlanningIds.isNotEmpty
               ? () async {
-                if (selectedPlanningIds.isEmpty) {
-                  showSnackBarError(context, 'Vui lòng chọn kế hoạch cần thao tác');
-                  return;
-                }
-
                 final confirm = await showConfirmDialog(
                   context: context,
                   title: "⚠️ Xác nhận",

@@ -35,8 +35,8 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
   final formatter = DateFormat('dd/MM/yyyy');
   final dataGridController = DataGridController();
   Map<String, double> columnWidths = {};
-  List<String> selectedPlanningIds = [];
   List<PlanningPaper> planningList = [];
+  List<String> selectedPlanningIds = [];
   bool showGroup = true;
 
   @override
@@ -80,6 +80,10 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
     return true;
   }
 
+  bool canFinalizePlanning({required PlanningPaper planning}) {
+    return planning.getTotalQtyInbound > 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     //QC Check
@@ -89,6 +93,13 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
           selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
           planningList: planningList,
         );
+
+    final PlanningPaper? selectedPlanning =
+        selectedPlanningIds.length == 1
+            ? planningList.firstWhereOrNull(
+              (p) => p.planningId == int.parse(selectedPlanningIds.first),
+            )
+            : null;
 
     return Scaffold(
       body: Container(
@@ -179,7 +190,8 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                                     //confirm Finalized Session
                                     AnimatedButton(
                                       onPressed:
-                                          qcCheck
+                                          qcCheck &&
+                                                  canFinalizePlanning(planning: selectedPlanning!)
                                               ? () async {
                                                 try {
                                                   final int selectedPlanningId = int.parse(

@@ -15,6 +15,9 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "typeProduct", "title": "Loại SP"},
   {"key": "productName", "title": "Tên SP"},
 
+  //structure
+  {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+
   //day
   {"key": "dayReceive", "title": "Nhận Đơn"},
   {"key": "dateShipping", "title": "Dự Kiến"},
@@ -23,7 +26,6 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "dayCompletedOvfl", "title": "Hoàn Thành (Tràn)"},
 
   //other fields
-  {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
   {"key": "daoXa", "title": "Dao Xả"},
@@ -45,29 +47,101 @@ const List<Map<String, dynamic>> _headerDbPaper = [
 
   // Order money
   {"key": "dvt", "title": "DVT"},
-  {"key": "acreage", "title": "Diện Tích"},
+  {
+    "key": "acreage",
+    "title": "Diện Tích",
+    "visiblePages": ["dashboard"],
+  },
   {"key": "price", "title": "Đơn Giá"},
-  {"key": "pricePaper", "title": "Giá Tấm"},
-  {"key": "discounts", "title": "Chiết Khấu"},
-  {"key": "profitOrd", "title": "Lợi Nhuận"},
-  {"key": "vat", "title": "VAT"},
-  {"key": "totalPrice", "title": "Tổng Tiền"},
-  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền VAT"},
+  {
+    "key": "pricePaper",
+    "title": "Giá Tấm",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "discounts",
+    "title": "Chiết Khấu",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "profitOrd",
+    "title": "Lợi Nhuận",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "vat",
+    "title": "VAT",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "totalPrice",
+    "title": "Tổng Tiền",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "totalPriceAfterVAT",
+    "title": "Tổng Tiền VAT",
+    "visiblePages": ["dashboard"],
+  },
 
   //Waste
-  {"key": "bottom", "title": "Đáy"},
-  {"key": "fluteE", "title": "Sóng E"},
-  {"key": "fluteE2", "title": "Sóng E2"},
-  {"key": "fluteB", "title": "Sóng B"},
-  {"key": "fluteC", "title": "Sóng C"},
-  {"key": "knife", "title": "Dao"},
-  {"key": "totalLoss", "title": "Tổng PL"},
+  {
+    "key": "bottom",
+    "title": "Đáy",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "fluteE",
+    "title": "Sóng E",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "fluteE2",
+    "title": "Sóng E2",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "fluteB",
+    "title": "Sóng B",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "fluteC",
+    "title": "Sóng C",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "knife",
+    "title": "Dao",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "totalLoss",
+    "title": "Tổng PL",
+    "visiblePages": ["dashboard"],
+  },
 
   // Sản xuất
-  {"key": "qtyWastes", "title": "PL Thực Tế"},
-  {"key": "shiftProduct", "title": "Ca Sản Xuất"},
-  {"key": "shiftManager", "title": "Trưởng Máy"},
-  {"key": "machine", "title": "Loại Máy"},
+  {
+    "key": "qtyWastes",
+    "title": "PL Thực Tế",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "shiftProduct",
+    "title": "Ca Sản Xuất",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "shiftManager",
+    "title": "Trưởng Máy",
+    "visiblePages": ["dashboard"],
+  },
+  {
+    "key": "machine",
+    "title": "Loại Máy",
+    "visiblePages": ["dashboard"],
+  },
 
   // Staff
   {"key": "staffOrder", "title": "Nhân Viên"},
@@ -76,13 +150,17 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "planningId", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildDbPaperColumn({required ThemeController themeController}) {
+List<GridColumn> buildDbPaperColumn({
+  required ThemeController themeController,
+  required String page,
+}) {
   return [
     for (var item in _headerDbPaper)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+      if (!item.containsKey("visiblePages") || (item["visiblePages"] as List).contains(page))
+        GridColumn(
+          columnName: item["key"]!,
+          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
+          visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+        ),
   ];
 }

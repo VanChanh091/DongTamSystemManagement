@@ -188,22 +188,11 @@ class PlanningService {
     required String newMachine,
     required List<int> planningIds,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        "/api/planning/changeMachinePaper",
-        data: {"planningIds": planningIds, "newMachine": newMachine},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update orders", error: e, stackTrace: s);
-      throw Exception('Failed to update orders: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: "planning/changeMachinePaper",
+      queryParameters: {},
+      dataUpdated: {"planningIds": planningIds, "newMachine": newMachine},
+    );
   }
 
   //notify planning
@@ -232,27 +221,11 @@ class PlanningService {
 
   //get status order
   Future<List<Order>> getOrderAccept() async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        '/api/planning/',
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      final data = response.data['data'] as List;
-
-      return data.map((e) => Order.fromJson(e)).toList();
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 403) {
-        throw Exception("NO_PERMISSION");
-      }
-      rethrow;
-    } catch (e, s) {
-      AppLogger.e("Failed to load product", error: e, stackTrace: s);
-      throw Exception('Failed to load orders: $e');
-    }
+    return HelperService().fetchingData<Order>(
+      endpoint: "planning",
+      queryParameters: const {},
+      fromJson: (json) => Order.fromJson(json),
+    );
   }
 
   //planning for order
@@ -260,23 +233,11 @@ class PlanningService {
     required String orderId,
     required Map<String, dynamic> orderPlanning,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        '/api/planning/planningOrder',
-        queryParameters: {"orderId": orderId},
-        data: orderPlanning,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to plan order", error: e, stackTrace: s);
-      throw Exception('Failed to plan order: $e');
-    }
+    return HelperService().addItem(
+      endpoint: "planning/planningOrder",
+      queryParameters: {"orderId": orderId},
+      itemData: orderPlanning,
+    );
   }
 
   //===============================PLANNING STOP====================================

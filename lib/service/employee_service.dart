@@ -49,21 +49,7 @@ class EmployeeService {
 
   // add employee
   Future<bool> addEmployee({required Map<String, dynamic> employeeData}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        "/api/employee/",
-        data: employeeData,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to add employee", error: e, stackTrace: s);
-      throw Exception('Failed to add employee: $e');
-    }
+    return HelperService().addItem(endpoint: "employee", itemData: employeeData);
   }
 
   // update employee
@@ -71,40 +57,19 @@ class EmployeeService {
     required int employeeId,
     required Map<String, dynamic> updateEmployeeData,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-      await dioService.put(
-        "/api/employee/updateEmployee",
-        queryParameters: {"employeeId": employeeId},
-        data: updateEmployeeData,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update employee", error: e, stackTrace: s);
-      throw Exception('Failed to update employee: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: "employee/updateEmployee",
+      queryParameters: {"employeeId": employeeId},
+      dataUpdated: updateEmployeeData,
+    );
   }
 
   // delete employee
   Future<bool> deleteEmployee({required int employeeId}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.delete(
-        "/api/employee/deleteEmployee",
-        queryParameters: {"employeeId": employeeId},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to delete employee", error: e, stackTrace: s);
-      throw Exception('Failed to delete employee: $e');
-    }
+    return HelperService().deleteItem(
+      endpoint: "employee/deleteEmployee",
+      queryParameters: {"employeeId": employeeId},
+    );
   }
 
   //export customer

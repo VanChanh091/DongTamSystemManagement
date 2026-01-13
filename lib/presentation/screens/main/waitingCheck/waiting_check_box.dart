@@ -89,6 +89,10 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
     return true;
   }
 
+  bool canFinalizePlanning({required PlanningBox planning}) {
+    return planning.getTotalQtyInbound > 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     //QC Check
@@ -98,6 +102,11 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
           selectedPlanningBoxIds: selectedPlanningBoxIds,
           planningList: planningList,
         );
+
+    final PlanningBox? selectedPlanning =
+        selectedPlanningBoxIds != null
+            ? planningList.firstWhereOrNull((p) => p.planningBoxId == selectedPlanningBoxIds)
+            : null;
 
     return Scaffold(
       body: Container(
@@ -170,7 +179,7 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                                 //confirm Finalized Session
                                 AnimatedButton(
                                   onPressed:
-                                      qcCheck
+                                      qcCheck && canFinalizePlanning(planning: selectedPlanning!)
                                           ? () async {
                                             try {
                                               if (selectedPlanningBoxIds == null) return;

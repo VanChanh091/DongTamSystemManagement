@@ -131,23 +131,7 @@ class ProductService {
 
   //delete product
   Future<bool> deleteProduct({required String productId}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-      if (token == null) {
-        throw Exception('Token not found');
-      }
-
-      await dioService.delete(
-        '/api/product/$productId',
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to delete product", error: e, stackTrace: s);
-      throw Exception('Failed to delete product: $e');
-    }
+    return HelperService().deleteItem(endpoint: "product/$productId", queryParameters: const {});
   }
 
   //export product

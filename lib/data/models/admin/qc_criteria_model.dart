@@ -1,9 +1,11 @@
 class QcCriteriaModel {
-  int qcCriteriaId;
+  int? qcCriteriaId;
   String processType;
   String criteriaCode;
   String criteriaName;
   bool isRequired;
+
+  bool isDraft;
 
   QcCriteriaModel({
     required this.qcCriteriaId,
@@ -11,6 +13,7 @@ class QcCriteriaModel {
     required this.criteriaCode,
     required this.criteriaName,
     required this.isRequired,
+    this.isDraft = false,
   });
 
   factory QcCriteriaModel.fromJson(Map<String, dynamic> json) {

@@ -39,7 +39,8 @@ class ValidationCustomer {
                 label == "Địa chỉ giao hàng" ||
                 label == "Hạn Mức Công Nợ" ||
                 label == "Hạn Thanh Toán" ||
-                label == "CSKH") &&
+                label == "CSKH" ||
+                label == "Nguồn Khách Hàng") &&
             (value == null || value.isEmpty)) {
           return 'Vui lòng nhập $label';
         }
