@@ -94,28 +94,28 @@ class DioClient {
             }
           }
 
-          if (e.response != null) {
-            handler.reject(
-              DioException(
-                requestOptions: e.requestOptions,
-                response: e.response,
-                type: e.type,
-                error: ApiException(
-                  status: e.response?.statusCode,
-                  message: e.response?.data?['message'],
-                  errorCode: e.response?.data?['errorCode'],
-                ),
-              ),
-            );
-          } else {
-            handler.reject(
-              DioException(
-                requestOptions: e.requestOptions,
-                type: e.type,
-                error: ApiException(message: "Network Error", status: null, errorCode: ''),
-              ),
-            );
-          }
+          // if (e.response != null) {
+          //   handler.reject(
+          //     DioException(
+          //       requestOptions: e.requestOptions,
+          //       response: e.response,
+          //       type: e.type,
+          //       error: ApiException(
+          //         status: e.response?.statusCode,
+          //         message: e.response?.data?['message'],
+          //         errorCode: e.response?.data?['errorCode'],
+          //       ),
+          //     ),
+          //   );
+          // } else {
+          //   handler.reject(
+          //     DioException(
+          //       requestOptions: e.requestOptions,
+          //       type: e.type,
+          //       error: ApiException(message: "Network Error", status: null, errorCode: ''),
+          //     ),
+          //   );
+          // }
 
           // Nếu lỗi khác thì cho đi tiếp
           return handler.next(e);

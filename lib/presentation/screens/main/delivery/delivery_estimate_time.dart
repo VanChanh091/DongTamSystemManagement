@@ -6,10 +6,12 @@ import 'package:dongtam/presentation/components/headerTable/header_table_db_plan
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/sources/dashboard_planning_data_source.dart';
+import 'package:dongtam/presentation/sources/delivery/delivery_estimate_data_source.dart';
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
 import 'package:dongtam/service/dashboard_service.dart';
 import 'package:dongtam/service/delivery_service.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -30,17 +32,18 @@ class DeliveryEstimateTime extends StatefulWidget {
 
 class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   late Future<Map<String, dynamic>> futurePaper;
-  late DashboardPaperDataSource planningDatasource;
+  late DeliveryEstimateDataSource deliveryDataSource;
   late List<GridColumn> columnsPaper;
   late List<GridColumn> columnsStages;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final dataGridController = DataGridController();
 
   Map<String, double> columnWidthsPlanning = {};
   Map<String, double> columnWidthsStage = {};
   List<PlanningStage> selectedStages = [];
   bool selectedAll = false;
-  int? selectedPaperId;
+  List<int> selectedPaperId = [];
 
   TextEditingController dayStartController = TextEditingController();
   TextEditingController estimateTimeController = TextEditingController();
@@ -91,7 +94,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
         ),
       );
 
-      selectedPaperId = null;
+      selectedPaperId.clear();
       selectedStages = [];
     });
   }
@@ -108,7 +111,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
         ),
       );
 
-      selectedPaperId = null;
+      selectedPaperId.clear();
       selectedStages = [];
     });
   }
@@ -174,7 +177,38 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
                                     //confirm delivery
                                     AnimatedButton(
-                                      onPressed: () {},
+                                      onPressed: () async {
+                                        bool confirm = await showConfirmDialog(
+                                          context: context,
+                                          title: "Xác Nhận Kế Hoạch Giao Hàng",
+                                          content:
+                                              "Bạn có muốn xác nhận lên kế hoạch giao hàng cho các đơn này không?",
+                                          confirmText: "Xác nhận",
+                                          confirmColor: const Color(0xffEA4346),
+                                        );
+
+                                        if (confirm) {
+                                          try {
+                                            final success = await DeliveryService()
+                                                .confirmReadyDelivery(planningIds: selectedPaperId);
+
+                                            if (!context.mounted) return;
+                                            if (success) {
+                                              showSnackBarSuccess(
+                                                context,
+                                                "Xác nhận lên kế hoạch giao hàng thành công",
+                                              );
+                                              loadPlanningEstimate();
+                                            }
+                                          } catch (e) {
+                                            if (!context.mounted) return;
+                                            showSnackBarError(
+                                              context,
+                                              "Có lỗi khi xác nhận lên kế hoạch giao hàng",
+                                            );
+                                          }
+                                        }
+                                      },
                                       label: 'Xác Nhận Giao',
                                       icon: Symbols.confirmation_number,
                                       backgroundColor: themeController.buttonColor,
@@ -277,10 +311,9 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
-                  planningDatasource = DashboardPaperDataSource(
-                    dbPlanning: dbPlanning,
-                    selectedDbPaperId: selectedPaperId,
-                    page: 'delivery',
+                  deliveryDataSource = DeliveryEstimateDataSource(
+                    delivery: dbPlanning,
+                    selectedPaperId: selectedPaperId,
                   );
 
                   return Column(
@@ -292,12 +325,14 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                             Expanded(
                               flex: 2,
                               child: SfDataGrid(
-                                source: planningDatasource,
+                                controller: dataGridController,
+                                source: deliveryDataSource,
                                 isScrollbarAlwaysShown: true,
                                 columnWidthMode: ColumnWidthMode.auto,
-                                selectionMode: SelectionMode.single,
+                                navigationMode: GridNavigationMode.row,
+                                selectionMode: SelectionMode.multiple,
                                 headerRowHeight: 35,
-                                rowHeight: 38,
+                                rowHeight: 40,
                                 columns: ColumnWidthTable.applySavedWidths(
                                   columns: columnsPaper,
                                   widths: columnWidthsPlanning,
@@ -367,32 +402,38 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                     ),
 
                                 onSelectionChanged: (addedRows, removedRows) async {
-                                  if (addedRows.isEmpty) {
+                                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                                  final selectedRows = dataGridController.selectedRows;
+
+                                  final ids =
+                                      selectedRows.map((row) {
+                                        return row
+                                                .getCells()
+                                                .firstWhere(
+                                                  (cell) => cell.columnName == 'planningId',
+                                                )
+                                                .value
+                                            as int;
+                                      }).toList();
+
+                                  // Lấy data của list (summary)
+                                  setState(() {
+                                    selectedPaperId = ids;
+                                  });
+
+                                  // Nếu chọn > 1 row → KHÔNG call detail
+                                  if (ids.length != 1) {
                                     setState(() {
-                                      selectedPaperId = null;
+                                      selectedStages = [];
                                     });
                                     return;
                                   }
 
-                                  final selectedRow = addedRows.first;
-
-                                  final planningId =
-                                      selectedRow
-                                          .getCells()
-                                          .firstWhere((cell) => cell.columnName == 'planningId')
-                                          .value;
-
-                                  // Lấy data của list (summary)
-                                  final selectedDbPaper = dbPlanning.firstWhere(
-                                    (paper) => paper.planningId == planningId,
-                                  );
-
-                                  setState(() {
-                                    selectedPaperId = selectedDbPaper.planningId;
-                                  });
+                                  final planningId = ids.first;
 
                                   final stages = await DashboardService().getDbPlanningDetail(
-                                    planningId: selectedDbPaper.planningId,
+                                    planningId: planningId,
                                   );
 
                                   setState(() {
