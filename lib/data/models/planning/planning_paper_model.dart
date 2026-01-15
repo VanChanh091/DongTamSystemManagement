@@ -27,6 +27,9 @@ class PlanningPaper {
   final String status;
   final String? statusRequest;
 
+  //field temp
+  final double? volume;
+
   final bool hasBox;
 
   //association
@@ -71,6 +74,7 @@ class PlanningPaper {
     this.shiftManagement,
     this.shiftProduction,
     required this.hasBox,
+    this.volume,
 
     required this.orderId,
     this.order,
@@ -160,6 +164,9 @@ class PlanningPaper {
       shiftManagement: json['shiftManagement'] ?? "",
       shiftProduction: json['shiftProduction'] ?? "",
       hasBox: json['hasBox'] ?? false,
+
+      //field temp
+      volume: toDouble(json['volume']),
 
       orderId: json['orderId'] ?? "",
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,

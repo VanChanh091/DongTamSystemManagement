@@ -126,13 +126,13 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
           children: [
             //button
             SizedBox(
-              height: 125,
+              height: 105,
               width: double.infinity,
               child: Column(
                 children: [
                   //title
                   SizedBox(
-                    height: 35,
+                    height: 45,
                     width: double.infinity,
                     child: Center(
                       child: Text(
@@ -148,7 +148,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
                   //button
                   SizedBox(
-                    height: 90,
+                    height: 60,
                     width: double.infinity,
                     child: Column(
                       children: [
@@ -156,7 +156,71 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             //left button
-                            const SizedBox(),
+                            Expanded(
+                              flex: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 12),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Ngày giao
+                                    buildLabelAndUnderlineInput(
+                                      label: "Ngày giao:",
+                                      controller: dayStartController,
+                                      width: 120,
+                                      readOnly: true,
+                                      onTap: () async {
+                                        final selected = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(2100),
+                                          builder: (BuildContext context, Widget? child) {
+                                            return Theme(
+                                              data: Theme.of(context).copyWith(
+                                                colorScheme: ColorScheme.light(
+                                                  primary: Colors.blue,
+                                                  onPrimary: Colors.white,
+                                                  onSurface: Colors.black,
+                                                ),
+                                                dialogTheme: DialogThemeData(
+                                                  backgroundColor: Colors.white12,
+                                                ),
+                                              ),
+                                              child: child!,
+                                            );
+                                          },
+                                        );
+                                        if (selected != null) {
+                                          dayStartController.text =
+                                              "${selected.day.toString().padLeft(2, '0')}/"
+                                              "${selected.month.toString().padLeft(2, '0')}/"
+                                              "${selected.year}";
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(width: 32),
+
+                                    // Giờ dự kiến
+                                    buildLabelAndUnderlineInput(
+                                      label: "Giờ dự kiến:",
+                                      controller: estimateTimeController,
+                                      width: 60,
+                                    ),
+                                    const SizedBox(width: 32),
+
+                                    //filter
+                                    AnimatedButton(
+                                      onPressed: () => loadPlanningEstimate(),
+                                      label: 'Lọc Đơn',
+                                      icon: Symbols.filter_alt,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    // const SizedBox(width: 10),
+                                  ],
+                                ),
+                              ),
+                            ),
 
                             //right button
                             Expanded(
@@ -166,15 +230,6 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    //filter
-                                    AnimatedButton(
-                                      onPressed: () => loadPlanningEstimate(),
-                                      label: 'Lọc Đơn',
-                                      icon: Symbols.filter_alt,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                    const SizedBox(width: 10),
-
                                     //confirm delivery
                                     AnimatedButton(
                                       onPressed: () async {
@@ -222,59 +277,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                         ),
 
                         //set day and estimate time
-                        const SizedBox(height: 5),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // Ngày giao
-                              buildLabelAndUnderlineInput(
-                                label: "Ngày giao:",
-                                controller: dayStartController,
-                                width: 120,
-                                readOnly: true,
-                                onTap: () async {
-                                  final selected = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime.now(),
-                                    lastDate: DateTime(2100),
-                                    builder: (BuildContext context, Widget? child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: Colors.blue,
-                                            onPrimary: Colors.white,
-                                            onSurface: Colors.black,
-                                          ),
-                                          dialogTheme: DialogThemeData(
-                                            backgroundColor: Colors.white12,
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
-                                  if (selected != null) {
-                                    dayStartController.text =
-                                        "${selected.day.toString().padLeft(2, '0')}/"
-                                        "${selected.month.toString().padLeft(2, '0')}/"
-                                        "${selected.year}";
-                                  }
-                                },
-                              ),
-                              const SizedBox(width: 32),
-
-                              // Giờ dự kiến
-                              buildLabelAndUnderlineInput(
-                                label: "Giờ dự kiến:",
-                                controller: estimateTimeController,
-                                width: 60,
-                              ),
-                            ],
-                          ),
-                        ),
+                        // const SizedBox(height: 5),
                       ],
                     ),
                   ),

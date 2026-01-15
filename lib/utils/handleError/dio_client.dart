@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongtam/constant/app_info.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
@@ -93,29 +92,6 @@ class DioClient {
               return handler.next(e);
             }
           }
-
-          // if (e.response != null) {
-          //   handler.reject(
-          //     DioException(
-          //       requestOptions: e.requestOptions,
-          //       response: e.response,
-          //       type: e.type,
-          //       error: ApiException(
-          //         status: e.response?.statusCode,
-          //         message: e.response?.data?['message'],
-          //         errorCode: e.response?.data?['errorCode'],
-          //       ),
-          //     ),
-          //   );
-          // } else {
-          //   handler.reject(
-          //     DioException(
-          //       requestOptions: e.requestOptions,
-          //       type: e.type,
-          //       error: ApiException(message: "Network Error", status: null, errorCode: ''),
-          //     ),
-          //   );
-          // }
 
           // Nếu lỗi khác thì cho đi tiếp
           return handler.next(e);
