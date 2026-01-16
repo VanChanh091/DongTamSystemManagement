@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
 import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
@@ -26,6 +27,7 @@ class PlanningPaper {
   final double? bottom, fluteE, fluteB, fluteC, fluteE2, knife, totalLoss;
   final String status;
   final String? statusRequest;
+  final String? deliveryPlanned;
 
   //field temp
   final double? volume;
@@ -36,6 +38,7 @@ class PlanningPaper {
   final String orderId;
   final Order? order;
   final TimeOverflowPlanning? timeOverflowPlanning;
+  final PlanningBox? planningBox;
   final List<PlanningStage>? stages;
   final List<InboundHistoryModel>? inbound;
 
@@ -74,11 +77,15 @@ class PlanningPaper {
     this.shiftManagement,
     this.shiftProduction,
     required this.hasBox,
+    this.deliveryPlanned,
+
+    //field temp
     this.volume,
 
     required this.orderId,
     this.order,
     this.timeOverflowPlanning,
+    this.planningBox,
     this.stages,
     this.inbound,
   });
@@ -164,6 +171,7 @@ class PlanningPaper {
       shiftManagement: json['shiftManagement'] ?? "",
       shiftProduction: json['shiftProduction'] ?? "",
       hasBox: json['hasBox'] ?? false,
+      deliveryPlanned: json['deliveryPlanned'] ?? "",
 
       //field temp
       volume: toDouble(json['volume']),
@@ -172,6 +180,7 @@ class PlanningPaper {
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
       timeOverflowPlanning:
           json['timeOverFlow'] != null ? TimeOverflowPlanning.fromJson(json['timeOverFlow']) : null,
+      planningBox: json['PlanningBox'] != null ? PlanningBox.fromJson(json['PlanningBox']) : null,
       stages:
           json['stages'] != null
               ? List<PlanningStage>.from(json['stages'].map((x) => PlanningStage.fromJson(x)))

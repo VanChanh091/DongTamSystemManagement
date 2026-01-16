@@ -124,7 +124,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
         padding: const EdgeInsets.all(5),
         child: Column(
           children: [
-            //button
+            //title & button
             SizedBox(
               height: 105,
               width: double.infinity,
@@ -165,7 +165,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                   children: [
                                     // Ngày giao
                                     buildLabelAndUnderlineInput(
-                                      label: "Ngày giao:",
+                                      label: "Ngày dự kiến:",
                                       controller: dayStartController,
                                       width: 120,
                                       readOnly: true,
@@ -237,7 +237,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                           context: context,
                                           title: "Xác Nhận Kế Hoạch Giao Hàng",
                                           content:
-                                              "Bạn có muốn xác nhận lên kế hoạch giao hàng cho các đơn này không?",
+                                              "Bạn có muốn lên kế hoạch giao hàng cho các đơn này không?",
                                           confirmText: "Xác nhận",
                                           confirmColor: const Color(0xffEA4346),
                                         );

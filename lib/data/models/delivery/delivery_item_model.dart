@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/admin/admin_vehicle_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 
 class DeliveryItemModel {
   final int deliveryItemId;
@@ -14,6 +15,7 @@ class DeliveryItemModel {
 
   final DeliveryPlanModel? deliveryPlan;
   final AdminVehicleModel? vehicle;
+  final PlanningPaper? planning;
 
   DeliveryItemModel({
     required this.deliveryItemId,
@@ -27,6 +29,7 @@ class DeliveryItemModel {
     required this.vehicleId,
     this.deliveryPlan,
     this.vehicle,
+    this.planning,
   });
 
   factory DeliveryItemModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +46,7 @@ class DeliveryItemModel {
       deliveryPlan:
           json['DeliveryPlan'] != null ? DeliveryPlanModel.fromJson(json['DeliveryPlan']) : null,
       vehicle: json['Vehicle'] != null ? AdminVehicleModel.fromJson(json['Vehicle']) : null,
+      planning: json['Planning'] != null ? PlanningPaper.fromJson(json['Planning']) : null,
     );
   }
 

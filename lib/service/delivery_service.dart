@@ -41,9 +41,9 @@ class DeliveryService {
   //=========================PLANNING & SCHEDULE DELIVERY===========================
 
   //get all planning waiting delivery
-  Future<List<PlanningPaper>> getPlanningWaitingDelivery() async {
+  Future<List<PlanningPaper>> getPlanningPending() async {
     return HelperService().fetchingData<PlanningPaper>(
-      endpoint: "delivery/getPlanningWaitingDelivery",
+      endpoint: "delivery/getPlanningPending",
       queryParameters: const {},
       fromJson: (json) => PlanningPaper.fromJson(json),
     );
@@ -53,6 +53,15 @@ class DeliveryService {
   Future<List<DeliveryPlanModel>> getAllPlanningDelivery({required DateTime deliveryDate}) async {
     return HelperService().fetchingData<DeliveryPlanModel>(
       endpoint: "delivery/getPlanningDelivery",
+      queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
+      fromJson: (json) => DeliveryPlanModel.fromJson(json),
+    );
+  }
+
+  //get delivery plan detail for edit
+  Future<List<DeliveryPlanModel>> getDeliveryPlanDetail({required DateTime deliveryDate}) async {
+    return HelperService().fetchingData<DeliveryPlanModel>(
+      endpoint: "delivery/getDeliveryPlanDetail",
       queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
       fromJson: (json) => DeliveryPlanModel.fromJson(json),
     );
