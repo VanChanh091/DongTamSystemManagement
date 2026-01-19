@@ -5,7 +5,6 @@ class DeliveryPlanModel {
   final int deliveryId;
   final DateTime? deliveryDate;
   final String status;
-  final String? note;
 
   final List<DeliveryItemModel>? deliveryItems;
 
@@ -13,7 +12,6 @@ class DeliveryPlanModel {
     required this.deliveryId,
     required this.deliveryDate,
     required this.status,
-    this.note,
 
     //ASSOCIATION
     this.deliveryItems,
@@ -27,7 +25,6 @@ class DeliveryPlanModel {
               ? DateTime.tryParse(json['deliveryDate'])
               : null,
       status: json['status'] ?? "",
-      note: json['note'] ?? "",
 
       deliveryItems:
           json['DeliveryItems'] != null
@@ -43,7 +40,6 @@ class DeliveryPlanModel {
       "deliveryId": deliveryId,
       "deliveryDate": deliveryDate != null ? DateFormat('yyyy-MM-dd').format(deliveryDate!) : null,
       "status": status,
-      "note": note,
     };
   }
 }

@@ -6,6 +6,8 @@ import 'package:dongtam/presentation/components/shared/planning/widgets_planning
 import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
+import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -27,13 +29,17 @@ class DeliveryPlanning extends StatefulWidget {
 
 class _DeliveryPlanningState extends State<DeliveryPlanning> {
   final themeController = Get.find<ThemeController>();
-  final Map<String, List<PlanningPaper>> vehicleOrders = {};
+  final Map<int, TextEditingController> _noteControllers = {};
+  final Map<int, bool> _showNoteMap = {};
 
+  Map<String, List<PlanningPaper>> vehicleOrders = {}; //final
   Map<String, List<PlanningPaper>> originalVehicleOrders = {};
+
   List<AdminVehicleModel> vehicles = [];
   List<PlanningPaper> pendingPapers = [];
   List<DeliveryTrip> trips = [];
 
+  bool _isLoading = true;
   bool _isSaving = false;
   String currentFilter = "pending";
 
@@ -49,9 +55,17 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
         "${now.month.toString().padLeft(2, '0')}/"
         "${now.year}";
 
-    loadPlanningWaiting();
-    loadVehicles();
-    loadPlannedOrders();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    setState(() => _isLoading = true);
+
+    await Future.wait([loadPlanningWaiting(), loadVehicles(), loadPlannedOrders()]);
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> loadPlanningWaiting() async {
@@ -91,6 +105,12 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
           if (plan.deliveryItems != null) {
             for (var item in plan.deliveryItems!) {
               if (item.planning != null) {
+                item.planning!.itemStatus = item.status; //item status for order has been cancelled
+
+                //input for note
+                final pId = item.planning!.planningId;
+                _noteControllers[pId] = TextEditingController(text: item.note ?? "");
+
                 final String key = buildVehicleKey(item.sequence, item.vehicleId);
 
                 // Thêm vào cả 2 map
@@ -142,6 +162,14 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     } catch (e) {
       return false;
     }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _noteControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -226,11 +254,10 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                       vehicleOrders.clear();
                                     });
 
-                                    loadPlannedOrders();
+                                    await loadPlannedOrders();
                                   }
                                 },
                               ),
-
                               const SizedBox(width: 15),
 
                               //save
@@ -273,7 +300,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                               context,
                                               "Các xe sau đang quá tải: $errorMsg",
                                             );
-                                            return; // Dừng lại không cho chạy code phía dưới
+                                            return;
                                           }
 
                                           setState(() => _isSaving = true);
@@ -290,7 +317,6 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                               return;
                                             }
 
-                                            // 2. Chuyển đổi dữ liệu từ vehicleOrders sang định dạng API yêu cầu
                                             List<Map<String, dynamic>> items = [];
 
                                             vehicleOrders.forEach((key, papers) {
@@ -316,6 +342,9 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                   "targetId": targetId,
                                                   "vehicleId": vehicleId,
                                                   "sequence": seq,
+                                                  'note':
+                                                      _noteControllers[paper.planningId]?.text ??
+                                                      "",
                                                 });
                                               }
                                             });
@@ -357,8 +386,37 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
                               //confirm delivery
                               AnimatedButton(
-                                onPressed: !_isEditable ? null : () {},
-                                label: 'Xác Nhận Giao',
+                                onPressed:
+                                    !_isEditable
+                                        ? null
+                                        : () async {
+                                          try {
+                                            bool confirm = await showConfirmDialog(
+                                              context: context,
+                                              title: "Xác Nhận Giao Hàng",
+                                              content: 'Bạn có muốn chốt lịch giao hàng này không?',
+                                              confirmText: "Xác nhận",
+                                            );
+
+                                            if (confirm) {
+                                              await DeliveryService().confirmForDeliveryPlanning(
+                                                deliveryDate: DateFormat(
+                                                  'dd/MM/yyyy',
+                                                ).parse(dayStartController.text),
+                                              );
+
+                                              if (!context.mounted) return;
+                                              showSnackBarSuccess(
+                                                context,
+                                                "Chốt lịch giao hàng thành công",
+                                              );
+                                            }
+                                          } catch (e) {
+                                            if (!context.mounted) return;
+                                            showSnackBarError(context, "Lỗi không xác định");
+                                          }
+                                        },
+                                label: 'Chốt Lịch',
                                 icon: Symbols.confirmation_number,
                                 backgroundColor: themeController.buttonColor,
                               ),
@@ -390,17 +448,16 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed:
-            () => {
-              setState(() {
-                vehicleOrders.clear();
-                originalVehicleOrders.forEach((key, list) {
-                  vehicleOrders[key] = List.from(list);
-                });
+        onPressed: () async {
+          setState(() {
+            vehicleOrders.clear();
+            originalVehicleOrders.forEach((key, list) {
+              vehicleOrders[key] = List.from(list);
+            });
+          });
 
-                loadPlanningWaiting();
-              }),
-            },
+          await _initializeData();
+        },
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
@@ -447,7 +504,12 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
               // BODY
               Expanded(
                 child:
-                    pendingPapers.isEmpty
+                    _isLoading
+                        ? Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+                        )
+                        : pendingPapers.isEmpty
                         ? const Center(
                           child: Text(
                             "Không có đơn hàng nào",
@@ -466,7 +528,11 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                               separatorBuilder: (_, _) => const SizedBox(height: 10),
                               itemBuilder: (context, index) {
                                 final paper = pendingPapers[index];
-                                return _buildDraggablePaper(paper, constraints.maxWidth - 24);
+                                return _buildDraggablePaper(
+                                  paper,
+                                  constraints.maxWidth - 24,
+                                  allowNote: false,
+                                );
                               },
                             );
                           },
@@ -479,69 +545,143 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     );
   }
 
-  Widget _planningPaperCard({required PlanningPaper paper, bool isDragging = false}) {
+  Widget _planningPaperCard({
+    required PlanningPaper paper,
+    String? status,
+    bool isDragging = false,
+    bool allowNote = true,
+  }) {
+    final currentStatus = status ?? paper.itemStatus;
+    final bool isCancelled = currentStatus == 'cancelled';
+    final pId = paper.planningId;
+    final bool isOpen = _showNoteMap[pId] ?? false;
+    final controller = _noteControllers.putIfAbsent(pId, () => TextEditingController());
+
     return AnimatedContainer(
-      duration: Duration(milliseconds: 120),
-      padding: const EdgeInsets.all(14),
+      duration: const Duration(milliseconds: 120),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDragging ? Colors.blue.shade50 : Colors.white,
+        color: isDragging ? Colors.blue.shade50 : (isCancelled ? Colors.red.shade50 : Colors.white),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow:
-            isDragging
-                ? [
-                  BoxShadow(
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                    offset: Offset(0, 3),
-                    color: Colors.black12,
-                  ),
-                ]
-                : [],
+        border: Border.all(
+          color: isCancelled ? Colors.red.shade300 : Colors.grey.shade300,
+          width: isCancelled ? 1.5 : 1,
+        ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          // Mã đơn
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Mã Đơn: ${paper.orderId} ${paper.order?.flute != null ? '- ${paper.order!.flute}' : ''}',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Thông tin: ${paper.order?.product?.productName ?? ""} ${paper.lengthPaperPlanning}*${paper.sizePaperPLaning} ${paper.order?.QC_box ?? ""}',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Mã Đơn: ${paper.orderId} ${paper.order?.flute != null ? '- ${paper.order!.flute}' : ''}',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Thông tin: ${paper.order?.product?.productName ?? ""} ${paper.lengthPaperPlanning}*${paper.sizePaperPLaning} ${paper.order?.QC_box ?? ""}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Khách Hàng: ${paper.order?.customer?.customerName ?? ''}",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                "Khách Hàng: ${paper.order?.customer?.customerName ?? ''}",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
+
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (allowNote) ...[
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            _showNoteMap[pId] = !isOpen;
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Icon(
+                            isOpen ? Icons.remove_circle : Icons.add_circle,
+                            color: isOpen ? Colors.red : Colors.green,
+                            size: 26,
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(width: 5),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Text(
+                        "${paper.volume} m³",
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
 
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade100,
-              borderRadius: BorderRadius.circular(50),
+          // input
+          if (isOpen)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: TextField(
+                controller: controller,
+                maxLines: 2,
+                minLines: 1,
+                style: const TextStyle(fontSize: 15, color: Colors.black87),
+                decoration: InputDecoration(
+                  hintText: "Thêm ghi chú cho đơn này...",
+                  hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                  isDense: true,
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  prefixIcon: Icon(
+                    Icons.sticky_note_2_outlined,
+                    size: 20,
+                    color: Colors.blueGrey.shade400,
+                  ),
+
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+
+                  // Viền khi bình thường
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                  ),
+
+                  // Viền khi nhấn vào (Focus)
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.blue, width: 1.5),
+                  ),
+                ),
+              ),
             ),
-            child: Text(
-              "${paper.volume} m³",
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
-            ),
-          ),
         ],
       ),
     );
@@ -549,6 +689,13 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
   //right UI
   Widget _buildTrips() {
+    if (_isLoading) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+      );
+    }
+
     return ListView(
       children:
           trips.map((trip) {
@@ -713,17 +860,23 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   }
 
   //helper
-  Widget _buildDraggablePaper(PlanningPaper paper, double width) {
+  Widget _buildDraggablePaper(PlanningPaper paper, double width, {bool allowNote = true}) {
     return Draggable<PlanningPaper>(
       data: paper,
       maxSimultaneousDrags: _isEditable ? 1 : 0,
       feedback: Material(
         elevation: 6,
         borderRadius: BorderRadius.circular(10),
-        child: SizedBox(width: width, child: _planningPaperCard(paper: paper, isDragging: true)),
+        child: SizedBox(
+          width: width,
+          child: _planningPaperCard(paper: paper, isDragging: true, allowNote: allowNote),
+        ),
       ),
-      childWhenDragging: Opacity(opacity: 0.3, child: _planningPaperCard(paper: paper)),
-      child: _planningPaperCard(paper: paper),
+      childWhenDragging: Opacity(
+        opacity: 0.3,
+        child: _planningPaperCard(paper: paper, allowNote: allowNote),
+      ),
+      child: _planningPaperCard(paper: paper, allowNote: allowNote),
     );
   }
 }

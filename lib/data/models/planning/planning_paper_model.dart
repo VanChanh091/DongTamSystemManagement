@@ -31,6 +31,7 @@ class PlanningPaper {
 
   //field temp
   final double? volume;
+  String? itemStatus;
 
   final bool hasBox;
 
@@ -81,6 +82,7 @@ class PlanningPaper {
 
     //field temp
     this.volume,
+    this.itemStatus,
 
     required this.orderId,
     this.order,

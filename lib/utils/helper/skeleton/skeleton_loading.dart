@@ -18,15 +18,13 @@ class SkeletonLoading extends StatefulWidget {
   State<SkeletonLoading> createState() => _SkeletonLoadingState();
 }
 
-class _SkeletonLoadingState extends State<SkeletonLoading>
-    with SingleTickerProviderStateMixin {
+class _SkeletonLoadingState extends State<SkeletonLoading> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.period)
-      ..repeat();
+    _controller = AnimationController(vsync: this, duration: widget.period)..repeat();
   }
 
   @override
@@ -47,11 +45,7 @@ class _SkeletonLoadingState extends State<SkeletonLoading>
             final double progress = _controller.value;
             // di chuyển gradient từ trái sang phải
             return LinearGradient(
-              colors: [
-                widget.baseColor,
-                widget.highlightColor,
-                widget.baseColor,
-              ],
+              colors: [widget.baseColor, widget.highlightColor, widget.baseColor],
               stops: const [0.1, 0.5, 0.9],
               begin: Alignment(-1.0 - 2.0 * progress, 0.0),
               end: Alignment(1.0 - 2.0 * progress, 0.0),
@@ -72,7 +66,6 @@ Widget buildShimmerSkeletonTable({
   double rowHeight = 38,
   double horizontalPadding = 8,
 }) {
-  // custom shapes theo giao diện DataGrid của bạn (bạn có thể chỉnh).
   Widget headerFake() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 6),
@@ -81,10 +74,7 @@ Widget buildShimmerSkeletonTable({
           Container(
             width: 200,
             height: headerHeight,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(6),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -109,10 +99,7 @@ Widget buildShimmerSkeletonTable({
           Container(
             width: 200,
             height: rowHeight,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(6),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -130,7 +117,6 @@ Widget buildShimmerSkeletonTable({
   }
 
   return SkeletonLoading(
-    // bạn có thể điều chỉnh base/highlight color ở đây
     child: Column(
       children: [
         // Fake header

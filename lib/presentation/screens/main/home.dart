@@ -84,33 +84,33 @@ class _HomePageState extends State<HomePage> {
       //dashboard
       DashboardPage(),
 
-      _buildPage(permission: 'sale', child: TopTabOrder()),
+      _buildPage(permissions: ['sale'], child: TopTabOrder()),
       CustomerPage(),
       ProductPage(),
 
       //Employee
-      _buildPage(permission: 'HR', child: Employee()),
+      _buildPage(permissions: ['HR'], child: Employee()),
 
       // planning
-      _buildPage(permission: 'plan', child: WaitingForPlanning()),
-      _buildPage(permission: 'plan', child: TopTabPlanning()),
-      _buildPage(permission: 'plan', child: PlanningStop()),
+      _buildPage(permissions: ['plan'], child: WaitingForPlanning()),
+      _buildPage(permissions: ['plan'], child: TopTabPlanning()),
+      _buildPage(permissions: ['plan'], child: PlanningStop()),
 
       // manufacture
       PaperProduction(),
       BoxPrintingProduction(),
 
       //waiting check
-      _buildPage(permission: 'QC', child: WaitingCheckPaper()),
-      _buildPage(permission: 'QC', child: WaitingCheckBox()),
+      _buildPage(permissions: ['QC'], child: WaitingCheckPaper()),
+      _buildPage(permissions: ['QC'], child: WaitingCheckBox()),
 
       //outbound
-      _buildPage(permission: 'delivery', child: OutboundHistory()),
+      _buildPage(permissions: ['delivery'], child: OutboundHistory()),
       Inventory(),
 
       //delivery
-      _buildPage(permission: 'plan', child: DeliveryEstimateTime()),
-      _buildPage(permission: 'plan', child: DeliveryPlanning()),
+      _buildPage(permissions: ['plan', 'sale'], child: DeliveryEstimateTime()),
+      _buildPage(permissions: ['plan'], child: DeliveryPlanning()),
       DeliverySchedule(),
 
       //reporting hitstory
@@ -130,21 +130,19 @@ class _HomePageState extends State<HomePage> {
     ].whereType<Widget>().toList(); // lọc bỏ null
   }
 
-  Widget? _buildPage({String? permission, List<String>? roles, Widget? child}) {
+  Widget? _buildPage({List<String>? permissions, List<String>? roles, Widget? child}) {
     final role = userController.role.value;
 
-    if (roles != null && roles.isNotEmpty) {
-      if (!roles.contains(role)) return null;
+    if (roles != null && roles.isNotEmpty && !roles.contains(role)) {
+      return null;
     } else {
       if (role == "admin" || role == "manager") return child;
     }
 
-    if (roles != null && roles.isNotEmpty && !roles.contains(role)) {
-      return null;
-    }
-
-    if (permission != null && !userController.hasAnyPermission(permission: [permission])) {
-      return null;
+    if (permissions != null && permissions.isNotEmpty) {
+      if (!userController.hasAnyPermission(permission: permissions)) {
+        return null;
+      }
     }
 
     return child;
@@ -502,7 +500,7 @@ class _HomePageState extends State<HomePage> {
         icon: Symbols.airport_shuttle,
         children: [
           if (estimateTime != -1)
-            _buildSubMenuItem(Symbols.pending_actions, "Hàng Chờ Xác Nhận", estimateTime),
+            _buildSubMenuItem(Symbols.pending_actions, "Đăng Ký Giao Hàng", estimateTime),
           if (planning != -1)
             _buildSubMenuItem(Symbols.calendar_add_on, "Kế Hoạch Giao Hàng", planning),
           if (schedule != -1) _buildSubMenuItem(Symbols.schedule, "Lịch Giao Hàng", schedule),

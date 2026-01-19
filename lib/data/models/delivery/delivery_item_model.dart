@@ -7,6 +7,7 @@ class DeliveryItemModel {
   final String targetType;
   final int targetId;
   final int sequence;
+  final String? note;
   final String status;
 
   //FK
@@ -23,6 +24,7 @@ class DeliveryItemModel {
     required this.targetId,
     required this.sequence,
     required this.status,
+    this.note,
 
     //FK
     required this.deliveryId,
@@ -38,6 +40,7 @@ class DeliveryItemModel {
       targetType: json['targetType'] ?? "",
       targetId: json['targetId'] ?? 0,
       sequence: json['sequence'] ?? 0,
+      note: json['note'] ?? "",
       status: json['status'] ?? "",
 
       //FK
@@ -51,6 +54,6 @@ class DeliveryItemModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {"targetType": targetType, "targetId": targetId, "sequence": sequence};
+    return {"targetType": targetType, "targetId": targetId, "sequence": sequence, "note": note};
   }
 }

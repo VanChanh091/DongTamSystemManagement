@@ -38,7 +38,7 @@ class DeliveryService {
     );
   }
 
-  //=========================PLANNING & SCHEDULE DELIVERY===========================
+  //=========================PLANNING DELIVERY===========================
 
   //get all planning waiting delivery
   Future<List<PlanningPaper>> getPlanningPending() async {
@@ -79,4 +79,35 @@ class DeliveryService {
   }
 
   //confirm for delivery
+  Future<bool> confirmForDeliveryPlanning({required DateTime deliveryDate}) async {
+    return HelperService().updateItem(
+      endpoint: "delivery/confirmDelivery",
+      queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
+    );
+  }
+
+  //=========================SCHEDULE DELIVERY===========================
+
+  // get schedule delivery
+  Future<List<DeliveryPlanModel>> getScheduleDelivery({required DateTime deliveryDate}) async {
+    return HelperService().fetchingData<DeliveryPlanModel>(
+      endpoint: "delivery/getScheduleDelivery",
+      queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
+      fromJson: (json) => DeliveryPlanModel.fromJson(json),
+    );
+  }
+
+  // update Status Delivery
+  // status complete or cancel
+  Future<bool> updateStatusDelivery({
+    required int deliveryId,
+    required List<int> itemIds,
+    required String action,
+  }) async {
+    return HelperService().updateItem(
+      endpoint: "delivery/updateStatusDelivery",
+      queryParameters: {"deliveryId": deliveryId},
+      dataUpdated: {"itemIds": itemIds, "action": action},
+    );
+  }
 }
