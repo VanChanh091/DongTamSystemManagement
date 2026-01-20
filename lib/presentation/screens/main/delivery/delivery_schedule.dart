@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_delivery_schedule.dart';
+import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/delivery/delivery_schedule_data_source.dart';
 import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -121,6 +122,58 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                // Ngày giao
+                                buildLabelAndUnderlineInput(
+                                  label: "Ngày giao:",
+                                  controller: dayStartController,
+                                  width: 120,
+                                  readOnly: true,
+                                  onTap: () async {
+                                    final selected = await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(2026),
+                                      lastDate: DateTime(2100),
+                                      builder: (BuildContext context, Widget? child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme: ColorScheme.light(
+                                              primary: Colors.blue,
+                                              onPrimary: Colors.white,
+                                              onSurface: Colors.black,
+                                            ),
+                                            dialogTheme: DialogThemeData(
+                                              backgroundColor: Colors.white12,
+                                            ),
+                                          ),
+                                          child: child!,
+                                        );
+                                      },
+                                    );
+
+                                    if (selected != null) {
+                                      setState(() {
+                                        dayStartController.text = DateFormat(
+                                          'dd/MM/yyyy',
+                                        ).format(selected);
+
+                                        selectedDeliveryIds.clear();
+                                      });
+
+                                      loadDeliverySchedule();
+                                    }
+                                  },
+                                ),
+                                const SizedBox(width: 15),
+
+                                //cancel
+                                AnimatedButton(
+                                  onPressed: () {},
+                                  label: "Xuất File",
+                                  icon: Symbols.ac_unit,
+                                ),
+                                const SizedBox(width: 10),
+
                                 //complete
                                 AnimatedButton(
                                   onPressed: () {},

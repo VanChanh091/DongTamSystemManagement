@@ -17,6 +17,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
     buildDataGridRows();
 
     addColumnGroup(ColumnGroup(name: 'sequence', sortGroupRows: false));
+    addColumnGroup(ColumnGroup(name: 'customerName', sortGroupRows: false));
   }
 
   List<DataGridCell> buildDbPaperCells(DeliveryPlanModel plan, DeliveryItemModel item) {
@@ -27,6 +28,8 @@ class DeliveryScheduleDataSource extends DataGridSource {
     final inventory = order?.Inventory;
 
     return [
+      DataGridCell<String>(columnName: "vehicleName", value: vehicle?.vehicleName ?? ""),
+
       //order
       DataGridCell<String>(columnName: "orderId", value: order!.orderId),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
@@ -41,7 +44,6 @@ class DeliveryScheduleDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
 
       //vehicle
-      DataGridCell<String>(columnName: "vehicleName", value: vehicle?.vehicleName ?? ""),
       DataGridCell<String>(columnName: "licensePlate", value: vehicle?.licensePlate ?? ""),
       DataGridCell<String>(
         columnName: "maxPayload",
@@ -81,28 +83,40 @@ class DeliveryScheduleDataSource extends DataGridSource {
 
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
-    // sequence : 1 - 3 items
+    // Tách field và value
     final parts = summaryValue.split(':');
     if (parts.length < 2) return null;
 
-    final valuePart = parts[1].trim(); // "1 - 3 items"
-    final valuePieces = valuePart.split('-');
+    final fieldName = parts[0].trim(); // sequence | customerName
+    final valuePart = parts[1].trim(); // "1 - 3 items" | "chanh 1 - 2 items"
 
+    final valuePieces = valuePart.split('-');
     if (valuePieces.length < 2) return null;
 
-    final sequence = valuePieces[0].trim(); // "1"
-    final itemCount =
-        valuePieces[1].replaceAll(RegExp(r'items?', caseSensitive: false), '').trim(); // "3"
+    final groupValue = valuePieces[0].trim();
+    final itemCount = valuePieces[1].replaceAll(RegExp(r'items?', caseSensitive: false), '').trim();
+
+    String caption;
+
+    switch (fieldName) {
+      case 'sequence':
+        caption = '🚚 Tài: $groupValue - $itemCount đơn hàng';
+        break;
+
+      case 'customerName':
+        caption = 'Khách Hàng: $groupValue';
+        break;
+
+      default:
+        caption = '$groupValue - $itemCount items';
+    }
 
     return Container(
       width: double.infinity,
       color: Colors.grey.shade200,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       alignment: Alignment.centerLeft,
-      child: Text(
-        '🚚 Tài: $sequence – $itemCount đơn hàng',
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-      ),
+      child: Text(caption, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
     );
   }
 

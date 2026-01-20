@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerDeliverySchedule = [
+  {"key": "vehicleName", "title": "Tên Xe"},
+
   //order
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
@@ -18,7 +20,6 @@ const List<Map<String, dynamic>> _headerDeliverySchedule = [
   {"key": "dvt", "title": "DVT"},
 
   //vehicle
-  {"key": "vehicleName", "title": "Tên Xe"},
   {"key": "licensePlate", "title": "Biển Số"},
   {"key": "maxPayload", "title": "Tải Trọng"},
   {"key": "volumeCapacity", "title": "Thể Tích"},
