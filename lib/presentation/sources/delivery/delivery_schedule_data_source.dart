@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,13 +8,13 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class DeliveryScheduleDataSource extends DataGridSource {
   List<DeliveryPlanModel> delivery = [];
-  List<int>? selectedDeliveryId;
+  List<int> selectedDeliveryId;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  DeliveryScheduleDataSource({required this.delivery, this.selectedDeliveryId}) {
+  DeliveryScheduleDataSource({required this.delivery, required this.selectedDeliveryId}) {
     buildDataGridRows();
 
     addColumnGroup(ColumnGroup(name: 'sequence', sortGroupRows: false));
@@ -59,6 +60,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
 
       //hidden field
       DataGridCell<int>(columnName: "deliveryId", value: plan.deliveryId),
+      DataGridCell<int>(columnName: "deliveryItemId", value: item.deliveryItemId),
       DataGridCell<String>(
         columnName: "deliveryDate",
         value: plan.deliveryDate != null ? formatter.format(plan.deliveryDate!) : "",
@@ -122,17 +124,26 @@ class DeliveryScheduleDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final deliveryId = row.getCells().firstWhere((cell) => cell.columnName == 'deliveryId').value;
+    final deliveryItemId =
+        row.getCells().firstWhere((cell) => cell.columnName == 'deliveryItemId').value;
 
-    Color backgroundColor;
-    if (selectedDeliveryId != null && selectedDeliveryId!.contains(deliveryId)) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
+    final isSelected = selectedDeliveryId.contains(deliveryItemId);
+
+    final status = getCellValue<String>(row, 'status', "");
+
+    Color? rowColor;
+    if (isSelected) {
+      rowColor = Colors.blue.withValues(alpha: 0.3);
+    } else if (status == "completed") {
+      rowColor = Colors.green.withValues(alpha: 0.3);
+    } else if (status == "cancelled") {
+      rowColor = Colors.red.withValues(alpha: 0.4);
     } else {
-      backgroundColor = Colors.transparent;
+      rowColor = Colors.transparent;
     }
 
     return DataGridRowAdapter(
-      color: backgroundColor,
+      color: rowColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
             Alignment alignment;

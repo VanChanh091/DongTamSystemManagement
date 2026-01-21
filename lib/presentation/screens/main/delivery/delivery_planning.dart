@@ -381,7 +381,6 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                           }
                                         },
                               ),
-
                               const SizedBox(width: 10),
 
                               //confirm delivery

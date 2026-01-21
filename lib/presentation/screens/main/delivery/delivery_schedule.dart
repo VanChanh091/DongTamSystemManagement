@@ -6,6 +6,8 @@ import 'package:dongtam/presentation/components/shared/planning/widgets_planning
 import 'package:dongtam/presentation/sources/delivery/delivery_schedule_data_source.dart';
 import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
@@ -37,6 +39,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
   bool isLoading = false;
   bool showGroup = true;
+  int? currentDeliveryId;
 
   TextEditingController dayStartController = TextEditingController();
 
@@ -59,6 +62,21 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
         columnWidths = w;
       });
     });
+  }
+
+  bool get _isEditable {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    try {
+      final selectedDate = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
+
+      // Cho phép sửa nếu >= hôm qua
+      return !selectedDate.isBefore(yesterday);
+    } catch (e) {
+      return false;
+    }
   }
 
   void loadDeliverySchedule() {
@@ -168,25 +186,85 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
                                 //cancel
                                 AnimatedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    bool confirm = await showConfirmDialog(
+                                      context: context,
+                                      title: "Xuất Lịch Giao Hàng",
+                                      content:
+                                          "Xuất lịch giao hàng cho ngày ${dayStartController.text}?",
+                                      confirmText: "Xác Nhận",
+                                    );
+
+                                    if (confirm) {
+                                      final parsedDate = formatter.parse(dayStartController.text);
+
+                                      final file = await DeliveryService().exportExcelCustomer(
+                                        deliveryDate: parsedDate,
+                                      );
+
+                                      if (file != null && context.mounted) {
+                                        showSnackBarSuccess(context, "Xuất file thành công");
+                                      } else if (context.mounted) {
+                                        showSnackBarError(context, "Xuất file thất bại");
+                                      }
+                                    }
+                                  },
                                   label: "Xuất File",
-                                  icon: Symbols.ac_unit,
+                                  icon: Symbols.export_notes,
                                 ),
                                 const SizedBox(width: 10),
 
                                 //complete
                                 AnimatedButton(
-                                  onPressed: () {},
+                                  onPressed:
+                                      _isEditable
+                                          ? () async {
+                                            await handleDeliveryAction(
+                                              context: context,
+                                              deliveryId: currentDeliveryId!,
+                                              selectedItemIds: selectedDeliveryIds,
+                                              action: "complete",
+                                              title: "Xác Nhận Hoàn Thành Giao Hàng",
+                                              content: "Hoàn thành các kế hoạch giao hàng đã chọn?",
+                                              successMessage: "Hoàn thành giao hàng thành công",
+                                              errorMessage: "Hoàn thành giao hàng thất bại",
+                                              onSuccess: () {
+                                                loadDeliverySchedule();
+                                              },
+                                            );
+                                          }
+                                          : null,
                                   label: "Hoàn Thành",
-                                  icon: Symbols.ac_unit,
+                                  icon: Symbols.check,
+                                  backgroundColor:
+                                      _isEditable ? themeController.buttonColor : Colors.grey,
                                 ),
                                 const SizedBox(width: 10),
 
                                 //cancel
                                 AnimatedButton(
-                                  onPressed: () {},
+                                  onPressed:
+                                      _isEditable
+                                          ? () async {
+                                            await handleDeliveryAction(
+                                              context: context,
+                                              deliveryId: currentDeliveryId!,
+                                              selectedItemIds: selectedDeliveryIds,
+                                              action: "cancel",
+                                              title: "Xác Nhận Hủy Giao Hàng",
+                                              content: "Hủy các kế hoạch giao hàng đã chọn?",
+                                              successMessage: "Hủy giao hàng thành công",
+                                              errorMessage: "Hủy giao hàng thất bại",
+                                              onSuccess: () {
+                                                loadDeliverySchedule();
+                                              },
+                                            );
+                                          }
+                                          : null,
                                   label: "Hủy Giao",
-                                  icon: Symbols.ac_unit,
+                                  icon: Symbols.cancel,
+                                  backgroundColor:
+                                      _isEditable ? const Color(0xffEA4346) : Colors.grey,
                                 ),
                                 const SizedBox(width: 10),
                               ],
@@ -245,6 +323,8 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
                   final List<DeliveryPlanModel> data = snapshot.data!;
 
+                  currentDeliveryId ??= data.first.deliveryId;
+
                   deliveryDatasource = DeliveryScheduleDataSource(
                     delivery: data,
                     selectedDeliveryId: selectedDeliveryIds,
@@ -265,7 +345,6 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                       columns: columns,
                       widths: columnWidths,
                     ),
-                    stackedHeaderRows: <StackedHeaderRow>[],
 
                     //auto resize
                     allowColumnsResizing: true,
@@ -297,7 +376,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                             selectedRows.map((row) {
                               return row
                                       .getCells()
-                                      .firstWhere((cell) => cell.columnName == 'deliveryId')
+                                      .firstWhere((cell) => cell.columnName == 'deliveryItemId')
                                       .value
                                   as int;
                             }).toList();
@@ -325,5 +404,48 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                 : SizedBox.shrink(),
       ),
     );
+  }
+
+  Future<void> handleDeliveryAction({
+    required BuildContext context,
+    required int deliveryId,
+    required List<int> selectedItemIds,
+    required String action,
+    required String title,
+    required String content,
+    required String successMessage,
+    required String errorMessage,
+    required VoidCallback onSuccess,
+  }) async {
+    if (selectedItemIds.isEmpty) {
+      showSnackBarError(context, "Chưa chọn kế hoạch cần thực hiện");
+      return;
+    }
+
+    bool confirm = await showConfirmDialog(
+      context: context,
+      title: title,
+      content: content,
+      confirmText: "Xác Nhận",
+    );
+
+    if (confirm) {
+      try {
+        final success = await DeliveryService().updateStatusDelivery(
+          deliveryId: deliveryId,
+          itemIds: selectedItemIds,
+          action: action,
+        );
+
+        if (!context.mounted) return;
+        if (success) {
+          showSnackBarSuccess(context, successMessage);
+          onSuccess();
+        }
+      } catch (e) {
+        if (!context.mounted) return;
+        showSnackBarError(context, errorMessage);
+      }
+    }
   }
 }
