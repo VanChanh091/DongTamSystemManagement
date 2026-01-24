@@ -274,7 +274,7 @@ class _ManageOrderState extends State<AdminOrder> {
                               ),
                               const SizedBox(height: 16),
 
-                              //approve or reject
+                              //button
                               Row(
                                 children: [
                                   //approve
@@ -293,6 +293,7 @@ class _ManageOrderState extends State<AdminOrder> {
 
                                         //cập nhật lại badge
                                         badgesController.fetchPendingApprovals();
+                                        badgesController.fetchOrderPending();
 
                                         setState(() {
                                           selectedOrder = null;

@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
@@ -33,6 +34,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final badgesController = Get.find<BadgesController>();
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
   final DataGridController dataGridController = DataGridController();
@@ -348,13 +350,16 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                     machine: machine,
                                                   );
 
-                                                  loadPlanning();
-
                                                   if (!context.mounted) return;
                                                   showSnackBarSuccess(
                                                     context,
                                                     "Xác nhận sản xuất thành công",
                                                   );
+
+                                                  //cập nhật badge
+                                                  badgesController.fetchBoxWaitingCheck();
+
+                                                  loadPlanning();
                                                 } on ApiException catch (e) {
                                                   final errorText = switch (e.errorCode) {
                                                     'PLANNING_COMPLETED' =>

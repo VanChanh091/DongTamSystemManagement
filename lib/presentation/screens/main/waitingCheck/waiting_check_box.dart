@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
@@ -11,6 +12,7 @@ import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -35,6 +37,7 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
   late List<GridColumn> columnsStages;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final badgesController = Get.find<BadgesController>();
 
   Map<String, double> columnWidthsPlanning = {};
   Map<String, double> columnWidthsStage = {};
@@ -184,31 +187,46 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                                             try {
                                               if (selectedPlanningBoxIds == null) return;
 
-                                              final int selectedPlanningBoxId =
-                                                  selectedPlanningBoxIds!;
-
-                                              // Tìm planning tương ứng
-                                              final selectedPlanning = planningList.firstWhere(
-                                                (p) => p.planningBoxId == selectedPlanningBoxId,
-                                                orElse:
-                                                    () =>
-                                                        throw Exception("Không tìm thấy kế hoạch"),
+                                              final confirm = await showConfirmDialog(
+                                                context: context,
+                                                title: "Xác nhận hoàn thành",
+                                                content:
+                                                    "Bạn có muốn xác nhận hoàn thành phiên kiểm tra này không?",
+                                                confirmText: "Xác nhận",
                                               );
 
-                                              // Gửi yêu cầu xác nhận sản xuất
-                                              await QualityControlService().confirmFinalizeSession(
-                                                planningBoxId: selectedPlanning.planningBoxId,
-                                                isPaper: false,
-                                              );
+                                              if (confirm) {
+                                                final int selectedPlanningBoxId =
+                                                    selectedPlanningBoxIds!;
 
-                                              if (!context.mounted) return;
+                                                // Tìm planning tương ứng
+                                                final selectedPlanning = planningList.firstWhere(
+                                                  (p) => p.planningBoxId == selectedPlanningBoxId,
+                                                  orElse:
+                                                      () =>
+                                                          throw Exception(
+                                                            "Không tìm thấy kế hoạch",
+                                                          ),
+                                                );
 
-                                              loadBoxWaiting();
+                                                // Gửi yêu cầu xác nhận sản xuất
+                                                await QualityControlService()
+                                                    .confirmFinalizeSession(
+                                                      planningBoxId: selectedPlanning.planningBoxId,
+                                                      isPaper: false,
+                                                    );
 
-                                              showSnackBarSuccess(
-                                                context,
-                                                "Xác nhận hoàn thành phiên kiểm tra thành công",
-                                              );
+                                                if (!context.mounted) return;
+                                                showSnackBarSuccess(
+                                                  context,
+                                                  "Xác nhận hoàn thành phiên kiểm tra thành công",
+                                                );
+
+                                                //cập nhật badge
+                                                badgesController.fetchBoxWaitingCheck();
+
+                                                loadBoxWaiting();
+                                              }
                                             } catch (e, s) {
                                               AppLogger.e(
                                                 "Lỗi khi xác nhận SX",

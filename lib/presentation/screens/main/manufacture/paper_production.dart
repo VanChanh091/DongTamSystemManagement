@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
@@ -33,6 +34,7 @@ class _PaperProductionState extends State<PaperProduction> {
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final badgesController = Get.find<BadgesController>();
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
   final DataGridController dataGridController = DataGridController();
@@ -302,6 +304,10 @@ class _PaperProductionState extends State<PaperProduction> {
                                                           onReport: () => loadPlanning(),
                                                         ),
                                                   );
+
+                                                  //cập nhật badge
+                                                  badgesController.fetchPaperWaitingCheck();
+                                                  badgesController.fetchOrderPending();
                                                 } catch (e, s) {
                                                   AppLogger.e(
                                                     "Lỗi khi mở dialog",

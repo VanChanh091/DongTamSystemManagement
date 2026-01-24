@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
@@ -29,7 +30,9 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   late List<GridColumn> columns;
   final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
+  final badgesController = Get.find<BadgesController>();
   final formatter = DateFormat('dd/MM/yyyy');
+
   Map<String, double> columnWidths = {};
   String? selectedOrderId;
 
@@ -75,6 +78,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
               width: double.infinity,
               child: Column(
                 children: [
+                  //title
                   SizedBox(
                     height: 35,
                     width: double.infinity,
@@ -89,6 +93,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                       ),
                     ),
                   ),
+
+                  //button
                   SizedBox(
                     height: 70,
                     width: double.infinity,
@@ -99,12 +105,11 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                               children: [
                                 const SizedBox(),
 
-                                //button
                                 Container(
                                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: Row(
                                     children: [
-                                      //planning
+                                      //planning order
                                       AnimatedButton(
                                         onPressed:
                                             selectedOrderId == null

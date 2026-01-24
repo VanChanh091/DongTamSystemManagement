@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
@@ -8,6 +9,7 @@ import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/helper/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -32,6 +34,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final badgesController = Get.find<BadgesController>();
   final formatter = DateFormat('dd/MM/yyyy');
   final dataGridController = DataGridController();
   Map<String, double> columnWidths = {};
@@ -107,7 +110,6 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
         padding: const EdgeInsets.all(5),
         child: Column(
           children: [
-            //button
             SizedBox(
               height: 105,
               width: double.infinity,
@@ -194,35 +196,48 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                                                   canFinalizePlanning(planning: selectedPlanning!)
                                               ? () async {
                                                 try {
-                                                  final int selectedPlanningId = int.parse(
-                                                    selectedPlanningIds.first,
+                                                  final confirm = await showConfirmDialog(
+                                                    context: context,
+                                                    title: "Xác nhận hoàn thành",
+                                                    content:
+                                                        "Bạn có muốn xác nhận hoàn thành phiên kiểm tra này không?",
+                                                    confirmText: "Xác nhận",
                                                   );
 
-                                                  // Tìm planning tương ứng
-                                                  final selectedPlanning = planningList.firstWhere(
-                                                    (p) => p.planningId == selectedPlanningId,
-                                                    orElse:
-                                                        () =>
-                                                            throw Exception(
-                                                              "Không tìm thấy kế hoạch",
-                                                            ),
-                                                  );
+                                                  if (confirm) {
+                                                    final int selectedPlanningId = int.parse(
+                                                      selectedPlanningIds.first,
+                                                    );
 
-                                                  // Gửi yêu cầu xác nhận sản xuất
-                                                  await QualityControlService()
-                                                      .confirmFinalizeSession(
-                                                        planningId: selectedPlanning.planningId,
-                                                        isPaper: true,
-                                                      );
+                                                    // Tìm planning tương ứng
+                                                    final selectedPlanning = planningList
+                                                        .firstWhere(
+                                                          (p) => p.planningId == selectedPlanningId,
+                                                          orElse:
+                                                              () =>
+                                                                  throw Exception(
+                                                                    "Không tìm thấy kế hoạch",
+                                                                  ),
+                                                        );
 
-                                                  if (!context.mounted) return;
+                                                    // Gửi yêu cầu xác nhận sản xuất
+                                                    await QualityControlService()
+                                                        .confirmFinalizeSession(
+                                                          planningId: selectedPlanning.planningId,
+                                                          isPaper: true,
+                                                        );
 
-                                                  loadPaperWaiting();
+                                                    if (!context.mounted) return;
+                                                    showSnackBarSuccess(
+                                                      context,
+                                                      "Xác nhận hoàn thành phiên kiểm tra thành công",
+                                                    );
 
-                                                  showSnackBarSuccess(
-                                                    context,
-                                                    "Xác nhận hoàn thành phiên kiểm tra thành công",
-                                                  );
+                                                    //cập nhật badge
+                                                    badgesController.fetchPaperWaitingCheck();
+
+                                                    loadPaperWaiting();
+                                                  }
                                                 } catch (e, s) {
                                                   AppLogger.e(
                                                     "Lỗi khi xác nhận SX",

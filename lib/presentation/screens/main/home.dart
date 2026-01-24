@@ -33,7 +33,6 @@ import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dar
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/color/theme_picker_color.dart';
-import 'package:dongtam/utils/helper/sidebar_expanded_menu.dart';
 import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -43,6 +42,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:dongtam/utils/helper/home/sidebar_submenu.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -255,18 +255,62 @@ class _HomePageState extends State<HomePage> {
             "Nhân Viên",
             index: pages.indexWhere((w) => w is Employee),
           ),
-          _buildPlanningMenu(pages),
-          _buildManufactureMenu(pages),
-          _buildWaitingCheckMenu(pages),
-          _buildWarehouseMenu(pages),
-          _buildDeliveryMenu(pages),
-          _buildReportMenu(pages),
+
+          buildPlanningMenu(
+            isSidebarOpen: _isSidebarOpen,
+            isExpanded: _isPlanningExpanded,
+            onToggle: () => setState(() => _isPlanningExpanded = !_isPlanningExpanded),
+            pages: pages,
+          ),
+
+          buildManufactureMenu(
+            isSidebarOpen: _isSidebarOpen,
+            isExpanded: _isManufactureExpanded,
+            onToggle: () => setState(() => _isManufactureExpanded = !_isManufactureExpanded),
+            pages: pages,
+          ),
+
+          buildWaitingCheckMenu(
+            isSidebarOpen: _isSidebarOpen,
+            isExpanded: _isWaitingExpanded,
+            onToggle: () => setState(() => _isWaitingExpanded = !_isWaitingExpanded),
+            pages: pages,
+          ),
+
+          buildWarehouseMenu(
+            isSidebarOpen: _isSidebarOpen,
+            isExpanded: _isWarehouseExpanded,
+            onToggle: () => setState(() => _isWarehouseExpanded = !_isWarehouseExpanded),
+            pages: pages,
+          ),
+
+          buildDeliveryMenu(
+            isSidebarOpen: _isSidebarOpen,
+            isExpanded: _isDeliveryExpanded,
+            onToggle: () => setState(() => _isDeliveryExpanded = !_isDeliveryExpanded),
+            pages: pages,
+          ),
+
+          buildReportMenu(
+            isSidebarOpen: _isSidebarOpen,
+            isExpanded: _isReportExpanded,
+            onToggle: () => setState(() => _isReportExpanded = !_isReportExpanded),
+            pages: pages,
+          ),
+
           _buildSidebarItem(
             Symbols.dual_screen,
             "Tổng Hợp Sản Xuất",
             index: pages.indexWhere((w) => w is DashboardPlanning),
           ),
-          _buildApprovalMenu(pages),
+
+          buildApprovalMenu(
+            isSidebarOpen: _isSidebarOpen,
+            isExpanded: _isApprovalExpanded,
+            onToggle: () => setState(() => _isApprovalExpanded = !_isApprovalExpanded),
+            pages: pages,
+          ),
+
           _buildSidebarItem(
             Icons.color_lens,
             "Đổi Màu Theme",
@@ -275,342 +319,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-  }
-
-  //planning
-  Widget _buildPlanningMenu(List<Widget> pages) {
-    final waitingIndex = pages.indexWhere((w) => w is WaitingForPlanning);
-    final planningIndex = pages.indexWhere((w) => w is TopTabPlanning);
-    final planningStopIndex = pages.indexWhere((w) => w is PlanningStop);
-
-    if (waitingIndex == -1 && planningIndex == -1 && planningStopIndex == -1) {
-      return const SizedBox.shrink();
-    }
-
-    final badgesController = Get.find<BadgesController>();
-
-    return Obx(() {
-      final selected = sidebarController.selectedIndex.value;
-      final isParentSelected =
-          selected == waitingIndex || selected == planningIndex || selected == planningStopIndex;
-
-      final leadingWithBadge = Obx(() {
-        final count = badgesController.numberPlanningStop.value;
-
-        if (_isSidebarOpen) {
-          if (count == 0) {
-            return Icon(
-              Icons.schedule,
-              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-            );
-          }
-          return Badge.count(count: count, child: const Icon(Icons.schedule, color: Colors.white));
-        } else {
-          if (count == 0) {
-            return Icon(
-              Icons.schedule,
-              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-            );
-          }
-          return Badge(
-            smallSize: 8,
-            backgroundColor: Colors.red,
-            child: Icon(
-              Icons.schedule,
-              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-            ),
-          );
-        }
-      });
-
-      return SidebarExpandedMenu(
-        isSidebarOpen: _isSidebarOpen,
-        isExpanded: _isPlanningExpanded,
-        onToggle: () => setState(() => _isPlanningExpanded = !_isPlanningExpanded),
-        isParentSelected: isParentSelected,
-        title: "Kế Hoạch",
-        icon: Icons.schedule,
-        leading: leadingWithBadge,
-        children: [
-          if (waitingIndex != -1)
-            _buildSubMenuItem(Icons.outbox_rounded, "Chờ Lên Kế Hoạch", waitingIndex),
-          if (planningIndex != -1)
-            _buildSubMenuItem(
-              Icons.production_quantity_limits_outlined,
-              "Hàng Chờ Sản Xuất",
-              planningIndex,
-            ),
-          if (planningStopIndex != -1)
-            _buildSubMenuItem(
-              Symbols.queue,
-              "Hàng Chờ Xử Lý",
-              planningStopIndex,
-              leadingWrapper: Obx(() {
-                final count = badgesController.numberPlanningStop.value;
-                if (count == 0) {
-                  return const Icon(Icons.queue, color: Colors.white);
-                }
-                return Badge.count(
-                  count: count,
-                  child: const Icon(Icons.queue, color: Colors.white),
-                );
-              }),
-            ),
-        ],
-      );
-    });
-  }
-
-  //manufacture
-  Widget _buildManufactureMenu(List<Widget> pages) {
-    final paperIndex = pages.indexWhere((w) => w is PaperProduction);
-    final boxIndex = pages.indexWhere((w) => w is BoxPrintingProduction);
-
-    if (paperIndex == -1 && boxIndex == -1) {
-      return const SizedBox.shrink();
-    }
-
-    return Obx(() {
-      final selected = sidebarController.selectedIndex.value;
-      final isParentSelected = selected == paperIndex || selected == boxIndex;
-
-      return SidebarExpandedMenu(
-        isSidebarOpen: _isSidebarOpen,
-        isExpanded: _isManufactureExpanded,
-        onToggle: () => setState(() => _isManufactureExpanded = !_isManufactureExpanded),
-        isParentSelected: isParentSelected,
-        title: "Sản Xuất",
-        icon: Symbols.manufacturing,
-        children: [
-          if (paperIndex != -1) _buildSubMenuItem(Icons.article, "Giấy Tấm", paperIndex),
-          if (boxIndex != -1) _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", boxIndex),
-        ],
-      );
-    });
-  }
-
-  //waiting check
-  Widget _buildWaitingCheckMenu(List<Widget> pages) {
-    final waitingPaperIndex = pages.indexWhere((w) => w is WaitingCheckPaper);
-    final waitingBoxIndex = pages.indexWhere((w) => w is WaitingCheckBox);
-
-    if (waitingPaperIndex == -1 && waitingBoxIndex == -1) {
-      return const SizedBox.shrink();
-    }
-
-    return Obx(() {
-      final selected = sidebarController.selectedIndex.value;
-      final isParentSelected = selected == waitingPaperIndex || selected == waitingBoxIndex;
-
-      return SidebarExpandedMenu(
-        isSidebarOpen: _isSidebarOpen,
-        isExpanded: _isWaitingExpanded,
-        onToggle: () => setState(() => _isWaitingExpanded = !_isWaitingExpanded),
-        isParentSelected: isParentSelected,
-        title: "Hàng Chờ Kiểm",
-        icon: Symbols.home_storage,
-        children: [
-          if (waitingPaperIndex != -1)
-            _buildSubMenuItem(Icons.article, "Giấy Tấm", waitingPaperIndex),
-          if (waitingBoxIndex != -1)
-            _buildSubMenuItem(Symbols.package_2, "Thùng và In ấn", waitingBoxIndex),
-        ],
-      );
-    });
-  }
-
-  //build report
-  Widget _buildReportMenu(List<Widget> pages) {
-    final reportManu = pages.indexWhere((w) => w is TopTabHistoryReport);
-    final reportInbound = pages.indexWhere((w) => w is ReportInboundHistory);
-
-    if (reportManu == -1 && reportInbound == -1) {
-      return const SizedBox.shrink();
-    }
-
-    return Obx(() {
-      final selected = sidebarController.selectedIndex.value;
-      final isParentSelected = selected == reportManu || selected == reportInbound;
-
-      return SidebarExpandedMenu(
-        isSidebarOpen: _isSidebarOpen,
-        isExpanded: _isReportExpanded,
-        onToggle: () => setState(() => _isReportExpanded = !_isReportExpanded),
-        isParentSelected: isParentSelected,
-        title: "Lịch Sử",
-        icon: Symbols.contract,
-        children: [
-          if (reportManu != -1) _buildSubMenuItem(Icons.article, "Lịch Sử Sản Xuất", reportManu),
-          if (reportInbound != -1)
-            _buildSubMenuItem(Symbols.package_2, "Lịch Sử Nhập Kho", reportInbound),
-        ],
-      );
-    });
-  }
-
-  //build warehouse
-  Widget _buildWarehouseMenu(List<Widget> pages) {
-    final outbound = pages.indexWhere((w) => w is OutboundHistory);
-    final inventory = pages.indexWhere((w) => w is Inventory);
-
-    if (outbound == -1 && inventory == -1) {
-      return const SizedBox.shrink();
-    }
-
-    return Obx(() {
-      final selected = sidebarController.selectedIndex.value;
-      final isParentSelected = selected == outbound || selected == inventory;
-
-      return SidebarExpandedMenu(
-        isSidebarOpen: _isSidebarOpen,
-        isExpanded: _isWarehouseExpanded,
-        onToggle: () => setState(() => _isWarehouseExpanded = !_isWarehouseExpanded),
-        isParentSelected: isParentSelected,
-        title: "Xuất và Tồn Kho",
-        icon: Symbols.warehouse,
-        children: [
-          if (outbound != -1) _buildSubMenuItem(Symbols.lab_profile, "Xuất Kho", outbound),
-          if (inventory != -1) _buildSubMenuItem(Symbols.garage_home, "Tồn Kho", inventory),
-        ],
-      );
-    });
-  }
-
-  //build delivery
-  Widget _buildDeliveryMenu(List<Widget> pages) {
-    final estimateTime = pages.indexWhere((w) => w is DeliveryEstimateTime);
-    final planning = pages.indexWhere((w) => w is DeliveryPlanning);
-    final schedule = pages.indexWhere((w) => w is DeliverySchedule);
-
-    if (estimateTime == -1 && planning == -1 && schedule == -1) {
-      return const SizedBox.shrink();
-    }
-
-    return Obx(() {
-      final selected = sidebarController.selectedIndex.value;
-      final isParentSelected =
-          selected == estimateTime || selected == planning || selected == schedule;
-
-      return SidebarExpandedMenu(
-        isSidebarOpen: _isSidebarOpen,
-        isExpanded: _isDeliveryExpanded,
-        onToggle: () => setState(() => _isDeliveryExpanded = !_isDeliveryExpanded),
-        isParentSelected: isParentSelected,
-        title: "Giao Hàng",
-        icon: Symbols.airport_shuttle,
-        children: [
-          if (estimateTime != -1)
-            _buildSubMenuItem(Symbols.pending_actions, "Đăng Ký Giao Hàng", estimateTime),
-          if (planning != -1)
-            _buildSubMenuItem(Symbols.calendar_add_on, "Kế Hoạch Giao Hàng", planning),
-          if (schedule != -1) _buildSubMenuItem(Symbols.schedule, "Lịch Giao Hàng", schedule),
-        ],
-      );
-    });
-  }
-
-  //admin
-  Widget _buildApprovalMenu(List<Widget> pages) {
-    final adminOrderIndex = pages.indexWhere((w) => w is AdminOrder);
-    final adminPaperIndex = pages.indexWhere((w) => w is TopTabAdminPaper);
-    final adminBoxIndex = pages.indexWhere((w) => w is TopTabAdminBox);
-    final manageUserIndex = pages.indexWhere((w) => w is AdminMangeUser);
-    final vehicleFluteRatio = pages.indexWhere((w) => w is AdminVehicle);
-    final adminCriteria = pages.indexWhere((w) => w is AdminCriteria);
-
-    if (adminOrderIndex == -1 &&
-        adminPaperIndex == -1 &&
-        adminBoxIndex == -1 &&
-        manageUserIndex == -1 &&
-        vehicleFluteRatio == -1 &&
-        adminCriteria == -1) {
-      return const SizedBox.shrink();
-    }
-
-    final badgesController = Get.find<BadgesController>();
-
-    return Obx(() {
-      final selected = sidebarController.selectedIndex.value;
-      final isParentSelected =
-          selected == adminOrderIndex ||
-          selected == adminPaperIndex ||
-          selected == adminBoxIndex ||
-          selected == manageUserIndex ||
-          selected == vehicleFluteRatio ||
-          selected == adminCriteria;
-
-      final leadingWithBadge = Obx(() {
-        final count = badgesController.numberBadges.value;
-
-        if (_isSidebarOpen) {
-          if (count == 0) {
-            return Icon(
-              Icons.admin_panel_settings,
-              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-            );
-          }
-          return Badge.count(
-            count: count,
-            child: const Icon(Icons.admin_panel_settings, color: Colors.white),
-          );
-        } else {
-          if (count == 0) {
-            return Icon(
-              Icons.admin_panel_settings,
-              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-            );
-          }
-          return Badge(
-            smallSize: 8, // chấm đỏ nhỏ
-            backgroundColor: Colors.red,
-            child: Icon(
-              Icons.admin_panel_settings,
-              color: isParentSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-            ),
-          );
-        }
-      });
-
-      return SidebarExpandedMenu(
-        isSidebarOpen: _isSidebarOpen,
-        isExpanded: _isApprovalExpanded,
-        onToggle:
-            () => setState(() {
-              _isApprovalExpanded = !_isApprovalExpanded;
-            }),
-        isParentSelected: isParentSelected,
-        title: "Quản Lý",
-        icon: Icons.admin_panel_settings,
-        leading: leadingWithBadge,
-        children: [
-          if (adminOrderIndex != -1)
-            _buildSubMenuItem(
-              Icons.pending_actions,
-              "Chờ Duyệt",
-              adminOrderIndex,
-              leadingWrapper: Obx(() {
-                final count = badgesController.numberBadges.value;
-                if (count == 0) {
-                  return const Icon(Icons.pending_actions, color: Colors.white);
-                }
-                return Badge.count(
-                  count: count,
-                  child: const Icon(Icons.pending_actions, color: Colors.white),
-                );
-              }),
-            ),
-          if (adminPaperIndex != -1)
-            _buildSubMenuItem(Icons.gif_box, "Máy Sóng và Phế Liệu", adminPaperIndex),
-          if (adminBoxIndex != -1)
-            _buildSubMenuItem(Icons.gif_box, "In Ấn và Phế Liệu", adminBoxIndex),
-          if (adminCriteria != -1)
-            _buildSubMenuItem(Icons.rule, "Tiêu Chí Sản Xuất", adminCriteria),
-          if (vehicleFluteRatio != -1)
-            _buildSubMenuItem(Symbols.directions_car, "Xe Giao Hàng", vehicleFluteRatio),
-          if (manageUserIndex != -1) _buildSubMenuItem(Icons.person, "Người Dùng", manageUserIndex),
-        ],
-      );
-    });
   }
 
   Widget _buildSidebarItem(IconData icon, String title, {int? index, VoidCallback? onTap}) {
@@ -672,40 +380,6 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Center(child: Icon(icon, color: Colors.white)),
         );
-  }
-
-  Widget _buildSubMenuItem(IconData icon, String title, int index, {Widget? leadingWrapper}) {
-    if (index == -1) return const SizedBox.shrink();
-
-    return Obx(() {
-      final isSelected = sidebarController.selectedIndex.value == index;
-
-      return ListTile(
-        leading:
-            leadingWrapper ??
-            Icon(icon, color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white),
-        contentPadding: EdgeInsets.only(left: _isSidebarOpen ? 32 : 16),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-            fontSize: 16,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-        tileColor:
-            isSelected
-                ? Colors.white.withValues(alpha: 0.7)
-                : const Color.fromARGB(255, 252, 220, 41),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        onTap: () async {
-          bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);
-          if (canNavigate) {
-            sidebarController.changePage(index: index);
-          }
-        },
-      );
-    });
   }
 
   BoxDecoration _sidebarDecoration(Color color) {
@@ -802,7 +476,7 @@ class _HomePageState extends State<HomePage> {
           // ✅ [CHANGED] Overlay bắt click ngoài sidebar để tự đóng
           if (_isSidebarOpen)
             Positioned(
-              left: _sidebarOpenWidth, // phủ phần bên phải sidebar
+              left: _sidebarOpenWidth,
               top: 0,
               right: 0,
               bottom: 0,
@@ -812,7 +486,6 @@ class _HomePageState extends State<HomePage> {
                   setState(() {
                     _isSidebarOpen = false;
 
-                    // ✅ [CHANGED] optional: thu gọn thì đóng submenu
                     _isPlanningExpanded = false;
                     _isManufactureExpanded = false;
                     _isReportExpanded = false;

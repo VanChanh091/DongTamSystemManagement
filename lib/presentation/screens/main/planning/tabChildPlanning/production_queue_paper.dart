@@ -368,7 +368,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   "Bạn có chắc muốn hủy kế hoạch đơn này không?",
                                               successMessage: "Hủy kế hoạch thành công",
                                               errorMessage: "Có lỗi xảy ra khi thực thi",
-                                              onSuccess: () => loadPlanning(),
+                                              onSuccess: () {
+                                                loadPlanning();
+                                                badgesController.fetchPlanningStop();
+                                              },
                                             );
                                           } else if (value == 'acceptLack') {
                                             await handlePlanningAction(
@@ -453,7 +456,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 value: 'notify',
                                                 child: ListTile(
                                                   leading: Icon(Symbols.send),
-                                                  title: Text('Xác Nhận Kế Hoạch SX'),
+                                                  title: Text('Gửi Kế Hoạch SX'),
                                                 ),
                                               ),
                                             ],
