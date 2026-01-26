@@ -6,6 +6,7 @@ class AdminVehicleModel {
   String licensePlate;
   int maxPayload;
   double volumeCapacity;
+  String vehicleHouse;
 
   bool isDraft;
 
@@ -15,6 +16,7 @@ class AdminVehicleModel {
     required this.licensePlate,
     required this.maxPayload,
     required this.volumeCapacity,
+    required this.vehicleHouse,
     this.isDraft = false,
   });
 
@@ -25,6 +27,7 @@ class AdminVehicleModel {
       licensePlate: json['licensePlate'] ?? "",
       maxPayload: json['maxPayload'] ?? 0,
       volumeCapacity: toDouble(json['volumeCapacity']),
+      vehicleHouse: json['vehicleHouse'] ?? "",
     );
   }
 
@@ -34,6 +37,7 @@ class AdminVehicleModel {
       "licensePlate": licensePlate,
       "maxPayload": maxPayload,
       "volumeCapacity": volumeCapacity,
+      "vehicleHouse": vehicleHouse,
     };
   }
 }

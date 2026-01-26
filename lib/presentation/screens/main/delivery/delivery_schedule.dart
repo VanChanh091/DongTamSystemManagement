@@ -29,9 +29,9 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   late DeliveryScheduleDataSource deliveryDatasource;
   late List<GridColumn> columns;
 
-  final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
+  final dataGridController = DataGridController();
   final formatter = DateFormat('dd/MM/yyyy');
 
   Map<String, double> columnWidths = {};
@@ -92,7 +92,8 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPlan = userController.hasAnyPermission(permission: ["plan", 'sale']);
+    final bool isDelivery =
+        _isEditable && userController.hasAnyPermission(permission: ["delivery", 'plan']);
 
     return Scaffold(
       body: Container(
@@ -184,7 +185,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                 ),
                                 const SizedBox(width: 15),
 
-                                //cancel
+                                //export file
                                 AnimatedButton(
                                   onPressed: () async {
                                     bool confirm = await showConfirmDialog(
@@ -217,7 +218,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                 //complete
                                 AnimatedButton(
                                   onPressed:
-                                      _isEditable
+                                      isDelivery
                                           ? () async {
                                             await handleDeliveryAction(
                                               context: context,
@@ -244,7 +245,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                 //cancel
                                 AnimatedButton(
                                   onPressed:
-                                      _isEditable
+                                      isDelivery
                                           ? () async {
                                             await handleDeliveryAction(
                                               context: context,
@@ -394,14 +395,11 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
         ),
       ),
       floatingActionButton: Obx(
-        () =>
-            isPlan
-                ? FloatingActionButton(
-                  onPressed: () => loadDeliverySchedule(),
-                  backgroundColor: themeController.buttonColor.value,
-                  child: const Icon(Icons.refresh, color: Colors.white),
-                )
-                : SizedBox.shrink(),
+        () => FloatingActionButton(
+          onPressed: () => loadDeliverySchedule(),
+          backgroundColor: themeController.buttonColor.value,
+          child: const Icon(Icons.refresh, color: Colors.white),
+        ),
       ),
     );
   }

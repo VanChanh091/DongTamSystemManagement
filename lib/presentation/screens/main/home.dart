@@ -148,6 +148,15 @@ class _HomePageState extends State<HomePage> {
     return child;
   }
 
+  void clearAllBadge() {
+    badgesController.numberBadges.value = 0;
+    badgesController.numberOrderPending.value = 0;
+    badgesController.numberPlanningStop.value = 0;
+    badgesController.numberPaperWaiting.value = 0;
+    badgesController.numberBoxWaiting.value = 0;
+    // badgesController.numberOrderPendingReject.value = 0;
+  }
+
   void logout() async {
     try {
       final secureStorage = SecureStorageService();
@@ -157,6 +166,8 @@ class _HomePageState extends State<HomePage> {
 
       await authService.logout();
       sidebarController.reset();
+
+      clearAllBadge();
 
       if (!mounted) return;
       showSnackBarSuccess(context, 'Đăng xuất thành công');
@@ -235,21 +246,26 @@ class _HomePageState extends State<HomePage> {
             "Dashboard",
             index: pages.indexWhere((w) => w is DashboardPage),
           ),
+
           _buildSidebarItem(
             Icons.shopping_cart,
             "Đơn Hàng",
             index: pages.indexWhere((w) => w is TopTabOrder),
+            // badgeCount: badgesController.numberOrderPendingReject.value,
           ),
+
           _buildSidebarItem(
             Icons.person,
             "Khách Hàng",
             index: pages.indexWhere((w) => w is CustomerPage),
           ),
+
           _buildSidebarItem(
             Icons.inventory,
             "Sản Phẩm",
             index: pages.indexWhere((w) => w is ProductPage),
           ),
+
           _buildSidebarItem(
             Symbols.people_outline,
             "Nhân Viên",
@@ -329,6 +345,14 @@ class _HomePageState extends State<HomePage> {
     return hasIndex
         ? Obx(() {
           final isSelected = sidebarController.selectedIndex.value == index;
+
+          // Widget isBadge =
+          //     badgeCount != null && badgeCount > 0
+          //         ? Badge.count(count: badgeCount, child: Icon(icon, color: Colors.white))
+          //         : Icon(
+          //           icon,
+          //           color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+          //         );
 
           return _isSidebarOpen
               ? ListTile(

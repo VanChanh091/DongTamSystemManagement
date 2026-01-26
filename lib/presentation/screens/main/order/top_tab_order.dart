@@ -1,6 +1,8 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/presentation/screens/main/order/tabChildOrder/order_accept_planning.dart';
 import 'package:dongtam/presentation/screens/main/order/tabChildOrder/order_reject_pending.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class TopTabOrder extends StatefulWidget {
   const TopTabOrder({super.key});
@@ -10,6 +12,8 @@ class TopTabOrder extends StatefulWidget {
 }
 
 class _TopTabOrderState extends State<TopTabOrder> {
+  final badges = Get.find<BadgesController>();
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(

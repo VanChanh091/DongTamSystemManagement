@@ -6,7 +6,8 @@ class EmployeeCompanyInfo {
   final DateTime? joinDate;
   final String department;
   final String position;
-  final String emergencyPhone;
+  final String? emergencyPhone;
+  final String? emergencyContact;
   final String status;
 
   EmployeeCompanyInfo({
@@ -15,7 +16,8 @@ class EmployeeCompanyInfo {
     required this.joinDate,
     required this.department,
     required this.position,
-    required this.emergencyPhone,
+    this.emergencyPhone,
+    this.emergencyContact,
     required this.status,
   });
 
@@ -30,6 +32,7 @@ class EmployeeCompanyInfo {
       department: json['department'] ?? "",
       position: json['position'] ?? "",
       emergencyPhone: json['emergencyPhone'] ?? "",
+      emergencyContact: json['emergencyContact'] ?? "",
       status: json['status'] ?? "",
     );
   }
@@ -41,6 +44,7 @@ class EmployeeCompanyInfo {
       "department": department,
       "position": position,
       "emergencyPhone": emergencyPhone,
+      "emergencyContact": emergencyContact,
       "status": status,
     };
   }

@@ -49,6 +49,10 @@ class EmployeeDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "major", value: employee.major),
       DataGridCell<String>(columnName: "phoneNumber", value: employee.phoneNumber),
       DataGridCell<String>(columnName: "emergencyPhone", value: companyInfo?.emergencyPhone ?? ""),
+      DataGridCell<String>(
+        columnName: "emergencyContact",
+        value: companyInfo?.emergencyContact ?? "",
+      ),
       DataGridCell<String>(columnName: "status", value: companyInfo?.status ?? ""),
 
       //hidden

@@ -94,10 +94,11 @@ class _AdminVehicleState extends State<AdminVehicle> {
                                   setState(() {
                                     final newRow = AdminVehicleModel(
                                       vehicleId: null,
-                                      vehicleName: '',
-                                      licensePlate: '',
+                                      vehicleName: "",
+                                      licensePlate: "",
                                       maxPayload: 0,
                                       volumeCapacity: 0,
+                                      vehicleHouse: "",
                                       isDraft: true,
                                     );
 
@@ -123,7 +124,7 @@ class _AdminVehicleState extends State<AdminVehicle> {
                                                 e.isDraft &&
                                                 e.vehicleId == null &&
                                                 e.vehicleName.trim().isNotEmpty &&
-                                                e.licensePlate.trim().isNotEmpty &&
+                                                e.vehicleHouse.trim().isNotEmpty &&
                                                 e.maxPayload > 0 &&
                                                 e.volumeCapacity > 0,
                                           )
@@ -155,6 +156,7 @@ class _AdminVehicleState extends State<AdminVehicle> {
                                         "licensePlate": e.licensePlate,
                                         "maxPayload": e.maxPayload,
                                         "volumeCapacity": e.volumeCapacity,
+                                        "vehicleHouse": e.vehicleHouse,
                                       },
                                     );
                                   }
@@ -168,6 +170,7 @@ class _AdminVehicleState extends State<AdminVehicle> {
                                         "licensePlate": e.licensePlate,
                                         "maxPayload": e.maxPayload,
                                         "volumeCapacity": e.volumeCapacity,
+                                        "vehicleHouse": e.vehicleHouse,
                                       },
                                     );
                                   }
@@ -361,6 +364,7 @@ class _AdminVehicleState extends State<AdminVehicle> {
                                   licensePlate: e.licensePlate,
                                   maxPayload: e.maxPayload,
                                   volumeCapacity: e.volumeCapacity,
+                                  vehicleHouse: e.vehicleHouse,
                                   isDraft: false,
                                 ),
                               )
@@ -406,6 +410,7 @@ class _AdminVehicleState extends State<AdminVehicle> {
                               ),
                             ),
                           ),
+                          DataColumn(label: styleText("Nhà Xe")),
                           DataColumn(label: styleText("Tên Phương Tiện")),
                           DataColumn(label: styleText("Biển Số Xe")),
                           DataColumn(label: styleText("Tải Trọng Tối Đa (kg)")),
@@ -453,6 +458,16 @@ class _AdminVehicleState extends State<AdminVehicle> {
                                               });
                                             },
                                   ),
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: vehicle.vehicleHouse.toString(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      vehicle.vehicleHouse = value;
+                                    });
+                                  },
                                 ),
                               ),
                               DataCell(
@@ -509,7 +524,7 @@ class _AdminVehicleState extends State<AdminVehicle> {
       ),
       floatingActionButton: Obx(
         () => FloatingActionButton(
-          onPressed: loadVehicle,
+          onPressed: () => loadVehicle(),
           backgroundColor: themeController.buttonColor.value,
           child: const Icon(Icons.refresh, color: Colors.white),
         ),

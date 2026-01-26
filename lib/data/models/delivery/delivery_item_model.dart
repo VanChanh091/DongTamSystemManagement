@@ -6,7 +6,7 @@ class DeliveryItemModel {
   final int deliveryItemId;
   final String targetType;
   final int targetId;
-  final int sequence;
+  final String sequence;
   final String? note;
   final String status;
 
@@ -39,7 +39,7 @@ class DeliveryItemModel {
       deliveryItemId: json['deliveryItemId'] ?? 0,
       targetType: json['targetType'] ?? "",
       targetId: json['targetId'] ?? 0,
-      sequence: json['sequence'] ?? 0,
+      sequence: json['sequence'] ?? "",
       note: json['note'] ?? "",
       status: json['status'] ?? "",
 

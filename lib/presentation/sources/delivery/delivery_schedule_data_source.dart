@@ -66,7 +66,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
         value: plan.deliveryDate != null ? formatter.format(plan.deliveryDate!) : "",
       ),
       DataGridCell<String>(columnName: "status", value: item.status), //status of delivery item
-      DataGridCell<int>(columnName: "sequence", value: item.sequence),
+      DataGridCell<String>(columnName: "sequence", value: item.sequence),
     ];
   }
 

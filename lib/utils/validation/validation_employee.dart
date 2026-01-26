@@ -6,7 +6,8 @@ class ValidationEmployee {
     required String label,
     required TextEditingController controller,
     required IconData icon,
-
+    bool readOnly = false,
+    VoidCallback? onTap,
     List<EmployeeBasicInfo>? allEmployees,
     int? currentEmployeeId,
   }) {
@@ -20,7 +21,7 @@ class ValidationEmployee {
 
         return TextFormField(
           controller: controller,
-
+          readOnly: readOnly,
           decoration: InputDecoration(
             labelText: label,
             labelStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -28,9 +29,13 @@ class ValidationEmployee {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             floatingLabelBehavior: FloatingLabelBehavior.always,
-            fillColor: isFilled ? Colors.white : Color.fromARGB(255, 148, 236, 154),
+            fillColor:
+                readOnly
+                    ? Colors.grey.shade300
+                    : (isFilled ? Colors.white : Color.fromARGB(255, 148, 236, 154)),
             filled: true,
           ),
+          onTap: onTap,
           validator: (value) {
             if (value != null) {
               // xoá khoảng trắng 2 đầu + dấu xuống dòng
@@ -40,7 +45,9 @@ class ValidationEmployee {
 
             if ((label == 'Tên Nhân Viên' ||
                     label == 'Số Điện Thoại' ||
-                    label == 'Ngày Sinh' ||
+                    label == "Dân Tộc" ||
+                    label == "Ngày Sinh" ||
+                    label == "Ngày Vào Làm" ||
                     label == 'Trình Độ Văn Hóa' ||
                     label == 'Số CCCD' ||
                     label == 'Ngày Cấp' ||
@@ -48,10 +55,9 @@ class ValidationEmployee {
                     label == 'Ngày Cấp' ||
                     label == 'ĐC Thường Trú' ||
                     label == 'Mã Nhân Viên' ||
-                    label == 'Ngày Tham Gia' ||
                     label == 'Chức Vụ') &&
                 (value == null || value.isEmpty)) {
-              return 'Vui lòng nhập $label';
+              return 'Không được để trống';
             }
 
             //label: Số Điện Thoại, Số Liên Hệ Khẩn Cấp, Số CCCD chỉ chấp nhận chữ số

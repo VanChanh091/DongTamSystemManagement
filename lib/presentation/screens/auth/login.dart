@@ -64,9 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
           child: HomePage(),
         ),
       );
-    } else {
-      if (!mounted) return;
-      showSnackBarError(context, 'Sai thông tin đăng nhập');
     }
   }
 

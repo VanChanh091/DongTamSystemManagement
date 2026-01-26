@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:get/get.dart';
@@ -80,6 +81,38 @@ class AuthService {
         AppLogger.w("Login failed for email=$email, status=${response.statusCode}");
         return false;
       }
+    } on DioException catch (e) {
+      String errorMessage = "Đã xảy ra lỗi không xác định";
+
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        errorMessage = "Kết nối quá hạn, vui lòng kiểm tra lại server!";
+      } else if (e.type == DioExceptionType.connectionError) {
+        errorMessage = "Không có kết nối internet hoặc server không phản hồi!";
+      }
+      //  else if (e.response?.statusCode == 502 || e.response?.statusCode == 503) {
+      //   errorMessage = "Hệ thống đang bảo trì (Server Down). Vui lòng quay lại sau!";
+      // } else if (e.response?.statusCode == 401) {
+      //   errorMessage = "Sai email hoặc mật khẩu!";
+      // } else {
+      //   errorMessage = "Lỗi kết nối: ${e.message}";
+      // }
+
+      // Hiển thị thông báo cho user (Dùng Get.snackbar vì bạn đang dùng GetX)
+      // Get.snackbar(
+      //   "Thông báo",
+      //   errorMessage,
+      //   snackPosition: SnackPosition.BOTTOM,
+      //   backgroundColor: Colors.redAccent,
+      //   colorText: Colors.white,
+      // );
+
+      if (Get.context != null) {
+        showSnackBarError(Get.context!, errorMessage);
+      }
+
+      AppLogger.e("Lỗi đăng nhập: $errorMessage");
+      return false;
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải đăng nhập", error: e, stackTrace: s);
       return false;

@@ -21,9 +21,10 @@ const List<Map<String, dynamic>> _headerEmployee = [
   {"key": "ethnicity", "title": "Dân Tộc"},
   {"key": "educationLevel", "title": "Trình Độ Văn Hóa"},
   {"key": "educationSystem", "title": "Hệ Đào Tạo"},
-  {"key": "major", "title": "Ngành Học"},
+  {"key": "major", "title": "Chuyên Ngành"},
   {"key": "phoneNumber", "title": "Số Điện Thoại"},
   {"key": "emergencyPhone", "title": "SDT (Khẩn Cấp)"},
+  {"key": "emergencyContact", "title": "Người LH (Khẩn Cấp)"},
   {"key": "status", "title": "Tình Trạng"},
 
   //hidden

@@ -10,6 +10,9 @@ class BadgesController extends GetxController {
   //order pending planning
   RxInt numberOrderPending = 0.obs;
 
+  //order pending reject
+  RxInt numberOrderPendingReject = 0.obs;
+
   //planning stop
   RxInt numberPlanningStop = 0.obs;
 
@@ -21,21 +24,44 @@ class BadgesController extends GetxController {
   void onInit() {
     super.onInit();
 
-    fetchPendingApprovals();
-    fetchPlanningStop();
-    fetchOrderPending();
-    fetchPaperWaitingCheck();
-    fetchBoxWaitingCheck();
+    // final userController = Get.find<UserController>();
+
+    // ever(userController.role, (String r) {
+    //   if (r.isNotEmpty) {
+    //     refreshAllBadges();
+    //   }
+    // });
+
+    // ever(userController.permissions, (List<String> p) {
+    //   if (p.isNotEmpty) {
+    //     refreshAllBadges();
+    //   }
+    // });
+
+    // if (userController.role.value.isNotEmpty) {
+    //   refreshAllBadges();
+    // }
+
+    refreshAllBadges();
+  }
+
+  Future<void> refreshAllBadges() async {
+    await Future.wait([
+      fetchPendingApprovals(),
+      fetchPlanningStop(),
+      fetchOrderPending(),
+      fetchPaperWaitingCheck(),
+      fetchBoxWaitingCheck(),
+      // fetchOrderPendingReject(),
+    ]);
   }
 
   // Hàm gọi API để lấy số đơn chờ duyệt
   Future<void> fetchPendingApprovals() async {
-    try {
-      final orders = await AdminService().getOrderByPendingStatus();
-      numberBadges.value = orders.length;
-    } catch (e) {
-      numberBadges.value = 0;
-    }
+    await fetchBadgeCount(
+      badgeCount: numberBadges,
+      fetcher: () => AdminService().getOrderByPendingStatus(),
+    );
   }
 
   Future<void> fetchPlanningStop() async {
@@ -47,30 +73,49 @@ class BadgesController extends GetxController {
     }
   }
 
+  // Future<void> fetchOrderPendingReject() async {
+  //   final userController = Get.find<UserController>();
+  //   final isShow = userController.hasPermission(permission: 'sale');
+
+  //   if (isShow) {
+  //     await fetchBadgeCount(
+  //       badgeCount: numberOrderPendingReject,
+  //       fetcher: () => OrderService().getOrderPendingAndReject(),
+  //     );
+  //   }
+  // }
+
   Future<void> fetchOrderPending() async {
-    try {
-      final orders = await PlanningService().getOrderAccept();
-      numberOrderPending.value = orders.length;
-    } catch (e) {
-      numberOrderPending.value = 0;
-    }
+    await fetchBadgeCount(
+      badgeCount: numberOrderPending,
+      fetcher: () => PlanningService().getOrderAccept(),
+    );
   }
 
   Future<void> fetchPaperWaitingCheck() async {
-    try {
-      final orderWaiting = await WarehouseService().getPaperWaitingChecked();
-      numberPaperWaiting.value = orderWaiting.length;
-    } catch (e) {
-      numberPaperWaiting.value = 0;
-    }
+    await fetchBadgeCount(
+      badgeCount: numberPaperWaiting,
+      fetcher: () => WarehouseService().getPaperWaitingChecked(),
+    );
   }
 
   Future<void> fetchBoxWaitingCheck() async {
+    await fetchBadgeCount(
+      badgeCount: numberBoxWaiting,
+      fetcher: () => WarehouseService().getBoxWaitingChecked(),
+    );
+  }
+
+  //helper
+  Future<void> fetchBadgeCount<T>({
+    required RxInt badgeCount,
+    required Future<List<T>> Function() fetcher,
+  }) async {
     try {
-      final orderWaiting = await WarehouseService().getBoxWaitingChecked();
-      numberBoxWaiting.value = orderWaiting.length;
+      final data = await fetcher();
+      badgeCount.value = data.length; //list
     } catch (e) {
-      numberBoxWaiting.value = 0;
+      badgeCount.value = 0;
     }
   }
 }

@@ -50,6 +50,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
   final _departmentController = TextEditingController();
   final _positionController = TextEditingController();
   final _emergencyPhoneController = TextEditingController();
+  final _emergencyContactController = TextEditingController();
 
   final _birthdayController = TextEditingController();
   final _citizenIssuedDateController = TextEditingController();
@@ -88,6 +89,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
     _departmentController.text = companyInfo?.department ?? "";
     _positionController.text = companyInfo?.position ?? "";
     _emergencyPhoneController.text = companyInfo?.emergencyPhone ?? "";
+    _emergencyContactController.text = companyInfo?.emergencyContact ?? "";
 
     //dropdown
     typeGender = employee.gender;
@@ -135,6 +137,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       department: _departmentController.text,
       position: _positionController.text,
       emergencyPhone: _emergencyPhoneController.text,
+      emergencyContact: _emergencyContactController.text,
       status: typeStatusWorking,
     );
 
@@ -162,9 +165,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       final bool isAdd = widget.employee == null;
 
       AppLogger.i(
-        isAdd
-            ? "Thêm nhân viên mới: ${widget.employee!.fullName}"
-            : "Cập nhật nhân viên: ${widget.employee!.fullName}",
+        isAdd ? "Thêm nhân viên mới" : "Cập nhật nhân viên: ${widget.employee!.fullName}",
       );
 
       isAdd
@@ -219,6 +220,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
     _departmentController.dispose();
     _positionController.dispose();
     _emergencyPhoneController.dispose();
+    _emergencyContactController.dispose();
     _birthdayController.dispose();
     _citizenIssuedDateController.dispose();
     _joinDateController.dispose();
@@ -260,7 +262,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "Ngày Sinh",
-        "leftValue": ValidationOrder.validateInput(
+        "leftValue": ValidationEmployee.validateInput(
           label: "Ngày Sinh",
           controller: _birthdayController,
           icon: Symbols.calendar_month,
@@ -349,7 +351,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "Ngày Cấp",
-        "leftValue": ValidationOrder.validateInput(
+        "leftValue": ValidationEmployee.validateInput(
           label: "Ngày Cấp",
           controller: _citizenIssuedDateController,
           icon: Symbols.calendar_month,
@@ -419,9 +421,9 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
           allEmployees: allEmployees,
           currentEmployeeId: widget.employee?.employeeId,
         ),
-        "rightKey": "Ngày Tham Gia",
-        "rightValue": ValidationOrder.validateInput(
-          label: "Ngày Tham Gia",
+        "rightKey": "Ngày Vào Làm",
+        "rightValue": ValidationEmployee.validateInput(
+          label: "Ngày Vào Làm",
           controller: _joinDateController,
           icon: Symbols.calendar_month,
           readOnly: true,
@@ -471,14 +473,23 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       },
 
       {
-        "leftKey": "Số LH Khẩn Cấp",
+        "leftKey": "SDT Liên Hệ",
         "leftValue": ValidationEmployee.validateInput(
-          label: "Số Liên Hệ Khẩn Cấp",
+          label: "Số LH Khẩn Cấp",
           controller: _emergencyPhoneController,
           icon: Symbols.emergency,
         ),
-        "rightKey": "Tình Trạng",
-        "rightValue": ValidationOrder.dropdownForTypes(
+        "rightKey": "Người Liên Hệ",
+        "rightValue": ValidationEmployee.validateInput(
+          label: "Người LH Khẩn Cấp",
+          controller: _emergencyContactController,
+          icon: Symbols.emergency,
+        ),
+      },
+
+      {
+        "leftKey": "Tình Trạng",
+        "leftValue": ValidationOrder.dropdownForTypes(
           items: itemStatusWorking,
           type: typeStatusWorking,
           onChanged: (value) {
@@ -487,6 +498,8 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
             });
           },
         ),
+        "rightKey": "",
+        "rightValue": const SizedBox(),
       },
     ];
 

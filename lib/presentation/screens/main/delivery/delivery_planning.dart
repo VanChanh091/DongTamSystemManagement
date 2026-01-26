@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class DeliveryTrip {
-  final int sequence;
+  final String sequence;
   final List<AdminVehicleModel> vehicles;
 
   DeliveryTrip({required this.sequence, required this.vehicles});
@@ -41,7 +41,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
   bool _isLoading = true;
   bool _isSaving = false;
-  String currentFilter = "pending";
+  String selectedTripFilter = "Tài 1";
 
   TextEditingController dayStartController = TextEditingController();
 
@@ -83,9 +83,10 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
       vehicleOrders.clear();
 
       trips = [
-        DeliveryTrip(sequence: 1, vehicles: vehicles),
-        DeliveryTrip(sequence: 2, vehicles: vehicles),
-        DeliveryTrip(sequence: 3, vehicles: vehicles),
+        DeliveryTrip(sequence: "1", vehicles: vehicles),
+        DeliveryTrip(sequence: "2", vehicles: vehicles),
+        DeliveryTrip(sequence: "3", vehicles: vehicles),
+        DeliveryTrip(sequence: "Xe Ngoài", vehicles: vehicles),
       ];
     });
   }
@@ -132,7 +133,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     }
   }
 
-  String buildVehicleKey(int tripSeq, int vehicleId) {
+  String buildVehicleKey(String tripSeq, int vehicleId) {
     return '${tripSeq}_$vehicleId';
   }
 
@@ -276,7 +277,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                           List<String> overloadedList = [];
 
                                           for (var vehicle in vehicles) {
-                                            for (int seq = 1; seq <= 3; seq++) {
+                                            for (String seq in ["1", "2", "3", "Xe Ngoài"]) {
                                               final key = buildVehicleKey(seq, vehicle.vehicleId!);
                                               final ordersInVehicle = vehicleOrders[key] ?? [];
 
@@ -286,7 +287,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
                                                 if (currentVol > maxVol) {
                                                   overloadedList.add(
-                                                    "${vehicle.vehicleName} (Tài $seq)",
+                                                    "${vehicle.vehicleName} (Tài: $seq)",
                                                   );
                                                 }
                                               }
@@ -322,7 +323,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                             vehicleOrders.forEach((key, papers) {
                                               // Key có định dạng: "tripSeq_vehicleId" (ví dụ: "1_3")
                                               final parts = key.split('_');
-                                              final int seq = int.parse(parts[0]);
+                                              final seq = parts[0];
                                               final int vehicleId = int.parse(parts[1]);
 
                                               for (var paper in papers) {
@@ -489,7 +490,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
-                  "📦 ${currentFilter == 'pending' ? "Đơn chờ giao" : "Đơn đã lên lịch"}",
+                  "📦 Đơn chờ giao",
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -695,46 +696,99 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
       );
     }
 
-    return ListView(
-      children:
-          trips.map((trip) {
-            return Card(
-              color: Colors.white,
-              margin: const EdgeInsets.only(bottom: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              elevation: 2,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "🚚 TÀI ${trip.sequence}",
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 12),
-
-                      Column(
-                        children:
-                            trip.vehicles.map((v) {
-                              return _buildVehicleCard(v, trip.sequence);
-                            }).toList(),
-                      ),
-                    ],
-                  ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // header
+          // Bộ lọc Tài 1, 2, 3 và Xe Ngoài
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(
+                      value: "Tài 1",
+                      label: Text("Tài 1"),
+                      icon: Icon(Icons.looks_one),
+                    ),
+                    ButtonSegment(
+                      value: "Tài 2",
+                      label: Text("Tài 2"),
+                      icon: Icon(Icons.looks_two),
+                    ),
+                    ButtonSegment(value: "Tài 3", label: Text("Tài 3"), icon: Icon(Icons.looks_3)),
+                    ButtonSegment(
+                      value: "Xe Ngoài",
+                      label: Text("Xe Ngoài"),
+                      icon: Icon(Icons.local_shipping),
+                    ),
+                  ],
+                  selected: {selectedTripFilter},
+                  onSelectionChanged: (newSelection) {
+                    setState(() {
+                      selectedTripFilter = newSelection.first;
+                    });
+                  },
                 ),
               ),
-            );
-          }).toList(),
+            ),
+          ),
+
+          Divider(height: 1, color: Colors.grey.shade300),
+
+          //body
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: ListView(children: _buildFilteredTripList()),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildVehicleCard(AdminVehicleModel vehicle, int tripSeq) {
+  List<Widget> _buildFilteredTripList() {
+    // Helper kiểm tra xe ngoài
+    bool checkIsExternal(AdminVehicleModel v) {
+      final house = (v.vehicleHouse).toLowerCase();
+      return house.contains("ngoài") || house.contains("ngoai");
+    }
+
+    if (selectedTripFilter == "Xe Ngoài") {
+      final externalVehicles = vehicles.where((v) => checkIsExternal(v)).toList();
+
+      if (externalVehicles.isEmpty) return [const Center(child: Text("Không có xe ngoài"))];
+
+      // Khi ở tab Xe Ngoài, mặc định gán tạm vào sequence 1 (hoặc tùy logic của bạn)
+      return externalVehicles.map((v) => _buildVehicleCard(v, "Xe Ngoài")).toList();
+    } else {
+      // Xử lý cho Tài 1, 2, 3
+      final targetSeq = selectedTripFilter.split(" ").last;
+
+      // Tìm đúng chuyến (trip) cần hiển thị
+      final trip = trips.firstWhere((t) => t.sequence == targetSeq, orElse: () => trips.first);
+
+      // chỉ lấy xe nội bộ
+      final internalVehicles = trip.vehicles.where((v) => !checkIsExternal(v)).toList();
+
+      if (internalVehicles.isEmpty) {
+        return [const Center(child: Text("Không có xe nội bộ cho Tài này"))];
+      }
+
+      return internalVehicles.map((v) => _buildVehicleCard(v, trip.sequence)).toList();
+    }
+  }
+
+  Widget _buildVehicleCard(AdminVehicleModel vehicle, String tripSeq) {
     final key = buildVehicleKey(tripSeq, vehicle.vehicleId!);
     final orders = vehicleOrders[key] ?? [];
 
@@ -794,7 +848,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Biển số: ${vehicle.licensePlate} - Tải trọng: ${vehicle.maxPayload}T',
+                        '${vehicle.licensePlate.isNotEmpty ? "Biển số: ${vehicle.licensePlate} - " : ""}Nhà Xe: ${vehicle.vehicleHouse}',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
