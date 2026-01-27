@@ -1,5 +1,6 @@
-import 'package:dongtam/data/models/employee/employee_basic_info.dart';
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ValidationEmployee {
   static Widget validateInput({
@@ -8,8 +9,8 @@ class ValidationEmployee {
     required IconData icon,
     bool readOnly = false,
     VoidCallback? onTap,
-    List<EmployeeBasicInfo>? allEmployees,
-    int? currentEmployeeId,
+    String? externalError,
+    Function(String)? onChanged,
   }) {
     return StatefulBuilder(
       builder: (context, setState) {
@@ -18,6 +19,12 @@ class ValidationEmployee {
         });
 
         final isFilled = controller.text.isEmpty;
+
+        final themeController = Get.find<ThemeController>();
+
+        final isCustomTheme = themeController.isThemeCustomized.value;
+        final isCurrentColor = themeController.currentColor.value;
+        final defaultFill = const Color.fromARGB(255, 148, 236, 154);
 
         return TextFormField(
           controller: controller,
@@ -32,31 +39,41 @@ class ValidationEmployee {
             fillColor:
                 readOnly
                     ? Colors.grey.shade300
-                    : (isFilled ? Colors.white : Color.fromARGB(255, 148, 236, 154)),
+                    : (isFilled ? Colors.white : (isCustomTheme ? isCurrentColor : defaultFill)),
             filled: true,
+            errorText: externalError,
           ),
           onTap: onTap,
+          onChanged: onChanged,
           validator: (value) {
+            if (externalError != null) return externalError;
+
+            String cleanValue = "";
+
             if (value != null) {
               // xoá khoảng trắng 2 đầu + dấu xuống dòng
-              value = value.trim().replaceAll(RegExp(r'[\r\n]+'), ' ');
+              cleanValue = value.trim().replaceAll(RegExp(r'[\r\n]+'), ' ');
               controller.text = value;
             }
 
-            if ((label == 'Tên Nhân Viên' ||
-                    label == 'Số Điện Thoại' ||
-                    label == "Dân Tộc" ||
-                    label == "Ngày Sinh" ||
-                    label == "Ngày Vào Làm" ||
-                    label == 'Trình Độ Văn Hóa' ||
-                    label == 'Số CCCD' ||
-                    label == 'Ngày Cấp' ||
-                    label == 'Nơi Cấp' ||
-                    label == 'Ngày Cấp' ||
-                    label == 'ĐC Thường Trú' ||
-                    label == 'Mã Nhân Viên' ||
-                    label == 'Chức Vụ') &&
-                (value == null || value.isEmpty)) {
+            final requiredFields = [
+              'Tên Nhân Viên',
+              'Số Điện Thoại',
+              "Dân Tộc",
+              "Ngày Sinh",
+              "Ngày Vào Làm",
+              'Trình Độ Văn Hóa',
+              'Số CCCD',
+              'Ngày Cấp',
+              'Nơi Cấp',
+              'Ngày Cấp',
+              'ĐC Thường Trú',
+              'Mã Nhân Viên',
+              'Chức Vụ',
+              'Mã Nhân Viên',
+            ];
+
+            if (requiredFields.contains(label) && cleanValue.isEmpty) {
               return 'Không được để trống';
             }
 
@@ -66,31 +83,6 @@ class ValidationEmployee {
                     label == 'Số CCCD') &&
                 !RegExp(r'^\d+$').hasMatch(value!)) {
               return '$label chỉ được chứa chữ số';
-            }
-
-            if (label == 'Mã Nhân Viên' && value != null && value.isNotEmpty) {
-              final trimmed = value.replaceAll(RegExp(r'\s+'), '');
-
-              final isDuplicate =
-                  allEmployees?.any((e) {
-                    if (currentEmployeeId != null && e.employeeId == currentEmployeeId) {
-                      return false;
-                    }
-
-                    final employeeCode = e.companyInfo!.employeeCode.replaceAll(RegExp(r'\s+'), '');
-                    if (employeeCode.isEmpty) {
-                      return false;
-                    }
-
-                    return employeeCode == trimmed.toUpperCase();
-                  }) ??
-                  false;
-
-              if (isDuplicate) {
-                return "Mã nhân viên đã tồn tại";
-              }
-
-              controller.text = trimmed;
             }
 
             return null;

@@ -72,7 +72,10 @@ class OrderDataSource extends DataGridSource {
         columnName: 'discounts',
         value: Order.formatCurrency(order.discount ?? 0),
       ),
-      DataGridCell<String>(columnName: 'profitOrd', value: Order.formatCurrency(order.profit)),
+      DataGridCell<String>(
+        columnName: 'profitOrd',
+        value: '${Order.formatCurrency(order.profit)}%',
+      ),
       DataGridCell<String>(columnName: 'vat', value: '${order.vat ?? 0}%'),
       DataGridCell<String>(columnName: 'HD_special', value: order.instructSpecial ?? ""),
       DataGridCell<String>(columnName: 'totalPrice', value: Order.formatCurrency(order.totalPrice)),

@@ -178,7 +178,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                             children: [
                               //left button
                               Expanded(
-                                flex: 1,
+                                flex: 3,
                                 child: LeftButtonSearch(
                                   selectedType: searchType,
                                   types: const [
@@ -204,265 +204,271 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
                               //right button
                               Expanded(
-                                flex: 1,
+                                flex: 4,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      // nút lên xuống
-                                      rowMoveButtons(
-                                        enabled: selectedPlanningIds.isNotEmpty,
-                                        onMoveUp: () {
-                                          setState(() {
-                                            machinePaperDatasource.moveRowUp(selectedPlanningIds);
-                                          });
-                                        },
-                                        onMoveDown: () {
-                                          setState(() {
-                                            machinePaperDatasource.moveRowDown(selectedPlanningIds);
-                                          });
-                                        },
-                                      ),
-                                      const SizedBox(width: 20),
-
-                                      // save
-                                      SavePlanning(
-                                        isLoading: isLoading,
-                                        dayStartController: dayStartController,
-                                        timeStartController: timeStartController,
-                                        totalTimeWorkingController: totalTimeWorkingController,
-                                        getRows: () => machinePaperDatasource.rows,
-                                        idColumn: 'planningId',
-                                        isBox: false,
-                                        backgroundColor: themeController.buttonColor,
-                                        machine: machine,
-                                        onSuccess: () {
-                                          loadPlanning();
-                                          unsavedChangeController.resetUnsavedChanges();
-                                        },
-                                        onStartLoading: () => setState(() => isLoading = true),
-                                        onEndLoading: () => setState(() => isLoading = false),
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //group/unGroup
-                                      AnimatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            showGroup = !showGroup;
-                                          });
-                                        },
-                                        label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
-                                        icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
-                                        backgroundColor: themeController.buttonColor,
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //confirm complete
-                                      confirmCompleteButton(
-                                        context: context,
-                                        selectedIds: selectedPlanningIds,
-                                        onConfirmComplete: (ids) async {
-                                          return await PlanningService().confirmCompletePlanning(
-                                            ids: ids,
-                                          );
-                                        },
-                                        backgroundColor: themeController.buttonColor,
-                                        onReload: () => loadPlanning(),
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //choose machine
-                                      buildMachineDropdown(
-                                        value: machine,
-                                        items: const [
-                                          'Máy 1350',
-                                          "Máy 1900",
-                                          "Máy 2 Lớp",
-                                          "Máy Quấn Cuồn",
-                                        ],
-                                        onChanged: (value) async {
-                                          if (value == null) return;
-
-                                          bool canChange = await UnsavedChangeDialog(
-                                            unsavedChangeController,
-                                          );
-
-                                          if (canChange) {
-                                            changeMachine(value);
-                                          } else {
-                                            setState(() {}); // reset dropdown về máy cũ
-                                          }
-                                        },
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //popup menu
-                                      PopupMenuButton<String>(
-                                        icon: const Icon(Icons.more_vert, color: Colors.black),
-                                        color: Colors.white,
-                                        onSelected: (value) async {
-                                          if (value == 'change') {
-                                            if (selectedPlanningIds.isEmpty) {
-                                              showSnackBarError(
-                                                context,
-                                                "Chưa chọn kế hoạch cần chuyển máy",
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    reverse: true,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        // nút lên xuống
+                                        rowMoveButtons(
+                                          enabled: selectedPlanningIds.isNotEmpty,
+                                          onMoveUp: () {
+                                            setState(() {
+                                              machinePaperDatasource.moveRowUp(selectedPlanningIds);
+                                            });
+                                          },
+                                          onMoveDown: () {
+                                            setState(() {
+                                              machinePaperDatasource.moveRowDown(
+                                                selectedPlanningIds,
                                               );
-                                              return;
+                                            });
+                                          },
+                                        ),
+                                        const SizedBox(width: 20),
+
+                                        // save
+                                        SavePlanning(
+                                          isLoading: isLoading,
+                                          dayStartController: dayStartController,
+                                          timeStartController: timeStartController,
+                                          totalTimeWorkingController: totalTimeWorkingController,
+                                          getRows: () => machinePaperDatasource.rows,
+                                          idColumn: 'planningId',
+                                          isBox: false,
+                                          backgroundColor: themeController.buttonColor,
+                                          machine: machine,
+                                          onSuccess: () {
+                                            loadPlanning();
+                                            unsavedChangeController.resetUnsavedChanges();
+                                          },
+                                          onStartLoading: () => setState(() => isLoading = true),
+                                          onEndLoading: () => setState(() => isLoading = false),
+                                        ),
+                                        const SizedBox(width: 10),
+
+                                        //group/unGroup
+                                        AnimatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              showGroup = !showGroup;
+                                            });
+                                          },
+                                          label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                          icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
+                                          backgroundColor: themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
+
+                                        //confirm complete
+                                        confirmCompleteButton(
+                                          context: context,
+                                          selectedIds: selectedPlanningIds,
+                                          onConfirmComplete: (ids) async {
+                                            return await PlanningService().confirmCompletePlanning(
+                                              ids: ids,
+                                            );
+                                          },
+                                          backgroundColor: themeController.buttonColor,
+                                          onReload: () => loadPlanning(),
+                                        ),
+                                        const SizedBox(width: 10),
+
+                                        //choose machine
+                                        buildMachineDropdown(
+                                          value: machine,
+                                          items: const [
+                                            'Máy 1350',
+                                            "Máy 1900",
+                                            "Máy 2 Lớp",
+                                            "Máy Quấn Cuồn",
+                                          ],
+                                          onChanged: (value) async {
+                                            if (value == null) return;
+
+                                            bool canChange = await UnsavedChangeDialog(
+                                              unsavedChangeController,
+                                            );
+
+                                            if (canChange) {
+                                              changeMachine(value);
+                                            } else {
+                                              setState(() {}); // reset dropdown về máy cũ
                                             }
+                                          },
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                            final planning = await futurePlanning;
-                                            if (!context.mounted) return;
-
-                                            final selectedPlans =
-                                                planning
-                                                    .where(
-                                                      (p) => selectedPlanningIds.contains(
-                                                        p.planningId.toString(),
-                                                      ),
-                                                    )
-                                                    .toList();
-
-                                            if (selectedPlans.isEmpty) {
-                                              showSnackBarError(
-                                                context,
-                                                "Không tìm thấy kế hoạch hợp lệ để chuyển máy",
-                                              );
-                                              return;
-                                            }
-
-                                            await showDialog(
-                                              context: context,
-                                              builder:
-                                                  (_) => ChangeMachineDialog(
-                                                    planning: selectedPlans,
-                                                    onChangeMachine: () => loadPlanning(),
-                                                  ),
-                                            );
-                                            return;
-                                          } else if (value == 'stop') {
-                                            await handlePlanningAction(
-                                              context: context,
-                                              selectedPlanningIds: selectedPlanningIds,
-                                              planningList: machinePaperDatasource.planning,
-                                              status: "stop",
-                                              title: "Xác nhận dừng sản xuất",
-                                              message:
-                                                  "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
-                                              successMessage: "Dừng sản xuất thành công",
-                                              errorMessage: "Có lỗi xảy ra khi thực thi",
-                                              onSuccess: () {
-                                                loadPlanning();
-                                                badgesController.fetchPlanningStop();
-                                              },
-                                            );
-                                          } else if (value == 'reject') {
-                                            await handlePlanningAction(
-                                              context: context,
-                                              selectedPlanningIds: selectedPlanningIds,
-                                              planningList: machinePaperDatasource.planning,
-                                              status: "reject",
-                                              title: "Xác nhận hủy kế hoạch",
-                                              message:
-                                                  "Bạn có chắc muốn hủy kế hoạch đơn này không?",
-                                              successMessage: "Hủy kế hoạch thành công",
-                                              errorMessage: "Có lỗi xảy ra khi thực thi",
-                                              onSuccess: () {
-                                                loadPlanning();
-                                                badgesController.fetchPlanningStop();
-                                              },
-                                            );
-                                          } else if (value == 'acceptLack') {
-                                            await handlePlanningAction(
-                                              context: context,
-                                              selectedPlanningIds: selectedPlanningIds,
-                                              planningList: machinePaperDatasource.planning,
-                                              status: "complete",
-                                              title: "Xác nhận thiếu số lượng",
-                                              message: "Bạn có chắc muốn chấp nhận thiếu không?",
-                                              successMessage: "Chấp nhận thiếu thành công",
-                                              errorMessage: "Có lỗi xảy ra khi thực thi",
-                                              onSuccess: () => loadPlanning(),
-                                            );
-                                          }
-                                          if (value == 'notify') {
-                                            if (!context.mounted) return;
-
-                                            bool confirm = await showConfirmDialog(
-                                              context: context,
-                                              title: "Xác Nhận Lịch Sản Xuất",
-                                              content: "Bạn có muốn gửi lịch sản xuất này không?",
-                                              confirmText: "Xác nhận",
-                                              confirmColor: const Color(0xffEA4346),
-                                            );
-
-                                            if (confirm) {
-                                              try {
-                                                final success = await PlanningService()
-                                                    .notifyUpdatePlanning(
-                                                      machine: machine,
-                                                      isPaper: true,
-                                                    );
-
-                                                if (!context.mounted) return;
-                                                if (success) {
-                                                  showSnackBarSuccess(
-                                                    context,
-                                                    "Gửi lịch sản xuất thành công",
-                                                  );
-                                                }
-                                              } catch (e) {
-                                                if (!context.mounted) return;
+                                        //popup menu
+                                        PopupMenuButton<String>(
+                                          icon: const Icon(Icons.more_vert, color: Colors.black),
+                                          color: Colors.white,
+                                          onSelected: (value) async {
+                                            if (value == 'change') {
+                                              if (selectedPlanningIds.isEmpty) {
                                                 showSnackBarError(
                                                   context,
-                                                  "Lỗi khi gửi lịch sản xuất",
+                                                  "Chưa chọn kế hoạch cần chuyển máy",
                                                 );
+                                                return;
+                                              }
+
+                                              final planning = await futurePlanning;
+                                              if (!context.mounted) return;
+
+                                              final selectedPlans =
+                                                  planning
+                                                      .where(
+                                                        (p) => selectedPlanningIds.contains(
+                                                          p.planningId.toString(),
+                                                        ),
+                                                      )
+                                                      .toList();
+
+                                              if (selectedPlans.isEmpty) {
+                                                showSnackBarError(
+                                                  context,
+                                                  "Không tìm thấy kế hoạch hợp lệ để chuyển máy",
+                                                );
+                                                return;
+                                              }
+
+                                              await showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => ChangeMachineDialog(
+                                                      planning: selectedPlans,
+                                                      onChangeMachine: () => loadPlanning(),
+                                                    ),
+                                              );
+                                              return;
+                                            } else if (value == 'stop') {
+                                              await handlePlanningAction(
+                                                context: context,
+                                                selectedPlanningIds: selectedPlanningIds,
+                                                planningList: machinePaperDatasource.planning,
+                                                status: "stop",
+                                                title: "Xác nhận dừng sản xuất",
+                                                message:
+                                                    "Bạn có chắc muốn dừng các kế hoạch đã chọn không?",
+                                                successMessage: "Dừng sản xuất thành công",
+                                                errorMessage: "Có lỗi xảy ra khi thực thi",
+                                                onSuccess: () {
+                                                  loadPlanning();
+                                                  badgesController.fetchPlanningStop();
+                                                },
+                                              );
+                                            } else if (value == 'reject') {
+                                              await handlePlanningAction(
+                                                context: context,
+                                                selectedPlanningIds: selectedPlanningIds,
+                                                planningList: machinePaperDatasource.planning,
+                                                status: "reject",
+                                                title: "Xác nhận hủy kế hoạch",
+                                                message:
+                                                    "Bạn có chắc muốn hủy kế hoạch đơn này không?",
+                                                successMessage: "Hủy kế hoạch thành công",
+                                                errorMessage: "Có lỗi xảy ra khi thực thi",
+                                                onSuccess: () {
+                                                  loadPlanning();
+                                                  badgesController.fetchPlanningStop();
+                                                },
+                                              );
+                                            } else if (value == 'acceptLack') {
+                                              await handlePlanningAction(
+                                                context: context,
+                                                selectedPlanningIds: selectedPlanningIds,
+                                                planningList: machinePaperDatasource.planning,
+                                                status: "complete",
+                                                title: "Xác nhận thiếu số lượng",
+                                                message: "Bạn có chắc muốn chấp nhận thiếu không?",
+                                                successMessage: "Chấp nhận thiếu thành công",
+                                                errorMessage: "Có lỗi xảy ra khi thực thi",
+                                                onSuccess: () => loadPlanning(),
+                                              );
+                                            }
+                                            if (value == 'notify') {
+                                              if (!context.mounted) return;
+
+                                              bool confirm = await showConfirmDialog(
+                                                context: context,
+                                                title: "Xác Nhận Lịch Sản Xuất",
+                                                content: "Bạn có muốn gửi lịch sản xuất này không?",
+                                                confirmText: "Xác nhận",
+                                                confirmColor: const Color(0xffEA4346),
+                                              );
+
+                                              if (confirm) {
+                                                try {
+                                                  final success = await PlanningService()
+                                                      .notifyUpdatePlanning(
+                                                        machine: machine,
+                                                        isPaper: true,
+                                                      );
+
+                                                  if (!context.mounted) return;
+                                                  if (success) {
+                                                    showSnackBarSuccess(
+                                                      context,
+                                                      "Gửi lịch sản xuất thành công",
+                                                    );
+                                                  }
+                                                } catch (e) {
+                                                  if (!context.mounted) return;
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Lỗi khi gửi lịch sản xuất",
+                                                  );
+                                                }
                                               }
                                             }
-                                          }
-                                        },
-                                        itemBuilder:
-                                            (BuildContext context) => [
-                                              const PopupMenuItem<String>(
-                                                value: 'change',
-                                                child: ListTile(
-                                                  leading: Icon(Symbols.construction),
-                                                  title: Text('Chuyển Máy'),
+                                          },
+                                          itemBuilder:
+                                              (BuildContext context) => [
+                                                const PopupMenuItem<String>(
+                                                  value: 'change',
+                                                  child: ListTile(
+                                                    leading: Icon(Symbols.construction),
+                                                    title: Text('Chuyển Máy'),
+                                                  ),
                                                 ),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: 'stop',
-                                                child: ListTile(
-                                                  leading: Icon(Symbols.pause_circle),
-                                                  title: Text('Dừng Chạy Đơn'),
+                                                const PopupMenuItem<String>(
+                                                  value: 'stop',
+                                                  child: ListTile(
+                                                    leading: Icon(Symbols.pause_circle),
+                                                    title: Text('Dừng Chạy Đơn'),
+                                                  ),
                                                 ),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: 'reject',
-                                                child: ListTile(
-                                                  leading: Icon(Symbols.cancel_rounded),
-                                                  title: Text('Hủy Chạy Đơn'),
+                                                const PopupMenuItem<String>(
+                                                  value: 'reject',
+                                                  child: ListTile(
+                                                    leading: Icon(Symbols.cancel_rounded),
+                                                    title: Text('Hủy Chạy Đơn'),
+                                                  ),
                                                 ),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: 'acceptLack',
-                                                child: ListTile(
-                                                  leading: Icon(Icons.approval_outlined),
-                                                  title: Text('Chấp Nhận Thiếu SL'),
+                                                const PopupMenuItem<String>(
+                                                  value: 'acceptLack',
+                                                  child: ListTile(
+                                                    leading: Icon(Icons.approval_outlined),
+                                                    title: Text('Chấp Nhận Thiếu SL'),
+                                                  ),
                                                 ),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: 'notify',
-                                                child: ListTile(
-                                                  leading: Icon(Symbols.send),
-                                                  title: Text('Gửi Kế Hoạch SX'),
+                                                const PopupMenuItem<String>(
+                                                  value: 'notify',
+                                                  child: ListTile(
+                                                    leading: Icon(Symbols.send),
+                                                    title: Text('Gửi Kế Hoạch SX'),
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                      ),
-                                      const SizedBox(width: 10),
-                                    ],
+                                              ],
+                                        ),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

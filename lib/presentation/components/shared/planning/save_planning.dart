@@ -87,7 +87,7 @@ class SavePlanning extends StatelessWidget {
               }),
               foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
               padding: WidgetStateProperty.all<EdgeInsets>(
-                const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               ),
               shape: WidgetStateProperty.all(
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -97,10 +97,8 @@ class SavePlanning extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.save),
-                const SizedBox(width: 6),
-                Text("Lưu", style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(width: 4),
-                const Icon(Icons.keyboard_arrow_down),
+                Text("Lưu", style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
               ],
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:diacritic/diacritic.dart';
-import 'package:dongtam/data/models/customer/customer_model.dart';
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ValidationCustomer {
   static Widget validateInput({
@@ -9,116 +10,93 @@ class ValidationCustomer {
     required IconData icon,
     bool readOnly = false,
     bool checkId = false,
-    List<Customer>? allCustomers,
-    String? currentCustomerId,
+    String? externalError,
+    Function(String)? onChanged,
   }) {
-    return TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        fillColor: readOnly ? Colors.grey.shade300 : Colors.white,
-        filled: true,
-      ),
-      validator: (value) {
-        if (value != null) {
-          // xoá khoảng trắng 2 đầu + dấu xuống dòng
-          value = value.trim().replaceAll(RegExp(r'[\r\n]+'), ' ');
-          controller.text = value;
-        }
+    return StatefulBuilder(
+      builder: (context, setState) {
+        controller.addListener(() {
+          setState(() {}); // cập nhật color mỗi khi text thay đổi
+        });
 
-        if ((label == 'Mã khách hàng' ||
-                label == "Tên khách hàng" ||
-                label == "Tên công ty" ||
-                label == "Địa chỉ công ty" ||
-                label == "Địa chỉ giao hàng" ||
-                label == "Hạn Mức Công Nợ" ||
-                label == "Hạn Thanh Toán" ||
-                label == "CSKH" ||
-                label == "Nguồn Khách Hàng") &&
-            (value == null || value.isEmpty)) {
-          return 'Vui lòng nhập $label';
-        }
+        final isFilled = controller.text.isEmpty;
 
-        if (label == 'Mã khách hàng' && value != null) {
-          final withoutDiacritics = removeDiacritics(value);
-          if (value != withoutDiacritics) {
-            return "Mã khách hàng không được có dấu tiếng Việt";
-          }
+        final themeController = Get.find<ThemeController>();
 
-          if (checkId) {
-            if (value.length < 10) {
-              return 'Mã khách hàng phải nhập 10 ký tự';
-            } else if (value.length > 10) {
-              return 'Mã khách hàng vượt quá 10 ký tự';
+        final isCustomTheme = themeController.isThemeCustomized.value;
+        final isCurrentColor = themeController.currentColor.value;
+        final defaultFill = const Color.fromARGB(255, 148, 236, 154);
+
+        return TextFormField(
+          controller: controller,
+          readOnly: readOnly,
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            prefixIcon: Icon(icon),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            fillColor:
+                readOnly
+                    ? Colors.grey.shade300
+                    : (isFilled ? Colors.white : (isCustomTheme ? isCurrentColor : defaultFill)),
+            filled: true,
+            errorText: externalError,
+          ),
+          onChanged: onChanged,
+          validator: (value) {
+            if (externalError != null) return externalError;
+
+            final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
+
+            final requiredFields = [
+              'Mã khách hàng',
+              "Tên khách hàng",
+              "Tên công ty",
+              "Địa chỉ công ty",
+              "Địa chỉ giao hàng",
+              "Hạn Mức Công Nợ",
+              "Hạn Thanh Toán",
+              "CSKH",
+              "Nguồn Khách Hàng",
+            ];
+
+            if (requiredFields.contains(label) && cleanValue.isEmpty) {
+              return 'Không được để trống';
             }
-          }
 
-          final pattern = RegExp(r"^[a-zA-Z0-9]+$");
-          if (!pattern.hasMatch(value)) {
-            return "Mã khách hàng không được chứa ký tự đặc biệt";
-          }
-
-          //check prefix
-          if (allCustomers != null && allCustomers.isNotEmpty) {
-            final prefix = value.toUpperCase();
-
-            final hasDuplicatePrefix = allCustomers.any((c) {
-              // bỏ qua khách hiện tại nếu đang edit
-              if (currentCustomerId != null && c.customerId == currentCustomerId) {
-                return false;
+            //regex customerID
+            if (label == 'Mã khách hàng' && value != null) {
+              final withoutDiacritics = removeDiacritics(value);
+              if (value != withoutDiacritics) {
+                return "Mã khách hàng không được có dấu tiếng Việt";
               }
 
-              if (c.customerId.length > 10) {
-                final existingPreifx = c.customerId.substring(0, c.customerId.length - 4);
-
-                return existingPreifx == prefix;
-              }
-
-              return false;
-            });
-
-            if (hasDuplicatePrefix) {
-              return "Tiền mã khách hàng đã tồn tại";
-            }
-          }
-        }
-
-        if (label == "SDT" && value != null && value.isNotEmpty) {
-          if (!RegExp(r'^\d+$').hasMatch(value)) {
-            return 'Số điện thoại chỉ được chứa chữ số';
-          }
-        }
-
-        if (label == "MST" && value != null && value.isNotEmpty) {
-          final trimmed = value.replaceAll(RegExp(r'\s+'), '');
-
-          final isDuplicate =
-              allCustomers?.any((c) {
-                if (currentCustomerId != null && c.customerId == currentCustomerId) {
-                  return false;
+              if (checkId) {
+                if (value.length < 10) {
+                  return 'Mã khách hàng phải nhập 10 ký tự';
+                } else if (value.length > 10) {
+                  return 'Mã khách hàng vượt quá 10 ký tự';
                 }
+              }
 
-                final customerMst = c.mst.replaceAll(RegExp(r'\s+'), '');
-                if (customerMst.isEmpty) return false;
+              final pattern = RegExp(r"^[a-zA-Z0-9]+$");
+              if (!pattern.hasMatch(value)) {
+                return "Mã khách hàng không được chứa ký tự đặc biệt";
+              }
+            }
 
-                return customerMst == trimmed;
-              }) ??
-              false;
+            //check sdt
+            if (label == "SDT" && value != null && value.isNotEmpty) {
+              if (!RegExp(r'^\d+$').hasMatch(value)) {
+                return 'Số điện thoại chỉ được chứa chữ số';
+              }
+            }
 
-          if (isDuplicate) {
-            return 'Mã số thuế đã tồn tại';
-          }
-
-          controller.text = trimmed;
-        }
-
-        return null;
+            return null;
+          },
+        );
       },
     );
   }

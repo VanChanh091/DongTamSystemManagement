@@ -173,7 +173,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                             children: [
                               //left button
                               Expanded(
-                                flex: 1,
+                                flex: 3,
                                 child: LeftButtonSearch(
                                   selectedType: searchType,
                                   types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Quy Cách'],
@@ -194,173 +194,179 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
                               //right button
                               Expanded(
-                                flex: 1,
+                                flex: 4,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      // nút lên xuống
-                                      rowMoveButtons(
-                                        enabled: selectedPlanningBoxIds.isNotEmpty,
-                                        onMoveUp: () {
-                                          setState(() {
-                                            machineBoxDatasource.moveRowUp(selectedPlanningBoxIds);
-                                          });
-                                        },
-                                        onMoveDown: () {
-                                          setState(() {
-                                            machineBoxDatasource.moveRowDown(
-                                              selectedPlanningBoxIds,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      const SizedBox(width: 20),
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    reverse: true,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        // nút lên xuống
+                                        rowMoveButtons(
+                                          enabled: selectedPlanningBoxIds.isNotEmpty,
+                                          onMoveUp: () {
+                                            setState(() {
+                                              machineBoxDatasource.moveRowUp(
+                                                selectedPlanningBoxIds,
+                                              );
+                                            });
+                                          },
+                                          onMoveDown: () {
+                                            setState(() {
+                                              machineBoxDatasource.moveRowDown(
+                                                selectedPlanningBoxIds,
+                                              );
+                                            });
+                                          },
+                                        ),
+                                        const SizedBox(width: 20),
 
-                                      // save
-                                      SavePlanning(
-                                        isLoading: isLoading,
-                                        dayStartController: dayStartController,
-                                        timeStartController: timeStartController,
-                                        totalTimeWorkingController: totalTimeWorkingController,
-                                        getRows: () => machineBoxDatasource.rows,
-                                        idColumn: 'planningBoxId',
-                                        isBox: true,
-                                        backgroundColor: themeController.buttonColor,
-                                        machine: machine,
-                                        onSuccess: () {
-                                          loadPlanning();
-                                          unsavedChangeController.resetUnsavedChanges();
-                                        },
-                                        onStartLoading: () => setState(() => isLoading = true),
-                                        onEndLoading: () => setState(() => isLoading = false),
-                                      ),
-                                      const SizedBox(width: 10),
+                                        // save
+                                        SavePlanning(
+                                          isLoading: isLoading,
+                                          dayStartController: dayStartController,
+                                          timeStartController: timeStartController,
+                                          totalTimeWorkingController: totalTimeWorkingController,
+                                          getRows: () => machineBoxDatasource.rows,
+                                          idColumn: 'planningBoxId',
+                                          isBox: true,
+                                          backgroundColor: themeController.buttonColor,
+                                          machine: machine,
+                                          onSuccess: () {
+                                            loadPlanning();
+                                            unsavedChangeController.resetUnsavedChanges();
+                                          },
+                                          onStartLoading: () => setState(() => isLoading = true),
+                                          onEndLoading: () => setState(() => isLoading = false),
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                      //group/unGroup
-                                      AnimatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            showGroup = !showGroup;
-                                          });
-                                        },
-                                        label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
-                                        icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
-                                        backgroundColor: themeController.buttonColor,
-                                      ),
-                                      const SizedBox(width: 10),
+                                        //group/unGroup
+                                        AnimatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              showGroup = !showGroup;
+                                            });
+                                          },
+                                          label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                          icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
+                                          backgroundColor: themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                      //confirm complete
-                                      confirmCompleteButton(
-                                        context: context,
-                                        selectedIds: selectedPlanningBoxIds,
-                                        onConfirmComplete: (ids) async {
-                                          return await PlanningService().confirmCompletePlanning(
-                                            ids: ids,
-                                            machine: machine,
-                                            isBox: true,
-                                          );
-                                        },
-                                        backgroundColor: themeController.buttonColor,
-                                        onReload: () => loadPlanning(),
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //choose machine
-                                      buildMachineDropdown(
-                                        value: machine,
-                                        items: const [
-                                          'Máy In',
-                                          "Máy Bế",
-                                          "Máy Xả",
-                                          "Máy Dán",
-                                          'Máy Cấn Lằn',
-                                          "Máy Cắt Khe",
-                                          "Máy Cán Màng",
-                                          "Máy Đóng Ghim",
-                                        ],
-                                        onChanged: (value) {
-                                          if (value != null) changeMachine(value);
-                                        },
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //popup menu
-                                      PopupMenuButton<String>(
-                                        icon: const Icon(Icons.more_vert, color: Colors.black),
-                                        color: Colors.white,
-                                        onSelected: (value) async {
-                                          if (value == 'acceptLack') {
-                                            await handlePlanningAction(
-                                              context: context,
-                                              selectedPlanningIds: selectedPlanningBoxIds,
-                                              planningList: machineBoxDatasource.planning,
+                                        //confirm complete
+                                        confirmCompleteButton(
+                                          context: context,
+                                          selectedIds: selectedPlanningBoxIds,
+                                          onConfirmComplete: (ids) async {
+                                            return await PlanningService().confirmCompletePlanning(
+                                              ids: ids,
                                               machine: machine,
-                                              status: "complete",
-                                              title: "Xác nhận thiếu số lượng",
-                                              message: "Bạn có chắc muốn chấp nhận thiếu không?",
-                                              successMessage: "Thực thi thành công",
-                                              errorMessage: "Có lỗi xảy ra khi thực thi",
-                                              onSuccess: () => loadPlanning(),
+                                              isBox: true,
                                             );
-                                          }
-                                          if (value == 'notify') {
-                                            if (!context.mounted) return;
+                                          },
+                                          backgroundColor: themeController.buttonColor,
+                                          onReload: () => loadPlanning(),
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                            bool confirm = await showConfirmDialog(
-                                              context: context,
-                                              title: "Xác Nhận Lịch Sản Xuất",
-                                              content: "Bạn có muốn gửi lịch sản xuất này không?",
-                                              confirmText: "Xác nhận",
-                                              confirmColor: const Color(0xffEA4346),
-                                            );
+                                        //choose machine
+                                        buildMachineDropdown(
+                                          value: machine,
+                                          items: const [
+                                            'Máy In',
+                                            "Máy Bế",
+                                            "Máy Xả",
+                                            "Máy Dán",
+                                            'Máy Cấn Lằn',
+                                            "Máy Cắt Khe",
+                                            "Máy Cán Màng",
+                                            "Máy Đóng Ghim",
+                                          ],
+                                          onChanged: (value) {
+                                            if (value != null) changeMachine(value);
+                                          },
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                            if (confirm) {
-                                              try {
-                                                final success = await PlanningService()
-                                                    .notifyUpdatePlanning(
-                                                      machine: machine,
-                                                      isPaper: false,
+                                        //popup menu
+                                        PopupMenuButton<String>(
+                                          icon: const Icon(Icons.more_vert, color: Colors.black),
+                                          color: Colors.white,
+                                          onSelected: (value) async {
+                                            if (value == 'acceptLack') {
+                                              await handlePlanningAction(
+                                                context: context,
+                                                selectedPlanningIds: selectedPlanningBoxIds,
+                                                planningList: machineBoxDatasource.planning,
+                                                machine: machine,
+                                                status: "complete",
+                                                title: "Xác nhận thiếu số lượng",
+                                                message: "Bạn có chắc muốn chấp nhận thiếu không?",
+                                                successMessage: "Thực thi thành công",
+                                                errorMessage: "Có lỗi xảy ra khi thực thi",
+                                                onSuccess: () => loadPlanning(),
+                                              );
+                                            }
+                                            if (value == 'notify') {
+                                              if (!context.mounted) return;
+
+                                              bool confirm = await showConfirmDialog(
+                                                context: context,
+                                                title: "Xác Nhận Lịch Sản Xuất",
+                                                content: "Bạn có muốn gửi lịch sản xuất này không?",
+                                                confirmText: "Xác nhận",
+                                                confirmColor: const Color(0xffEA4346),
+                                              );
+
+                                              if (confirm) {
+                                                try {
+                                                  final success = await PlanningService()
+                                                      .notifyUpdatePlanning(
+                                                        machine: machine,
+                                                        isPaper: false,
+                                                      );
+
+                                                  if (!context.mounted) return;
+                                                  if (success) {
+                                                    showSnackBarSuccess(
+                                                      context,
+                                                      "Gửi lịch sản xuất thành công",
                                                     );
-
-                                                if (!context.mounted) return;
-                                                if (success) {
-                                                  showSnackBarSuccess(
+                                                  }
+                                                } catch (e) {
+                                                  if (!context.mounted) return;
+                                                  showSnackBarError(
                                                     context,
-                                                    "Gửi lịch sản xuất thành công",
+                                                    "Lỗi khi gửi lịch sản xuất",
                                                   );
                                                 }
-                                              } catch (e) {
-                                                if (!context.mounted) return;
-                                                showSnackBarError(
-                                                  context,
-                                                  "Lỗi khi gửi lịch sản xuất",
-                                                );
                                               }
                                             }
-                                          }
-                                        },
-                                        itemBuilder:
-                                            (BuildContext context) => [
-                                              const PopupMenuItem<String>(
-                                                value: 'acceptLack',
-                                                child: ListTile(
-                                                  leading: Icon(Icons.approval_outlined),
-                                                  title: Text('Chấp Nhận Thiếu SL'),
+                                          },
+                                          itemBuilder:
+                                              (BuildContext context) => [
+                                                const PopupMenuItem<String>(
+                                                  value: 'acceptLack',
+                                                  child: ListTile(
+                                                    leading: Icon(Icons.approval_outlined),
+                                                    title: Text('Chấp Nhận Thiếu SL'),
+                                                  ),
                                                 ),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: 'notify',
-                                                child: ListTile(
-                                                  leading: Icon(Symbols.send),
-                                                  title: Text('Xác Nhận Kế Hoạch SX'),
+                                                const PopupMenuItem<String>(
+                                                  value: 'notify',
+                                                  child: ListTile(
+                                                    leading: Icon(Symbols.send),
+                                                    title: Text('Xác Nhận Kế Hoạch SX'),
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                      ),
-                                      const SizedBox(width: 10),
-                                    ],
+                                              ],
+                                        ),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

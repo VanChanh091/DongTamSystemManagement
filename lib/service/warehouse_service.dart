@@ -9,7 +9,6 @@ import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -115,21 +114,10 @@ class WarehouseService {
 
   //create outbound
   Future<bool> createOutbound({required List<Map<String, dynamic>> list}) async {
-    try {
-      return await HelperService().addItem(
-        endpoint: 'warehouse/outbound/createOutbound',
-        itemData: {'outboundDetails': list},
-      );
-    } on DioException catch (e) {
-      if (e.response != null) {
-        throw ApiException(
-          status: e.response?.statusCode,
-          message: e.response?.data?['message'],
-          errorCode: e.response?.data?['errorCode'],
-        );
-      }
-      throw Exception("Network Error: ${e.message}");
-    }
+    return await HelperService().addItem(
+      endpoint: 'warehouse/outbound/createOutbound',
+      itemData: {'outboundDetails': list},
+    );
   }
 
   Future<bool> updateOutbound({

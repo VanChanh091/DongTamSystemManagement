@@ -641,7 +641,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Center(
                       child: Text(
-                        "Mật khẩu mặc định là: 12345678",
+                        "Mật khẩu mặc định sau reset là: 12345678",
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 20,

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
@@ -8,6 +9,18 @@ import 'package:file_picker/file_picker.dart';
 
 class HelperService {
   final Dio dioService = DioClient().dio;
+
+  void handleDioException(DioException e, String defaultMessage) {
+    if (e.response != null) {
+      throw ApiException(
+        status: e.response?.statusCode,
+        message: e.response?.data?['message'] ?? defaultMessage,
+        errorCode: e.response?.data?['errorCode'],
+      );
+    } else {
+      throw Exception("Network Error: ${e.message}");
+    }
+  }
 
   //get data pagination
   Future<Map<String, dynamic>> fetchPaginatedData<T>({
@@ -149,6 +162,9 @@ class HelperService {
       );
 
       return true;
+    } on DioException catch (e) {
+      handleDioException(e, "Lỗi khi thêm dữ liệu");
+      return false;
     } catch (e, s) {
       AppLogger.e("Failed to add item", error: e, stackTrace: s);
       throw Exception('Failed to add item: $e');

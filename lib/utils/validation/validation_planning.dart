@@ -1,4 +1,6 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ValidationPlanning {
   static Widget validateInput({
@@ -15,10 +17,16 @@ class ValidationPlanning {
     return StatefulBuilder(
       builder: (context, setState) {
         controller.addListener(() {
-          setState(() {}); // cập nhật mỗi khi text thay đổi
+          setState(() {}); // cập nhật color mỗi khi text thay đổi
         });
 
         final isFilled = controller.text.isEmpty;
+
+        final themeController = Get.find<ThemeController>();
+
+        final isCurrentColor = themeController.currentColor.value;
+        final defaultFill = const Color.fromARGB(255, 148, 236, 154);
+        final isCustomTheme = themeController.isThemeCustomized.value;
 
         return TextFormField(
           controller: controller,
@@ -33,7 +41,7 @@ class ValidationPlanning {
             fillColor:
                 readOnly
                     ? Colors.grey.shade300
-                    : (isFilled ? Colors.white : Color.fromARGB(255, 148, 236, 154)),
+                    : (isFilled ? Colors.white : (isCustomTheme ? isCurrentColor : defaultFill)),
             filled: true,
           ),
           validator: (value) {

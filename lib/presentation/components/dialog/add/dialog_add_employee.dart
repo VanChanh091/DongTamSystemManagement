@@ -1,11 +1,12 @@
 import 'package:dongtam/data/models/employee/employee_basic_info.dart';
 import 'package:dongtam/data/models/employee/employee_company_info.dart';
 import 'package:dongtam/service/employee_service.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
-import 'package:dongtam/utils/helper/reponsive_size.dart';
+import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/validation/validation_employee.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -25,8 +26,7 @@ class EmployeeDialog extends StatefulWidget {
 
 class _EmployeeDialogState extends State<EmployeeDialog> {
   final formKey = GlobalKey<FormState>();
-  List<EmployeeBasicInfo> allEmployees = [];
-  bool isLoading = true;
+  String? employeeCodeError;
 
   final List<String> itemGender = ["Nam", "Nữ"];
   late String typeGender = "Nam";
@@ -65,7 +65,6 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
     if (widget.employee != null) {
       employeeInitState();
     }
-    fetchAllCustomer();
   }
 
   void employeeInitState() {
@@ -105,23 +104,6 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
     joinDate = companyInfo.joinDate;
     _joinDateController.text = (joinDate != null) ? DateFormat('dd/MM/yyyy').format(joinDate!) : "";
-  }
-
-  //get all employee to check employeeCode
-  Future<void> fetchAllCustomer() async {
-    try {
-      final result = await EmployeeService().getAllEmployees(noPaging: true);
-
-      allEmployees = result['employees'] as List<EmployeeBasicInfo>;
-
-      AppLogger.i('Load all data employee succesfully');
-    } catch (e, s) {
-      AppLogger.e("Lỗi khi tải danh sách nhân viên", error: e, stackTrace: s);
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
 
   void submit() async {
@@ -191,6 +173,18 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       if (!mounted) return;
       Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (e.errorCode == 'EMPLOYEE_CODE_EXISTS') {
+        setState(() {
+          employeeCodeError = "Mã nhân viên này đã tồn tại";
+        });
+      } else {
+        showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+      }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        formKey.currentState!.validate();
+      });
     } catch (e, s) {
       if (!mounted) return;
       if (widget.employee == null) {
@@ -418,8 +412,10 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
           label: "Mã Nhân Viên",
           controller: _employeeCodeController,
           icon: Symbols.person_pin,
-          allEmployees: allEmployees,
-          currentEmployeeId: widget.employee?.employeeId,
+          externalError: employeeCodeError,
+          onChanged: (val) {
+            if (employeeCodeError != null) setState(() => employeeCodeError = null);
+          },
         ),
         "rightKey": "Ngày Vào Làm",
         "rightValue": ValidationEmployee.validateInput(
@@ -514,87 +510,73 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       ),
       content: SizedBox(
         width: ResponsiveSize.getWidth(context, ResponsiveType.large),
-        child:
-            isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        //basic info
-                        const SizedBox(height: 10),
-                        buildingCard(
-                          title: "Thông Tin Cơ Bản",
-                          children: formatKeyValueRows(
-                            rows: basicInfoRows,
-                            columnCount: 2,
-                            labelWidth: 150,
-                            centerAlign: true,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-
-                        //CCCD info
-                        buildingCard(
-                          title: "Thông Tin CCCD",
-                          children: formatKeyValueRows(
-                            rows: cccdInfoRows,
-                            columnCount: 2,
-                            labelWidth: 150,
-                            centerAlign: true,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-
-                        //company info
-                        buildingCard(
-                          title: "Thông Tin Trong CTY",
-                          children: formatKeyValueRows(
-                            rows: companyInfoRows,
-                            columnCount: 2,
-                            labelWidth: 150,
-                            centerAlign: true,
-                          ),
-                        ),
-                      ],
-                    ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                //basic info
+                const SizedBox(height: 10),
+                buildingCard(
+                  title: "Thông Tin Cơ Bản",
+                  children: formatKeyValueRows(
+                    rows: basicInfoRows,
+                    columnCount: 2,
+                    labelWidth: 150,
+                    centerAlign: true,
                   ),
                 ),
-      ),
-      actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      actions:
-          isLoading
-              ? []
-              : [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    "Hủy",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
+                const SizedBox(height: 10),
+
+                //CCCD info
+                buildingCard(
+                  title: "Thông Tin CCCD",
+                  children: formatKeyValueRows(
+                    rows: cccdInfoRows,
+                    columnCount: 2,
+                    labelWidth: 150,
+                    centerAlign: true,
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: Text(
-                    isEdit ? "Cập nhật" : "Thêm",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
+                const SizedBox(height: 10),
+
+                //company info
+                buildingCard(
+                  title: "Thông Tin Trong CTY",
+                  children: formatKeyValueRows(
+                    rows: companyInfoRows,
+                    columnCount: 2,
+                    labelWidth: 150,
+                    centerAlign: true,
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            "Hủy",
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: submit,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: Text(
+            isEdit ? "Cập nhật" : "Thêm",
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+          ),
+        ),
+      ],
     );
   }
 }

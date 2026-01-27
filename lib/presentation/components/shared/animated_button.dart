@@ -54,7 +54,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
           style: ElevatedButton.styleFrom(
             backgroundColor: bgColor,
             foregroundColor: widget.foregroundColor,
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         ),

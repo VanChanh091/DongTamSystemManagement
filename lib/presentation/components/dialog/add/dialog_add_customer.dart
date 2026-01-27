@@ -1,10 +1,11 @@
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_service.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
-import 'package:dongtam/utils/helper/reponsive_size.dart';
+import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_customer.dart';
@@ -32,6 +33,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
   List<Customer> allCustomers = [];
   bool isLoading = true;
+  String? idServerError;
+  String? mstServerError;
 
   final _idController = TextEditingController();
   final _nameController = TextEditingController();
@@ -218,6 +221,23 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
       if (!mounted) return;
       Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      setState(() {
+        switch (e.errorCode) {
+          case 'PREFIX_ALREADY_EXISTS':
+            idServerError = "Mã khách hàng này đã tồn tại";
+            break;
+          case 'MST_ALREADY_EXISTS':
+            mstServerError = "Mã số thuế này đã tồn tại";
+            break;
+          default:
+            showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+        }
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        formKey.currentState!.validate();
+      });
     } catch (e, s) {
       if (widget.customer == null) {
         AppLogger.e("Lỗi khi thêm khách hàng", error: e, stackTrace: s);
@@ -264,8 +284,10 @@ class _CustomerDialogState extends State<CustomerDialog> {
           icon: Icons.badge,
           readOnly: isEdit,
           checkId: !isEdit,
-          allCustomers: allCustomers,
-          currentCustomerId: widget.customer?.customerId,
+          externalError: idServerError,
+          onChanged: (val) {
+            if (idServerError != null) setState(() => idServerError = null);
+          },
         ),
         "rightKey": "Tên khách hàng",
         "rightValue": ValidationCustomer.validateInput(
@@ -287,8 +309,10 @@ class _CustomerDialogState extends State<CustomerDialog> {
           label: "MST",
           controller: _mstController,
           icon: Icons.numbers,
-          allCustomers: allCustomers,
-          currentCustomerId: widget.customer?.customerId,
+          externalError: mstServerError,
+          onChanged: (val) {
+            if (mstServerError != null) setState(() => mstServerError = null);
+          },
         ),
       },
 

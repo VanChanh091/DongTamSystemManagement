@@ -4,7 +4,7 @@ import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
-import 'package:dongtam/utils/helper/reponsive_size.dart';
+import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -40,6 +40,7 @@ class _ProductDialogState extends State<ProductDialog> {
   ];
   Uint8List? pickedProductImage;
   String? productImageUrl;
+  String? serverIdError;
 
   @override
   void initState() {
@@ -117,13 +118,17 @@ class _ProductDialogState extends State<ProductDialog> {
 
       Navigator.of(context).pop();
     } on ApiException catch (e) {
-      final errorText = switch (e.errorCode) {
-        'PREFIX_ALREADY_EXISTS' => 'Tiền mã sản phẩm đã tồn tại',
-        _ => 'Có lỗi xảy ra, vui lòng thử lại',
-      };
+      if (e.errorCode == 'PREFIX_ALREADY_EXISTS') {
+        setState(() {
+          serverIdError = 'Tiền mã sản phẩm đã tồn tại';
+        });
 
-      if (mounted) {
-        showSnackBarError(context, errorText);
+        // Gọi validate lại để nó hiển thị lỗi đỏ dưới chân ô input ngay lập tức
+        formKey.currentState!.validate();
+      } else {
+        if (mounted) {
+          showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+        }
       }
     } catch (e, s) {
       if (widget.product == null) {
@@ -154,9 +159,18 @@ class _ProductDialogState extends State<ProductDialog> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         floatingLabelBehavior: FloatingLabelBehavior.always,
+        errorText: (label == "Mã Sản Phẩm") ? serverIdError : null,
         fillColor: readOnly ? Colors.grey.shade300 : Colors.white,
         filled: true,
       ),
+      onChanged: (value) {
+        //xóa lỗi cũ khi user nhập lại
+        if (label == "Mã Sản Phẩm" && serverIdError != null) {
+          setState(() {
+            serverIdError = null;
+          });
+        }
+      },
       validator: (value) {
         if ((label == "Mã Sản Phẩm") && (value == null || value.isEmpty)) {
           return "Không được để trống";
@@ -182,6 +196,10 @@ class _ProductDialogState extends State<ProductDialog> {
               return 'Mã sản phẩm vượt quá 10 ký tự';
             }
           }
+        }
+
+        if (label == "Mã Sản Phẩm" && serverIdError != null) {
+          return serverIdError;
         }
 
         return null;

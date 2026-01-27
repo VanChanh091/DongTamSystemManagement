@@ -1,4 +1,6 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ValidationOrder {
   static Widget checkboxForBox({
@@ -52,11 +54,17 @@ class ValidationOrder {
     return StatefulBuilder(
       builder: (context, setState) {
         controller.addListener(() {
-          setState(() {}); // cập nhật mỗi khi text thay đổi
+          setState(() {}); // cập nhật color mỗi khi text thay đổi
         });
 
         final isFilled = controller.text.isEmpty;
         final effectiveReadOnly = readOnly || !enabled;
+
+        final themeController = Get.find<ThemeController>();
+
+        final isCustomTheme = themeController.isThemeCustomized.value;
+        final isCurrentColor = themeController.currentColor.value;
+        final defaultFill = const Color.fromARGB(255, 148, 236, 154);
 
         return TextFormField(
           controller: controller,
@@ -72,19 +80,25 @@ class ValidationOrder {
             fillColor:
                 effectiveReadOnly
                     ? Colors.grey.shade300
-                    : (isFilled ? Colors.white : Color.fromARGB(255, 148, 236, 154)),
+                    : (isFilled ? Colors.white : (isCustomTheme ? isCurrentColor : defaultFill)),
             filled: true,
           ),
           validator: (value) {
-            if ((label == "Mã Đơn Hàng" ||
-                    label == "Ngày yêu cầu giao" ||
-                    label == "Số lượng (KH)" ||
-                    label == "Khổ khách đặt (cm)" ||
-                    label == "Số con" ||
-                    label == "Đơn giá (M2)") &&
-                (value == null || value.isEmpty)) {
+            final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
+
+            final requiredFields = [
+              "Mã Đơn Hàng",
+              "Ngày yêu cầu giao",
+              "Số lượng (KH)",
+              "Khổ khách đặt (cm)",
+              "Số con",
+              "Đơn giá (M2)",
+            ];
+
+            if (requiredFields.contains(label) && cleanValue.isEmpty) {
               return 'Không được để trống';
             }
+
             if (checkId && label == "Mã Đơn Hàng") {
               if (value!.length > 3) {
                 return "Mã đơn hàng chỉ được tối đa 3 ký tự";

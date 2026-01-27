@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -76,15 +75,8 @@ class ProductService {
 
       return true;
     } on DioException catch (e) {
-      if (e.response != null) {
-        throw ApiException(
-          status: e.response?.statusCode,
-          message: e.response?.data?['message'],
-          errorCode: e.response?.data?['errorCode'],
-        );
-      } else {
-        throw Exception("Network Error: ${e.message}");
-      }
+      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
+      return false;
     } catch (e, s) {
       AppLogger.e("Failed to add product", error: e, stackTrace: s);
       throw Exception('Failed to add product: $e');

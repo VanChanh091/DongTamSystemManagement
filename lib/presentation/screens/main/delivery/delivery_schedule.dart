@@ -212,6 +212,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                   },
                                   label: "Xuất File",
                                   icon: Symbols.export_notes,
+                                  backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 10),
 

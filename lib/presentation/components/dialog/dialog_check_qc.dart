@@ -5,7 +5,7 @@ import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
-import 'package:dongtam/utils/helper/reponsive_size.dart';
+import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 

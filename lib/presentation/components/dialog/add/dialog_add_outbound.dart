@@ -9,7 +9,7 @@ import 'package:dongtam/utils/helper/auto_complete_field.dart';
 import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
 import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
 import 'package:dongtam/utils/helper/confirm_dialog.dart';
-import 'package:dongtam/utils/helper/reponsive_size.dart';
+import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
@@ -494,7 +494,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                     ),
                                     validator: (value) {
                                       if (value == null || value.trim().isEmpty) {
-                                        return "Số lượng không được để trống";
+                                        return "Không được để trống";
                                       }
 
                                       final parsed = int.tryParse(value);
