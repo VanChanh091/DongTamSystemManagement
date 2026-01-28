@@ -99,14 +99,6 @@ class ValidationOrder {
               return 'Không được để trống';
             }
 
-            if (checkId && label == "Mã Đơn Hàng") {
-              if (value!.length > 3) {
-                return "Mã đơn hàng chỉ được tối đa 3 ký tự";
-              }
-              if (!RegExp(r'^\d+$').hasMatch(value)) {
-                return "Mã đơn hàng chỉ được chứa số";
-              }
-            }
             return null;
           },
           onTap: onTap,

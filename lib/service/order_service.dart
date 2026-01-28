@@ -8,6 +8,23 @@ import 'package:dongtam/utils/storage/secure_storage_service.dart';
 class OrderService {
   final Dio dioService = DioClient().dio;
 
+  //===============================ORDER AUTOCOMPLETE=====================================
+  Future<List<Order>> getOrderIdRaw({required String orderId}) async {
+    return HelperService().fetchingData<Order>(
+      endpoint: "order/getOrderIdRaw",
+      queryParameters: {'orderId': orderId},
+      fromJson: (json) => Order.fromJson(json),
+    );
+  }
+
+  Future<Order?> getOrderDetail({required String orderId}) async {
+    return HelperService().fetchSingleData(
+      endpoint: "order/getOrderDetail",
+      queryParameters: {'orderId': orderId},
+      parser: (json) => Order.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
   //===============================ACCEPT AND PLANNING====================================
 
   //get Order Accept And Planning

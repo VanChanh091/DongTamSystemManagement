@@ -25,7 +25,7 @@ final List<Map<String, dynamic>> _headerOrder = [
   {"key": "quantityCustomer", "title": "Số Lượng (KH)"},
   {"key": "qtyManufacture", "title": "Số Lượng (SX)"},
   {"key": "child", "title": "Số con"},
-  {"key": "dvt", "title": "Đơn Vị Tính"},
+  {"key": "dvt", "title": "ĐVT"},
   {"key": "acreage", "title": "Diện Tích"},
   {"key": "price", "title": "Đơn Giá"},
   {"key": "pricePaper", "title": "Giá Tấm"},

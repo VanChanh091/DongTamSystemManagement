@@ -5,6 +5,7 @@ import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/data/models/user/user_user_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 class Order {
@@ -15,8 +16,8 @@ class Order {
   final String daoXa, dvt, status;
   final double lengthPaperCustomer, lengthPaperManufacture;
   final double paperSizeCustomer, paperSizeManufacture;
-  final double? discount;
-  final double acreage, profit, price, pricePaper, totalPrice, totalPriceVAT;
+  final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT;
+  final double profit, price;
   final int quantityCustomer, quantityManufacture;
   final int numberChild;
   final int? vat;
@@ -61,10 +62,10 @@ class Order {
     required this.quantityCustomer,
     required this.quantityManufacture,
     required this.numberChild,
-    required this.acreage,
+    this.acreage,
     required this.dvt,
     required this.price,
-    required this.pricePaper,
+    this.pricePaper,
     this.discount,
     required this.profit,
     required this.dateRequestShipping,
@@ -72,8 +73,8 @@ class Order {
     this.vat,
     required this.status,
     this.rejectReason,
-    required this.totalPrice,
-    required this.totalPriceVAT,
+    this.totalPrice,
+    this.totalPriceVAT,
     required this.isBox,
 
     this.remainingQty,
@@ -91,43 +92,6 @@ class Order {
     return NumberFormat("#,###.##").format(value);
   }
 
-  //Acreage (m2) = lengthPaper * paperSize / 10000 * quantity
-  static double acreagePaper({
-    required double lengthPaper,
-    required double paperSize,
-    required int quantity,
-  }) {
-    return lengthPaper * paperSize / 10000 * double.parse(quantity.toStringAsFixed(2));
-  }
-
-  //Total price paper = (kg, cái) => price, else => lengthPaper * paperSize * price
-  static double totalPricePaper({
-    required String dvt,
-    required double length,
-    required double size,
-    required double price,
-    double pricePaper = 0,
-  }) {
-    if (dvt == 'M2' || dvt == 'Tấm') {
-      return length * size * price / 10000;
-    } else if (dvt == 'Tấm Bao Khổ') {
-      return pricePaper;
-    }
-    return price;
-  }
-
-  //Total price = quantity * pricePaper
-  static double totalPriceOrder({required int quantity, required double pricePaper}) {
-    return pricePaper * double.parse(quantity.toStringAsFixed(1));
-  }
-
-  static double totalPriceAfterVAT({required double totalPrice, required int vat}) {
-    if (vat == 0) {
-      return totalPrice;
-    }
-    return totalPrice * (1 + (vat / 100));
-  }
-
   String get formatterStructureOrder {
     final parts = [day, songE, matE, songB, matB, songC, matC, songE2, matE2];
     final formattedParts = <String>[];
@@ -141,52 +105,39 @@ class Order {
     return formattedParts.join('/');
   }
 
-  //calculate flute
-  static String flutePaper({
-    required String day,
-    required String matE,
-    required String matB,
-    required String matC,
-    required String matE2,
-    required String songE,
-    required String songB,
-    required String songC,
-    required String songE2,
-  }) {
-    final layers =
-        [
-          day,
-          matE,
-          matB,
-          matC,
-          matE2,
-          songE,
-          songB,
-          songC,
-          songE2,
-        ].where((e) => e.trim().isNotEmpty).toList();
-
-    // Thu thập sóng theo thứ tự ưu tiên thực tế
-    final flutesRaw = <String>[];
-    if (songE.trim().isNotEmpty) flutesRaw.add('E');
-    if (songB.trim().isNotEmpty) flutesRaw.add('B');
-    if (songC.trim().isNotEmpty) flutesRaw.add('C');
-    if (songE2.trim().isNotEmpty) flutesRaw.add('E');
-
-    const fluteOrder = ['E', 'B', 'C'];
-
-    final sortedFlutes = <String>[];
-    for (final f in fluteOrder) {
-      sortedFlutes.addAll(flutesRaw.where((x) => x == f));
-    }
-
-    return '${layers.length}${sortedFlutes.join()}';
-  }
-
   int getTotalByField(num? Function(PlanningPaper p) selector) {
     if (planningPaper == null || planningPaper!.isEmpty) return 0;
 
     return planningPaper!.fold<int>(0, (sum, p) => sum + (selector(p)?.toInt() ?? 0));
+  }
+
+  //listener
+  static void listenerForFieldNeed(
+    TextEditingController fieldController,
+    TextEditingController fieldControllerReplace,
+  ) {
+    fieldController.addListener(() {
+      if (fieldController.text != fieldControllerReplace.text) {
+        fieldControllerReplace.text = fieldController.text;
+      }
+    });
+  }
+
+  // helper: only add prefix if not empty and not already present
+  static String addPrefixIfNeeded(String value, String prefix) {
+    value = value.trim().toUpperCase();
+    if (value.isEmpty) return '';
+    return value.startsWith(prefix) ? value : '$prefix$value';
+  }
+
+  // create a string after prefix
+  static String generateOrderCode(String prefix) {
+    if (prefix.contains('/D')) return prefix;
+
+    final now = DateTime.now();
+    final String month = now.month.toString().padLeft(2, '0');
+    final String year = now.year.toString().substring(2);
+    return "$prefix/$month/$year/D";
   }
 
   int get totalQtyProduced => getTotalByField((p) => p.qtyProduced);
@@ -258,7 +209,6 @@ class Order {
       'customerId': customerId,
       'productId': productId,
       'dayReceiveOrder': DateFormat('yyyy-MM-dd').format(dayReceiveOrder),
-      'flute': flute,
       'QC_box': QC_box,
       'canLan': canLan,
       'daoXa': daoXa,
@@ -278,7 +228,6 @@ class Order {
       'quantityCustomer': quantityCustomer,
       'quantityManufacture': quantityManufacture,
       'numberChild': numberChild,
-      'acreage': acreage,
       'dvt': dvt,
       'price': price,
       'pricePaper': pricePaper,
@@ -290,8 +239,6 @@ class Order {
       'status': status,
       "rejectReason": rejectReason,
       'vat': vat,
-      'totalPrice': totalPrice,
-      'totalPriceVAT': totalPriceVAT,
       'box': box?.toJson(),
     };
   }

@@ -5,6 +5,8 @@ class AutoCompleteField<T> extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final IconData icon;
+  final bool? readOnly;
+  final bool? checkId;
   final Future<List<T>> Function(String pattern) suggestionsCallback;
   final Widget Function(BuildContext context, T item) itemBuilder;
   final String Function(T item) displayStringForItem;
@@ -20,6 +22,8 @@ class AutoCompleteField<T> extends StatefulWidget {
     required this.onSelected,
     required this.labelText,
     required this.icon,
+    this.readOnly = false,
+    this.checkId = false,
     required this.displayStringForItem,
     this.onPlusTap,
     required this.onChanged,
@@ -73,10 +77,13 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
           });
         }
 
+        final defaultFill = const Color.fromARGB(255, 148, 236, 154);
+
         return TextFormField(
           controller: textEditingController, // Để TypeAhead hoạt động đúng
           style: const TextStyle(fontSize: 15),
           focusNode: focusNode,
+          readOnly: widget.readOnly ?? false,
           decoration: InputDecoration(
             labelText: widget.labelText,
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
@@ -84,7 +91,12 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             floatingLabelBehavior: FloatingLabelBehavior.always,
-            fillColor: isFilled ? const Color.fromARGB(255, 148, 236, 154) : Colors.white,
+            fillColor:
+                widget.readOnly == true
+                    ? Colors.grey.shade300
+                    : isFilled
+                    ? defaultFill
+                    : Colors.white,
             filled: true,
             suffixIcon:
                 widget.onPlusTap != null
@@ -94,11 +106,24 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
                     )
                     : null,
           ),
-          onChanged: widget.onChanged,
+          onChanged: (value) {
+            widget.controller.text = value;
+            widget.onChanged(value);
+          },
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Không được để trống';
             }
+
+            if (widget.checkId == true && widget.labelText == 'Mã Đơn Hàng') {
+              if (value.length > 3) {
+                return "Mã đơn hàng chỉ được tối đa 3 ký tự";
+              }
+              if (!RegExp(r'^\d+$').hasMatch(value)) {
+                return "Mã đơn hàng chỉ được chứa số";
+              }
+            }
+
             return null;
           },
         );

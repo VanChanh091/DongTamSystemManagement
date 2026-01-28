@@ -288,7 +288,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             dvtController.text = selectedOrder.dvt;
             quantityCustomerController.text = selectedOrder.quantityCustomer.toStringAsFixed(1);
             discountController.text = selectedOrder.discount.toString();
-            pricePaperController.text = selectedOrder.pricePaper.toStringAsFixed(1);
+            pricePaperController.text = selectedOrder.pricePaper?.toStringAsFixed(1) ?? "";
 
             remainingQtyController.text = selectedOrder.remainingQty.toString();
           },

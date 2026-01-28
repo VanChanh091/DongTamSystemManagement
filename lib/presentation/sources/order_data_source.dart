@@ -65,9 +65,12 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<int>(columnName: 'qtyManufacture', value: order.quantityManufacture),
       DataGridCell<int>(columnName: 'child', value: order.numberChild),
       DataGridCell<String>(columnName: 'dvt', value: order.dvt),
-      DataGridCell<String>(columnName: 'acreage', value: Order.formatCurrency(order.acreage)),
+      DataGridCell<String>(columnName: 'acreage', value: Order.formatCurrency(order.acreage ?? 0)),
       DataGridCell<String>(columnName: 'price', value: Order.formatCurrency(order.price)),
-      DataGridCell<String>(columnName: 'pricePaper', value: Order.formatCurrency(order.pricePaper)),
+      DataGridCell<String>(
+        columnName: 'pricePaper',
+        value: Order.formatCurrency(order.pricePaper ?? 0),
+      ),
       DataGridCell<String>(
         columnName: 'discounts',
         value: Order.formatCurrency(order.discount ?? 0),
@@ -78,10 +81,13 @@ class OrderDataSource extends DataGridSource {
       ),
       DataGridCell<String>(columnName: 'vat', value: '${order.vat ?? 0}%'),
       DataGridCell<String>(columnName: 'HD_special', value: order.instructSpecial ?? ""),
-      DataGridCell<String>(columnName: 'totalPrice', value: Order.formatCurrency(order.totalPrice)),
+      DataGridCell<String>(
+        columnName: 'totalPrice',
+        value: Order.formatCurrency(order.totalPrice ?? 0),
+      ),
       DataGridCell<String>(
         columnName: 'totalPriceAfterVAT',
-        value: Order.formatCurrency(order.totalPriceVAT),
+        value: Order.formatCurrency(order.totalPriceVAT ?? 0),
       ),
     ];
   }

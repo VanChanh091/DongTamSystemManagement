@@ -36,6 +36,7 @@ class OrderDialog extends StatefulWidget {
 class _OrderDialogState extends State<OrderDialog> {
   final formKey = GlobalKey<FormState>();
   final badgesController = Get.find<BadgesController>();
+
   Timer? _customerIdDebounce;
   Timer? _productIdDebounce;
   String lastSearchedCustomerId = "";
@@ -72,22 +73,27 @@ class _OrderDialogState extends State<OrderDialog> {
   final profitController = TextEditingController();
   final vatController = TextEditingController();
   final instructSpecialController = TextEditingController();
+
   final dvtController = TextEditingController();
   final daoXaController = TextEditingController();
   late String typeDVT = "Tấm";
   late String typeDaoXa = "Tề Gọn";
+
   final dateShippingController = TextEditingController(); //ngày giao
   DateTime? dateShipping; //ngày giao
   DateTime? dayReceive = DateTime.now(); //ngày nhận
+
   final customerIdController = TextEditingController();
-  final productIdController = TextEditingController();
   final nameSpController = TextEditingController();
   final typeProduct = TextEditingController();
+
+  final productIdController = TextEditingController();
   final customerNameController = TextEditingController();
   final customerCompanyController = TextEditingController();
-  ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
 
   //box
+  ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
+
   final inMatTruocController = TextEditingController();
   final inMatSauController = TextEditingController();
   final dongGoiController = TextEditingController();
@@ -106,12 +112,9 @@ class _OrderDialogState extends State<OrderDialog> {
   @override
   void initState() {
     super.initState();
+
     if (widget.order != null) {
       orderInitState();
-
-      if (widget.order!.box != null) {
-        boxInitState();
-      }
     }
 
     fetchAllCustomers();
@@ -125,69 +128,10 @@ class _OrderDialogState extends State<OrderDialog> {
     AppLogger.i("Khởi tạo form với orderId=${order.orderId}");
 
     originalOrderId = order.orderId;
-    orderIdController.text = order.orderId;
-    customerIdController.text = order.customerId;
-    productIdController.text = order.productId;
-    qcBoxController.text = order.QC_box.toString();
-    canLanController.text = order.canLan.toString();
-    dayController.text = order.day.toString();
-    matEController.text = order.matE.toString();
-    matBController.text = order.matB.toString();
-    matCController.text = order.matC.toString();
-    matE2Controller.text = order.matE2.toString();
-    songEController.text = order.songE.toString();
-    songBController.text = order.songB.toString();
-    songCController.text = order.songC.toString();
-    songE2Controller.text = order.songE2.toString();
-    lengthCustomerController.text = order.lengthPaperCustomer.toStringAsFixed(1);
-    lengthManufactureController.text = order.lengthPaperManufacture.toStringAsFixed(1);
-    sizeCustomerController.text = order.paperSizeCustomer.toStringAsFixed(1);
-    sizeManufactureController.text = order.paperSizeManufacture.toStringAsFixed(1);
-    quantityCustomerController.text = order.quantityCustomer.toString();
-    quantityManufactureController.text = order.quantityManufacture.toString();
-    numberChildController.text = order.numberChild.toString();
-    priceController.text = order.price.toString();
-    pricePaperController.text = order.pricePaper.toString();
-    discountController.text = order.discount?.toStringAsFixed(1) ?? '0.0';
-    profitController.text = order.profit.toStringAsFixed(1);
-    vatController.text = order.vat.toString();
-    instructSpecialController.text = order.instructSpecial.toString();
-
-    isBoxChecked = ValueNotifier<bool>(order.isBox);
-
-    //dropdown
-    typeDVT = order.dvt;
-    typeDaoXa = order.daoXa;
-
-    //date
-    dayReceive = order.dayReceiveOrder;
-    dateShipping = order.dateRequestShipping;
-    dateShippingController.text = DateFormat('dd/MM/yyyy').format(dateShipping!);
+    _fillFormWithOrder(order);
   }
 
-  //init data to update
-  void boxInitState() {
-    AppLogger.i("Khởi tạo form với orderId=${widget.order!.box!.boxId}");
-
-    final box = widget.order!.box;
-    if (box == null) return;
-
-    inMatTruocController.text = box.inMatTruoc?.toString() ?? '';
-    inMatSauController.text = box.inMatSau?.toString() ?? '';
-    canMangChecked = ValueNotifier<bool>(box.canMang ?? false);
-    canLanChecked = ValueNotifier<bool>(box.canLan ?? false);
-    xaChecked = ValueNotifier<bool>(box.Xa ?? false);
-    catKheChecked = ValueNotifier<bool>(box.catKhe ?? false);
-    beChecked = ValueNotifier<bool>(box.be ?? false);
-    dan1ManhChecked = ValueNotifier<bool>(box.dan_1_Manh ?? false);
-    dan2ManhChecked = ValueNotifier<bool>(box.dan_2_Manh ?? false);
-    dongGhim1ManhChecked = ValueNotifier<bool>(box.dongGhim1Manh ?? false);
-    dongGhim2ManhChecked = ValueNotifier<bool>(box.dongGhim2Manh ?? false);
-    chongThamChecked = ValueNotifier<bool>(box.chongTham ?? false);
-    dongGoiController.text = box.dongGoi ?? "";
-    maKhuonController.text = box.maKhuon ?? "";
-  }
-
+  //fetch all customer for create in dialog
   Future<void> fetchAllCustomers() async {
     try {
       final result = await CustomerService().getAllCustomers(noPaging: true);
@@ -199,6 +143,7 @@ class _OrderDialogState extends State<OrderDialog> {
     }
   }
 
+  //fetch all product for create in dialog
   Future<void> fetchAllProduct() async {
     try {
       final result = await ProductService().getAllProducts(noPaging: true);
@@ -210,32 +155,77 @@ class _OrderDialogState extends State<OrderDialog> {
     }
   }
 
-  //listener
-  void listenerForFieldNeed(
-    TextEditingController fieldController,
-    TextEditingController fieldControllerReplace,
-  ) {
-    fieldController.addListener(() {
-      if (fieldController.text != fieldControllerReplace.text) {
-        fieldControllerReplace.text = fieldController.text;
-      }
-    });
+  void _fillFormWithOrder(Order selectedOrder) {
+    // 1. Group các String/Number fields (Dùng Map để duyệt cho nhanh hoặc gán thẳng 1 cụm)
+    orderIdController.text = selectedOrder.orderId;
+    customerIdController.text = selectedOrder.customerId;
+    productIdController.text = selectedOrder.productId;
+    qcBoxController.text = selectedOrder.QC_box ?? "";
+    canLanController.text = selectedOrder.canLan ?? "";
+
+    // Cụm các field Sóng/Mặt
+    dayController.text = selectedOrder.day ?? "";
+    matEController.text = selectedOrder.matE ?? "";
+    matBController.text = selectedOrder.matB ?? "";
+    matCController.text = selectedOrder.matC ?? "";
+    matE2Controller.text = selectedOrder.matE2 ?? "";
+    songEController.text = selectedOrder.songE ?? "";
+    songBController.text = selectedOrder.songB ?? "";
+    songCController.text = selectedOrder.songC ?? "";
+    songE2Controller.text = selectedOrder.songE2 ?? "";
+
+    // Cụm các field Số (Chuyển toString một loạt)
+    lengthCustomerController.text = selectedOrder.lengthPaperCustomer.toString();
+    lengthManufactureController.text = selectedOrder.lengthPaperManufacture.toString();
+    sizeCustomerController.text = selectedOrder.paperSizeCustomer.toString();
+    sizeManufactureController.text = selectedOrder.paperSizeManufacture.toString();
+    quantityCustomerController.text = selectedOrder.quantityCustomer.toString();
+    quantityManufactureController.text = selectedOrder.quantityManufacture.toString();
+    numberChildController.text = selectedOrder.numberChild.toString();
+
+    // Định dạng số tiền
+    priceController.text = selectedOrder.price.toStringAsFixed(2);
+    pricePaperController.text = selectedOrder.pricePaper?.toStringAsFixed(2) ?? "0.00";
+    discountController.text = selectedOrder.discount?.toStringAsFixed(1) ?? "0.0";
+    profitController.text = selectedOrder.profit.toStringAsFixed(1);
+    vatController.text = selectedOrder.vat.toString();
+
+    // Dropdown & Date
+    typeDVT = selectedOrder.dvt;
+    typeDaoXa = selectedOrder.daoXa;
+    instructSpecialController.text = selectedOrder.instructSpecial ?? "";
+
+    if (selectedOrder.dateRequestShipping != null) {
+      dateShipping = selectedOrder.dateRequestShipping;
+      dateShippingController.text = DateFormat('dd/MM/yyyy').format(dateShipping!);
+    }
+
+    // 2. Cập nhật Box Fields (Chỉ cập nhật .value, không khởi tạo lại Notifier)
+    isBoxChecked.value = selectedOrder.isBox;
+    final box = selectedOrder.box;
+
+    inMatTruocController.text = box?.inMatTruoc?.toString() ?? "";
+    inMatSauController.text = box?.inMatSau?.toString() ?? "";
+    dongGoiController.text = box?.dongGoi ?? "";
+    maKhuonController.text = box?.maKhuon ?? "";
+
+    // Cập nhật cụm Checkbox
+    canMangChecked.value = box?.canMang ?? false;
+    xaChecked.value = box?.Xa ?? false;
+    catKheChecked.value = box?.catKhe ?? false;
+    canLanChecked.value = box?.canLan ?? false;
+    beChecked.value = box?.be ?? false;
+    dan1ManhChecked.value = box?.dan_1_Manh ?? false;
+    dan2ManhChecked.value = box?.dan_2_Manh ?? false;
+    chongThamChecked.value = box?.chongTham ?? false;
+    dongGhim1ManhChecked.value = box?.dongGhim1Manh ?? false;
+    dongGhim2ManhChecked.value = box?.dongGhim2Manh ?? false;
   }
 
   void addListenerForField() {
-    listenerForFieldNeed(lengthCustomerController, lengthManufactureController);
-    listenerForFieldNeed(sizeCustomerController, sizeManufactureController);
-    listenerForFieldNeed(quantityCustomerController, quantityManufactureController);
-  }
-
-  // create a string after prefix
-  String generateOrderCode(String prefix) {
-    if (prefix.contains('/D')) return prefix;
-
-    final now = DateTime.now();
-    final String month = now.month.toString().padLeft(2, '0');
-    final String year = now.year.toString().substring(2);
-    return "$prefix/$month/$year/D";
+    Order.listenerForFieldNeed(lengthCustomerController, lengthManufactureController);
+    Order.listenerForFieldNeed(sizeCustomerController, sizeManufactureController);
+    Order.listenerForFieldNeed(quantityCustomerController, quantityManufactureController);
   }
 
   void submit() async {
@@ -244,75 +234,30 @@ class _OrderDialogState extends State<OrderDialog> {
       AppLogger.w("Form không hợp lệ, dừng submit");
       return;
     }
+
     final prefix = orderIdController.text.toUpperCase();
 
-    double totalAcreage =
-        Order.acreagePaper(
-          lengthPaper: double.tryParse(lengthCustomerController.text) ?? 0,
-          paperSize: double.tryParse(sizeCustomerController.text) ?? 0,
-          quantity: int.tryParse(quantityCustomerController.text) ?? 0,
-        ).roundToDouble();
-
-    late double totalPricePaper =
-        Order.totalPricePaper(
-          dvt: typeDVT,
-          length: double.tryParse(lengthCustomerController.text) ?? 0,
-          size: double.tryParse(sizeCustomerController.text) ?? 0,
-          price: double.tryParse(priceController.text) ?? 0,
-          pricePaper: double.tryParse(pricePaperController.text) ?? 0,
-        ).roundToDouble();
-
-    late double totalPriceOrder =
-        Order.totalPriceOrder(
-          quantity: int.tryParse(quantityCustomerController.text) ?? 0,
-          pricePaper: totalPricePaper,
-        ).roundToDouble();
-
-    late double totalPriceVAT =
-        Order.totalPriceAfterVAT(
-          totalPrice: totalPriceOrder,
-          vat: int.tryParse(vatController.text) ?? 0,
-        ).roundToDouble();
-
-    // helper: only add prefix if not empty and not already present
-    String addPrefixIfNeeded(String value, String prefix) {
-      value = value.trim().toUpperCase();
-      if (value.isEmpty) return '';
-      return value.startsWith(prefix) ? value : '$prefix$value';
-    }
+    print('orderId prefix: $prefix');
 
     // determine wave fields
-    late final String songEValue;
-    late final String songBValue;
-    late final String songCValue;
-    late final String songE2Value;
+    final String songEValue = Order.addPrefixIfNeeded(songEController.text, 'E');
+    final String songBValue = Order.addPrefixIfNeeded(songBController.text, 'B');
+    final String songCValue = Order.addPrefixIfNeeded(songCController.text, 'C');
+    final String songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
 
-    if (widget.order == null) {
-      // add mode
-      songEValue = addPrefixIfNeeded(songEController.text, 'E');
-      songBValue = addPrefixIfNeeded(songBController.text, 'B');
-      songCValue = addPrefixIfNeeded(songCController.text, 'C');
-      songE2Value = addPrefixIfNeeded(songE2Controller.text, 'E');
-    } else {
-      // update mode
-      songEValue = addPrefixIfNeeded(songEController.text, 'E');
-      songBValue = addPrefixIfNeeded(songBController.text, 'B');
-      songCValue = addPrefixIfNeeded(songCController.text, 'C');
-      songE2Value = addPrefixIfNeeded(songE2Controller.text, 'E');
-    }
-
-    // flute
-    late String flutePaper = Order.flutePaper(
-      day: dayController.text,
-      matE: matEController.text,
-      matB: matBController.text,
-      matC: matCController.text,
-      matE2: matE2Controller.text,
-      songE: songEValue,
-      songB: songBValue,
-      songC: songCValue,
-      songE2: songE2Value,
-    );
+    // if (widget.order == null) {
+    //   // add mode
+    //   songEValue = Order.addPrefixIfNeeded(songEController.text, 'E');
+    //   songBValue = Order.addPrefixIfNeeded(songBController.text, 'B');
+    //   songCValue = Order.addPrefixIfNeeded(songCController.text, 'C');
+    //   songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
+    // } else {
+    //   // update mode
+    //   songEValue = Order.addPrefixIfNeeded(songEController.text, 'E');
+    //   songBValue = Order.addPrefixIfNeeded(songBController.text, 'B');
+    //   songCValue = Order.addPrefixIfNeeded(songCController.text, 'C');
+    //   songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
+    // }
 
     final newBox = Box(
       inMatTruoc: int.tryParse(inMatTruocController.text) ?? 0,
@@ -332,11 +277,10 @@ class _OrderDialogState extends State<OrderDialog> {
     );
 
     final newOrder = Order(
-      orderId: generateOrderCode(prefix),
+      orderId: Order.generateOrderCode(prefix),
       customerId: customerIdController.text.toUpperCase(),
       productId: productIdController.text.toUpperCase(),
       dayReceiveOrder: dayReceive ?? DateTime.now(),
-      flute: flutePaper,
       QC_box: qcBoxController.text.toLowerCase(),
       canLan: canLanController.text,
       daoXa: typeDaoXa,
@@ -356,19 +300,15 @@ class _OrderDialogState extends State<OrderDialog> {
       quantityCustomer: int.tryParse(quantityCustomerController.text) ?? 0,
       quantityManufacture: int.tryParse(quantityManufactureController.text) ?? 0,
       numberChild: int.tryParse(numberChildController.text) ?? 0,
-      acreage: totalAcreage,
       dvt: typeDVT,
       price: double.tryParse(priceController.text) ?? 0.0,
+      pricePaper: double.tryParse(pricePaperController.text) ?? 0.0,
       discount: double.tryParse(discountController.text) ?? 0.0,
       profit: double.tryParse(profitController.text) ?? 0.0,
-      pricePaper: totalPricePaper,
       dateRequestShipping: dateShipping ?? DateTime.now(),
       vat: int.tryParse(vatController.text) ?? 0,
       instructSpecial: instructSpecialController.text,
       isBox: isBoxChecked.value,
-
-      totalPrice: totalPriceOrder,
-      totalPriceVAT: totalPriceVAT,
       box: newBox,
       status: 'pending',
     );
@@ -483,13 +423,39 @@ class _OrderDialogState extends State<OrderDialog> {
     final List<Map<String, dynamic>> infoBasicRows = [
       {
         "leftKey": "Mã Đơn Hàng",
-        "leftValue": ValidationOrder.validateInput(
-          label: "Mã Đơn Hàng",
+        "leftValue": AutoCompleteField<Order>(
           controller: orderIdController,
+          labelText: "Mã Đơn Hàng",
           icon: Symbols.orders,
           readOnly: isEdit,
           checkId: !isEdit,
+          suggestionsCallback: (pattern) async {
+            if (pattern.trim().length < 3) return [];
+            return await OrderService().getOrderIdRaw(orderId: pattern);
+          },
+          displayStringForItem: (order) => order.orderId,
+          itemBuilder: (context, order) {
+            return ListTile(
+              title: Text(order.orderId),
+              subtitle: Text(order.customer?.customerName ?? ""),
+            );
+          },
+          onSelected: (order) async {
+            final selectedOrder = await OrderService().getOrderDetail(orderId: order.orderId);
+
+            if (selectedOrder == null) return;
+
+            _fillFormWithOrder(selectedOrder);
+          },
+          onChanged: (value) {
+            if (value.isEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                orderIdController.clear();
+              });
+            }
+          },
         ),
+
         "middleKey": "QC Thùng",
         "middleValue": ValidationOrder.validateInput(
           label: "QC Thùng",
@@ -583,6 +549,7 @@ class _OrderDialogState extends State<OrderDialog> {
             }
           },
         ),
+
         "middleKey": "Tên Khách Hàng",
         "middleValue": ValidationOrder.validateInput(
           label: "Tên Khách Hàng",

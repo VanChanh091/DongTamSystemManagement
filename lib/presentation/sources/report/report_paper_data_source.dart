@@ -65,7 +65,7 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "HD_special", value: orderCell.instructSpecial ?? ''),
       DataGridCell<String>(
         columnName: 'totalPrice',
-        value: '${Order.formatCurrency(orderCell.totalPrice)} VND',
+        value: '${Order.formatCurrency(orderCell.totalPrice ?? 0)} VND',
       ),
     ];
   }

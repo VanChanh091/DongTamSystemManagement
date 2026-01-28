@@ -513,15 +513,15 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('🔢 Số lượng (Khách Hàng):', order.quantityCustomer.toString(), unit: ""),
       _infoRow('🔢 Số lượng (Sản Xuất):', order.quantityManufacture.toString(), unit: ""),
       _infoRow('📜 Số con:', Order.formatCurrency(order.numberChild), unit: "Con"),
-      _infoRow('🌍 Diện tích:', Order.formatCurrency(order.acreage), unit: 'm²'),
+      _infoRow('🌍 Diện tích:', Order.formatCurrency(order.acreage ?? 0), unit: 'm²'),
       _infoRow('💲 Giá:', Order.formatCurrency(order.price), unit: 'VNĐ/${order.dvt}'),
-      _infoRow('💵 Giá tấm:', Order.formatCurrency(order.pricePaper), unit: "VNĐ"),
+      _infoRow('💵 Giá tấm:', Order.formatCurrency(order.pricePaper ?? 0), unit: "VNĐ"),
       _infoRow('💵 Chiết khấu:', Order.formatCurrency(order.discount ?? 0), unit: "VNĐ"),
       _infoRow('💵 Lợi nhuận:', Order.formatCurrency(order.profit), unit: "VNĐ"),
       _infoRow('💡 VAT:', order.vat.toString(), unit: "%"),
       _infoRow(
         '💰 Tổng tiền (VAT):',
-        'Trước ${Order.formatCurrency(order.totalPrice)} - Sau ${Order.formatCurrency(order.totalPriceVAT)}',
+        'Trước ${Order.formatCurrency(order.totalPrice ?? 0)} - Sau ${Order.formatCurrency(order.totalPriceVAT ?? 0)}',
         unit: "VNĐ",
       ),
     ];

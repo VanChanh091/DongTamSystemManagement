@@ -123,7 +123,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     lengthOrderController.text = order.lengthPaperManufacture.toStringAsFixed(1);
     sizeOrderController.text = order.paperSizeManufacture.toStringAsFixed(1);
     quantityOrderController.text = order.quantityManufacture.toString();
-    totalPriceOrderController.text = order.totalPrice.toStringAsFixed(1);
+    totalPriceOrderController.text = order.totalPrice?.toStringAsFixed(1) ?? "";
     numberChildController.text = order.numberChild.toString();
 
     //date
