@@ -67,6 +67,13 @@ class DashboardPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'daoXa', value: order?.daoXa ?? ''),
       DataGridCell<String>(columnName: 'length', value: '${paper.lengthPaperPlanning} cm'),
       DataGridCell<String>(columnName: 'size', value: '${paper.sizePaperPLaning} cm'),
+      DataGridCell<String>(
+        columnName: 'volume',
+        value:
+            order?.volume != null && order!.volume! > 0
+                ? '${Order.formatCurrency(order.volume ?? 0)} m³'
+                : "0",
+      ),
       DataGridCell<int>(columnName: 'child', value: paper.numberChild),
 
       //quantity

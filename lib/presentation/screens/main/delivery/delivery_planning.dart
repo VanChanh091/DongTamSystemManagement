@@ -139,7 +139,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
   double _calculateTotalVolume(String vehicleKey) {
     final orders = vehicleOrders[vehicleKey] ?? [];
-    return orders.fold(0.0, (sum, paper) => sum + (paper.volume ?? 0.0));
+    return orders.fold(0.0, (sum, paper) => sum + (paper.order?.volume ?? 0.0));
   }
 
   void _removePaperFromEverywhere(PlanningPaper paper) {
@@ -635,7 +635,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Text(
-                        "${paper.volume} m³",
+                        "${paper.order?.volume ?? 0} m³",
                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
                       ),
                     ),

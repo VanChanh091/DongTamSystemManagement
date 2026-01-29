@@ -63,6 +63,10 @@ class OrderDataSource extends DataGridSource {
       ),
       DataGridCell<int>(columnName: 'quantityCustomer', value: order.quantityCustomer),
       DataGridCell<int>(columnName: 'qtyManufacture', value: order.quantityManufacture),
+      DataGridCell<String>(
+        columnName: 'volume',
+        value: order.volume! > 0 ? '${Order.formatCurrency(order.volume ?? 0)} m³' : "0",
+      ),
       DataGridCell<int>(columnName: 'child', value: order.numberChild),
       DataGridCell<String>(columnName: 'dvt', value: order.dvt),
       DataGridCell<String>(columnName: 'acreage', value: Order.formatCurrency(order.acreage ?? 0)),

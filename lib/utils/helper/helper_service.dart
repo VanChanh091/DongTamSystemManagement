@@ -215,6 +215,9 @@ class HelperService {
         ),
       );
       return true;
+    } on DioException catch (e) {
+      handleDioException(e, "Lỗi khi thêm dữ liệu");
+      return false;
     } catch (e, s) {
       AppLogger.e("Failed to delete item", error: e, stackTrace: s);
       throw Exception('Failed to delete item: $e');

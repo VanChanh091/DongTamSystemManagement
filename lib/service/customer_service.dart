@@ -38,25 +38,6 @@ class CustomerService {
     );
   }
 
-  // Future<Map<String, dynamic>> checkCustomerInOrders({required String customerId}) async {
-  //   try {
-  //     final token = await SecureStorageService().getToken();
-
-  //     final response = await dioService.get(
-  //       '/api/customer/orderCount',
-  //       queryParameters: {"customerId": customerId},
-  //       options: Options(
-  //         headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-  //       ),
-  //     );
-
-  //     return response.data;
-  //   } catch (e, s) {
-  //     AppLogger.e("Check customer in orders failed\nError: $e\nStackTrace: $s");
-  //     throw Exception('Check customer in orders failed: $e');
-  //   }
-  // }
-
   // add customer
   Future<bool> addCustomer({required Map<String, dynamic> customerData}) async {
     return HelperService().addItem(endpoint: "customer/newCustomer", itemData: customerData);

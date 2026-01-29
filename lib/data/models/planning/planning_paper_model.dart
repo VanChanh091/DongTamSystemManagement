@@ -30,7 +30,6 @@ class PlanningPaper {
   final String? deliveryPlanned;
 
   //field temp
-  final double? volume;
   String? itemStatus;
 
   final bool hasBox;
@@ -81,7 +80,6 @@ class PlanningPaper {
     this.deliveryPlanned,
 
     //field temp
-    this.volume,
     this.itemStatus,
 
     required this.orderId,
@@ -174,9 +172,6 @@ class PlanningPaper {
       shiftProduction: json['shiftProduction'] ?? "",
       hasBox: json['hasBox'] ?? false,
       deliveryPlanned: json['deliveryPlanned'] ?? "",
-
-      //field temp
-      volume: toDouble(json['volume']),
 
       orderId: json['orderId'] ?? "",
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,

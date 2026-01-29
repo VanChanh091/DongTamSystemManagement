@@ -1,3 +1,4 @@
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
@@ -117,6 +118,19 @@ Future<void> showDeleteConfirmHelper({
     showSnackBarSuccess(context, successMessage);
 
     onSuccess();
+  } on ApiException catch (e) {
+    switch (e.errorCode) {
+      case "CUSTOMER_HAS_ORDERS":
+        showSnackBarError(context, "Không thể xoá khách hàng đã có đơn hàng");
+        break;
+      case "PRODUCT_HAS_ORDERS":
+        showSnackBarError(context, "Không thể xoá sản phẩm đã có đơn hàng");
+        break;
+      default:
+        showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+    }
+
+    Navigator.pop(context);
   } catch (e, s) {
     Navigator.pop(context);
     AppLogger.e(errorMessage, error: e, stackTrace: s);

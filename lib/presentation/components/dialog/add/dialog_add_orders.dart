@@ -237,27 +237,11 @@ class _OrderDialogState extends State<OrderDialog> {
 
     final prefix = orderIdController.text.toUpperCase();
 
-    print('orderId prefix: $prefix');
-
     // determine wave fields
     final String songEValue = Order.addPrefixIfNeeded(songEController.text, 'E');
     final String songBValue = Order.addPrefixIfNeeded(songBController.text, 'B');
     final String songCValue = Order.addPrefixIfNeeded(songCController.text, 'C');
     final String songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
-
-    // if (widget.order == null) {
-    //   // add mode
-    //   songEValue = Order.addPrefixIfNeeded(songEController.text, 'E');
-    //   songBValue = Order.addPrefixIfNeeded(songBController.text, 'B');
-    //   songCValue = Order.addPrefixIfNeeded(songCController.text, 'C');
-    //   songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
-    // } else {
-    //   // update mode
-    //   songEValue = Order.addPrefixIfNeeded(songEController.text, 'E');
-    //   songBValue = Order.addPrefixIfNeeded(songBController.text, 'B');
-    //   songCValue = Order.addPrefixIfNeeded(songCController.text, 'C');
-    //   songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
-    // }
 
     final newBox = Box(
       inMatTruoc: int.tryParse(inMatTruocController.text) ?? 0,

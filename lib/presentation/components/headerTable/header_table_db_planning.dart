@@ -31,6 +31,7 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "daoXa", "title": "Dao Xả"},
   {"key": "length", "title": "Dài"},
   {"key": "size", "title": "Khổ"},
+  {"key": "volume", "title": "Thể Tích"},
   {"key": "child", "title": "Số Con"},
 
   // Quantity

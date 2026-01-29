@@ -16,7 +16,7 @@ class Order {
   final String daoXa, dvt, status;
   final double lengthPaperCustomer, lengthPaperManufacture;
   final double paperSizeCustomer, paperSizeManufacture;
-  final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT;
+  final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT, volume;
   final double profit, price;
   final int quantityCustomer, quantityManufacture;
   final int numberChild;
@@ -67,6 +67,7 @@ class Order {
     required this.price,
     this.pricePaper,
     this.discount,
+    this.volume,
     required this.profit,
     required this.dateRequestShipping,
     this.instructSpecial,
@@ -178,6 +179,7 @@ class Order {
       profit: toDouble(json['profit']),
       totalPrice: toDouble(json['totalPrice']),
       totalPriceVAT: toDouble(json['totalPriceVAT']),
+      volume: toDouble(json['volume']),
       dateRequestShipping:
           json['dateRequestShipping'] != null && json['dateRequestShipping'] != ''
               ? DateTime.tryParse(json['dateRequestShipping'])
