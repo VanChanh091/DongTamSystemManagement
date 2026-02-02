@@ -78,11 +78,15 @@ class ValidationEmployee {
             }
 
             //label: Số Điện Thoại, Số Liên Hệ Khẩn Cấp, Số CCCD chỉ chấp nhận chữ số
-            if ((label == 'Số Điện Thoại' ||
-                    label == 'Số Liên Hệ Khẩn Cấp' ||
-                    label == 'Số CCCD') &&
-                !RegExp(r'^\d+$').hasMatch(value!)) {
+            const numericLabels = ['Số Điện Thoại', 'Số Liên Hệ Khẩn Cấp', 'Số CCCD'];
+            if ((numericLabels.contains(label)) && !RegExp(r'^\d+$').hasMatch(cleanValue)) {
               return '$label chỉ được chứa chữ số';
+            }
+
+            if (label == 'Mã Nhân Viên') {
+              if (RegExp(r'[0-9]').hasMatch(cleanValue)) {
+                return 'Mã nhân viên không được chứa số';
+              }
             }
 
             return null;

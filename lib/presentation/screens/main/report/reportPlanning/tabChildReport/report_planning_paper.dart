@@ -36,9 +36,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     "Theo Mã ĐH": "orderId",
     "Tên KH": "customerName",
     "Ngày Báo Cáo": "dayReported",
-    "SL Báo Cáo": "qtyProduced",
-    "Ghép Khổ": "ghepKho",
-    "Quản Ca": "shiftManagement",
+    "Trưởng Máy": "shiftManagement",
   };
   List<int> selectedReportId = [];
   TextEditingController searchController = TextEditingController();
@@ -199,9 +197,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                               "Theo Mã ĐH",
                               'Tên KH',
                               "Ngày Báo Cáo",
-                              "SL Báo Cáo",
-                              "Ghép Khổ",
-                              "Quản Ca",
+                              "Trưởng Máy",
                             ],
                             onTypeChanged: (value) {
                               setState(() {

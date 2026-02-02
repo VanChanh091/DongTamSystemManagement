@@ -33,9 +33,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     "Theo Mã ĐH": "orderId",
     "Tên KH": "customerName",
     "Ngày Báo Cáo": "dayReported",
-    "SL Báo Cáo": "qtyProduced",
     "QC Thùng": "QcBox",
-    "Quản Ca": "shiftManagement",
+    "Trưởng Máy": "shiftManagement",
   };
   final themeController = Get.find<ThemeController>();
   TextEditingController searchController = TextEditingController();
@@ -189,9 +188,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                               "Theo Mã ĐH",
                               'Tên KH',
                               "Ngày Báo Cáo",
-                              "SL Báo Cáo",
                               "QC Thùng",
-                              "Quản Ca",
+                              "Trưởng Máy",
                             ],
                             onTypeChanged: (value) {
                               setState(() {

@@ -47,7 +47,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     'Mã Đơn Hàng': "orderId",
     'Tên KH': "customerName",
     'Khổ Cấp Giấy': "ghepKho",
-    "Theo Sóng": "flute",
   };
 
   String searchType = "Tất cả";
@@ -178,16 +177,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                             children: [
                               //left button
                               Expanded(
-                                flex: 3,
+                                flex: 1,
                                 child: LeftButtonSearch(
                                   selectedType: searchType,
-                                  types: const [
-                                    'Tất cả',
-                                    'Mã Đơn Hàng',
-                                    'Tên KH',
-                                    'Khổ Cấp Giấy',
-                                    'Theo Sóng',
-                                  ],
+                                  types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Khổ Cấp Giấy'],
                                   onTypeChanged: (value) {
                                     setState(() {
                                       searchType = value;
@@ -204,7 +197,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
                               //right button
                               Expanded(
-                                flex: 4,
+                                flex: 1,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: SingleChildScrollView(

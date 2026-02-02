@@ -236,25 +236,6 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       },
 
       {
-        "leftKey": "Số Điện Thoại",
-        "leftValue": ValidationEmployee.validateInput(
-          label: "Số Điện Thoại",
-          controller: _phoneNumberController,
-          icon: Symbols.phone,
-        ),
-        "rightKey": "Giới Tính",
-        "rightValue": ValidationOrder.dropdownForTypes(
-          items: itemGender,
-          type: typeGender,
-          onChanged: (value) {
-            setState(() {
-              typeGender = value!;
-            });
-          },
-        ),
-      },
-
-      {
         "leftKey": "Ngày Sinh",
         "leftValue": ValidationEmployee.validateInput(
           label: "Ngày Sinh",
@@ -289,20 +270,39 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
             }
           },
         ),
-        "rightKey": "Nơi Sinh",
-        "rightValue": ValidationEmployee.validateInput(
-          label: "Nơi Sinh",
-          controller: _birthPlaceController,
-          icon: Symbols.place,
+        "rightKey": "Giới Tính",
+        "rightValue": ValidationOrder.dropdownForTypes(
+          items: itemGender,
+          type: typeGender,
+          onChanged: (value) {
+            setState(() {
+              typeGender = value!;
+            });
+          },
         ),
       },
 
       {
-        "leftKey": "Nguyên Quán",
+        "leftKey": "Nơi Sinh",
         "leftValue": ValidationEmployee.validateInput(
+          label: "Nơi Sinh",
+          controller: _birthPlaceController,
+          icon: Symbols.place,
+        ),
+        "rightKey": "Nguyên Quán",
+        "rightValue": ValidationEmployee.validateInput(
           label: "Nguyên Quán",
           controller: _homeTownController,
           icon: Symbols.home_pin,
+        ),
+      },
+
+      {
+        "leftKey": "Số Điện Thoại",
+        "leftValue": ValidationEmployee.validateInput(
+          label: "Số Điện Thoại",
+          controller: _phoneNumberController,
+          icon: Symbols.phone,
         ),
         "rightKey": "Trình Độ Văn Hóa",
         "rightValue": ValidationEmployee.validateInput(

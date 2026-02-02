@@ -173,7 +173,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                             children: [
                               //left button
                               Expanded(
-                                flex: 3,
+                                flex: 1,
                                 child: LeftButtonSearch(
                                   selectedType: searchType,
                                   types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Quy Cách'],
@@ -194,7 +194,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
                               //right button
                               Expanded(
-                                flex: 4,
+                                flex: 1,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                   child: SingleChildScrollView(

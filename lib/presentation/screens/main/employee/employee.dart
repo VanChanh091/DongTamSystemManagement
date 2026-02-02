@@ -37,7 +37,6 @@ class _EmployeeState extends State<Employee> {
     "Theo Tên": "fullName",
     "Số Điện Thoại": "phoneNumber",
     "Mã Nhân Viên": "employeeCode",
-    "Phòng Ban": "department",
     "Tình Trạng": "status",
   };
 
@@ -175,7 +174,6 @@ class _EmployeeState extends State<Employee> {
                               "Theo Tên",
                               "Số Điện Thoại",
                               "Mã Nhân Viên",
-                              "Phòng Ban",
                               "Tình Trạng",
                             ],
                             onTypeChanged: (value) {

@@ -118,7 +118,7 @@ class AdminService {
   //reset password
   Future<bool> resetUserPassword({
     required List<int> userIds,
-    String newPassword = '12345678',
+    String newPassword = 'baobidongtam2025',
   }) async {
     return HelperService().updateItem(
       endpoint: 'admin/resetPassword',

@@ -236,7 +236,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
 
                                                 showSnackBarSuccess(
                                                   context,
-                                                  "Đặt lại mật khẩu thành công. Mật khẩu mặc định là 12345678",
+                                                  "Đặt lại mật khẩu thành công. Mật khẩu mặc định là baobidongtam2025",
                                                 );
 
                                                 setState(() {
@@ -641,7 +641,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Center(
                       child: Text(
-                        "Mật khẩu mặc định sau reset là: 12345678",
+                        "Mật khẩu mặc định sau reset: baobidongtam2025",
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 20,

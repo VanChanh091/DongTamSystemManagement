@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:dongtam/presentation/screens/main/home.dart';
 import 'package:dongtam/service/config_service.dart';
+import 'package:dongtam/updates/update_services.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +26,18 @@ class _MyAppLauncherState extends State<MyAppLauncher> {
   }
 
   Future<void> _initApp() async {
-    // WidgetsFlutterBinding.ensureInitialized();
+    WidgetsFlutterBinding.ensureInitialized();
 
     // Load config, token, permissions
     final config = await loadConfig();
     Get.put<Map<String, dynamic>>(config, tag: "AppConfig");
+
+    // Check for updates
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        UpdateService.checkUpdate(context);
+      }
+    });
 
     //init dio to check token
     await DioClient().init();

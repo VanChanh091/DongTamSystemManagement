@@ -3,19 +3,9 @@ import 'package:dongtam/presentation/splashScreen/splash_screen_dongtam.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter/material.dart';
-// import 'package:auto_updater/auto_updater.dart';
-
-// void setupAutoUpdater() async {
-//   String feedURL = 'http://your-server-ip:3000/updates/appcast.xml'; // Link đến file XML
-//   await autoUpdater.setFeedURL(feedURL);
-//   await autoUpdater.setScheduledCheckInterval(10800); // Check mỗi 3 tiếng 1 lần
-//   await autoUpdater.checkForUpdates(silent: true); // Tự động check khi mở app
-// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // await setupAutoUpdater();
 
   // Khởi tạo window_manager
   await windowManager.ensureInitialized();
