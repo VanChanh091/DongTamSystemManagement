@@ -1,4 +1,5 @@
 import 'package:dongtam/service/admin/admin_service.dart';
+import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:get/get.dart';
@@ -10,8 +11,8 @@ class BadgesController extends GetxController {
   //order pending planning
   RxInt numberOrderPending = 0.obs;
 
-  //order pending reject
-  RxInt numberOrderPendingReject = 0.obs;
+  //order reject
+  RxInt numberOrderReject = 0.obs;
 
   //planning stop
   RxInt numberPlanningStop = 0.obs;
@@ -52,7 +53,7 @@ class BadgesController extends GetxController {
       fetchOrderPending(),
       fetchPaperWaitingCheck(),
       fetchBoxWaitingCheck(),
-      // fetchOrderPendingReject(),
+      fetchOrderReject(),
     ]);
   }
 
@@ -73,17 +74,14 @@ class BadgesController extends GetxController {
     }
   }
 
-  // Future<void> fetchOrderPendingReject() async {
-  //   final userController = Get.find<UserController>();
-  //   final isShow = userController.hasPermission(permission: 'sale');
-
-  //   if (isShow) {
-  //     await fetchBadgeCount(
-  //       badgeCount: numberOrderPendingReject,
-  //       fetcher: () => OrderService().getOrderPendingAndReject(),
-  //     );
-  //   }
-  // }
+  Future<void> fetchOrderReject() async {
+    try {
+      final result = await OrderService().countOrderRejected();
+      numberOrderReject.value = result;
+    } catch (e) {
+      numberOrderReject.value = 0;
+    }
+  }
 
   Future<void> fetchOrderPending() async {
     await fetchBadgeCount(

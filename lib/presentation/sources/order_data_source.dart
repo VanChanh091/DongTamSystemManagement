@@ -61,8 +61,14 @@ class OrderDataSource extends DataGridSource {
         columnName: 'sizeManufacture',
         value: '${Order.formatCurrency(order.paperSizeManufacture)} cm',
       ),
-      DataGridCell<int>(columnName: 'quantityCustomer', value: order.quantityCustomer),
-      DataGridCell<int>(columnName: 'qtyManufacture', value: order.quantityManufacture),
+      DataGridCell<String>(
+        columnName: 'quantityCustomer',
+        value: Order.formatCurrency(order.quantityCustomer),
+      ),
+      DataGridCell<String>(
+        columnName: 'qtyManufacture',
+        value: Order.formatCurrency(order.quantityManufacture),
+      ),
       DataGridCell<String>(
         columnName: 'volume',
         value: order.volume! > 0 ? '${Order.formatCurrency(order.volume ?? 0)} m³' : "0",
@@ -112,6 +118,9 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<bool>(columnName: 'dongGhimMotManh', value: order.box?.dongGhim1Manh ?? false),
       DataGridCell<bool>(columnName: 'dongGhimHaiManh', value: order.box?.dongGhim2Manh ?? false),
       DataGridCell<String>(columnName: 'dongGoi', value: order.box?.dongGoi ?? ""),
+
+      DataGridCell<String>(columnName: 'orderIdCustomer', value: order.orderIdCustomer ?? ""),
+
       ...userController.hasAnyRole(roles: ['admin', 'manager'])
           ? [
             DataGridCell(

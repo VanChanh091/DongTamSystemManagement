@@ -60,6 +60,8 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
         OrderService().getOrderPendingAndReject(ownOnly: ownOnly),
       );
     });
+
+    selectedOrderId = null;
   }
 
   @override

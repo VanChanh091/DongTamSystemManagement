@@ -67,6 +67,28 @@ class OrderService {
     );
   }
 
+  Future<int> countOrderRejected() async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.get(
+        "/api/order/countRejected",
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      if (response.data != null && response.data['data'] != null) {
+        return response.data['data'] as int;
+      }
+
+      return 0;
+    } catch (e, s) {
+      AppLogger.e("Failed to count rejected orders", error: e, stackTrace: s);
+      throw Exception('Failed to count rejected orders: $e');
+    }
+  }
+
   //add order
   Future<Map<String, dynamic>> addOrders({required Map<String, dynamic> orderData}) async {
     try {

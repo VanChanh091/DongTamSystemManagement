@@ -91,6 +91,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         );
       }
     });
+
+    selectedOrderId = null;
   }
 
   void searchOrders() {

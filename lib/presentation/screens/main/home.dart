@@ -242,33 +242,33 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSidebarItem(
-            Icons.dashboard,
-            "Dashboard",
+            icon: Icons.dashboard,
+            title: "Dashboard",
             index: pages.indexWhere((w) => w is DashboardPage),
           ),
 
           _buildSidebarItem(
-            Icons.shopping_cart,
-            "Đơn Hàng",
+            icon: Icons.shopping_cart,
+            title: "Đơn Hàng",
             index: pages.indexWhere((w) => w is TopTabOrder),
-            // badgeCount: badgesController.numberOrderPendingReject.value,
+            badgeCountSelector: () => badgesController.numberOrderReject.value,
           ),
 
           _buildSidebarItem(
-            Icons.person,
-            "Khách Hàng",
+            icon: Icons.person,
+            title: "Khách Hàng",
             index: pages.indexWhere((w) => w is CustomerPage),
           ),
 
           _buildSidebarItem(
-            Icons.inventory,
-            "Sản Phẩm",
+            icon: Icons.inventory,
+            title: "Sản Phẩm",
             index: pages.indexWhere((w) => w is ProductPage),
           ),
 
           _buildSidebarItem(
-            Symbols.people_outline,
-            "Nhân Viên",
+            icon: Symbols.people_outline,
+            title: "Nhân Viên",
             index: pages.indexWhere((w) => w is Employee),
           ),
 
@@ -315,8 +315,8 @@ class _HomePageState extends State<HomePage> {
           ),
 
           _buildSidebarItem(
-            Symbols.dual_screen,
-            "Tổng Hợp Sản Xuất",
+            icon: Symbols.dual_screen,
+            title: "Tổng Hợp Sản Xuất",
             index: pages.indexWhere((w) => w is DashboardPlanning),
           ),
 
@@ -328,8 +328,8 @@ class _HomePageState extends State<HomePage> {
           ),
 
           _buildSidebarItem(
-            Icons.color_lens,
-            "Đổi Màu Theme",
+            icon: Icons.color_lens,
+            title: "Đổi Màu Theme",
             onTap: () => showThemeColorDialog(context),
           ),
         ],
@@ -337,7 +337,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSidebarItem(IconData icon, String title, {int? index, VoidCallback? onTap}) {
+  Widget _buildSidebarItem({
+    required IconData icon,
+    required String title,
+    int? index,
+    VoidCallback? onTap,
+    int Function()? badgeCountSelector,
+  }) {
     final bool hasIndex = index != null && index != -1;
 
     if (!hasIndex && onTap == null) return const SizedBox.shrink();
@@ -345,22 +351,29 @@ class _HomePageState extends State<HomePage> {
     return hasIndex
         ? Obx(() {
           final isSelected = sidebarController.selectedIndex.value == index;
+          final int totalCount = badgeCountSelector != null ? badgeCountSelector() : 0;
 
-          // Widget isBadge =
-          //     badgeCount != null && badgeCount > 0
-          //         ? Badge.count(count: badgeCount, child: Icon(icon, color: Colors.white))
-          //         : Icon(
-          //           icon,
-          //           color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-          //         );
+          final Color iconColor =
+              isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white;
+
+          Widget leadingWidget;
+          if (totalCount == 0) {
+            leadingWidget = Icon(icon, color: iconColor);
+          } else {
+            leadingWidget =
+                _isSidebarOpen
+                    ? Badge.count(count: totalCount, child: Icon(icon, color: Colors.white))
+                    : Badge(
+                      smallSize: 8,
+                      backgroundColor: Colors.red,
+                      child: Icon(icon, color: Colors.white),
+                    );
+          }
 
           return _isSidebarOpen
               ? ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: Icon(
-                  icon,
-                  color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                ),
+                leading: leadingWidget,
                 title: Text(
                   title,
                   style: TextStyle(
@@ -384,12 +397,7 @@ class _HomePageState extends State<HomePage> {
               )
               : Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Center(
-                  child: Icon(
-                    icon,
-                    color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                  ),
-                ),
+                child: Center(child: leadingWidget),
               );
         })
         : _isSidebarOpen

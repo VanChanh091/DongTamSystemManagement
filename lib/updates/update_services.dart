@@ -31,8 +31,6 @@ class UpdateService {
     final fileName = item.findElements('enclosure').first.getAttribute('url');
     final downloadUrl = "$baseUrl$fileName";
 
-    print(downloadUrl);
-
     if (latestVersion != currentVersion) {
       if (!context.mounted) return;
       _showUpdateDialog(context, downloadUrl, latestVersion, description);

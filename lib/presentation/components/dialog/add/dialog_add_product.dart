@@ -195,6 +195,13 @@ class _ProductDialogState extends State<ProductDialog> {
             } else if (value.length > 10) {
               return 'Mã sản phẩm vượt quá 10 ký tự';
             }
+
+            if (value.length == 10) {
+              final lastChar = value.substring(value.length - 1);
+              if (RegExp(r'[0-9]').hasMatch(lastChar)) {
+                return "Ký tự cuối không được là số";
+              }
+            }
           }
         }
 

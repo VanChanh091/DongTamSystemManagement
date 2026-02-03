@@ -399,10 +399,10 @@ class _ManageOrderState extends State<AdminOrder> {
                                                           newStatus: 'reject',
                                                           rejectReason: reasonController.text,
                                                         );
+
                                                         if (!context.mounted) {
                                                           return;
                                                         }
-
                                                         showSnackBarSuccess(
                                                           context,
                                                           "Từ chối phê duyệt thành công",
@@ -412,6 +412,7 @@ class _ManageOrderState extends State<AdminOrder> {
 
                                                         //cập nhật lại badge
                                                         badgesController.fetchPendingApprovals();
+                                                        badgesController.fetchOrderReject();
 
                                                         setState(() {
                                                           selectedOrder = null;

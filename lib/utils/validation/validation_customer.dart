@@ -49,7 +49,6 @@ class ValidationCustomer {
             if (externalError != null) return externalError;
 
             final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
-
             final requiredFields = [
               'Mã khách hàng',
               "Tên khách hàng",
@@ -79,6 +78,13 @@ class ValidationCustomer {
                 } else if (value.length > 10) {
                   return 'Mã khách hàng vượt quá 10 ký tự';
                 }
+
+                if (value.length == 10) {
+                  final lastChar = value.substring(value.length - 1);
+                  if (RegExp(r'[0-9]').hasMatch(lastChar)) {
+                    return "Ký tự cuối không được là số";
+                  }
+                }
               }
 
               final pattern = RegExp(r"^[a-zA-Z0-9]+$");
@@ -89,7 +95,7 @@ class ValidationCustomer {
 
             //check sdt
             if (label == "SDT" && value != null && value.isNotEmpty) {
-              if (!RegExp(r'^\d+$').hasMatch(value)) {
+              if (!RegExp(r'^\d+$').hasMatch(value.trim())) {
                 return 'Số điện thoại chỉ được chứa chữ số';
               }
             }

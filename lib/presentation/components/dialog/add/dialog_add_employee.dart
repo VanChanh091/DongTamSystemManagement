@@ -246,7 +246,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
             DateTime? pickedDate = await showDatePicker(
               context: context,
               initialDate: birthday ?? DateTime.now(),
-              firstDate: DateTime(1970),
+              firstDate: DateTime(1950),
               lastDate: DateTime(2100),
               builder: (BuildContext context, Widget? child) {
                 return Theme(

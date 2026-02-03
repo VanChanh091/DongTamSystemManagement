@@ -10,20 +10,21 @@ import 'package:intl/intl.dart';
 
 class Order {
   final String orderId;
-  final String? flute, QC_box, canLan;
-  final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
-  final String? instructSpecial, rejectReason;
   final String daoXa, dvt, status;
   final double lengthPaperCustomer, lengthPaperManufacture;
   final double paperSizeCustomer, paperSizeManufacture;
-  final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT, volume;
   final double profit, price;
   final int quantityCustomer, quantityManufacture;
   final int numberChild;
-  final int? vat;
-  final DateTime? dateRequestShipping;
   final DateTime dayReceiveOrder;
   final bool isBox;
+
+  final String? flute, QC_box, canLan;
+  final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
+  final String? instructSpecial, rejectReason, orderIdCustomer;
+  final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT, volume;
+  final DateTime? dateRequestShipping;
+  final int? vat;
 
   //temp field
   final int? remainingQty;
@@ -74,6 +75,7 @@ class Order {
     this.vat,
     required this.status,
     this.rejectReason,
+    this.orderIdCustomer,
     this.totalPrice,
     this.totalPriceVAT,
     required this.isBox,
@@ -188,6 +190,7 @@ class Order {
       isBox: json['isBox'] ?? false,
       status: json['status'] ?? "",
       rejectReason: json['rejectReason'] ?? "",
+      orderIdCustomer: json['orderIdCustomer'] ?? "",
 
       remainingQty: json['remainingQty'] ?? 0,
 
@@ -240,6 +243,7 @@ class Order {
       "isBox": isBox,
       'status': status,
       "rejectReason": rejectReason,
+      "orderIdCustomer": orderIdCustomer,
       'vat': vat,
       'box': box?.toJson(),
     };

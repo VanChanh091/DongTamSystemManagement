@@ -53,6 +53,8 @@ final List<Map<String, dynamic>> _headerOrder = [
   {"key": "dongGhimHaiManh", "title": "Đóng Ghim 2 Mảnh"},
   {"key": "dongGoi", "title": "Đóng Gói"},
 
+  {"key": "orderIdCustomer", "title": "PO Khách"},
+
   // Role-based
   {
     "key": "staffOrder",

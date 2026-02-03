@@ -50,9 +50,38 @@ class ValidationOrder {
     bool checkId = false,
     VoidCallback? onTap,
     bool enabled = true,
+    bool isCalculate = false,
   }) {
+    final FocusNode focusNode = FocusNode();
+
     return StatefulBuilder(
       builder: (context, setState) {
+        if (isCalculate) {
+          focusNode.addListener(() {
+            if (!focusNode.hasFocus) {
+              final text = controller.text.trim();
+              final mathPattern = RegExp(r'^(\d+\.?\d*)\s*[\/*]\s*(\d+\.?\d*)$');
+
+              if (mathPattern.hasMatch(text)) {
+                final match = mathPattern.firstMatch(text);
+
+                if (match != null) {
+                  double val1 = double.parse(match.group(1)!);
+                  double val2 = double.parse(match.group(2)!);
+
+                  if (val2 != 0) {
+                    double result = val1 / val2;
+
+                    // Example: 113 / 2 is evaluated to 56.5
+                    controller.text = result.toStringAsFixed(2).replaceAll(RegExp(r'\.0$'), '');
+                    setState(() {});
+                  }
+                }
+              }
+            }
+          });
+        }
+
         controller.addListener(() {
           setState(() {}); // cập nhật color mỗi khi text thay đổi
         });
@@ -68,6 +97,7 @@ class ValidationOrder {
 
         return TextFormField(
           controller: controller,
+          focusNode: focusNode,
           style: const TextStyle(fontSize: 15),
           readOnly: effectiveReadOnly,
           decoration: InputDecoration(

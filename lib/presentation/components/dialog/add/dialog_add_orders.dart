@@ -73,6 +73,7 @@ class _OrderDialogState extends State<OrderDialog> {
   final profitController = TextEditingController();
   final vatController = TextEditingController();
   final instructSpecialController = TextEditingController();
+  final orderIdCustomerController = TextEditingController();
 
   final dvtController = TextEditingController();
   final daoXaController = TextEditingController();
@@ -162,6 +163,7 @@ class _OrderDialogState extends State<OrderDialog> {
     productIdController.text = selectedOrder.productId;
     qcBoxController.text = selectedOrder.QC_box ?? "";
     canLanController.text = selectedOrder.canLan ?? "";
+    orderIdCustomerController.text = selectedOrder.orderIdCustomer ?? "";
 
     // Cụm các field Sóng/Mặt
     dayController.text = selectedOrder.day ?? "";
@@ -191,8 +193,11 @@ class _OrderDialogState extends State<OrderDialog> {
     vatController.text = selectedOrder.vat.toString();
 
     // Dropdown & Date
-    typeDVT = selectedOrder.dvt;
-    typeDaoXa = selectedOrder.daoXa;
+    setState(() {
+      typeDVT = selectedOrder.dvt;
+      typeDaoXa = selectedOrder.daoXa;
+    });
+
     instructSpecialController.text = selectedOrder.instructSpecial ?? "";
 
     if (selectedOrder.dateRequestShipping != null) {
@@ -262,6 +267,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
     final newOrder = Order(
       orderId: Order.generateOrderCode(prefix),
+      orderIdCustomer: orderIdCustomerController.text.toUpperCase(),
       customerId: customerIdController.text.toUpperCase(),
       productId: productIdController.text.toUpperCase(),
       dayReceiveOrder: dayReceive ?? DateTime.now(),
@@ -329,6 +335,9 @@ class _OrderDialogState extends State<OrderDialog> {
 
       //fetch lại badge sau khi add/update
       badgesController.fetchPendingApprovals();
+      if (badgesController.numberOrderReject > 0) {
+        badgesController.fetchOrderReject();
+      }
 
       widget.onOrderAddOrUpdate?.call(orderId ?? newOrder.orderId);
 
@@ -350,6 +359,7 @@ class _OrderDialogState extends State<OrderDialog> {
   void dispose() {
     super.dispose();
     orderIdController.dispose();
+    orderIdCustomerController.dispose();
     instructSpecialController.dispose();
     customerIdController.dispose();
     productIdController.dispose();
@@ -446,9 +456,9 @@ class _OrderDialogState extends State<OrderDialog> {
           controller: qcBoxController,
           icon: Symbols.deployed_code,
         ),
-        "rightKey": "Ngày giao",
+        "rightKey": "Ngày Giao",
         "rightValue": ValidationOrder.validateInput(
-          label: "Ngày yêu cầu giao",
+          label: "Ngày Yêu Cầu Giao",
           controller: dateShippingController,
           icon: Symbols.calendar_month,
           readOnly: true,
@@ -541,9 +551,9 @@ class _OrderDialogState extends State<OrderDialog> {
           icon: Symbols.person,
           readOnly: true,
         ),
-        "rightKey": "Tên công ty",
+        "rightKey": "Tên Công Ty",
         "rightValue": ValidationOrder.validateInput(
-          label: "Tên công ty KH",
+          label: "Tên Công Ty KH",
           controller: customerCompanyController,
           icon: Symbols.business,
           readOnly: true,
@@ -602,16 +612,16 @@ class _OrderDialogState extends State<OrderDialog> {
             }
           },
         ),
-        "middleKey": "Loại sản phẩm",
+        "middleKey": "Loại Sản Phẩm",
         "middleValue": ValidationOrder.validateInput(
-          label: "Loại sản phẩm",
+          label: "Loại Sản Phẩm",
           controller: typeProduct,
           icon: Symbols.comment,
           readOnly: true,
         ),
-        "rightKey": "Tên sản phẩm",
+        "rightKey": "Tên Sản Phẩm",
         "rightValue": ValidationOrder.validateInput(
-          label: "Tên sản phẩm",
+          label: "Tên Sản Phẩm",
           controller: nameSpController,
           icon: Symbols.box,
           readOnly: true,
@@ -619,21 +629,22 @@ class _OrderDialogState extends State<OrderDialog> {
       },
 
       {
-        "leftKey": "Dài khách đặt",
+        "leftKey": "Dài Khách Đặt",
         "leftValue": ValidationOrder.validateInput(
-          label: "Dài khách đặt (cm)",
+          label: "Dài Khách Đặt (cm)",
           controller: lengthCustomerController,
           icon: Symbols.vertical_distribute,
         ),
-        "middleKey": "Khổ khách đặt",
+        "middleKey": "Khổ Khách Đặt",
         "middleValue": ValidationOrder.validateInput(
-          label: "Khổ khách đặt (cm)",
+          label: "Khổ Khách Đặt (cm)",
           controller: sizeCustomerController,
           icon: Symbols.horizontal_distribute,
+          isCalculate: true,
         ),
-        "rightKey": "Số lượng",
+        "rightKey": "Số Lượng",
         "rightValue": ValidationOrder.validateInput(
-          label: "Số lượng (KH)",
+          label: "Số Lượng (KH)",
           controller: quantityCustomerController,
           icon: Symbols.filter_9_plus,
         ),
@@ -671,34 +682,38 @@ class _OrderDialogState extends State<OrderDialog> {
             });
           },
         ),
-        "middleKey": "Số con",
+        "middleKey": "Số Con",
         "middleValue": ValidationOrder.validateInput(
-          label: "Số con",
+          label: "Số Con",
           controller: numberChildController,
           icon: Symbols.box,
         ),
-        "rightKey": "",
-        "rightValue": const SizedBox(),
+        "rightKey": "PO Khách",
+        "rightValue": ValidationOrder.validateInput(
+          label: "PO Khách",
+          controller: orderIdCustomerController,
+          icon: Symbols.orders,
+        ),
       },
     ];
 
     final List<Map<String, dynamic>> costRows = [
       {
-        "leftKey": "Đơn giá",
+        "leftKey": "Đơn Giá",
         "leftValue": ValidationOrder.validateInput(
-          label: "Đơn giá (M2)",
+          label: "Đơn Giá (M2)",
           controller: priceController,
           icon: Symbols.price_change,
         ),
-        "middleKey": "Chiết khấu",
+        "middleKey": "Chiết Khấu",
         "middleValue": ValidationOrder.validateInput(
-          label: "Chiết khấu",
+          label: "Chiết Khấu",
           controller: discountController,
           icon: Symbols.price_change,
         ),
-        "rightKey": "Lợi nhuận",
+        "rightKey": "Lợi Nhuận",
         "rightValue": ValidationOrder.validateInput(
-          label: "Lợi nhuận",
+          label: "Lợi Nhuận",
           controller: profitController,
           icon: Symbols.price_change,
         ),
@@ -811,21 +826,21 @@ class _OrderDialogState extends State<OrderDialog> {
         {
           'left':
               () => ValidationOrder.validateInput(
-                label: "Số màu in mặt trước",
+                label: "Số Màu In Mặt Trước",
                 controller: inMatTruocController,
                 icon: Symbols.print,
                 enabled: isEnabled,
               ),
           'middle_1':
               () => ValidationOrder.validateInput(
-                label: "Số màu in mặt sau",
+                label: "Số Màu In Mặt Sau",
                 controller: inMatSauController,
                 icon: Symbols.print,
                 enabled: isEnabled,
               ),
           'middle_2':
               () => ValidationOrder.validateInput(
-                label: "Cách Đóng gói",
+                label: "Cách Đóng Gói",
                 controller: dongGoiController,
                 icon: Symbols.box,
                 enabled: isEnabled,
@@ -843,7 +858,7 @@ class _OrderDialogState extends State<OrderDialog> {
         {
           'left':
               () => ValidationOrder.checkboxForBox(
-                label: "Chống thấm",
+                label: "Chống Thấm",
                 notifier: chongThamChecked,
                 enabled: isEnabled,
               ),
@@ -855,19 +870,19 @@ class _OrderDialogState extends State<OrderDialog> {
               ),
           'middle_2':
               () => ValidationOrder.checkboxForBox(
-                label: "Cắt khe",
+                label: "Cắt Khe",
                 notifier: catKheChecked,
                 enabled: isEnabled,
               ),
           'middle_3':
               () => ValidationOrder.checkboxForBox(
-                label: "Dán 1 mảnh",
+                label: "Dán 1 Mảnh",
                 notifier: dan1ManhChecked,
                 enabled: isEnabled,
               ),
           'right':
               () => ValidationOrder.checkboxForBox(
-                label: "Dán 2 mảnh",
+                label: "Dán 2 Mảnh",
                 notifier: dan2ManhChecked,
                 enabled: isEnabled,
               ),
@@ -875,7 +890,7 @@ class _OrderDialogState extends State<OrderDialog> {
         {
           'left':
               () => ValidationOrder.checkboxForBox(
-                label: "Cán màng",
+                label: "Cán Màng",
                 notifier: canMangChecked,
                 enabled: isEnabled,
               ),
@@ -894,14 +909,14 @@ class _OrderDialogState extends State<OrderDialog> {
 
           'middle_3':
               () => ValidationOrder.checkboxForBox(
-                label: "Đóng ghim 1 mảnh",
+                label: "Đóng Ghim 1 Mảnh",
                 notifier: dongGhim1ManhChecked,
                 enabled: isEnabled,
               ),
 
           'right':
               () => ValidationOrder.checkboxForBox(
-                label: "Đóng ghim 2 mảnh",
+                label: "Đóng Ghim 2 Mảnh",
                 notifier: dongGhim2ManhChecked,
                 enabled: isEnabled,
               ),
