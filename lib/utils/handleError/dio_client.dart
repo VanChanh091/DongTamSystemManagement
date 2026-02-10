@@ -30,6 +30,16 @@ class DioClient {
 
     dio.interceptors.add(
       InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          // Mỗi khi có request, tự động lấy token mới nhất
+          final token = await _storage.getToken();
+
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+
+          return handler.next(options);
+        },
         onError: (DioException e, handler) async {
           if (e.response?.statusCode == 401) {
             final message = e.response?.data?['message'] ?? "";

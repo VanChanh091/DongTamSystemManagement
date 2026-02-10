@@ -3,6 +3,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SecureStorageService {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
+  //clear data
+  Future<void> clearAll() async {
+    await _storage.deleteAll();
+  }
+
   //============================TOKEN=================================
   Future<void> saveToken(String token) async {
     await _storage.write(key: "auth_token", value: token);
@@ -14,10 +19,6 @@ class SecureStorageService {
 
   Future<void> deleteToken() async {
     await _storage.delete(key: "auth_token");
-  }
-
-  Future<void> clearAll() async {
-    await _storage.deleteAll();
   }
 
   //============================ROLE=================================
@@ -44,5 +45,18 @@ class SecureStorageService {
 
   Future<void> deletePermission() async {
     await _storage.delete(key: "user_permission");
+  }
+
+  //============================USER ID=================================
+  Future<void> saveUserId(int userId) async {
+    await _storage.write(key: "user_id", value: userId.toString());
+  }
+
+  Future<String?> getUserId() async {
+    return await _storage.read(key: "user_id");
+  }
+
+  Future<void> deleteUserId() async {
+    await _storage.delete(key: "user_id");
   }
 }

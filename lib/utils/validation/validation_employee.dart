@@ -8,6 +8,7 @@ class ValidationEmployee {
     required TextEditingController controller,
     required IconData icon,
     bool readOnly = false,
+    bool empCode = false,
     VoidCallback? onTap,
     String? externalError,
     Function(String)? onChanged,
@@ -83,9 +84,11 @@ class ValidationEmployee {
               return '$label chỉ được chứa chữ số';
             }
 
-            if (label == 'Mã Nhân Viên') {
-              if (RegExp(r'[0-9]').hasMatch(cleanValue)) {
-                return 'Mã nhân viên không được chứa số';
+            if (empCode) {
+              if (label == 'Mã Nhân Viên') {
+                if (RegExp(r'[0-9]').hasMatch(cleanValue)) {
+                  return 'Mã nhân viên không được chứa số';
+                }
               }
             }
 

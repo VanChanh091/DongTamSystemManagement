@@ -307,7 +307,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
                                                   //cập nhật badge
                                                   badgesController.fetchPaperWaitingCheck();
-                                                  badgesController.fetchOrderPending();
+                                                  badgesController.fetchOrderPendingPlanning();
                                                 } catch (e, s) {
                                                   AppLogger.e(
                                                     "Lỗi khi mở dialog",

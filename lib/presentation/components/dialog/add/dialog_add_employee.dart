@@ -412,6 +412,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
           label: "Mã Nhân Viên",
           controller: _employeeCodeController,
           icon: Symbols.person_pin,
+          empCode: !isEdit,
           externalError: employeeCodeError,
           onChanged: (val) {
             if (employeeCodeError != null) setState(() => employeeCodeError = null);

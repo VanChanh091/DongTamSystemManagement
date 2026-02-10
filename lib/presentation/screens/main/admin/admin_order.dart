@@ -312,7 +312,7 @@ class _ManageOrderState extends State<AdminOrder> {
 
                                             //cập nhật lại badge
                                             badgesController.fetchPendingApprovals();
-                                            badgesController.fetchOrderPending();
+                                            badgesController.fetchOrderPendingPlanning();
 
                                             setState(() {
                                               selectedOrder = null;
@@ -412,7 +412,6 @@ class _ManageOrderState extends State<AdminOrder> {
 
                                                         //cập nhật lại badge
                                                         badgesController.fetchPendingApprovals();
-                                                        badgesController.fetchOrderReject();
 
                                                         setState(() {
                                                           selectedOrder = null;

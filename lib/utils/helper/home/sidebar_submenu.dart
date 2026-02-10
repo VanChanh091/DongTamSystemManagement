@@ -63,7 +63,7 @@ Widget buildPlanningMenu({
         label: "Chờ Lên Kế Hoạch",
         pageType: WaitingForPlanning,
         showBadge: true,
-        badge: badges.numberOrderPending,
+        badge: badges.numberOrderPendingPlanning,
       ),
       SubMenuConfig(
         icon: Icons.production_quantity_limits_outlined,
@@ -233,7 +233,7 @@ Widget buildApprovalMenu({
         label: "Chờ Duyệt",
         pageType: AdminOrder,
         showBadge: true,
-        badge: badges.numberBadges,
+        badge: badges.numberPendingApproval,
       ),
       SubMenuConfig(icon: Icons.gif_box, label: "Máy Sóng và Phế Liệu", pageType: TopTabAdminPaper),
       SubMenuConfig(icon: Icons.gif_box, label: "In Ấn và Phế Liệu", pageType: TopTabAdminBox),

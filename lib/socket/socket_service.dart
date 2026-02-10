@@ -52,21 +52,6 @@ class SocketService {
     });
   }
 
-  /// Join machine room (use when open machine screen)
-  Future<void> joinMachineRoom(String machineName) async {
-    final room = 'machine_${machineName.toLowerCase().replaceAll(' ', '_')}';
-    if (_socket == null || !_socket!.connected) await connectSocket();
-    _socket!.emit('join-machine', room);
-    AppLogger.i("➡️ join-machine: $room");
-  }
-
-  /// Leave a room (server must implement socket.on("leave-room", ...))
-  Future<void> leaveRoom(String roomName) async {
-    if (_socket == null || !_socket!.connected) return;
-    _socket!.emit('leave-room', roomName);
-    AppLogger.i("❌ leave-room $roomName");
-  }
-
   /// Register event listener (ensure not duplicated)
   void on(String event, Function(dynamic) callback) {
     _socket?.off(event);
@@ -81,10 +66,44 @@ class SocketService {
   /// Disconnect socket fully
   void disconnect() {
     if (_socket == null) return;
-    AppLogger.i("❌ Disconnecting global socket");
+
+    // 1. Gỡ bỏ mọi listener để tránh sự kiện dư thừa
     _socket!.clearListeners();
+    _socket!.offAny();
+
+    // 2. Chấm dứt kết nối
     _socket!.disconnect();
+
+    // 3. Giải phóng instance để tránh rò rỉ bộ nhớ
+    _socket!.dispose();
+
+    // 4. Reset các flag để trạng thái luônnhất quán
     _socket = null;
     _isConnected = false;
+
+    AppLogger.i("❌ Disconnecting global socket");
+  }
+
+  //============================== START JOIN ROOOM=================================
+  /// Join machine room (use when open machine screen)
+  Future<void> joinMachineRoom(String machineName) async {
+    final room = 'machine_${machineName.toLowerCase().replaceAll(' ', '_')}';
+    if (_socket == null || !_socket!.connected) await connectSocket();
+    _socket!.emit('join-machine', room);
+    AppLogger.i("➡️ socket join-machine: $room");
+  }
+
+  //join user room
+  Future<void> joinUserRoom(int ownerId) async {
+    if (_socket == null || !_socket!.connected) await connectSocket();
+    _socket!.emit('join-user', ownerId);
+    AppLogger.i("➡️ socket join-user: $ownerId");
+  }
+
+  /// Leave a room (server must implement socket.on("leave-room", ...))
+  Future<void> leaveRoom(String roomName) async {
+    if (_socket == null || !_socket!.connected) return;
+    _socket!.emit('leave-room', roomName);
+    AppLogger.i("❌ socket leave-room: $roomName");
   }
 }

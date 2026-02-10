@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -63,18 +64,32 @@ class AuthService {
 
         //get user object
         final user = response.data['user'] as Map<String, dynamic>;
+        int userId = user['userId'];
         String role = user['role'];
         List<String> permissions = List<String>.from(user['permissions']);
 
+        //bắt buộc phải cho token chạy trước để lưu token vào storage
         await secureStorage.saveToken(token);
-        await secureStorage.saveRole(role);
-        await secureStorage.savePermission(jsonEncode(permissions));
+        await Future.wait([
+          secureStorage.saveUserId(userId),
+          secureStorage.saveRole(role),
+          secureStorage.savePermission(jsonEncode(permissions)),
+        ]);
 
+        // Cập nhật UserController với dữ liệu mới
         final userController = Get.find<UserController>();
         userController.role.value = role;
         userController.permissions.value = permissions;
+        userController.userId.value = userId;
 
-        AppLogger.i("Login successful, role: $role, permission: $permissions");
+        // Khởi tạo socket sau khi đăng nhập thành công
+        // permanent: giữ socket sống suốt vòng đời app
+        final badgesController = Get.put(BadgesController(), permanent: true);
+        if (userController.hasPermission(permission: "sale")) {
+          badgesController.initSocketAfterLogin(userId);
+        }
+
+        AppLogger.i("Login successful --> userId: $userId, role: $role, permission: $permissions");
 
         return true;
       } else {
@@ -89,23 +104,14 @@ class AuthService {
         errorMessage = "Kết nối quá hạn, vui lòng kiểm tra lại server!";
       } else if (e.type == DioExceptionType.connectionError) {
         errorMessage = "Không có kết nối internet hoặc server không phản hồi!";
+      } else if (e.response?.statusCode == 401) {
+        errorMessage = "Sai email hoặc mật khẩu!";
       }
       //  else if (e.response?.statusCode == 502 || e.response?.statusCode == 503) {
       //   errorMessage = "Hệ thống đang bảo trì (Server Down). Vui lòng quay lại sau!";
-      // } else if (e.response?.statusCode == 401) {
-      //   errorMessage = "Sai email hoặc mật khẩu!";
-      // } else {
+      //  else {
       //   errorMessage = "Lỗi kết nối: ${e.message}";
       // }
-
-      // Hiển thị thông báo cho user (Dùng Get.snackbar vì bạn đang dùng GetX)
-      // Get.snackbar(
-      //   "Thông báo",
-      //   errorMessage,
-      //   snackPosition: SnackPosition.BOTTOM,
-      //   backgroundColor: Colors.redAccent,
-      //   colorText: Colors.white,
-      // );
 
       if (Get.context != null) {
         showSnackBarError(Get.context!, errorMessage);

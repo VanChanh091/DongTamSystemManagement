@@ -7,32 +7,34 @@ import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/material.dart';
 
 class PlanningPaper {
-  //frontend
+  final int planningId;
   final DateTime? dayStart, dayCompleted;
-  final int ghepKho;
-  final double lengthPaperPlanning, sizePaperPLaning;
+  final TimeOfDay? timeRunning;
   final String? dayReplace, matEReplace, matBReplace, matCReplace, matE2Replace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
+
+  final double lengthPaperPlanning, sizePaperPLaning;
   final int runningPlan, numberChild;
   final int? qtyProduced;
+  final int ghepKho;
+
+  final double? bottom, fluteE, fluteB, fluteC, fluteE2, knife, totalLoss;
   final double? qtyWasteNorm;
+
   final String chooseMachine;
   final String? shiftProduction;
   final String? shiftManagement;
 
-  //backend auto generate
-  final int planningId;
-  final TimeOfDay? timeRunning;
-  final int? sortPlanning;
-  final double? bottom, fluteE, fluteB, fluteC, fluteE2, knife, totalLoss;
   final String status;
   final String? statusRequest;
+
+  final bool? hasBox;
+  final bool? hasOverFlow;
   final String? deliveryPlanned;
+  final int? sortPlanning;
 
   //field temp
   String? itemStatus;
-
-  final bool hasBox;
 
   //association
   final String orderId;
@@ -78,6 +80,7 @@ class PlanningPaper {
     this.shiftProduction,
     required this.hasBox,
     this.deliveryPlanned,
+    this.hasOverFlow,
 
     //field temp
     this.itemStatus,
@@ -171,6 +174,7 @@ class PlanningPaper {
       shiftManagement: json['shiftManagement'] ?? "",
       shiftProduction: json['shiftProduction'] ?? "",
       hasBox: json['hasBox'] ?? false,
+      hasOverFlow: json['hasOverFlow'] ?? false,
       deliveryPlanned: json['deliveryPlanned'] ?? "",
 
       orderId: json['orderId'] ?? "",

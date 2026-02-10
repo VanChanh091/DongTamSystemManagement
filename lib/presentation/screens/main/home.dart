@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> {
   final socketService = SocketService();
   final unsavedChangeController = Get.put(UnsavedChangeController());
   final sidebarController = Get.put(SidebarController());
-  final badgesController = Get.put(BadgesController());
+  final badgesController = Get.find<BadgesController>();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
@@ -72,11 +72,11 @@ class _HomePageState extends State<HomePage> {
   static const double _sidebarOpenWidth = 300;
   static const double _sidebarCollapsedWidth = 60;
 
-  @override
-  void initState() {
-    super.initState();
-    SocketService().connectSocket();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   SocketService().connectSocket();
+  // }
 
   // build danh sách pages dựa vào quyền/role
   List<Widget> getPages() {
@@ -148,26 +148,22 @@ class _HomePageState extends State<HomePage> {
     return child;
   }
 
-  void clearAllBadge() {
-    badgesController.numberBadges.value = 0;
-    badgesController.numberOrderPending.value = 0;
-    badgesController.numberPlanningStop.value = 0;
-    badgesController.numberPaperWaiting.value = 0;
-    badgesController.numberBoxWaiting.value = 0;
-    // badgesController.numberOrderPendingReject.value = 0;
-  }
-
   void logout() async {
     try {
       final secureStorage = SecureStorageService();
-      await secureStorage.deleteToken();
-      await secureStorage.deleteRole();
-      await secureStorage.deletePermission();
+      await secureStorage.clearAll();
 
       await authService.logout();
       sidebarController.reset();
 
-      clearAllBadge();
+      socketService.off('updateBadgeCount');
+      socketService.disconnect();
+      //   if (Get.isRegistered<BadgesController>()) {
+      //   Get.delete<BadgesController>(force: true);
+      //   AppLogger.i("BadgesController has been forcibly terminated.");
+      // }
+
+      badgesController.clearAllBadge();
 
       if (!mounted) return;
       showSnackBarSuccess(context, 'Đăng xuất thành công');
@@ -431,10 +427,7 @@ class _HomePageState extends State<HomePage> {
         ? ListTile(
           leading: const Icon(Icons.logout, color: Colors.white),
           title: const Text("Đăng xuất", style: TextStyle(color: Colors.white, fontSize: 18)),
-          onTap: () {
-            logout();
-            socketService.disconnect();
-          },
+          onTap: () => logout(),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         )
         : const Padding(

@@ -126,7 +126,6 @@ class _OrderDialogState extends State<OrderDialog> {
   //init data to update
   void orderInitState() {
     final order = widget.order!;
-    AppLogger.i("Khởi tạo form với orderId=${order.orderId}");
 
     originalOrderId = order.orderId;
     _fillFormWithOrder(order);

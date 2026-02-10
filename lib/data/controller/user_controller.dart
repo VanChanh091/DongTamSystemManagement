@@ -5,13 +5,20 @@ import 'package:get/get.dart';
 
 class UserController extends GetxController {
   final SecureStorageService storage = SecureStorageService();
+
+  RxInt userId = 0.obs;
   RxString role = "".obs;
   RxList<String> permissions = <String>[].obs;
 
   Future<void> loadUserData() async {
     try {
+      String? storedUserId = await storage.getUserId();
       String? storedRole = await storage.getRole();
       String? storedPermissions = await storage.getPermission();
+
+      if (storedUserId != null) {
+        userId.value = int.parse(storedUserId);
+      }
 
       if (storedRole != null) {
         role.value = storedRole;
@@ -22,9 +29,6 @@ class UserController extends GetxController {
       } else {
         permissions.clear();
       }
-
-      // Log tổng quan một lần
-      AppLogger.i("User data loaded → role: $role, permissions: ${permissions.length}");
     } catch (e, s) {
       AppLogger.e("Error loading user data", error: e, stackTrace: s);
     }
@@ -50,8 +54,8 @@ class UserController extends GetxController {
   }
 
   void clearUser() {
+    userId.value = 0;
     role.value = "";
     permissions.clear();
-    AppLogger.i("User cleared");
   }
 }

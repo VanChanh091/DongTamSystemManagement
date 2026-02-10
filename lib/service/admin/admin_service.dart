@@ -44,7 +44,6 @@ class AdminService {
         ),
       );
 
-      AppLogger.i("update $orderId successfully");
       return true;
     } on DioException catch (e) {
       if (e.response?.statusCode == 400) {

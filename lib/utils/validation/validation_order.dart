@@ -118,11 +118,11 @@ class ValidationOrder {
 
             final requiredFields = [
               "Mã Đơn Hàng",
-              "Ngày yêu cầu giao",
-              "Số lượng (KH)",
-              "Khổ khách đặt (cm)",
-              "Số con",
-              "Đơn giá (M2)",
+              "Ngày Yêu Cầu Giao",
+              "Số Lượng (KH)",
+              "Khổ Khách Đặt (cm)",
+              "Số Con",
+              "Đơn Giá (M2)",
             ];
 
             if (requiredFields.contains(label) && cleanValue.isEmpty) {
