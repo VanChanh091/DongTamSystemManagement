@@ -188,7 +188,11 @@ class PlanningService {
   }
 
   //notify planning
-  Future<bool> notifyUpdatePlanning({required String machine, required bool isPaper}) async {
+  Future<bool> notifyUpdatePlanning({
+    required String machine,
+    required bool isPaper,
+    bool isPlan = true,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -196,7 +200,7 @@ class PlanningService {
 
       await dioService.post(
         "/api/planning/notifyPlanning",
-        data: {'machine': machine, "keyName": keyName},
+        data: {'machine': machine, "keyName": keyName, "isPlan": isPlan},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),

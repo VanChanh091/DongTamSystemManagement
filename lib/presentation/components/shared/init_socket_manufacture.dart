@@ -1,3 +1,4 @@
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ class InitSocketManufacture {
     socketService.joinMachineRoom(machine);
 
     socketService.off(eventName);
-    socketService.on(eventName, (data) => _showUpdateDialog(data));
+    socketService.on(eventName, (data) => _onSocketUpdated(data));
   }
 
   String machineRoomName(String machineName) =>
@@ -44,16 +45,28 @@ class InitSocketManufacture {
     await socketService.joinMachineRoom(newMachine);
     AppLogger.i("changeMachine: joined newRoom=$newMachine");
 
-    socketService.on(eventName, (data) => _showUpdateDialog(data));
+    socketService.on(eventName, (data) => _onSocketUpdated(data));
 
     // load data cho máy mới
     onLoadData();
   }
 
+  void _onSocketUpdated(dynamic data) {
+    bool isPlan = data['isPlan'] ?? false;
+    String message = data['message'] ?? "";
+
+    if (isPlan) {
+      _showUpdateDialog(data);
+    } else {
+      onLoadData();
+      showSnackBarSuccess(context, message);
+    }
+  }
+
   void _showUpdateDialog(dynamic data) {
-    final from = data['from'];
-    final machine = data['machine'];
-    final message = data['message'];
+    final from = data['from'] ?? "";
+    final machine = data['machine'] ?? "";
+    final message = data['message'] ?? "";
 
     AppLogger.i("_showUpdateDialog: machine=$machine, data=$message");
 
@@ -111,5 +124,11 @@ class InitSocketManufacture {
             ],
           ),
     );
+  }
+
+  void stop(String lastMachineName) {
+    final room = machineRoomName(lastMachineName);
+    socketService.leaveRoom(room);
+    socketService.off(eventName);
   }
 }

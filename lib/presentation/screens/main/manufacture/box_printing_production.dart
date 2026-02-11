@@ -122,9 +122,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
   @override
   void dispose() {
-    final room = _initSocket.machineRoomName(machine);
-    socketService.leaveRoom(room);
-    socketService.off('planningBoxUpdated');
+    _initSocket.stop(machine);
     super.dispose();
   }
 
@@ -274,15 +272,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                     machine: machine,
                                                   );
 
-                                                  if (!context.mounted) return;
-                                                  showSnackBarSuccess(
-                                                    context,
-                                                    "Xác nhận sản xuất thành công",
-                                                  );
-
-                                                  //cập nhật badge
-                                                  badgesController.fetchBoxWaitingCheck();
-
                                                   loadPlanning();
                                                 } on ApiException catch (e) {
                                                   final errorText = switch (e.errorCode) {
@@ -291,9 +280,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                     _ => 'Có lỗi xảy ra, vui lòng thử lại',
                                                   };
 
-                                                  if (mounted) {
-                                                    showSnackBarError(context, errorText);
-                                                  }
+                                                  if (!context.mounted) return;
+                                                  showSnackBarError(context, errorText);
                                                 } catch (e) {
                                                   if (!context.mounted) return;
                                                   showSnackBarError(
@@ -336,6 +324,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                             selectedPlanning.planningBoxId,
                                                         machine: machine,
                                                       );
+
+                                                  //cập nhật badge
+                                                  badgesController.fetchBoxWaitingCheck();
 
                                                   loadPlanning();
 

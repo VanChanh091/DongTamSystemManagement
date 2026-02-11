@@ -134,9 +134,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
   @override
   void dispose() {
-    final room = _initSocket.machineRoomName(machine);
-    socketService.leaveRoom(room);
-    socketService.off('planningPaperUpdated');
+    _initSocket.stop(machine);
     super.dispose();
   }
 
@@ -278,8 +276,6 @@ class _PaperProductionState extends State<PaperProduction> {
                                                     planningId: selectedPlanning.planningId,
                                                   );
 
-                                                  if (!context.mounted) return;
-
                                                   loadPlanning();
                                                 } on ApiException catch (e) {
                                                   final errorText = switch (e.errorCode) {
@@ -288,9 +284,8 @@ class _PaperProductionState extends State<PaperProduction> {
                                                     _ => 'Có lỗi xảy ra, vui lòng thử lại',
                                                   };
 
-                                                  if (mounted) {
-                                                    showSnackBarError(context, errorText);
-                                                  }
+                                                  if (!context.mounted) return;
+                                                  showSnackBarError(context, errorText);
                                                 } catch (e, s) {
                                                   AppLogger.e(
                                                     "Lỗi khi xác nhận SX",
