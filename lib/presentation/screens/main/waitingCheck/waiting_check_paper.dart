@@ -48,7 +48,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
 
     loadPaperWaiting();
 
-    columns = buildMachineColumns(themeController: themeController, page: "checking");
+    columns = buildMachinePaperColumns(themeController: themeController, page: "checking");
 
     ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
       setState(() {

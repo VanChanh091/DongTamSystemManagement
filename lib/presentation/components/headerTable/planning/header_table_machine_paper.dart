@@ -74,7 +74,7 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   {"key": "planningId", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildMachineColumns({
+List<GridColumn> buildMachinePaperColumns({
   required ThemeController themeController,
   required String page,
 }) {

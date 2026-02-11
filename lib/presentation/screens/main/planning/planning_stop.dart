@@ -53,7 +53,7 @@ class _PlanningStopState extends State<PlanningStop> {
     super.initState();
     loadPlanning();
 
-    columns = buildMachineColumns(themeController: themeController, page: "planning");
+    columns = buildMachinePaperColumns(themeController: themeController, page: "planning");
 
     ColumnWidthTable.loadWidths(tableKey: 'planningStop', columns: columns).then((w) {
       setState(() {

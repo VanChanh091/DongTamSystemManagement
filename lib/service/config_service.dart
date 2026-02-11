@@ -18,10 +18,7 @@ Future<Map<String, dynamic>> loadConfig() async {
       if (!await configFile.exists()) {
         AppLogger.w("Config not found at exeDir, trying APPDATA...");
 
-        final appDataDir = p.join(
-          Platform.environment['APPDATA'] ?? exeDir,
-          'MyApp',
-        );
+        final appDataDir = p.join(Platform.environment['APPDATA'] ?? exeDir, 'MyApp');
 
         final appConfig = File(p.join(appDataDir, 'config.prod.json'));
         if (await appConfig.exists()) configFile = appConfig;
@@ -36,13 +33,9 @@ Future<Map<String, dynamic>> loadConfig() async {
         throw Exception("Không tìm thấy file config.prod.json");
       }
     } else {
-      final content = await rootBundle.loadString(
-        'assets/config/config.dev.json',
-      );
+      final content = await rootBundle.loadString('assets/config/config.dev.json');
 
-      AppLogger.i(
-        "Config loaded successfully from assets/config/config.dev.json",
-      );
+      AppLogger.i("Config loaded successfully from config.dev.json");
       return jsonDecode(content);
     }
   } catch (e, s) {

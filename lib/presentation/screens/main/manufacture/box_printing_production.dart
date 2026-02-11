@@ -4,6 +4,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart';
+import 'package:dongtam/presentation/components/shared/init_socket_manufacture.dart';
 import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
@@ -31,6 +32,7 @@ class BoxPrintingProduction extends StatefulWidget {
 class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   late Future<List<PlanningBox>> futurePlanning;
   late MachineBoxDatasource machineBoxDatasource;
+  late InitSocketManufacture _initSocket;
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -48,7 +50,21 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   void initState() {
     super.initState();
 
-    registerSocket();
+    _initSocket = InitSocketManufacture(
+      context: context,
+      socketService: socketService,
+      eventName: "planningBoxUpdated",
+      onLoadData: loadPlanning,
+      onMachineChanged: (newMachine) {
+        setState(() {
+          machine = newMachine;
+          selectedPlanningIds.clear();
+        });
+      },
+    );
+
+    _initSocket.registerSocket(machine);
+
     loadPlanning();
 
     columns = buildMachineBoxColumns(machine: machine, themeController: themeController);
@@ -68,101 +84,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     });
   }
 
-  /* start socket */
-  String _machineRoomName(String machineName) =>
-      'machine_${machineName.toLowerCase().replaceAll(' ', '_')}';
-
-  Future<void> registerSocket() async {
-    AppLogger.i("registerSocket: join room machine=$machine");
-    socketService.joinMachineRoom(machine);
-
-    socketService.off('planningBoxUpdated');
-    socketService.on('planningBoxUpdated', _onPlanningPaperUpdated);
+  Future<void> changeMachine(String newMachine) async {
+    _initSocket.changeMachine(oldMachine: machine, newMachine: newMachine);
   }
-
-  void _onPlanningPaperUpdated(dynamic data) {
-    if (!mounted) return;
-    AppLogger.i("_onPlanningBoxUpdated: machine=$machine, data=$data");
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder:
-          (ctx) => AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            contentPadding: const EdgeInsets.all(20),
-            titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
-
-            title: Center(
-              child: const Row(
-                children: [
-                  Icon(Icons.notifications_active, color: Colors.green, size: 28),
-                  SizedBox(width: 8),
-                  Text('Thông báo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            content: SizedBox(
-              width: 400,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Đã có kế hoạch mới cho $machine.\nNhấn OK để cập nhật dữ liệu.',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 17),
-                  ),
-                ],
-              ),
-            ),
-
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  loadPlanning();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                ),
-                child: const Text('OK', style: TextStyle(fontSize: 16)),
-              ),
-            ],
-          ),
-    );
-  }
-
-  Future<void> changeMachine(String machineName) async {
-    final oldRoom = _machineRoomName(machine);
-    AppLogger.i("changeMachine: from=$oldRoom to=$machineName");
-
-    // cập nhật state trước (UI)
-    setState(() {
-      machine = machineName;
-      selectedPlanningIds.clear();
-    });
-
-    // rời room cũ
-    await socketService.leaveRoom(oldRoom);
-
-    // gỡ listener cũ
-    socketService.off('planningBoxUpdated');
-
-    // join room mới và đăng ký listener
-    await socketService.joinMachineRoom(machineName);
-    AppLogger.i("changeMachine: joined newRoom=$machineName");
-
-    socketService.on('planningBoxUpdated', _onPlanningPaperUpdated);
-
-    // load data cho máy mới
-    loadPlanning();
-  }
-  /* end socket */
 
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
@@ -198,7 +122,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
   @override
   void dispose() {
-    final room = _machineRoomName(machine);
+    final room = _initSocket.machineRoomName(machine);
     socketService.leaveRoom(room);
     socketService.off('planningBoxUpdated');
     super.dispose();
