@@ -23,30 +23,30 @@ class BadgeService {
 
   //pending order
   Future<int> countOrderPending() async {
-    return countForBadge("countPending");
+    return countForBadge("count-pending");
   }
 
   //order reject
   Future<int> countOrderRejected() async {
-    return countForBadge("countRejected");
+    return countForBadge("count-rejected");
   }
 
   //order pending planning
   Future<int> countOrderPendingPlanning() async {
-    return countForBadge("countPendingPlanning");
+    return countForBadge("count-pending-planning");
   }
 
   //planning stop
   Future<int> countPlanningStop() async {
-    return countForBadge("countPlanningStop");
+    return countForBadge("count-planning-stop");
   }
 
   //waiting check paper & box
   Future<int> countWaitingCheckPaper() async {
-    return countForBadge("countWaitingCheckPaper");
+    return countForBadge("count-waiting-check/paper");
   }
 
   Future<int> countWaitingCheckBox() async {
-    return countForBadge("countWaitingCheckBox");
+    return countForBadge("count-waiting-check/box");
   }
 }

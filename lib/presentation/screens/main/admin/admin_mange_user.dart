@@ -35,7 +35,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
     super.initState();
 
     if (userController.hasAnyRole(roles: ["admin"])) {
-      futureUserAdmin = AdminService().getAllUsers();
+      futureUserAdmin = AdminService().getUsersAdmin();
     } else {
       futureUserAdmin = Future.error("NO_PERMISSION");
     }
@@ -48,15 +48,15 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
 
     if (searchType == "Tất cả") {
       setState(() {
-        futureUserAdmin = AdminService().getAllUsers();
+        futureUserAdmin = AdminService().getUsersAdmin();
       });
     } else if (searchType == "Theo Tên") {
       setState(() {
-        futureUserAdmin = AdminService().getUserByName(name: keyword);
+        futureUserAdmin = AdminService().getUsersAdmin(name: keyword);
       });
     } else if (searchType == "Theo SDT") {
       setState(() {
-        futureUserAdmin = AdminService().getUserByPhone(phone: keyword);
+        futureUserAdmin = AdminService().getUsersAdmin(phone: keyword);
       });
     } else if (searchType == "Theo Quyền") {
       List<String> permissions =
@@ -64,7 +64,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
 
       if (permissions.isEmpty) return;
       setState(() {
-        futureUserAdmin = AdminService().getUserByPermission(permissions: permissions);
+        futureUserAdmin = AdminService().getUsersAdmin(permissions: permissions);
       });
     }
   }
@@ -190,7 +190,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                     onPermissionOrRole: () {
                                                       setState(() {
                                                         futureUserAdmin =
-                                                            AdminService().getAllUsers();
+                                                            AdminService().getUsersAdmin();
                                                       });
                                                     },
                                                   ),
@@ -228,8 +228,9 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                   const Duration(milliseconds: 500),
                                                 );
 
-                                                await AdminService().resetUserPassword(
+                                                await AdminService().updateInfoUser(
                                                   userIds: selectedUserIds,
+                                                  newPassword: "baobidongtam2025",
                                                 );
 
                                                 if (!context.mounted) return;
@@ -240,7 +241,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                 );
 
                                                 setState(() {
-                                                  futureUserAdmin = AdminService().getAllUsers();
+                                                  futureUserAdmin = AdminService().getUsersAdmin();
                                                   selectedUserIds.clear();
                                                   selectedAll = false;
                                                 });
@@ -350,7 +351,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                                             for (int id
                                                                                 in selectedUserIds) {
                                                                               await AdminService()
-                                                                                  .deleteUserById(
+                                                                                  .deleteUser(
                                                                                     userId: id,
                                                                                   );
                                                                             }
@@ -370,7 +371,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                                                                   .clear();
                                                                               futureUserAdmin =
                                                                                   AdminService()
-                                                                                      .getAllUsers();
+                                                                                      .getUsersAdmin();
                                                                             });
 
                                                                             Navigator.pop(context);
@@ -661,7 +662,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
               ? FloatingActionButton(
                 onPressed: () async {
                   setState(() {
-                    futureUserAdmin = AdminService().getAllUsers();
+                    futureUserAdmin = AdminService().getUsersAdmin();
                   });
                 },
                 backgroundColor: themeController.buttonColor.value,

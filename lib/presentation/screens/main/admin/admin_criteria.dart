@@ -1,8 +1,8 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
-import 'package:dongtam/service/admin/admin_criteria_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -43,7 +43,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
 
   void loadCriteria() {
     setState(() {
-      futureCriteria = AdminCriteriaService().getAllQcCriteria(type: currentProcessType);
+      futureCriteria = AdminService().getAllQcCriteria(type: currentProcessType);
     });
 
     isSelected.clear();
@@ -159,7 +159,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                     });
                                   },
 
-                                  label: "Thêm dòng",
+                                  label: "Thêm Tiêu Chí",
                                   icon: Icons.add,
                                   backgroundColor: themeController.buttonColor,
                                 ),
@@ -197,7 +197,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
 
                                     // ================== ADD ==================
                                     for (final e in rowsToAdd) {
-                                      await AdminCriteriaService().createNewCriteria(
+                                      await AdminService().createNewCriteria(
                                         criteriaData: {
                                           "processType": currentProcessType,
                                           "criteriaCode": e.criteriaCode,
@@ -209,7 +209,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
 
                                     // ================== UPDATE ==================
                                     for (final e in rowsToUpdate) {
-                                      await AdminCriteriaService().updateCriteria(
+                                      await AdminService().updateCriteria(
                                         qcCriteriaId: e.qcCriteriaId!,
                                         criteriaUpdated: {
                                           "processType": currentProcessType,
@@ -320,7 +320,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                                                     });
 
                                                                     for (int id in isSelected) {
-                                                                      await AdminCriteriaService()
+                                                                      await AdminService()
                                                                           .deleteCriteria(
                                                                             qcCriteriaId: id,
                                                                           );

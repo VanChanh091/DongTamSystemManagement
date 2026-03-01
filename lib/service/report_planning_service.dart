@@ -13,29 +13,16 @@ class ReportPlanningService {
   final Dio dioService = DioClient().dio;
 
   //============================REPORT PAPER=================================
-  Future<Map<String, dynamic>> getReportPaper({
-    required String machine,
-    required int page,
-    required int pageSize,
+  // get all and search
+  Future<Map<String, dynamic>> getReportPapers({
+    String? field,
+    String? keyword,
+    String? machine,
+    int? page,
+    int? pageSize,
   }) async {
     return HelperService().fetchPaginatedData<ReportPaperModel>(
-      endpoint: "report/reportPaper/",
-      queryParameters: {"machine": machine, "page": page, "pageSize": pageSize},
-      fromJson: (json) => ReportPaperModel.fromJson(json),
-      dataKey: 'reportPapers',
-    );
-  }
-
-  //get report paper by field
-  Future<Map<String, dynamic>> getReportPaperByField({
-    required String field,
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportPaperModel>(
-      endpoint: "report/reportPaper/filter",
+      endpoint: "report/paper",
       queryParameters: {
         'field': field,
         'keyword': keyword,
@@ -48,30 +35,17 @@ class ReportPlanningService {
     );
   }
 
-  //============================REPORT PAPER=================================
-  Future<Map<String, dynamic>> getReportBox({
-    required String machine,
-    required int page,
-    required int pageSize,
+  //============================REPORT BOX=================================
+  // get all and search
+  Future<Map<String, dynamic>> getReportBoxes({
+    String? field,
+    String? keyword,
+    String? machine,
+    int? page,
+    int? pageSize,
   }) async {
     return HelperService().fetchPaginatedData<ReportBoxModel>(
-      endpoint: "report/reportBox/",
-      queryParameters: {"machine": machine, "page": page, "pageSize": pageSize},
-      fromJson: (json) => ReportBoxModel.fromJson(json),
-      dataKey: 'reportBoxes',
-    );
-  }
-
-  //get report box by field
-  Future<Map<String, dynamic>> getReportBoxByField({
-    required String field,
-    required String keyword,
-    required String machine,
-    required int page,
-    required int pageSize,
-  }) async {
-    return HelperService().fetchPaginatedData<ReportBoxModel>(
-      endpoint: "report/reportBox/filter",
+      endpoint: "report/box",
       queryParameters: {
         'field': field,
         'keyword': keyword,
@@ -86,86 +60,66 @@ class ReportPlanningService {
 
   //============================EXPORT EXCEL=================================
 
-  //export paper
+  // Export Paper
   Future<File?> exportExcelReportPaper({
     DateTime? fromDate,
     DateTime? toDate,
     List<int>? reportPaperId,
     required String machine,
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final Map<String, dynamic> body = {"machine": machine};
-
-      //add condition into map body
-      if (reportPaperId != null && reportPaperId.isNotEmpty) {
-        body["reportPaperId"] = reportPaperId;
-      } else if (fromDate != null && toDate != null) {
-        body["fromDate"] = fromDate.toIso8601String();
-        body["toDate"] = toDate.toIso8601String();
-      }
-
-      final response = await dioService.post(
-        "/api/report/exportExcelPaper",
-        data: body,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-          responseType: ResponseType.bytes,
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        final bytes = response.data as List<int>;
-        AppLogger.d("Received ${bytes.length} bytes from API");
-
-        // Cho người dùng chọn thư mục lưu
-        final dirPath = await FilePicker.platform.getDirectoryPath();
-        if (dirPath == null) {
-          return null;
-        }
-
-        final now = DateTime.now();
-        final safeMachine = makeSafeFileName(input: machine);
-        final fileName =
-            "reportPaper_${safeMachine.toLowerCase()}_${now.toIso8601String().split('T')[0]}.xlsx";
-        final file = File("$dirPath/$fileName");
-
-        await file.writeAsBytes(bytes, flush: true);
-        AppLogger.i("Exported Excel report to: ${file.path}");
-
-        return file;
-      } else {
-        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
-        return null;
-      }
-    } catch (e, s) {
-      AppLogger.e("failed to export report paper", error: e, stackTrace: s);
-      return null;
-    }
+  }) {
+    return _exportExcelBase(
+      endpoint: "/api/report/export-paper",
+      idKey: "reportPaperId",
+      filePrefix: "report_paper",
+      machine: machine,
+      ids: reportPaperId,
+      fromDate: fromDate,
+      toDate: toDate,
+    );
   }
 
-  //export box
+  // Export Box
   Future<File?> exportExcelReportBox({
     DateTime? fromDate,
     DateTime? toDate,
     List<int>? reportBoxId,
     required String machine,
+  }) {
+    return _exportExcelBase(
+      endpoint: "/api/report/export-box",
+      idKey: "reportBoxId",
+      filePrefix: "report_box",
+      machine: machine,
+      ids: reportBoxId,
+      fromDate: fromDate,
+      toDate: toDate,
+    );
+  }
+
+  //helper func
+  Future<File?> _exportExcelBase({
+    required String endpoint,
+    required String idKey,
+    required String filePrefix,
+    required String machine,
+    List<int>? ids,
+    DateTime? fromDate,
+    DateTime? toDate,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
-
       final Map<String, dynamic> body = {"machine": machine};
 
-      if (reportBoxId != null && reportBoxId.isNotEmpty) {
-        body["reportBoxId"] = reportBoxId;
+      // Xử lý điều kiện lọc
+      if (ids != null && ids.isNotEmpty) {
+        body[idKey] = ids;
       } else if (fromDate != null && toDate != null) {
         body["fromDate"] = fromDate.toIso8601String();
         body["toDate"] = toDate.toIso8601String();
       }
 
       final response = await dioService.post(
-        "/api/report/exportExcelBox",
+        endpoint,
         data: body,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
@@ -175,30 +129,29 @@ class ReportPlanningService {
 
       if (response.statusCode == 200) {
         final bytes = response.data as List<int>;
-        AppLogger.d("Received ${bytes.length} bytes from API");
+        AppLogger.d("Received ${bytes.length} bytes from $endpoint");
 
-        // Cho người dùng chọn thư mục lưu
+        // Chọn thư mục lưu
         final dirPath = await FilePicker.platform.getDirectoryPath();
-        if (dirPath == null) {
-          return null;
-        }
+        if (dirPath == null) return null;
 
         final now = DateTime.now();
         final safeMachine = makeSafeFileName(input: machine);
-        final fileName =
-            "report-box-${safeMachine.toLowerCase()}-${now.toIso8601String().split('T')[0]}.xlsx";
+        final dateStr = now.toIso8601String().split('T')[0];
+
+        final fileName = "${filePrefix}_${safeMachine.toLowerCase()}_$dateStr.xlsx";
         final file = File("$dirPath/$fileName");
 
         await file.writeAsBytes(bytes, flush: true);
-        AppLogger.i("Exported Excel report to: ${file.path}");
+        AppLogger.i("Exported Excel to: ${file.path}");
 
         return file;
       } else {
-        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
+        AppLogger.w("Export failed ($endpoint) with statusCode: ${response.statusCode}");
         return null;
       }
     } catch (e, s) {
-      AppLogger.e("failed to export report box", error: e, stackTrace: s);
+      AppLogger.e("Failed to export Excel from $endpoint", error: e, stackTrace: s);
       return null;
     }
   }

@@ -13,30 +13,23 @@ import 'dart:convert';
 class ProductService {
   final Dio dioService = DioClient().dio;
 
-  // get all
-  Future<Map<String, dynamic>> getAllProducts({
+  // get all and search
+  Future<Map<String, dynamic>> getProducts({
+    String? field,
+    String? keyword,
     bool noPaging = false,
     int? page,
     int? pageSize,
   }) async {
     return HelperService().fetchPaginatedData<Product>(
       endpoint: "product",
-      queryParameters: {'noPaging': noPaging, 'page': page, 'pageSize': pageSize},
-      fromJson: (json) => Product.fromJson(json),
-      dataKey: 'products',
-    );
-  }
-
-  //get product by field
-  Future<Map<String, dynamic>> getProductByField({
-    required String field,
-    required String keyword,
-    int page = 1,
-    int pageSize = 25,
-  }) async {
-    return HelperService().fetchPaginatedData<Product>(
-      endpoint: "product/filter",
-      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
+      queryParameters: {
+        'field': field,
+        'keyword': keyword,
+        'noPaging': noPaging,
+        'page': page,
+        'pageSize': pageSize,
+      },
       fromJson: (json) => Product.fromJson(json),
       dataKey: 'products',
     );
@@ -106,8 +99,8 @@ class ProductService {
       });
 
       await dioService.put(
-        '/api/product/updateProduct',
-        queryParameters: {'id': productId},
+        '/api/product',
+        queryParameters: {'productId': productId},
         data: formData,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'multipart/form-data'},
@@ -123,7 +116,10 @@ class ProductService {
 
   //delete product
   Future<bool> deleteProduct({required String productId}) async {
-    return HelperService().deleteItem(endpoint: "product/$productId", queryParameters: const {});
+    return HelperService().deleteItem(
+      endpoint: "product",
+      queryParameters: {'productId': productId},
+    );
   }
 
   //export product
@@ -138,7 +134,7 @@ class ProductService {
       }
 
       final response = await dioService.post(
-        "/api/product/exportExcel",
+        "/api/product/export",
         data: body,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},

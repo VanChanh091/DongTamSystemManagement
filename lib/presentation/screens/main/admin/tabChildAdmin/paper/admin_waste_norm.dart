@@ -38,7 +38,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
 
   void loadWasteNorm() {
     setState(() {
-      futureAdminWasteNorm = AdminService().getAllWasteNorm();
+      futureAdminWasteNorm = AdminService().getWastePapers();
     });
   }
 
@@ -113,7 +113,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                             //   '⏫ Updating wasteNormId: ${item.wasteNormId}',
                                             // );
 
-                                            await AdminService().updateWasteNorm(
+                                            await AdminService().updateWastePaper(
                                               wasteNormId: item.wasteNormId,
                                               wasteNormUpdate: {
                                                 "waveCrest": item.waveCrest,
@@ -232,7 +232,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                                           for (int id
                                                                               in isSelected) {
                                                                             await AdminService()
-                                                                                .deleteWasteNorm(
+                                                                                .deleteWastePaper(
                                                                                   wasteNormId: id,
                                                                                 );
                                                                           }
@@ -251,7 +251,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                                                                             isSelected.clear();
                                                                             futureAdminWasteNorm =
                                                                                 AdminService()
-                                                                                    .getAllWasteNorm();
+                                                                                    .getWastePapers();
                                                                           });
 
                                                                           Navigator.pop(context);

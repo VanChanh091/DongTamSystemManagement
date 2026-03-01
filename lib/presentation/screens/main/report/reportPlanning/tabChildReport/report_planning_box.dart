@@ -75,7 +75,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
       if (isSearching && searchType != "Tất cả") {
         futureReportBox = ensureMinLoading(
-          ReportPlanningService().getReportBoxByField(
+          ReportPlanningService().getReportBoxes(
             field: selectedField,
             keyword: keyword,
             machine: machine,
@@ -85,7 +85,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
         );
       } else {
         futureReportBox = ensureMinLoading(
-          ReportPlanningService().getReportBox(
+          ReportPlanningService().getReportBoxes(
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
@@ -113,7 +113,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
       if (searchType == "Tất cả") {
         futureReportBox = ensureMinLoading(
-          ReportPlanningService().getReportBox(
+          ReportPlanningService().getReportBoxes(
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
@@ -122,7 +122,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
-        futureReportBox = ReportPlanningService().getReportBoxByField(
+        futureReportBox = ReportPlanningService().getReportBoxes(
           field: selectedField,
           keyword: keyword,
           machine: machine,

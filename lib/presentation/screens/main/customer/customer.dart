@@ -76,7 +76,7 @@ class _CustomerPageState extends State<CustomerPage> {
         AppLogger.i("loadCustomer: isSearching=true, keyword='$keyword'");
 
         futureCustomer = ensureMinLoading(
-          CustomerService().getCustomerByField(
+          CustomerService().getCustomers(
             field: selectedField,
             keyword: keyword,
             page: currentPage,
@@ -85,7 +85,7 @@ class _CustomerPageState extends State<CustomerPage> {
         );
       } else {
         futureCustomer = ensureMinLoading(
-          CustomerService().getAllCustomers(page: currentPage, pageSize: pageSize),
+          CustomerService().getCustomers(page: currentPage, pageSize: pageSize),
         );
       }
 
@@ -108,13 +108,13 @@ class _CustomerPageState extends State<CustomerPage> {
 
       if (searchType == "Tất cả") {
         futureCustomer = ensureMinLoading(
-          CustomerService().getAllCustomers(page: currentPage, pageSize: pageSize),
+          CustomerService().getCustomers(page: currentPage, pageSize: pageSize),
         );
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         futureCustomer = ensureMinLoading(
-          CustomerService().getCustomerByField(
+          CustomerService().getCustomers(
             field: selectedField,
             keyword: keyword,
             page: currentPage,
@@ -242,7 +242,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                                   ? () async {
                                                     try {
                                                       final result = await CustomerService()
-                                                          .getCustomerByField(
+                                                          .getCustomers(
                                                             field: 'customerId',
                                                             keyword: selectedCustomerId!,
                                                           );

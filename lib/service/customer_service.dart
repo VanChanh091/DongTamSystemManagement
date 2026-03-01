@@ -10,29 +10,23 @@ import 'package:file_picker/file_picker.dart';
 class CustomerService {
   final Dio dioService = DioClient().dio;
 
-  // get all
-  Future<Map<String, dynamic>> getAllCustomers({
+  // get all and search
+  Future<Map<String, dynamic>> getCustomers({
+    String? field,
+    String? keyword,
     int? page,
     int? pageSize,
     bool noPaging = false,
   }) async {
     return HelperService().fetchPaginatedData<Customer>(
-      endpoint: "customer/getAllCustomer",
-      queryParameters: {'page': page, 'pageSize': pageSize, 'noPaging': noPaging},
-      fromJson: (json) => Customer.fromJson(json),
-      dataKey: 'customers',
-    );
-  }
-
-  Future<Map<String, dynamic>> getCustomerByField({
-    required String field,
-    required String keyword,
-    int page = 1,
-    int pageSize = 30,
-  }) async {
-    return HelperService().fetchPaginatedData<Customer>(
-      endpoint: 'customer/filter',
-      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
+      endpoint: "customer",
+      queryParameters: {
+        'field': field,
+        'keyword': keyword,
+        'page': page,
+        'pageSize': pageSize,
+        'noPaging': noPaging,
+      },
       fromJson: (json) => Customer.fromJson(json),
       dataKey: 'customers',
     );
@@ -40,7 +34,7 @@ class CustomerService {
 
   // add customer
   Future<bool> addCustomer({required Map<String, dynamic> customerData}) async {
-    return HelperService().addItem(endpoint: "customer/newCustomer", itemData: customerData);
+    return HelperService().addItem(endpoint: "customer/", itemData: customerData);
   }
 
   // update customer
@@ -49,7 +43,7 @@ class CustomerService {
     required Map<String, dynamic> updateCustomer,
   }) async {
     return HelperService().updateItem(
-      endpoint: "customer/updateCus",
+      endpoint: "customer/",
       queryParameters: {"customerId": customerId},
       dataUpdated: updateCustomer,
     );
@@ -58,7 +52,7 @@ class CustomerService {
   // delete customer
   Future<bool> deleteCustomer({required String customerId}) async {
     return HelperService().deleteItem(
-      endpoint: "customer/deleteCus",
+      endpoint: "customer/",
       queryParameters: {"customerId": customerId},
     );
   }
@@ -80,7 +74,7 @@ class CustomerService {
       }
 
       final response = await dioService.post(
-        "/api/customer/exportExcel",
+        "/api/customer/export",
         data: body,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},

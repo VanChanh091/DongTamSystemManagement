@@ -74,7 +74,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         AppLogger.d("loadOrderAccept_Planning: isSearching=true | keyword='$keyword'");
 
         futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderByField(
+          OrderService().getOrderAcceptAndPlanning(
             field: selectedField,
             keyword: keyword,
             page: currentPage,
@@ -120,7 +120,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderByField(
+          OrderService().getOrderAcceptAndPlanning(
             field: selectedField,
             keyword: keyword,
             page: currentPage,

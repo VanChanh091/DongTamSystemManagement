@@ -134,7 +134,7 @@ class _OrderDialogState extends State<OrderDialog> {
   //fetch all customer for create in dialog
   Future<void> fetchAllCustomers() async {
     try {
-      final result = await CustomerService().getAllCustomers(noPaging: true);
+      final result = await CustomerService().getCustomers(noPaging: true);
 
       allCustomers = result['customers'] as List<Customer>;
       AppLogger.i("Fetch thành công tất cả khách hàng vào order");
@@ -146,7 +146,7 @@ class _OrderDialogState extends State<OrderDialog> {
   //fetch all product for create in dialog
   Future<void> fetchAllProduct() async {
     try {
-      final result = await ProductService().getAllProducts(noPaging: true);
+      final result = await ProductService().getProducts(noPaging: true);
 
       allProducts = result['products'] as List<Product>;
       AppLogger.i("Fetch thành công tất cả sản phẩm vào order");
@@ -314,10 +314,7 @@ class _OrderDialogState extends State<OrderDialog> {
         final response = await OrderService().addOrders(orderData: newOrder.toJson());
         orderId = response['orderId'];
       } else {
-        await OrderService().updateOrderById(
-          orderId: originalOrderId,
-          orderUpdated: newOrder.toJson(),
-        );
+        await OrderService().updateOrder(orderId: originalOrderId, orderUpdated: newOrder.toJson());
       }
 
       // Show loading
@@ -499,7 +496,7 @@ class _OrderDialogState extends State<OrderDialog> {
           labelText: "Mã Khách Hàng",
           icon: Symbols.badge,
           suggestionsCallback: (pattern) async {
-            final result = await CustomerService().getCustomerByField(
+            final result = await CustomerService().getCustomers(
               field: 'customerId',
               keyword: pattern,
             );
@@ -566,10 +563,7 @@ class _OrderDialogState extends State<OrderDialog> {
           labelText: "Mã Sản Phẩm",
           icon: Symbols.box,
           suggestionsCallback: (pattern) async {
-            final result = await ProductService().getProductByField(
-              field: 'productId',
-              keyword: pattern,
-            );
+            final result = await ProductService().getProducts(field: 'productId', keyword: pattern);
             if (result['products'] != null && result['products'] is List<Product>) {
               return result['products'] as List<Product>;
             }

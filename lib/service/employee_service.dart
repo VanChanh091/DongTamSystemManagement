@@ -10,30 +10,23 @@ import 'package:file_picker/file_picker.dart';
 class EmployeeService {
   final Dio dioService = DioClient().dio;
 
-  // get all
-  Future<Map<String, dynamic>> getAllEmployees({
-    bool noPaging = false,
+  // get all and search
+  Future<Map<String, dynamic>> getEmployees({
+    String? field,
+    String? keyword,
     int? page,
     int? pageSize,
+    bool noPaging = false,
   }) async {
     return HelperService().fetchPaginatedData<EmployeeBasicInfo>(
       endpoint: "employee",
-      queryParameters: {'page': page, 'pageSize': pageSize, 'noPaging': noPaging},
-      fromJson: (json) => EmployeeBasicInfo.fromJson(json),
-      dataKey: 'employees',
-    );
-  }
-
-  //get employee by field
-  Future<Map<String, dynamic>> getEmployeeByField({
-    required String field,
-    required String keyword,
-    int page = 1,
-    int pageSize = 30,
-  }) async {
-    return HelperService().fetchPaginatedData<EmployeeBasicInfo>(
-      endpoint: 'employee/filter',
-      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
+      queryParameters: {
+        'field': field,
+        'keyword': keyword,
+        'page': page,
+        'pageSize': pageSize,
+        'noPaging': noPaging,
+      },
       fromJson: (json) => EmployeeBasicInfo.fromJson(json),
       dataKey: 'employees',
     );
@@ -41,7 +34,7 @@ class EmployeeService {
 
   Future<List<EmployeeBasicInfo>> getEmployeeByPosition() async {
     return HelperService().fetchingData(
-      endpoint: 'employee/getByPosition',
+      endpoint: 'employee/position',
       queryParameters: const {},
       fromJson: (json) => EmployeeBasicInfo.fromJson(json),
     );
@@ -58,7 +51,7 @@ class EmployeeService {
     required Map<String, dynamic> updateEmployeeData,
   }) async {
     return HelperService().updateItem(
-      endpoint: "employee/updateEmployee",
+      endpoint: "employee",
       queryParameters: {"employeeId": employeeId},
       dataUpdated: updateEmployeeData,
     );
@@ -67,7 +60,7 @@ class EmployeeService {
   // delete employee
   Future<bool> deleteEmployee({required int employeeId}) async {
     return HelperService().deleteItem(
-      endpoint: "employee/deleteEmployee",
+      endpoint: "employee",
       queryParameters: {"employeeId": employeeId},
     );
   }
@@ -86,7 +79,7 @@ class EmployeeService {
       }
 
       final response = await dioService.post(
-        "/api/employee/exportExcel",
+        "/api/employee/export",
         data: body,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},

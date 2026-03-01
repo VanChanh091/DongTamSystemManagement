@@ -38,7 +38,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
 
   void loadMachine() {
     setState(() {
-      futureAdminMachine = AdminService().getAllMachinePaper();
+      futureAdminMachine = AdminService().getMachinePapers();
     });
   }
 
@@ -255,7 +255,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                                                             isSelected.clear();
                                                                             futureAdminMachine =
                                                                                 AdminService()
-                                                                                    .getAllMachinePaper();
+                                                                                    .getMachinePapers();
                                                                           });
 
                                                                           Navigator.pop(context);

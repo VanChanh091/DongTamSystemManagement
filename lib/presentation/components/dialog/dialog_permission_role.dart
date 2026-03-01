@@ -78,7 +78,6 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     // Khởi tạo trạng thái checkbox cho từng quyền
     for (final p in permissions) {
       permissionCheckStates[p] = ValueNotifier<bool>(chosenPermissions.contains(p));
-      AppLogger.d("Permission [$p] = ${chosenPermissions.contains(p)}");
     }
   }
 
@@ -91,7 +90,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     try {
       if (selectedOption.value == 'role') {
         AppLogger.d("Cập nhật ROLE: $chosenRole cho user: $originalUserId");
-        success = await AdminService().updateUserRole(userId: originalUserId, newRole: chosenRole);
+        success = await AdminService().updateInfoUser(userId: originalUserId, newRole: chosenRole);
       } else if (selectedOption.value == 'permission') {
         List<String> updatedPermissions =
             permissionCheckStates.entries
@@ -100,7 +99,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                 .toList();
 
         AppLogger.d("Cập nhật PERMISSIONS: $updatedPermissions cho user: $originalUserId");
-        success = await AdminService().updateUserPermissions(
+        success = await AdminService().updateInfoUser(
           userId: originalUserId,
           permissions: updatedPermissions,
         );

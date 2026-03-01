@@ -92,7 +92,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
   //get all customer to check sdt
   Future<void> fetchAllCustomer() async {
     try {
-      final result = await CustomerService().getAllCustomers(noPaging: true);
+      final result = await CustomerService().getCustomers(noPaging: true);
 
       allCustomers = result['customers'] as List<Customer>;
     } catch (e, s) {

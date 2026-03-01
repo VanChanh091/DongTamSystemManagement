@@ -76,7 +76,7 @@ class _EmployeeState extends State<Employee> {
         AppLogger.i("loadEmployee: isSearching=true, keyword='$keyword'");
 
         futureEmployee = ensureMinLoading(
-          EmployeeService().getEmployeeByField(
+          EmployeeService().getEmployees(
             field: selectedField,
             keyword: keyword,
             page: currentPage,
@@ -85,7 +85,7 @@ class _EmployeeState extends State<Employee> {
         );
       } else {
         futureEmployee = ensureMinLoading(
-          EmployeeService().getAllEmployees(page: currentPage, pageSize: pageSize),
+          EmployeeService().getEmployees(page: currentPage, pageSize: pageSize),
         );
       }
 
@@ -108,13 +108,13 @@ class _EmployeeState extends State<Employee> {
 
       if (searchType == "Tất cả") {
         futureEmployee = ensureMinLoading(
-          EmployeeService().getAllEmployees(page: currentPage, pageSize: pageSize),
+          EmployeeService().getEmployees(page: currentPage, pageSize: pageSize),
         );
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         futureEmployee = ensureMinLoading(
-          EmployeeService().getEmployeeByField(
+          EmployeeService().getEmployees(
             field: selectedField,
             keyword: keyword,
             page: currentPage,
@@ -245,7 +245,7 @@ class _EmployeeState extends State<Employee> {
                                                   ? () async {
                                                     try {
                                                       final result = await EmployeeService()
-                                                          .getEmployeeByField(
+                                                          .getEmployees(
                                                             field: 'employeeId',
                                                             keyword: selectedEmployeeId.toString(),
                                                           );
@@ -287,7 +287,7 @@ class _EmployeeState extends State<Employee> {
                                                       );
                                                     } catch (e, s) {
                                                       AppLogger.e(
-                                                        "Error in getEmployeeByField: $e",
+                                                        "Error in getEmployees: $e",
                                                         stackTrace: s,
                                                       );
                                                       showSnackBarError(

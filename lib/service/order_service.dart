@@ -11,7 +11,7 @@ class OrderService {
   //===============================ORDER AUTOCOMPLETE=====================================
   Future<List<Order>> getOrderIdRaw({required String orderId}) async {
     return HelperService().fetchingData<Order>(
-      endpoint: "order/getOrderIdRaw",
+      endpoint: "order/order-id-raw",
       queryParameters: {'orderId': orderId},
       fromJson: (json) => Order.fromJson(json),
     );
@@ -19,7 +19,7 @@ class OrderService {
 
   Future<Order?> getOrderDetail({required String orderId}) async {
     return HelperService().fetchSingleData(
-      endpoint: "order/getOrderDetail",
+      endpoint: "order/order-detail",
       queryParameters: {'orderId': orderId},
       parser: (json) => Order.fromJson(json as Map<String, dynamic>),
     );
@@ -27,30 +27,23 @@ class OrderService {
 
   //===============================ACCEPT AND PLANNING====================================
 
-  //get Order Accept And Planning
+  //get Order Accept And Planning and search
   Future<Map<String, dynamic>> getOrderAcceptAndPlanning({
+    String? field,
+    String? keyword,
     int page = 1,
     int pageSize = 20,
     bool ownOnly = false,
   }) async {
     return HelperService().fetchPaginatedData<Order>(
       endpoint: "order/accept-planning",
-      queryParameters: {'page': page, 'pageSize': pageSize, 'ownOnly': ownOnly},
-      fromJson: (json) => Order.fromJson(json),
-      dataKey: 'orders',
-    );
-  }
-
-  //get by customer name
-  Future<Map<String, dynamic>> getOrderByField({
-    required String field,
-    required String keyword,
-    int page = 1,
-    int pageSize = 20,
-  }) async {
-    return HelperService().fetchPaginatedData<Order>(
-      endpoint: "order/filter",
-      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
+      queryParameters: {
+        'field': field,
+        'keyword': keyword,
+        'page': page,
+        'pageSize': pageSize,
+        'ownOnly': ownOnly,
+      },
       fromJson: (json) => Order.fromJson(json),
       dataKey: 'orders',
     );
@@ -65,28 +58,6 @@ class OrderService {
       queryParameters: {'ownOnly': ownOnly},
       fromJson: (json) => Order.fromJson(json),
     );
-  }
-
-  Future<int> countOrderRejected() async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final response = await dioService.get(
-        "/api/order/countRejected",
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      if (response.data != null && response.data['data'] != null) {
-        return response.data['data'] as int;
-      }
-
-      return 0;
-    } catch (e, s) {
-      AppLogger.e("Failed to count rejected orders", error: e, stackTrace: s);
-      throw Exception('Failed to count rejected orders: $e');
-    }
   }
 
   //add order
@@ -120,12 +91,12 @@ class OrderService {
   }
 
   //update order
-  Future<bool> updateOrderById({
+  Future<bool> updateOrder({
     required String orderId,
     required Map<String, dynamic> orderUpdated,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'order/orders',
+      endpoint: 'order',
       queryParameters: {'orderId': orderId},
       dataUpdated: orderUpdated,
     );
@@ -133,6 +104,6 @@ class OrderService {
 
   //delete order
   Future<bool> deleteOrder({required String orderId}) async {
-    return HelperService().deleteItem(endpoint: 'order/orders', queryParameters: {'id': orderId});
+    return HelperService().deleteItem(endpoint: 'order', queryParameters: {'orderId': orderId});
   }
 }

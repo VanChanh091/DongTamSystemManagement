@@ -38,7 +38,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
 
   void loadWasteBox() {
     setState(() {
-      futureAdminWasteNorm = AdminService().getAllWasteBox();
+      futureAdminWasteNorm = AdminService().getWasteBoxes();
     });
   }
 
@@ -113,7 +113,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                             //   '⏫ Updating wasteNormId: ${item.wasteBoxId}',
                                             // );
 
-                                            await AdminService().updateWasteBoxById(
+                                            await AdminService().updateWasteBox(
                                               wasteNormId: item.wasteBoxId,
                                               wasteNormUpdate: {
                                                 "colorNumberOnProduct": item.colorNumberOnProduct,
@@ -230,7 +230,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                                                           for (int id
                                                                               in isSelected) {
                                                                             await AdminService()
-                                                                                .deleteWasteBoxById(
+                                                                                .deleteWasteBox(
                                                                                   wasteNormId: id,
                                                                                 );
                                                                           }
@@ -249,7 +249,7 @@ class _AdminWasteBoxState extends State<AdminWasteBox> {
                                                                             isSelected.clear();
                                                                             futureAdminWasteNorm =
                                                                                 AdminService()
-                                                                                    .getAllWasteBox();
+                                                                                    .getWasteBoxes();
                                                                           });
 
                                                                           Navigator.pop(context);

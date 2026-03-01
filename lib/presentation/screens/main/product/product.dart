@@ -70,7 +70,7 @@ class _ProductPageState extends State<ProductPage> {
         AppLogger.i("loadProducts: isSearching=true, keyword='$keyword'");
 
         futureProduct = ensureMinLoading(
-          ProductService().getProductByField(
+          ProductService().getProducts(
             field: selectedField,
             keyword: keyword,
             page: currentPage,
@@ -79,7 +79,7 @@ class _ProductPageState extends State<ProductPage> {
         );
       } else {
         futureProduct = ensureMinLoading(
-          ProductService().getAllProducts(page: currentPage, pageSize: pageSize),
+          ProductService().getProducts(page: currentPage, pageSize: pageSize),
         );
       }
 
@@ -103,13 +103,13 @@ class _ProductPageState extends State<ProductPage> {
       if (searchType == "Tất cả") {
         AppLogger.i("searchProduct: tìm tất cả SP");
         futureProduct = ensureMinLoading(
-          ProductService().getAllProducts(page: currentPage, pageSize: pageSize),
+          ProductService().getProducts(page: currentPage, pageSize: pageSize),
         );
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         AppLogger.i("searchProduct: tìm theo field SP");
-        futureProduct = ProductService().getProductByField(
+        futureProduct = ProductService().getProducts(
           field: selectedField,
           keyword: keyword,
           page: currentPage,
@@ -230,7 +230,7 @@ class _ProductPageState extends State<ProductPage> {
                                                   ? () async {
                                                     try {
                                                       final result = await ProductService()
-                                                          .getProductByField(
+                                                          .getProducts(
                                                             field: 'productId',
                                                             keyword: selectedProductId!,
                                                           );

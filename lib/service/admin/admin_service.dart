@@ -6,6 +6,7 @@ import 'package:dongtam/data/models/admin/admin_vehicle_model.dart';
 import 'package:dongtam/data/models/admin/admin_waste_norm_model.dart';
 import 'package:dongtam/data/models/admin/admin_waste_box_model.dart';
 import 'package:dongtam/data/models/admin/admin_wave_crest_model.dart';
+import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
@@ -21,7 +22,7 @@ class AdminService {
   //get status order
   Future<List<Order>> getOrderByPendingStatus() async {
     return HelperService().fetchingData<Order>(
-      endpoint: 'admin',
+      endpoint: 'admin/orders',
       queryParameters: const {},
       fromJson: (json) => Order.fromJson(json),
     );
@@ -37,7 +38,7 @@ class AdminService {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
-        "/api/admin/updateStatus?id=$orderId",
+        "/api/admin/orders?id=$orderId",
         data: {"newStatus": newStatus, "rejectReason": rejectReason},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
@@ -58,98 +59,57 @@ class AdminService {
 
   //===============================USER====================================
 
-  //get all users
-  Future<List<UserAdminModel>> getAllUsers() async {
+  // get all and search
+  Future<List<UserAdminModel>> getUsersAdmin({
+    String? name,
+    String? phone,
+    List<String>? permissions,
+  }) async {
     return HelperService().fetchingData<UserAdminModel>(
-      endpoint: "admin/getAllUsers",
-      queryParameters: const {},
+      endpoint: "admin/users",
+      queryParameters: {
+        if (name != null) "name": name,
+        if (phone != null) "phone": phone,
+        if (permissions != null && permissions.isNotEmpty) "permissions": permissions,
+      },
       fromJson: (json) => UserAdminModel.fromJson(json),
     );
   }
 
-  //get user by name
-  Future<List<UserAdminModel>> getUserByName({required String name}) async {
-    return HelperService().fetchingData<UserAdminModel>(
-      endpoint: "admin/getUserByName",
-      queryParameters: {"name": name},
-      fromJson: (json) => UserAdminModel.fromJson(json),
-    );
-  }
-
-  //get user by phone
-  Future<List<UserAdminModel>> getUserByPhone({required String phone}) async {
-    return HelperService().fetchingData<UserAdminModel>(
-      endpoint: "admin/getUserByPhone",
-      queryParameters: {"phone": phone},
-      fromJson: (json) => UserAdminModel.fromJson(json),
-    );
-  }
-
-  //get user by permission
-  Future<List<UserAdminModel>> getUserByPermission({required List<String> permissions}) async {
-    return HelperService().fetchingData<UserAdminModel>(
-      endpoint: "admin/getUserByPermission",
-      queryParameters: {'permission': permissions},
-      fromJson: (json) => UserAdminModel.fromJson(json),
-    );
-  }
-
-  //update role
-  Future<bool> updateUserRole({required int userId, required String newRole}) async {
-    return HelperService().updateItem(
-      endpoint: 'admin/updateRole',
-      queryParameters: {"userId": userId, "newRole": newRole},
-    );
-  }
-
-  //update permissions
-  Future<bool> updateUserPermissions({
-    required int userId,
-    required List<String> permissions,
+  //update user
+  Future<bool> updateInfoUser({
+    int? userId,
+    String? newRole,
+    List<String>? permissions,
+    List<int>? userIds,
+    String? newPassword,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'admin/updatePermission',
-      queryParameters: {"userId": userId},
-      dataUpdated: {"permissions": permissions},
-    );
-  }
-
-  //reset password
-  Future<bool> resetUserPassword({
-    required List<int> userIds,
-    String newPassword = 'baobidongtam2025',
-  }) async {
-    return HelperService().updateItem(
-      endpoint: 'admin/resetPassword',
-      queryParameters: const {},
-      dataUpdated: {"userIds": userIds, "newPassword": newPassword},
+      endpoint: 'admin/users',
+      queryParameters: {
+        if (userId != null) "userId": userId,
+        if (newRole != null && newRole.isNotEmpty) "newRole": newRole,
+      },
+      dataUpdated: {
+        if (permissions != null && permissions.isNotEmpty) "permissions": permissions,
+        if (userIds != null && userIds.isNotEmpty) "userIds": userIds,
+        if (newPassword != null && newPassword.isNotEmpty) "newPassword": newPassword,
+      },
     );
   }
 
   //delete user
-  Future<bool> deleteUserById({required int userId}) async {
-    return HelperService().deleteItem(
-      endpoint: 'admin/deleteUser',
-      queryParameters: {"userId": userId},
-    );
+  Future<bool> deleteUser({required int userId}) async {
+    return HelperService().deleteItem(endpoint: 'admin/users', queryParameters: {"userId": userId});
   }
 
   //===============================MACHINE PAPER====================================
 
   //get all machine
-  Future<List<AdminMachinePaperModel>> getAllMachinePaper() async {
+  Future<List<AdminMachinePaperModel>> getMachinePapers() async {
     return HelperService().fetchingData<AdminMachinePaperModel>(
-      endpoint: 'admin/getAllMachinePaper',
+      endpoint: 'admin/machine-papers',
       queryParameters: const {},
-      fromJson: (json) => AdminMachinePaperModel.fromJson(json),
-    );
-  }
-
-  //get machine by Id
-  Future<List<AdminMachinePaperModel>> getMachinePaperById({required int machineId}) async {
-    return HelperService().fetchingData<AdminMachinePaperModel>(
-      endpoint: "admin/getMachinePaperById",
-      queryParameters: {'machineId': machineId},
       fromJson: (json) => AdminMachinePaperModel.fromJson(json),
     );
   }
@@ -160,7 +120,7 @@ class AdminService {
     required Map<String, dynamic> machineUpdate,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'admin/updateMachinePaper',
+      endpoint: 'admin/machine-papers',
       queryParameters: {"machineId": machineId},
       dataUpdated: machineUpdate,
     );
@@ -169,7 +129,7 @@ class AdminService {
   //delete machine
   Future<bool> deleteMachinePaper({required int machineId}) async {
     return HelperService().deleteItem(
-      endpoint: 'admin/deleteMachinePaper',
+      endpoint: 'admin/machine-papers',
       queryParameters: {"machineId": machineId},
     );
   }
@@ -179,17 +139,8 @@ class AdminService {
   //get all machine
   Future<List<AdminMachineBoxModel>> getAllMachineBox() async {
     return HelperService().fetchingData<AdminMachineBoxModel>(
-      endpoint: 'admin/getAllMachineBox',
+      endpoint: 'admin/machine-boxes',
       queryParameters: const {},
-      fromJson: (json) => AdminMachineBoxModel.fromJson(json),
-    );
-  }
-
-  //get machine by Id
-  Future<List<AdminMachineBoxModel>> getMachineBoxById({required int machineId}) async {
-    return HelperService().fetchingData<AdminMachineBoxModel>(
-      endpoint: "admin/getMachineBoxById",
-      queryParameters: {'machineId': machineId},
       fromJson: (json) => AdminMachineBoxModel.fromJson(json),
     );
   }
@@ -200,7 +151,7 @@ class AdminService {
     required Map<String, dynamic> machineUpdate,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'admin/updateMachineBox',
+      endpoint: 'admin/machine-boxes',
       queryParameters: {"machineId": machineId},
       dataUpdated: machineUpdate,
     );
@@ -209,7 +160,7 @@ class AdminService {
   //delete machine
   Future<bool> deleteMachineBox({required int machineId}) async {
     return HelperService().deleteItem(
-      endpoint: 'admin/deleteMachineBox',
+      endpoint: 'admin/machine-boxes',
       queryParameters: {"machineId": machineId},
     );
   }
@@ -217,39 +168,30 @@ class AdminService {
   //===============================WASTE NORM PAPER====================================
 
   //get all waste norm
-  Future<List<AdminWasteNormModel>> getAllWasteNorm() async {
+  Future<List<AdminWasteNormModel>> getWastePapers() async {
     return HelperService().fetchingData<AdminWasteNormModel>(
-      endpoint: "admin/getAllWasteNorm",
+      endpoint: "admin/waste-norms/papers",
       queryParameters: const {},
       fromJson: (json) => AdminWasteNormModel.fromJson(json),
     );
   }
 
-  //get waste norm by Id
-  Future<List<AdminWasteNormModel>> getWasteNormById({required int wasteNormId}) async {
-    return HelperService().fetchingData<AdminWasteNormModel>(
-      endpoint: "admin/getWasteNormById",
-      queryParameters: {'wasteNormId': wasteNormId},
-      fromJson: (json) => AdminWasteNormModel.fromJson(json),
-    );
-  }
-
   //update waste norm
-  Future<bool> updateWasteNorm({
+  Future<bool> updateWastePaper({
     required int wasteNormId,
     required Map<String, dynamic> wasteNormUpdate,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'admin/updateWasteNormById',
+      endpoint: 'admin/waste-norms/papers',
       queryParameters: {"wasteNormId": wasteNormId},
       dataUpdated: wasteNormUpdate,
     );
   }
 
   //delete waste norm
-  Future<bool> deleteWasteNorm({required int wasteNormId}) async {
+  Future<bool> deleteWastePaper({required int wasteNormId}) async {
     return HelperService().deleteItem(
-      endpoint: 'admin/deleteWasteNormById',
+      endpoint: 'admin/waste-norms/papers',
       queryParameters: {"wasteNormId": wasteNormId},
     );
   }
@@ -257,59 +199,41 @@ class AdminService {
   //===============================WASTE NORM BOX====================================
 
   //get all waste box
-  Future<List<AdminWasteBoxModel>> getAllWasteBox() async {
+  Future<List<AdminWasteBoxModel>> getWasteBoxes() async {
     return HelperService().fetchingData<AdminWasteBoxModel>(
-      endpoint: 'admin/getAllWasteBox',
+      endpoint: 'admin/waste-norms/boxes',
       queryParameters: const {},
       fromJson: (json) => AdminWasteBoxModel.fromJson(json),
     );
   }
 
-  //get waste box by Id
-  Future<List<AdminWasteBoxModel>> getWasteBoxById({required int wasteNormId}) async {
-    return HelperService().fetchingData<AdminWasteBoxModel>(
-      endpoint: "admin/getWasteBoxById",
-      queryParameters: {'wasteNormId': wasteNormId},
-      fromJson: (json) => AdminWasteBoxModel.fromJson(json),
-    );
-  }
-
   //update waste box
-  Future<bool> updateWasteBoxById({
+  Future<bool> updateWasteBox({
     required int wasteNormId,
     required Map<String, dynamic> wasteNormUpdate,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'admin/updateWasteBoxById',
+      endpoint: 'admin/waste-norms/boxes',
       queryParameters: {"wasteNormId": wasteNormId},
       dataUpdated: wasteNormUpdate,
     );
   }
 
   //delete waste box
-  Future<bool> deleteWasteBoxById({required int wasteNormId}) async {
+  Future<bool> deleteWasteBox({required int wasteNormId}) async {
     return HelperService().deleteItem(
-      endpoint: 'admin/deleteWasteBoxById',
+      endpoint: 'admin/waste-norms/boxes',
       queryParameters: {"wasteNormId": wasteNormId},
     );
   }
 
-  //==========================WAVE CREST COEFFICIENT====================================
+  //==========================WAVE CREST COEFFICIENT================================
 
   //get all wave crest
   Future<List<AdminWaveCrestModel>> getAllWaveCrest() async {
     return HelperService().fetchingData<AdminWaveCrestModel>(
-      endpoint: 'admin/getAllWaveCrest',
+      endpoint: 'admin/wave-crest-coeff',
       queryParameters: const {},
-      fromJson: (json) => AdminWaveCrestModel.fromJson(json),
-    );
-  }
-
-  //get wave crest by Id
-  Future<List<AdminWaveCrestModel>> getWaveCrestById({required int waveCrestId}) async {
-    return HelperService().fetchingData<AdminWaveCrestModel>(
-      endpoint: "admin/getWaveCrestById",
-      queryParameters: {'waveCrestId': waveCrestId},
       fromJson: (json) => AdminWaveCrestModel.fromJson(json),
     );
   }
@@ -320,7 +244,7 @@ class AdminService {
     required Map<String, dynamic> waveCrestUpdate,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'admin/updateWaveCrestById',
+      endpoint: 'admin/wave-crest-coeff',
       queryParameters: {"waveCrestId": waveCrestId},
       dataUpdated: waveCrestUpdate,
     );
@@ -329,8 +253,40 @@ class AdminService {
   //delete wave crest
   Future<bool> deleteWaveCrest({required int waveCrestId}) async {
     return HelperService().deleteItem(
-      endpoint: 'admin/deleteWaveCrestById',
+      endpoint: 'admin/wave-crest-coeff',
       queryParameters: {"waveCrestId": waveCrestId},
+    );
+  }
+
+  //===========================CRITERIA======================================
+
+  Future<List<QcCriteriaModel>> getAllQcCriteria({required String type}) async {
+    return HelperService().fetchingData<QcCriteriaModel>(
+      endpoint: "admin/criterias",
+      queryParameters: {"type": type},
+      fromJson: (json) => QcCriteriaModel.fromJson(json),
+    );
+  }
+
+  Future<bool> createNewCriteria({required Map<String, dynamic> criteriaData}) async {
+    return HelperService().addItem(endpoint: 'admin/criterias', itemData: criteriaData);
+  }
+
+  Future<bool> updateCriteria({
+    required int qcCriteriaId,
+    required Map<String, dynamic> criteriaUpdated,
+  }) async {
+    return HelperService().updateItem(
+      endpoint: 'admin/criterias',
+      queryParameters: {"qcCriteriaId": qcCriteriaId},
+      dataUpdated: criteriaUpdated,
+    );
+  }
+
+  Future<bool> deleteCriteria({required int qcCriteriaId}) async {
+    return HelperService().deleteItem(
+      endpoint: 'admin/criterias',
+      queryParameters: {'qcCriteriaId': qcCriteriaId},
     );
   }
 
@@ -339,7 +295,7 @@ class AdminService {
   //get all flute ratio
   Future<List<AdminFluteRatioModel>> getAllFluteRatio() async {
     return HelperService().fetchingData<AdminFluteRatioModel>(
-      endpoint: 'admin/getFluteRatio',
+      endpoint: 'admin/flute-ratios',
       queryParameters: const {},
       fromJson: (json) => AdminFluteRatioModel.fromJson(json),
     );
@@ -347,7 +303,7 @@ class AdminService {
 
   // add flute ratio
   Future<bool> addFluteRatio({required Map<String, dynamic> fluteRatioData}) async {
-    return HelperService().addItem(endpoint: 'admin/createFluteRatio', itemData: fluteRatioData);
+    return HelperService().addItem(endpoint: 'admin/flute-ratios', itemData: fluteRatioData);
   }
 
   //update flute ratio
@@ -356,7 +312,7 @@ class AdminService {
     required Map<String, dynamic> fluteRatioUpdate,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'admin/updateFluteRatio',
+      endpoint: 'admin/flute-ratios',
       queryParameters: {"fluteRatioId": fluteRatioId},
       dataUpdated: fluteRatioUpdate,
     );
@@ -365,7 +321,7 @@ class AdminService {
   //delete flute ratio
   Future<bool> deleteFluteRatio({required int fluteRatioId}) async {
     return HelperService().deleteItem(
-      endpoint: 'admin/deleteFluteRatio',
+      endpoint: 'admin/flute-ratios',
       queryParameters: {"fluteRatioId": fluteRatioId},
     );
   }
@@ -375,7 +331,7 @@ class AdminService {
   //get all vehicle
   Future<List<AdminVehicleModel>> getAllVehicle() async {
     return HelperService().fetchingData<AdminVehicleModel>(
-      endpoint: 'admin/getAllVehicle',
+      endpoint: 'admin/vehicles',
       queryParameters: const {},
       fromJson: (json) => AdminVehicleModel.fromJson(json),
     );
@@ -383,7 +339,7 @@ class AdminService {
 
   // add qc criteria
   Future<bool> addVehicle({required Map<String, dynamic> vehicleData}) async {
-    return HelperService().addItem(endpoint: 'admin/newVehicle', itemData: vehicleData);
+    return HelperService().addItem(endpoint: 'admin/vehicles', itemData: vehicleData);
   }
 
   //update vehicle
@@ -392,7 +348,7 @@ class AdminService {
     required Map<String, dynamic> vehicleUpdate,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'admin/updateVehicle',
+      endpoint: 'admin/vehicles',
       queryParameters: {"vehicleId": vehicleId},
       dataUpdated: vehicleUpdate,
     );
@@ -401,7 +357,7 @@ class AdminService {
   //delete vehicle
   Future<bool> deleteVehicle({required int vehicleId}) async {
     return HelperService().deleteItem(
-      endpoint: 'admin/deleteVehicle',
+      endpoint: 'admin/vehicles',
       queryParameters: {"vehicleId": vehicleId},
     );
   }

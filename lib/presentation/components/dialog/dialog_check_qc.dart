@@ -1,6 +1,6 @@
 import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
 import 'package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart';
-import 'package:dongtam/service/admin/admin_criteria_service.dart';
+import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -40,7 +40,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
   void initState() {
     super.initState();
 
-    futureCriteria = AdminCriteriaService().getAllQcCriteria(type: widget.type);
+    futureCriteria = AdminService().getAllQcCriteria(type: widget.type);
   }
 
   // check REQUIRED criteria

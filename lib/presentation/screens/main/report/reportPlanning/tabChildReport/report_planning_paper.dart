@@ -76,7 +76,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
         AppLogger.d("loadReportPaper: isSearching=true | keyword=$keyword | date=$date");
 
         futureReportPaper = ensureMinLoading(
-          ReportPlanningService().getReportPaperByField(
+          ReportPlanningService().getReportPapers(
             field: selectedField,
             keyword: keyword,
             machine: machine,
@@ -86,7 +86,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
         );
       } else {
         futureReportPaper = ensureMinLoading(
-          ReportPlanningService().getReportPaper(
+          ReportPlanningService().getReportPapers(
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
@@ -117,7 +117,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
 
       if (searchType == "Tất cả") {
         futureReportPaper = ensureMinLoading(
-          ReportPlanningService().getReportPaper(
+          ReportPlanningService().getReportPapers(
             machine: machine,
             page: currentPage,
             pageSize: pageSize,
@@ -127,7 +127,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         futureReportPaper = ensureMinLoading(
-          ReportPlanningService().getReportPaperByField(
+          ReportPlanningService().getReportPapers(
             field: selectedField,
             keyword: keyword,
             machine: machine,

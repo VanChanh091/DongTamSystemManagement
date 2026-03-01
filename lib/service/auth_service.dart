@@ -138,7 +138,7 @@ class AuthService {
   //get otp
   Future<bool> sendOTP({required String email}) async {
     try {
-      final response = await dioService.post("/auth/getOtpCode", data: {"email": email});
+      final response = await dioService.post("/auth/get-otp-code", data: {"email": email});
 
       if (response.statusCode == 201) {
         response.data['otp'];
@@ -158,7 +158,7 @@ class AuthService {
   Future<bool> verifyOTPChangePassword({required String email, required String otp}) async {
     try {
       final response = await dioService.post(
-        "/auth/verifyOTPChangePassword",
+        "/auth/verify-otp-change-password",
         data: {"email": email, "otpInput": otp},
       );
 
@@ -179,7 +179,7 @@ class AuthService {
     try {
       final token = await secureStorage.getToken();
       final response = await dioService.post(
-        "/auth/changePassword",
+        "/auth/change-password",
         data: {"email": email, "newPassword": newPassword, "confirmNewPW": confirmNewPW},
         options: Options(
           headers: {"Authorization": "Bearer $token", 'Content-Type': 'application/json'},

@@ -95,7 +95,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         AppLogger.i("loadPlanning: keyword='$keyword'");
 
         futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningSearch(
+          PlanningService().getPlanningByMachine(
             field: selectedField,
             keyword: keyword,
             machine: machine,
@@ -130,7 +130,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningSearch(
+          PlanningService().getPlanningByMachine(
             field: selectedField,
             keyword: keyword,
             machine: machine,

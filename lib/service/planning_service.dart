@@ -15,15 +15,20 @@ class PlanningService {
   //===============================PLANNING PAPER & BOX==============================
 
   //get planning by machine
-  Future<List<T>> getPlanningByMachine<T>({required String machine, bool isBox = false}) async {
+  Future<List<T>> getPlanningByMachine<T>({
+    required String machine,
+    String? field,
+    String? keyword,
+    bool isBox = false,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
-      final endpoint = isBox ? 'byMachineBox' : 'byMachinePaper';
+      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
 
       final response = await dioService.get(
         '/api/planning/$endpoint',
-        queryParameters: {'machine': machine},
+        queryParameters: {'machine': machine, 'field': field, 'keyword': keyword},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
@@ -49,33 +54,12 @@ class PlanningService {
     }
   }
 
-  //get planning paper by field
-  Future<List<T>> getPlanningSearch<T>({
-    required String field,
-    required String keyword,
-    required String machine,
-    bool isBox = false,
-  }) async {
-    final endpoint = isBox ? "filterBox" : "filterPaper";
-
-    return HelperService().fetchingData<T>(
-      endpoint: "planning/$endpoint",
-      queryParameters: {'machine': machine, 'field': field, 'keyword': keyword},
-      fromJson: (json) {
-        if (isBox) {
-          return PlanningBox.fromJson(json) as T;
-        } else {
-          return PlanningPaper.fromJson(json) as T;
-        }
-      },
-    );
-  }
-
   //confirm complete
   Future<bool> confirmCompletePlanning({
     required List<int> ids,
     String? machine,
-    bool isBox = false,
+    bool isConfirm = true,
+    bool isBox = false, //flag FE
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -83,8 +67,10 @@ class PlanningService {
       final data = {
         if (isBox) "planningBoxIds": ids else "planningIds": ids,
         if (machine != null) "machine": machine,
+        "isConfirm": isConfirm,
       };
-      final endpoint = isBox ? "confirmBox" : "confirmPaper";
+
+      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
 
       await dioService.put(
         "/api/planning/$endpoint",
@@ -109,18 +95,18 @@ class PlanningService {
     required List<int> ids,
     required String newStatus,
     String? machine,
-    bool isBox = false,
+    bool isBox = false, //flag FE
   }) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final data = {
         if (isBox) "planningBoxIds": ids else "planningIds": ids,
-        "newStatus": newStatus,
         if (machine != null) "machine": machine,
+        "newStatus": newStatus,
       };
 
-      final endpoint = isBox ? "acceptLackQtyBox" : "pauseOrAcceptLackQtyPaper";
+      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
 
       await dioService.put(
         "/api/planning/$endpoint",
@@ -139,18 +125,18 @@ class PlanningService {
 
   //update index planning
   Future<bool> updateIndexWTimeRunning({
+    required bool isNewDay,
     required String machine,
     required DateTime dayStart,
     required TimeOfDay timeStart,
     required int totalTimeWorking,
     required List<Map<String, dynamic>> updateIndex,
-    required bool isNewDay,
-    bool isBox = false, //check paper or box
+    bool isBox = false, //flag FE
   }) async {
     try {
       final token = await SecureStorageService().getToken();
 
-      final endpoint = isBox ? 'updateIndex_TimeRunningBox' : 'updateIndex_TimeRunningPaper';
+      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
 
       await dioService.post(
         "/api/planning/$endpoint",
@@ -177,11 +163,11 @@ class PlanningService {
 
   //change machine paper
   Future<bool> changeMachinePlanning({
-    required String newMachine,
     required List<int> planningIds,
+    required String newMachine,
   }) async {
     return HelperService().updateItem(
-      endpoint: "planning/changeMachinePaper",
+      endpoint: "planning/planning-papers",
       queryParameters: {},
       dataUpdated: {"planningIds": planningIds, "newMachine": newMachine},
     );
@@ -199,7 +185,7 @@ class PlanningService {
       final keyName = isPaper ? "planningPaperUpdated" : "planningBoxUpdated";
 
       await dioService.post(
-        "/api/planning/notifyPlanning",
+        "/api/planning/notify-planning",
         data: {'machine': machine, "keyName": keyName, "isPlan": isPlan},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
@@ -218,7 +204,7 @@ class PlanningService {
   //get status order
   Future<List<Order>> getOrderAccept() async {
     return HelperService().fetchingData<Order>(
-      endpoint: "planning",
+      endpoint: "planning/planning-orders",
       queryParameters: const {},
       fromJson: (json) => Order.fromJson(json),
     );
@@ -230,7 +216,7 @@ class PlanningService {
     required Map<String, dynamic> orderPlanning,
   }) async {
     return HelperService().addItem(
-      endpoint: "planning/planningOrder",
+      endpoint: "planning/planning-orders",
       queryParameters: {"orderId": orderId},
       itemData: orderPlanning,
     );
@@ -240,7 +226,7 @@ class PlanningService {
 
   Future<Map<String, dynamic>> getPlanningStop({int? page, int? pageSize}) async {
     return HelperService().fetchPaginatedData<PlanningPaper>(
-      endpoint: "planning/getPlanningStop",
+      endpoint: "planning/planning-stops",
       queryParameters: {'page': page, 'pageSize': pageSize},
       fromJson: (json) => PlanningPaper.fromJson(json),
       dataKey: 'plannings',
@@ -257,7 +243,7 @@ class PlanningService {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
-        "/api/planning/updateStopById",
+        "/api/planning/planning-stops",
         data: {'planningId': planningId, "action": action},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
