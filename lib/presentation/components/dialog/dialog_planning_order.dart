@@ -1,9 +1,9 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
-import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
-import 'package:dongtam/utils/helper/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
+import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
+import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -239,14 +239,32 @@ class _PLanningDialogState extends State<PLanningDialog> {
     }
 
     final flute = fluteController.text.trim();
+    final lengthVal = double.tryParse(lengthPaperPlanningController.text) ?? 0;
 
     // check flute để sắp đúng máy
-    if (flute.startsWith("2") && chooseMachine != "Máy 2 Lớp") {
-      showSnackBarError(context, "Đơn 2 lớp, chỉ được chạy ở Máy 2 Lớp!");
-      return;
-    } else if (!flute.startsWith("2") && chooseMachine == "Máy 2 Lớp") {
-      showSnackBarError(context, "Đơn này không được chạy ở Máy 2 Lớp!");
-      return;
+    if (flute.startsWith("2")) {
+      if (chooseMachine == "Máy 2 Lớp") {
+        // Máy 2 lớp bắt buộc phải có cả Dài và Khổ (length > 0)
+        if (lengthVal <= 0) {
+          showSnackBarError(context, "Máy 2 Lớp yêu cầu phải có dài khổ!");
+          return;
+        }
+      } else if (chooseMachine == "Máy Quấn Cuồn") {
+        // Máy Quấn Cuộn chỉ có Khổ, không có Dài (length phải bằng 0)
+        if (lengthVal > 0) {
+          showSnackBarError(context, "Máy Quấn Cuộn không được có dài khổ!");
+          return;
+        }
+      } else {
+        // Nếu flute là 2 nhưng chọn máy khác (ví dụ máy 3-5-7 lớp)
+        showSnackBarError(context, "Đơn này chỉ được chạy ở Máy 2 Lớp hoặc Máy Quấn Cuồn!");
+        return;
+      }
+    } else {
+      if (chooseMachine == "Máy 2 Lớp" && chooseMachine == "Máy Quấn Cuồn") {
+        showSnackBarError(context, "Đơn này không được chạy ở Máy 2 Lớp!");
+        return;
+      }
     }
 
     final newPlanning = PlanningPaper(

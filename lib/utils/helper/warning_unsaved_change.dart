@@ -40,3 +40,18 @@ Future<bool> UnsavedChangeDialog(UnsavedChangeController ctrl) async {
   );
   return result ?? false;
 }
+
+extension UnsavedChangeExtension on UnsavedChangeController {
+  Future<void> runSafe(VoidCallback action) async {
+    if (isUnsavedChanges.value) {
+      final canLeave = await UnsavedChangeDialog(this);
+
+      if (canLeave) {
+        resetUnsavedChanges();
+        action();
+      }
+    } else {
+      action();
+    }
+  }
+}

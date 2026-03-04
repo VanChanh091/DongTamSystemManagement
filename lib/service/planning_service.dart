@@ -202,10 +202,14 @@ class PlanningService {
   //===============================PLANNING ORDER====================================
 
   //get status order
-  Future<List<Order>> getOrderAccept() async {
+  Future<List<Order>> getOrderAccept({required String type, String? field, String? keyword}) async {
     return HelperService().fetchingData<Order>(
       endpoint: "planning/planning-orders",
-      queryParameters: const {},
+      queryParameters: {
+        "type": type,
+        if (field != null) "field": field,
+        if (keyword != null) "keyword": keyword,
+      },
       fromJson: (json) => Order.fromJson(json),
     );
   }
@@ -219,6 +223,13 @@ class PlanningService {
       endpoint: "planning/planning-orders",
       queryParameters: {"orderId": orderId},
       itemData: orderPlanning,
+    );
+  }
+
+  Future<bool> backOrderToReject({required String orderId}) async {
+    return HelperService().updateItem(
+      endpoint: "planning/planning-orders",
+      queryParameters: {"orderId": orderId},
     );
   }
 

@@ -10,9 +10,9 @@ import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
-import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
-import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
-import 'package:dongtam/utils/helper/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
+import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
+import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -121,6 +121,8 @@ class _OrderDialogState extends State<OrderDialog> {
     fetchAllCustomers();
     fetchAllProduct();
     addListenerForField();
+
+    vatController.text = "8";
   }
 
   //init data to update

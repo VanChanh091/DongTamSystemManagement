@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
+import 'package:dongtam/utils/helper/planning_helper.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -62,8 +63,14 @@ class MachinePaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
       DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
-      DataGridCell<String>(columnName: 'length', value: '${planning.lengthPaperPlanning} cm'),
-      DataGridCell<String>(columnName: 'size', value: '${planning.sizePaperPLaning} cm'),
+      DataGridCell<String>(
+        columnName: 'length',
+        value: planning.lengthPaperPlanning > 0 ? '${planning.lengthPaperPlanning} cm' : "0",
+      ),
+      DataGridCell<String>(
+        columnName: 'size',
+        value: planning.sizePaperPLaning > 0 ? '${planning.sizePaperPLaning} cm' : '0',
+      ),
       DataGridCell<int>(columnName: 'child', value: planning.numberChild),
 
       DataGridCell<int>(columnName: 'quantityOrd', value: planning.order?.quantityManufacture ?? 0),
@@ -186,90 +193,31 @@ class MachinePaperDatasource extends DataGridSource {
 
   // Di chuyển hàng lên
   void moveRowUp(List<String> idsToMove) {
-    if (idsToMove.isEmpty) return;
-
-    unsavedChange?.setUnsavedChanges(value: true);
-
-    List<PlanningPaper> selectedItems =
-        planning.where((p) => idsToMove.contains(p.planningId.toString())).toList();
-
-    selectedItems.sort((a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)));
-
-    int minCurrentIndex = planning.length;
-    for (var item in selectedItems) {
-      int index = planning.indexOf(item);
-      if (index != -1 && index < minCurrentIndex) {
-        minCurrentIndex = index;
-      }
-    }
-
-    if (minCurrentIndex == 0) return;
-
-    List<PlanningPaper> itemsToRemove = [...selectedItems];
-    itemsToRemove.sort((a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)));
-    for (var item in itemsToRemove) {
-      planning.remove(item);
-    }
-
-    int newInsertIndex = minCurrentIndex - 1;
-    planning.insertAll(newInsertIndex, selectedItems);
-
-    buildDataGridRows();
+    PlanningListHelper.moveRows<PlanningPaper>(
+      list: planning,
+      idsToMove: idsToMove,
+      getId: (p) => p.planningId.toString(),
+      moveUp: true,
+      onUpdate: buildDataGridRows,
+      unsavedChangeController: unsavedChange,
+    );
   }
 
   // Di chuyển hàng xuống
   void moveRowDown(List<String> idsToMove) {
-    if (idsToMove.isEmpty) return;
-
-    unsavedChange?.setUnsavedChanges(value: true);
-
-    List<PlanningPaper> selectedItems =
-        planning.where((p) => idsToMove.contains(p.planningId.toString())).toList();
-
-    selectedItems.sort((a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)));
-
-    int maxCurrentIndex = -1;
-    for (var item in selectedItems) {
-      int index = planning.indexOf(item);
-      if (index != -1 && index > maxCurrentIndex) {
-        maxCurrentIndex = index;
-      }
-    }
-
-    if (maxCurrentIndex == -1 || maxCurrentIndex == planning.length - 1) return;
-
-    PlanningPaper? elementAfterBlock;
-    if (maxCurrentIndex + 1 < planning.length) {
-      elementAfterBlock = planning[maxCurrentIndex + 1];
-    } else {
-      return;
-    }
-
-    List<PlanningPaper> itemsToRemove = [...selectedItems];
-    itemsToRemove.sort((a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)));
-    for (var item in itemsToRemove) {
-      planning.remove(item);
-    }
-
-    int newInsertIndex = planning.indexOf(elementAfterBlock);
-    if (newInsertIndex == -1) {
-      newInsertIndex = planning.length;
-    } else {
-      newInsertIndex = newInsertIndex + 1;
-    }
-
-    if (newInsertIndex > planning.length) {
-      newInsertIndex = planning.length;
-    }
-
-    planning.insertAll(newInsertIndex, selectedItems);
-
-    buildDataGridRows();
+    PlanningListHelper.moveRows<PlanningPaper>(
+      list: planning,
+      idsToMove: idsToMove,
+      getId: (item) => item.planningId.toString(),
+      moveUp: false,
+      unsavedChangeController: unsavedChange,
+      onUpdate: buildDataGridRows,
+    );
   }
 
   //check ghepKho is same
   String? getKhoAtRow(int rowIndex) {
-    if (rowIndex <= 0 || rowIndex >= planningDataGridRows.length) return null;
+    if (rowIndex < 0 || rowIndex >= planningDataGridRows.length) return null;
 
     final row = planningDataGridRows[rowIndex];
     final cell = row.getCells().firstWhere(
@@ -316,6 +264,8 @@ class MachinePaperDatasource extends DataGridSource {
 
     final String? currentKho = getKhoAtRow(rowIndex);
     final String? prevKho = getKhoAtRow(rowIndex - 1);
+
+    // print("Row $rowIndex: currentKho = $currentKho, prevKho = $prevKho");
 
     // ===== chuyển khổ =====
     final bool isKhoTransition =

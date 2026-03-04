@@ -3,7 +3,7 @@ import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dar
 class OutboundTempItem {
   final String orderId;
   final String customerName;
-  final String companyName;
+  final double? length;
   final String typeProduct;
   final String productName;
   final String saleName;
@@ -11,7 +11,7 @@ class OutboundTempItem {
   final String? QC_box;
   final String dvt;
   final double quantityCustomer;
-  final double? discount;
+  final double? size;
   final double pricePaper;
   final int qtyOutbound;
   final int? qtyInventory;
@@ -19,7 +19,7 @@ class OutboundTempItem {
   OutboundTempItem({
     required this.orderId,
     required this.customerName,
-    required this.companyName,
+    this.length,
     required this.typeProduct,
     required this.productName,
     required this.saleName,
@@ -27,7 +27,7 @@ class OutboundTempItem {
     this.QC_box,
     required this.dvt,
     required this.quantityCustomer,
-    this.discount,
+    this.size,
     required this.pricePaper,
     required this.qtyOutbound,
     this.qtyInventory,
@@ -40,7 +40,8 @@ class OutboundTempItem {
       orderId: detail.orderId,
 
       customerName: order?.customer?.customerName ?? "",
-      companyName: order?.customer?.companyName ?? "",
+      length: order?.lengthPaperManufacture.toDouble() ?? 0,
+      size: order?.paperSizeManufacture.toDouble() ?? 0,
 
       typeProduct: order?.product?.typeProduct ?? "",
       productName: order?.product?.productName ?? "",
@@ -52,7 +53,6 @@ class OutboundTempItem {
 
       dvt: order?.dvt ?? "",
       quantityCustomer: order?.quantityCustomer.toDouble() ?? 0,
-      discount: order?.discount?.toDouble() ?? 0,
 
       pricePaper: detail.price.toDouble(),
       qtyOutbound: detail.outboundQty,

@@ -58,6 +58,10 @@ class CustomerDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "CSKH", value: customer.cskh),
       DataGridCell<String>(columnName: "customerSource", value: customer.customerSource),
       DataGridCell<String>(columnName: "rateCustomer", value: customer.rateCustomer ?? ""),
+      DataGridCell<String>(
+        columnName: "createdAt",
+        value: customer.createdAt != null ? formatter.format(customer.createdAt!) : "",
+      ),
     ];
   }
 

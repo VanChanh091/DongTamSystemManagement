@@ -1,7 +1,8 @@
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/utils/helper/planning_helper.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -114,9 +115,33 @@ Widget rowMoveButtons({
 }) {
   return Row(
     children: [
-      IconButton(icon: const Icon(Icons.arrow_upward), onPressed: enabled ? onMoveUp : null),
-      IconButton(icon: const Icon(Icons.arrow_downward), onPressed: enabled ? onMoveDown : null),
+      _buildRepeatableButton(icon: Icons.arrow_upward, enabled: enabled, onAction: onMoveUp),
+      const SizedBox(width: 8),
+      _buildRepeatableButton(icon: Icons.arrow_downward, enabled: enabled, onAction: onMoveDown),
     ],
+  );
+}
+
+Widget _buildRepeatableButton({
+  required IconData icon,
+  required bool enabled,
+  required VoidCallback onAction,
+}) {
+  return GestureDetector(
+    onTapDown: enabled ? (_) => PlanningListHelper.startContinuousAction(onAction) : null,
+    onTapUp: (_) => PlanningListHelper.stopContinuousAction(),
+    onTapCancel: () => PlanningListHelper.stopContinuousAction(),
+    child: MouseRegion(
+      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: enabled ? Colors.blue.withValues(alpha: 0.1) : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: enabled ? Colors.blue : Colors.grey, size: 20),
+      ),
+    ),
   );
 }
 
@@ -183,17 +208,26 @@ Widget confirmCompleteButton({
   );
 }
 
-Widget buildMachineDropdown({
+Widget buildDropdownItems({
   required String value,
   required List<String> items,
   required void Function(String?) onChanged,
+  String Function(String)? itemLabelBuilder,
   double width = 175,
 }) {
   return SizedBox(
     width: width,
     child: DropdownButtonFormField<String>(
       value: value,
-      items: items.map((String v) => DropdownMenuItem<String>(value: v, child: Text(v))).toList(),
+      items:
+          items
+              .map(
+                (String v) => DropdownMenuItem<String>(
+                  value: v,
+                  child: Text(itemLabelBuilder != null ? itemLabelBuilder(v) : v),
+                ),
+              )
+              .toList(),
       onChanged: onChanged,
       decoration: InputDecoration(
         filled: true,

@@ -18,6 +18,7 @@ class Customer {
   final DateTime? timePayment;
   final String? rateCustomer;
   final String customerSource;
+  final DateTime? createdAt;
 
   Customer({
     required this.customerId,
@@ -36,6 +37,7 @@ class Customer {
     this.timePayment,
     this.rateCustomer,
     required this.customerSource,
+    this.createdAt,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) {
@@ -62,6 +64,10 @@ class Customer {
               : null,
       rateCustomer: json['rateCustomer'] ?? "",
       customerSource: json['customerSource'] ?? "",
+      createdAt:
+          json['createdAt'] != null && json['createdAt'].toString().isNotEmpty
+              ? DateTime.tryParse(json['createdAt'].toString())
+              : null,
     );
   }
 

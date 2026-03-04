@@ -78,16 +78,16 @@ class AuthService {
 
         // Cập nhật UserController với dữ liệu mới
         final userController = Get.find<UserController>();
-        userController.role.value = role;
-        userController.permissions.value = permissions;
         userController.userId.value = userId;
+        userController.permissions.value = permissions;
+
+        //set role sau cùng để tránh trigger các logic phụ thuộc vào role trước khi permissions được cập nhật
+        userController.role.value = role;
 
         // Khởi tạo socket sau khi đăng nhập thành công
         // permanent: giữ socket sống suốt vòng đời app
         final badgesController = Get.put(BadgesController(), permanent: true);
-        if (userController.hasPermission(permission: "sale")) {
-          badgesController.initSocketAfterLogin(userId);
-        }
+        badgesController.initializeAfterLogin(userId);
 
         AppLogger.i("Login successful --> userId: $userId, role: $role, permission: $permissions");
 

@@ -3,7 +3,6 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -83,7 +82,7 @@ class _ManageOrderState extends State<AdminOrder> {
                         isLoading
                             ? buildShimmerSkeletonTable(context: context)
                             : ListView(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                               children:
                                   groupedOrders.entries.map((entry) {
                                     final prefix = entry.key;
@@ -583,7 +582,6 @@ class _ManageOrderState extends State<AdminOrder> {
   Widget rowBox() {
     final box = selectedOrder!.box!;
     final productImage = selectedOrder!.product!.productImage ?? "";
-    AppLogger.i('Attempting to show image from URL: $productImage');
 
     final boolFields = [
       {'label': 'Cán màng', 'value': box.canMang},

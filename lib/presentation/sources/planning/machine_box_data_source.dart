@@ -1,6 +1,7 @@
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
+import 'package:dongtam/utils/helper/planning_helper.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -57,7 +58,10 @@ class MachineBoxDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: planning.order?.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
-      DataGridCell<String>(columnName: "length", value: '${planning.length} cm'),
+      DataGridCell<String>(
+        columnName: "length",
+        value: planning.length > 0 ? '${planning.length} cm' : "0",
+      ),
       DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
       DataGridCell<int>(columnName: 'child', value: planning.order?.numberChild ?? 0),
       DataGridCell<int>(columnName: "quantityOrd", value: planning.order?.quantityCustomer ?? 0),
@@ -186,85 +190,26 @@ class MachineBoxDatasource extends DataGridSource {
 
   // Di chuyển hàng lên
   void moveRowUp(List<String> idsToMove) {
-    if (idsToMove.isEmpty) return;
-
-    unsavedChange?.setUnsavedChanges(value: true);
-
-    List<PlanningBox> selectedItems =
-        planning.where((p) => idsToMove.contains(p.planningBoxId.toString())).toList();
-
-    selectedItems.sort((a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)));
-
-    int minCurrentIndex = planning.length;
-    for (var item in selectedItems) {
-      int index = planning.indexOf(item);
-      if (index != -1 && index < minCurrentIndex) {
-        minCurrentIndex = index;
-      }
-    }
-
-    if (minCurrentIndex == 0) return;
-
-    List<PlanningBox> itemsToRemove = [...selectedItems];
-    itemsToRemove.sort((a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)));
-    for (var item in itemsToRemove) {
-      planning.remove(item);
-    }
-
-    int newInsertIndex = minCurrentIndex - 1;
-    planning.insertAll(newInsertIndex, selectedItems);
-
-    buildDataGridRows();
+    PlanningListHelper.moveRows<PlanningBox>(
+      list: planning,
+      idsToMove: idsToMove,
+      getId: (p) => p.planningBoxId.toString(),
+      moveUp: true,
+      onUpdate: buildDataGridRows,
+      unsavedChangeController: unsavedChange,
+    );
   }
 
   // Di chuyển hàng xuống
   void moveRowDown(List<String> idsToMove) {
-    if (idsToMove.isEmpty) return;
-
-    unsavedChange?.setUnsavedChanges(value: true);
-
-    List<PlanningBox> selectedItems =
-        planning.where((p) => idsToMove.contains(p.planningBoxId.toString())).toList();
-
-    selectedItems.sort((a, b) => planning.indexOf(a).compareTo(planning.indexOf(b)));
-
-    int maxCurrentIndex = -1;
-    for (var item in selectedItems) {
-      int index = planning.indexOf(item);
-      if (index != -1 && index > maxCurrentIndex) {
-        maxCurrentIndex = index;
-      }
-    }
-
-    if (maxCurrentIndex == -1 || maxCurrentIndex == planning.length - 1) return;
-
-    PlanningBox? elementAfterBlock;
-    if (maxCurrentIndex + 1 < planning.length) {
-      elementAfterBlock = planning[maxCurrentIndex + 1];
-    } else {
-      return;
-    }
-
-    List<PlanningBox> itemsToRemove = [...selectedItems];
-    itemsToRemove.sort((a, b) => planning.indexOf(b).compareTo(planning.indexOf(a)));
-    for (var item in itemsToRemove) {
-      planning.remove(item);
-    }
-
-    int newInsertIndex = planning.indexOf(elementAfterBlock);
-    if (newInsertIndex == -1) {
-      newInsertIndex = planning.length;
-    } else {
-      newInsertIndex = newInsertIndex + 1;
-    }
-
-    if (newInsertIndex > planning.length) {
-      newInsertIndex = planning.length;
-    }
-
-    planning.insertAll(newInsertIndex, selectedItems);
-
-    buildDataGridRows();
+    PlanningListHelper.moveRows<PlanningBox>(
+      list: planning,
+      idsToMove: idsToMove,
+      getId: (item) => item.planningBoxId.toString(),
+      moveUp: false,
+      unsavedChangeController: unsavedChange,
+      onUpdate: buildDataGridRows,
+    );
   }
 
   String _formatCellValueBool(DataGridCell dataCell) {

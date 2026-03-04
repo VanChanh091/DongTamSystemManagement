@@ -6,9 +6,9 @@ import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
-import 'package:dongtam/utils/helper/cardForm/building_card_form.dart';
-import 'package:dongtam/utils/helper/cardForm/format_key_value_card.dart';
-import 'package:dongtam/utils/helper/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
+import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
+import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -37,20 +37,21 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
   final orderIdController = TextEditingController();
   final customerNameController = TextEditingController();
-  final companyNameController = TextEditingController();
-
   final saleNameController = TextEditingController();
+
+  final lengthController = TextEditingController();
+  final sizeController = TextEditingController();
+  final fluteController = TextEditingController();
+
+  final qcBoxController = TextEditingController();
   final typeProductController = TextEditingController();
   final productNameController = TextEditingController();
 
-  final fluteController = TextEditingController();
-  final qcBoxController = TextEditingController();
+  final quantityCustomerController = TextEditingController();
+  final pricePaperController = TextEditingController();
   final dvtController = TextEditingController();
 
-  final quantityCustomerController = TextEditingController();
-  final discountController = TextEditingController();
-  final pricePaperController = TextEditingController();
-
+  //other fields
   final remainingQtyController = TextEditingController();
   final qtyOutboundController = TextEditingController();
 
@@ -90,7 +91,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   void clearController() {
     orderIdController.clear();
     customerNameController.clear();
-    companyNameController.clear();
+    lengthController.clear();
+    sizeController.clear();
     saleNameController.clear();
     typeProductController.clear();
     productNameController.clear();
@@ -98,7 +100,6 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     qcBoxController.clear();
     dvtController.clear();
     quantityCustomerController.clear();
-    discountController.clear();
     pricePaperController.clear();
     qtyOutboundController.clear();
     remainingQtyController.clear();
@@ -131,14 +132,14 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       typeProduct: typeProductController.text,
       productName: productNameController.text,
       customerName: customerNameController.text,
-      companyName: companyNameController.text,
+      length: double.tryParse(lengthController.text) ?? 0,
+      size: double.tryParse(sizeController.text) ?? 0,
       saleName: saleNameController.text,
       flute: fluteController.text,
       QC_box: qcBoxController.text,
       dvt: dvtController.text,
       pricePaper: double.tryParse(pricePaperController.text) ?? 0,
       quantityCustomer: double.tryParse(quantityCustomerController.text) ?? 0,
-      discount: double.tryParse(discountController.text) ?? 0,
       qtyOutbound: int.tryParse(qtyOutboundController.text) ?? 0,
     );
 
@@ -157,7 +158,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   void fillFormFromTempItem(OutboundTempItem outbound) {
     orderIdController.text = outbound.orderId;
     customerNameController.text = outbound.customerName;
-    companyNameController.text = outbound.companyName;
+    lengthController.text = outbound.length?.toString() ?? "";
+    sizeController.text = outbound.size?.toString() ?? "";
     saleNameController.text = outbound.saleName;
     typeProductController.text = outbound.typeProduct;
     productNameController.text = outbound.productName;
@@ -165,7 +167,6 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     qcBoxController.text = outbound.QC_box ?? "";
     dvtController.text = outbound.dvt;
     quantityCustomerController.text = outbound.quantityCustomer.toString();
-    discountController.text = outbound.discount.toString();
     pricePaperController.text = outbound.pricePaper.toString();
     qtyOutboundController.text = outbound.qtyOutbound.toString();
     remainingQtyController.text = outbound.qtyInventory.toString();
@@ -236,11 +237,11 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     productNameController.dispose();
     typeProductController.dispose();
     customerNameController.dispose();
-    companyNameController.dispose();
+    lengthController.dispose();
+    sizeController.dispose();
     qcBoxController.dispose();
     quantityCustomerController.dispose();
     pricePaperController.dispose();
-    discountController.dispose();
     dvtController.dispose();
     saleNameController.dispose();
     fluteController.dispose();
@@ -279,7 +280,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             if (selectedOrder == null) return;
 
             customerNameController.text = selectedOrder.customer?.customerName ?? "";
-            companyNameController.text = selectedOrder.customer?.companyName ?? "";
+            lengthController.text = selectedOrder.lengthPaperManufacture.toString();
+            sizeController.text = selectedOrder.paperSizeManufacture.toString();
             saleNameController.text = selectedOrder.user?.fullName ?? "";
             typeProductController.text = selectedOrder.product?.typeProduct ?? "";
             productNameController.text = selectedOrder.product?.productName ?? "";
@@ -287,7 +289,6 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             qcBoxController.text = selectedOrder.QC_box ?? "";
             dvtController.text = selectedOrder.dvt;
             quantityCustomerController.text = selectedOrder.quantityCustomer.toStringAsFixed(1);
-            discountController.text = selectedOrder.discount.toString();
             pricePaperController.text = selectedOrder.pricePaper?.toStringAsFixed(1) ?? "";
 
             remainingQtyController.text = selectedOrder.remainingQty.toString();
@@ -309,14 +310,16 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           icon: Symbols.person,
           readOnly: true,
         ),
-        "rightKey": "Tên công ty",
+
+        "rightKey": "NV Bán Hàng",
         "rightValue": ValidationOrder.validateInput(
-          label: "Tên công ty",
-          controller: companyNameController,
-          icon: Symbols.business,
+          label: "NV Bán Hàng",
+          controller: saleNameController,
+          icon: Symbols.orders,
           readOnly: true,
         ),
       },
+
       {
         "leftKey": "QC Thùng",
         "leftValue": ValidationOrder.validateInput(
@@ -340,21 +343,24 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           readOnly: true,
         ),
       },
+
       {
-        "leftKey": "Sóng",
+        "leftKey": "Số lượng",
         "leftValue": ValidationOrder.validateInput(
-          label: "Sóng",
-          controller: fluteController,
-          icon: Symbols.waves,
-          readOnly: true,
-        ),
-        "middleKey": "Số lượng",
-        "middleValue": ValidationOrder.validateInput(
           label: "Số lượng (KH)",
           controller: quantityCustomerController,
           icon: Symbols.filter_9_plus,
           readOnly: true,
         ),
+
+        "middleKey": "Đơn giá",
+        "middleValue": ValidationOrder.validateInput(
+          label: "Đơn giá (M2)",
+          controller: pricePaperController,
+          icon: Symbols.price_change,
+          readOnly: true,
+        ),
+
         "rightKey": "Đơn Vị Tính",
         "rightValue": ValidationOrder.validateInput(
           label: "Đơn Vị Tính",
@@ -363,26 +369,29 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           readOnly: true,
         ),
       },
+
       {
-        "leftKey": "Chiết khấu",
+        "leftKey": "Dài (SX)",
         "leftValue": ValidationOrder.validateInput(
-          label: "Chiết khấu",
-          controller: discountController,
-          icon: Symbols.price_change,
+          label: "Dài (SX)",
+          controller: lengthController,
+          icon: Symbols.business,
           readOnly: true,
         ),
-        "middleKey": "Đơn giá",
+
+        "middleKey": "Khổ (SX)",
         "middleValue": ValidationOrder.validateInput(
-          label: "Đơn giá (M2)",
-          controller: pricePaperController,
+          label: "Khổ (SX)",
+          controller: sizeController,
           icon: Symbols.price_change,
           readOnly: true,
         ),
-        "rightKey": "NV Bán Hàng",
+
+        "rightKey": "Sóng",
         "rightValue": ValidationOrder.validateInput(
-          label: "NV Bán Hàng",
-          controller: saleNameController,
-          icon: Symbols.orders,
+          label: "Sóng",
+          controller: fluteController,
+          icon: Symbols.waves,
           readOnly: true,
         ),
       },
@@ -426,6 +435,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          //qty remain
                           SizedBox(
                             width: 260,
                             child: Row(
@@ -462,6 +472,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                           ),
                           const SizedBox(width: 15),
 
+                          //qty outbound
                           SizedBox(
                             width: 320,
                             child: Row(
@@ -513,7 +524,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                           ),
                           const SizedBox(width: 15),
 
-                          //button
+                          //button add
                           AnimatedButton(
                             onPressed: () {
                               //bắt validate form

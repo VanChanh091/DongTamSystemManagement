@@ -7,7 +7,7 @@ import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/customer_data_source.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/utils/helper/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -33,6 +33,8 @@ class _CustomerPageState extends State<CustomerPage> {
   late List<GridColumn> columns;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+
+  String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Theo Mã": "customerId",
     "Theo Tên KH": "customerName",
@@ -45,7 +47,6 @@ class _CustomerPageState extends State<CustomerPage> {
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
-  String searchType = "Tất cả";
   String? selectedCustomerId;
 
   int currentPage = 1;

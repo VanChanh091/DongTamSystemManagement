@@ -20,6 +20,7 @@ const List<Map<String, dynamic>> _headerCustomer = [
   {"key": "CSKH", "title": "CSKH"},
   {"key": "customerSource", "title": "Nguồn Khách"},
   {"key": "rateCustomer", "title": "Đánh Giá"},
+  {"key": "createdAt", "title": "Ngày Tạo"},
 ];
 
 List<GridColumn> buildCustomerColumn({required ThemeController themeController}) {

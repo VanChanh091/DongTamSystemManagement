@@ -29,25 +29,27 @@ class BadgesController extends GetxController {
     });
   }
 
-  void initSocketAfterLogin(int userId) async {
+  void initializeAfterLogin(int userId) async {
     await refreshAllBadges();
 
-    //init socket
-    final socketService = SocketService();
-    await socketService.connectSocket();
+    if (_userController.hasPermission(permission: "sale")) {
+      //init socket
+      final socketService = SocketService();
+      await socketService.connectSocket();
 
-    //join rom
-    socketService.joinUserRoom(userId);
+      //join rom
+      socketService.joinUserRoom(userId);
 
-    //register listener
-    socketService.on("updateBadgeCount", (data) {
-      if (data['type'] == "REJECTED_ORDER") {
-        int oldCount = numberOrderReject.value;
-        numberOrderReject.value = data['count'] ?? 0;
+      //register listener
+      socketService.on("updateBadgeCount", (data) {
+        if (data['type'] == "REJECTED_ORDER") {
+          int oldCount = numberOrderReject.value;
+          numberOrderReject.value = data['count'] ?? 0;
 
-        AppLogger.i("✅ Cập nhật Badge thành công: $oldCount -> ${numberOrderReject.value}");
-      }
-    });
+          AppLogger.i("✅ Cập nhật Badge thành công: $oldCount -> ${numberOrderReject.value}");
+        }
+      });
+    }
   }
 
   Future<void> refreshAllBadges() async {
@@ -82,7 +84,7 @@ class BadgesController extends GetxController {
     if (_userController.hasPermission(permission: "sale")) {
       tasks.add(fetchOrderReject());
     } else {
-      numberPendingApproval.value = 0;
+      numberOrderReject.value = 0;
     }
 
     if (tasks.isNotEmpty) {
@@ -104,6 +106,7 @@ class BadgesController extends GetxController {
       final result = await fetcher();
       badgeCount.value = result;
     } catch (e) {
+      AppLogger.e("Lỗi khi cập nhật badge: $e");
       badgeCount.value = 0;
     }
   }
@@ -136,14 +139,14 @@ class BadgesController extends GetxController {
   Future<void> fetchPaperWaitingCheck() async {
     await fetchBadgeCount(
       badgeCount: numberPaperWaiting,
-      fetcher: () => BadgeService().countWaitingCheckPaper(),
+      fetcher: () => BadgeService().countWaitingCheck("paper"),
     );
   }
 
   Future<void> fetchBoxWaitingCheck() async {
     await fetchBadgeCount(
       badgeCount: numberBoxWaiting,
-      fetcher: () => BadgeService().countWaitingCheckBox(),
+      fetcher: () => BadgeService().countWaitingCheck("box"),
     );
   }
 

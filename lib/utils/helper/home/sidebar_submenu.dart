@@ -11,7 +11,8 @@ import 'package:dongtam/presentation/screens/main/delivery/delivery_schedule.dar
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
 import 'package:dongtam/presentation/screens/main/planning/planning_stop.dart';
-import 'package:dongtam/presentation/screens/main/planning/top_tab_planning.dart';
+import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_box.dart';
+import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart';
 import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart';
 import 'package:dongtam/presentation/screens/main/report/report_warehouse/report_inbound_history.dart';
@@ -66,10 +67,11 @@ Widget buildPlanningMenu({
         badge: badges.numberOrderPendingPlanning,
       ),
       SubMenuConfig(
-        icon: Icons.production_quantity_limits_outlined,
-        label: "Hàng Chờ Sản Xuất",
-        pageType: TopTabPlanning,
+        icon: Icons.article,
+        label: "Sản Xuất Giấy Tấm",
+        pageType: ProductionQueuePaper,
       ),
+      SubMenuConfig(icon: Symbols.package_2, label: "Sản Xuất Thùng", pageType: ProductionQueueBox),
       SubMenuConfig(
         icon: Icons.queue,
         label: "Hàng Chờ Xử Lý",

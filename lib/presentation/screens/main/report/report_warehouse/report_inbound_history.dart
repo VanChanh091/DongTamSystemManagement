@@ -3,7 +3,6 @@ import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_report_inbound.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/warehouse/report_inbound_data_source.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
@@ -14,7 +13,6 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportInboundHistory extends StatefulWidget {
@@ -243,23 +241,23 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 //export excel
-                                AnimatedButton(
-                                  // onPressed: () async {
-                                  //   showDialog(
-                                  //     context: context,
-                                  //     builder:
-                                  //         (_) => DialogSelectExportExcel(
-                                  //           selectedInboundId: selectedInboundId,
-                                  //           onPlanningIdsOrRangeDate: () => loadReportInbound(),
-                                  //           machine: machine,
-                                  //         ),
-                                  //   );
-                                  // },
-                                  onPressed: () {},
-                                  label: "Xuất Excel",
-                                  icon: Symbols.export_notes,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
+                                // AnimatedButton(
+                                //   // onPressed: () async {
+                                //   //   showDialog(
+                                //   //     context: context,
+                                //   //     builder:
+                                //   //         (_) => DialogSelectExportExcel(
+                                //   //           selectedInboundId: selectedInboundId,
+                                //   //           onPlanningIdsOrRangeDate: () => loadReportInbound(),
+                                //   //           machine: machine,
+                                //   //         ),
+                                //   //   );
+                                //   // },
+                                //   onPressed: () {},
+                                //   label: "Xuất Excel",
+                                //   icon: Symbols.export_notes,
+                                //   backgroundColor: themeController.buttonColor,
+                                // ),
                                 const SizedBox(width: 10),
                               ],
                             ),

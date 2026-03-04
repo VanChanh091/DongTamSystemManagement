@@ -4,9 +4,12 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/presentation/components/dialog/dialog_planning_order.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_planning.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
+import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/planning/planning_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -15,6 +18,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class WaitingForPlanning extends StatefulWidget {
@@ -32,6 +36,19 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   final userController = Get.find<UserController>();
   final badgesController = Get.find<BadgesController>();
   final formatter = DateFormat('dd/MM/yyyy');
+
+  String type = 'unplanned';
+  final Map<String, String> filterOptions = {'unplanned': 'Chưa xếp', 'planned': 'Đã xếp'};
+
+  //search
+  TextEditingController searchController = TextEditingController();
+  String searchType = "Tất cả";
+  final Map<String, String> searchFieldMap = {
+    "Theo Mã": "orderId",
+    "Theo Tên KH": "customerName",
+    "Theo Quy Cách": "QC_box",
+  };
+  bool isTextFieldEnabled = false;
 
   Map<String, double> columnWidths = {};
   String? selectedOrderId;
@@ -57,8 +74,38 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
   void loadOrders() {
     setState(() {
-      futureOrdersAccept = ensureMinLoading(PlanningService().getOrderAccept());
+      futureOrdersAccept = ensureMinLoading(PlanningService().getOrderAccept(type: type));
       selectedOrderId = null;
+    });
+  }
+
+  void searchOrders() {
+    String keyword = searchController.text.trim().toLowerCase();
+    AppLogger.i("searchOrder => searchType=$searchType | keyword=$keyword");
+
+    if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w("searchOrder => searchType=$searchType nhưng keyword rỗng");
+      return;
+    }
+
+    setState(() {
+      if (searchType == "Tất cả") {
+        futureOrdersAccept = ensureMinLoading(PlanningService().getOrderAccept(type: type));
+      } else {
+        final selectedField = searchFieldMap[searchType] ?? "";
+
+        futureOrdersAccept = ensureMinLoading(
+          PlanningService().getOrderAccept(type: type, field: selectedField, keyword: keyword),
+        );
+      }
+    });
+  }
+
+  void changeFilter(String newFilter) {
+    setState(() {
+      type = newFilter;
+      selectedOrderId = null;
+      loadOrders();
     });
   }
 
@@ -103,7 +150,30 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                             ? Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const SizedBox(),
+                                Expanded(
+                                  flex: 1,
+                                  child: LeftButtonSearch(
+                                    selectedType: searchType,
+                                    types: const [
+                                      'Tất cả',
+                                      "Theo Mã",
+                                      "Theo Tên KH",
+                                      "Theo Quy Cách",
+                                    ],
+                                    onTypeChanged: (value) {
+                                      setState(() {
+                                        searchType = value;
+                                        isTextFieldEnabled = searchType != 'Tất cả';
+                                        searchController.clear();
+                                      });
+                                    },
+                                    controller: searchController,
+                                    textFieldEnabled: isTextFieldEnabled,
+                                    buttonColor: themeController.buttonColor,
+
+                                    onSearch: () => searchOrders(),
+                                  ),
+                                ),
 
                                 Container(
                                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -144,6 +214,47 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                         label: "Lên kế hoạch",
                                         icon: Icons.add,
                                         backgroundColor: themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      //back order
+                                      AnimatedButton(
+                                        onPressed:
+                                            selectedOrderId == null
+                                                ? null
+                                                : () async {
+                                                  await showDeleteConfirmHelper(
+                                                    context: context,
+                                                    title: "Xác nhận trả đơn về",
+                                                    content: "Bạn có chắc chắn muốn trả đơn không?",
+                                                    onDelete: () async {
+                                                      if (selectedOrderId == null) return;
+                                                      await PlanningService().backOrderToReject(
+                                                        orderId: selectedOrderId!,
+                                                      );
+                                                    },
+                                                    onSuccess: () {
+                                                      setState(() => selectedOrderId = null);
+                                                      loadOrders();
+                                                    },
+                                                  );
+
+                                                  //update badge count
+                                                  badgesController.fetchOrderPendingPlanning();
+                                                  badgesController.fetchOrderReject();
+                                                },
+                                        label: "Hoàn Đơn",
+                                        icon: Symbols.keyboard_return,
+                                        backgroundColor: const Color(0xffEA4346),
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      //filter
+                                      buildDropdownItems(
+                                        value: type,
+                                        items: const ['unplanned', 'planned'],
+                                        onChanged: (value) => changeFilter(value!),
+                                        itemLabelBuilder: (value) => filterOptions[value] ?? value,
                                       ),
                                       const SizedBox(width: 10),
                                     ],

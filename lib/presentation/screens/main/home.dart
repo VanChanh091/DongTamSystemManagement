@@ -21,7 +21,8 @@ import 'package:dongtam/presentation/screens/main/manufacture/box_printing_produ
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
 import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
 import 'package:dongtam/presentation/screens/main/planning/planning_stop.dart';
-import 'package:dongtam/presentation/screens/main/planning/top_tab_planning.dart';
+import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_box.dart';
+import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart';
 import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
 import 'package:dongtam/presentation/screens/main/report/report_warehouse/report_inbound_history.dart';
@@ -93,7 +94,8 @@ class _HomePageState extends State<HomePage> {
 
       // planning
       _buildPage(permissions: ['plan'], child: WaitingForPlanning()),
-      _buildPage(permissions: ['plan'], child: TopTabPlanning()),
+      _buildPage(permissions: ['plan'], child: ProductionQueuePaper()),
+      _buildPage(permissions: ['plan'], child: ProductionQueueBox()),
       _buildPage(permissions: ['plan'], child: PlanningStop()),
 
       // manufacture
@@ -146,40 +148,6 @@ class _HomePageState extends State<HomePage> {
     }
 
     return child;
-  }
-
-  void logout() async {
-    try {
-      final secureStorage = SecureStorageService();
-      await secureStorage.clearAll();
-
-      await authService.logout();
-      sidebarController.reset();
-
-      socketService.off('updateBadgeCount');
-      socketService.disconnect();
-      //   if (Get.isRegistered<BadgesController>()) {
-      //   Get.delete<BadgesController>(force: true);
-      //   AppLogger.i("BadgesController has been forcibly terminated.");
-      // }
-
-      badgesController.clearAllBadge();
-
-      if (!mounted) return;
-      showSnackBarSuccess(context, 'Đăng xuất thành công');
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        PageTransition(
-          type: PageTransitionType.fade,
-          duration: Duration(milliseconds: 500),
-          child: LoginScreen(),
-        ),
-        (route) => false,
-      );
-    } catch (e, s) {
-      AppLogger.e("Lỗi khi đăng xuất", error: e, stackTrace: s);
-    }
   }
 
   //sidebar
@@ -421,21 +389,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //logout
-  Widget _buildLogoutSection() {
-    return _isSidebarOpen
-        ? ListTile(
-          leading: const Icon(Icons.logout, color: Colors.white),
-          title: const Text("Đăng xuất", style: TextStyle(color: Colors.white, fontSize: 18)),
-          onTap: () => logout(),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-        )
-        : const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: Center(child: Icon(Icons.logout, color: Colors.white)),
-        );
-  }
-
   //logo DT
   Widget _buildLogoSection() {
     return Center(
@@ -456,6 +409,56 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  //logout
+  Widget _buildLogoutSection() {
+    return _isSidebarOpen
+        ? ListTile(
+          leading: const Icon(Icons.logout, color: Colors.white),
+          title: const Text("Đăng xuất", style: TextStyle(color: Colors.white, fontSize: 18)),
+          onTap: () => logout(),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        )
+        : const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Center(child: Icon(Icons.logout, color: Colors.white)),
+        );
+  }
+
+  void logout() async {
+    try {
+      final secureStorage = SecureStorageService();
+      await secureStorage.clearAll();
+
+      await authService.logout();
+      sidebarController.reset();
+
+      socketService.off('updateBadgeCount');
+      socketService.disconnect();
+
+      if (Get.isRegistered<BadgesController>()) {
+        Get.delete<BadgesController>(force: true);
+        AppLogger.i("BadgesController has been forcibly terminated.");
+      }
+
+      badgesController.clearAllBadge();
+
+      if (!mounted) return;
+      showSnackBarSuccess(context, 'Đăng xuất thành công');
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          duration: Duration(milliseconds: 500),
+          child: LoginScreen(),
+        ),
+        (route) => false,
+      );
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi đăng xuất", error: e, stackTrace: s);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -466,6 +469,7 @@ class _HomePageState extends State<HomePage> {
           Row(
             children: [
               buildSidebar(),
+
               Expanded(
                 child: Obx(() {
                   final pages = getPages();
@@ -498,7 +502,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
 
-          // ✅ [CHANGED] Overlay bắt click ngoài sidebar để tự đóng
+          // Overlay bắt click ngoài sidebar để tự đóng
           if (_isSidebarOpen)
             Positioned(
               left: _sidebarOpenWidth,
@@ -508,15 +512,7 @@ class _HomePageState extends State<HomePage> {
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  setState(() {
-                    _isSidebarOpen = false;
-
-                    _isPlanningExpanded = false;
-                    _isManufactureExpanded = false;
-                    _isReportExpanded = false;
-                    _isApprovalExpanded = false;
-                    _isWaitingExpanded = false;
-                  });
+                  setState(() => _isSidebarOpen = false);
                 },
                 child: const SizedBox.expand(),
               ),

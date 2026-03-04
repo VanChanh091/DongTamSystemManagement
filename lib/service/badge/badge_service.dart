@@ -6,9 +6,14 @@ class BadgeService {
   final Dio dioService = DioClient().dio;
 
   //HELPER
-  Future<int> countForBadge(String endpoint) async {
+  Future<int> countForBadge(String endpoint, {Map<String, dynamic>? queryParameters}) async {
     try {
-      final response = await dioService.get("/api/badge/$endpoint");
+      final response = await dioService.get(
+        "/api/badge/$endpoint",
+        queryParameters: queryParameters,
+      );
+
+      // print("API Response for $endpoint: ${response.statusCode} - Data: ${response.data}");
 
       if (response.data != null && response.data['data'] != null) {
         return response.data['data'] as int;
@@ -42,11 +47,7 @@ class BadgeService {
   }
 
   //waiting check paper & box
-  Future<int> countWaitingCheckPaper() async {
-    return countForBadge("count-waiting-check/paper");
-  }
-
-  Future<int> countWaitingCheckBox() async {
-    return countForBadge("count-waiting-check/box");
+  Future<int> countWaitingCheck(String type) async {
+    return countForBadge("count-waiting-check", queryParameters: {"type": type});
   }
 }
