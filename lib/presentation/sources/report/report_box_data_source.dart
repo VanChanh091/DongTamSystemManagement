@@ -46,11 +46,11 @@ class ReportBoxDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "structure", value: planningBoxCell.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: orderCell.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: orderCell.QC_box ?? ""),
+      DataGridCell<String>(columnName: "size", value: '${planningBoxCell.size} cm'),
       DataGridCell<String>(
         columnName: "length",
         value: planningBoxCell.length > 0 ? '${planningBoxCell.length} cm' : "0",
       ),
-      DataGridCell<String>(columnName: "size", value: '${planningBoxCell.size} cm'),
       DataGridCell<int>(columnName: 'child', value: orderCell.numberChild),
       DataGridCell<int>(columnName: "quantityOrd", value: orderCell.quantityCustomer),
       DataGridCell<int>(columnName: "qtyPaper", value: planningBoxCell.qtyPaper),

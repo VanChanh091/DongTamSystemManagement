@@ -4,6 +4,7 @@ import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -246,13 +247,13 @@ class _PLanningDialogState extends State<PLanningDialog> {
       if (chooseMachine == "Máy 2 Lớp") {
         // Máy 2 lớp bắt buộc phải có cả Dài và Khổ (length > 0)
         if (lengthVal <= 0) {
-          showSnackBarError(context, "Máy 2 Lớp yêu cầu phải có dài khổ!");
+          showSnackBarError(context, "Máy 2 Lớp yêu cầu phải có chiều dài!");
           return;
         }
       } else if (chooseMachine == "Máy Quấn Cuồn") {
         // Máy Quấn Cuộn chỉ có Khổ, không có Dài (length phải bằng 0)
         if (lengthVal > 0) {
-          showSnackBarError(context, "Máy Quấn Cuộn không được có dài khổ!");
+          showSnackBarError(context, "Máy Quấn Cuộn không được có chiều dài!");
           return;
         }
       } else {
@@ -270,21 +271,24 @@ class _PLanningDialogState extends State<PLanningDialog> {
     final newPlanning = PlanningPaper(
       planningId: 0,
       dayStart: DateTime.now(),
-      runningPlan: int.tryParse(runningPlanController.text) ?? 0,
+      runningPlan: int.tryParse(runningPlanController.trimmed) ?? 0,
       timeRunning: const TimeOfDay(hour: 0, minute: 0),
-      dayReplace: dayReplaceController.text,
-      matEReplace: matEReplaceController.text,
-      matBReplace: matBReplaceController.text,
-      matCReplace: matCReplaceController.text,
-      matE2Replace: matE2ReplaceController.text,
-      songEReplace: songEReplaceController.text,
-      songBReplace: songBReplaceController.text,
-      songCReplace: songCReplaceController.text,
-      songE2Replace: songE2ReplaceController.text,
-      lengthPaperPlanning: double.tryParse(lengthPaperPlanningController.text) ?? 0,
-      sizePaperPLaning: double.tryParse(sizePaperPLaningController.text) ?? 0,
-      ghepKho: int.tryParse(ghepKhoController.text) ?? 0,
-      numberChild: int.tryParse(numberChildController.text) ?? 0,
+
+      dayReplace: dayReplaceController.trimmed,
+      matEReplace: matEReplaceController.trimmed,
+      matBReplace: matBReplaceController.trimmed,
+      matCReplace: matCReplaceController.trimmed,
+      matE2Replace: matE2ReplaceController.trimmed,
+      songEReplace: songEReplaceController.trimmed,
+      songBReplace: songBReplaceController.trimmed,
+      songCReplace: songCReplaceController.trimmed,
+      songE2Replace: songE2ReplaceController.trimmed,
+
+      lengthPaperPlanning: double.tryParse(lengthPaperPlanningController.trimmed) ?? 0,
+      sizePaperPLaning: double.tryParse(sizePaperPLaningController.trimmed) ?? 0,
+
+      ghepKho: int.tryParse(ghepKhoController.trimmed) ?? 0,
+      numberChild: int.tryParse(numberChildController.trimmed) ?? 0,
       chooseMachine: chooseMachine,
       hasBox: widget.order!.isBox,
       status: 'planning',

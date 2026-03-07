@@ -41,11 +41,11 @@ class ReportInboundDataSource extends DataGridSource {
         columnName: 'structure',
         value: orderCell?.formatterStructureOrder ?? "",
       ),
+      DataGridCell<String>(columnName: 'size', value: '${orderCell?.paperSizeCustomer ?? 0} cm'),
       DataGridCell<String>(
         columnName: 'length',
         value: '${orderCell?.lengthPaperCustomer ?? 0} cm',
       ),
-      DataGridCell<String>(columnName: 'size', value: '${orderCell?.paperSizeCustomer ?? 0} cm'),
       DataGridCell<int>(columnName: 'quantityOrd', value: orderCell?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: 'qtyPaper', value: inbound.qtyPaper),
       DataGridCell<int>(columnName: 'qtyInbound', value: inbound.qtyInbound),

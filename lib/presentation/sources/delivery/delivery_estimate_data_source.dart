@@ -71,8 +71,8 @@ class DeliveryEstimateDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${paper.ghepKho} cm'),
       DataGridCell<String>(columnName: 'daoXa', value: order?.daoXa ?? ''),
-      DataGridCell<String>(columnName: 'length', value: '${paper.lengthPaperPlanning} cm'),
       DataGridCell<String>(columnName: 'size', value: '${paper.sizePaperPLaning} cm'),
+      DataGridCell<String>(columnName: 'length', value: '${paper.lengthPaperPlanning} cm'),
       DataGridCell<String>(
         columnName: 'volume',
         value:

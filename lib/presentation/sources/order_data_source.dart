@@ -40,6 +40,14 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXaOrd', value: order.daoXa),
       DataGridCell<String>(
+        columnName: 'sizeCustomer',
+        value: '${Order.formatCurrency(order.paperSizeCustomer)} cm',
+      ),
+      DataGridCell<String>(
+        columnName: 'sizeManufacture',
+        value: '${Order.formatCurrency(order.paperSizeManufacture)} cm',
+      ),
+      DataGridCell<String>(
         columnName: 'lengthCus',
         value:
             ((order.lengthPaperCustomer) > 0)
@@ -52,14 +60,6 @@ class OrderDataSource extends DataGridSource {
             ((order.lengthPaperManufacture) > 0)
                 ? '${Order.formatCurrency(order.lengthPaperManufacture)} cm'
                 : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'sizeCustomer',
-        value: '${Order.formatCurrency(order.paperSizeCustomer)} cm',
-      ),
-      DataGridCell<String>(
-        columnName: 'sizeManufacture',
-        value: '${Order.formatCurrency(order.paperSizeManufacture)} cm',
       ),
       DataGridCell<String>(
         columnName: 'quantityCustomer',

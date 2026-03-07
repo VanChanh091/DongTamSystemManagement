@@ -68,7 +68,9 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
 
   void loadBoxWaiting() {
     setState(() {
-      futureBoxWaiting = ensureMinLoading(WarehouseService().getBoxWaitingChecked());
+      futureBoxWaiting = ensureMinLoading(
+        WarehouseService().getBoxWaitingChecked(isPaper: "false"),
+      );
 
       selectedPlanningBoxIds = null;
       selectedStages = [];

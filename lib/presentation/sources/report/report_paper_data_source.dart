@@ -46,12 +46,12 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: 'structure', value: planningPaper.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: orderCell.flute ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: orderCell.daoXa),
+      DataGridCell<String>(columnName: 'size', value: '${planningPaper.sizePaperPLaning} cm'),
       DataGridCell<String>(
         columnName: 'length',
         value:
             planningPaper.lengthPaperPlanning > 0 ? '${planningPaper.lengthPaperPlanning} cm' : "0",
       ),
-      DataGridCell<String>(columnName: 'size', value: '${planningPaper.sizePaperPLaning} cm'),
       DataGridCell<int>(columnName: 'child', value: orderCell.numberChild),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planningPaper.ghepKho} cm'),
       DataGridCell<int>(columnName: 'quantityOrd', value: orderCell.quantityManufacture),

@@ -14,7 +14,7 @@ class QualityControlService {
 
   Future<List<QcSessionModel>> getAllQcSession() async {
     return HelperService().fetchingData<QcSessionModel>(
-      endpoint: "qc/getSession",
+      endpoint: "qc/session",
       queryParameters: const {},
       fromJson: (json) => QcSessionModel.fromJson(json),
     );
@@ -26,7 +26,7 @@ class QualityControlService {
     required String status,
   }) async {
     return HelperService().updateItem(
-      endpoint: "qc/updateSession",
+      endpoint: "qc/session",
       queryParameters: const {},
       dataUpdated: {"qcSessionId": qcSessionId, "status": status, "totalSample": totalSample},
     );
@@ -36,7 +36,7 @@ class QualityControlService {
 
   Future<List<QcSampleResultModel>> getAllQcResult({required int qcSessionId}) async {
     return HelperService().fetchingData<QcSampleResultModel>(
-      endpoint: "qc/getResult",
+      endpoint: "qc/result",
       queryParameters: {"qcSessionId": qcSessionId},
       fromJson: (json) => QcSampleResultModel.fromJson(json),
     );
@@ -51,7 +51,7 @@ class QualityControlService {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
-        '/api/qc/updateResult',
+        '/api/qc/result',
         data: {
           "qcSessionId": qcSessionId,
           "sampleIndex": sampleIndex,
@@ -78,7 +78,7 @@ class QualityControlService {
     required bool isPaper,
   }) async {
     return HelperService().updateItem(
-      endpoint: "qc/confirmFinalize",
+      endpoint: "qc/result/confirm",
       queryParameters: {},
       dataUpdated: {"planningId": planningId, 'planningBoxId': planningBoxId, "isPaper": isPaper},
     );
@@ -98,7 +98,7 @@ class QualityControlService {
       final token = await SecureStorageService().getToken();
 
       await dioService.post(
-        '/api/qc/submitQC',
+        '/api/qc/submit',
         data: {
           'inboundQty': inboundQty,
           "processType": processType,

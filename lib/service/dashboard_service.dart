@@ -19,7 +19,7 @@ class DashboardService {
     required String status,
   }) async {
     return HelperService().fetchPaginatedData<PlanningPaper>(
-      endpoint: "dashboard/paper",
+      endpoint: "dashboard",
       queryParameters: {'page': page, 'pageSize': pageSize, 'status': status},
       fromJson: (json) => PlanningPaper.fromJson(json),
       dataKey: 'dashboard',
@@ -29,7 +29,7 @@ class DashboardService {
   //get data details
   Future<List<PlanningStage>> getDbPlanningDetail({required int planningId}) async {
     return HelperService().fetchingData(
-      endpoint: 'dashboard/getDetail',
+      endpoint: 'dashboard/detail',
       queryParameters: {'planningId': planningId},
       fromJson: (json) => PlanningStage.fromJson(json),
     );
@@ -43,7 +43,7 @@ class DashboardService {
     int pageSize = 30,
   }) async {
     return HelperService().fetchPaginatedData<PlanningPaper>(
-      endpoint: "dashboard/getDbByField",
+      endpoint: "dashboard",
       queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
       fromJson: (json) => PlanningPaper.fromJson(json),
       dataKey: 'dashboard',
@@ -73,7 +73,7 @@ class DashboardService {
       }
 
       final response = await dioService.post(
-        "/api/dashboard/exportExcel",
+        "/api/dashboard/export",
         data: body,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},

@@ -10,6 +10,7 @@ import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -240,7 +241,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                           });
                                         },
                                       ),
-                                      const SizedBox(width: 20),
+                                      const SizedBox(width: 10),
 
                                       // save
                                       SavePlanning(
@@ -678,7 +679,12 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       ),
       floatingActionButton: Obx(
         () => FloatingActionButton(
-          onPressed: () => loadPlanning(),
+          onPressed:
+              () => {
+                unsavedChangeController.runSafe(() {
+                  loadPlanning();
+                }),
+              },
           backgroundColor: themeController.buttonColor.value,
           child: const Icon(Icons.refresh, color: Colors.white),
         ),

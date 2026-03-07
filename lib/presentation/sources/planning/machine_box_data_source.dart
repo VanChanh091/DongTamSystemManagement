@@ -58,11 +58,11 @@ class MachineBoxDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: planning.order?.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
+      DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
       DataGridCell<String>(
         columnName: "length",
         value: planning.length > 0 ? '${planning.length} cm' : "0",
       ),
-      DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
       DataGridCell<int>(columnName: 'child', value: planning.order?.numberChild ?? 0),
       DataGridCell<int>(columnName: "quantityOrd", value: planning.order?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),

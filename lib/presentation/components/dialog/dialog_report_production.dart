@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/employee/employee_basic_info.dart';
 import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/service/manufacture_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -16,6 +17,9 @@ class DialogReportProduction extends StatefulWidget {
   final bool isPaper;
   final int? qtyPaper;
 
+  //model
+  final dynamic initialData;
+
   const DialogReportProduction({
     super.key,
     required this.planningId,
@@ -23,6 +27,8 @@ class DialogReportProduction extends StatefulWidget {
     this.isPaper = true,
     this.machine,
     this.qtyPaper,
+
+    this.initialData,
   });
 
   @override
@@ -37,17 +43,37 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   final qtyProducedController = TextEditingController();
   final qtyWasteNormController = TextEditingController();
   final dayCompletedController = TextEditingController();
-  final shiftProductionController = TextEditingController();
+
   late String shiftProduction = "Ca 1";
   final List<String> itemShiftProduction = ["Ca 1", "Ca 2", "Ca 3"];
-  final shiftManagementController = TextEditingController();
+  final shiftProductionController = TextEditingController();
 
   String? shiftManagementSelected;
+  final shiftManagementController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     futureEmployee = EmployeeService().getEmployeeByPosition();
+
+    if (widget.initialData != null) {
+      Map<String, dynamic> data = widget.initialData;
+
+      //helper lấy giá trị cuối sau dấu phẩy
+      String getLastValue(dynamic input) {
+        if (input == null || input.toString().isEmpty) return "";
+        String str = input.toString();
+        return str.contains(',') ? str.split(',').last.trim() : str.trim();
+      }
+
+      shiftManagementSelected = getLastValue(data['manager']).toUpperCase();
+      shiftManagementController.text = shiftManagementSelected!;
+
+      if (widget.isPaper) {
+        shiftProduction = getLastValue(data['shift']);
+        shiftProductionController.text = shiftProduction;
+      }
+    }
   }
 
   void submit() async {
@@ -57,8 +83,8 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     }
 
     try {
-      final int qtyProduced = int.tryParse(qtyProducedController.text) ?? 0;
-      final double qtyWasteNorm = double.tryParse(qtyWasteNormController.text) ?? 0;
+      final int qtyProduced = int.tryParse(qtyProducedController.trimmed) ?? 0;
+      final double qtyWasteNorm = double.tryParse(qtyWasteNormController.trimmed) ?? 0;
 
       final DateTime completedDate = DateTime.now();
 
@@ -71,13 +97,16 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
       bool success;
       if (widget.isPaper == true) {
-        AppLogger.i("Báo cáo sản xuất giấy tấm: ${widget.planningId}");
-        success = await ManufactureService().createReportPaper(
+        final text = widget.initialData != null ? 'Cập nhật' : 'Báo cáo';
+
+        AppLogger.i("$text sản xuất giấy tấm: ${widget.planningId}");
+        success = await ManufactureService().createOrUpdateReportPaper(
           planningId: widget.planningId,
           qtyProduced: qtyProduced,
           qtyWasteNorm: qtyWasteNorm,
           dayCompleted: completedDate,
           reportData: reportData,
+          isUpdate: widget.initialData != null ? true : false,
         );
       } else {
         if (widget.qtyPaper == null || widget.qtyPaper == 0) {
@@ -165,12 +194,20 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         if (text.isEmpty) return "Vui lòng nhập $label";
 
         if (label == "Số Lượng Đã Sản Xuất") {
+          final intValue = int.tryParse(text);
+
           if (!RegExp(r'^\d+$').hasMatch(text)) {
             return "Chỉ được nhập số nguyên dương";
+          } else if (intValue == 0 || intValue! < 0) {
+            return "Số lượng không được bé hơn hoặc bằng 0";
           }
         } else if (label == "Phế Liệu Thực Tế") {
+          final doubleValue = double.tryParse(text);
+
           if (!RegExp(r'^\d+([.]\d+)?$').hasMatch(text)) {
             return "Chỉ được nhập số thực, chỉ được dùng dấu chấm";
+          } else if (doubleValue == 0 || doubleValue! < 0) {
+            return "Số lượng phế liệu không được bé hơn 0";
           }
         } else if (label == "Trưởng Máy") {
           if (!RegExp(r"^[a-zA-ZÀ-ỹ\s]+$").hasMatch(text)) {
@@ -245,19 +282,27 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                             }
 
                             if (snapshot.hasError) {
-                              return Text("Lỗi tải trưởng máy: ${snapshot.error}");
+                              return Text("Lỗi tải trưởng máy");
                             }
 
                             final employees = snapshot.data ?? [];
                             final items =
-                                employees.map((e) => e.fullName).whereType<String>().toList();
+                                employees
+                                    .map((e) => e.fullName.toUpperCase())
+                                    .whereType<String>()
+                                    .toList();
 
                             if (items.isEmpty) {
                               return const Text("Không có dữ liệu trưởng máy");
                             }
 
-                            // set default lần đầu (nếu chưa chọn)
-                            shiftManagementSelected ??= items.first;
+                            if (shiftManagementSelected != null) {
+                              if (!items.contains(shiftManagementSelected)) {
+                                shiftManagementSelected = items.first;
+                              }
+                            } else {
+                              shiftManagementSelected = items.first;
+                            }
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,6 +337,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                     );
                   },
                 ),
+
                 const SizedBox(height: 10),
 
                 if (widget.isPaper) ...[

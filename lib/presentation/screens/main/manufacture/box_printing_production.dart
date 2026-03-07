@@ -246,6 +246,56 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                     ),
                                     const SizedBox(width: 10),
 
+                                    //change qty report
+                                    AnimatedButton(
+                                      onPressed: () async {
+                                        try {
+                                          final int selectedPlanningId = int.parse(
+                                            selectedPlanningIds.first,
+                                          );
+
+                                          final selectedPlanning = planningList.firstWhere(
+                                            (p) => p.planningId == selectedPlanningId,
+                                            orElse:
+                                                () => throw Exception("Không tìm thấy kế hoạch"),
+                                          );
+
+                                          // final existingData = {
+                                          //   "qty": selectedPlanning.qtyProduced,
+                                          //   "waste": selectedPlanning.qtyWasteNorm,
+                                          //   "manager": selectedPlanning.shiftManagement,
+                                          //   "shift": selectedPlanning.shiftProduction,
+                                          // };
+
+                                          // print("Existing data for report: $existingData");
+
+                                          showDialog(
+                                            context: context,
+                                            builder:
+                                                (_) => DialogReportProduction(
+                                                  planningId: selectedPlanning.planningId,
+                                                  // initialData: existingData,
+                                                  onReport: () => loadPlanning(),
+                                                ),
+                                          );
+
+                                          //cập nhật badge
+                                          badgesController.fetchPaperWaitingCheck();
+                                          badgesController.fetchOrderPendingPlanning();
+                                        } catch (e, s) {
+                                          AppLogger.e("Lỗi khi mở dialog", error: e, stackTrace: s);
+                                          showSnackBarError(
+                                            context,
+                                            "Đã xảy ra lỗi khi mở báo cáo.",
+                                          );
+                                        }
+                                      },
+                                      label: "Sửa Báo Cáo",
+                                      icon: Symbols.construction,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 10),
+
                                     //confirm production
                                     AnimatedButton(
                                       onPressed:

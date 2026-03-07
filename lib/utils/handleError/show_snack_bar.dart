@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void showSnackBarSuccess(BuildContext context, String message) {
   _showOverlay(context, message, Colors.blue.shade500, Icons.check_circle_outline);
@@ -16,14 +19,25 @@ void showError(BuildContext context, String message) {
 }
 
 // Hàm core xử lý Overlay
-void _showOverlay(BuildContext context, String message, Color backgroundColor, IconData icon) {
-  final overlay = Overlay.of(context);
+void _showOverlay(BuildContext? context, String message, Color backgroundColor, IconData icon) {
+  // Ưu tiên dùng Overlay từ context, nếu không có thì dùng navigatorKey
+  final overlay =
+      (context != null ? Overlay.maybeOf(context) : null) ?? navigatorKey.currentState?.overlay;
+
+  if (overlay == null) {
+    AppLogger.w("Vẫn không tìm thấy Overlay! Kiểm tra lại việc gắn navigatorKey.");
+    return;
+  }
+
   late OverlayEntry overlayEntry;
+
+  // Dùng context của navigator nếu context truyền vào bị null
+  final effectiveContext = context ?? navigatorKey.currentContext!;
 
   overlayEntry = OverlayEntry(
     builder:
         (context) => Positioned(
-          bottom: MediaQuery.of(context).padding.bottom + 20,
+          bottom: MediaQuery.of(effectiveContext).padding.bottom + 20,
           left: 20,
           right: 20,
           child: Material(

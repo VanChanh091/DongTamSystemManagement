@@ -132,6 +132,38 @@ class _PaperProductionState extends State<PaperProduction> {
     return true;
   }
 
+  //user for edit report
+  bool canEditAction({
+    required List<int> selectedPlanningIds,
+    required List<PlanningPaper> planningList,
+  }) {
+    if (selectedPlanningIds.length != 1) return false;
+
+    final selectedPlanning = planningList.firstWhere(
+      (p) => p.planningId == selectedPlanningIds.first,
+      orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+    );
+
+    // check số lượng sản xuất
+    if ((selectedPlanning.qtyProduced ?? 0) <= 0) return false;
+
+    //Check thời gian: Nếu now > dayCompleted thì disable
+    if (selectedPlanning.dayCompleted != null) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      final completionDate = DateTime(
+        selectedPlanning.dayCompleted!.year,
+        selectedPlanning.dayCompleted!.month,
+        selectedPlanning.dayCompleted!.day,
+      );
+
+      if (today.isAfter(completionDate)) return false;
+    }
+
+    return true;
+  }
+
   @override
   void dispose() {
     _initSocket.stop(machine);
@@ -140,12 +172,21 @@ class _PaperProductionState extends State<PaperProduction> {
 
   @override
   Widget build(BuildContext context) {
+    bool permissionCheck = userController.hasAnyPermission(
+      permission: ["machine1350", "machine1900", "machine2Layer", "MachineRollPaper"],
+    );
+
     //production check
     final bool isProduction =
-        userController.hasAnyPermission(
-          permission: ["machine1350", "machine1900", "machine2Layer", "MachineRollPaper"],
-        ) &&
+        permissionCheck &&
         canExecuteAction(
+          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
+          planningList: planningList,
+        );
+
+    bool isEdit =
+        permissionCheck &&
+        canEditAction(
           selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
           planningList: planningList,
         );
@@ -232,20 +273,90 @@ class _PaperProductionState extends State<PaperProduction> {
                                                   badgesController.fetchPaperWaitingCheck();
                                                   badgesController.fetchOrderPendingPlanning();
                                                 } catch (e, s) {
-                                                  AppLogger.e(
-                                                    "Lỗi khi mở dialog",
-                                                    error: e,
-                                                    stackTrace: s,
-                                                  );
-                                                  showSnackBarError(
-                                                    context,
-                                                    "Đã xảy ra lỗi khi mở báo cáo.",
-                                                  );
+                                                  if (selectedPlanningIds.isEmpty) {
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Chưa chọn dòng cần báo cáo",
+                                                    );
+                                                  } else {
+                                                    AppLogger.e(
+                                                      "Lỗi khi mở dialog",
+                                                      error: e,
+                                                      stackTrace: s,
+                                                    );
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Đã xảy ra lỗi khi mở báo cáo.",
+                                                    );
+                                                  }
                                                 }
                                               }
                                               : null,
                                       label: "Báo Cáo SX",
                                       icon: Icons.assignment,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 10),
+
+                                    //change qty report
+                                    AnimatedButton(
+                                      onPressed:
+                                          isEdit
+                                              ? () async {
+                                                try {
+                                                  final int selectedPlanningId = int.parse(
+                                                    selectedPlanningIds.first,
+                                                  );
+
+                                                  final selectedPlanning = planningList.firstWhere(
+                                                    (p) => p.planningId == selectedPlanningId,
+                                                    orElse:
+                                                        () =>
+                                                            throw Exception(
+                                                              "Không tìm thấy kế hoạch",
+                                                            ),
+                                                  );
+
+                                                  final existingData = {
+                                                    "manager": selectedPlanning.shiftManagement,
+                                                    "shift": selectedPlanning.shiftProduction,
+                                                  };
+
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (_) => DialogReportProduction(
+                                                          planningId: selectedPlanning.planningId,
+                                                          initialData: existingData,
+                                                          onReport: () => loadPlanning(),
+                                                        ),
+                                                  );
+
+                                                  //cập nhật badge
+                                                  badgesController.fetchPaperWaitingCheck();
+                                                  badgesController.fetchOrderPendingPlanning();
+                                                } catch (e, s) {
+                                                  if (selectedPlanningIds.isEmpty) {
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Chưa chọn dòng cần sửa",
+                                                    );
+                                                  } else {
+                                                    AppLogger.e(
+                                                      "Lỗi khi mở dialog",
+                                                      error: e,
+                                                      stackTrace: s,
+                                                    );
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Đã xảy ra lỗi khi mở báo cáo.",
+                                                    );
+                                                  }
+                                                }
+                                              }
+                                              : null,
+                                      label: "Sửa Báo Cáo",
+                                      icon: Symbols.construction,
                                       backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),
@@ -256,7 +367,6 @@ class _PaperProductionState extends State<PaperProduction> {
                                           isProduction
                                               ? () async {
                                                 try {
-                                                  // Lấy planningId (đang ở dạng String → convert sang int)
                                                   final int selectedPlanningId = int.parse(
                                                     selectedPlanningIds.first,
                                                   );
@@ -271,7 +381,6 @@ class _PaperProductionState extends State<PaperProduction> {
                                                             ),
                                                   );
 
-                                                  // Gửi yêu cầu xác nhận sản xuất
                                                   await ManufactureService().confirmProducingPaper(
                                                     planningId: selectedPlanning.planningId,
                                                   );

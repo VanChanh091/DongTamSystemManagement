@@ -27,17 +27,17 @@ class InventoryDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ""),
       DataGridCell<String>(columnName: 'structure', value: order?.formatterStructureOrder ?? ""),
       DataGridCell<String>(
-        columnName: 'length',
-        value:
-            ((order?.lengthPaperCustomer ?? 0) > 0)
-                ? '${Order.formatCurrency(order?.lengthPaperCustomer ?? 0)} cm'
-                : '0',
-      ),
-      DataGridCell<String>(
         columnName: 'size',
         value:
             ((order?.paperSizeCustomer ?? 0) > 0)
                 ? '${Order.formatCurrency(order?.paperSizeCustomer ?? 0)} cm'
+                : '0',
+      ),
+      DataGridCell<String>(
+        columnName: 'length',
+        value:
+            ((order?.lengthPaperCustomer ?? 0) > 0)
+                ? '${Order.formatCurrency(order?.lengthPaperCustomer ?? 0)} cm'
                 : '0',
       ),
       DataGridCell<int>(columnName: 'qtyCustomer', value: order?.quantityCustomer ?? 0),

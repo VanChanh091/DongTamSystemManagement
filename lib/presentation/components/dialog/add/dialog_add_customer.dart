@@ -1,6 +1,7 @@
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/service/customer_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
@@ -172,21 +173,21 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
     // Chuẩn hóa dữ liệu đầu vào
     final newCustomer = Customer(
-      customerId: _idController.text.toUpperCase(), //prefix
-      customerName: _nameController.text,
-      companyName: _companyNameController.text,
-      companyAddress: _companyAddressController.text,
-      shippingAddress: _shippingAddressController.text,
-      distance: double.tryParse(_distanceController.text) ?? 0,
-      mst: _mstController.text,
-      phone: _phoneController.text,
-      cskh: _cskhController.text,
-      contactPerson: _contactPersonController.text,
+      customerId: _idController.trimmed.toUpperCase(), //prefix
+      customerName: _nameController.superClean,
+      companyName: _companyNameController.superClean,
+      companyAddress: _companyAddressController.superClean,
+      shippingAddress: _shippingAddressController.superClean,
+      distance: double.tryParse(_distanceController.trimmed) ?? 0,
+      mst: _mstController.trimmed,
+      phone: _phoneController.trimmed,
+      cskh: _cskhController.superClean,
+      contactPerson: _contactPersonController.superClean,
       dayCreated: dayCreated ?? DateTime.now(),
-      debtLimit: double.tryParse(_debtLimitController.text) ?? 0,
+      debtLimit: double.tryParse(_debtLimitController.trimmed) ?? 0,
       timePayment: timePayment ?? DateTime.now(),
       rateCustomer: typeRating,
-      customerSource: _customerSourceController.text,
+      customerSource: _customerSourceController.trimmed,
     );
 
     try {

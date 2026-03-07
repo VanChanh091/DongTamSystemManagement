@@ -127,19 +127,64 @@ Widget _buildRepeatableButton({
   required bool enabled,
   required VoidCallback onAction,
 }) {
-  return GestureDetector(
-    onTapDown: enabled ? (_) => PlanningListHelper.startContinuousAction(onAction) : null,
-    onTapUp: (_) => PlanningListHelper.stopContinuousAction(),
-    onTapCancel: () => PlanningListHelper.stopContinuousAction(),
-    child: MouseRegion(
-      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: enabled ? Colors.blue.withValues(alpha: 0.1) : Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, color: enabled ? Colors.blue : Colors.grey, size: 20),
+  final isHovered = ValueNotifier<bool>(false);
+  final isPressed = ValueNotifier<bool>(false);
+
+  return MouseRegion(
+    onEnter: (_) => enabled ? isHovered.value = true : null,
+    onExit: (_) => enabled ? isHovered.value = false : null,
+    cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+    child: GestureDetector(
+      onTapDown:
+          enabled
+              ? (_) {
+                isPressed.value = true;
+                PlanningListHelper.startContinuousAction(onAction);
+              }
+              : null,
+      onTapUp: (_) {
+        isPressed.value = false;
+        PlanningListHelper.stopContinuousAction();
+      },
+      onTapCancel: () {
+        isPressed.value = false;
+        PlanningListHelper.stopContinuousAction();
+      },
+      child: ValueListenableBuilder(
+        valueListenable: isHovered,
+        builder: (context, hovered, _) {
+          return ValueListenableBuilder(
+            valueListenable: isPressed,
+            builder: (context, pressed, _) {
+              double scale = !enabled ? 1.0 : (pressed ? 0.9 : (hovered ? 1.05 : 1.0));
+
+              return AnimatedScale(
+                scale: scale,
+                duration: const Duration(milliseconds: 100),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color:
+                        enabled
+                            ? (hovered
+                                ? Colors.blue.withValues(alpha: 0.2)
+                                : Colors.blue.withValues(alpha: 0.1))
+                            : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color:
+                          hovered && enabled
+                              ? Colors.blue.withValues(alpha: 0.3)
+                              : Colors.transparent,
+                    ),
+                  ),
+                  child: Icon(icon, color: enabled ? Colors.blue : Colors.grey, size: 20),
+                ),
+              );
+            },
+          );
+        },
       ),
     ),
   );

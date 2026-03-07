@@ -60,7 +60,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
   void loadPaperWaiting() {
     AppLogger.i("Loading all data waiting check paper");
     setState(() {
-      futurePlanning = ensureMinLoading(WarehouseService().getPaperWaitingChecked());
+      futurePlanning = ensureMinLoading(WarehouseService().getPaperWaitingChecked(isPaper: "true"));
 
       selectedPlanningIds.clear();
     });

@@ -9,6 +9,7 @@ import 'package:dongtam/presentation/components/dialog/add/dialog_add_product.da
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/product_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
@@ -250,8 +251,8 @@ class _OrderDialogState extends State<OrderDialog> {
     final String songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
 
     final newBox = Box(
-      inMatTruoc: int.tryParse(inMatTruocController.text) ?? 0,
-      inMatSau: int.tryParse(inMatSauController.text) ?? 0,
+      inMatTruoc: int.tryParse(inMatTruocController.trimmed) ?? 0,
+      inMatSau: int.tryParse(inMatSauController.trimmed) ?? 0,
       canMang: canMangChecked.value,
       canLan: canLanChecked.value,
       Xa: xaChecked.value,
@@ -262,43 +263,49 @@ class _OrderDialogState extends State<OrderDialog> {
       dongGhim1Manh: dongGhim1ManhChecked.value,
       dongGhim2Manh: dongGhim2ManhChecked.value,
       chongTham: chongThamChecked.value,
-      dongGoi: dongGoiController.text,
-      maKhuon: maKhuonController.text,
+      dongGoi: dongGoiController.superClean,
+      maKhuon: maKhuonController.trimmed,
     );
 
     final newOrder = Order(
       orderId: Order.generateOrderCode(prefix),
-      orderIdCustomer: orderIdCustomerController.text.toUpperCase(),
-      customerId: customerIdController.text.toUpperCase(),
-      productId: productIdController.text.toUpperCase(),
+      orderIdCustomer: orderIdCustomerController.trimmed.toUpperCase(),
+      customerId: customerIdController.trimmed.toUpperCase(),
+      productId: productIdController.trimmed.toUpperCase(),
+
       dayReceiveOrder: dayReceive ?? DateTime.now(),
-      QC_box: qcBoxController.text.toLowerCase(),
-      canLan: canLanController.text,
+      QC_box: qcBoxController.trimmed.toLowerCase(),
+      canLan: canLanController.trimmed,
       daoXa: typeDaoXa,
-      day: dayController.text.toUpperCase(),
-      matE: matEController.text.toUpperCase(),
-      matB: matBController.text.toUpperCase(),
-      matC: matCController.text.toUpperCase(),
-      matE2: matE2Controller.text.toUpperCase(),
+
+      day: dayController.trimmed.toUpperCase(),
+      matE: matEController.trimmed.toUpperCase(),
+      matB: matBController.trimmed.toUpperCase(),
+      matC: matCController.trimmed.toUpperCase(),
+      matE2: matE2Controller.trimmed.toUpperCase(),
       songE: songEValue,
       songB: songBValue,
       songC: songCValue,
       songE2: songE2Value,
-      lengthPaperCustomer: double.tryParse(lengthCustomerController.text) ?? 0.0,
-      lengthPaperManufacture: double.tryParse(lengthManufactureController.text) ?? 0.0,
-      paperSizeCustomer: double.tryParse(sizeCustomerController.text) ?? 0.0,
-      paperSizeManufacture: double.tryParse(sizeManufactureController.text) ?? 0.0,
-      quantityCustomer: int.tryParse(quantityCustomerController.text) ?? 0,
-      quantityManufacture: int.tryParse(quantityManufactureController.text) ?? 0,
-      numberChild: int.tryParse(numberChildController.text) ?? 0,
+
+      lengthPaperCustomer: double.tryParse(lengthCustomerController.trimmed) ?? 0.0,
+      lengthPaperManufacture: double.tryParse(lengthManufactureController.trimmed) ?? 0.0,
+      paperSizeCustomer: double.tryParse(sizeCustomerController.trimmed) ?? 0.0,
+      paperSizeManufacture: double.tryParse(sizeManufactureController.trimmed) ?? 0.0,
+      quantityCustomer: int.tryParse(quantityCustomerController.trimmed) ?? 0,
+      quantityManufacture: int.tryParse(quantityManufactureController.trimmed) ?? 0,
+
+      numberChild: int.tryParse(numberChildController.trimmed) ?? 0,
       dvt: typeDVT,
-      price: double.tryParse(priceController.text) ?? 0.0,
-      pricePaper: double.tryParse(pricePaperController.text) ?? 0.0,
-      discount: double.tryParse(discountController.text) ?? 0.0,
-      profit: double.tryParse(profitController.text) ?? 0.0,
+
+      price: double.tryParse(priceController.trimmed) ?? 0.0,
+      pricePaper: double.tryParse(pricePaperController.trimmed) ?? 0.0,
+      discount: double.tryParse(discountController.trimmed) ?? 0.0,
+      profit: double.tryParse(profitController.trimmed) ?? 0.0,
+
       dateRequestShipping: dateShipping ?? DateTime.now(),
-      vat: int.tryParse(vatController.text) ?? 0,
-      instructSpecial: instructSpecialController.text,
+      vat: int.tryParse(vatController.trimmed) ?? 0,
+      instructSpecial: instructSpecialController.trimmed,
       isBox: isBoxChecked.value,
       box: newBox,
       status: 'pending',

@@ -2,6 +2,7 @@ import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
 import 'package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart';
 import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/service/quality_control_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
@@ -71,7 +72,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
           }).toList();
 
       await QualityControlService().submitQC(
-        inboundQty: int.parse(qtyController.text),
+        inboundQty: int.parse(qtyController.trimmed),
         processType: widget.type,
         planningId: widget.planningId,
         planningBoxId: widget.planningBoxId,

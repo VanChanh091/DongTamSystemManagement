@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/service/product_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
@@ -76,10 +77,10 @@ class _ProductDialogState extends State<ProductDialog> {
     }
 
     final newProduct = Product(
-      productId: idController.text.toUpperCase(),
+      productId: idController.trimmed.toUpperCase(),
       typeProduct: typeProduct,
-      productName: nameProductController.text,
-      maKhuon: maKhuonController.text,
+      productName: nameProductController.superClean,
+      maKhuon: maKhuonController.trimmed,
     );
 
     try {

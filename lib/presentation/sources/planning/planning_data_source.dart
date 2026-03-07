@@ -35,17 +35,17 @@ class PlanningDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: order.daoXa),
       DataGridCell<String>(
-        columnName: 'lengthMf',
-        value:
-            order.lengthPaperManufacture > 0
-                ? '${Order.formatCurrency(order.lengthPaperManufacture)} cm'
-                : "0",
-      ),
-      DataGridCell<String>(
         columnName: 'sizeManu',
         value:
             order.paperSizeManufacture > 0
                 ? '${Order.formatCurrency(order.paperSizeManufacture)} cm'
+                : "0",
+      ),
+      DataGridCell<String>(
+        columnName: 'lengthMf',
+        value:
+            order.lengthPaperManufacture > 0
+                ? '${Order.formatCurrency(order.lengthPaperManufacture)} cm'
                 : "0",
       ),
       DataGridCell<int>(columnName: 'qtyManufacture', value: order.quantityManufacture),

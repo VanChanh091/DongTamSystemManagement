@@ -19,25 +19,25 @@ class WarehouseService {
   final Dio dioService = DioClient().dio;
 
   //============================WAITTING CHECK QUANTITY================================
-  Future<List<PlanningPaper>> getPaperWaitingChecked() async {
+  Future<List<PlanningPaper>> getPaperWaitingChecked({required String isPaper}) async {
     return HelperService().fetchingData<PlanningPaper>(
-      endpoint: "warehouse/getPaperWaiting",
-      queryParameters: const {},
+      endpoint: "warehouse/waiting-check",
+      queryParameters: {'isPaper': isPaper},
       fromJson: (json) => PlanningPaper.fromJson(json),
     );
   }
 
-  Future<List<PlanningBox>> getBoxWaitingChecked() async {
+  Future<List<PlanningBox>> getBoxWaitingChecked({required String isPaper}) async {
     return HelperService().fetchingData<PlanningBox>(
-      endpoint: "warehouse/getBoxWaiting",
-      queryParameters: const {},
+      endpoint: "warehouse/waiting-check",
+      queryParameters: {'isPaper': isPaper},
       fromJson: (json) => PlanningBox.fromJson(json),
     );
   }
 
   Future<List<PlanningStage>> getDbPlanningDetail({required int planningBoxId}) async {
     return HelperService().fetchingData(
-      endpoint: 'warehouse/getBoxDetail',
+      endpoint: 'warehouse/waiting-check',
       queryParameters: {'planningBoxId': planningBoxId},
       fromJson: (json) => PlanningStage.fromJson(json),
     );
@@ -64,7 +64,7 @@ class WarehouseService {
     required int pageSize,
   }) async {
     return HelperService().fetchPaginatedData<InboundHistoryModel>(
-      endpoint: 'warehouse/inbound/filter',
+      endpoint: 'warehouse/inbound',
       queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
       fromJson: (json) => InboundHistoryModel.fromJson(json),
       dataKey: 'inbounds',
@@ -75,12 +75,14 @@ class WarehouseService {
 
   //get outbound
   Future<Map<String, dynamic>> getOutboundHistory({
+    String? field,
+    String? keyword,
     required int page,
     required int pageSize,
   }) async {
     return HelperService().fetchPaginatedData<OutboundHistoryModel>(
       endpoint: "warehouse/outbound",
-      queryParameters: {"page": page, "pageSize": pageSize},
+      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
       fromJson: (json) => OutboundHistoryModel.fromJson(json),
       dataKey: 'outbounds',
     );
@@ -95,18 +97,19 @@ class WarehouseService {
     );
   }
 
-  Future<List<Order>> searchOrderIds({required String orderId}) async {
+  //auto complete
+  Future<List<Order>> searchOrderIds({required String orderId, String isSearch = "true"}) async {
     return HelperService().fetchingData(
-      endpoint: 'warehouse/outbound/searchOrderIds',
+      endpoint: 'warehouse/outbound/get-search',
       queryParameters: {'orderId': orderId},
       fromJson: (json) => Order.fromJson(json),
     );
   }
 
-  //get get Order Inbound Qty
-  Future<Order?> getOrderInboundQty({required String orderId}) async {
+  //auto complete
+  Future<Order?> getOrderInboundQty({required String orderId, String isSearch = "false"}) async {
     return HelperService().fetchSingleData(
-      endpoint: 'warehouse/outbound/getInboundQty',
+      endpoint: 'warehouse/outbound/get-search',
       queryParameters: {'orderId': orderId},
       parser: (json) => Order.fromJson(json as Map<String, dynamic>),
     );
@@ -115,7 +118,7 @@ class WarehouseService {
   //create outbound
   Future<bool> createOutbound({required List<Map<String, dynamic>> list}) async {
     return await HelperService().addItem(
-      endpoint: 'warehouse/outbound/createOutbound',
+      endpoint: 'warehouse/outbound',
       itemData: {'outboundDetails': list},
     );
   }
@@ -125,7 +128,7 @@ class WarehouseService {
     required List<Map<String, dynamic>> list,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'warehouse/outbound/updateOutbound',
+      endpoint: 'warehouse/outbound',
       queryParameters: const {},
       dataUpdated: {"outboundId": outboundId, "outboundDetails": list},
     );
@@ -133,7 +136,7 @@ class WarehouseService {
 
   Future<bool> deleteOutbound({required int outboundId}) async {
     return HelperService().deleteItem(
-      endpoint: 'warehouse/outbound/deleteOutbound',
+      endpoint: 'warehouse/outbound',
       queryParameters: {'outboundId': outboundId},
     );
   }
@@ -143,7 +146,7 @@ class WarehouseService {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.post(
-        "/api/warehouse/outbound/exportFile",
+        "/api/warehouse/outbound/export",
         queryParameters: {'outboundId': outboundId},
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
@@ -192,7 +195,7 @@ class WarehouseService {
   //============================INVENTORY===============================
   Future<Map<String, dynamic>> getAllInventory({required int page, required int pageSize}) async {
     return HelperService().fetchPaginatedData<InventoryModel>(
-      endpoint: "warehouse/getAllInventory",
+      endpoint: "warehouse/inventory",
       queryParameters: {'page': page, 'pageSize': pageSize},
       fromJson: (json) => InventoryModel.fromJson(json),
       dataKey: 'inventories',

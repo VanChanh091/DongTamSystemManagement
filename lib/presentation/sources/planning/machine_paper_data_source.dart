@@ -64,12 +64,12 @@ class MachinePaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
       DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
       DataGridCell<String>(
-        columnName: 'length',
-        value: planning.lengthPaperPlanning > 0 ? '${planning.lengthPaperPlanning} cm' : "0",
-      ),
-      DataGridCell<String>(
         columnName: 'size',
         value: planning.sizePaperPLaning > 0 ? '${planning.sizePaperPLaning} cm' : '0',
+      ),
+      DataGridCell<String>(
+        columnName: 'length',
+        value: planning.lengthPaperPlanning > 0 ? '${planning.lengthPaperPlanning} cm' : "0",
       ),
       DataGridCell<int>(columnName: 'child', value: planning.numberChild),
 

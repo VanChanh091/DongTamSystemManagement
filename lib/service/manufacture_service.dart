@@ -14,19 +14,20 @@ class ManufactureService {
   //get planning paper
   Future<List<PlanningPaper>> getPlanningPaper({required String machine}) async {
     return HelperService().fetchingData<PlanningPaper>(
-      endpoint: "manufacture/planningPaper",
+      endpoint: "manufacture/paper",
       queryParameters: {"machine": machine},
       fromJson: (json) => PlanningPaper.fromJson(json),
     );
   }
 
   //create report for planning
-  Future<bool> createReportPaper({
+  Future<bool> createOrUpdateReportPaper({
     required int planningId,
     required int qtyProduced,
     required double qtyWasteNorm,
     required DateTime dayCompleted,
     required Map<String, dynamic> reportData,
+    bool isUpdate = false,
   }) async {
     final token = await SecureStorageService().getToken();
 
@@ -40,9 +41,11 @@ class ManufactureService {
       now.second,
     );
 
+    final method = isUpdate ? dioService.put : dioService.post;
+
     try {
-      await dioService.post(
-        '/api/manufacture/reportPaper',
+      await method(
+        '/api/manufacture/paper',
         queryParameters: {"planningId": planningId},
         data: {
           "qtyProduced": qtyProduced,
@@ -70,7 +73,7 @@ class ManufactureService {
       final token = await SecureStorageService().getToken();
 
       await dioService.post(
-        '/api/manufacture/producingPaper',
+        '/api/manufacture/paper/confirm',
         queryParameters: {"planningId": planningId},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
@@ -91,7 +94,7 @@ class ManufactureService {
   //get planning paper
   Future<List<PlanningBox>> getPlanningBox({required String machine}) async {
     return HelperService().fetchingData<PlanningBox>(
-      endpoint: "manufacture/planningBox",
+      endpoint: "manufacture/box",
       queryParameters: {"machine": machine},
       fromJson: (json) => PlanningBox.fromJson(json),
     );
@@ -120,7 +123,7 @@ class ManufactureService {
 
     try {
       await dioService.post(
-        '/api/manufacture/reportBox',
+        '/api/manufacture/box',
         queryParameters: {"planningBoxId": planningBoxId, "machine": machine},
         data: {
           "dayCompleted": fullDateTime.toIso8601String(),
@@ -148,7 +151,7 @@ class ManufactureService {
       final token = await SecureStorageService().getToken();
 
       await dioService.post(
-        '/api/manufacture/producingBox',
+        '/api/manufacture/box/confirm',
         queryParameters: {"planningBoxId": planningBoxId, "machine": machine},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
@@ -173,7 +176,7 @@ class ManufactureService {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
-        '/api/manufacture/requestCheck',
+        '/api/manufacture/box',
         queryParameters: {"planningBoxId": planningBoxId, 'machine': machine},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},

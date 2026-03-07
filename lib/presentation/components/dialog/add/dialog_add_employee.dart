@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/employee/employee_basic_info.dart';
 import 'package:dongtam/data/models/employee/employee_company_info.dart';
 import 'package:dongtam/service/employee_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
@@ -114,32 +115,32 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
     final newCompanyInfoEmpl = EmployeeCompanyInfo(
       companyInfoId: 0,
-      employeeCode: _employeeCodeController.text.toUpperCase(),
+      employeeCode: _employeeCodeController.trimmed.toUpperCase(),
       joinDate: joinDate ?? DateTime.now(),
-      department: _departmentController.text,
-      position: _positionController.text,
-      emergencyPhone: _emergencyPhoneController.text,
-      emergencyContact: _emergencyContactController.text,
+      department: _departmentController.superClean,
+      position: _positionController.superClean,
+      emergencyPhone: _emergencyPhoneController.trimmed,
+      emergencyContact: _emergencyContactController.superClean,
       status: typeStatusWorking,
     );
 
     final newEmployee = EmployeeBasicInfo(
       employeeId: 0,
-      fullName: _fullNameController.text,
+      fullName: _fullNameController.superClean,
       gender: typeGender,
       birthday: birthday ?? DateTime.now(),
-      birthPlace: _birthPlaceController.text,
-      homeTown: _homeTownController.text,
-      educationLevel: _educationLevelController.text,
-      phoneNumber: _phoneNumberController.text,
-      educationSystem: _educationSystemController.text,
-      major: _majorController.text,
-      citizenId: _citizenIdController.text,
+      birthPlace: _birthPlaceController.superClean,
+      homeTown: _homeTownController.superClean,
+      educationLevel: _educationLevelController.superClean,
+      phoneNumber: _phoneNumberController.trimmed,
+      educationSystem: _educationSystemController.superClean,
+      major: _majorController.superClean,
+      citizenId: _citizenIdController.trimmed,
       citizenIssuedDate: citizenIssuedDate ?? DateTime.now(),
-      citizenIssuedPlace: _citizenIssuedPlaceController.text,
-      permanentAddress: _permanentAddressController.text,
-      temporaryAddress: _temporaryAddressController.text,
-      ethnicity: _ethnicityController.text,
+      citizenIssuedPlace: _citizenIssuedPlaceController.superClean,
+      permanentAddress: _permanentAddressController.superClean,
+      temporaryAddress: _temporaryAddressController.superClean,
+      ethnicity: _ethnicityController.superClean,
       companyInfo: newCompanyInfoEmpl,
     );
 
