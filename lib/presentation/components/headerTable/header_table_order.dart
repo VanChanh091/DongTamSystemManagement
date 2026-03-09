@@ -65,6 +65,7 @@ final List<Map<String, dynamic>> _headerOrder = [
   // Status
   {"key": "status", "title": "Trạng thái"},
   {"key": "rejectReason", "title": "Lý do"},
+  {"key": "orderImage", "title": "Hình ảnh"},
 ];
 
 List<GridColumn> buildOrderColumns({

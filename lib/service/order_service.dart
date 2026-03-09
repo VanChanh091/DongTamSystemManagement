@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import 'package:http_parser/http_parser.dart';
 
 class OrderService {
   final Dio dioService = DioClient().dio;
@@ -61,13 +65,26 @@ class OrderService {
   }
 
   //add order
-  Future<Map<String, dynamic>> addOrders({required Map<String, dynamic> orderData}) async {
+  Future<Map<String, dynamic>> addOrders({
+    required Map<String, dynamic> orderData,
+    Uint8List? imageBytes,
+  }) async {
     try {
       final token = await SecureStorageService().getToken();
 
+      final formData = FormData.fromMap({
+        'orderData': jsonEncode(orderData),
+        if (imageBytes != null)
+          'orderImage': MultipartFile.fromBytes(
+            imageBytes,
+            filename: 'order.webp',
+            contentType: MediaType('image', 'webp'),
+          ),
+      });
+
       final response = await dioService.post(
         "/api/order",
-        data: orderData,
+        data: formData,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
@@ -94,12 +111,35 @@ class OrderService {
   Future<bool> updateOrder({
     required String orderId,
     required Map<String, dynamic> orderUpdated,
+    Uint8List? imageBytes,
   }) async {
-    return HelperService().updateItem(
-      endpoint: 'order',
-      queryParameters: {'orderId': orderId},
-      dataUpdated: orderUpdated,
-    );
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final formData = FormData.fromMap({
+        'orderData': jsonEncode(orderUpdated),
+        if (imageBytes != null)
+          'orderImage': MultipartFile.fromBytes(
+            imageBytes,
+            filename: 'order.webp',
+            contentType: MediaType('image', 'webp'),
+          ),
+      });
+
+      await dioService.put(
+        "/api/order",
+        queryParameters: {'orderId': orderId},
+        data: formData,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'multipart/form-data'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to update order", error: e, stackTrace: s);
+      throw Exception('Failed to update order: $e');
+    }
   }
 
   //delete order

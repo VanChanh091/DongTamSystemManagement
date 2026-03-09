@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
@@ -18,6 +19,7 @@ import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -92,6 +94,9 @@ class _OrderDialogState extends State<OrderDialog> {
   final productIdController = TextEditingController();
   final customerNameController = TextEditingController();
   final customerCompanyController = TextEditingController();
+
+  Uint8List? pickedOrderImage;
+  String? orderImageUrl;
 
   //box
   ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
@@ -207,6 +212,11 @@ class _OrderDialogState extends State<OrderDialog> {
       dateShippingController.text = DateFormat('dd/MM/yyyy').format(dateShipping!);
     }
 
+    //image
+    orderImageUrl = selectedOrder.orderImage;
+
+    print("URL ảnh đơn hàng: $orderImageUrl");
+
     // 2. Cập nhật Box Fields (Chỉ cập nhật .value, không khởi tạo lại Notifier)
     isBoxChecked.value = selectedOrder.isBox;
     final box = selectedOrder.box;
@@ -235,6 +245,20 @@ class _OrderDialogState extends State<OrderDialog> {
     Order.listenerForFieldNeed(quantityCustomerController, quantityManufactureController);
   }
 
+  Future<void> pickImage() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    if (result != null && result.files.single.bytes != null) {
+      setState(() {
+        pickedOrderImage = result.files.single.bytes;
+      });
+      AppLogger.d(
+        "Đã chọn ảnh đơn hàng (${result.files.single.name}, ${result.files.single.size} bytes)",
+      );
+    } else {
+      AppLogger.d("Không chọn ảnh nào");
+    }
+  }
+
   void submit() async {
     //bắt validate form
     if (!formKey.currentState!.validate()) {
@@ -242,76 +266,83 @@ class _OrderDialogState extends State<OrderDialog> {
       return;
     }
 
-    final prefix = orderIdController.text.toUpperCase();
-
-    // determine wave fields
-    final String songEValue = Order.addPrefixIfNeeded(songEController.text, 'E');
-    final String songBValue = Order.addPrefixIfNeeded(songBController.text, 'B');
-    final String songCValue = Order.addPrefixIfNeeded(songCController.text, 'C');
-    final String songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
-
-    final newBox = Box(
-      inMatTruoc: int.tryParse(inMatTruocController.trimmed) ?? 0,
-      inMatSau: int.tryParse(inMatSauController.trimmed) ?? 0,
-      canMang: canMangChecked.value,
-      canLan: canLanChecked.value,
-      Xa: xaChecked.value,
-      catKhe: catKheChecked.value,
-      be: beChecked.value,
-      dan_1_Manh: dan1ManhChecked.value,
-      dan_2_Manh: dan2ManhChecked.value,
-      dongGhim1Manh: dongGhim1ManhChecked.value,
-      dongGhim2Manh: dongGhim2ManhChecked.value,
-      chongTham: chongThamChecked.value,
-      dongGoi: dongGoiController.superClean,
-      maKhuon: maKhuonController.trimmed,
-    );
-
-    final newOrder = Order(
-      orderId: Order.generateOrderCode(prefix),
-      orderIdCustomer: orderIdCustomerController.trimmed.toUpperCase(),
-      customerId: customerIdController.trimmed.toUpperCase(),
-      productId: productIdController.trimmed.toUpperCase(),
-
-      dayReceiveOrder: dayReceive ?? DateTime.now(),
-      QC_box: qcBoxController.trimmed.toLowerCase(),
-      canLan: canLanController.trimmed,
-      daoXa: typeDaoXa,
-
-      day: dayController.trimmed.toUpperCase(),
-      matE: matEController.trimmed.toUpperCase(),
-      matB: matBController.trimmed.toUpperCase(),
-      matC: matCController.trimmed.toUpperCase(),
-      matE2: matE2Controller.trimmed.toUpperCase(),
-      songE: songEValue,
-      songB: songBValue,
-      songC: songCValue,
-      songE2: songE2Value,
-
-      lengthPaperCustomer: double.tryParse(lengthCustomerController.trimmed) ?? 0.0,
-      lengthPaperManufacture: double.tryParse(lengthManufactureController.trimmed) ?? 0.0,
-      paperSizeCustomer: double.tryParse(sizeCustomerController.trimmed) ?? 0.0,
-      paperSizeManufacture: double.tryParse(sizeManufactureController.trimmed) ?? 0.0,
-      quantityCustomer: int.tryParse(quantityCustomerController.trimmed) ?? 0,
-      quantityManufacture: int.tryParse(quantityManufactureController.trimmed) ?? 0,
-
-      numberChild: int.tryParse(numberChildController.trimmed) ?? 0,
-      dvt: typeDVT,
-
-      price: double.tryParse(priceController.trimmed) ?? 0.0,
-      pricePaper: double.tryParse(pricePaperController.trimmed) ?? 0.0,
-      discount: double.tryParse(discountController.trimmed) ?? 0.0,
-      profit: double.tryParse(profitController.trimmed) ?? 0.0,
-
-      dateRequestShipping: dateShipping ?? DateTime.now(),
-      vat: int.tryParse(vatController.trimmed) ?? 0,
-      instructSpecial: instructSpecialController.trimmed,
-      isBox: isBoxChecked.value,
-      box: newBox,
-      status: 'pending',
-    );
+    // if (!mounted) return;
+    showLoadingDialog(context);
+    await Future.delayed(const Duration(seconds: 1));
 
     try {
+      final prefix = orderIdController.text.toUpperCase();
+
+      // determine wave fields
+      final String songEValue = Order.addPrefixIfNeeded(songEController.text, 'E');
+      final String songBValue = Order.addPrefixIfNeeded(songBController.text, 'B');
+      final String songCValue = Order.addPrefixIfNeeded(songCController.text, 'C');
+      final String songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
+
+      final newBox = Box(
+        inMatTruoc: int.tryParse(inMatTruocController.trimmed) ?? 0,
+        inMatSau: int.tryParse(inMatSauController.trimmed) ?? 0,
+        canMang: canMangChecked.value,
+        canLan: canLanChecked.value,
+        Xa: xaChecked.value,
+        catKhe: catKheChecked.value,
+        be: beChecked.value,
+        dan_1_Manh: dan1ManhChecked.value,
+        dan_2_Manh: dan2ManhChecked.value,
+        dongGhim1Manh: dongGhim1ManhChecked.value,
+        dongGhim2Manh: dongGhim2ManhChecked.value,
+        chongTham: chongThamChecked.value,
+        dongGoi: dongGoiController.superClean,
+        maKhuon: maKhuonController.trimmed,
+      );
+
+      final newOrder = Order(
+        orderId: Order.generateOrderCode(prefix),
+        orderIdCustomer: orderIdCustomerController.trimmed.toUpperCase(),
+        customerId: customerIdController.trimmed.toUpperCase(),
+        productId: productIdController.trimmed.toUpperCase(),
+
+        dayReceiveOrder: dayReceive ?? DateTime.now(),
+        QC_box: qcBoxController.trimmed.toLowerCase(),
+        canLan: canLanController.trimmed,
+        daoXa: typeDaoXa,
+
+        day: dayController.trimmed.toUpperCase(),
+        matE: matEController.trimmed.toUpperCase(),
+        matB: matBController.trimmed.toUpperCase(),
+        matC: matCController.trimmed.toUpperCase(),
+        matE2: matE2Controller.trimmed.toUpperCase(),
+        songE: songEValue,
+        songB: songBValue,
+        songC: songCValue,
+        songE2: songE2Value,
+
+        lengthPaperCustomer: double.tryParse(lengthCustomerController.trimmed) ?? 0.0,
+        lengthPaperManufacture: double.tryParse(lengthManufactureController.trimmed) ?? 0.0,
+        paperSizeCustomer: double.tryParse(sizeCustomerController.trimmed) ?? 0.0,
+        paperSizeManufacture: double.tryParse(sizeManufactureController.trimmed) ?? 0.0,
+        quantityCustomer: int.tryParse(quantityCustomerController.trimmed) ?? 0,
+        quantityManufacture: int.tryParse(quantityManufactureController.trimmed) ?? 0,
+
+        numberChild: int.tryParse(numberChildController.trimmed) ?? 0,
+        dvt: typeDVT,
+
+        price: double.tryParse(priceController.trimmed) ?? 0.0,
+        pricePaper: double.tryParse(pricePaperController.trimmed) ?? 0.0,
+        discount: double.tryParse(discountController.trimmed) ?? 0.0,
+        profit: double.tryParse(profitController.trimmed) ?? 0.0,
+
+        dateRequestShipping: dateShipping ?? DateTime.now(),
+        vat: int.tryParse(vatController.trimmed) ?? 0,
+        instructSpecial: instructSpecialController.trimmed,
+
+        orderImage: orderImageUrl ?? "",
+
+        isBox: isBoxChecked.value,
+        box: newBox,
+        status: 'pending',
+      );
+
       final bool isAdd = widget.order == null;
       String? orderId;
 
@@ -320,23 +351,27 @@ class _OrderDialogState extends State<OrderDialog> {
       );
 
       if (isAdd) {
-        final response = await OrderService().addOrders(orderData: newOrder.toJson());
+        final response = await OrderService().addOrders(
+          orderData: newOrder.toJson(),
+          imageBytes: pickedOrderImage,
+        );
         orderId = response['orderId'];
       } else {
-        await OrderService().updateOrder(orderId: originalOrderId, orderUpdated: newOrder.toJson());
+        await OrderService().updateOrder(
+          orderId: originalOrderId,
+          orderUpdated: newOrder.toJson(),
+          imageBytes: pickedOrderImage,
+        );
       }
-
-      // Show loading
-      if (!mounted) return;
-      showLoadingDialog(context);
-      await Future.delayed(const Duration(seconds: 1));
 
       if (!mounted) return;
       Navigator.pop(context); // đóng dialog loading
 
       // Thông báo thành công
-      if (!mounted) return;
-      showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
+      showSnackBarSuccess(
+        context,
+        isAdd ? "Tạo đơn hàng thành công" : "Cập nhật đơn hàng thành công",
+      );
 
       //fetch lại badge sau khi add/update
       badgesController.fetchPendingApprovals();
@@ -749,6 +784,25 @@ class _OrderDialogState extends State<OrderDialog> {
 
     final List<Map<String, dynamic>> structureRows = [
       {
+        "leftKey": "Đáy",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Đáy (g)",
+          controller: dayController,
+          icon: Symbols.vertical_align_bottom,
+        ),
+        "middle_1Key": "Cấn Lằn",
+        "middle_1Value": ValidationOrder.validateInput(
+          label: "Cấn Lằn",
+          controller: canLanController,
+          icon: Symbols.bottom_sheets,
+        ),
+        "middle_2Key": "",
+        "middle_2Value": const SizedBox(),
+        "rightKey": "",
+        "rightValue": const SizedBox(),
+      },
+
+      {
         "leftKey": "Mặt E",
         "leftValue": ValidationOrder.validateInput(
           label: "Mặt E (g)",
@@ -800,25 +854,6 @@ class _OrderDialogState extends State<OrderDialog> {
           controller: songE2Controller,
           icon: Symbols.airwave,
         ),
-      },
-
-      {
-        "leftKey": "Đáy",
-        "leftValue": ValidationOrder.validateInput(
-          label: "Đáy (g)",
-          controller: dayController,
-          icon: Symbols.vertical_align_bottom,
-        ),
-        "middle_1Key": "Cấn Lằn",
-        "middle_1Value": ValidationOrder.validateInput(
-          label: "Cấn Lằn",
-          controller: canLanController,
-          icon: Symbols.bottom_sheets,
-        ),
-        "middle_2Key": "",
-        "middle_2Value": const SizedBox(),
-        "rightKey": "",
-        "rightValue": const SizedBox(),
       },
     ];
 
@@ -1067,6 +1102,82 @@ class _OrderDialogState extends State<OrderDialog> {
                           ],
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    Center(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: pickImage,
+                                icon: const Icon(Icons.upload),
+                                label: const Text(
+                                  "Chọn ảnh đơn hàng",
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueAccent,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                              if (pickedOrderImage != null || orderImageUrl != null) ...[
+                                const SizedBox(width: 10),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      pickedOrderImage = null;
+                                      orderImageUrl = null;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.delete_outline),
+                                  label: const Text(
+                                    "Xóa ảnh",
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.redAccent,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 15,
+                                      vertical: 15,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          if (pickedOrderImage != null) ...[
+                            const SizedBox(height: 15),
+                            Image.memory(
+                              pickedOrderImage!,
+                              height: 600,
+                              width: 800,
+                              fit: BoxFit.contain,
+                            ),
+                          ] else if (orderImageUrl != null) ...[
+                            const SizedBox(height: 15),
+                            Image.network(
+                              orderImageUrl!,
+                              height: 600,
+                              width: 800,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Text('Lỗi tải ảnh');
+                              },
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ],
                 ),

@@ -76,14 +76,19 @@ class _ProductDialogState extends State<ProductDialog> {
       return;
     }
 
-    final newProduct = Product(
-      productId: idController.trimmed.toUpperCase(),
-      typeProduct: typeProduct,
-      productName: nameProductController.superClean,
-      maKhuon: maKhuonController.trimmed,
-    );
+    //show loading
+    showLoadingDialog(context);
+    await Future.delayed(const Duration(seconds: 1));
 
     try {
+      final newProduct = Product(
+        productId: idController.trimmed.toUpperCase(),
+        typeProduct: typeProduct,
+        productName: nameProductController.superClean,
+        maKhuon: maKhuonController.trimmed,
+        productImage: productImageUrl ?? "",
+      );
+
       final bool isAdd = widget.product == null;
 
       AppLogger.i(
@@ -92,22 +97,19 @@ class _ProductDialogState extends State<ProductDialog> {
             : "Cập nhật sản phẩm: ${newProduct.productId}",
       );
 
-      isAdd
-          ? await ProductService().addProduct(
-            prefix: newProduct.productId,
-            product: newProduct.toJson(),
-            imageBytes: pickedProductImage,
-          )
-          : await ProductService().updateProductById(
-            productId: newProduct.productId,
-            productUpdated: newProduct.toJson(),
-            imageBytes: pickedProductImage,
-          );
-
-      // Show loadingonProductAddOrUpdate
-      if (!mounted) return;
-      showLoadingDialog(context);
-      await Future.delayed(const Duration(seconds: 1));
+      if (isAdd) {
+        await ProductService().addProduct(
+          prefix: newProduct.productId,
+          product: newProduct.toJson(),
+          imageBytes: pickedProductImage,
+        );
+      } else {
+        await ProductService().updateProductById(
+          productId: newProduct.productId,
+          productUpdated: newProduct.toJson(),
+          imageBytes: pickedProductImage,
+        );
+      }
 
       if (!mounted) return;
       Navigator.pop(context); // đóng dialog loading

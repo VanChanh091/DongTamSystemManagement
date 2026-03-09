@@ -256,7 +256,11 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
                   final List<Order> data = snapshot.data!;
 
-                  orderDataSource = OrderDataSource(orders: data, selectedOrderId: selectedOrderId);
+                  orderDataSource = OrderDataSource(
+                    context: context,
+                    orders: data,
+                    selectedOrderId: selectedOrderId,
+                  );
 
                   return SfDataGrid(
                     controller: _dataGridController,

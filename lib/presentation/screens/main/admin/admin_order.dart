@@ -573,6 +573,43 @@ class _ManageOrderState extends State<AdminOrder> {
                 ),
               ],
             ),
+            
+            // Hình ảnh đơn hàng (nếu có)
+            if (order.orderImage != null && order.orderImage!.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '🖼️ Ảnh đơn hàng',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: double.infinity,
+                  constraints: const BoxConstraints(maxHeight: 500),
+                  child: Image.network(
+                    order.orderImage!,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        color: Colors.grey.shade200,
+                        child: const Center(
+                          child: Text('Lỗi tải ảnh đơn hàng', style: TextStyle(color: Colors.red)),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

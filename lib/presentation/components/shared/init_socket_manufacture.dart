@@ -53,12 +53,12 @@ class InitSocketManufacture {
   }
 
   void _onSocketUpdated(dynamic data) {
-    print("Received socket update: $data");
+    // print("Received socket update: $data");
 
     bool isPlan = data['isPlan'] ?? false;
     int? senderId = data['senderId'];
     String message = data['message'] ?? "";
-    
+
     final userController = Get.find<UserController>();
     if (!isPlan && senderId != null && senderId == userController.userId.value) {
       // Bỏ qua hiển thị dialog nếu là chính user đang đăng nhập gửi request

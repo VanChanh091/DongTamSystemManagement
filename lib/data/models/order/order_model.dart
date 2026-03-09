@@ -25,6 +25,7 @@ class Order {
   final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT, volume;
   final DateTime? dateRequestShipping;
   final int? vat;
+  final String? orderImage;
 
   //temp field
   final int? remainingQty;
@@ -78,6 +79,7 @@ class Order {
     this.orderIdCustomer,
     this.totalPrice,
     this.totalPriceVAT,
+    this.orderImage,
     required this.isBox,
 
     this.remainingQty,
@@ -191,6 +193,7 @@ class Order {
       status: json['status'] ?? "",
       rejectReason: json['rejectReason'] ?? "",
       orderIdCustomer: json['orderIdCustomer'] ?? "",
+      orderImage: json['orderImage'] ?? "",
 
       remainingQty: json['remainingQty'] ?? 0,
 
@@ -244,6 +247,7 @@ class Order {
       'status': status,
       "rejectReason": rejectReason,
       "orderIdCustomer": orderIdCustomer,
+      'orderImage': orderImage,
       'vat': vat,
       'box': box?.toJson(),
     };

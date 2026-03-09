@@ -8,14 +8,16 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:intl/intl.dart';
 
 class OrderDataSource extends DataGridSource {
+  final BuildContext context;
+  late List<DataGridRow> orderDataGridRows;
+
   List<Order> orders;
   String? selectedOrderId;
 
-  late List<DataGridRow> orderDataGridRows;
   final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
 
-  OrderDataSource({required this.orders, this.selectedOrderId}) {
+  OrderDataSource({required this.orders, this.selectedOrderId, required this.context}) {
     buildDataCell();
   }
 
@@ -140,6 +142,7 @@ class OrderDataSource extends DataGridSource {
 
       DataGridCell(columnName: 'status', value: formatStatus(order.status)),
       DataGridCell(columnName: 'rejectReason', value: order.rejectReason ?? ""),
+      DataGridCell(columnName: 'orderImage', value: order.orderImage ?? ""),
     ];
   }
 
@@ -235,6 +238,73 @@ class OrderDataSource extends DataGridSource {
               alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;
+            }
+
+            if (dataCell.columnName == 'orderImage') {
+              final imageUrl = dataCell.value?.toString() ?? "";
+              final hasImage = imageUrl.isNotEmpty && imageUrl != "Không có ảnh";
+
+              return Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child:
+                    hasImage
+                        ? TextButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (_) {
+                                return GestureDetector(
+                                  onTap: () => Navigator.of(context).pop(),
+                                  child: Scaffold(
+                                    backgroundColor: Colors.black54,
+                                    body: Center(
+                                      child: GestureDetector(
+                                        onTap: () {}, // Ngăn đóng dialog khi bấm ảnh
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: SizedBox(
+                                            width: 800,
+                                            height: 800,
+                                            child: Image.network(
+                                              imageUrl,
+                                              fit: BoxFit.contain,
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Container(
+                                                  width: 300,
+                                                  height: 300,
+                                                  color: Colors.grey.shade300,
+                                                  alignment: Alignment.center,
+                                                  child: const Text(
+                                                    "Lỗi ảnh",
+                                                    style: TextStyle(color: Colors.black),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: const Text(
+                            "Xem ảnh",
+                            style: TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        )
+                        : Text('Không có ảnh'),
+              );
             }
 
             return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
