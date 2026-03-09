@@ -1,6 +1,8 @@
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class InitSocketManufacture {
   final BuildContext context;
@@ -18,7 +20,6 @@ class InitSocketManufacture {
   });
 
   Future<void> registerSocket(String machine) async {
-    AppLogger.i("registerSocket: join room machine=$machine");
     socketService.joinMachineRoom(machine);
 
     socketService.off(eventName);
@@ -52,23 +53,29 @@ class InitSocketManufacture {
   }
 
   void _onSocketUpdated(dynamic data) {
-    bool isPlan = data['isPlan'] ?? false;
-    String message = data['message'] ?? "";
+    print("Received socket update: $data");
 
-    if (isPlan) {
-      _showUpdateDialog(data);
-    } else {
+    bool isPlan = data['isPlan'] ?? false;
+    int? senderId = data['senderId'];
+    String message = data['message'] ?? "";
+    
+    final userController = Get.find<UserController>();
+    if (!isPlan && senderId != null && senderId == userController.userId.value) {
+      // Bỏ qua hiển thị dialog nếu là chính user đang đăng nhập gửi request
       onLoadData();
       showSnackBarSuccess(context, message);
+      return;
     }
+
+    _showUpdateDialog(data, isPlan: isPlan);
   }
 
-  void _showUpdateDialog(dynamic data) {
+  void _showUpdateDialog(dynamic data, {required bool isPlan}) {
     final from = data['from'] ?? "";
     final machine = data['machine'] ?? "";
     final message = data['message'] ?? "";
 
-    AppLogger.i("_showUpdateDialog: machine=$machine, data=$message");
+    AppLogger.i("_showUpdateDialog: machine=$machine, message=$message, isPlan=$isPlan");
 
     showDialog(
       context: context,
@@ -84,11 +91,17 @@ class InitSocketManufacture {
             title: Center(
               child: Row(
                 children: [
-                  Icon(Icons.notifications_active, color: Colors.green, size: 28),
-                  SizedBox(width: 8),
+                  Icon(
+                    isPlan ? Icons.notifications_active : Icons.info_outline,
+                    color: isPlan ? Colors.green : Colors.blue,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 8),
                   Text(
-                    'Thông báo: $from',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    isPlan
+                        ? 'Thông báo từ: ${from.isNotEmpty ? from : 'Kế hoạch'}'
+                        : 'Thông báo từ: Sản xuất',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -99,7 +112,7 @@ class InitSocketManufacture {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '$message.\nNhấn OK để cập nhật dữ liệu.',
+                    '$message\nNhấn OK để cập nhật dữ liệu.',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 17),
                   ),
@@ -114,7 +127,7 @@ class InitSocketManufacture {
                   onLoadData();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: isPlan ? Colors.green : Colors.blue,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),

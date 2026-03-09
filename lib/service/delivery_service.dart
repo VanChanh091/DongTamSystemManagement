@@ -47,7 +47,7 @@ class DeliveryService {
   //get all planning waiting delivery
   Future<List<PlanningPaper>> getPlanningPending() async {
     return HelperService().fetchingData<PlanningPaper>(
-      endpoint: "delivery/delivery",
+      endpoint: "delivery/planning",
       queryParameters: const {},
       fromJson: (json) => PlanningPaper.fromJson(json),
     );
@@ -56,7 +56,7 @@ class DeliveryService {
   //get delivery plan detail for edit
   Future<List<DeliveryPlanModel>> getDeliveryPlanDetail({required DateTime deliveryDate}) async {
     return HelperService().fetchingData<DeliveryPlanModel>(
-      endpoint: "delivery/delivery",
+      endpoint: "delivery/planning",
       queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
       fromJson: (json) => DeliveryPlanModel.fromJson(json),
     );
@@ -68,7 +68,7 @@ class DeliveryService {
     required List<Map<String, dynamic>> items,
   }) async {
     return HelperService().addItem(
-      endpoint: "delivery/delivery",
+      endpoint: "delivery/planning",
       itemData: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate), "items": items},
     );
   }
@@ -76,7 +76,7 @@ class DeliveryService {
   //confirm for delivery
   Future<bool> confirmForDeliveryPlanning({required DateTime deliveryDate}) async {
     return HelperService().updateItem(
-      endpoint: "delivery/delivery",
+      endpoint: "delivery/planning",
       queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
     );
   }
@@ -86,7 +86,7 @@ class DeliveryService {
   // get schedule delivery
   Future<List<DeliveryPlanModel>> getScheduleDelivery({required DateTime deliveryDate}) async {
     return HelperService().fetchingData<DeliveryPlanModel>(
-      endpoint: "delivery/schedule/export",
+      endpoint: "delivery/schedule",
       queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
       fromJson: (json) => DeliveryPlanModel.fromJson(json),
     );
@@ -100,7 +100,7 @@ class DeliveryService {
     required String action,
   }) async {
     return HelperService().updateItem(
-      endpoint: "delivery/schedule/export",
+      endpoint: "delivery/schedule",
       queryParameters: {"deliveryId": deliveryId},
       dataUpdated: {"itemIds": itemIds, "action": action},
     );

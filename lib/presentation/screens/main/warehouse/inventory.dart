@@ -1,6 +1,8 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory_model.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_inventory.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/warehouse/inventory_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
@@ -39,7 +41,7 @@ class _InventoryState extends State<Inventory> {
   @override
   void initState() {
     super.initState();
-    loadReportInbound();
+    loadInventory();
 
     columns = buildInventoryColumn(themeController: themeController);
 
@@ -50,7 +52,7 @@ class _InventoryState extends State<Inventory> {
     });
   }
 
-  void loadReportInbound() {
+  void loadInventory() {
     setState(() {
       futureInventory = ensureMinLoading(
         WarehouseService().getAllInventory(page: currentPage, pageSize: pageSize),
@@ -59,6 +61,8 @@ class _InventoryState extends State<Inventory> {
 
     selectedInventoryId.clear();
   }
+
+  void searchInventory() {}
 
   @override
   Widget build(BuildContext context) {
@@ -79,14 +83,12 @@ class _InventoryState extends State<Inventory> {
                     height: 35,
                     width: double.infinity,
                     child: Center(
-                      child: Obx(
-                        () => Text(
-                          "HÀNG TỒN KHO",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                            color: themeController.currentColor.value,
-                          ),
+                      child: Text(
+                        "HÀNG TỒN KHO",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -100,7 +102,31 @@ class _InventoryState extends State<Inventory> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         //left button
-                        SizedBox(),
+                        Expanded(
+                          flex: 1,
+                          child: LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const [
+                              'Tất cả',
+                              "Theo Mã",
+                              "Theo Tên KH",
+                              "Theo CSKH",
+                              "Theo SDT",
+                            ],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = searchType != 'Tất cả';
+                                searchController.clear();
+                              });
+                            },
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
+
+                            onSearch: () => searchInventory(),
+                          ),
+                        ),
 
                         //right button
                         Expanded(
@@ -115,12 +141,7 @@ class _InventoryState extends State<Inventory> {
                                 //   // onPressed: () async {
                                 //   //   showDialog(
                                 //   //     context: context,
-                                //   //     builder:
-                                //   //         (_) => DialogSelectExportExcel(
-                                //   //           selectedInventoryId: selectedInventoryId,
-                                //   //           onPlanningIdsOrRangeDate: () => loadReportInbound(),
-                                //   //           machine: machine,
-                                //   //         ),
+                                //   //     builder: (_) => DialogExportCusOrProd(),
                                 //   //   );
                                 //   // },
                                 //   onPressed: () {},
@@ -128,7 +149,6 @@ class _InventoryState extends State<Inventory> {
                                 //   icon: Symbols.export_notes,
                                 //   backgroundColor: themeController.buttonColor,
                                 // ),
-                                // const SizedBox(width: 10),
                               ],
                             ),
                           ),
@@ -169,6 +189,9 @@ class _InventoryState extends State<Inventory> {
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
+                  final double totalValueInventory =
+                      double.tryParse(data['totalValueInventory']?.toString() ?? '0') ?? 0.0;
+
                   inventoryDataSource = InventoryDataSource(
                     inventory: inventory,
                     selectedInventoryId: selectedInventoryId,
@@ -176,6 +199,27 @@ class _InventoryState extends State<Inventory> {
 
                   return Column(
                     children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0, right: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              "Tổng Giá Trị Tồn: ",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            Text(
+                              "${Order.formatCurrency(totalValueInventory)} VNĐ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.green.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                       //table
                       Expanded(
                         child: SfDataGrid(
@@ -193,21 +237,6 @@ class _InventoryState extends State<Inventory> {
                             columns: columns,
                             widths: columnWidths,
                           ),
-                          // stackedHeaderRows: <StackedHeaderRow>[
-                          //   StackedHeaderRow(
-                          //     cells: [
-                          //       StackedHeaderCell(
-                          //         columnNames: ['quantityOrd', 'qtyPaper', 'qtyInbound'],
-                          //         child: Obx(
-                          //           () => formatColumn(
-                          //             label: 'Số Lượng',
-                          //             themeController: themeController,
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ],
 
                           //auto resize
                           allowColumnsResizing: true,
@@ -266,19 +295,19 @@ class _InventoryState extends State<Inventory> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadReportInbound();
+                            loadInventory();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadReportInbound();
+                            loadInventory();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadReportInbound();
+                            loadInventory();
                           });
                         },
                       ),
@@ -291,7 +320,7 @@ class _InventoryState extends State<Inventory> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadReportInbound(),
+        onPressed: () => loadInventory(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

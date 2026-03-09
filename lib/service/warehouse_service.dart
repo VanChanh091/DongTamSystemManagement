@@ -101,7 +101,7 @@ class WarehouseService {
   Future<List<Order>> searchOrderIds({required String orderId, String isSearch = "true"}) async {
     return HelperService().fetchingData(
       endpoint: 'warehouse/outbound/get-search',
-      queryParameters: {'orderId': orderId},
+      queryParameters: {'orderId': orderId, 'isSearch': isSearch},
       fromJson: (json) => Order.fromJson(json),
     );
   }
@@ -110,7 +110,7 @@ class WarehouseService {
   Future<Order?> getOrderInboundQty({required String orderId, String isSearch = "false"}) async {
     return HelperService().fetchSingleData(
       endpoint: 'warehouse/outbound/get-search',
-      queryParameters: {'orderId': orderId},
+      queryParameters: {'orderId': orderId, 'isSearch': isSearch},
       parser: (json) => Order.fromJson(json as Map<String, dynamic>),
     );
   }

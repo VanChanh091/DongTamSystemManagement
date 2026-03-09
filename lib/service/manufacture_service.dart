@@ -63,8 +63,12 @@ class ManufactureService {
       HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
       return false;
     } catch (e, s) {
-      AppLogger.e("Failed to create report paper", error: e, stackTrace: s);
-      throw Exception('Failed to create report paper: $e');
+      AppLogger.e(
+        "Failed to ${isUpdate ? 'update' : 'create'} report paper",
+        error: e,
+        stackTrace: s,
+      );
+      throw Exception('Failed to ${isUpdate ? 'update' : 'create'} report paper: $e');
     }
   }
 
@@ -101,13 +105,14 @@ class ManufactureService {
   }
 
   //create report for planning
-  Future<bool> createReportBox({
+  Future<bool> createOrUpdateReportBox({
     required int planningBoxId,
     required String machine,
     required DateTime dayCompleted,
     required int qtyProduced,
     required double rpWasteLoss,
     required String shiftManagement,
+    bool isUpdate = false,
   }) async {
     final token = await SecureStorageService().getToken();
 
@@ -121,8 +126,10 @@ class ManufactureService {
       now.second,
     );
 
+    final method = isUpdate ? dioService.put : dioService.post;
+
     try {
-      await dioService.post(
+      await method(
         '/api/manufacture/box',
         queryParameters: {"planningBoxId": planningBoxId, "machine": machine},
         data: {
@@ -141,8 +148,12 @@ class ManufactureService {
       HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
       return false;
     } catch (e, s) {
-      AppLogger.e("Failed to create report box", error: e, stackTrace: s);
-      throw Exception('Failed to create report box: $e');
+      AppLogger.e(
+        "Failed to ${isUpdate ? 'update' : 'create'} report box",
+        error: e,
+        stackTrace: s,
+      );
+      throw Exception('Failed to ${isUpdate ? 'update' : 'create'} report box: $e');
     }
   }
 
@@ -176,7 +187,7 @@ class ManufactureService {
       final token = await SecureStorageService().getToken();
 
       await dioService.put(
-        '/api/manufacture/box',
+        '/api/manufacture/box/request',
         queryParameters: {"planningBoxId": planningBoxId, 'machine': machine},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},

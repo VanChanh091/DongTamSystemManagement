@@ -11,7 +11,7 @@ final List<Map<String, dynamic>> _inventoryColumns = [
   {"key": "length", "title": "Dài"},
   {"key": "qtyCustomer", "title": "Số Lượng"},
   {"key": "dvt", "title": "DVT"},
-  {"key": "price", "title": "Giá Tấm"},
+  {"key": "price", "title": "Đơn Giá"},
   {"key": "vat", "title": "VAT"},
   {"key": "totalPrice", "title": "Tổng Tiền"},
   {"key": "totalPriceVAT", "title": "Tổng Tiền VAT"},

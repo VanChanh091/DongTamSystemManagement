@@ -75,7 +75,6 @@ class _PaperProductionState extends State<PaperProduction> {
     loadPlanning();
 
     columns = buildMachinePaperColumns(themeController: themeController, page: "production");
-
     ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -292,7 +291,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                                 }
                                               }
                                               : null,
-                                      label: "Báo Cáo SX",
+                                      label: "Báo Cáo",
                                       icon: Icons.assignment,
                                       backgroundColor: themeController.buttonColor,
                                     ),

@@ -32,14 +32,14 @@ class BadgesController extends GetxController {
   void initializeAfterLogin(int userId) async {
     await refreshAllBadges();
 
+    //init socket
+    final socketService = SocketService();
+    await socketService.connectSocket();
+
+    //join rom
+    socketService.joinUserRoom(userId);
+
     if (_userController.hasPermission(permission: "sale")) {
-      //init socket
-      final socketService = SocketService();
-      await socketService.connectSocket();
-
-      //join rom
-      socketService.joinUserRoom(userId);
-
       //register listener
       socketService.on("updateBadgeCount", (data) {
         if (data['type'] == "REJECTED_ORDER") {

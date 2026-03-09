@@ -56,6 +56,8 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     super.initState();
     futureEmployee = EmployeeService().getEmployeeByPosition();
 
+    qtyWasteNormController.text = "1";
+
     if (widget.initialData != null) {
       Map<String, dynamic> data = widget.initialData;
 
@@ -126,13 +128,14 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         }
 
         AppLogger.i("Báo cáo sản xuất thùng: ID = ${widget.planningId}");
-        success = await ManufactureService().createReportBox(
+        success = await ManufactureService().createOrUpdateReportBox(
           planningBoxId: widget.planningId,
           machine: widget.machine ?? "",
           dayCompleted: completedDate,
           qtyProduced: qtyProduced,
           rpWasteLoss: qtyWasteNorm,
           shiftManagement: shiftManagement,
+          isUpdate: widget.initialData != null ? true : false,
         );
       }
 

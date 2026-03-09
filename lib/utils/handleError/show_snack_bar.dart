@@ -31,13 +31,10 @@ void _showOverlay(BuildContext? context, String message, Color backgroundColor, 
 
   late OverlayEntry overlayEntry;
 
-  // Dùng context của navigator nếu context truyền vào bị null
-  final effectiveContext = context ?? navigatorKey.currentContext!;
-
   overlayEntry = OverlayEntry(
     builder:
-        (context) => Positioned(
-          bottom: MediaQuery.of(effectiveContext).padding.bottom + 20,
+        (innerContext) => Positioned(
+          bottom: (MediaQuery.maybeOf(innerContext)?.padding.bottom ?? 0) + 20,
           left: 20,
           right: 20,
           child: Material(

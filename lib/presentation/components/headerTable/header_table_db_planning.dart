@@ -56,7 +56,7 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "price", "title": "Đơn Giá"},
   {
     "key": "pricePaper",
-    "title": "Giá Tấm",
+    "title": "Đơn Giá",
     "visiblePages": ["dashboard"],
   },
   {

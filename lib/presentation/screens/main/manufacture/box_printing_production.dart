@@ -113,6 +113,24 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     // ❌ disable nếu sản xuất đủ số lượng rồi
     // if ((box.qtyProduced ?? 0) >= box.runningPlan) return false;
 
+    if (!isRequest) {
+      // Nếu chưa có số lượng (runningPlan <= 0) thì không cho báo cáo
+      if (box.runningPlan <= 0) return false;
+
+      // Nếu now > dayCompleted thì return false
+      if (box.dayCompleted != null) {
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final completionDate = DateTime(
+          box.dayCompleted!.year,
+          box.dayCompleted!.month,
+          box.dayCompleted!.day,
+        );
+
+        if (today.isAfter(completionDate)) return false;
+      }
+    }
+
     if (isRequest) {
       return (box.qtyProduced ?? 0) > 0;
     } else {
@@ -233,6 +251,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                     error: e,
                                                     stackTrace: s,
                                                   );
+
                                                   showSnackBarError(
                                                     context,
                                                     "Đã xảy ra lỗi khi mở báo cáo.",
@@ -240,7 +259,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                 }
                                               }
                                               : null,
-                                      label: "Báo Cáo SX",
+                                      label: "Báo Cáo",
                                       icon: Icons.assignment,
                                       backgroundColor: themeController.buttonColor,
                                     ),
@@ -248,48 +267,60 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
                                     //change qty report
                                     AnimatedButton(
-                                      onPressed: () async {
-                                        try {
-                                          final int selectedPlanningId = int.parse(
-                                            selectedPlanningIds.first,
-                                          );
+                                      onPressed:
+                                          canRequestCheck
+                                              ? () async {
+                                                try {
+                                                  final int selectedPlanningBoxId = int.parse(
+                                                    selectedPlanningIds.first,
+                                                  );
 
-                                          final selectedPlanning = planningList.firstWhere(
-                                            (p) => p.planningId == selectedPlanningId,
-                                            orElse:
-                                                () => throw Exception("Không tìm thấy kế hoạch"),
-                                          );
+                                                  final selectedPlanning = planningList.firstWhere(
+                                                    (p) => p.planningBoxId == selectedPlanningBoxId,
+                                                    orElse:
+                                                        () =>
+                                                            throw Exception(
+                                                              "Không tìm thấy kế hoạch",
+                                                            ),
+                                                  );
 
-                                          // final existingData = {
-                                          //   "qty": selectedPlanning.qtyProduced,
-                                          //   "waste": selectedPlanning.qtyWasteNorm,
-                                          //   "manager": selectedPlanning.shiftManagement,
-                                          //   "shift": selectedPlanning.shiftProduction,
-                                          // };
+                                                  final boxTimes = selectedPlanning.boxTimes?.first;
 
-                                          // print("Existing data for report: $existingData");
+                                                  final existingData = {
+                                                    "qty": boxTimes!.qtyProduced ?? 0,
+                                                    "waste": boxTimes.wasteBox ?? 0,
+                                                    "manager": boxTimes.shiftManagement,
+                                                  };
 
-                                          showDialog(
-                                            context: context,
-                                            builder:
-                                                (_) => DialogReportProduction(
-                                                  planningId: selectedPlanning.planningId,
-                                                  // initialData: existingData,
-                                                  onReport: () => loadPlanning(),
-                                                ),
-                                          );
+                                                  print("Existing data for report: $existingData");
 
-                                          //cập nhật badge
-                                          badgesController.fetchPaperWaitingCheck();
-                                          badgesController.fetchOrderPendingPlanning();
-                                        } catch (e, s) {
-                                          AppLogger.e("Lỗi khi mở dialog", error: e, stackTrace: s);
-                                          showSnackBarError(
-                                            context,
-                                            "Đã xảy ra lỗi khi mở báo cáo.",
-                                          );
-                                        }
-                                      },
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (_) => DialogReportProduction(
+                                                          planningId:
+                                                              selectedPlanning.planningBoxId,
+                                                          initialData: existingData,
+                                                          qtyPaper: selectedPlanning.qtyPaper,
+                                                          onReport: () => loadPlanning(),
+                                                          machine: machine,
+                                                          isPaper: false,
+                                                        ),
+                                                  );
+                                                } catch (e, s) {
+                                                  AppLogger.e(
+                                                    "Lỗi khi mở dialog",
+                                                    error: e,
+                                                    stackTrace: s,
+                                                  );
+
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Đã xảy ra lỗi khi mở báo cáo.",
+                                                  );
+                                                }
+                                              }
+                                              : null,
                                       label: "Sửa Báo Cáo",
                                       icon: Symbols.construction,
                                       backgroundColor: themeController.buttonColor,

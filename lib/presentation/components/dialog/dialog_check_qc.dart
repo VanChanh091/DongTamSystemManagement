@@ -1,6 +1,6 @@
 import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
 import 'package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart';
-import 'package:dongtam/service/admin/admin_service.dart';
+import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';

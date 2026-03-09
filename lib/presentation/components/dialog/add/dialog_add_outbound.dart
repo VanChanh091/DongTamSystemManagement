@@ -141,6 +141,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       pricePaper: double.tryParse(pricePaperController.text) ?? 0,
       quantityCustomer: double.tryParse(quantityCustomerController.text) ?? 0,
       qtyOutbound: int.tryParse(qtyOutboundController.text) ?? 0,
+      qtyInventory: remainQty,
     );
 
     setState(() {
@@ -169,7 +170,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     quantityCustomerController.text = outbound.quantityCustomer.toString();
     pricePaperController.text = outbound.pricePaper.toString();
     qtyOutboundController.text = outbound.qtyOutbound.toString();
-    remainingQtyController.text = outbound.qtyInventory.toString();
+    remainingQtyController.text = outbound.qtyInventory?.toString() ?? "0";
   }
 
   void submit() async {

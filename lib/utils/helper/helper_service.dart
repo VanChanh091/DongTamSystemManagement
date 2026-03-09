@@ -47,11 +47,18 @@ class HelperService {
 
       final items = rawList.map((json) => fromJson(json as Map<String, dynamic>)).toList();
 
-      final result = {
+      final result = <String, dynamic>{
         dataKey: items,
         'totalPages': data['totalPages'] ?? 1,
         'currentPage': data['currentPage'] ?? 1,
       };
+
+      // Tự động map tất cả các key trả về từ API (những key như tổng tiền, extra value, v.v)
+      data.forEach((key, value) {
+        if (key != "data" && key != "totalPages" && key != "currentPage" && key != "message") {
+          result[key] = value;
+        }
+      });
 
       if (totalKey != null && totalKey.isNotEmpty) {
         result[totalKey] = data[totalKey] ?? 0;

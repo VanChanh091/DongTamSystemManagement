@@ -1,3 +1,5 @@
+import 'package:flutter_test/flutter_test.dart';
+
 // This is a basic Flutter widget test.
 //
 // To perform an interaction with a widget in your test, use the WidgetTester
@@ -6,5 +8,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 void main() {
-  //order
+  test('Kiểm tra CI', () {
+    expect(1 + 1, 2);
+  });
 }
