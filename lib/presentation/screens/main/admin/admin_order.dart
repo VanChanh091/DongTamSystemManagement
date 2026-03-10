@@ -573,9 +573,9 @@ class _ManageOrderState extends State<AdminOrder> {
                 ),
               ],
             ),
-            
+
             // Hình ảnh đơn hàng (nếu có)
-            if (order.orderImage != null && order.orderImage!.isNotEmpty) ...[
+            if (order.orderImage != null && order.orderImage?.imageUrl.isNotEmpty == true) ...[
               const SizedBox(height: 20),
               const Align(
                 alignment: Alignment.centerLeft,
@@ -593,9 +593,9 @@ class _ManageOrderState extends State<AdminOrder> {
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   width: double.infinity,
-                  constraints: const BoxConstraints(maxHeight: 500),
+                  constraints: const BoxConstraints(maxHeight: 400),
                   child: Image.network(
-                    order.orderImage!,
+                    order.orderImage?.imageUrl ?? '',
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(

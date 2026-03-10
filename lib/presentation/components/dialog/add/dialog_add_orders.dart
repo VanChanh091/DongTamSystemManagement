@@ -213,9 +213,10 @@ class _OrderDialogState extends State<OrderDialog> {
     }
 
     //image
-    orderImageUrl = selectedOrder.orderImage;
-
-    print("URL ảnh đơn hàng: $orderImageUrl");
+    orderImageUrl = selectedOrder.orderImage?.imageUrl;
+    if (orderImageUrl != null && orderImageUrl!.isEmpty) {
+      orderImageUrl = null;
+    }
 
     // 2. Cập nhật Box Fields (Chỉ cập nhật .value, không khởi tạo lại Notifier)
     isBoxChecked.value = selectedOrder.isBox;
@@ -336,8 +337,6 @@ class _OrderDialogState extends State<OrderDialog> {
         vat: int.tryParse(vatController.trimmed) ?? 0,
         instructSpecial: instructSpecialController.trimmed,
 
-        orderImage: orderImageUrl ?? "",
-
         isBox: isBoxChecked.value,
         box: newBox,
         status: 'pending',
@@ -365,7 +364,7 @@ class _OrderDialogState extends State<OrderDialog> {
       }
 
       if (!mounted) return;
-      Navigator.pop(context); // đóng dialog loading
+      Navigator.pop(context); // đóng dialog
 
       // Thông báo thành công
       showSnackBarSuccess(
@@ -385,6 +384,8 @@ class _OrderDialogState extends State<OrderDialog> {
       Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return;
+      Navigator.pop(context); // đóng dialog loading
+      
       AppLogger.e(
         widget.order == null ? "Lỗi khi thêm đơn hàng" : "Lỗi khi sửa đơn hàng",
         error: e,
@@ -1127,7 +1128,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                   ),
                                 ),
                               ),
-                              if (pickedOrderImage != null || orderImageUrl != null) ...[
+                              if (pickedOrderImage != null || (orderImageUrl != null && orderImageUrl!.isNotEmpty)) ...[
                                 const SizedBox(width: 10),
                                 ElevatedButton.icon(
                                   onPressed: () {
@@ -1164,7 +1165,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               width: 800,
                               fit: BoxFit.contain,
                             ),
-                          ] else if (orderImageUrl != null) ...[
+                          ] else if (orderImageUrl != null && orderImageUrl!.isNotEmpty) ...[
                             const SizedBox(height: 15),
                             Image.network(
                               orderImageUrl!,
@@ -1172,8 +1173,46 @@ class _OrderDialogState extends State<OrderDialog> {
                               width: 800,
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
-                                return const Text('Lỗi tải ảnh');
+                                return Container(
+                                  height: 200,
+                                  width: double.infinity,
+                                  alignment: Alignment.center,
+                                  child: const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.error_outline, color: Colors.red, size: 50),
+                                      SizedBox(height: 10),
+                                      Text('Lỗi tải ảnh', style: TextStyle(color: Colors.red, fontSize: 16)),
+                                    ],
+                                  ),
+                                );
                               },
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  height: 200,
+                                  width: double.infinity,
+                                  alignment: Alignment.center,
+                                  child: const CircularProgressIndicator(),
+                                );
+                              },
+                            ),
+                          ] else ...[
+                            const SizedBox(height: 30),
+                            const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.image_not_supported_outlined, color: Colors.grey, size: 50),
+                                SizedBox(height: 10),
+                                Text(
+                                  'Không có ảnh',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ],

@@ -142,7 +142,8 @@ class OrderDataSource extends DataGridSource {
 
       DataGridCell(columnName: 'status', value: formatStatus(order.status)),
       DataGridCell(columnName: 'rejectReason', value: order.rejectReason ?? ""),
-      DataGridCell(columnName: 'orderImage', value: order.orderImage ?? ""),
+
+      DataGridCell(columnName: 'orderImage', value: order.orderImage?.imageUrl ?? ""),
     ];
   }
 

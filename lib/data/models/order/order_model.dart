@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
+import 'package:dongtam/data/models/order/order_images.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/data/models/user/user_user_model.dart';
@@ -25,7 +26,6 @@ class Order {
   final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT, volume;
   final DateTime? dateRequestShipping;
   final int? vat;
-  final String? orderImage;
 
   //temp field
   final int? remainingQty;
@@ -35,6 +35,7 @@ class Order {
   final Customer? customer;
   final Product? product;
   final Box? box;
+  final OrderImage? orderImage;
   final UserUserModel? user;
   final List<PlanningPaper>? planningPaper;
   final InventoryModel? Inventory;
@@ -79,17 +80,18 @@ class Order {
     this.orderIdCustomer,
     this.totalPrice,
     this.totalPriceVAT,
-    this.orderImage,
     required this.isBox,
 
     this.remainingQty,
 
+    //association
     this.customer,
     this.box,
     this.product,
     this.user,
     this.planningPaper,
     this.Inventory,
+    this.orderImage,
   });
 
   //format number
@@ -193,13 +195,14 @@ class Order {
       status: json['status'] ?? "",
       rejectReason: json['rejectReason'] ?? "",
       orderIdCustomer: json['orderIdCustomer'] ?? "",
-      orderImage: json['orderImage'] ?? "",
 
       remainingQty: json['remainingQty'] ?? 0,
 
+      //association
       customer: json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
       product: json['Product'] != null ? Product.fromJson(json['Product']) : null,
       box: json['box'] != null ? Box.fromJson(json['box']) : null,
+      orderImage: json['OrderImage'] != null ? OrderImage.fromJson(json['OrderImage']) : null,
       user: json['User'] != null ? UserUserModel.fromJson(json['User']) : null,
       planningPaper:
           json['PlanningPapers'] != null
@@ -247,7 +250,6 @@ class Order {
       'status': status,
       "rejectReason": rejectReason,
       "orderIdCustomer": orderIdCustomer,
-      'orderImage': orderImage,
       'vat': vat,
       'box': box?.toJson(),
     };
