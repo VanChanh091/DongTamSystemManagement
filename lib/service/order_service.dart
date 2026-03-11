@@ -101,6 +101,9 @@ class OrderService {
           'Thêm đơn hàng thất bại: ${response.statusCode} - ${response.statusMessage}',
         );
       }
+    } on DioException catch (e) {
+      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
+      return {'success': false, 'message': 'Lỗi khi thêm dữ liệu: ${e.message}'};
     } catch (e, s) {
       AppLogger.e("Failed to add order", error: e, stackTrace: s);
       throw Exception('Failed to add order: $e');

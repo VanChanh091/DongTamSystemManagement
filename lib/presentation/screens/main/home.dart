@@ -55,6 +55,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final AuthService authService = AuthService();
   final socketService = SocketService();
+
   final unsavedChangeController = Get.put(UnsavedChangeController());
   final sidebarController = Get.put(SidebarController());
   final badgesController = Get.find<BadgesController>();
@@ -465,7 +466,6 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // UI chính
           Row(
             children: [
               buildSidebar(),
@@ -477,7 +477,10 @@ class _HomePageState extends State<HomePage> {
 
                   Widget page;
                   if (index < 0 || index >= pages.length) {
-                    page = Center(key: ValueKey('not_found'), child: Text("Trang không tồn tại"));
+                    page = Center(
+                      key: const ValueKey('not_found'),
+                      child: const Text("Trang không tồn tại"),
+                    );
                   } else {
                     page = Container(key: ValueKey(index), child: pages[index]);
                   }
@@ -502,7 +505,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
 
-          // Overlay bắt click ngoài sidebar để tự đóng
+          // OVERLAY: Bắt click ngoài sidebar để tự đóng
           if (_isSidebarOpen)
             Positioned(
               left: _sidebarOpenWidth,

@@ -1,6 +1,8 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
+import 'package:dongtam/data/controller/upload_process_controller.dart';
 import 'package:dongtam/presentation/splashScreen/splash_screen_dongtam.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/progressOverlay/progress_upload_orverlay.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ void main() async {
 
   //khởi tạo theme
   Get.put(ThemeController());
+  Get.put(UploadProcessController());
 
   runApp(const MyApp());
 
@@ -39,6 +42,9 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: themeController.currentColor.value),
           useMaterial3: true,
         ),
+        builder: (context, child) {
+          return ProgressUploadOrverlay(child: child!);
+        },
         home: SplashScreenDT(),
       ),
     );

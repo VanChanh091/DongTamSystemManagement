@@ -1,20 +1,23 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:dongtam/data/controller/badges_controller.dart';
+import 'package:dongtam/data/controller/upload_process_controller.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_customer.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_product.dart';
+import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/service/config/upload_cloudinary_service.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -49,6 +52,9 @@ class _OrderDialogState extends State<OrderDialog> {
   late String originalOrderId;
   List<Customer> allCustomers = [];
   List<Product> allProducts = [];
+
+  double uploadProgress = 0.0;
+  bool isUploading = false;
 
   //order
   final orderIdController = TextEditingController();
@@ -252,9 +258,6 @@ class _OrderDialogState extends State<OrderDialog> {
       setState(() {
         pickedOrderImage = result.files.single.bytes;
       });
-      AppLogger.d(
-        "Đã chọn ảnh đơn hàng (${result.files.single.name}, ${result.files.single.size} bytes)",
-      );
     } else {
       AppLogger.d("Không chọn ảnh nào");
     }
@@ -267,9 +270,11 @@ class _OrderDialogState extends State<OrderDialog> {
       return;
     }
 
+    // showLoadingDialog(context);
+    // await Future.delayed(const Duration(seconds: 1));
+
     // if (!mounted) return;
-    showLoadingDialog(context);
-    await Future.delayed(const Duration(seconds: 1));
+    // Navigator.pop(context); // đóng dialog loading
 
     try {
       final prefix = orderIdController.text.toUpperCase();
@@ -343,49 +348,19 @@ class _OrderDialogState extends State<OrderDialog> {
       );
 
       final bool isAdd = widget.order == null;
-      String? orderId;
+      final imageBytes = pickedOrderImage;
+      final callback = widget.onOrderAddOrUpdate;
 
-      AppLogger.i(
-        isAdd ? "Thêm đơn hàng mới: ${newOrder.orderId}" : "Cập nhật đơn hàng: ${newOrder.orderId}",
-      );
+      final bool success = await _startBackgroundUpload(newOrder, imageBytes, isAdd, callback);
 
-      if (isAdd) {
-        final response = await OrderService().addOrders(
-          orderData: newOrder.toJson(),
-          imageBytes: pickedOrderImage,
-        );
-        orderId = response['orderId'];
-      } else {
-        await OrderService().updateOrder(
-          orderId: originalOrderId,
-          orderUpdated: newOrder.toJson(),
-          imageBytes: pickedOrderImage,
-        );
+      if (success) {
+        if (!mounted) return;
+        Navigator.of(context).pop(); // Đóng Form nhập đơn
       }
-
-      if (!mounted) return;
-      Navigator.pop(context); // đóng dialog
-
-      // Thông báo thành công
-      showSnackBarSuccess(
-        context,
-        isAdd ? "Tạo đơn hàng thành công" : "Cập nhật đơn hàng thành công",
-      );
-
-      //fetch lại badge sau khi add/update
-      badgesController.fetchPendingApprovals();
-      if (badgesController.numberOrderReject > 0) {
-        badgesController.fetchOrderReject();
-      }
-
-      widget.onOrderAddOrUpdate?.call(orderId ?? newOrder.orderId);
-
-      if (!mounted) return;
-      Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return;
       Navigator.pop(context); // đóng dialog loading
-      
+
       AppLogger.e(
         widget.order == null ? "Lỗi khi thêm đơn hàng" : "Lỗi khi sửa đơn hàng",
         error: e,
@@ -393,6 +368,96 @@ class _OrderDialogState extends State<OrderDialog> {
       );
 
       showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+    }
+  }
+
+  Future<bool> _startBackgroundUpload(
+    Order order,
+    Uint8List? imageBytes,
+    bool isAdd,
+    void Function(String)? callback,
+  ) async {
+    final uploadCtrl = Get.find<UploadProcessController>();
+
+    try {
+      uploadCtrl.isUploading.value = true;
+
+      //khởi tạo dữ liệu (15%)
+      uploadCtrl.updateProgress(0.15, "Đang xử lý...");
+
+      String? finalImageUrl;
+      String? finalPublicId;
+
+      //upload ảnh (15% -> 80%)
+      if (imageBytes != null) {
+        final uploadResult = await UploadCloudinaryService().uploadToCloudinary(
+          imageBytes: imageBytes,
+          onProgress: (p) {
+            double totalProgress = 0.15 + (p * 0.65);
+            uploadCtrl.updateProgress(totalProgress, "Đang tải ảnh...");
+          },
+        );
+        finalImageUrl = uploadResult?['imageUrl'];
+        finalPublicId = uploadResult?['publicId'];
+      } else {
+        uploadCtrl.updateProgress(0.8, "Bỏ qua tải ảnh...");
+      }
+
+      // Lưu dữ liệu (80% -> 85%)
+      uploadCtrl.updateProgress(0.85, "Đang lưu đơn hàng vào hệ thống...");
+
+      AppLogger.i(
+        isAdd ? "Thêm đơn hàng mới: ${order.orderId}" : "Cập nhật đơn hàng: ${order.orderId}",
+      );
+
+      final orderJson = order.toJson();
+      orderJson['imageData'] = {'imageUrl': finalImageUrl, 'publicId': finalPublicId};
+
+      String? orderId;
+      if (isAdd) {
+        final response = await OrderService().addOrders(orderData: orderJson);
+        orderId = response['orderId'];
+      } else {
+        await OrderService().updateOrder(orderId: originalOrderId, orderUpdated: orderJson);
+      }
+
+      // Hoàn thành (85% -> 100%)
+      uploadCtrl.updateProgress(1.0, "Đã lưu xong!");
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      uploadCtrl.complete(isAdd ? "Tạo đơn hàng thành công" : "Cập nhật đơn hàng thành công");
+
+      // Fetch badge
+      badgesController.fetchPendingApprovals();
+      if (badgesController.numberOrderReject > 0) badgesController.fetchOrderReject();
+
+      callback?.call(orderId ?? order.orderId);
+
+      return true;
+    } on ApiException catch (e) {
+      uploadCtrl.updateProgress(0.7, "Có lỗi xảy ra");
+      await Future.delayed(const Duration(milliseconds: 1500));
+
+      setState(() {
+        switch (e.errorCode) {
+          case 'PREFIX_CUSTOMER_MISMATCH':
+            showSnackBarError(context, e.message!);
+            break;
+          default:
+            showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+        }
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        formKey.currentState!.validate();
+      });
+
+      uploadCtrl.isUploading.value = false;
+      return false;
+    } catch (e, s) {
+      AppLogger.e("Lỗi lưu dữ liệu ngầm", error: e, stackTrace: s);
+      uploadCtrl.handleError("Không thể lưu dữ liệu đơn hàng");
+      return false;
     }
   }
 
@@ -1128,7 +1193,8 @@ class _OrderDialogState extends State<OrderDialog> {
                                   ),
                                 ),
                               ),
-                              if (pickedOrderImage != null || (orderImageUrl != null && orderImageUrl!.isNotEmpty)) ...[
+                              if (pickedOrderImage != null ||
+                                  (orderImageUrl != null && orderImageUrl!.isNotEmpty)) ...[
                                 const SizedBox(width: 10),
                                 ElevatedButton.icon(
                                   onPressed: () {
@@ -1182,7 +1248,10 @@ class _OrderDialogState extends State<OrderDialog> {
                                     children: [
                                       Icon(Icons.error_outline, color: Colors.red, size: 50),
                                       SizedBox(height: 10),
-                                      Text('Lỗi tải ảnh', style: TextStyle(color: Colors.red, fontSize: 16)),
+                                      Text(
+                                        'Lỗi tải ảnh',
+                                        style: TextStyle(color: Colors.red, fontSize: 16),
+                                      ),
                                     ],
                                   ),
                                 );
@@ -1202,7 +1271,11 @@ class _OrderDialogState extends State<OrderDialog> {
                             const Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.image_not_supported_outlined, color: Colors.grey, size: 50),
+                                Icon(
+                                  Icons.image_not_supported_outlined,
+                                  color: Colors.grey,
+                                  size: 50,
+                                ),
                                 SizedBox(height: 10),
                                 Text(
                                   'Không có ảnh',
