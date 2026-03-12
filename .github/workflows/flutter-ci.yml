@@ -6,13 +6,17 @@ on:
   pull_request:
     branches: ["main"] # chạy khi có PR vào main
 
+# on:
+#   push:
+#     tags: ["v*"] # chạy khi push tag bắt đầu bằng v (ví dụ: v1.0.0)
+
 jobs:
   build:
-    runs-on: ubuntu-latest # tạo 1 máy ảo Ubuntu mới nhất để chạy pipeline.
+    runs-on: windows-latest # tạo 1 máy ảo Windows mới nhất để chạy pipeline.
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3 # Tải source code của repo từ GitHub vào máy ảo.
+        uses: actions/checkout@v4 # Tải source code của repo từ GitHub vào máy ảo.
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -21,6 +25,26 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get # Cài các package trong pubspec.yaml
+
+      # - name: Enable Windows support
+      #   run: flutter config --enable-windows-desktop
+
+      # - name: Build Windows App
+      #   run: flutter build windows --release
+
+      # # Flutter build ra 1 thư mục, ta cần nén lại hoặc lấy file exe
+      # - name: Archive Build Files
+      #   shell: bash
+      #   run: |
+      #     cd build/windows/x64/runner/Release
+      #     tar -cvzf ../../../../../app-windows-v${{ github.ref_name }}.zip
+
+      # - name: Create GitHub Release
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     files: build/app-windows-v${{ github.ref_name }}.zip # Đính kèm file đã nén vào Release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Tự động lấy token của GitHub
 
       - name: Analyze code
         run: flutter analyze # Chạy static analysis → check code style, warning, error compile.

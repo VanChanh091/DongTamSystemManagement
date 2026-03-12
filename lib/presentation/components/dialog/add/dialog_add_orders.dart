@@ -8,7 +8,6 @@ import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_customer.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_product.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/service/config/upload_cloudinary_service.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/order_service.dart';
@@ -56,6 +55,10 @@ class _OrderDialogState extends State<OrderDialog> {
   double uploadProgress = 0.0;
   bool isUploading = false;
 
+  Uint8List? pickedOrderImage;
+  String? orderImageUrl;
+  bool isDeleteImage = false; //to track if user wants to delete existing image
+
   //order
   final orderIdController = TextEditingController();
   final qcBoxController = TextEditingController();
@@ -100,9 +103,6 @@ class _OrderDialogState extends State<OrderDialog> {
   final productIdController = TextEditingController();
   final customerNameController = TextEditingController();
   final customerCompanyController = TextEditingController();
-
-  Uint8List? pickedOrderImage;
-  String? orderImageUrl;
 
   //box
   ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
@@ -270,12 +270,6 @@ class _OrderDialogState extends State<OrderDialog> {
       return;
     }
 
-    // showLoadingDialog(context);
-    // await Future.delayed(const Duration(seconds: 1));
-
-    // if (!mounted) return;
-    // Navigator.pop(context); // đóng dialog loading
-
     try {
       final prefix = orderIdController.text.toUpperCase();
 
@@ -412,6 +406,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
       final orderJson = order.toJson();
       orderJson['imageData'] = {'imageUrl': finalImageUrl, 'publicId': finalPublicId};
+      orderJson['isDeleteImage'] = isDeleteImage;
 
       String? orderId;
       if (isAdd) {
@@ -1201,6 +1196,7 @@ class _OrderDialogState extends State<OrderDialog> {
                                     setState(() {
                                       pickedOrderImage = null;
                                       orderImageUrl = null;
+                                      isDeleteImage = true;
                                     });
                                   },
                                   icon: const Icon(Icons.delete_outline),

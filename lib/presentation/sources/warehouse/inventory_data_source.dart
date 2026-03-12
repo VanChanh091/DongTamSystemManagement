@@ -24,6 +24,10 @@ class InventoryDataSource extends DataGridSource {
 
     return [
       DataGridCell<String>(columnName: 'orderId', value: inventory.orderId),
+      DataGridCell<String>(
+        columnName: 'customerName',
+        value: inventory.order?.customer?.customerName ?? "",
+      ),
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ""),
       DataGridCell<String>(columnName: 'structure', value: order?.formatterStructureOrder ?? ""),
       DataGridCell<String>(

@@ -1,14 +1,21 @@
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
+
+Uint8List _compressImageSync(Uint8List bytes) {
+  final img.Image? decoded = img.decodeImage(bytes);
+  if (decoded == null) return Uint8List(0);
+
+  img.Image resized = decoded.width > 1200 ? img.copyResize(decoded, width: 1200) : decoded;
+
+  return Uint8List.fromList(img.encodeJpg(resized, quality: 85));
+}
 
 class UploadCloudinaryService {
   final Dio dioService = DioClient().dio;
-
-  //jwt
   final SecureStorageService secureStorage = SecureStorageService();
 
   Future<Map<String, dynamic>?> uploadToCloudinary({
@@ -16,19 +23,16 @@ class UploadCloudinaryService {
     required Function(double) onProgress,
   }) async {
     try {
-      // --- BƯỚC 1: nén và convert ảnh sang webp ---
+      // --- BƯỚC 1: nén và convert ảnh ---
       AppLogger.i("Dung lượng gốc: ${(imageBytes.length / 1024).toStringAsFixed(2)} KB");
 
-      img.Image? decodedImage = img.decodeImage(Uint8List.fromList(imageBytes));
+      final Uint8List rawBytes = Uint8List.fromList(imageBytes);
+      final Uint8List compressedBytes = await compute(_compressImageSync, rawBytes);
 
-      if (decodedImage == null) {
-        AppLogger.e("Không thể giải mã ảnh");
+      if (compressedBytes.isEmpty) {
+        AppLogger.e("Không thể nén ảnh");
         return null;
       }
-
-      final Uint8List compressedBytes = Uint8List.fromList(
-        img.encodeJpg(decodedImage, quality: 80),
-      );
 
       AppLogger.i(
         "Dung lượng sau nén (JPG 80%): ${(compressedBytes.length / 1024).toStringAsFixed(2)} KB",
@@ -47,6 +51,9 @@ class UploadCloudinaryService {
       // BƯỚC 3: Upload lên Cloudinary (KHÔNG DÙNG JWT)
       final Dio cloudinaryDio = Dio();
 
+      final String cloudName = sigData['cloudName'];
+      final String uploadUrl = "https://api.cloudinary.com/v1_1/$cloudName/image/upload";
+
       FormData formData = FormData.fromMap({
         "file": MultipartFile.fromBytes(compressedBytes, filename: "order_image.jpg"),
         "api_key": sigData['apiKey'],
@@ -54,9 +61,6 @@ class UploadCloudinaryService {
         "signature": sigData['signature'],
         "folder": sigData['folder'],
       });
-
-      final String cloudName = sigData['cloudName'];
-      final String uploadUrl = "https://api.cloudinary.com/v1_1/$cloudName/image/upload";
 
       final response = await cloudinaryDio.post(
         uploadUrl,

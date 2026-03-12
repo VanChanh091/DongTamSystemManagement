@@ -228,7 +228,7 @@ class _InventoryState extends State<Inventory> {
                           isScrollbarAlwaysShown: true,
                           allowExpandCollapseGroup: true, // Bật grouping
                           autoExpandGroups: true,
-                          columnWidthMode: ColumnWidthMode.fill,
+                          columnWidthMode: ColumnWidthMode.auto,
                           navigationMode: GridNavigationMode.row,
                           selectionMode: SelectionMode.multiple,
                           headerRowHeight: 35,
