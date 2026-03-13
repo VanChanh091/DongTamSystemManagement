@@ -50,7 +50,6 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
     "Hoàn Thành": "complete",
     "Đã Sắp Xếp": "planning",
     "Thiếu Số Lượng": "lackQty",
-    "Đang Sản Xuất": "producing",
     "Bị Dừng": "stop",
     "Bị Hủy": "cancel",
   };
@@ -272,7 +271,6 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                         [
                                           "Hoàn Thành",
                                           "Đã Sắp Xếp",
-                                          "Đang Sản Xuất",
                                           "Thiếu Số Lượng",
                                           "Bị Dừng",
                                           "Bị Hủy",

@@ -20,8 +20,14 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 class OutBoundDialog extends StatefulWidget {
   final OutboundHistoryModel? outbound;
   final VoidCallback onOutboundHistory;
+  final List<OutboundTempItem>? initialItems;
 
-  const OutBoundDialog({super.key, this.outbound, required this.onOutboundHistory});
+  const OutBoundDialog({
+    super.key,
+    this.outbound,
+    required this.onOutboundHistory,
+    this.initialItems,
+  });
 
   @override
   State<OutBoundDialog> createState() => _OutBoundDialogState();
@@ -61,6 +67,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
     if (widget.outbound != null) {
       outboundInitState();
+    } else if (widget.initialItems != null) {
+      tempItems.addAll(widget.initialItems!);
     }
   }
 
@@ -156,24 +164,29 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     });
   }
 
-  void fillFormFromTempItem(OutboundTempItem outbound) {
-    orderIdController.text = outbound.orderId;
-    customerNameController.text = outbound.customerName;
-    lengthController.text = outbound.length?.toString() ?? "";
-    sizeController.text = outbound.size?.toString() ?? "";
-    saleNameController.text = outbound.saleName;
-    typeProductController.text = outbound.typeProduct;
-    productNameController.text = outbound.productName;
-    fluteController.text = outbound.flute ?? "";
-    qcBoxController.text = outbound.QC_box ?? "";
-    dvtController.text = outbound.dvt;
-    quantityCustomerController.text = outbound.quantityCustomer.toString();
-    pricePaperController.text = outbound.pricePaper.toString();
-    qtyOutboundController.text = outbound.qtyOutbound.toString();
-    remainingQtyController.text = outbound.qtyInventory?.toString() ?? "0";
+  void fillFormFromTempItem(OutboundTempItem temp) {
+    orderIdController.text = temp.orderId;
+    customerNameController.text = temp.customerName;
+    lengthController.text = temp.length?.toString() ?? "";
+    sizeController.text = temp.size?.toString() ?? "";
+    saleNameController.text = temp.saleName;
+    typeProductController.text = temp.typeProduct;
+    productNameController.text = temp.productName;
+    fluteController.text = temp.flute ?? "";
+    qcBoxController.text = temp.QC_box ?? "";
+    dvtController.text = temp.dvt;
+    quantityCustomerController.text = temp.quantityCustomer.toString();
+    pricePaperController.text = temp.pricePaper.toString();
+    qtyOutboundController.text = temp.qtyOutbound.toString();
+    remainingQtyController.text = temp.qtyInventory?.toString() ?? "0";
   }
 
   void submit() async {
+    if (tempItems.any((item) => item.qtyOutbound <= 0)) {
+      showSnackBarError(context, "Số lượng xuất kho phải lớn hơn 0");
+      return;
+    }
+
     try {
       final bool isAdd = widget.outbound == null;
 
@@ -428,7 +441,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                         centerAlign: true,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 4),
 
                     //button
                     Align(

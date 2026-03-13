@@ -132,7 +132,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
 
               // Option 2: Theo thời gian
               RadioListTile<String>(
-                title: const Text("Theo Thời Gian", style: TextStyle(fontSize: 16)),
+                title: const Text("Theo Ngày Báo Cáo", style: TextStyle(fontSize: 16)),
                 value: 'date',
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,

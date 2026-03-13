@@ -49,7 +49,7 @@ class _EmployeeState extends State<Employee> {
   int? selectedEmployeeId;
 
   int currentPage = 1;
-  int pageSize = 30;
+  int pageSize = 25;
   int pageSizeSearch = 20;
 
   @override

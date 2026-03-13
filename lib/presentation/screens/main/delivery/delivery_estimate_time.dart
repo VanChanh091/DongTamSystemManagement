@@ -264,7 +264,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                           }
                                         }
                                       },
-                                      label: 'Xác Nhận Giao',
+                                      label: 'Đăng Ký Giao',
                                       icon: Symbols.confirmation_number,
                                       backgroundColor: themeController.buttonColor,
                                     ),

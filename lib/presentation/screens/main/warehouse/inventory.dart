@@ -1,7 +1,9 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory_model.dart';
+import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_inventory.dart';
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/warehouse/inventory_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
@@ -9,8 +11,10 @@ import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
+import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class Inventory extends StatefulWidget {
@@ -35,7 +39,7 @@ class _InventoryState extends State<Inventory> {
   bool isSearching = false;
 
   int currentPage = 1;
-  int pageSize = 30;
+  int pageSize = 25;
   int pageSizeSearch = 20;
 
   @override
@@ -149,6 +153,52 @@ class _InventoryState extends State<Inventory> {
                                 //   icon: Symbols.export_notes,
                                 //   backgroundColor: themeController.buttonColor,
                                 // ),
+
+                                //outbound
+                                AnimatedButton(
+                                  onPressed: () async {
+                                    if (!context.mounted) return;
+
+                                    List<OutboundTempItem>? initialItems;
+                                    if (selectedInventoryId.isNotEmpty) {
+                                      try {
+                                        final data = await futureInventory;
+                                        final inventoryList =
+                                            data['inventories'] as List<InventoryModel>;
+                                        final selectedModels =
+                                            inventoryList
+                                                .where(
+                                                  (i) =>
+                                                      selectedInventoryId.contains(i.inventoryId),
+                                                )
+                                                .toList();
+                                        initialItems =
+                                            selectedModels
+                                                .map((i) => OutboundTempItem.fromInventoryModel(i))
+                                                .toList();
+                                      } catch (e) {
+                                        // Ignore error if future fails
+                                      }
+                                    }
+
+                                    if (!context.mounted) return;
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => OutBoundDialog(
+                                            outbound: null,
+                                            onOutboundHistory: () {
+                                              loadInventory();
+                                            },
+                                            initialItems: initialItems,
+                                          ),
+                                    );
+                                  },
+                                  label: "Xuất Kho",
+                                  icon: Symbols.input,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
                               ],
                             ),
                           ),

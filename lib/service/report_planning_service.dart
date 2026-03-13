@@ -70,7 +70,7 @@ class ReportPlanningService {
     return _exportExcelBase(
       endpoint: "/api/report/export-paper",
       idKey: "reportPaperId",
-      filePrefix: "report_paper",
+      filePrefix: "bao_cao",
       machine: machine,
       ids: reportPaperId,
       fromDate: fromDate,
@@ -88,7 +88,7 @@ class ReportPlanningService {
     return _exportExcelBase(
       endpoint: "/api/report/export-box",
       idKey: "reportBoxId",
-      filePrefix: "report_box",
+      filePrefix: "bao_cao",
       machine: machine,
       ids: reportBoxId,
       fromDate: fromDate,
