@@ -32,8 +32,6 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
     "Theo Mã ĐH": "orderId",
     "Tên KH": "customerName",
     "Ngày Báo Cáo": "dayReported",
-    "SL Báo Cáo": "qtyProduced",
-    "Ghép Khổ": "ghepKho",
     "Quản Ca": "shiftManagement",
   };
   List<int> selectedInboundId = [];
@@ -94,10 +92,12 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
+        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
+
         futureReportInbound = ensureMinLoading(
           WarehouseService().getInboundByField(
             field: selectedField,
-            keyword: keyword,
+            keyword: apiKeyword,
             page: currentPage,
             pageSize: pageSizeSearch,
           ),
@@ -155,8 +155,6 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                               "Theo Mã ĐH",
                               'Tên KH',
                               "Ngày Báo Cáo",
-                              "SL Báo Cáo",
-                              "Ghép Khổ",
                               "Quản Ca",
                             ],
                             onTypeChanged: (value) {

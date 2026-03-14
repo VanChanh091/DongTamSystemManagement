@@ -75,10 +75,12 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
       if (isSearching && searchType != "Tất cả") {
         AppLogger.d("loadReportPaper: isSearching=true | keyword=$keyword | date=$date");
 
+        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
+
         futureReportPaper = ensureMinLoading(
           ReportPlanningService().getReportPapers(
             field: selectedField,
-            keyword: keyword,
+            keyword: apiKeyword,
             machine: machine,
             page: currentPage,
             pageSize: pageSizeSearch,
@@ -126,10 +128,12 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
+        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
+
         futureReportPaper = ensureMinLoading(
           ReportPlanningService().getReportPapers(
             field: selectedField,
-            keyword: keyword,
+            keyword: apiKeyword,
             machine: machine,
             page: currentPage,
             pageSize: pageSizeSearch,

@@ -74,10 +74,12 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
       AppLogger.d("loadReportBox | search keyword=$keyword | date=$date");
 
       if (isSearching && searchType != "Tất cả") {
+        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
+
         futureReportBox = ensureMinLoading(
           ReportPlanningService().getReportBoxes(
             field: selectedField,
-            keyword: keyword,
+            keyword: apiKeyword,
             machine: machine,
             page: currentPage,
             pageSize: pageSizeSearch,
@@ -122,9 +124,11 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
+        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
+
         futureReportBox = ReportPlanningService().getReportBoxes(
           field: selectedField,
-          keyword: keyword,
+          keyword: apiKeyword,
           machine: machine,
           page: currentPage,
           pageSize: pageSizeSearch,

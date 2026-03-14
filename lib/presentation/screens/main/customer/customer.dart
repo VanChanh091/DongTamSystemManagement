@@ -42,12 +42,12 @@ class _CustomerPageState extends State<CustomerPage> {
     "Theo SDT": "phone",
   };
 
-  TextEditingController searchController = TextEditingController();
   Map<String, double> columnWidths = {}; //map header table
-  bool selectedAll = false;
+  String? selectedCustomerId;
+
+  TextEditingController searchController = TextEditingController();
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
-  String? selectedCustomerId;
 
   int currentPage = 1;
   int pageSize = 25;
@@ -70,7 +70,6 @@ class _CustomerPageState extends State<CustomerPage> {
   void loadCustomer() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
-
       String keyword = searchController.text.trim().toLowerCase();
 
       if (isSearching && searchType != "Tất cả") {

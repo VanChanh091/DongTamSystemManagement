@@ -10,6 +10,7 @@ import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
 import 'package:flutter/material.dart';
@@ -31,12 +32,18 @@ class _InventoryState extends State<Inventory> {
   final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
 
-  List<int> selectedInventoryId = [];
-  TextEditingController searchController = TextEditingController();
-  Map<String, double> columnWidths = {};
   String searchType = "Tất cả";
+  final Map<String, String> searchFieldMap = {
+    "Theo Mã Đơn": "orderId",
+    "Theo Tên KH": "customerName",
+  };
+
+  List<int> selectedInventoryId = [];
+  Map<String, double> columnWidths = {};
+
+  TextEditingController searchController = TextEditingController();
   bool isTextFieldEnabled = false;
-  bool isSearching = false;
+  bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
   int currentPage = 1;
   int pageSize = 25;
@@ -58,15 +65,59 @@ class _InventoryState extends State<Inventory> {
 
   void loadInventory() {
     setState(() {
-      futureInventory = ensureMinLoading(
-        WarehouseService().getAllInventory(page: currentPage, pageSize: pageSize),
-      );
+      final String selectedField = searchFieldMap[searchType] ?? "";
+      String keyword = searchController.text.trim().toLowerCase();
+
+      if (isSearching && searchType != "Tất cả") {
+        futureInventory = ensureMinLoading(
+          WarehouseService().getInventory(
+            page: currentPage,
+            pageSize: pageSizeSearch,
+            field: selectedField,
+            keyword: keyword,
+          ),
+        );
+      } else {
+        futureInventory = ensureMinLoading(
+          WarehouseService().getInventory(page: currentPage, pageSize: pageSize),
+        );
+      }
     });
 
     selectedInventoryId.clear();
   }
 
-  void searchInventory() {}
+  void searchInventory() {
+    String keyword = searchController.text.trim().toLowerCase();
+    AppLogger.i("searchInventory: searchType=$searchType, keyword='$keyword'");
+
+    if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w("searchInventory: search bị bỏ qua vì keyword trống");
+      return;
+    }
+
+    setState(() {
+      currentPage = 1;
+      isSearching = (searchType != "Tất cả");
+
+      if (searchType == "Tất cả") {
+        futureInventory = ensureMinLoading(
+          WarehouseService().getInventory(page: currentPage, pageSize: pageSize),
+        );
+      } else {
+        final selectedField = searchFieldMap[searchType] ?? "";
+
+        futureInventory = ensureMinLoading(
+          WarehouseService().getInventory(
+            field: selectedField,
+            keyword: keyword,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          ),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,13 +161,7 @@ class _InventoryState extends State<Inventory> {
                           flex: 1,
                           child: LeftButtonSearch(
                             selectedType: searchType,
-                            types: const [
-                              'Tất cả',
-                              "Theo Mã",
-                              "Theo Tên KH",
-                              "Theo CSKH",
-                              "Theo SDT",
-                            ],
+                            types: const ['Tất cả', "Theo Mã Đơn", "Theo Tên KH"],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
