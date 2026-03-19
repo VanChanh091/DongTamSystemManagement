@@ -23,7 +23,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
 
   List<DataGridCell> buildDbPaperCells(DeliveryPlanModel plan, DeliveryItemModel item) {
     final vehicle = item.vehicle;
-    final order = item.planning?.order;
+    final order = item.request?.paper?.order;
     final customer = order?.customer;
     final product = order?.product;
     final inventory = order?.Inventory;
@@ -34,15 +34,23 @@ class DeliveryScheduleDataSource extends DataGridSource {
       //order
       DataGridCell<String>(columnName: "orderId", value: order!.orderId),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
+      DataGridCell<String>(columnName: "companyName", value: customer?.companyName ?? ""),
       DataGridCell<String>(columnName: "productName", value: product?.productName ?? ""),
+
       DataGridCell<String>(columnName: "flute", value: order.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: order.QC_box ?? ""),
       DataGridCell<String>(columnName: "structure", value: order.formatterStructureOrder),
-      DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeManufacture} cm'),
-      DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperManufacture} cm'),
-      DataGridCell<int>(columnName: "quantity", value: order.quantityManufacture),
+
+      DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeCustomer} cm'),
+      DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperCustomer} cm'),
+      DataGridCell<int>(columnName: "qtyRegistered", value: item.request?.qtyRegistered ?? 0),
       DataGridCell<int>(columnName: "qtyInventory", value: inventory?.qtyInventory ?? 0),
+
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
+      DataGridCell<String>(
+        columnName: "volume",
+        value: item.request!.volume != 0 ? "${item.request!.volume} m³" : "",
+      ),
 
       //vehicle
       DataGridCell<String>(columnName: "licensePlate", value: vehicle?.licensePlate ?? ""),
@@ -54,6 +62,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
         columnName: "volumeCapacity",
         value: vehicle?.volumeCapacity != 0 ? "${vehicle?.volumeCapacity} m³" : "",
       ),
+      DataGridCell<String>(columnName: "vehicleHouse", value: vehicle?.vehicleHouse ?? ""),
 
       //delivery item
       DataGridCell<String>(columnName: "note", value: item.note ?? ""),

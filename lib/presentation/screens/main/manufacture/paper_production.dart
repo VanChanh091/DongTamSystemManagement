@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
+import 'package:dongtam/presentation/components/dialog/other/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/init_socket_manufacture.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
@@ -109,6 +109,8 @@ class _PaperProductionState extends State<PaperProduction> {
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
+    if (userController.role.value == 'admin') return true;
+
     final selectedPlanning = planningList.firstWhere(
       (p) => p.planningId == selectedPlanningIds.first,
       orElse: () => throw Exception("Không tìm thấy kế hoạch"),
@@ -137,6 +139,8 @@ class _PaperProductionState extends State<PaperProduction> {
     required List<PlanningPaper> planningList,
   }) {
     if (selectedPlanningIds.length != 1) return false;
+
+    if (userController.role.value == 'admin') return true;
 
     final selectedPlanning = planningList.firstWhere(
       (p) => p.planningId == selectedPlanningIds.first,

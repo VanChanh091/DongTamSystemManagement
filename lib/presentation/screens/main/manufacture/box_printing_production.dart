@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_report_production.dart';
+import 'package:dongtam/presentation/components/dialog/other/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart';
 import 'package:dongtam/presentation/components/shared/init_socket_manufacture.dart';
 import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
@@ -94,6 +94,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     bool isRequest = false,
   }) {
     if (selectedPlanningIds.length != 1) return false;
+
+    if (userController.role.value == 'admin') return true;
 
     final int selectedPlanningBoxId = selectedPlanningIds.first;
 

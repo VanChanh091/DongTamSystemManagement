@@ -7,7 +7,6 @@ import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:file_picker/file_picker.dart';
 
 class DashboardService {
   final Dio dioService = DioClient().dio;
@@ -82,23 +81,10 @@ class DashboardService {
       );
 
       if (response.statusCode == 200) {
-        final bytes = response.data as List<int>;
-        AppLogger.d("Received ${bytes.length} bytes from API");
-
-        // Cho người dùng chọn thư mục lưu
-        final dirPath = await FilePicker.platform.getDirectoryPath();
-        if (dirPath == null) {
-          return null;
-        }
-
-        final now = DateTime.now();
-        final fileName = "dbPlanning_${now.toIso8601String().split('T')[0]}.xlsx";
-        final file = File("$dirPath/$fileName");
-
-        await file.writeAsBytes(bytes, flush: true);
-        AppLogger.i("Exported Excel db planning to: ${file.path}");
-
-        return file;
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "dbPlanning",
+        );
       } else {
         AppLogger.w("Export failed with statusCode: ${response.statusCode}");
         return null;

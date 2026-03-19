@@ -206,4 +206,32 @@ class WarehouseService {
       dataKey: 'inventories',
     );
   }
+
+  //export inventory
+  Future<File?> exportExcelInventory() async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.post(
+        "/api/warehouse/inventory/export",
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "inventory",
+        );
+      } else {
+        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
+        return null;
+      }
+    } catch (e, s) {
+      AppLogger.e("failed to export Excel inventory", error: e, stackTrace: s);
+      return null;
+    }
+  }
 }

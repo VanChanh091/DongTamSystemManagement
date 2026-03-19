@@ -34,7 +34,8 @@ class PlanningPaper {
   final int? sortPlanning;
 
   //field temp
-  String? itemStatus;
+  // String? itemStatus;
+  double? tempVolume;
 
   //association
   final String orderId;
@@ -83,7 +84,8 @@ class PlanningPaper {
     this.hasOverFlow,
 
     //field temp
-    this.itemStatus,
+    // this.itemStatus,
+    this.tempVolume,
 
     required this.orderId,
     this.order,

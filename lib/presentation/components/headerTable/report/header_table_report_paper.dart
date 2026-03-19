@@ -36,6 +36,7 @@ final List<Map<String, dynamic>> _reportPaperColumns = [
   {"key": "qtyWasteRp", "title": "PL Báo Cáo"},
   {"key": "shiftProduct", "title": "Ca Sản Xuất"},
   {"key": "shiftManager", "title": "Trưởng Máy"},
+  {"key": "reportedBy", "title": "Người Báo Cáo"},
 
   // box
   {"key": "hasMadeBox", "title": "Làm Thùng?"},

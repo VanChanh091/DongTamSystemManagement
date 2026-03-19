@@ -9,6 +9,7 @@ class ReportPaperModel {
   final double qtyWasteNorm;
   final String shiftProduction;
   final String shiftManagement;
+  final String reportedBy;
 
   //FK
   final int planningId;
@@ -22,6 +23,7 @@ class ReportPaperModel {
     required this.qtyWasteNorm,
     required this.shiftProduction,
     required this.shiftManagement,
+    required this.reportedBy,
 
     required this.planningId,
     this.planningPaper,
@@ -36,6 +38,7 @@ class ReportPaperModel {
       qtyWasteNorm: toDouble(json['qtyWasteNorm']),
       shiftProduction: json['shiftProduction'] ?? "",
       shiftManagement: json['shiftManagement'] ?? "",
+      reportedBy: json['reportedBy'] ?? "",
       planningId: json['planningId'] ?? 0,
       planningPaper:
           json['PlanningPaper'] != null ? PlanningPaper.fromJson(json['PlanningPaper']) : null,

@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_planning_order.dart';
+import 'package:dongtam/presentation/components/dialog/other/dialog_planning_order.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_planning.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';

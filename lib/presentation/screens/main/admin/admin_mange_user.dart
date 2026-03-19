@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_permission_role.dart';
+import 'package:dongtam/presentation/components/dialog/other/dialog_permission_role.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';

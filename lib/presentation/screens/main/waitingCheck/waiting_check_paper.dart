@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_check_qc.dart';
+import 'package:dongtam/presentation/components/dialog/other/dialog_check_qc.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_paper_data_source.dart';
 import 'package:dongtam/service/quality_control_service.dart';

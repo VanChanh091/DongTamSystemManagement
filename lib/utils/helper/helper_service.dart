@@ -117,7 +117,11 @@ class HelperService {
       final data = response.data['data'];
       if (data == null) return null;
 
-      return fromJson(data as Map<String, dynamic>);
+      if (data is Map<String, dynamic>) {
+        return fromJson(data);
+      }
+
+      return null;
     } catch (e) {
       AppLogger.e("Failed to load data from $endpoint\nError: $e");
       throw Exception('Failed to load data from $endpoint: $e');
@@ -197,6 +201,9 @@ class HelperService {
       );
 
       return true;
+    } on DioException catch (e) {
+      handleDioException(e, "Lỗi khi cập nhật dữ liệu");
+      return false;
     } catch (e, s) {
       AppLogger.e("Failed to update item", error: e, stackTrace: s);
       throw Exception('Failed to update item: $e');
@@ -231,51 +238,24 @@ class HelperService {
     }
   }
 
-  //export excel
-  Future<File?> exportExcelItem({DateTime? fromDate, DateTime? toDate, bool all = false}) async {
+  //helper export
+  Future<File?> saveExcelFile({required List<int> bytes, required String fileNamePrefix}) async {
     try {
-      final token = await SecureStorageService().getToken();
+      // Cho người dùng chọn thư mục lưu
+      final dirPath = await FilePicker.platform.getDirectoryPath();
+      if (dirPath == null) return null;
 
-      final Map<String, dynamic> body = {"all": all};
+      // Tạo file name
+      final now = DateTime.now();
+      final fileName = "${fileNamePrefix}_${now.toIso8601String().split('T')[0]}.xlsx";
+      final file = File("$dirPath/$fileName");
 
-      if (fromDate != null && toDate != null) {
-        body["fromDate"] = fromDate.toIso8601String();
-        body["toDate"] = toDate.toIso8601String();
-      }
-
-      final response = await dioService.post(
-        "/api/customer/exportExcel",
-        data: body,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-          responseType: ResponseType.bytes,
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        final bytes = response.data as List<int>;
-        AppLogger.d("Received ${bytes.length} bytes from API");
-
-        // Cho người dùng chọn thư mục lưu
-        final dirPath = await FilePicker.platform.getDirectoryPath();
-        if (dirPath == null) {
-          return null;
-        }
-
-        final now = DateTime.now();
-        final fileName = "customer_${now.toIso8601String().split('T')[0]}.xlsx";
-        final file = File("$dirPath/$fileName");
-
-        await file.writeAsBytes(bytes, flush: true);
-        AppLogger.i("Exported Excel customer to: ${file.path}");
-
-        return file;
-      } else {
-        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
-        return null;
-      }
-    } catch (e, s) {
-      AppLogger.e("failed to export customer", error: e, stackTrace: s);
+      // Ghi dữ liệu
+      await file.writeAsBytes(bytes, flush: true);
+      AppLogger.i("File saved to: ${file.path}");
+      return file;
+    } catch (e) {
+      AppLogger.e("Error saving file: $e");
       return null;
     }
   }

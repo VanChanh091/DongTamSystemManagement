@@ -106,6 +106,7 @@ class ReportBoxDatasource extends DataGridSource {
         value: (reportBox.wasteLoss) > 0 ? '${reportBox.wasteLoss} Cái' : "0",
       ),
       DataGridCell<String>(columnName: "shiftManager", value: reportBox.shiftManagement),
+      DataGridCell<String>(columnName: "reportedBy", value: reportBox.reportedBy),
     ];
   }
 

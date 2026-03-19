@@ -26,6 +26,7 @@ class ManufactureService {
     required int qtyProduced,
     required double qtyWasteNorm,
     required DateTime dayCompleted,
+    required String reportedBy,
     required Map<String, dynamic> reportData,
     bool isUpdate = false,
   }) async {
@@ -51,6 +52,7 @@ class ManufactureService {
           "qtyProduced": qtyProduced,
           "qtyWasteNorm": qtyWasteNorm,
           "dayCompleted": fullDateTime.toIso8601String(),
+          "reportedBy": reportedBy,
           ...reportData,
         },
         options: Options(
@@ -112,6 +114,7 @@ class ManufactureService {
     required int qtyProduced,
     required double rpWasteLoss,
     required String shiftManagement,
+    required String reportedBy,
     bool isUpdate = false,
   }) async {
     final token = await SecureStorageService().getToken();
@@ -137,6 +140,7 @@ class ManufactureService {
           "qtyProduced": qtyProduced,
           "rpWasteLoss": rpWasteLoss,
           "shiftManagement": shiftManagement,
+          "reportedBy": reportedBy,
         },
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},

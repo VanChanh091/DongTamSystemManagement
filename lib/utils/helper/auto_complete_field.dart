@@ -116,8 +116,8 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
             }
 
             if (widget.checkId == true && widget.labelText == 'Mã Đơn Hàng') {
-              if (value.length > 3) {
-                return "Mã đơn hàng chỉ được tối đa 3 ký tự";
+              if (value.length < 3 || value.length > 4) {
+                return "Mã đơn hàng chỉ được từ 3 đến 4 ký tự";
               }
               if (!RegExp(r'^\d+$').hasMatch(value)) {
                 return "Mã đơn hàng chỉ được chứa số";

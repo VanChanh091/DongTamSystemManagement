@@ -1,59 +1,60 @@
 import 'package:dongtam/data/models/admin/admin_vehicle_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/data/models/delivery/delivery_request_model.dart';
 
 class DeliveryItemModel {
   final int deliveryItemId;
-  final String targetType;
-  final int targetId;
   final String sequence;
   final String? note;
   final String status;
 
   //FK
   final int deliveryId;
+  final int requestId;
   final int vehicleId;
 
   final DeliveryPlanModel? deliveryPlan;
+  final DeliveryRequest? request;
   final AdminVehicleModel? vehicle;
-  final PlanningPaper? planning;
 
   DeliveryItemModel({
     required this.deliveryItemId,
-    required this.targetType,
-    required this.targetId,
     required this.sequence,
     required this.status,
     this.note,
 
     //FK
     required this.deliveryId,
+    required this.requestId,
     required this.vehicleId,
+
     this.deliveryPlan,
     this.vehicle,
-    this.planning,
+    this.request,
   });
 
   factory DeliveryItemModel.fromJson(Map<String, dynamic> json) {
     return DeliveryItemModel(
       deliveryItemId: json['deliveryItemId'] ?? 0,
-      targetType: json['targetType'] ?? "",
-      targetId: json['targetId'] ?? 0,
       sequence: json['sequence'] ?? "",
       note: json['note'] ?? "",
       status: json['status'] ?? "",
 
       //FK
       deliveryId: json['deliveryId'] ?? 0,
+      requestId: json['requestId'] ?? 0,
       vehicleId: json['vehicleId'] ?? 0,
       deliveryPlan:
           json['DeliveryPlan'] != null ? DeliveryPlanModel.fromJson(json['DeliveryPlan']) : null,
       vehicle: json['Vehicle'] != null ? AdminVehicleModel.fromJson(json['Vehicle']) : null,
-      planning: json['Planning'] != null ? PlanningPaper.fromJson(json['Planning']) : null,
+      request:
+          json['DeliveryRequest'] != null
+              ? DeliveryRequest.fromJson(json['DeliveryRequest'])
+              : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {"targetType": targetType, "targetId": targetId, "sequence": sequence, "note": note};
+    return {"sequence": sequence, "note": note};
   }
 }

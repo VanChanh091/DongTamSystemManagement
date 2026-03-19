@@ -6,7 +6,6 @@ import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:diacritic/diacritic.dart';
 
 class ReportPlanningService {
@@ -128,24 +127,12 @@ class ReportPlanningService {
       );
 
       if (response.statusCode == 200) {
-        final bytes = response.data as List<int>;
-        AppLogger.d("Received ${bytes.length} bytes from $endpoint");
-
-        // Chọn thư mục lưu
-        final dirPath = await FilePicker.platform.getDirectoryPath();
-        if (dirPath == null) return null;
-
-        final now = DateTime.now();
         final safeMachine = makeSafeFileName(input: machine);
-        final dateStr = now.toIso8601String().split('T')[0];
 
-        final fileName = "${filePrefix}_${safeMachine.toLowerCase()}_$dateStr.xlsx";
-        final file = File("$dirPath/$fileName");
-
-        await file.writeAsBytes(bytes, flush: true);
-        AppLogger.i("Exported Excel to: ${file.path}");
-
-        return file;
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "${filePrefix}_${safeMachine.toLowerCase()}",
+        );
       } else {
         AppLogger.w("Export failed ($endpoint) with statusCode: ${response.statusCode}");
         return null;

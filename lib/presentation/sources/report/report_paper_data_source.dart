@@ -107,6 +107,8 @@ class ReportPaperDatasource extends DataGridSource {
       ),
       DataGridCell<String>(columnName: 'shiftProduct', value: reportPaper.shiftProduction),
       DataGridCell<String>(columnName: 'shiftManager', value: reportPaper.shiftManagement),
+      DataGridCell<String>(columnName: 'reportedBy', value: reportPaper.reportedBy),
+
       DataGridCell<bool>(columnName: 'hasMadeBox', value: reportPaper.planningPaper!.hasBox),
     ];
   }

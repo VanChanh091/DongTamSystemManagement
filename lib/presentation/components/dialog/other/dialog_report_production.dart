@@ -43,6 +43,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   final qtyProducedController = TextEditingController();
   final qtyWasteNormController = TextEditingController();
   final dayCompletedController = TextEditingController();
+  final employeeCodeController = TextEditingController();
 
   late String shiftProduction = "Ca 1";
   final List<String> itemShiftProduction = ["Ca 1", "Ca 2", "Ca 3"];
@@ -107,6 +108,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           qtyProduced: qtyProduced,
           qtyWasteNorm: qtyWasteNorm,
           dayCompleted: completedDate,
+          reportedBy: employeeCodeController.trimmed.toUpperCase(),
           reportData: reportData,
           isUpdate: widget.initialData != null ? true : false,
         );
@@ -135,6 +137,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           qtyProduced: qtyProduced,
           rpWasteLoss: qtyWasteNorm,
           shiftManagement: shiftManagement,
+          reportedBy: employeeCodeController.trimmed.toUpperCase(),
           isUpdate: widget.initialData != null ? true : false,
         );
       }
@@ -158,6 +161,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       final errorText = switch (e.errorCode) {
         'ACCESS_DENIED' => 'Bạn không có quyền báo cáo máy này',
         'INVALID_MACHINE' => 'Máy không hợp lệ',
+        'EMPLOYEE_NOT_FOUND' => 'Mã nhân viên không tồn tại',
         _ => 'Có lỗi xảy ra, vui lòng thử lại',
       };
 
@@ -232,6 +236,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     dayCompletedController.dispose();
     shiftManagementController.dispose();
     shiftProductionController.dispose();
+    employeeCodeController.dispose();
   }
 
   @override
@@ -240,8 +245,8 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Center(
-        child: const Text(
-          "Báo Cáo Sản Xuất",
+        child: Text(
+          widget.initialData != null ? "Cập Nhật Báo Cáo" : "Báo Cáo Sản Xuất",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
@@ -258,7 +263,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                   qtyProducedController,
                   Symbols.production_quantity_limits,
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
 
                 validateInput("Phế Liệu Thực Tế", qtyWasteNormController, Symbols.box),
                 const SizedBox(height: 10),
@@ -340,7 +345,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                     );
                   },
                 ),
-
                 const SizedBox(height: 10),
 
                 if (widget.isPaper) ...[
@@ -362,6 +366,9 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                   ),
                   const SizedBox(height: 10),
                 ],
+                const SizedBox(height: 10),
+
+                validateInput("Mã nhân viên báo cáo", employeeCodeController, Symbols.code),
               ],
             ),
           ),

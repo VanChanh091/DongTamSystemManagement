@@ -4,9 +4,11 @@ import 'package:dongtam/data/models/warehouse/inventory_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_inventory.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/warehouse/inventory_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -31,6 +33,8 @@ class _InventoryState extends State<Inventory> {
   late List<GridColumn> columns;
   final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
+
+  List<OutboundTempItem>? initialItems;
 
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
@@ -186,25 +190,36 @@ class _InventoryState extends State<Inventory> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 //export excel
-                                // AnimatedButton(
-                                //   // onPressed: () async {
-                                //   //   showDialog(
-                                //   //     context: context,
-                                //   //     builder: (_) => DialogExportCusOrProd(),
-                                //   //   );
-                                //   // },
-                                //   onPressed: () {},
-                                //   label: "Xuất Excel",
-                                //   icon: Symbols.export_notes,
-                                //   backgroundColor: themeController.buttonColor,
-                                // ),
+                                AnimatedButton(
+                                  onPressed: () async {
+                                    bool confirm = await showConfirmDialog(
+                                      context: context,
+                                      title: "Xuất Tồn Kho",
+                                      content: "Xuất tất cả dữ liệu tồn kho?",
+                                      confirmText: "Xác Nhận",
+                                    );
+
+                                    if (confirm) {
+                                      final file = await WarehouseService().exportExcelInventory();
+
+                                      if (file != null && context.mounted) {
+                                        showSnackBarSuccess(context, "Xuất file thành công");
+                                      } else if (context.mounted) {
+                                        showSnackBarError(context, "Xuất file thất bại");
+                                      }
+                                    }
+                                  },
+                                  label: "Xuất Excel",
+                                  icon: Symbols.export_notes,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
 
                                 //outbound
                                 AnimatedButton(
                                   onPressed: () async {
                                     if (!context.mounted) return;
 
-                                    List<OutboundTempItem>? initialItems;
                                     if (selectedInventoryId.isNotEmpty) {
                                       try {
                                         final data = await futureInventory;
@@ -222,7 +237,9 @@ class _InventoryState extends State<Inventory> {
                                                 .map((i) => OutboundTempItem.fromInventoryModel(i))
                                                 .toList();
                                       } catch (e) {
-                                        // Ignore error if future fails
+                                        if (!context.mounted) return;
+                                        showSnackBarError(context, "Lấy dữ liệu xuất kho thất bại");
+                                        return;
                                       }
                                     }
 

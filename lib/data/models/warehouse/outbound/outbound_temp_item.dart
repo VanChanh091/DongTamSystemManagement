@@ -1,3 +1,4 @@
+import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory_model.dart';
 
@@ -91,6 +92,28 @@ class OutboundTempItem {
       pricePaper: order?.pricePaper?.toDouble() ?? 0,
       qtyOutbound: 0,
       qtyInventory: inventory.qtyInventory,
+    );
+  }
+
+  factory OutboundTempItem.fromDeliveryItemModel(DeliveryItemModel item) {
+    final order = item.request?.paper?.order;
+    final inventory = order?.Inventory;
+
+    return OutboundTempItem(
+      orderId: order?.orderId ?? "",
+      customerName: order?.customer?.customerName ?? "",
+      length: order?.lengthPaperCustomer.toDouble() ?? 0,
+      size: order?.paperSizeCustomer.toDouble() ?? 0,
+      typeProduct: order?.product?.typeProduct ?? "",
+      productName: order?.product?.productName ?? "",
+      saleName: order?.user?.fullName ?? "",
+      flute: order?.flute ?? "",
+      QC_box: order?.QC_box ?? "",
+      dvt: order?.dvt ?? "",
+      quantityCustomer: order?.quantityCustomer.toDouble() ?? 0,
+      pricePaper: order?.pricePaper?.toDouble() ?? 0,
+      qtyOutbound: 0,
+      qtyInventory: inventory?.qtyInventory ?? 0,
     );
   }
 }

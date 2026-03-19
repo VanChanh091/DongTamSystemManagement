@@ -7,7 +7,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class DeliveryEstimateDataSource extends DataGridSource {
   List<PlanningPaper> delivery = [];
-  List<int>? selectedPaperId;
+  int? selectedPaperId;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -87,8 +87,8 @@ class DeliveryEstimateDataSource extends DataGridSource {
       DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
       DataGridCell<int>(columnName: "runningPlanProd", value: paper.runningPlan),
       DataGridCell<int>(
-        columnName: "totalOutbound",
-        value: paper.order?.Inventory?.totalQtyOutbound ?? 0,
+        columnName: "qtyInventory",
+        value: paper.order?.Inventory?.qtyInventory ?? 0,
       ),
 
       //time running
@@ -141,7 +141,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
     final planningId = row.getCells().firstWhere((cell) => cell.columnName == 'planningId').value;
 
     Color backgroundColor;
-    if (selectedPaperId != null && selectedPaperId!.contains(planningId)) {
+    if (selectedPaperId != null && selectedPaperId == planningId) {
       backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
       backgroundColor = Colors.transparent;

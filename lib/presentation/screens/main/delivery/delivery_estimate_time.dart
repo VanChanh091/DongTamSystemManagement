@@ -10,8 +10,8 @@ import 'package:dongtam/presentation/sources/delivery/delivery_estimate_data_sou
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
 import 'package:dongtam/service/dashboard_service.dart';
 import 'package:dongtam/service/delivery_service.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -43,7 +43,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   Map<String, double> columnWidthsStage = {};
   List<PlanningStage> selectedStages = [];
   bool selectedAll = false;
-  List<int> selectedPaperId = [];
+  int? selectedPaperId;
 
   TextEditingController dayStartController = TextEditingController();
   TextEditingController estimateTimeController = TextEditingController();
@@ -94,7 +94,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
         ),
       );
 
-      selectedPaperId.clear();
+      selectedPaperId = null;
       selectedStages = [];
     });
   }
@@ -111,9 +111,111 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
         ),
       );
 
-      selectedPaperId.clear();
+      selectedPaperId = null;
       selectedStages = [];
     });
+  }
+
+  Future<bool?> showInputQtyDialog({
+    required BuildContext context,
+    required String title,
+    required Future<bool> Function(int) onConfirm,
+  }) async {
+    final TextEditingController controller = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              content: SizedBox(
+                width: 350,
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: controller,
+                        keyboardType: TextInputType.number,
+                        autofocus: true,
+                        decoration: const InputDecoration(
+                          labelText: "Nhập số lượng muốn giao",
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return "Không được để trống";
+                          final n = int.tryParse(value);
+                          if (n == null || n <= 0) return "Số lượng phải lớn hơn 0";
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isLoading ? null : () => Navigator.pop(context),
+                  child: const Text(
+                    "Hủy",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffEA4346),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          if (formKey.currentState!.validate()) {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            final success = await onConfirm(int.parse(controller.text));
+                            if (context.mounted) {
+                              if (success) {
+                                Navigator.pop(context, true);
+                              } else {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              }
+                            }
+                          }
+                        },
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Xác nhận',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -216,7 +318,6 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                       icon: Symbols.filter_alt,
                                       backgroundColor: themeController.buttonColor,
                                     ),
-                                    // const SizedBox(width: 10),
                                   ],
                                 ),
                               ),
@@ -232,42 +333,56 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                   children: [
                                     //confirm delivery
                                     AnimatedButton(
-                                      onPressed: () async {
-                                        bool confirm = await showConfirmDialog(
-                                          context: context,
-                                          title: "Xác Nhận Kế Hoạch Giao Hàng",
-                                          content:
-                                              "Bạn có muốn lên kế hoạch giao hàng cho các đơn này không?",
-                                          confirmText: "Xác nhận",
-                                          confirmColor: const Color(0xffEA4346),
-                                        );
+                                      onPressed:
+                                          selectedPaperId == null
+                                              ? null
+                                              : () async {
+                                                await showInputQtyDialog(
+                                                  context: context,
+                                                  title: "Đăng Ký Giao Hàng",
+                                                  onConfirm: (inputQty) async {
+                                                    try {
+                                                      final success = await DeliveryService()
+                                                          .registerQtyDelivery(
+                                                            planningId: selectedPaperId!,
+                                                            qtyRegistered: inputQty,
+                                                          );
 
-                                        if (confirm) {
-                                          try {
-                                            final success = await DeliveryService()
-                                                .confirmReadyDelivery(planningIds: selectedPaperId);
-
-                                            if (!context.mounted) return;
-                                            if (success) {
-                                              showSnackBarSuccess(
-                                                context,
-                                                "Xác nhận lên kế hoạch giao hàng thành công",
-                                              );
-                                              loadPlanningEstimate();
-                                            }
-                                          } catch (e) {
-                                            if (!context.mounted) return;
-                                            showSnackBarError(
-                                              context,
-                                              "Có lỗi khi xác nhận lên kế hoạch giao hàng",
-                                            );
-                                          }
-                                        }
-                                      },
+                                                      if (success) {
+                                                        if (context.mounted) {
+                                                          showSnackBarSuccess(
+                                                            context,
+                                                            "Xác nhận lên kế hoạch giao hàng thành công",
+                                                          );
+                                                        }
+                                                        loadPlanningEstimate();
+                                                        return true;
+                                                      }
+                                                      return false;
+                                                    } on ApiException catch (e) {
+                                                      if (e.errorCode == "QTY_EXCEEDED" || e.message != null) {
+                                                        if (context.mounted) {
+                                                          showSnackBarError(context, e.message ?? "Lỗi API");
+                                                        }
+                                                      }
+                                                      return false;
+                                                    } catch (e) {
+                                                      if (context.mounted) {
+                                                        showSnackBarError(
+                                                          context,
+                                                          "Có lỗi khi xác nhận lên kế hoạch giao hàng",
+                                                        );
+                                                      }
+                                                      return false;
+                                                    }
+                                                  },
+                                                );
+                                              },
                                       label: 'Đăng Ký Giao',
                                       icon: Symbols.confirmation_number,
                                       backgroundColor: themeController.buttonColor,
                                     ),
+
                                     const SizedBox(width: 10),
                                   ],
                                 ),
@@ -363,7 +478,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                           'quantityOrd',
                                           'qtyProduced',
                                           'runningPlanProd',
-                                          "totalOutbound",
+                                          "qtyInventory",
                                         ],
                                         child: Obx(
                                           () => formatColumn(
@@ -409,31 +524,18 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
                                   final selectedRows = dataGridController.selectedRows;
 
-                                  final ids =
-                                      selectedRows.map((row) {
-                                        return row
-                                                .getCells()
-                                                .firstWhere(
-                                                  (cell) => cell.columnName == 'planningId',
-                                                )
-                                                .value
-                                            as int;
-                                      }).toList();
+                                  final row = selectedRows.first;
+                                  final int planningId =
+                                      row
+                                              .getCells()
+                                              .firstWhere((cell) => cell.columnName == 'planningId')
+                                              .value
+                                          as int;
 
                                   // Lấy data của list (summary)
                                   setState(() {
-                                    selectedPaperId = ids;
+                                    selectedPaperId = planningId;
                                   });
-
-                                  // Nếu chọn > 1 row → KHÔNG call detail
-                                  if (ids.length != 1) {
-                                    setState(() {
-                                      selectedStages = [];
-                                    });
-                                    return;
-                                  }
-
-                                  final planningId = ids.first;
 
                                   final stages = await DashboardService().getDbPlanningDetail(
                                     planningId: planningId,

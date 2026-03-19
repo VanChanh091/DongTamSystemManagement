@@ -3,7 +3,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
-import 'package:dongtam/presentation/components/dialog/dialog_check_qc.dart';
+import 'package:dongtam/presentation/components/dialog/other/dialog_check_qc.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_box_waiting.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';

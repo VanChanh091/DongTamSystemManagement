@@ -9,20 +9,25 @@ const List<Map<String, dynamic>> _headerDeliverySchedule = [
   //order
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
+  {"key": "companyName", "title": "Tên Công Ty"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
+
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "Quy Cách"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+
   {"key": "sizeProd", "title": "Khổ"},
   {"key": "lengthProd", "title": "Dài"},
-  {"key": "quantity", "title": "Số Lượng"},
+  {"key": "qtyRegistered", "title": "Số Lượng Giao"},
   {"key": "qtyInventory", "title": "Tồn Kho"},
   {"key": "dvt", "title": "DVT"},
+  {"key": "volume", "title": "Thể Tích"},
 
   //vehicle
   {"key": "licensePlate", "title": "Biển Số"},
   {"key": "maxPayload", "title": "Tải Trọng"},
   {"key": "volumeCapacity", "title": "Thể Tích"},
+  {"key": "vehicleHouse", "title": "Nhà Xe"},
 
   //delivery item
   {"key": "note", "title": "Ghi Chú"},
@@ -31,7 +36,7 @@ const List<Map<String, dynamic>> _headerDeliverySchedule = [
   {"key": "deliveryId", "title": "Mã Giao Hàng", "visible": false},
   {"key": "deliveryItemId", "title": "", "visible": false},
   {"key": "deliveryDate", "title": "Ngày Giao Hàng", "visible": false},
-  {"key": "status", "title": "Trạng Thái", "visible": false}, //statts of delivery item
+  {"key": "status", "title": "Trạng Thái", "visible": false}, //status of delivery item
   {"key": "sequence", "title": "Tài", "visible": false},
 ];
 

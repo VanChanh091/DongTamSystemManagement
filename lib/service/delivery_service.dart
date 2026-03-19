@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
+import 'package:dongtam/data/models/delivery/delivery_request_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 
 class DeliveryService {
@@ -35,27 +35,28 @@ class DeliveryService {
   }
 
   // confirm ready delivery
-  Future<bool> confirmReadyDelivery({required List<int> planningIds}) async {
+  Future<bool> registerQtyDelivery({required int planningId, required int qtyRegistered}) async {
     return HelperService().updateItem(
       endpoint: "delivery/estimate",
-      queryParameters: {'planningIds': planningIds},
+      queryParameters: const {},
+      dataUpdated: {'planningId': planningId, 'qtyRegistered': qtyRegistered},
     );
   }
 
   //=========================PLANNING DELIVERY===========================
 
   //get all planning waiting delivery
-  Future<List<PlanningPaper>> getPlanningPending() async {
-    return HelperService().fetchingData<PlanningPaper>(
+  Future<List<DeliveryRequest>> getPlanningRequest() async {
+    return HelperService().fetchingData<DeliveryRequest>(
       endpoint: "delivery/planning",
       queryParameters: const {},
-      fromJson: (json) => PlanningPaper.fromJson(json),
+      fromJson: (json) => DeliveryRequest.fromJson(json),
     );
   }
 
   //get delivery plan detail for edit
-  Future<List<DeliveryPlanModel>> getDeliveryPlanDetail({required DateTime deliveryDate}) async {
-    return HelperService().fetchingData<DeliveryPlanModel>(
+  Future<DeliveryPlanModel?> getDeliveryPlanDetail({required DateTime deliveryDate}) async {
+    return HelperService().fetchingSingleListData<DeliveryPlanModel>(
       endpoint: "delivery/planning",
       queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
       fromJson: (json) => DeliveryPlanModel.fromJson(json),
@@ -107,7 +108,7 @@ class DeliveryService {
   }
 
   //export delivery schedule
-  Future<File?> exportExcelCustomer({required DateTime deliveryDate}) async {
+  Future<File?> exportDeliverySchedule({required DateTime deliveryDate}) async {
     try {
       final token = await SecureStorageService().getToken();
 
@@ -121,23 +122,10 @@ class DeliveryService {
       );
 
       if (response.statusCode == 200) {
-        final bytes = response.data as List<int>;
-        AppLogger.d("Received ${bytes.length} bytes from API");
-
-        // Cho người dùng chọn thư mục lưu
-        final dirPath = await FilePicker.platform.getDirectoryPath();
-        if (dirPath == null) {
-          return null;
-        }
-
-        final now = DateTime.now();
-        final fileName = "delivery_schedule_${now.toIso8601String().split('T')[0]}.xlsx";
-        final file = File("$dirPath/$fileName");
-
-        await file.writeAsBytes(bytes, flush: true);
-        AppLogger.i("Exported Excel delivery to: ${file.path}");
-
-        return file;
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "delivery_schedule",
+        );
       } else {
         AppLogger.w("Export failed with statusCode: ${response.statusCode}");
         return null;

@@ -43,7 +43,9 @@ final List<Map<String, dynamic>> _reportBoxColumns = [
   // waste
   {"key": "dmWasteLoss", "title": "Định Mức PL"},
   {"key": "wasteLossRp", "title": "PL Báo Cáo"},
+
   {"key": "shiftManager", "title": "Trưởng Máy"},
+  {"key": "reportedBy", "title": "Người Báo Cáo"},
 ];
 
 List<GridColumn> buildReportBoxColumn({required ThemeController themeController}) {

@@ -2,12 +2,11 @@ import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/user/user_user_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 
-class DeliveryRequestModel {
+class DeliveryRequest {
   final int requestId;
+  final int qtyRegistered;
+  final double volume;
   final String status;
-
-  //field temp
-  final double? volume;
 
   //FK
   final int userId;
@@ -16,12 +15,11 @@ class DeliveryRequestModel {
   final PlanningPaper? paper;
   final UserUserModel? user;
 
-  DeliveryRequestModel({
+  DeliveryRequest({
     required this.requestId,
+    required this.qtyRegistered,
+    required this.volume,
     required this.status,
-
-    //field temp
-    this.volume,
 
     //ASSOCIATION
     required this.userId,
@@ -31,16 +29,16 @@ class DeliveryRequestModel {
     this.user,
   });
 
-  factory DeliveryRequestModel.fromJson(Map<String, dynamic> json) {
-    return DeliveryRequestModel(
-      requestId: json['deliveryId'] ?? 0,
+  factory DeliveryRequest.fromJson(Map<String, dynamic> json) {
+    return DeliveryRequest(
+      requestId: json['requestId'] ?? 0,
+      qtyRegistered: json['qtyRegistered'] ?? 0,
+      volume: toDouble(json['volume']),
       status: json['status'] ?? "",
+
+      //ASSOCIATION
       userId: json['userId'] ?? 0,
       planningId: json['planningId'] ?? 0,
-
-      //field temp
-      volume: toDouble(json['volume']),
-
       paper: json['PlanningPaper'] != null ? PlanningPaper.fromJson(json['PlanningPaper']) : null,
       user: json['User'] != null ? UserUserModel.fromJson(json['User']) : null,
     );
