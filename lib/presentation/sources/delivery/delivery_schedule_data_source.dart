@@ -26,10 +26,10 @@ class DeliveryScheduleDataSource extends DataGridSource {
     final order = item.request?.paper?.order;
     final customer = order?.customer;
     final product = order?.product;
-    final inventory = order?.Inventory;
 
     return [
       DataGridCell<String>(columnName: "vehicleName", value: vehicle?.vehicleName ?? ""),
+      DataGridCell<String>(columnName: "licensePlate", value: vehicle?.licensePlate ?? ""),
 
       //order
       DataGridCell<String>(columnName: "orderId", value: order!.orderId),
@@ -44,7 +44,6 @@ class DeliveryScheduleDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeCustomer} cm'),
       DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperCustomer} cm'),
       DataGridCell<int>(columnName: "qtyRegistered", value: item.request?.qtyRegistered ?? 0),
-      DataGridCell<int>(columnName: "qtyInventory", value: inventory?.qtyInventory ?? 0),
 
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
       DataGridCell<String>(
@@ -53,7 +52,6 @@ class DeliveryScheduleDataSource extends DataGridSource {
       ),
 
       //vehicle
-      DataGridCell<String>(columnName: "licensePlate", value: vehicle?.licensePlate ?? ""),
       DataGridCell<String>(
         columnName: "maxPayload",
         value: vehicle?.maxPayload != 0 ? "${vehicle?.maxPayload} kg" : "",
@@ -66,6 +64,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
 
       //delivery item
       DataGridCell<String>(columnName: "note", value: item.note ?? ""),
+      DataGridCell<String>(columnName: "status", value: item.status),
 
       //hidden field
       DataGridCell<int>(columnName: "deliveryId", value: plan.deliveryId),
@@ -151,10 +150,35 @@ class DeliveryScheduleDataSource extends DataGridSource {
       rowColor = Colors.transparent;
     }
 
+    String getStatusVi(String status) {
+      switch (status) {
+        case "none":
+          return "";
+        case "planned":
+          return "Đã lập kế hoạch";
+        case "requested":
+          return "Đã yêu cầu";
+        case "prepared":
+          return "Đã chuẩn bị";
+        case "cancelled":
+          return "Đã hủy";
+        case "completed":
+          return "Hoàn thành";
+        default:
+          return status;
+      }
+    }
+
     return DataGridRowAdapter(
       color: rowColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            String displayValue = dataCell.value?.toString() ?? "";
+
+            if (dataCell.columnName == 'status') {
+              displayValue = getStatusVi(displayValue);
+            }
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
@@ -162,7 +186,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

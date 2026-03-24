@@ -7,6 +7,7 @@ import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_planning.dart';
+import 'package:dongtam/presentation/screens/main/delivery/delivery_prepare_goods.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
@@ -167,6 +168,8 @@ Widget buildDeliveryMenu({
   required VoidCallback onToggle,
   required List<Widget> pages,
 }) {
+  final badges = Get.find<BadgesController>();
+
   return buildExpandedMenuHelper(
     isSidebarOpen: isSidebarOpen,
     title: "Giao Hàng",
@@ -184,8 +187,17 @@ Widget buildDeliveryMenu({
         icon: Symbols.calendar_add_on,
         label: "Kế Hoạch Giao Hàng",
         pageType: DeliveryPlanning,
+        showBadge: true,
+        badge: badges.numberDeliveryRequest,
       ),
       SubMenuConfig(icon: Symbols.schedule, label: "Lịch Giao Hàng", pageType: DeliverySchedule),
+      SubMenuConfig(
+        icon: Symbols.local_shipping,
+        label: "Lệnh Xuất Hàng",
+        pageType: DeliveryPrepareGoods,
+        showBadge: true,
+        badge: badges.numberPrepareGoods,
+      ),
     ],
   );
 }

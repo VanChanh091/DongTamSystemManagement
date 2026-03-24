@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -316,20 +317,23 @@ class _ManageOrderState extends State<AdminOrder> {
                                             setState(() {
                                               selectedOrder = null;
                                             });
-                                          } catch (e) {
+                                          } on ApiException catch (e) {
                                             if (!context.mounted) return;
 
-                                            if (e.toString().contains("Debt limit exceeded")) {
+                                            if (e.errorCode == "DEBT_LIMIT_EXCEEDED") {
                                               showSnackBarError(
                                                 context,
-                                                'Vượt hạn mức công nợ của khách hàng này!',
+                                                'Vượt quá hạn mức công nợ của khách hàng này!',
                                               );
                                             } else {
-                                              showSnackBarError(context, 'Có lỗi xảy ra: $e');
+                                              showSnackBarError(context, 'Có lỗi xảy ra');
                                             }
+                                          } catch (e) {
+                                            if (!context.mounted) return;
+                                            showSnackBarError(context, 'Không thể lưu dữ liệu');
                                           }
                                         },
-                                        label: 'Duyệt',
+                                        label: 'Duyệt Đơn',
                                         icon: Icons.check,
                                         backgroundColor: themeController.buttonColor.value,
                                       ),

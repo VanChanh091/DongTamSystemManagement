@@ -49,6 +49,7 @@ class ReportInboundDataSource extends DataGridSource {
       DataGridCell<int>(columnName: 'quantityOrd', value: orderCell?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: 'qtyPaper', value: inbound.qtyPaper),
       DataGridCell<int>(columnName: 'qtyInbound', value: inbound.qtyInbound),
+      DataGridCell<String>(columnName: 'checkedBy', value: inbound.qcSession?.checkedBy ?? ""),
 
       //hidden
       DataGridCell<int>(columnName: 'inboundId', value: inbound.inboundId),

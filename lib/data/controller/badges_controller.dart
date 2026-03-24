@@ -9,11 +9,23 @@ class BadgesController extends GetxController {
 
   //admin order
   RxInt numberPendingApproval = 0.obs;
+
+  //order pending planning
   RxInt numberOrderPendingPlanning = 0.obs;
+
+  //order reject
   RxInt numberOrderReject = 0.obs;
+
+  //planning stop
   RxInt numberPlanningStop = 0.obs;
+
+  //waiting check
   RxInt numberPaperWaiting = 0.obs;
   RxInt numberBoxWaiting = 0.obs;
+
+  //delivery
+  RxInt numberDeliveryRequest = 0.obs;
+  RxInt numberPrepareGoods = 0.obs;
 
   @override
   void onInit() {
@@ -78,6 +90,20 @@ class BadgesController extends GetxController {
     } else {
       numberPaperWaiting.value = 0;
       numberBoxWaiting.value = 0;
+    }
+
+    //badge cho đơn chờ giao hàng
+    if (_userController.hasPermission(permission: "plan")) {
+      tasks.add(fetchDeliveryRequest());
+    } else {
+      numberDeliveryRequest.value = 0;
+    }
+
+    //badge cho chuẩn bị hàng
+    if (_userController.hasPermission(permission: "delivery")) {
+      tasks.add(fetchPrepareGoods());
+    } else {
+      numberPrepareGoods.value = 0;
     }
 
     // badge cho đơn bị từ chối
@@ -158,6 +184,22 @@ class BadgesController extends GetxController {
     );
   }
 
+  //hàm api để lấy đơn chờ giao hàng
+  Future<void> fetchDeliveryRequest() async {
+    await fetchBadgeCount(
+      badgeCount: numberDeliveryRequest,
+      fetcher: () => BadgeService().countDeliveryRequest(),
+    );
+  }
+
+  //hàm api để lấy đơn chuẩn bị hàng
+  Future<void> fetchPrepareGoods() async {
+    await fetchBadgeCount(
+      badgeCount: numberPrepareGoods,
+      fetcher: () => BadgeService().countPrepareGoods(),
+    );
+  }
+
   void clearAllBadge() {
     numberPendingApproval.value = 0;
     numberOrderPendingPlanning.value = 0;
@@ -165,5 +207,7 @@ class BadgesController extends GetxController {
     numberPaperWaiting.value = 0;
     numberBoxWaiting.value = 0;
     numberOrderReject.value = 0;
+    numberDeliveryRequest.value = 0;
+    numberPrepareGoods.value = 0;
   }
 }

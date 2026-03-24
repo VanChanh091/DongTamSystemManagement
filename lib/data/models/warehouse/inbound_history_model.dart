@@ -12,7 +12,7 @@ class InboundHistoryModel {
   final Order? order;
 
   final int qcSessionId;
-  final QcSessionModel? QcSession;
+  final QcSessionModel? qcSession;
 
   InboundHistoryModel({
     required this.inboundId,
@@ -24,7 +24,7 @@ class InboundHistoryModel {
     this.order,
 
     required this.qcSessionId,
-    this.QcSession,
+    this.qcSession,
   });
 
   factory InboundHistoryModel.fromJson(Map<String, dynamic> json) {
@@ -38,7 +38,7 @@ class InboundHistoryModel {
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
 
       qcSessionId: json['qcSessionId'] ?? 0,
-      QcSession: json['QcSession'] != null ? QcSessionModel.fromJson(json['QcSession']) : null,
+      qcSession: json['QcSession'] != null ? QcSessionModel.fromJson(json['QcSession']) : null,
     );
   }
 }

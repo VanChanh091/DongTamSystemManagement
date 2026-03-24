@@ -135,4 +135,41 @@ class DeliveryService {
       return null;
     }
   }
+
+  //=========================PREPARE GOODS===========================
+
+  // get delivery request for prepare goods
+  Future<List<DeliveryPlanModel>> getRequestPrepareGoods({required DateTime deliveryDate}) async {
+    return HelperService().fetchingData<DeliveryPlanModel>(
+      endpoint: "delivery/prepare",
+      queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
+      fromJson: (json) => DeliveryPlanModel.fromJson(json),
+    );
+  }
+
+  Future<bool> requestOrPrepareGoods({required int deliveryItemId, required bool isRequest}) async {
+    return HelperService().updateItem(
+      endpoint: "delivery/prepare",
+      queryParameters: {"deliveryItemId": deliveryItemId, "isRequest": isRequest},
+    );
+  }
+
+  //notify planning
+  Future<bool> notifyRequestPrepareGoods() async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.post(
+        "/api/delivery/notify-delivery",
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to notify delivery", error: e, stackTrace: s);
+      throw Exception('Failed to notify delivery: $e');
+    }
+  }
 }

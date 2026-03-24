@@ -313,7 +313,7 @@ class _ProductDialogState extends State<ProductDialog> {
                 if (pickedProductImage != null) ...[
                   const SizedBox(height: 15),
                   Image.memory(pickedProductImage!, width: 400, height: 400, fit: BoxFit.contain),
-                ] else if (productImageUrl != null) ...[
+                ] else if (productImageUrl != null && productImageUrl!.isNotEmpty) ...[
                   const SizedBox(height: 15),
                   Image.network(
                     productImageUrl!,
@@ -321,8 +321,46 @@ class _ProductDialogState extends State<ProductDialog> {
                     height: 350,
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
-                      return Text('Lỗi tải ảnh');
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline, color: Colors.red, size: 50),
+                            SizedBox(height: 10),
+                            Text('Lỗi tải ảnh', style: TextStyle(color: Colors.red, fontSize: 16)),
+                          ],
+                        ),
+                      );
                     },
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(),
+                      );
+                    },
+                  ),
+                ] else ...[
+                  const SizedBox(height: 30),
+                  const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.image_not_supported_outlined, color: Colors.grey, size: 50),
+                      SizedBox(height: 10),
+                      Text(
+                        'Không có ảnh',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ],

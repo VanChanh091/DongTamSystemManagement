@@ -47,10 +47,8 @@ class AdminService {
 
       return true;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 400) {
-        throw Exception("Debt limit exceeded");
-      }
-      rethrow;
+      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
+      return false;
     } catch (e, s) {
       AppLogger.e("Failed to load orders", error: e, stackTrace: s);
       throw Exception('Failed to update orders: $e');

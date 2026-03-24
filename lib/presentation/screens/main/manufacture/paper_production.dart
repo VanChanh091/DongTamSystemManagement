@@ -4,7 +4,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
-import 'package:dongtam/presentation/components/shared/init_socket_manufacture.dart';
+import 'package:dongtam/utils/socket/init_socket_manufacture.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
@@ -34,12 +34,14 @@ class _PaperProductionState extends State<PaperProduction> {
   late MachinePaperDatasource machinePaperDatasource;
   late InitSocketManufacture _initSocket;
   late List<GridColumn> columns;
+
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
   final DataGridController dataGridController = DataGridController();
+
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
   List<PlanningPaper> planningList = [];

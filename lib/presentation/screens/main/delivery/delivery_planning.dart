@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/models/admin/admin_vehicle_model.dart';
@@ -32,6 +33,7 @@ class DeliveryPlanning extends StatefulWidget {
 class _DeliveryPlanningState extends State<DeliveryPlanning> {
   final themeController = Get.find<ThemeController>();
   final unsavedChangeController = Get.find<UnsavedChangeController>();
+  final badgesController = Get.find<BadgesController>();
   final Map<int, TextEditingController> _noteControllers = {};
   final Map<int, bool> _showNoteMap = {};
 
@@ -364,6 +366,9 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                 getPlanningRequest(),
                                                 loadPlannedOrders(),
                                               ]);
+
+                                              // Cập nhật số lượng badge
+                                              badgesController.fetchDeliveryRequest();
                                             }
 
                                             unsavedChangeController.resetUnsavedChanges();
@@ -387,8 +392,9 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                           try {
                                             bool confirm = await showConfirmDialog(
                                               context: context,
-                                              title: "Xác Nhận Giao Hàng",
-                                              content: 'Bạn có muốn chốt lịch giao hàng này không?',
+                                              title: "Xác Nhận Lịch Giao Hàng",
+                                              content:
+                                                  'Bạn có muốn triển khai lịch giao hàng này không?',
                                               confirmText: "Xác nhận",
                                             );
 
@@ -403,7 +409,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                               if (!context.mounted) return;
                                               showSnackBarSuccess(
                                                 context,
-                                                "Chốt lịch giao hàng thành công",
+                                                "Triển khai lịch giao hàng thành công",
                                               );
                                             }
                                           } catch (e) {
@@ -411,7 +417,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                             showSnackBarError(context, "Lỗi không xác định");
                                           }
                                         },
-                                label: 'Chốt Lịch',
+                                label: 'Triển Khai',
                                 icon: Symbols.confirmation_number,
                                 backgroundColor: themeController.buttonColor,
                               ),

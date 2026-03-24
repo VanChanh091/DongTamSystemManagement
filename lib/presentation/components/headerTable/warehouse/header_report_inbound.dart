@@ -18,6 +18,7 @@ final List<Map<String, dynamic>> _reportInboundColumns = [
   {"key": "quantityOrd", "title": "Đơn Hàng"},
   {"key": "qtyPaper", "title": "Giấy Tấm"},
   {"key": "qtyInbound", "title": "Nhập Kho"},
+  {"key": "checkedBy", "title": "Người Kiểm Hàng"},
 
   //hidden
   {"key": "inboundId", "title": "", "visible": false},

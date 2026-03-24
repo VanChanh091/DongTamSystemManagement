@@ -50,4 +50,14 @@ class BadgeService {
   Future<int> countWaitingCheck(String type) async {
     return countForBadge("count-waiting-check", queryParameters: {"type": type});
   }
+
+  //delivery request
+  Future<int> countDeliveryRequest() async {
+    return countForBadge("count-delivery-request");
+  }
+
+  //request prepare goods
+  Future<int> countPrepareGoods() async {
+    return countForBadge("count-prepare-goods");
+  }
 }

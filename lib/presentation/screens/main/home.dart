@@ -14,6 +14,7 @@ import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard_planning.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart';
+import 'package:dongtam/presentation/screens/main/delivery/delivery_prepare_goods.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_planning.dart';
 import 'package:dongtam/presentation/screens/main/employee/employee.dart';
@@ -74,12 +75,6 @@ class _HomePageState extends State<HomePage> {
   static const double _sidebarOpenWidth = 300;
   static const double _sidebarCollapsedWidth = 60;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   SocketService().connectSocket();
-  // }
-
   // build danh sách pages dựa vào quyền/role
   List<Widget> getPages() {
     return [
@@ -115,6 +110,7 @@ class _HomePageState extends State<HomePage> {
       _buildPage(permissions: ['plan', 'sale'], child: DeliveryEstimateTime()),
       _buildPage(permissions: ['plan'], child: DeliveryPlanning()),
       DeliverySchedule(),
+      _buildPage(permissions: ['delivery'], child: DeliveryPrepareGoods()),
 
       //reporting hitstory
       TopTabHistoryReport(),
@@ -237,6 +233,7 @@ class _HomePageState extends State<HomePage> {
             index: pages.indexWhere((w) => w is Employee),
           ),
 
+          //planning
           buildPlanningMenu(
             isSidebarOpen: _isSidebarOpen,
             isExpanded: _isPlanningExpanded,
@@ -244,6 +241,7 @@ class _HomePageState extends State<HomePage> {
             pages: pages,
           ),
 
+          //manufacture
           buildManufactureMenu(
             isSidebarOpen: _isSidebarOpen,
             isExpanded: _isManufactureExpanded,
@@ -251,6 +249,7 @@ class _HomePageState extends State<HomePage> {
             pages: pages,
           ),
 
+          //waiting check
           buildWaitingCheckMenu(
             isSidebarOpen: _isSidebarOpen,
             isExpanded: _isWaitingExpanded,
@@ -258,6 +257,7 @@ class _HomePageState extends State<HomePage> {
             pages: pages,
           ),
 
+          //warehouse
           buildWarehouseMenu(
             isSidebarOpen: _isSidebarOpen,
             isExpanded: _isWarehouseExpanded,
@@ -265,6 +265,7 @@ class _HomePageState extends State<HomePage> {
             pages: pages,
           ),
 
+          //delivery
           buildDeliveryMenu(
             isSidebarOpen: _isSidebarOpen,
             isExpanded: _isDeliveryExpanded,
@@ -272,6 +273,7 @@ class _HomePageState extends State<HomePage> {
             pages: pages,
           ),
 
+          //report
           buildReportMenu(
             isSidebarOpen: _isSidebarOpen,
             isExpanded: _isReportExpanded,
@@ -279,12 +281,14 @@ class _HomePageState extends State<HomePage> {
             pages: pages,
           ),
 
+          //dashboard
           _buildSidebarItem(
             icon: Symbols.dual_screen,
             title: "Tổng Hợp Sản Xuất",
             index: pages.indexWhere((w) => w is DashboardPlanning),
           ),
 
+          //admin
           buildApprovalMenu(
             isSidebarOpen: _isSidebarOpen,
             isExpanded: _isApprovalExpanded,
@@ -292,6 +296,7 @@ class _HomePageState extends State<HomePage> {
             pages: pages,
           ),
 
+          //theme
           _buildSidebarItem(
             icon: Icons.color_lens,
             title: "Đổi Màu Theme",

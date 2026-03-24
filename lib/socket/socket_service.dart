@@ -100,6 +100,13 @@ class SocketService {
     AppLogger.i("➡️ socket join-user: $ownerId");
   }
 
+  //join prepare goods room
+  Future<void> joinPrepareGoodsRoom() async {
+    if (_socket == null || !_socket!.connected) await connectSocket();
+    _socket!.emit('request-prepare', 'prepare-goods'); //prepare-goods -> room
+    AppLogger.i("➡️ socket join: prepare-goods");
+  }
+
   /// Leave a room (server must implement socket.on("leave-room", ...))
   Future<void> leaveRoom(String roomName) async {
     if (_socket == null || !_socket!.connected) return;

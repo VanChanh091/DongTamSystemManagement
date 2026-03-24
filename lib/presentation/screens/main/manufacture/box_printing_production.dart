@@ -4,7 +4,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart';
-import 'package:dongtam/presentation/components/shared/init_socket_manufacture.dart';
+import 'package:dongtam/utils/socket/init_socket_manufacture.dart';
 import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
