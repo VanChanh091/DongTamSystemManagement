@@ -8,6 +8,7 @@ import 'package:dongtam/presentation/sources/order_data_source.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -185,6 +186,10 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                               "Lỗi không tìm thấy đơn hàng",
                                               error: e,
                                               stackTrace: s,
+                                            );
+                                            showSnackBarError(
+                                              context,
+                                              'Có lỗi xảy ra, vui lòng thử lại sau',
                                             );
                                           }
                                         },

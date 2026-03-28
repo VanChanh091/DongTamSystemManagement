@@ -56,9 +56,9 @@ class ValidationCustomer {
               "Địa chỉ công ty",
               "Địa chỉ giao hàng",
               "Hạn Mức Công Nợ",
-              "Hạn Thanh Toán",
-              "CSKH",
               "Nguồn Khách Hàng",
+              "Ngày Chốt Công Nợ",
+              "CSKH",
             ];
 
             if (requiredFields.contains(label) && cleanValue.isEmpty) {
@@ -79,7 +79,9 @@ class ValidationCustomer {
                   return 'Mã khách hàng vượt quá 10 ký tự';
                 }
 
-                if (value.length == 10) {
+                if (value.contains(' ')) {
+                  return "Mã khách hàng không được chứa dấu cách";
+                } else if (value.length == 10) {
                   final lastChar = value.substring(value.length - 1);
                   if (RegExp(r'[0-9]').hasMatch(lastChar)) {
                     return "Ký tự cuối không được là số";

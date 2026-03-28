@@ -46,13 +46,17 @@ class _ProductDialogState extends State<ProductDialog> {
   @override
   void initState() {
     super.initState();
+
     if (widget.product != null) {
       AppLogger.i("Khởi tạo form với customerId=${widget.product!.productId}");
+
       idController.text = widget.product!.productId;
-      typeProduct = widget.product!.typeProduct;
       nameProductController.text = widget.product?.productName ?? "";
       maKhuonController.text = widget.product?.maKhuon ?? "";
       productImageUrl = widget.product!.productImage;
+
+      //dropdown
+      typeProduct = widget.product!.typeProduct;
     }
   }
 
@@ -81,6 +85,7 @@ class _ProductDialogState extends State<ProductDialog> {
     await Future.delayed(const Duration(seconds: 1));
 
     try {
+      // Chuẩn hóa dữ liệu đầu vào
       final newProduct = Product(
         productId: idController.trimmed.toUpperCase(),
         typeProduct: typeProduct,
@@ -90,49 +95,55 @@ class _ProductDialogState extends State<ProductDialog> {
       );
 
       final bool isAdd = widget.product == null;
-
       AppLogger.i(
         isAdd
             ? "Thêm sản phẩm mới: ${newProduct.productId}"
             : "Cập nhật sản phẩm: ${newProduct.productId}",
       );
 
+      final bool success;
       if (isAdd) {
-        await ProductService().addProduct(
+        success = await ProductService().addProduct(
           prefix: newProduct.productId,
           product: newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
       } else {
-        await ProductService().updateProductById(
+        success = await ProductService().updateProductById(
           productId: newProduct.productId,
           productUpdated: newProduct.toJson(),
           imageBytes: pickedProductImage,
         );
       }
 
+      if (success) {
+        if (!mounted) return;
+        Navigator.pop(context); // đóng dialog loading
+
+        // Thông báo thành công
+        showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
+
+        widget.onProductAddOrUpdate();
+        Navigator.of(context).pop(); // đóng dialog form
+      }
+    } on ApiException catch (e) {
+      setState(() {
+        switch (e.errorCode) {
+          case 'PREFIX_ALREADY_EXISTS':
+            serverIdError = 'Tiền mã sản phẩm đã tồn tại';
+            break;
+          default:
+            showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+        }
+      });
+
+      // Gọi validate lại để nó hiển thị lỗi đỏ dưới chân ô input ngay lập tức
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        formKey.currentState!.validate();
+      });
+
       if (!mounted) return;
       Navigator.pop(context); // đóng dialog loading
-
-      // Thông báo thành công
-      showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
-
-      widget.onProductAddOrUpdate();
-
-      Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (e.errorCode == 'PREFIX_ALREADY_EXISTS') {
-        setState(() {
-          serverIdError = 'Tiền mã sản phẩm đã tồn tại';
-        });
-
-        // Gọi validate lại để nó hiển thị lỗi đỏ dưới chân ô input ngay lập tức
-        formKey.currentState!.validate();
-      } else {
-        if (mounted) {
-          showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
-        }
-      }
     } catch (e, s) {
       if (widget.product == null) {
         AppLogger.e("Lỗi khi thêm sản phẩm", error: e, stackTrace: s);

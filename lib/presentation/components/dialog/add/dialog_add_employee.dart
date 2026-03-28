@@ -113,79 +113,86 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       return;
     }
 
-    final newCompanyInfoEmpl = EmployeeCompanyInfo(
-      companyInfoId: 0,
-      employeeCode: _employeeCodeController.trimmed.toUpperCase(),
-      joinDate: joinDate ?? DateTime.now(),
-      department: _departmentController.superClean,
-      position: _positionController.superClean,
-      emergencyPhone: _emergencyPhoneController.trimmed,
-      emergencyContact: _emergencyContactController.superClean,
-      status: typeStatusWorking,
-    );
-
-    final newEmployee = EmployeeBasicInfo(
-      employeeId: 0,
-      fullName: _fullNameController.superClean,
-      gender: typeGender,
-      birthday: birthday ?? DateTime.now(),
-      birthPlace: _birthPlaceController.superClean,
-      homeTown: _homeTownController.superClean,
-      educationLevel: _educationLevelController.superClean,
-      phoneNumber: _phoneNumberController.trimmed,
-      educationSystem: _educationSystemController.superClean,
-      major: _majorController.superClean,
-      citizenId: _citizenIdController.trimmed,
-      citizenIssuedDate: citizenIssuedDate ?? DateTime.now(),
-      citizenIssuedPlace: _citizenIssuedPlaceController.superClean,
-      permanentAddress: _permanentAddressController.superClean,
-      temporaryAddress: _temporaryAddressController.superClean,
-      ethnicity: _ethnicityController.superClean,
-      companyInfo: newCompanyInfoEmpl,
-    );
+    // Show loading
+    showLoadingDialog(context);
+    await Future.delayed(const Duration(seconds: 1));
 
     try {
-      final bool isAdd = widget.employee == null;
+      // Chuẩn hóa dữ liệu đầu vào
+      final newCompanyInfoEmpl = EmployeeCompanyInfo(
+        companyInfoId: 0,
+        employeeCode: _employeeCodeController.trimmed.toUpperCase(),
+        joinDate: joinDate ?? DateTime.now(),
+        department: _departmentController.superClean,
+        position: _positionController.superClean,
+        emergencyPhone: _emergencyPhoneController.trimmed,
+        emergencyContact: _emergencyContactController.superClean,
+        status: typeStatusWorking,
+      );
 
+      final newEmployee = EmployeeBasicInfo(
+        employeeId: 0,
+        fullName: _fullNameController.superClean,
+        gender: typeGender,
+        birthday: birthday ?? DateTime.now(),
+        birthPlace: _birthPlaceController.superClean,
+        homeTown: _homeTownController.superClean,
+        educationLevel: _educationLevelController.superClean,
+        phoneNumber: _phoneNumberController.trimmed,
+        educationSystem: _educationSystemController.superClean,
+        major: _majorController.superClean,
+        citizenId: _citizenIdController.trimmed,
+        citizenIssuedDate: citizenIssuedDate ?? DateTime.now(),
+        citizenIssuedPlace: _citizenIssuedPlaceController.superClean,
+        permanentAddress: _permanentAddressController.superClean,
+        temporaryAddress: _temporaryAddressController.superClean,
+        ethnicity: _ethnicityController.superClean,
+        companyInfo: newCompanyInfoEmpl,
+      );
+
+      final bool isAdd = widget.employee == null;
       AppLogger.i(
         isAdd ? "Thêm nhân viên mới" : "Cập nhật nhân viên: ${widget.employee!.fullName}",
       );
 
-      isAdd
-          ? await EmployeeService().addEmployee(employeeData: newEmployee.toJson())
-          : await EmployeeService().updateEmployee(
-            employeeId: widget.employee!.employeeId,
-            updateEmployeeData: newEmployee.toJson(),
-          );
-
-      // Show loading
-      if (!mounted) return;
-      showLoadingDialog(context);
-      await Future.delayed(const Duration(seconds: 1));
-
-      if (!mounted) return;
-      Navigator.pop(context); // đóng dialog loading
-
-      // Thông báo thành công
-      if (!mounted) return;
-      showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
-
-      widget.onEmployeeAddOrUpdate();
-
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (e.errorCode == 'EMPLOYEE_CODE_EXISTS') {
-        setState(() {
-          employeeCodeError = "Mã nhân viên này đã tồn tại";
-        });
+      final bool success;
+      if (isAdd) {
+        success = await EmployeeService().addEmployee(employeeData: newEmployee.toJson());
       } else {
-        showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+        success = await EmployeeService().updateEmployee(
+          employeeId: widget.employee!.employeeId,
+          updateEmployeeData: newEmployee.toJson(),
+        );
       }
+
+      if (success) {
+        if (!mounted) return;
+        Navigator.pop(context); // đóng dialog loading
+
+        // Thông báo thành công
+        if (!mounted) return;
+        showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
+
+        widget.onEmployeeAddOrUpdate();
+        Navigator.of(context).pop();
+      }
+    } on ApiException catch (e) {
+      setState(() {
+        switch (e.errorCode) {
+          case 'EMPLOYEE_CODE_EXISTS':
+            employeeCodeError = "Mã nhân viên này đã tồn tại";
+            break;
+          default:
+            showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+        }
+      });
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         formKey.currentState!.validate();
       });
+
+      if (!mounted) return;
+      Navigator.pop(context); // đóng dialog loading
     } catch (e, s) {
       if (!mounted) return;
       if (widget.employee == null) {
@@ -244,6 +251,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
           icon: Symbols.calendar_month,
           readOnly: true,
           onTap: () async {
+            // firstDate <= initDate <= lastDate
             DateTime? pickedDate = await showDatePicker(
               context: context,
               initialDate: birthday ?? DateTime.now(),

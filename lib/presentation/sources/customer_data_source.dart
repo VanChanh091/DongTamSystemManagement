@@ -17,6 +17,8 @@ class CustomerDatasource extends DataGridSource {
   }
 
   List<DataGridCell> buildCustomerCells(Customer customer) {
+    final payment = customer.payment;
+
     return [
       DataGridCell<String>(columnName: "customerId", value: customer.customerId),
       DataGridCell<String>(columnName: "maSoThue", value: customer.mst),
@@ -30,21 +32,26 @@ class CustomerDatasource extends DataGridSource {
       DataGridCell<String>(
         columnName: "debtLimitCustomer",
         value:
-            (customer.debtLimit ?? 0) > 0
-                ? '${Order.formatCurrency(customer.debtLimit ?? 0)} VNĐ'
+            (payment?.debtLimit ?? 0) > 0
+                ? '${Order.formatCurrency(payment?.debtLimit ?? 0)} VNĐ'
                 : "0",
       ),
       DataGridCell<String>(
         columnName: "debtCurrentCustomer",
         value:
-            (customer.debtCurrent ?? 0) > 0
-                ? '${Order.formatCurrency(customer.debtCurrent ?? 0)} VNĐ'
+            (payment?.debtCurrent ?? 0) > 0
+                ? '${Order.formatCurrency(payment?.debtCurrent ?? 0)} VNĐ'
                 : "0",
       ),
       DataGridCell<String>(
         columnName: "termPaymentCost",
-        value: customer.timePayment != null ? formatter.format(customer.timePayment!) : "",
+        value: payment?.timePayment != null ? formatter.format(payment!.timePayment!) : "",
       ),
+      DataGridCell<String>(
+        columnName: "paymentType",
+        value: payment?.paymentType != null ? payment!.paymentType : "",
+      ),
+      DataGridCell<int>(columnName: "closingDate", value: payment?.closingDate ?? 0),
       DataGridCell<String>(columnName: "companyName", value: customer.companyName),
       DataGridCell<String>(columnName: "companyAddress", value: customer.companyAddress),
       DataGridCell<String>(columnName: "shippingAddress", value: customer.shippingAddress),
@@ -87,10 +94,27 @@ class CustomerDatasource extends DataGridSource {
       backgroundColor = Colors.transparent;
     }
 
+    String getStatusVi(String type) {
+      switch (type) {
+        case "daily":
+          return "Tiền Liền";
+        case "monthly":
+          return "Theo Tháng";
+        default:
+          return type;
+      }
+    }
+
     return DataGridRowAdapter(
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            String displayValue = dataCell.value?.toString() ?? "";
+
+            if (dataCell.columnName == 'paymentType') {
+              displayValue = getStatusVi(displayValue);
+            }
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
@@ -98,7 +122,7 @@ class CustomerDatasource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

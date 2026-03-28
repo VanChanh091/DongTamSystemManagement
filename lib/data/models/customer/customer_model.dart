@@ -1,3 +1,4 @@
+import 'package:dongtam/data/models/customer/customer_payment_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:intl/intl.dart';
 
@@ -12,13 +13,12 @@ class Customer {
   final String phone;
   final String cskh;
   final String? contactPerson;
-  final DateTime? dayCreated;
-  final double? debtCurrent;
-  final double? debtLimit;
-  final DateTime? timePayment;
-  final String? rateCustomer;
   final String customerSource;
+  final DateTime? dayCreated;
+  final String? rateCustomer;
   final DateTime? createdAt;
+
+  final CustomerPayment? payment;
 
   Customer({
     required this.customerId,
@@ -26,18 +26,17 @@ class Customer {
     required this.companyName,
     required this.companyAddress,
     required this.shippingAddress,
-    this.distance,
+    required this.customerSource,
     required this.mst,
     required this.phone,
     required this.cskh,
     this.contactPerson,
+    this.distance,
     this.dayCreated,
-    this.debtCurrent,
-    required this.debtLimit,
-    this.timePayment,
     this.rateCustomer,
-    required this.customerSource,
     this.createdAt,
+
+    this.payment,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) {
@@ -56,18 +55,13 @@ class Customer {
           json['dayCreated'] != null && json['dayCreated'].toString().isNotEmpty
               ? DateTime.tryParse(json['dayCreated'].toString())
               : null,
-      debtCurrent: toDouble(json['debtCurrent']),
-      debtLimit: toDouble(json['debtLimit']),
-      timePayment:
-          json['timePayment'] != null && json['timePayment'].toString().isNotEmpty
-              ? DateTime.tryParse(json['timePayment'].toString())
-              : null,
       rateCustomer: json['rateCustomer'] ?? "",
       customerSource: json['customerSource'] ?? "",
       createdAt:
           json['createdAt'] != null && json['createdAt'].toString().isNotEmpty
               ? DateTime.tryParse(json['createdAt'].toString())
               : null,
+      payment: json['payment'] != null ? CustomerPayment.fromJson(json['payment']) : null,
     );
   }
 
@@ -84,10 +78,9 @@ class Customer {
       'cskh': cskh,
       "contactPerson": contactPerson,
       "dayCreated": DateFormat('yyyy-MM-dd').format(dayCreated!),
-      "debtLimit": debtLimit,
-      "timePayment": DateFormat('yyyy-MM-dd').format(timePayment!),
       "rateCustomer": rateCustomer,
       "customerSource": customerSource,
+      'payment': payment!.toJson(),
     };
   }
 }

@@ -73,8 +73,6 @@ class _CustomerPageState extends State<CustomerPage> {
       String keyword = searchController.text.trim().toLowerCase();
 
       if (isSearching && searchType != "Tất cả") {
-        AppLogger.i("loadCustomer: isSearching=true, keyword='$keyword'");
-
         futureCustomer = ensureMinLoading(
           CustomerService().getCustomers(
             field: selectedField,
@@ -241,51 +239,41 @@ class _CustomerPageState extends State<CustomerPage> {
                                                       selectedCustomerId!.isNotEmpty
                                                   ? () async {
                                                     try {
-                                                      final result = await CustomerService()
-                                                          .getCustomers(
-                                                            field: 'customerId',
-                                                            keyword: selectedCustomerId!,
+                                                      final customersData = await futureCustomer;
+                                                      final List<Customer> customerList =
+                                                          (customersData['customers'] as List? ??
+                                                                  [])
+                                                              .cast<Customer>();
+                                                      final selectedCustomer = customerList
+                                                          .firstWhere(
+                                                            (customer) =>
+                                                                customer.customerId ==
+                                                                selectedCustomerId,
+                                                            orElse:
+                                                                () =>
+                                                                    throw Exception(
+                                                                      "Không tìm thấy khách hàng",
+                                                                    ),
                                                           );
 
-                                                      if (!context.mounted) {
-                                                        return;
-                                                      }
-
-                                                      // Defensive null checks
-                                                      if (result['customers'] == null) {
-                                                        showSnackBarError(
-                                                          context,
-                                                          'Dữ liệu trả về không hợp lệ',
+                                                      if (context.mounted) {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (_) => CustomerDialog(
+                                                                customer: selectedCustomer,
+                                                                onCustomerAddOrUpdate:
+                                                                    () => loadCustomer(),
+                                                              ),
                                                         );
-                                                        return;
                                                       }
-
-                                                      final customers =
-                                                          result['customers'] as List<Customer>? ??
-                                                          [];
-
-                                                      if (customers.isEmpty) {
-                                                        showSnackBarError(
-                                                          context,
-                                                          'Không tìm thấy khách hàng',
-                                                        );
-                                                        return;
-                                                      }
-
-                                                      showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (_) => CustomerDialog(
-                                                              customer: customers.first,
-                                                              onCustomerAddOrUpdate:
-                                                                  () => loadCustomer(),
-                                                            ),
-                                                      );
                                                     } catch (e, s) {
                                                       AppLogger.e(
                                                         "Error in getCustomerById: $e",
                                                         stackTrace: s,
                                                       );
+
+                                                      if (!context.mounted) return;
                                                       showSnackBarError(
                                                         context,
                                                         'Có lỗi xảy ra, vui lòng thử lại sau',

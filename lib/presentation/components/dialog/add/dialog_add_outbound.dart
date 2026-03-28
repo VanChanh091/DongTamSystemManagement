@@ -187,42 +187,43 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       return;
     }
 
+    // Show loading
+    showLoadingDialog(context);
+    await Future.delayed(const Duration(seconds: 1));
+
     try {
       final bool isAdd = widget.outbound == null;
-
       AppLogger.i(isAdd ? "Thêm phiếu xuất kho mới" : "Cập nhật phiếu xuất kho");
 
-      isAdd
-          ? await WarehouseService().createOutbound(
-            list:
-                tempItems.map((outbound) {
-                  return {"orderId": outbound.orderId, "outboundQty": outbound.qtyOutbound};
-                }).toList(),
-          )
-          : await WarehouseService().updateOutbound(
-            outboundId: widget.outbound!.outboundId,
-            list:
-                tempItems.map((outbound) {
-                  return {"orderId": outbound.orderId, "outboundQty": outbound.qtyOutbound};
-                }).toList(),
-          );
+      final bool success;
+      if (isAdd) {
+        success = await WarehouseService().createOutbound(
+          list:
+              tempItems.map((outbound) {
+                return {"orderId": outbound.orderId, "outboundQty": outbound.qtyOutbound};
+              }).toList(),
+        );
+      } else {
+        success = await WarehouseService().updateOutbound(
+          outboundId: widget.outbound!.outboundId,
+          list:
+              tempItems.map((outbound) {
+                return {"orderId": outbound.orderId, "outboundQty": outbound.qtyOutbound};
+              }).toList(),
+        );
+      }
 
-      // Show loading
-      if (!mounted) return;
-      showLoadingDialog(context);
-      await Future.delayed(const Duration(seconds: 1));
+      if (success) {
+        if (!mounted) return;
+        Navigator.pop(context); // đóng dialog loading
 
-      if (!mounted) return;
-      Navigator.pop(context); // đóng dialog loading
+        // Thông báo thành công
+        if (!mounted) return;
+        showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
 
-      // Thông báo thành công
-      if (!mounted) return;
-      showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
-
-      widget.onOutboundHistory();
-
-      if (!mounted) return;
-      Navigator.of(context).pop();
+        widget.onOutboundHistory();
+        Navigator.of(context).pop();
+      }
     } on ApiException catch (e) {
       final errorText = switch (e.errorCode) {
         'EMPTY_ORDER_LIST' => "Phải chọn ít nhất 1 đơn hàng",
@@ -232,6 +233,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
       if (mounted) {
         showSnackBarError(context, errorText);
+        Navigator.pop(context); // đóng dialog loading
       }
     } catch (e, s) {
       if (widget.outbound == null) {

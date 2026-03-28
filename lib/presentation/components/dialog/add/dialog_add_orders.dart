@@ -145,32 +145,7 @@ class _OrderDialogState extends State<OrderDialog> {
     _fillFormWithOrder(order);
   }
 
-  //fetch all customer for create in dialog
-  Future<void> fetchAllCustomers() async {
-    try {
-      final result = await CustomerService().getCustomers(noPaging: true);
-
-      allCustomers = result['customers'] as List<Customer>;
-      AppLogger.i("Fetch thành công tất cả khách hàng vào order");
-    } catch (e, s) {
-      AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
-    }
-  }
-
-  //fetch all product for create in dialog
-  Future<void> fetchAllProduct() async {
-    try {
-      final result = await ProductService().getProducts(noPaging: true);
-
-      allProducts = result['products'] as List<Product>;
-      AppLogger.i("Fetch thành công tất cả sản phẩm vào order");
-    } catch (e, s) {
-      AppLogger.e("Lỗi khi tải danh sách sản phẩm", error: e, stackTrace: s);
-    }
-  }
-
   void _fillFormWithOrder(Order selectedOrder) {
-    // 1. Group các String/Number fields (Dùng Map để duyệt cho nhanh hoặc gán thẳng 1 cụm)
     orderIdController.text = selectedOrder.orderId;
     customerIdController.text = selectedOrder.customerId;
     productIdController.text = selectedOrder.productId;
@@ -189,7 +164,7 @@ class _OrderDialogState extends State<OrderDialog> {
     songCController.text = selectedOrder.songC ?? "";
     songE2Controller.text = selectedOrder.songE2 ?? "";
 
-    // Cụm các field Số (Chuyển toString một loạt)
+    // Cụm các field Số
     lengthCustomerController.text = selectedOrder.lengthPaperCustomer.toString();
     lengthManufactureController.text = selectedOrder.lengthPaperManufacture.toString();
     sizeCustomerController.text = selectedOrder.paperSizeCustomer.toString();
@@ -244,6 +219,30 @@ class _OrderDialogState extends State<OrderDialog> {
     chongThamChecked.value = box?.chongTham ?? false;
     dongGhim1ManhChecked.value = box?.dongGhim1Manh ?? false;
     dongGhim2ManhChecked.value = box?.dongGhim2Manh ?? false;
+  }
+
+  //fetch all customer for create in dialog
+  Future<void> fetchAllCustomers() async {
+    try {
+      final result = await CustomerService().getCustomers(noPaging: true);
+
+      allCustomers = result['customers'] as List<Customer>;
+      AppLogger.i("Fetch thành công tất cả khách hàng vào order");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
+    }
+  }
+
+  //fetch all product for create in dialog
+  Future<void> fetchAllProduct() async {
+    try {
+      final result = await ProductService().getProducts(noPaging: true);
+
+      allProducts = result['products'] as List<Product>;
+      AppLogger.i("Fetch thành công tất cả sản phẩm vào order");
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tải danh sách sản phẩm", error: e, stackTrace: s);
+    }
   }
 
   void addListenerForField() {
@@ -564,6 +563,7 @@ class _OrderDialogState extends State<OrderDialog> {
           icon: Symbols.calendar_month,
           readOnly: true,
           onTap: () async {
+            // firstDate <= initDate <= lastDate
             DateTime baseDate = dayReceive ?? DateTime.now();
             DateTime? pickedDate = await showDatePicker(
               context: context,

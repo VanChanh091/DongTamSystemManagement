@@ -229,51 +229,40 @@ class _ProductPageState extends State<ProductPage> {
                                                       selectedProductId!.isNotEmpty
                                                   ? () async {
                                                     try {
-                                                      final result = await ProductService()
-                                                          .getProducts(
-                                                            field: 'productId',
-                                                            keyword: selectedProductId!,
+                                                      final productsData = await futureProduct;
+                                                      final List<Product> productList =
+                                                          (productsData['products'] as List? ?? [])
+                                                              .cast<Product>();
+                                                      final selectedProduct = productList
+                                                          .firstWhere(
+                                                            (product) =>
+                                                                product.productId ==
+                                                                selectedProductId,
+                                                            orElse:
+                                                                () =>
+                                                                    throw Exception(
+                                                                      'Không tìm thấy sản phẩm',
+                                                                    ),
                                                           );
 
-                                                      if (!context.mounted) {
-                                                        return;
-                                                      }
-
-                                                      // Defensive null checks
-                                                      if (result['products'] == null) {
-                                                        showSnackBarError(
-                                                          context,
-                                                          'Dữ liệu trả về không hợp lệ',
+                                                      if (context.mounted) {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (_) => ProductDialog(
+                                                                product: selectedProduct,
+                                                                onProductAddOrUpdate:
+                                                                    () => loadProduct(),
+                                                              ),
                                                         );
-                                                        return;
                                                       }
-
-                                                      final products =
-                                                          result['products'] as List<Product>? ??
-                                                          [];
-
-                                                      if (products.isEmpty) {
-                                                        showSnackBarError(
-                                                          context,
-                                                          'Không tìm thấy khách hàng',
-                                                        );
-                                                        return;
-                                                      }
-
-                                                      showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (_) => ProductDialog(
-                                                              product: products.first,
-                                                              onProductAddOrUpdate:
-                                                                  () => loadProduct(),
-                                                            ),
-                                                      );
                                                     } catch (e, s) {
                                                       AppLogger.e(
                                                         "Error in getProductById: $e",
                                                         stackTrace: s,
                                                       );
+
+                                                      if (!context.mounted) return;
                                                       showSnackBarError(
                                                         context,
                                                         'Có lỗi xảy ra, vui lòng thử lại sau',

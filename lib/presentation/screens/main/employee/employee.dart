@@ -244,35 +244,23 @@ class _EmployeeState extends State<Employee> {
                                                       selectedEmployeeId! > 0
                                                   ? () async {
                                                     try {
-                                                      final result = await EmployeeService()
-                                                          .getEmployees(
-                                                            field: 'employeeId',
-                                                            keyword: selectedEmployeeId.toString(),
+                                                      final employeeData = await futureEmployee;
+                                                      final List<EmployeeBasicInfo> employeeList =
+                                                          (employeeData['employees'] as List? ?? [])
+                                                              .cast<EmployeeBasicInfo>();
+                                                      final selectedEmployees = employeeList
+                                                          .firstWhere(
+                                                            (employee) =>
+                                                                employee.employeeId ==
+                                                                selectedEmployeeId,
+                                                            orElse:
+                                                                () =>
+                                                                    throw Exception(
+                                                                      "Không tìm thấy nhân viên",
+                                                                    ),
                                                           );
 
                                                       if (!context.mounted) {
-                                                        return;
-                                                      }
-
-                                                      // Defensive null checks
-                                                      if (result['employees'] == null) {
-                                                        showSnackBarError(
-                                                          context,
-                                                          'Dữ liệu trả về không hợp lệ',
-                                                        );
-                                                        return;
-                                                      }
-
-                                                      final employees =
-                                                          result['employees']
-                                                              as List<EmployeeBasicInfo>? ??
-                                                          [];
-
-                                                      if (employees.isEmpty) {
-                                                        showSnackBarError(
-                                                          context,
-                                                          'Không tìm thấy nhân viên',
-                                                        );
                                                         return;
                                                       }
 
@@ -280,7 +268,7 @@ class _EmployeeState extends State<Employee> {
                                                         context: context,
                                                         builder:
                                                             (_) => EmployeeDialog(
-                                                              employee: employees.first,
+                                                              employee: selectedEmployees,
                                                               onEmployeeAddOrUpdate:
                                                                   () => loadEmployee(),
                                                             ),
