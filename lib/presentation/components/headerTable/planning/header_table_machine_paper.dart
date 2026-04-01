@@ -41,6 +41,7 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
     "visiblePages": ["planning"],
   },
 
+  //waste
   {"key": "bottom", "title": "Đáy"},
   {"key": "fluteE", "title": "Sóng E"},
   {"key": "fluteE2", "title": "Sóng E2"},
