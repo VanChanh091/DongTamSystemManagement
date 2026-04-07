@@ -171,6 +171,8 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                                                     planningBoxId: selectedPlanningBoxIds!,
                                                     onQcSessionAddOrUpdate: () => loadBoxWaiting(),
                                                     type: 'box',
+                                                    valueInbound:
+                                                        selectedPlanning?.getTotalQtyInbound ?? 0,
                                                   ),
                                             );
                                           }

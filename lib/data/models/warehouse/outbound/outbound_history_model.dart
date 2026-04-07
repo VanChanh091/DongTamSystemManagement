@@ -9,6 +9,10 @@ class OutboundHistoryModel {
   final double? totalPriceVAT;
   final double totalPricePayment;
   final int totalOutboundQty;
+  final DateTime dueDate;
+  final double? paidAmount;
+  final double? remainingAmount;
+  final String status;
 
   //FK
   final List<OutboundDetailModel>? detail;
@@ -21,6 +25,10 @@ class OutboundHistoryModel {
     this.totalPriceVAT,
     required this.totalPricePayment,
     required this.totalOutboundQty,
+    required this.dueDate,
+    this.paidAmount,
+    this.remainingAmount,
+    required this.status,
 
     this.detail,
   });
@@ -34,6 +42,10 @@ class OutboundHistoryModel {
       totalPriceVAT: toDouble(json['totalPriceVAT']),
       totalPricePayment: toDouble(json['totalPricePayment']),
       totalOutboundQty: json['totalOutboundQty'] ?? 0,
+      dueDate: DateTime.parse(json['dueDate']),
+      paidAmount: toDouble(json['paidAmount']),
+      remainingAmount: toDouble(json['remainingAmount']),
+      status: json['status'] ?? "",
 
       detail:
           json['detail'] != null

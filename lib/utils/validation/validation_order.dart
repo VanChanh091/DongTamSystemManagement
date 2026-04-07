@@ -113,6 +113,7 @@ class ValidationOrder {
                     : (isFilled ? Colors.white : (isCustomTheme ? isCurrentColor : defaultFill)),
             filled: true,
           ),
+          onTap: onTap,
           validator: (value) {
             final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
 
@@ -131,7 +132,6 @@ class ValidationOrder {
 
             return null;
           },
-          onTap: onTap,
         );
       },
     );

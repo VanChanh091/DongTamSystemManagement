@@ -31,8 +31,8 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   final Map<String, String> searchFieldMap = {
     "Theo Mã ĐH": "orderId",
     "Tên KH": "customerName",
-    "Ngày Báo Cáo": "dayReported",
-    "Quản Ca": "shiftManagement",
+    "Ngày Nhập": "dateInbound",
+    "Người Kiểm": "checkedBy",
   };
   List<int> selectedInboundId = [];
   TextEditingController searchController = TextEditingController();
@@ -154,8 +154,8 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                               'Tất cả',
                               "Theo Mã ĐH",
                               'Tên KH',
-                              "Ngày Báo Cáo",
-                              "Quản Ca",
+                              "Ngày Nhập",
+                              "Người Kiểm",
                             ],
                             onTypeChanged: (value) {
                               setState(() {

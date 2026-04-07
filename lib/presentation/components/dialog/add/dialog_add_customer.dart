@@ -410,8 +410,8 @@ class _CustomerDialogState extends State<CustomerDialog> {
           readOnly: !canEditDebtLimit,
         ),
         "rightKey": "Hạn Thanh Toán",
-        "rightValue": ValidationOrder.validateInput(
-          label: "Hạn Thanh Toán",
+        "rightValue": ValidationCustomer.validateInput(
+          label: "Thời Hạn Thanh Toán",
           controller: _timePaymentController,
           icon: Symbols.calendar_month,
           readOnly: true,

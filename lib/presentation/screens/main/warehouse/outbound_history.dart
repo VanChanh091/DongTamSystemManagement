@@ -14,6 +14,7 @@ import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -361,14 +362,35 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                               child: SfDataGrid(
                                 source: obHistoryDataSource,
                                 isScrollbarAlwaysShown: true,
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode: ColumnWidthMode.auto,
                                 selectionMode: SelectionMode.single,
-                                headerRowHeight: 45,
+                                headerRowHeight: 35,
                                 rowHeight: 40,
                                 columns: ColumnWidthTable.applySavedWidths(
                                   columns: columnsOutbound,
                                   widths: columnWidthsOutbound,
                                 ),
+                                stackedHeaderRows: <StackedHeaderRow>[
+                                  StackedHeaderRow(
+                                    cells: [
+                                      StackedHeaderCell(
+                                        columnNames: [
+                                          "totalPriceOrder",
+                                          "totalPriceVAT",
+                                          "totalPricePayment",
+                                          "paidAmount",
+                                          "remainingAmount",
+                                        ],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Số Tiền',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
 
                                 //auto resize
                                 allowColumnsResizing: true,

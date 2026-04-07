@@ -10,6 +10,7 @@ class ValidationCustomer {
     required IconData icon,
     bool readOnly = false,
     bool checkId = false,
+    VoidCallback? onTap,
     String? externalError,
     Function(String)? onChanged,
   }) {
@@ -45,21 +46,28 @@ class ValidationCustomer {
             errorText: externalError,
           ),
           onChanged: onChanged,
+          onTap: onTap,
           validator: (value) {
             if (externalError != null) return externalError;
 
+            // print("--- Đang check label: '$label' ---");
+
             final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
+
             final requiredFields = [
-              'Mã khách hàng',
+              "Mã khách hàng",
               "Tên khách hàng",
               "Tên công ty",
               "Địa chỉ công ty",
               "Địa chỉ giao hàng",
               "Hạn Mức Công Nợ",
+              "Thời Hạn Thanh Toán",
               "Nguồn Khách Hàng",
               "Ngày Chốt Công Nợ",
               "CSKH",
             ];
+
+            // print("Có trong list không: ${requiredFields.contains(label)}");
 
             if (requiredFields.contains(label) && cleanValue.isEmpty) {
               return 'Không được để trống';

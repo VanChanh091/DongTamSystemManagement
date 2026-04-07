@@ -16,36 +16,58 @@ class ObHistoryDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildDbPaperCells(OutboundHistoryModel outbounds) {
+  List<DataGridCell> buildDbPaperCells(OutboundHistoryModel outbound) {
     final detail =
-        outbounds.detail != null && outbounds.detail!.isNotEmpty ? outbounds.detail!.first : null;
+        outbound.detail != null && outbound.detail!.isNotEmpty ? outbound.detail!.first : null;
 
     final customer = detail?.order?.customer;
 
     return [
       DataGridCell<String>(
         columnName: "dateOutbound",
-        value: formatter.format(outbounds.dateOutbound),
+        value: formatter.format(outbound.dateOutbound),
       ),
-      DataGridCell<String>(columnName: "outboundSlipCode", value: outbounds.outboundSlipCode),
+      DataGridCell<String>(columnName: "outboundSlipCode", value: outbound.outboundSlipCode),
       DataGridCell<String>(columnName: "customerName", value: customer!.customerName),
       DataGridCell<String>(columnName: "companyName", value: customer.companyName),
-      DataGridCell<int>(columnName: "totalOutboundQty", value: outbounds.totalOutboundQty),
+      DataGridCell<int>(columnName: "totalOutboundQty", value: outbound.totalOutboundQty),
+      DataGridCell<String>(columnName: "dueDate", value: formatter.format(outbound.dueDate)),
+
+      //money
       DataGridCell<String>(
         columnName: "totalPriceOrder",
-        value: '${Order.formatCurrency(outbounds.totalPriceOrder)} VNĐ',
+        value: '${Order.formatCurrency(outbound.totalPriceOrder)} VNĐ',
       ),
       DataGridCell<String>(
         columnName: "totalPriceVAT",
-        value: '${Order.formatCurrency(outbounds.totalPriceVAT!)} VNĐ',
+        value:
+            outbound.totalPriceVAT != null && outbound.totalPriceVAT! > 0
+                ? '${Order.formatCurrency(outbound.totalPriceVAT!)} VNĐ'
+                : "0",
       ),
       DataGridCell<String>(
         columnName: "totalPricePayment",
-        value: '${Order.formatCurrency(outbounds.totalPricePayment)} VNĐ',
+        value: '${Order.formatCurrency(outbound.totalPricePayment)} VNĐ',
+      ),
+      DataGridCell<String>(
+        columnName: "paidAmount",
+        value:
+            outbound.paidAmount != null && outbound.paidAmount! > 0
+                ? '${Order.formatCurrency(outbound.paidAmount!)} VNĐ'
+                : "0",
+      ),
+      DataGridCell<String>(
+        columnName: "remainingAmount",
+        value:
+            outbound.remainingAmount != null && outbound.remainingAmount! > 0
+                ? '${Order.formatCurrency(outbound.remainingAmount!)} VNĐ'
+                : "0",
       ),
 
+      DataGridCell<String>(columnName: "status", value: outbound.status),
+
       //hidden
-      DataGridCell<int>(columnName: "outboundId", value: outbounds.outboundId),
+      DataGridCell<int>(columnName: "outboundId", value: outbound.outboundId),
     ];
   }
 
@@ -74,10 +96,29 @@ class ObHistoryDataSource extends DataGridSource {
       backgroundColor = Colors.transparent;
     }
 
+    String getStatusVi(String status) {
+      switch (status) {
+        case "paid":
+          return "Đã Thanh Toán";
+        case "unpaid":
+          return "Chưa Thanh Toán";
+        case "partial":
+          return "Thanh Toán Một Phần";
+        default:
+          return status;
+      }
+    }
+
     return DataGridRowAdapter(
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            String displayValue = dataCell.value?.toString() ?? "";
+
+            if (dataCell.columnName == "status") {
+              displayValue = getStatusVi(displayValue);
+            }
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
@@ -85,7 +126,7 @@ class ObHistoryDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

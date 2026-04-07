@@ -9,9 +9,16 @@ const List<Map<String, dynamic>> _headerOutboundHistory = [
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "companyName", "title": "Tên Công Ty"},
   {"key": "totalOutboundQty", "title": "Số Lượng Xuất"},
-  {"key": "totalPriceOrder", "title": "Tổng Tiền Hàng"},
-  {"key": "totalPriceVAT", "title": "Tiền Thuế"},
-  {"key": "totalPricePayment", "title": "Tổng Tiền Thanh Toán"},
+  {"key": "dueDate", "title": "Ngày Đến Hạn"},
+
+  //money
+  {"key": "totalPriceOrder", "title": "Hàng"},
+  {"key": "totalPriceVAT", "title": "Thuế"},
+  {"key": "totalPricePayment", "title": "Cần Thanh Toán"},
+  {"key": "paidAmount", "title": "Đã Thanh Toán"},
+  {"key": "remainingAmount", "title": "Còn Lại"},
+
+  {"key": "status", "title": "Trạng Thái"},
 
   //hidden
   {"key": "outboundId", "title": "", "visible": false},

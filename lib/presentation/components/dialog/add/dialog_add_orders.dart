@@ -17,11 +17,11 @@ import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
+import 'package:dongtam/utils/helper/paste_image_order.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -249,17 +249,6 @@ class _OrderDialogState extends State<OrderDialog> {
     Order.listenerForFieldNeed(lengthCustomerController, lengthManufactureController);
     Order.listenerForFieldNeed(sizeCustomerController, sizeManufactureController);
     Order.listenerForFieldNeed(quantityCustomerController, quantityManufactureController);
-  }
-
-  Future<void> pickImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
-    if (result != null && result.files.single.bytes != null) {
-      setState(() {
-        pickedOrderImage = result.files.single.bytes;
-      });
-    } else {
-      AppLogger.d("Không chọn ảnh nào");
-    }
   }
 
   void submit() async {
@@ -564,11 +553,10 @@ class _OrderDialogState extends State<OrderDialog> {
           readOnly: true,
           onTap: () async {
             // firstDate <= initDate <= lastDate
-            DateTime baseDate = dayReceive ?? DateTime.now();
             DateTime? pickedDate = await showDatePicker(
               context: context,
               initialDate: dateShipping ?? dayReceive,
-              firstDate: baseDate,
+              firstDate: dayReceive ?? DateTime.now(),
               lastDate: DateTime(2100),
               builder: (BuildContext context, Widget? child) {
                 return Theme(
@@ -1166,126 +1154,16 @@ class _OrderDialogState extends State<OrderDialog> {
                     ),
                     const SizedBox(height: 20),
 
-                    Center(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: pickImage,
-                                icon: const Icon(Icons.upload),
-                                label: const Text(
-                                  "Chọn ảnh đơn hàng",
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueAccent,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                              if (pickedOrderImage != null ||
-                                  (orderImageUrl != null && orderImageUrl!.isNotEmpty)) ...[
-                                const SizedBox(width: 10),
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    setState(() {
-                                      pickedOrderImage = null;
-                                      orderImageUrl = null;
-                                      isDeleteImage = true;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.delete_outline),
-                                  label: const Text(
-                                    "Xóa ảnh",
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.redAccent,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 15,
-                                      vertical: 15,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          if (pickedOrderImage != null) ...[
-                            const SizedBox(height: 15),
-                            Image.memory(
-                              pickedOrderImage!,
-                              height: 600,
-                              width: 800,
-                              fit: BoxFit.contain,
-                            ),
-                          ] else if (orderImageUrl != null && orderImageUrl!.isNotEmpty) ...[
-                            const SizedBox(height: 15),
-                            Image.network(
-                              orderImageUrl!,
-                              height: 600,
-                              width: 800,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: 200,
-                                  width: double.infinity,
-                                  alignment: Alignment.center,
-                                  child: const Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.error_outline, color: Colors.red, size: 50),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        'Lỗi tải ảnh',
-                                        style: TextStyle(color: Colors.red, fontSize: 16),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Container(
-                                  height: 200,
-                                  width: double.infinity,
-                                  alignment: Alignment.center,
-                                  child: const CircularProgressIndicator(),
-                                );
-                              },
-                            ),
-                          ] else ...[
-                            const SizedBox(height: 30),
-                            const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.image_not_supported_outlined,
-                                  color: Colors.grey,
-                                  size: 50,
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  'Không có ảnh',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontStyle: FontStyle.italic,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ],
-                      ),
+                    //upload image
+                    PasteImageOrder(
+                      initialImage: pickedOrderImage,
+                      initialImageUrl: orderImageUrl,
+                      initialIsDelete: isDeleteImage,
+                      onImageChanged: (bytes, url, isDelete) {
+                        pickedOrderImage = bytes;
+                        orderImageUrl = url;
+                        isDeleteImage = isDelete;
+                      },
                     ),
                   ],
                 ),

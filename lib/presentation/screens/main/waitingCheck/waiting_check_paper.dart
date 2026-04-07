@@ -179,6 +179,8 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                                                         onQcSessionAddOrUpdate:
                                                             () => loadPaperWaiting(),
                                                         type: 'paper',
+                                                        valueInbound:
+                                                            selectedPlanning.qtyProduced ?? 0,
                                                       ),
                                                 );
                                               }

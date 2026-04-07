@@ -14,6 +14,7 @@ class DialogCheckQC extends StatefulWidget {
   final int? planningId, planningBoxId;
   final VoidCallback onQcSessionAddOrUpdate;
   final String type;
+  final int valueInbound;
 
   const DialogCheckQC({
     super.key,
@@ -21,6 +22,7 @@ class DialogCheckQC extends StatefulWidget {
     this.planningBoxId,
     required this.onQcSessionAddOrUpdate,
     required this.type,
+    required this.valueInbound,
   });
 
   @override
@@ -42,6 +44,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
     super.initState();
 
     futureCriteria = AdminService().getAllQcCriteria(type: widget.type);
+    qtyController.text = widget.valueInbound.toString();
   }
 
   // check REQUIRED criteria
