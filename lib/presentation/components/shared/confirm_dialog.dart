@@ -93,12 +93,13 @@ Future<void> showDeleteConfirmHelper({
   String loadingMessage = "Đang xoá...",
   String successMessage = "Xoá thành công",
   String errorMessage = "Lỗi khi xoá",
+  String? confirmText = "Xoá",
 }) async {
   final confirm = await showConfirmDialog(
     context: context,
     title: title,
     content: content,
-    confirmText: "Xoá",
+    confirmText: confirmText ?? "Xoá",
     confirmColor: const Color(0xffEA4346),
   );
 

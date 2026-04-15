@@ -62,7 +62,6 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
 
   void submit() async {
     if (!formKey.currentState!.validate()) {
-      AppLogger.w("Form không hợp lệ, dừng submit");
       return;
     }
 

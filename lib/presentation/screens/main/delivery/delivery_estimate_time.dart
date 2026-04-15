@@ -45,6 +45,9 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   bool selectedAll = false;
   int? selectedPaperId;
 
+  String allOrders = "false";
+  final Map<String, String> filterOptions = {'false': 'Đơn Bản Thân', 'true': 'Tất Cả Đơn'};
+
   TextEditingController dayStartController = TextEditingController();
   TextEditingController estimateTimeController = TextEditingController();
 
@@ -91,131 +94,13 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
           pageSize: pageSize,
           dayStart: dayStart,
           estimateTime: estimateTimeController.text,
+          all: allOrders,
         ),
       );
 
       selectedPaperId = null;
       selectedStages = [];
     });
-  }
-
-  void searchDashboard() {
-    final dayStart = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
-    setState(() {
-      futurePaper = ensureMinLoading(
-        DeliveryService().getPlanningEstimateTime(
-          page: currentPage,
-          pageSize: pageSize,
-          dayStart: dayStart,
-          estimateTime: estimateTimeController.text,
-        ),
-      );
-
-      selectedPaperId = null;
-      selectedStages = [];
-    });
-  }
-
-  Future<bool?> showInputQtyDialog({
-    required BuildContext context,
-    required String title,
-    required Future<bool> Function(int) onConfirm,
-  }) async {
-    final TextEditingController controller = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-    bool isLoading = false;
-
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              surfaceTintColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-              content: SizedBox(
-                width: 350,
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: controller,
-                        keyboardType: TextInputType.number,
-                        autofocus: true,
-                        decoration: const InputDecoration(
-                          labelText: "Nhập số lượng muốn giao",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) return "Không được để trống";
-                          final n = int.tryParse(value);
-                          if (n == null || n <= 0) return "Số lượng phải lớn hơn 0";
-                          return null;
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isLoading ? null : () => Navigator.pop(context),
-                  child: const Text(
-                    "Hủy",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffEA4346),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: isLoading
-                      ? null
-                      : () async {
-                          if (formKey.currentState!.validate()) {
-                            setState(() {
-                              isLoading = true;
-                            });
-                            final success = await onConfirm(int.parse(controller.text));
-                            if (context.mounted) {
-                              if (success) {
-                                Navigator.pop(context, true);
-                              } else {
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              }
-                            }
-                          }
-                        },
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                      : const Text(
-                          'Xác nhận',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
   }
 
   @override
@@ -234,11 +119,11 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                 children: [
                   //title
                   SizedBox(
-                    height: 45,
+                    height: 35,
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        "DANH SÁCH HÀNG CHỜ GIAO & DỰ KIẾN",
+                        "ĐƠN HÀNG CHỜ SẢN XUẤT VÀ GIAO HÀNG",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
@@ -250,7 +135,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
                   //button
                   SizedBox(
-                    height: 60,
+                    height: 70,
                     width: double.infinity,
                     child: Column(
                       children: [
@@ -275,7 +160,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                         final selected = await showDatePicker(
                                           context: context,
                                           initialDate: DateTime.now(),
-                                          firstDate: DateTime.now(),
+                                          firstDate: DateTime(2026),
                                           lastDate: DateTime(2100),
                                           builder: (BuildContext context, Widget? child) {
                                             return Theme(
@@ -360,9 +245,13 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                       }
                                                       return false;
                                                     } on ApiException catch (e) {
-                                                      if (e.errorCode == "QTY_EXCEEDED" || e.message != null) {
+                                                      if (e.errorCode == "QTY_EXCEEDED" ||
+                                                          e.message != null) {
                                                         if (context.mounted) {
-                                                          showSnackBarError(context, e.message ?? "Lỗi API");
+                                                          showSnackBarError(
+                                                            context,
+                                                            e.message ?? "Lỗi API",
+                                                          );
                                                         }
                                                       }
                                                       return false;
@@ -382,7 +271,22 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                       icon: Symbols.confirmation_number,
                                       backgroundColor: themeController.buttonColor,
                                     ),
+                                    const SizedBox(width: 10),
 
+                                    //filter
+                                    buildDropdownItems(
+                                      value: allOrders,
+                                      items: const ['false', 'true'],
+                                      onChanged:
+                                          (value) => {
+                                            setState(() {
+                                              allOrders = value!;
+                                              selectedPaperId = null;
+                                              loadPlanningEstimate();
+                                            }),
+                                          },
+                                      itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                                    ),
                                     const SizedBox(width: 10),
                                   ],
                                 ),
@@ -676,4 +580,108 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
       ),
     );
   }
+}
+
+Future<bool?> showInputQtyDialog({
+  required BuildContext context,
+  required String title,
+  required Future<bool> Function(int) onConfirm,
+}) async {
+  final TextEditingController controller = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  bool isLoading = false;
+
+  return showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            content: SizedBox(
+              width: 350,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: controller,
+                      keyboardType: TextInputType.number,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        labelText: "Nhập số lượng muốn giao",
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return "Không được để trống";
+                        final n = int.tryParse(value);
+                        if (n == null || n <= 0) return "Số lượng phải lớn hơn 0";
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(context),
+                child: const Text(
+                  "Hủy",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xffEA4346),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed:
+                    isLoading
+                        ? null
+                        : () async {
+                          if (formKey.currentState!.validate()) {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            final success = await onConfirm(int.parse(controller.text));
+                            if (context.mounted) {
+                              if (success) {
+                                Navigator.pop(context, true);
+                              } else {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              }
+                            }
+                          }
+                        },
+                child:
+                    isLoading
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                        : const Text(
+                          'Xác nhận',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }

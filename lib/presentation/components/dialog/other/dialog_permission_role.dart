@@ -83,7 +83,6 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
 
   void handleSave() async {
     if (!formKey.currentState!.validate()) {
-      AppLogger.w("Form không hợp lệ, dừng submit");
       return;
     }
 

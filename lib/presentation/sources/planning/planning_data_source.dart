@@ -26,7 +26,7 @@ class PlanningDataSource extends DataGridSource {
         columnName: 'dateRequestShipping',
         value: formatter.format(order.dateRequestShipping!),
       ),
-      DataGridCell<String>(columnName: 'companyName', value: order.customer?.companyName ?? ''),
+      DataGridCell<String>(columnName: 'customerName', value: order.customer?.customerName ?? ''),
       DataGridCell<String>(columnName: 'typeProduct', value: order.product?.typeProduct ?? ''),
       DataGridCell<String>(columnName: 'productName', value: order.product?.productName ?? ''),
       DataGridCell<String>(columnName: 'flute', value: order.flute ?? ''),
@@ -49,8 +49,12 @@ class PlanningDataSource extends DataGridSource {
                 : "0",
       ),
       DataGridCell<int>(columnName: 'qtyManufacture', value: order.quantityManufacture),
-      DataGridCell<int>(columnName: 'runningPlan', value: order.totalQtyRunningPlan),
+      DataGridCell<int>(
+        columnName: 'runningPlan',
+        value: order.totalQtyRunningPlan - order.totalQtyProduced,
+      ),
       DataGridCell<int>(columnName: 'quantityProduced', value: order.totalQtyProduced),
+      DataGridCell<String>(columnName: 'dvt', value: order.dvt),
       DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
       DataGridCell<String>(
         columnName: 'totalPrice',

@@ -421,7 +421,7 @@ class _HomePageState extends State<HomePage> {
         ? ListTile(
           leading: const Icon(Icons.logout, color: Colors.white),
           title: const Text("Đăng xuất", style: TextStyle(color: Colors.white, fontSize: 18)),
-          onTap: () => logout(),
+          onTap: () => {logout(), badgesController.stopTimer()},
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         )
         : const Padding(

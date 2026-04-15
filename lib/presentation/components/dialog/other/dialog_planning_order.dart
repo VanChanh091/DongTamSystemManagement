@@ -1,5 +1,7 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
@@ -11,6 +13,7 @@ import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:dongtam/utils/validation/validation_planning.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -27,15 +30,16 @@ class PLanningDialog extends StatefulWidget {
 
 class _PLanningDialogState extends State<PLanningDialog> {
   final formKey = GlobalKey<FormState>();
+  final badgesController = Get.find<BadgesController>();
   late String originalOrderId;
   final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp', "Máy Quấn Cuồn"];
 
   //order
+  DateTime? dateShipping;
+  final dateShippingController = TextEditingController();
   final orderIdController = TextEditingController();
   final customerNameController = TextEditingController();
   final companyNameController = TextEditingController();
-  final dateShippingController = TextEditingController();
-  DateTime? dateShipping;
   final dayOrderController = TextEditingController();
   final matEOrderController = TextEditingController();
   final matBOrderController = TextEditingController();
@@ -48,7 +52,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final lengthOrderController = TextEditingController();
   final sizeOrderController = TextEditingController();
   final quantityOrderController = TextEditingController();
-  final totalPriceOrderController = TextEditingController();
+  final dvtController = TextEditingController();
+  final canLanController = TextEditingController();
   final songController = TextEditingController();
   final qcBoxController = TextEditingController();
   final daoXaOrderController = TextEditingController();
@@ -124,8 +129,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
     lengthOrderController.text = order.lengthPaperManufacture.toStringAsFixed(1);
     sizeOrderController.text = order.paperSizeManufacture.toStringAsFixed(1);
     quantityOrderController.text = order.quantityManufacture.toString();
-    totalPriceOrderController.text = order.totalPrice?.toStringAsFixed(1) ?? "";
+    canLanController.text = order.canLan.toString();
     numberChildController.text = order.numberChild.toString();
+    dvtController.text = order.dvt.toString();
 
     //date
     dateShipping = order.dateRequestShipping;
@@ -235,7 +241,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
   void submit() async {
     if (!formKey.currentState!.validate()) {
-      AppLogger.w("Form không hợp lệ, dừng submit");
       return;
     }
 
@@ -350,7 +355,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
     lengthOrderController.dispose();
     sizeOrderController.dispose();
     quantityOrderController.dispose();
-    totalPriceOrderController.dispose();
+    canLanController.dispose();
+    dvtController.dispose();
 
     //planning
     ghepKhoController.dispose();
@@ -375,6 +381,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final quantity = int.tryParse(quantityOrderController.text) ?? 0;
+    final dvt = dvtController.text;
+
     final List<Map<String, String>> orderInfoRows = [
       {
         "leftKey": "Mã Đơn Hàng",
@@ -386,7 +395,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
         "leftKey": "Ngày Giao Hàng",
         "leftValue": dateShippingController.text,
         "rightKey": "Số Lượng SX",
-        "rightValue": quantityOrderController.text,
+        "rightValue": "$quantity ($dvt)",
       },
       {
         "leftKey": "Khách Hàng",
@@ -403,8 +412,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
       {
         "leftKey": "QC Thùng",
         "leftValue": qcBoxController.text,
-        "rightKey": "Doanh Số",
-        "rightValue": totalPriceOrderController.text,
+        "rightKey": "Cấn Lằn",
+        "rightValue": canLanController.text,
       },
       {
         "leftKey": "Sóng",
@@ -545,8 +554,13 @@ class _PLanningDialogState extends State<PLanningDialog> {
             setState(() => chooseMachine = value!);
           },
         ),
-        "middleKey": "",
-        "middleValue": const SizedBox(),
+        "middleKey": "Dao Xả",
+        "middleValue": ValidationPlanning.validateInput(
+          label: "Dao Xả",
+          controller: daoXaOrderController,
+          icon: Symbols.layers,
+          readOnly: true,
+        ),
         "rightKey": "",
         "rightValue": const SizedBox(),
       },
@@ -576,7 +590,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
                         columnCount: 2,
                       ),
                     ),
-
                     const SizedBox(height: 15),
 
                     // planning
@@ -612,7 +625,6 @@ class _PLanningDialogState extends State<PLanningDialog> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -625,19 +637,41 @@ class _PLanningDialogState extends State<PLanningDialog> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Hủy",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black54),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54),
               ),
             ),
             ElevatedButton(
-              onPressed: submit,
+              onPressed: () async {
+                await handleBackOrder(
+                  context: context,
+                  orderId: orderIdController.text,
+                  badgesController: badgesController,
+                  onSuccess: () {
+                    Navigator.pop(context); // đóng dialog
+                    widget.onPlanningOrder();
+                  },
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text(
+                "Hoàn Đơn",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: submit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff78D761),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text(
                 "Lưu",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
               ),
             ),
           ],

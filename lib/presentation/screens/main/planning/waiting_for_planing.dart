@@ -191,18 +191,16 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                                       (order) => order.orderId == selectedOrderId,
                                                     );
 
-                                                    if (!context.mounted) {
-                                                      return;
+                                                    if (context.mounted) {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder:
+                                                            (_) => PLanningDialog(
+                                                              order: selectedOrder,
+                                                              onPlanningOrder: () => loadOrders(),
+                                                            ),
+                                                      );
                                                     }
-
-                                                    showDialog(
-                                                      context: context,
-                                                      builder:
-                                                          (_) => PLanningDialog(
-                                                            order: selectedOrder,
-                                                            onPlanningOrder: () => loadOrders(),
-                                                          ),
-                                                    );
                                                   } catch (e, s) {
                                                     AppLogger.e(
                                                       "Lỗi không tìm thấy đơn hàng",
@@ -223,25 +221,15 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                             selectedOrderId == null
                                                 ? null
                                                 : () async {
-                                                  await showDeleteConfirmHelper(
+                                                  await handleBackOrder(
                                                     context: context,
-                                                    title: "Xác nhận trả đơn về",
-                                                    content: "Bạn có chắc chắn muốn trả đơn không?",
-                                                    onDelete: () async {
-                                                      if (selectedOrderId == null) return;
-                                                      await PlanningService().backOrderToReject(
-                                                        orderId: selectedOrderId!,
-                                                      );
-                                                    },
+                                                    orderId: selectedOrderId!,
+                                                    badgesController: badgesController,
                                                     onSuccess: () {
                                                       setState(() => selectedOrderId = null);
                                                       loadOrders();
                                                     },
                                                   );
-
-                                                  //update badge count
-                                                  badgesController.fetchOrderPendingPlanning();
-                                                  badgesController.fetchOrderReject();
                                                 },
                                         label: "Hoàn Đơn",
                                         icon: Symbols.keyboard_return,
@@ -256,7 +244,6 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                         onChanged: (value) => changeFilter(value!),
                                         itemLabelBuilder: (value) => filterOptions[value] ?? value,
                                       ),
-                                      const SizedBox(width: 10),
                                     ],
                                   ),
                                 ),
@@ -395,4 +382,29 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
               : null,
     );
   }
+}
+
+Future<void> handleBackOrder({
+  required BuildContext context,
+  required String orderId,
+  required BadgesController badgesController,
+  VoidCallback? onSuccess,
+}) async {
+  await showDeleteConfirmHelper(
+    context: context,
+    title: "Xác nhận trả đơn về",
+    content: "Bạn có chắc chắn muốn trả đơn không?",
+    confirmText: "Xác nhận",
+    onDelete: () async {
+      await PlanningService().backOrderToReject(orderId: orderId);
+    },
+    onSuccess: () {
+      badgesController.fetchOrderPendingPlanning();
+      badgesController.fetchOrderReject();
+
+      if (onSuccess != null) {
+        onSuccess();
+      }
+    },
+  );
 }

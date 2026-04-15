@@ -109,7 +109,6 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
   void submit() async {
     if (!formKey.currentState!.validate()) {
-      AppLogger.w("Form không hợp lệ, dừng submit");
       return;
     }
 

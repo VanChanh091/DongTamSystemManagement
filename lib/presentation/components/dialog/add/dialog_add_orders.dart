@@ -64,6 +64,8 @@ class _OrderDialogState extends State<OrderDialog> {
   final qcBoxController = TextEditingController();
   final canLanController = TextEditingController();
   final dayController = TextEditingController();
+
+  //structure
   final matEController = TextEditingController();
   final matBController = TextEditingController();
   final matCController = TextEditingController();
@@ -72,12 +74,15 @@ class _OrderDialogState extends State<OrderDialog> {
   final songBController = TextEditingController();
   final songCController = TextEditingController();
   final songE2Controller = TextEditingController();
+
+  //specs
   final lengthCustomerController = TextEditingController();
   final lengthManufactureController = TextEditingController();
   final sizeCustomerController = TextEditingController();
   final sizeManufactureController = TextEditingController();
   final quantityCustomerController = TextEditingController();
   final quantityManufactureController = TextEditingController();
+
   final numberChildController = TextEditingController();
   final priceController = TextEditingController();
   final pricePaperController = TextEditingController();
@@ -254,7 +259,6 @@ class _OrderDialogState extends State<OrderDialog> {
   void submit() async {
     //bắt validate form
     if (!formKey.currentState!.validate()) {
-      AppLogger.w("Form không hợp lệ, dừng submit");
       return;
     }
 
@@ -852,33 +856,6 @@ class _OrderDialogState extends State<OrderDialog> {
       },
 
       {
-        "leftKey": "Mặt E",
-        "leftValue": ValidationOrder.validateInput(
-          label: "Mặt E (g)",
-          controller: matEController,
-          icon: Symbols.vertical_align_center,
-        ),
-        "middle_1Key": "Mặt B",
-        "middle_1Value": ValidationOrder.validateInput(
-          label: "Mặt B (g)",
-          controller: matBController,
-          icon: Symbols.vertical_align_center,
-        ),
-        "middle_2Key": "Mặt C",
-        "middle_2Value": ValidationOrder.validateInput(
-          label: "Mặt C (g)",
-          controller: matCController,
-          icon: Symbols.vertical_align_center,
-        ),
-        "rightKey": "Mặt E2",
-        "rightValue": ValidationOrder.validateInput(
-          label: "Mặt E2 (g)",
-          controller: matE2Controller,
-          icon: Symbols.vertical_align_center,
-        ),
-      },
-
-      {
         "leftKey": "Sóng E",
         "leftValue": ValidationOrder.validateInput(
           label: "Sóng E (g)",
@@ -902,6 +879,33 @@ class _OrderDialogState extends State<OrderDialog> {
           label: "Sóng E2 (g)",
           controller: songE2Controller,
           icon: Symbols.airwave,
+        ),
+      },
+
+      {
+        "leftKey": "Mặt E",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Mặt E (g)",
+          controller: matEController,
+          icon: Symbols.vertical_align_center,
+        ),
+        "middle_1Key": "Mặt B",
+        "middle_1Value": ValidationOrder.validateInput(
+          label: "Mặt B (g)",
+          controller: matBController,
+          icon: Symbols.vertical_align_center,
+        ),
+        "middle_2Key": "Mặt C",
+        "middle_2Value": ValidationOrder.validateInput(
+          label: "Mặt C (g)",
+          controller: matCController,
+          icon: Symbols.vertical_align_center,
+        ),
+        "rightKey": "Mặt E2",
+        "rightValue": ValidationOrder.validateInput(
+          label: "Mặt E2 (g)",
+          controller: matE2Controller,
+          icon: Symbols.vertical_align_center,
         ),
       },
     ];

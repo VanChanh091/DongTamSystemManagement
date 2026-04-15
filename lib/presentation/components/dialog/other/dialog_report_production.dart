@@ -81,7 +81,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
   void submit() async {
     if (!formKey.currentState!.validate()) {
-      AppLogger.w("Form không hợp lệ, dừng submit");
       return;
     }
 
@@ -108,7 +107,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           qtyProduced: qtyProduced,
           qtyWasteNorm: qtyWasteNorm,
           dayCompleted: completedDate,
-          reportedBy: employeeCodeController.trimmed.toUpperCase(),
+          reportedBy: 'DTSX-${employeeCodeController.trimmed}',
           reportData: reportData,
           isUpdate: widget.initialData != null ? true : false,
         );
@@ -181,6 +180,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     TextEditingController controller,
     IconData icon, {
     VoidCallback? onTap,
+    String? prefix,
   }) {
     return TextFormField(
       controller: controller,
@@ -188,6 +188,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        prefixText: prefix,
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -368,7 +369,12 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                 ],
                 const SizedBox(height: 10),
 
-                validateInput("Mã nhân viên báo cáo", employeeCodeController, Symbols.code),
+                validateInput(
+                  "Mã nhân viên báo cáo",
+                  employeeCodeController,
+                  Symbols.code,
+                  prefix: "DTSX-",
+                ),
               ],
             ),
           ),

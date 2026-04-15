@@ -43,6 +43,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
+      DataGridCell<String>(columnName: 'canLan', value: planning.order?.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
       DataGridCell<String>(columnName: 'size', value: '${planning.sizePaperPLaning} cm'),
       DataGridCell<String>(

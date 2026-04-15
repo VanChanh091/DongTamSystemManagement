@@ -1,6 +1,6 @@
 import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory_model.dart';
+import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
 
 class OutboundTempItem {
   final String orderId;

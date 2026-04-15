@@ -15,6 +15,8 @@ class MachinePaperDatasource extends DataGridSource {
   bool showGroup;
   String page;
 
+  Map<String, int> orderIdCounts = {};
+
   late List<DataGridRow> planningDataGridRows;
   late List<String> visibleColumns;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -29,6 +31,7 @@ class MachinePaperDatasource extends DataGridSource {
     required this.page,
     this.unsavedChange,
   }) {
+    _calculateOrderIdCounts();
     buildDataGridRows();
 
     if (showGroup) {
@@ -62,6 +65,7 @@ class MachinePaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
+      DataGridCell<String>(columnName: 'canLan', value: planning.order?.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
       DataGridCell<String>(
         columnName: 'size',
@@ -140,6 +144,14 @@ class MachinePaperDatasource extends DataGridSource {
 
   @override
   List<DataGridRow> get rows => planningDataGridRows;
+
+  void _calculateOrderIdCounts() {
+    orderIdCounts.clear();
+    for (var p in planning) {
+      final id = p.orderId;
+      orderIdCounts[id] = (orderIdCounts[id] ?? 0) + 1;
+    }
+  }
 
   int extractFlute(String loaiSong) {
     //5BC => 5
@@ -269,6 +281,11 @@ class MachinePaperDatasource extends DataGridSource {
     final bool isKhoTransition =
         rowIndex > 0 && currentKho != null && prevKho != null && currentKho != prevKho;
 
+    // ===== check trùng orderId =====
+    final String currentOrderId =
+        row.getCells().firstWhere((c) => c.columnName == 'orderId').value.toString();
+    final bool isDuplicateOrder = (orderIdCounts[currentOrderId] ?? 0) > 1;
+
     // ===== select and row color =====
     final planningId =
         row.getCells().firstWhere((c) => c.columnName == 'planningId').value.toString();
@@ -302,7 +319,6 @@ class MachinePaperDatasource extends DataGridSource {
     // ===== Build cells =====
     final widgets =
         row.getCells().asMap().entries.map<Widget>((entry) {
-          final int cellIndex = entry.key;
           final DataGridCell dataCell = entry.value;
 
           final cellText = _formatCellValueBool(dataCell);
@@ -327,18 +343,29 @@ class MachinePaperDatasource extends DataGridSource {
             label: cellText,
             alignment: alignment,
             cellColor: cellColor,
-            leading:
-                dataCell.columnName == 'khoCapGiay' && isKhoTransition
-                    ? Icon(Icons.warning_amber_rounded, size: 16, color: transitionColor)
-                    : null,
-
-            leftBorder:
-                cellIndex == 0 && transitionColor != null
-                    ? BorderSide(color: transitionColor, width: 4)
-                    : null,
+            leading: buildCellLeading(dataCell, isKhoTransition, transitionColor, isDuplicateOrder),
           );
         }).toList();
 
     return DataGridRowAdapter(color: rowColor, cells: widgets);
   }
+}
+
+Widget? buildCellLeading(
+  DataGridCell dataCell,
+  bool? isKhoTransition,
+  Color? transitionColor,
+  bool isDuplicateOrder,
+) {
+  // check ghepKho
+  if (dataCell.columnName == 'khoCapGiay' && isKhoTransition == true) {
+    return Icon(Icons.warning_amber_rounded, size: 16, color: transitionColor);
+  }
+
+  // check orderId
+  if (dataCell.columnName == 'orderId' && isDuplicateOrder) {
+    return const Icon(Icons.copy_rounded, size: 14, color: Colors.redAccent);
+  }
+
+  return null;
 }

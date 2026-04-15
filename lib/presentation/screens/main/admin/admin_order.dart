@@ -559,6 +559,7 @@ class _ManageOrderState extends State<AdminOrder> {
               ],
             ),
             const SizedBox(height: 20),
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -577,6 +578,16 @@ class _ManageOrderState extends State<AdminOrder> {
                 ),
               ],
             ),
+
+            //instruct special
+            if (order.instructSpecial != null && order.instructSpecial!.isNotEmpty) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _infoRow('📝 Hướng dẫn đặc biệt:', order.instructSpecial!)),
+                ],
+              ),
+            ],
 
             // Hình ảnh đơn hàng (nếu có)
             if (order.orderImage != null && order.orderImage?.imageUrl.isNotEmpty == true) ...[

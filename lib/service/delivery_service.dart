@@ -20,6 +20,7 @@ class DeliveryService {
     required int pageSize,
     required DateTime dayStart,
     required String estimateTime,
+    required String all,
   }) async {
     return HelperService().fetchPaginatedData<PlanningPaper>(
       endpoint: "delivery/estimate",
@@ -28,6 +29,7 @@ class DeliveryService {
         'pageSize': pageSize,
         "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
         'estimateTime': estimateTime,
+        'all': all,
       },
       fromJson: (json) => PlanningPaper.fromJson(json),
       dataKey: 'plannings',

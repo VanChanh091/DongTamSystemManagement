@@ -8,6 +8,7 @@ class InventoryModel {
   final int qtyInventory;
   final double valueInventory;
 
+  //FK
   final String orderId;
   final Order? order;
 

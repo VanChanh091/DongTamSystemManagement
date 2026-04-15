@@ -76,7 +76,6 @@ class _ProductDialogState extends State<ProductDialog> {
 
   void submit() async {
     if (!formKey.currentState!.validate()) {
-      AppLogger.w("Form không hợp lệ, dừng submit");
       return;
     }
 

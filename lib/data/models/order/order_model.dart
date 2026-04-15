@@ -4,7 +4,7 @@ import 'package:dongtam/data/models/order/order_images.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/data/models/user/user_user_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory_model.dart';
+import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';

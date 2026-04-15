@@ -55,18 +55,13 @@ Widget formatDataTable({
   required String label,
   required Alignment alignment,
   Color cellColor = Colors.transparent,
-
-  Widget? leading, // icon ⚠️
-  BorderSide? leftBorder, // viền trái cảnh báo
+  Widget? leading,
 }) {
   return Container(
     alignment: alignment,
     decoration: BoxDecoration(
       color: cellColor,
-      border: Border(
-        right: BorderSide(color: Colors.grey.shade300, width: 1),
-        left: leftBorder ?? BorderSide.none,
-      ),
+      border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
     ),
     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
     child: Row(

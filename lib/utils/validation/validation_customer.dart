@@ -65,6 +65,7 @@ class ValidationCustomer {
               "Nguồn Khách Hàng",
               "Ngày Chốt Công Nợ",
               "CSKH",
+              "SDT",
             ];
 
             // print("Có trong list không: ${requiredFields.contains(label)}");

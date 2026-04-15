@@ -6,7 +6,8 @@ import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory_model.dart';
+import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
+import 'package:dongtam/data/models/warehouse/inventory/liquidation_inventory_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
@@ -207,6 +208,26 @@ class WarehouseService {
     );
   }
 
+  Future<bool> transferQtyToOrderOrQilidation({
+    required String action,
+    required int qtyTransfer,
+    String? reason,
+    String? sourceOrderId,
+    String? targetOrderId,
+    int? inventoryId,
+  }) async {
+    final Map<String, dynamic> payload = {
+      'action': action,
+      'qtyTransfer': qtyTransfer,
+      'reason': reason ?? "Không có lý do",
+      'sourceOrderId': sourceOrderId,
+      'targetOrderId': targetOrderId,
+      'inventoryId': inventoryId,
+    }..removeWhere((key, value) => value == null);
+
+    return HelperService().addItem(endpoint: 'warehouse/inventory', itemData: payload);
+  }
+
   //export inventory
   Future<File?> exportExcelInventory() async {
     try {
@@ -233,5 +254,20 @@ class WarehouseService {
       AppLogger.e("failed to export Excel inventory", error: e, stackTrace: s);
       return null;
     }
+  }
+
+  //============================LIQUIDATION INVENTORY===============================
+  Future<Map<String, dynamic>> getLiquidationInv({
+    required int page,
+    required int pageSize,
+    String? field,
+    String? keyword,
+  }) async {
+    return HelperService().fetchPaginatedData<LiquidationInventoryModel>(
+      endpoint: "warehouse/liquidation",
+      queryParameters: {'page': page, 'pageSize': pageSize, 'field': field, 'keyword': keyword},
+      fromJson: (json) => LiquidationInventoryModel.fromJson(json),
+      dataKey: 'liquidations',
+    );
   }
 }

@@ -205,7 +205,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                             height: 45,
                             width: double.infinity,
                             child: Text(
-                              "HÀNG CHỜ SẮP XẾP GIAO",
+                              "XẾP TÀI GIAO HÀNG",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 22,
@@ -499,7 +499,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
-                  "📦 Đơn chờ giao",
+                  "📦 Đơn chờ xếp xe",
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -599,13 +599,13 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                     children: [
                       Text(
                         'Mã Đơn: ${order!.orderId} ${order.flute != null ? '- ${order.flute}' : ''}',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Thông tin: $information',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Colors.grey.shade700,
                         ),
@@ -614,7 +614,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                       Text(
                         "Khách Hàng: ${customer!.customerName}",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Colors.grey.shade700,
                         ),

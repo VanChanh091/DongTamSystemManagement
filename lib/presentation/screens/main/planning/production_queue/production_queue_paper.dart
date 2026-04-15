@@ -402,8 +402,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               errorMessage: "Có lỗi xảy ra khi thực thi",
                                               onSuccess: () => loadPlanning(),
                                             );
-                                          }
-                                          if (value == 'notify') {
+                                          } else if (value == 'notify') {
                                             if (!context.mounted) return;
 
                                             bool confirm = await showConfirmDialog(
@@ -435,6 +434,31 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   context,
                                                   "Lỗi khi gửi lịch sản xuất",
                                                 );
+                                              }
+                                            }
+                                          } else if (value == 'export') {
+                                            bool confirm = await showConfirmDialog(
+                                              context: context,
+                                              title: "Xác Nhận Xuất Excel",
+                                              content:
+                                                  "Bạn có muốn xuất excel kế hoạch sản xuất này không?",
+                                              confirmText: "Xác nhận",
+                                              confirmColor: const Color(0xffEA4346),
+                                            );
+
+                                            if (confirm) {
+                                              final file = await PlanningService()
+                                                  .exportPlanningExcel(machine);
+
+                                              if (context.mounted) {
+                                                if (file != null) {
+                                                  showSnackBarSuccess(
+                                                    context,
+                                                    "Xuất excel thành công",
+                                                  );
+                                                } else {
+                                                  showSnackBarError(context, "Xuất excel thất bại");
+                                                }
                                               }
                                             }
                                           }
@@ -474,6 +498,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 child: ListTile(
                                                   leading: Icon(Symbols.send),
                                                   title: Text('Gửi Kế Hoạch SX'),
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'export',
+                                                child: ListTile(
+                                                  leading: Icon(Symbols.download),
+                                                  title: Text('Xuất Excel'),
                                                 ),
                                               ),
                                             ],

@@ -10,6 +10,7 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
+  {"key": "canLan", "title": "Cấn Lằn"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "size", "title": "Khổ"},
   {"key": "length", "title": "Dài"},

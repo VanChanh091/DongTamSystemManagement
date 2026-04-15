@@ -545,7 +545,6 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                             onPressed: () {
                               //bắt validate form
                               if (!formKey.currentState!.validate()) {
-                                AppLogger.w("Form không hợp lệ, dừng submit");
                                 return;
                               }
                               addToTempTable();

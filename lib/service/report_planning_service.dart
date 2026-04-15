@@ -143,7 +143,7 @@ class ReportPlanningService {
     }
   }
 
-  String makeSafeFileName({required String input}) {
+  static String makeSafeFileName({required String input}) {
     // bỏ dấu tiếng Việt
     var result = removeDiacritics(input);
 

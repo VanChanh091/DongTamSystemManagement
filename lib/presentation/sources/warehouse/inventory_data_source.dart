@@ -1,5 +1,5 @@
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory_model.dart';
+import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +24,10 @@ class InventoryDataSource extends DataGridSource {
 
     return [
       DataGridCell<String>(columnName: 'orderId', value: inventory.orderId),
+      DataGridCell<String>(
+        columnName: 'productName',
+        value: inventory.order?.product?.productName ?? "",
+      ),
       DataGridCell<String>(
         columnName: 'customerName',
         value: inventory.order?.customer?.customerName ?? "",

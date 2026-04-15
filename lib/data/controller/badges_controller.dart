@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/service/badge/badge_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
@@ -6,6 +8,7 @@ import 'package:get/get.dart';
 
 class BadgesController extends GetxController {
   final UserController _userController = Get.find<UserController>();
+  Timer? _refreshTimer;
 
   //admin order
   RxInt numberPendingApproval = 0.obs;
@@ -37,18 +40,43 @@ class BadgesController extends GetxController {
         refreshAllBadges();
       } else {
         clearAllBadge();
+        stopTimer();
       }
     });
   }
 
+  void startTimer() {
+    // Hủy timer cũ nếu đang chạy để tránh tạo nhiều timer chồng chéo
+    stopTimer();
+
+    AppLogger.i("⏳ Started badge refresh timer: 30 minutes");
+
+    _refreshTimer = Timer.periodic(const Duration(minutes: 30), (timer) {
+      AppLogger.i("🔄 Auto-refreshing all badges...");
+      refreshAllBadges();
+    });
+  }
+
+  void stopTimer() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+  }
+
+  @override
+  void onClose() {
+    stopTimer();
+    super.onClose();
+  }
+
   void initializeAfterLogin(int userId) async {
     await refreshAllBadges();
+    startTimer();
 
     //init socket
     final socketService = SocketService();
     await socketService.connectSocket();
 
-    //join rom
+    //join room
     socketService.joinUserRoom(userId);
 
     if (_userController.hasPermission(permission: "sale")) {

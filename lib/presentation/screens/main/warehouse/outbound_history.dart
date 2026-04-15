@@ -364,7 +364,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                 isScrollbarAlwaysShown: true,
                                 columnWidthMode: ColumnWidthMode.auto,
                                 selectionMode: SelectionMode.single,
-                                headerRowHeight: 35,
+                                headerRowHeight: 30,
                                 rowHeight: 40,
                                 columns: ColumnWidthTable.applySavedWidths(
                                   columns: columnsOutbound,

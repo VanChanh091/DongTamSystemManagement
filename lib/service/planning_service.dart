@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/service/report_planning_service.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -196,6 +199,37 @@ class PlanningService {
     } catch (e, s) {
       AppLogger.e("Failed to notify planning", error: e, stackTrace: s);
       throw Exception('Failed to notify planning: $e');
+    }
+  }
+
+  // Export Paper
+  Future<File?> exportPlanningExcel(String machine) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.post(
+        "/api/planning/export",
+        queryParameters: {"machine": machine},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final safeMachine = ReportPlanningService.makeSafeFileName(input: machine);
+
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "KHSX_${safeMachine.toLowerCase()}",
+        );
+      } else {
+        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
+        return null;
+      }
+    } catch (e, s) {
+      AppLogger.e("Failed to export Excel from $machine", error: e, stackTrace: s);
+      return null;
     }
   }
 

@@ -1,13 +1,15 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory_model.dart';
+import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
+import 'package:dongtam/presentation/components/dialog/other/dialog_transfer_qty.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_inventory.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/warehouse/inventory_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
@@ -215,6 +217,34 @@ class _InventoryState extends State<Inventory> {
                                 ),
                                 const SizedBox(width: 10),
 
+                                //transfer qty to other order
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedInventoryId.length == 1
+                                          ? () async {
+                                            final inventory = await futureInventory;
+                                            final selectedInv = inventory['inventories'].firstWhere(
+                                              (i) => i.inventoryId == selectedInventoryId.first,
+                                            );
+
+                                            if (context.mounted) {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => DialogTransferQty(
+                                                      inventory: selectedInv,
+                                                      onLoad: () => loadInventory(),
+                                                    ),
+                                              );
+                                            }
+                                          }
+                                          : null,
+                                  label: "Chuyển số lượng",
+                                  icon: Symbols.input,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
                                 //outbound
                                 AnimatedButton(
                                   onPressed: () async {
@@ -259,6 +289,77 @@ class _InventoryState extends State<Inventory> {
                                   label: "Xuất Kho",
                                   icon: Symbols.input,
                                   backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
+                                //transfer qty to qilidation inventory
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedInventoryId.length == 1
+                                          ? () async {
+                                            await showInputQtyDialog(
+                                              context: context,
+                                              title: "Thanh Lý Tồn Kho",
+                                              onConfirm: (inputQty, inputReason) async {
+                                                try {
+                                                  final success = await WarehouseService()
+                                                      .transferQtyToOrderOrQilidation(
+                                                        action: 'TRANSFER_TO_LIQUIDATION',
+                                                        inventoryId: selectedInventoryId.first,
+                                                        qtyTransfer: inputQty,
+                                                        reason: inputReason,
+                                                      );
+
+                                                  if (success) {
+                                                    if (context.mounted) {
+                                                      showSnackBarSuccess(
+                                                        context,
+                                                        "Xác nhận thanh lý tồn kho thành công",
+                                                      );
+                                                    }
+
+                                                    if (context.mounted) {
+                                                      // Show loading
+                                                      showLoadingDialog(context);
+                                                      await Future.delayed(
+                                                        const Duration(seconds: 1),
+                                                      );
+
+                                                      if (!context.mounted) return false;
+                                                      Navigator.pop(context); // Hide loading
+                                                    }
+
+                                                    loadInventory();
+                                                    return true;
+                                                  }
+                                                  return false;
+                                                } on ApiException catch (e) {
+                                                  final errorText = switch (e.errorCode) {
+                                                    "INSUFFICIENT_QUANTITY" =>
+                                                      'Không đủ số lượng trong tồn kho để chuyển giao',
+                                                    _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                  };
+
+                                                  if (!context.mounted) return false;
+
+                                                  showSnackBarError(context, errorText);
+                                                  return false;
+                                                } catch (e) {
+                                                  if (context.mounted) {
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Thanh lý tồn kho thất bại",
+                                                    );
+                                                  }
+                                                  return false;
+                                                }
+                                              },
+                                            );
+                                          }
+                                          : null,
+                                  label: "Thanh lý tồn",
+                                  icon: Symbols.input,
+                                  backgroundColor: const Color(0xffEA4346),
                                 ),
                                 const SizedBox(width: 10),
                               ],
@@ -438,4 +539,131 @@ class _InventoryState extends State<Inventory> {
       ),
     );
   }
+}
+
+Future<bool?> showInputQtyDialog({
+  required BuildContext context,
+  required String title,
+  required Future<bool> Function(int qty, String reason) onConfirm,
+}) async {
+  final TextEditingController qtyController = TextEditingController();
+  final TextEditingController reasonController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  bool isLoading = false;
+
+  return showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            content: SizedBox(
+              width: 350,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: qtyController,
+                      keyboardType: TextInputType.number,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        labelText: "Số lượng thanh lý",
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.numbers),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return "Không được để trống";
+                        final n = int.tryParse(value);
+                        if (n == null || n <= 0) return "Số lượng phải lớn hơn 0";
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: reasonController,
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        labelText: "Lý do thanh lý",
+                        alignLabelWithHint: true,
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.edit_note),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) return "Vui lòng nhập lý do";
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  "Hủy",
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xffEA4346),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed:
+                    isLoading
+                        ? null
+                        : () async {
+                          if (formKey.currentState!.validate()) {
+                            setState(() => isLoading = true);
+
+                            // Truyền cả 2 giá trị vào onConfirm
+                            final success = await onConfirm(
+                              int.parse(qtyController.text),
+                              reasonController.text,
+                            );
+
+                            if (context.mounted) {
+                              if (success) {
+                                Navigator.pop(context, true);
+                              } else {
+                                setState(() => isLoading = false);
+                              }
+                            }
+                          }
+                        },
+                child:
+                    isLoading
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                        : const Text(
+                          'Xác nhận',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }
