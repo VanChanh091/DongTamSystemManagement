@@ -50,7 +50,7 @@ class _CustomerPageState extends State<CustomerPage> {
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
   int currentPage = 1;
-  int pageSize = 25;
+  int pageSize = 30;
   int pageSizeSearch = 20;
 
   @override

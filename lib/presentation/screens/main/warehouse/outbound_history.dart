@@ -57,7 +57,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   List<OutboundDetailModel> selectedObDetail = [];
 
   int currentPage = 1;
-  int pageSize = 25;
+  int pageSize = 30;
   int pageSizeSearch = 20;
 
   @override
@@ -206,15 +206,22 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                             );
 
                                             if (confirm) {
-                                              await WarehouseService().exportFilePDFOutbound(
-                                                outboundId: selectedOutboundId!,
-                                              );
+                                              final file = await WarehouseService()
+                                                  .exportFilePDFOutbound(
+                                                    outboundId: selectedOutboundId!,
+                                                  );
 
-                                              if (!context.mounted) return;
-                                              showSnackBarSuccess(
-                                                context,
-                                                "Lập phiếu xuất kho thành công",
-                                              );
+                                              if (file != null && context.mounted) {
+                                                showSnackBarSuccess(
+                                                  context,
+                                                  "Lập phiếu xuất kho thành công",
+                                                );
+                                              } else if (context.mounted) {
+                                                showSnackBarError(
+                                                  context,
+                                                  "Lập phiếu xuất kho thất bại",
+                                                );
+                                              }
                                             }
                                           }
                                           : null,

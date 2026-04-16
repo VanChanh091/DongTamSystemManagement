@@ -3,11 +3,11 @@ import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_transfer_qty.dart';
-import 'package:dongtam/presentation/components/headerTable/warehouse/header_inventory.dart';
+import 'package:dongtam/presentation/components/headerTable/warehouse/inventory/header_inventory.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/sources/warehouse/inventory_data_source.dart';
+import 'package:dongtam/presentation/sources/warehouse/inventory/inventory_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -52,7 +52,7 @@ class _InventoryState extends State<Inventory> {
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
   int currentPage = 1;
-  int pageSize = 25;
+  int pageSize = 30;
   int pageSizeSearch = 20;
 
   @override

@@ -20,6 +20,7 @@ import 'package:dongtam/presentation/screens/main/report/report_warehouse/report
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/inventory.dart';
+import 'package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dart';
 import 'package:dongtam/utils/helper/home/sidebar_expanded_helper.dart';
 import 'package:flutter/material.dart';
@@ -157,7 +158,12 @@ Widget buildWarehouseMenu({
     pages: pages,
     configs: [
       SubMenuConfig(icon: Symbols.lab_profile, label: "Xuất Kho", pageType: OutboundHistory),
-      SubMenuConfig(icon: Symbols.garage_home, label: "Tồn Kho", pageType: Inventory),
+      SubMenuConfig(icon: Symbols.garage_home, label: "Kho Thành Phẩm", pageType: Inventory),
+      SubMenuConfig(
+        icon: Symbols.garage_home,
+        label: "Kho Thanh Lý",
+        pageType: LiquidationInventory,
+      ),
     ],
   );
 }

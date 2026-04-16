@@ -12,10 +12,13 @@ class ManufactureService {
   //===============================MANUFACTURE PAPER====================================
 
   //get planning paper
-  Future<List<PlanningPaper>> getPlanningPaper({required String machine}) async {
+  Future<List<PlanningPaper>> getPlanningPaper({
+    required String machine,
+    required String filterType,
+  }) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "manufacture/paper",
-      queryParameters: {"machine": machine},
+      queryParameters: {"machine": machine, "filterType": filterType},
       fromJson: (json) => PlanningPaper.fromJson(json),
     );
   }

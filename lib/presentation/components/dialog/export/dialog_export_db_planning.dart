@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dongtam/service/dashboard_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -53,7 +55,7 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
 
   void submit() async {
     try {
-      await DashboardService().exportExcelDbPlanning(
+      File? file = await DashboardService().exportExcelDbPlanning(
         username: selectedOption.value == 'username' ? usernameController.text : "",
         dayStart: selectedOption.value == 'dayStart' ? selectedDayStart : null,
         machine: selectedOption.value == 'machine' ? machine : null,
@@ -61,7 +63,11 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
       );
 
       if (!mounted) return;
-      showSnackBarSuccess(context, "Xuất thành công");
+      if (file != null) {
+        showSnackBarSuccess(context, "Xuất thành công");
+      } else {
+        showSnackBarError(context, "Xuất file thất bại");
+      }
 
       if (!mounted) return; // check context
       Navigator.of(context).pop();

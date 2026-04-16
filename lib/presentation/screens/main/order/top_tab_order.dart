@@ -1,5 +1,5 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/presentation/screens/main/order/tabChildOrder/order_accept_planning.dart';
+import 'package:dongtam/presentation/screens/main/order/tabChildOrder/order_accept.dart';
 import 'package:dongtam/presentation/screens/main/order/tabChildOrder/order_reject_pending.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -29,9 +29,7 @@ class _TopTabOrderState extends State<TopTabOrder> {
               tabs: [Tab(text: "Trạng Thái Đơn Hàng"), Tab(text: "Chờ Duyệt/Từ Chối")],
             ),
           ),
-          Expanded(
-            child: const TabBarView(children: [OrderAcceptAndPlanning(), OrderRejectAndPending()]),
-          ),
+          Expanded(child: const TabBarView(children: [OrderAccept(), OrderRejectAndPending()])),
         ],
       ),
     );

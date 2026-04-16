@@ -9,7 +9,6 @@ import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -17,14 +16,14 @@ import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class OrderAcceptAndPlanning extends StatefulWidget {
-  const OrderAcceptAndPlanning({super.key});
+class OrderAccept extends StatefulWidget {
+  const OrderAccept({super.key});
 
   @override
-  State<OrderAcceptAndPlanning> createState() => _OrderAcceptAndPlanningState();
+  State<OrderAccept> createState() => _OrderAcceptAndPlanningState();
 }
 
-class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
+class _OrderAcceptAndPlanningState extends State<OrderAccept> {
   late Future<Map<String, dynamic>> futureOrdersAccept;
   late OrderDataSource orderDataSource;
   late List<GridColumn> columns;
@@ -47,7 +46,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
   bool isSeenOrder = false;
 
   int currentPage = 1;
-  int pageSize = 25;
+  int pageSize = 30;
   int pageSizeSearch = 20;
 
   @override
@@ -264,42 +263,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAcceptAndPlanning> {
                           isScrollbarAlwaysShown: true,
                           selectionMode: SelectionMode.single,
                           columnWidthMode: ColumnWidthMode.auto,
-                          headerRowHeight: 35,
+                          headerRowHeight: 40,
                           rowHeight: 40,
                           columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
                             widths: columnWidths,
                           ),
-                          stackedHeaderRows: <StackedHeaderRow>[
-                            StackedHeaderRow(
-                              cells: [
-                                StackedHeaderCell(
-                                  columnNames: [
-                                    'inMatTruoc',
-                                    'inMatSau',
-                                    'canMang',
-                                    'canLanBox',
-                                    'xa',
-                                    'catKhe',
-                                    'be',
-                                    'dan_1_Manh',
-                                    'dan_2_Manh',
-                                    'dongGhimMotManh',
-                                    'dongGhimHaiManh',
-                                    'chongTham',
-                                    'dongGoi',
-                                    'maKhuon',
-                                  ],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: 'Công Đoạn 2',
-                                      themeController: themeController,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
 
                           //auto resize
                           allowColumnsResizing: true,

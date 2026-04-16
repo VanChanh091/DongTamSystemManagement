@@ -31,6 +31,7 @@ import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/inventory.dart';
+import 'package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/socket/socket_service.dart';
@@ -105,6 +106,7 @@ class _HomePageState extends State<HomePage> {
       //outbound
       _buildPage(permissions: ['delivery'], child: OutboundHistory()),
       Inventory(),
+      LiquidationInventory(),
 
       //delivery
       _buildPage(permissions: ['plan', 'sale'], child: DeliveryEstimateTime()),

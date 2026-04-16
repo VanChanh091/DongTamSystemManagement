@@ -11,7 +11,6 @@ import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -273,42 +272,12 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     isScrollbarAlwaysShown: true,
                     selectionMode: SelectionMode.single,
                     columnWidthMode: ColumnWidthMode.auto,
-                    headerRowHeight: 35,
+                    headerRowHeight: 40,
                     rowHeight: 40,
                     columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
                       widths: columnWidths,
                     ),
-                    stackedHeaderRows: <StackedHeaderRow>[
-                      StackedHeaderRow(
-                        cells: [
-                          StackedHeaderCell(
-                            columnNames: [
-                              'inMatTruoc',
-                              'inMatSau',
-                              'canMang',
-                              'canLanBox',
-                              'xa',
-                              'catKhe',
-                              'be',
-                              'dan_1_Manh',
-                              'dan_2_Manh',
-                              'dongGhimMotManh',
-                              'dongGhimHaiManh',
-                              'chongTham',
-                              'dongGoi',
-                              'maKhuon',
-                            ],
-                            child: Obx(
-                              () => formatColumn(
-                                label: 'Công Đoạn 2',
-                                themeController: themeController,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
 
                     //auto resize
                     allowColumnsResizing: true,

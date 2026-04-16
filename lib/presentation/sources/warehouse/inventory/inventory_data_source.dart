@@ -19,7 +19,7 @@ class InventoryDataSource extends DataGridSource {
   @override
   List<DataGridRow> get rows => inventoryDataGridRows;
 
-  List<DataGridCell> buildReportInfoCells(InventoryModel inventory) {
+  List<DataGridCell> buildInventoryCells(InventoryModel inventory) {
     final order = inventory.order;
 
     return [
@@ -82,7 +82,7 @@ class InventoryDataSource extends DataGridSource {
   void buildDataGridRows() {
     inventoryDataGridRows =
         inventory.map<DataGridRow>((inventory) {
-          final cells = buildReportInfoCells(inventory);
+          final cells = buildInventoryCells(inventory);
 
           // debugPrint("Row has ${cells.length} cells");
 

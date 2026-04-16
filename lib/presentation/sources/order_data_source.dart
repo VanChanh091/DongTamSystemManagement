@@ -24,30 +24,14 @@ class OrderDataSource extends DataGridSource {
   List<DataGridCell> buildOrderCells(Order order) {
     return [
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
-      DataGridCell<String>(
-        columnName: 'dayReceive',
-        value: formatter.format(order.dayReceiveOrder),
-      ),
-      DataGridCell<String>(
-        columnName: 'dateShipping',
-        value: formatter.format(order.dateRequestShipping!),
-      ),
       DataGridCell<String>(columnName: 'customerName', value: order.customer?.customerName ?? ''),
-      DataGridCell<String>(columnName: 'companyName', value: order.customer?.companyName ?? ''),
-      DataGridCell<String>(columnName: 'typeProduct', value: order.product?.typeProduct ?? ''),
       DataGridCell<String>(columnName: 'productName', value: order.product?.productName ?? ''),
       DataGridCell<String>(columnName: 'flute', value: order.flute ?? ''),
       DataGridCell<String>(columnName: 'QC_box', value: order.QC_box ?? ''),
       DataGridCell<String>(columnName: 'structure', value: order.formatterStructureOrder),
-      DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
-      DataGridCell<String>(columnName: 'daoXaOrd', value: order.daoXa),
       DataGridCell<String>(
         columnName: 'sizeCustomer',
         value: '${Order.formatCurrency(order.paperSizeCustomer)} cm',
-      ),
-      DataGridCell<String>(
-        columnName: 'sizeManufacture',
-        value: '${Order.formatCurrency(order.paperSizeManufacture)} cm',
       ),
       DataGridCell<String>(
         columnName: 'lengthCus',
@@ -56,72 +40,13 @@ class OrderDataSource extends DataGridSource {
                 ? '${Order.formatCurrency(order.lengthPaperCustomer)} cm'
                 : '0',
       ),
-      DataGridCell<String>(
-        columnName: 'lengthMf',
-        value:
-            ((order.lengthPaperManufacture) > 0)
-                ? '${Order.formatCurrency(order.lengthPaperManufacture)} cm'
-                : "0",
-      ),
+      DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
+      DataGridCell<String>(columnName: 'daoXaOrd', value: order.daoXa),
       DataGridCell<String>(
         columnName: 'quantityCustomer',
         value: Order.formatCurrency(order.quantityCustomer),
       ),
-      DataGridCell<String>(
-        columnName: 'qtyManufacture',
-        value: Order.formatCurrency(order.quantityManufacture),
-      ),
-      DataGridCell<String>(
-        columnName: 'volume',
-        value: order.volume! > 0 ? '${Order.formatCurrency(order.volume ?? 0)} m³' : "0",
-      ),
-      DataGridCell<int>(columnName: 'child', value: order.numberChild),
-      DataGridCell<String>(columnName: 'dvt', value: order.dvt),
-      DataGridCell<String>(columnName: 'acreage', value: Order.formatCurrency(order.acreage ?? 0)),
-      DataGridCell<String>(columnName: 'price', value: Order.formatCurrency(order.price)),
-      DataGridCell<String>(
-        columnName: 'pricePaper',
-        value: Order.formatCurrency(order.pricePaper ?? 0),
-      ),
-      DataGridCell<String>(
-        columnName: 'discounts',
-        value: Order.formatCurrency(order.discount ?? 0),
-      ),
-      DataGridCell<String>(
-        columnName: 'profitOrd',
-        value: order.profit > 0 ? '${Order.formatCurrency(order.profit)}%' : "0",
-      ),
-      DataGridCell<String>(columnName: 'vat', value: order.vat! > 0 ? '${order.vat ?? 0}%' : "0"),
-      DataGridCell<String>(columnName: 'HD_special', value: order.instructSpecial ?? ""),
-      DataGridCell<String>(
-        columnName: 'totalPrice',
-        value: Order.formatCurrency(order.totalPrice ?? 0),
-      ),
-      DataGridCell<String>(
-        columnName: 'totalPriceAfterVAT',
-        value: Order.formatCurrency(order.totalPriceVAT ?? 0),
-      ),
-    ];
-  }
-
-  List<DataGridCell> buildBoxCells(Order order) {
-    return [
-      DataGridCell<int>(columnName: 'inMatTruoc', value: order.box?.inMatTruoc ?? 0),
-      DataGridCell<int>(columnName: 'inMatSau', value: order.box?.inMatSau ?? 0),
-      DataGridCell<bool>(columnName: 'chongTham', value: order.box?.chongTham ?? false),
-      DataGridCell<bool>(columnName: 'canLanBox', value: order.box?.canLan ?? false),
-      DataGridCell<bool>(columnName: 'canMang', value: order.box?.canMang ?? false),
-      DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa ?? false),
-      DataGridCell<bool>(columnName: 'catKhe', value: order.box?.catKhe ?? false),
-      DataGridCell<bool>(columnName: 'be', value: order.box?.be ?? false),
-      DataGridCell<String>(columnName: 'maKhuon', value: order.box?.maKhuon ?? ""),
-      DataGridCell<bool>(columnName: 'dan_1_Manh', value: order.box?.dan_1_Manh ?? false),
-      DataGridCell<bool>(columnName: 'dan_2_Manh', value: order.box?.dan_2_Manh ?? false),
-      DataGridCell<bool>(columnName: 'dongGhimMotManh', value: order.box?.dongGhim1Manh ?? false),
-      DataGridCell<bool>(columnName: 'dongGhimHaiManh', value: order.box?.dongGhim2Manh ?? false),
-      DataGridCell<String>(columnName: 'dongGoi', value: order.box?.dongGoi ?? ""),
-
-      DataGridCell<String>(columnName: 'orderIdCustomer', value: order.orderIdCustomer ?? ""),
+      DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
 
       ...userController.hasAnyRole(roles: ['admin', 'manager'])
           ? [
@@ -142,7 +67,6 @@ class OrderDataSource extends DataGridSource {
 
       DataGridCell(columnName: 'status', value: formatStatus(order.status)),
       DataGridCell(columnName: 'rejectReason', value: order.rejectReason ?? ""),
-
       DataGridCell(columnName: 'orderImage', value: order.orderImage?.imageUrl ?? ""),
     ];
   }
@@ -187,11 +111,7 @@ class OrderDataSource extends DataGridSource {
 
   void buildDataCell() {
     orderDataGridRows =
-        orders
-            .map<DataGridRow>(
-              (order) => DataGridRow(cells: [...buildOrderCells(order), ...buildBoxCells(order)]),
-            )
-            .toList();
+        orders.map<DataGridRow>((order) => DataGridRow(cells: buildOrderCells(order))).toList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
@@ -214,9 +134,6 @@ class OrderDataSource extends DataGridSource {
       switch (status) {
         case 'từ chối':
           backgroundColor = Colors.red.withValues(alpha: 0.4);
-          break;
-        case 'chấp nhận':
-          backgroundColor = Colors.amberAccent.withValues(alpha: 0.4);
           break;
         case 'đã lên kế hoạch':
           backgroundColor = Colors.white;

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -65,28 +67,29 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
         }
       }
 
-      if (widget.isProduct) {
-        AppLogger.i("Export báo cáo product");
+      File? file;
 
+      if (widget.isProduct) {
         //export product
-        await ProductService().exportExcelProduct(
+        file = await ProductService().exportExcelProduct(
           typeProduct: selectedOption.value == 'typeProduct' ? typeProduct : null,
           all: selectedOption.value == 'all' ? true : false,
         );
       } else {
-        AppLogger.i(
-          "Export báo cáo customer | "
-          "from=${selectedRange?.start}, to=${selectedRange?.end}",
-        );
-
-        await CustomerService().exportExcelCustomer(
+        file = await CustomerService().exportExcelCustomer(
           fromDate: selectedRange?.start,
           toDate: selectedRange?.end,
           all: selectedOption.value == 'all' ? true : false,
         );
       }
+
       if (!mounted) return;
-      showSnackBarSuccess(context, "Xuất thành công");
+
+      if (file != null) {
+        showSnackBarSuccess(context, 'Xuất dữ liệu thành công');
+      } else {
+        showSnackBarError(context, "Xuất file thất bại");
+      }
 
       if (!mounted) return; // check context
       Navigator.of(context).pop();

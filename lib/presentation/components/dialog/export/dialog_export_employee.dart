@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -57,14 +59,18 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
         }
       }
 
-      await EmployeeService().exportExcelEmployee(
+      File? file = await EmployeeService().exportExcelEmployee(
         status: selectedOption.value == 'status' ? statusController.text : "",
         joinDate: selectedOption.value == 'joinDate' ? selectedDate : null,
         all: selectedOption.value == 'all' ? true : false,
       );
 
       if (!mounted) return;
-      showSnackBarSuccess(context, "Xuất thành công");
+      if (file != null) {
+        showSnackBarSuccess(context, "Xuất thành công");
+      } else {
+        showSnackBarError(context, "Xuất file thất bại");
+      }
 
       widget.onEmployee();
       Navigator.of(context).pop();

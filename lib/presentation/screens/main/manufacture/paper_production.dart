@@ -4,6 +4,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_report_production.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
+import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/utils/socket/init_socket_manufacture.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
@@ -55,6 +56,13 @@ class _PaperProductionState extends State<PaperProduction> {
     "MachineRollPaper": "Máy Quấn Cuồn",
   };
 
+  String filterType = "all";
+  final Map<String, String> filterOptions = {
+    'all': 'Tất cả',
+    'gtZero': 'Còn SL chạy',
+    'ltZero': 'Hết SL chạy',
+  };
+
   @override
   void initState() {
     super.initState();
@@ -86,7 +94,9 @@ class _PaperProductionState extends State<PaperProduction> {
 
   void loadPlanning() {
     setState(() {
-      futurePlanning = ensureMinLoading(ManufactureService().getPlanningPaper(machine: machine));
+      futurePlanning = ensureMinLoading(
+        ManufactureService().getPlanningPaper(machine: machine, filterType: filterType),
+      );
 
       selectedPlanningIds.clear();
     });
@@ -456,6 +466,23 @@ class _PaperProductionState extends State<PaperProduction> {
                                         ),
                                       ),
                                     ),
+                                    const SizedBox(width: 10),
+
+                                    //filter
+                                    buildDropdownItems(
+                                      value: filterType,
+                                      items: const ['all', 'gtZero', 'ltZero'],
+                                      onChanged:
+                                          (value) => {
+                                            setState(() {
+                                              filterType = value!;
+                                              selectedPlanningIds.clear();
+                                              loadPlanning();
+                                            }),
+                                          },
+                                      itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                                    ),
+                                    const SizedBox(width: 10),
                                   ],
                                 );
                               },
