@@ -111,6 +111,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
   //box
   ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> chongThamPaperChecked = ValueNotifier<bool>(false);
 
   final inMatTruocController = TextEditingController();
   final inMatSauController = TextEditingController();
@@ -205,6 +206,7 @@ class _OrderDialogState extends State<OrderDialog> {
     }
 
     // 2. Cập nhật Box Fields (Chỉ cập nhật .value, không khởi tạo lại Notifier)
+    chongThamPaperChecked.value = selectedOrder.chongTham;
     isBoxChecked.value = selectedOrder.isBox;
     final box = selectedOrder.box;
 
@@ -328,6 +330,7 @@ class _OrderDialogState extends State<OrderDialog> {
         vat: int.tryParse(vatController.trimmed) ?? 0,
         instructSpecial: instructSpecialController.trimmed,
 
+        chongTham: chongThamPaperChecked.value,
         isBox: isBoxChecked.value,
         box: newBox,
         status: 'pending',
@@ -497,6 +500,7 @@ class _OrderDialogState extends State<OrderDialog> {
     dongGhim1ManhChecked = ValueNotifier<bool>(false);
     dongGhim2ManhChecked = ValueNotifier<bool>(false);
     isBoxChecked = ValueNotifier<bool>(false);
+    chongThamPaperChecked = ValueNotifier<bool>(false);
     dongGoiController.dispose();
     maKhuonController.dispose();
     _customerIdDebounce?.cancel();
@@ -850,7 +854,10 @@ class _OrderDialogState extends State<OrderDialog> {
           icon: Symbols.bottom_sheets,
         ),
         "middle_2Key": "",
-        "middle_2Value": const SizedBox(),
+        "middle_2Value": ValidationOrder.checkboxForBox(
+          label: "Chống Thấm",
+          notifier: chongThamPaperChecked,
+        ),
         "rightKey": "",
         "rightValue": const SizedBox(),
       },

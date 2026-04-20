@@ -7,7 +7,6 @@ import 'package:dongtam/presentation/sources/order_data_source.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
@@ -45,10 +44,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool isSeenOrder = false;
 
-  int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
-
   @override
   void initState() {
     super.initState();
@@ -73,20 +68,11 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
         AppLogger.d("loadOrderAccept_Planning: isSearching=true | keyword='$keyword'");
 
         futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderAcceptAndPlanning(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
+          OrderService().getOrderAcceptAndPlanning(field: selectedField, keyword: keyword),
         );
       } else {
         futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderAcceptAndPlanning(
-            page: currentPage,
-            pageSize: pageSize,
-            ownOnly: ownOnly,
-          ),
+          OrderService().getOrderAcceptAndPlanning(ownOnly: ownOnly),
         );
       }
     });
@@ -104,27 +90,17 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
     }
 
     setState(() {
-      currentPage = 1;
       isSearching = (searchType != "Tất cả");
 
       if (searchType == "Tất cả") {
         futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderAcceptAndPlanning(
-            page: currentPage,
-            pageSize: pageSize,
-            ownOnly: false,
-          ),
+          OrderService().getOrderAcceptAndPlanning(ownOnly: false),
         );
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderAcceptAndPlanning(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
+          OrderService().getOrderAcceptAndPlanning(field: selectedField, keyword: keyword),
         );
       }
     });
@@ -245,8 +221,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
 
                   final data = snapshot.data!;
                   final orders = data['orders'] as List<Order>;
-                  final currentPg = data['currentPage']; //current page of response
-                  final totalPgs = data['totalPages']; //total  page of response
 
                   orderDataSource = OrderDataSource(
                     context: context,
@@ -306,30 +280,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                             }
                           },
                         ),
-                      ),
-
-                      // Nút chuyển trang
-                      PaginationControls(
-                        currentPage: currentPg,
-                        totalPages: totalPgs,
-                        onPrevious: () {
-                          setState(() {
-                            currentPage--;
-                            loadOrders(ownOnly: isSeenOrder);
-                          });
-                        },
-                        onNext: () {
-                          setState(() {
-                            currentPage++;
-                            loadOrders(ownOnly: isSeenOrder);
-                          });
-                        },
-                        onJumpToPage: (page) {
-                          setState(() {
-                            currentPage = page;
-                            loadOrders(ownOnly: isSeenOrder);
-                          });
-                        },
                       ),
                     ],
                   );

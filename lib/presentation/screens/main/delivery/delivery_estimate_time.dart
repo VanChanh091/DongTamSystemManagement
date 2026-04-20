@@ -2,9 +2,10 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_db_planning.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_delivery_estimate.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/delivery/delivery_estimate_data_source.dart';
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
@@ -59,7 +60,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   void initState() {
     super.initState();
 
-    columnsPaper = buildDbPaperColumn(themeController: themeController, page: 'delivery');
+    columnsPaper = buildDeliveryEstimateColumn(themeController: themeController);
     columnsStages = buildStageColumn(themeController: themeController);
 
     ColumnWidthTable.loadWidths(tableKey: 'estimateTime', columns: columnsPaper).then((w) {
@@ -216,7 +217,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    //confirm delivery
+                                    //register delivery
                                     AnimatedButton(
                                       onPressed:
                                           selectedPaperId == null
@@ -228,7 +229,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                   onConfirm: (inputQty) async {
                                                     try {
                                                       final success = await DeliveryService()
-                                                          .registerQtyDelivery(
+                                                          .handlePutDelivery(
                                                             planningId: selectedPaperId!,
                                                             qtyRegistered: inputQty,
                                                           );
@@ -242,17 +243,6 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                         }
                                                         loadPlanningEstimate();
                                                         return true;
-                                                      }
-                                                      return false;
-                                                    } on ApiException catch (e) {
-                                                      if (e.errorCode == "QTY_EXCEEDED" ||
-                                                          e.message != null) {
-                                                        if (context.mounted) {
-                                                          showSnackBarError(
-                                                            context,
-                                                            e.message ?? "Lỗi API",
-                                                          );
-                                                        }
                                                       }
                                                       return false;
                                                     } catch (e) {
@@ -270,6 +260,63 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                       label: 'Đăng Ký Giao',
                                       icon: Symbols.confirmation_number,
                                       backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 10),
+
+                                    //close planning
+                                    AnimatedButton(
+                                      onPressed:
+                                          selectedPaperId == null
+                                              ? null
+                                              : () async {
+                                                final bool confirm = await showConfirmDialog(
+                                                  context: context,
+                                                  title: "Xác Nhận Đóng Kế Hoạch Này",
+                                                  content:
+                                                      "Bạn có chắc chắn muốn đóng kế hoạch này?",
+                                                  confirmText: "Xác Nhận",
+                                                  confirmColor: const Color(0xffEA4346),
+                                                );
+
+                                                if (confirm) {
+                                                  try {
+                                                    final success = await DeliveryService()
+                                                        .handlePutDelivery(
+                                                          planningId: selectedPaperId!,
+                                                        );
+
+                                                    if (success) {
+                                                      if (context.mounted) {
+                                                        showSnackBarSuccess(
+                                                          context,
+                                                          "Đóng kế hoạch thành công",
+                                                        );
+                                                      }
+                                                      loadPlanningEstimate();
+                                                    }
+                                                  } on ApiException catch (e) {
+                                                    if (e.errorCode == 'CANNOT_CLOSE_EMPTY_PAPER') {
+                                                      if (context.mounted) {
+                                                        showSnackBarError(
+                                                          context,
+                                                          e.message ??
+                                                              "Không thể đóng kế hoạch chưa sản xuất",
+                                                        );
+                                                      }
+                                                    }
+                                                  } catch (e) {
+                                                    if (context.mounted) {
+                                                      showSnackBarError(
+                                                        context,
+                                                        "Có lỗi khi đóng kế hoạch",
+                                                      );
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                      label: "Đóng Kế Hoạch",
+                                      icon: Icons.delete,
+                                      backgroundColor: const Color(0xffEA4346),
                                     ),
                                     const SizedBox(width: 10),
 
@@ -294,9 +341,6 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                             ),
                           ],
                         ),
-
-                        //set day and estimate time
-                        // const SizedBox(height: 5),
                       ],
                     ),
                   ),
@@ -364,21 +408,6 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                     cells: [
                                       StackedHeaderCell(
                                         columnNames: [
-                                          "dayReceive",
-                                          "dateShipping",
-                                          "dayStartProduction",
-                                          "dayCompletedProd",
-                                          "dayCompletedOvfl",
-                                        ],
-                                        child: Obx(
-                                          () => formatColumn(
-                                            label: 'Ngày',
-                                            themeController: themeController,
-                                          ),
-                                        ),
-                                      ),
-                                      StackedHeaderCell(
-                                        columnNames: [
                                           'quantityOrd',
                                           'qtyProduced',
                                           'runningPlanProd',
@@ -387,15 +416,6 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                         child: Obx(
                                           () => formatColumn(
                                             label: 'Số Lượng',
-                                            themeController: themeController,
-                                          ),
-                                        ),
-                                      ),
-                                      StackedHeaderCell(
-                                        columnNames: ['timeRunningProd', 'timeRunningOvfl'],
-                                        child: Obx(
-                                          () => formatColumn(
-                                            label: 'Thời Gian',
                                             themeController: themeController,
                                           ),
                                         ),

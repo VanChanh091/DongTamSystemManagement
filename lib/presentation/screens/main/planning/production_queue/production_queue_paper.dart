@@ -38,32 +38,36 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   late MachinePaperDatasource machinePaperDatasource;
   late List<GridColumn> columns;
 
-  final dataGridController = DataGridController();
-  final unsavedChangeController = Get.find<UnsavedChangeController>();
-  final badgesController = Get.find<BadgesController>();
-  final themeController = Get.find<ThemeController>();
-  final userController = Get.find<UserController>();
   final formatter = DateFormat('dd/MM/yyyy');
+  final dataGridController = DataGridController();
+  final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
+  final badgesController = Get.find<BadgesController>();
+  final unsavedChangeController = Get.find<UnsavedChangeController>();
+
+  //search
   final Map<String, String> searchFieldMap = {
     'Mã Đơn Hàng': "orderId",
     'Tên KH': "customerName",
     'Khổ Cấp Giấy': "ghepKho",
   };
-
   String searchType = "Tất cả";
   String machine = "Máy 1350";
 
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
 
+  //date
   DateTime selectedDate = DateTime.now();
   DateTime? dayStart = DateTime.now();
 
+  //flag
   bool isLoading = false;
   bool isTextFieldEnabled = false;
   bool showGroup = true;
   bool isNewDay = false;
 
+  //text controller
   TextEditingController searchController = TextEditingController();
   TextEditingController dayStartController = TextEditingController();
   TextEditingController timeStartController = TextEditingController();
@@ -103,8 +107,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       String keyword = searchController.text.trim().toLowerCase();
 
       if (searchType != "Tất cả") {
-        AppLogger.i("loadPlanning: keyword='$keyword'");
-
         futurePlanning = ensureMinLoading(
           PlanningService().getPlanningByMachine(
             field: selectedField,
@@ -281,8 +283,9 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         context: context,
                                         selectedIds: selectedPlanningIds,
                                         onConfirmComplete: (ids) async {
-                                          return await PlanningService().confirmCompletePlanning(
+                                          return await PlanningService().confirmOrRequestComplete(
                                             ids: ids,
+                                            action: 'CONFIRM_COMPLETE',
                                           );
                                         },
                                         backgroundColor: themeController.buttonColor,
@@ -601,6 +604,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                       columns: columns,
                       widths: columnWidths,
                     ),
+                    frozenColumnsCount: 8,
                     stackedHeaderRows: <StackedHeaderRow>[
                       StackedHeaderRow(
                         cells: [
@@ -624,30 +628,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                             child: Obx(
                               () => formatColumn(
                                 label: 'Định Mức Phế Liệu',
-                                themeController: themeController,
-                              ),
-                            ),
-                          ),
-                          StackedHeaderCell(
-                            columnNames: [
-                              'inMatTruoc',
-                              'inMatSau',
-                              'canLanBox',
-                              'canMang',
-                              'xa',
-                              'catKhe',
-                              'be',
-                              'dan_1_Manh',
-                              'dan_2_Manh',
-                              'dongGhimMotManh',
-                              'dongGhimHaiManh',
-                              'chongTham',
-                              'dongGoi',
-                              'maKhuon',
-                            ],
-                            child: Obx(
-                              () => formatColumn(
-                                label: 'Công Đoạn 2',
                                 themeController: themeController,
                               ),
                             ),
@@ -796,6 +776,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         final success = await PlanningService().pauseOrAcceptLackQty(
           ids: planningIds,
           newStatus: status,
+          action: 'PAUSE_OR_ACCEPT_LACK',
         );
 
         if (!context.mounted) return;

@@ -29,7 +29,7 @@ Widget timeAndDayPlanning({
             final selected = await showDatePicker(
               context: context,
               initialDate: DateTime.now(),
-              firstDate: DateTime.now(),
+              firstDate: DateTime(2026),
               lastDate: DateTime(2100),
               builder: (BuildContext context, Widget? child) {
                 return Theme(
@@ -199,27 +199,27 @@ Widget confirmCompleteButton({
 }) {
   return AnimatedButton(
     onPressed: () async {
-      if (selectedIds.isEmpty) {
-        showSnackBarError(context, 'Vui lòng chọn kế hoạch cần thao tác');
-        return;
-      }
-
-      final confirm = await showConfirmDialog(
-        context: context,
-        title: "⚠️ Xác nhận",
-        content: "Xác nhận hoàn thành kế hoạch này?",
-        confirmText: "Ok",
-        confirmColor: const Color(0xffEA4346),
-      );
-
-      if (!confirm) return;
-
-      if (!context.mounted) return;
-      showLoadingDialog(context);
-
-      final ids = selectedIds.map((e) => int.tryParse(e.toString())).whereType<int>().toList();
-
       try {
+        if (selectedIds.isEmpty) {
+          showSnackBarError(context, 'Vui lòng chọn kế hoạch cần thao tác');
+          return;
+        }
+
+        final confirm = await showConfirmDialog(
+          context: context,
+          title: "⚠️ Xác nhận",
+          content: "Xác nhận hoàn thành kế hoạch này?",
+          confirmText: "Ok",
+          confirmColor: const Color(0xffEA4346),
+        );
+
+        if (!confirm) return;
+
+        if (!context.mounted) return;
+        showLoadingDialog(context);
+
+        final ids = selectedIds.map((e) => int.tryParse(e.toString())).whereType<int>().toList();
+
         final success = await onConfirmComplete(ids);
         if (success) {
           onReload();
@@ -232,8 +232,8 @@ Widget confirmCompleteButton({
         Navigator.of(context).pop();
 
         final errorText = switch (e.errorCode) {
-          'LACK_QUANTITY' => 'Chưa đủ số lượng để hoàn thành',
-          'PLANNING_NOT_FINALIZED' => e.message!,
+          'LACK_QUANTITY' => e.message!,
+          'PLANNING_NOT_REQUESTED' => e.message!,
           _ => 'Có lỗi xảy ra, vui lòng thử lại',
         };
 

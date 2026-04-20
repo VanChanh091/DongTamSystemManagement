@@ -41,10 +41,6 @@ class MachineBoxDatasource extends DataGridSource {
       //14 items
       DataGridCell<String>(columnName: "orderId", value: planning.orderId),
       DataGridCell<String>(
-        columnName: "customerName",
-        value: planning.order?.customer?.customerName ?? "",
-      ),
-      DataGridCell<String>(
         columnName: "dateShipping",
         value:
             planning.order?.dateRequestShipping != null
@@ -52,24 +48,27 @@ class MachineBoxDatasource extends DataGridSource {
                 : '',
       ),
       DataGridCell<String>(
-        columnName: "dayStartProduction",
-        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : '',
+        columnName: "customerName",
+        value: planning.order?.customer?.customerName ?? "",
       ),
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
-      DataGridCell<String>(columnName: "flute", value: planning.order?.flute ?? ""),
-      DataGridCell<String>(columnName: "canLan", value: planning.order?.canLan ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
-      DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
+      DataGridCell<String>(
+        columnName: "size",
+        value: planning.size > 0 ? '${planning.size} cm' : "0",
+      ),
       DataGridCell<String>(
         columnName: "length",
         value: planning.length > 0 ? '${planning.length} cm' : "0",
       ),
-      DataGridCell<int>(columnName: 'child', value: planning.order?.numberChild ?? 0),
+      DataGridCell<String>(columnName: "canLan", value: planning.order?.canLan ?? ""),
+
       DataGridCell<int>(columnName: "quantityOrd", value: planning.order?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),
       DataGridCell<int>(columnName: "needProd", value: boxMachineTime?.remainRunningPlan ?? 0),
+
       DataGridCell<String>(
-        columnName: "timeRunnings",
+        columnName: "timeRunning",
         value:
             boxMachineTime?.timeRunning != null
                 ? PlanningBox.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
@@ -123,6 +122,10 @@ class MachineBoxDatasource extends DataGridSource {
         value: boxMachineTime?.shiftManagement ?? "",
       ),
 
+      DataGridCell<String>(
+        columnName: "dayStartProduction",
+        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : '',
+      ),
       DataGridCell<String>(
         columnName: "dayCompletedProd",
         value:
@@ -306,6 +309,8 @@ class MachineBoxDatasource extends DataGridSource {
       rowColor = Colors.blue.withValues(alpha: 0.3); //selected row
     } else if (sortPlanning > 0 && status == "producing") {
       rowColor = Colors.orange.withValues(alpha: 0.4); //confirm production
+    } else if (sortPlanning > 0 && status == "requested") {
+      rowColor = Colors.tealAccent.withValues(alpha: 0.4);
     } else if (sortPlanning > 0 && status == "complete") {
       rowColor = Colors.green.withValues(alpha: 0.3); //have completed
     } else if (sortPlanning == 0) {

@@ -35,26 +35,35 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   late Future<List<PlanningBox>> futurePlanning;
   late MachineBoxDatasource machineBoxDatasource;
   late List<GridColumn> columns;
-  final DataGridController dataGridController = DataGridController();
-  final unsavedChangeController = Get.find<UnsavedChangeController>();
+
+  final formatter = DateFormat('dd/MM/yyyy');
+  final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  final formatter = DateFormat('dd/MM/yyyy');
+  final unsavedChangeController = Get.find<UnsavedChangeController>();
+
+  //search
   final Map<String, String> searchFieldMap = {
     'Mã Đơn Hàng': "orderId",
     'Tên KH': "customerName",
     'Quy Cách': "QcBox",
   };
   String searchType = "Tất cả";
+  String machine = "Máy In";
+
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningBoxIds = [];
-  String machine = "Máy In";
+
+  //date
   DateTime? dayStart = DateTime.now();
   DateTime selectedDate = DateTime.now();
+
+  //flag
   bool isTextFieldEnabled = false;
   bool isLoading = false;
   bool showGroup = true;
 
+  //text controler
   TextEditingController searchController = TextEditingController();
   TextEditingController dayStartController = TextEditingController();
   TextEditingController timeStartController = TextEditingController();
@@ -281,10 +290,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                         context: context,
                                         selectedIds: selectedPlanningBoxIds,
                                         onConfirmComplete: (ids) async {
-                                          return await PlanningService().confirmCompletePlanning(
+                                          return await PlanningService().confirmOrRequestComplete(
                                             ids: ids,
                                             machine: machine,
                                             isBox: true,
+                                            action: 'CONFIRM_COMPLETE',
                                           );
                                         },
                                         backgroundColor: themeController.buttonColor,
@@ -486,6 +496,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                       columns: columns,
                       widths: columnWidths,
                     ),
+                    frozenColumnsCount: 7,
                     stackedHeaderRows: <StackedHeaderRow>[
                       StackedHeaderRow(
                         cells: [
@@ -668,6 +679,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
           newStatus: status,
           machine: machine,
           isBox: true,
+          action: 'ACCEPT_LACK_QTY',
         );
 
         if (!context.mounted) return;

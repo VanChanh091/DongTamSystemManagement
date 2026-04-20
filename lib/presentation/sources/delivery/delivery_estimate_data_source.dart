@@ -18,104 +18,45 @@ class DeliveryEstimateDataSource extends DataGridSource {
   }
 
   List<DataGridCell> buildDbPaperCells(PlanningPaper paper) {
-    DataGridCell<String> buildPriceCell({required String columnName, required double value}) {
-      return DataGridCell<String>(
-        columnName: columnName,
-        value: value > 0 ? '${Order.formatCurrency(value)} VND' : '0',
-      );
-    }
-
     final order = paper.order;
 
     return [
+      // Order
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
-
-      //customer
-      DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
-      DataGridCell<String>(columnName: "companyName", value: order?.customer?.companyName ?? ""),
-
-      //product
-      DataGridCell<String>(columnName: "typeProduct", value: order?.product?.typeProduct ?? ""),
-      DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
-
-      //structure
-      DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
-
-      //day
-      DataGridCell<String>(
-        columnName: "dayReceive",
-        value: order?.dayReceiveOrder != null ? formatter.format(order!.dayReceiveOrder) : "",
-      ),
       DataGridCell<String>(
         columnName: "dateShipping",
         value:
             order?.dateRequestShipping != null ? formatter.format(order!.dateRequestShipping!) : "",
       ),
-      DataGridCell<String>(
-        columnName: "dayStartProduction",
-        value: paper.dayStart != null ? formatter.format(paper.dayStart!) : "",
-      ),
-      DataGridCell<String>(
-        columnName: "dayCompletedProd",
-        value: paper.dayCompleted != null ? formatterDayCompleted.format(paper.dayCompleted!) : "",
-      ),
-      DataGridCell<String>(
-        columnName: "dayCompletedOvfl",
-        value:
-            paper.timeOverflowPlanning?.overflowDayCompleted != null
-                ? formatterDayCompleted.format(paper.timeOverflowPlanning!.overflowDayCompleted!)
-                : "",
-      ),
 
-      //other fields
-      DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
-      DataGridCell<String>(columnName: 'khoCapGiay', value: '${paper.ghepKho} cm'),
-      DataGridCell<String>(columnName: 'daoXa', value: order?.daoXa ?? ''),
-      DataGridCell<String>(columnName: 'size', value: '${paper.sizePaperPLaning} cm'),
-      DataGridCell<String>(columnName: 'length', value: '${paper.lengthPaperPlanning} cm'),
+      //customer
+      DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
+      DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
+
+      DataGridCell<String>(columnName: "QcBox", value: order?.QC_box ?? ""),
+      DataGridCell<String>(columnName: 'size', value: '${order!.paperSizeManufacture} cm'),
+      DataGridCell<String>(columnName: 'length', value: '${order.lengthPaperManufacture} cm'),
+
+      //quantity
+      DataGridCell<int>(columnName: 'quantityOrd', value: order.quantityManufacture),
+      DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
+      DataGridCell<int>(columnName: "qtyInventory", value: order.Inventory?.qtyInventory ?? 0),
+
+      DataGridCell<String>(columnName: "dvt", value: order.dvt),
       DataGridCell<String>(
         columnName: 'volume',
         value:
-            order?.volume != null && order!.volume! > 0
+            order.volume != null && order.volume! > 0
                 ? '${Order.formatCurrency(order.volume ?? 0)} m³'
                 : "0",
       ),
-      DataGridCell<int>(columnName: 'child', value: paper.numberChild),
 
-      //quantity
-      DataGridCell<int>(columnName: 'quantityOrd', value: order?.quantityManufacture ?? 0),
-      DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
-      DataGridCell<int>(columnName: "runningPlanProd", value: paper.runningPlan),
-      DataGridCell<int>(
-        columnName: "qtyInventory",
-        value: paper.order?.Inventory?.qtyInventory ?? 0,
-      ),
-
-      //time running
-      DataGridCell<String>(
-        columnName: 'timeRunningProd',
-        value:
-            paper.timeRunning != null
-                ? PlanningPaper.formatTimeOfDay(timeOfDay: paper.timeRunning!)
-                : '',
-      ),
-      DataGridCell<String>(
-        columnName: 'timeRunningOvfl',
-        value:
-            paper.timeOverflowPlanning?.overflowTimeRunning != null
-                ? PlanningPaper.formatTimeOfDay(
-                  timeOfDay: paper.timeOverflowPlanning!.overflowTimeRunning!,
-                )
-                : '',
-      ),
-      DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ''),
-
-      // order
-      DataGridCell<String>(columnName: "dvt", value: order?.dvt ?? ""),
-      buildPriceCell(columnName: "price", value: order?.price ?? 0),
+      //structure
+      DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
+      DataGridCell<String>(columnName: "instructSpecial", value: order.instructSpecial ?? ''),
 
       //user
-      DataGridCell<String>(columnName: "staffOrder", value: order?.user?.fullName ?? ""),
+      DataGridCell<String>(columnName: "staffOrder", value: order.user?.fullName ?? ""),
 
       // hidden technical fields
       DataGridCell<int>(columnName: "planningId", value: paper.planningId),

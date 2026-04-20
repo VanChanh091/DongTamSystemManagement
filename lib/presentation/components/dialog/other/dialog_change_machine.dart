@@ -45,6 +45,7 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
       await PlanningService().changeMachinePlanning(
         newMachine: chooseMachine,
         planningIds: planningIds,
+        action: 'CHANGE_MACHINE',
       );
 
       if (!mounted) return; // check context

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dongtam/data/models/employee/employee_basic_info.dart';
 import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/service/manufacture_service.dart';
@@ -13,8 +15,8 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 class DialogReportProduction extends StatefulWidget {
   final int planningId;
   final VoidCallback onReport;
-  final String? machine;
   final bool isPaper;
+  final String? machine;
   final int? qtyPaper;
 
   //model
@@ -37,8 +39,10 @@ class DialogReportProduction extends StatefulWidget {
 
 class _DialogReportProductionState extends State<DialogReportProduction> {
   late Future<List<EmployeeBasicInfo>> futureEmployee;
-
   final formKey = GlobalKey<FormState>();
+
+  Timer? _timer;
+  int _countdown = 0;
 
   final qtyProducedController = TextEditingController();
   final qtyWasteNormController = TextEditingController();
@@ -79,10 +83,29 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     }
   }
 
+  void _startCountdown() {
+    setState(() => _countdown = 3);
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        if (_countdown > 0) {
+          _countdown--;
+        } else {
+          _timer?.cancel();
+        }
+      });
+    });
+  }
+
   void submit() async {
     if (!formKey.currentState!.validate()) {
       return;
     }
+
+    _startCountdown();
 
     try {
       final int qtyProduced = int.tryParse(qtyProducedController.trimmed) ?? 0;
@@ -136,7 +159,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           qtyProduced: qtyProduced,
           rpWasteLoss: qtyWasteNorm,
           shiftManagement: shiftManagement,
-          reportedBy: employeeCodeController.trimmed.toUpperCase(),
+          reportedBy: 'DTSX-${employeeCodeController.trimmed}',
           isUpdate: widget.initialData != null ? true : false,
         );
       }
@@ -232,6 +255,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   @override
   void dispose() {
     super.dispose();
+    _timer?.cancel();
     qtyProducedController.dispose();
     qtyWasteNormController.dispose();
     dayCompletedController.dispose();
@@ -242,6 +266,8 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
   @override
   Widget build(BuildContext context) {
+    bool isReadOnly = _countdown > 0;
+
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -384,20 +410,24 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(
+          child: Text(
             "Hủy",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black54),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: isReadOnly ? Colors.grey : Colors.black54,
+            ),
           ),
         ),
         ElevatedButton(
-          onPressed: submit,
+          onPressed: isReadOnly ? null : submit,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
+            backgroundColor: isReadOnly ? Colors.grey : Colors.red,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          child: const Text(
-            "Xác nhận",
+          child: Text(
+            isReadOnly ? "Chờ ${_countdown}s" : "Xác nhận",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
           ),
         ),

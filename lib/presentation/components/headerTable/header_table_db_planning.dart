@@ -28,6 +28,7 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   //other fields
   {"key": "flute", "title": "Sóng"},
   {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
+  {"key": "QcBox", "title": "QC Thùng"},
   {"key": "daoXa", "title": "Dao Xả"},
   {"key": "size", "title": "Khổ"},
   {"key": "length", "title": "Dài"},
@@ -48,101 +49,29 @@ const List<Map<String, dynamic>> _headerDbPaper = [
 
   // Order money
   {"key": "dvt", "title": "DVT"},
-  {
-    "key": "acreage",
-    "title": "Diện Tích",
-    "visiblePages": ["dashboard"],
-  },
+  {"key": "acreage", "title": "Diện Tích"},
   {"key": "price", "title": "Đơn Giá"},
-  {
-    "key": "pricePaper",
-    "title": "Đơn Giá",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "discounts",
-    "title": "Chiết Khấu",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "profitOrd",
-    "title": "Lợi Nhuận",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "vat",
-    "title": "VAT",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "totalPrice",
-    "title": "Tổng Tiền",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "totalPriceAfterVAT",
-    "title": "Tổng Tiền VAT",
-    "visiblePages": ["dashboard"],
-  },
+  {"key": "pricePaper", "title": "Đơn Giá"},
+  {"key": "discounts", "title": "Chiết Khấu"},
+  {"key": "profitOrd", "title": "Lợi Nhuận"},
+  {"key": "vat", "title": "VAT"},
+  {"key": "totalPrice", "title": "Tổng Tiền"},
+  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền VAT"},
 
   //Waste
-  {
-    "key": "bottom",
-    "title": "Đáy",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "fluteE",
-    "title": "Sóng E",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "fluteE2",
-    "title": "Sóng E2",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "fluteB",
-    "title": "Sóng B",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "fluteC",
-    "title": "Sóng C",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "knife",
-    "title": "Dao",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "totalLoss",
-    "title": "Tổng PL",
-    "visiblePages": ["dashboard"],
-  },
+  {"key": "bottom", "title": "Đáy"},
+  {"key": "fluteE", "title": "Sóng E"},
+  {"key": "fluteE2", "title": "Sóng E2"},
+  {"key": "fluteB", "title": "Sóng B"},
+  {"key": "fluteC", "title": "Sóng C"},
+  {"key": "knife", "title": "Dao"},
+  {"key": "totalLoss", "title": "Tổng PL"},
 
   // Sản xuất
-  {
-    "key": "qtyWastes",
-    "title": "PL Thực Tế",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "shiftProduct",
-    "title": "Ca Sản Xuất",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "shiftManager",
-    "title": "Trưởng Máy",
-    "visiblePages": ["dashboard"],
-  },
-  {
-    "key": "machine",
-    "title": "Loại Máy",
-    "visiblePages": ["dashboard"],
-  },
+  {"key": "qtyWastes", "title": "PL Thực Tế"},
+  {"key": "shiftProduct", "title": "Ca Sản Xuất"},
+  {"key": "shiftManager", "title": "Trưởng Máy"},
+  {"key": "machine", "title": "Loại Máy"},
 
   // Staff
   {"key": "staffOrder", "title": "Nhân Viên"},

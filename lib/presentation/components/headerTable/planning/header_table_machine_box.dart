@@ -5,20 +5,19 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _machineBoxColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
-  {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
-  {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
+  {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
-  {"key": "flute", "title": "Sóng"},
-  {"key": "canLan", "title": "Cấn Lằn"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "size", "title": "Khổ"},
   {"key": "length", "title": "Dài"},
-  {"key": "child", "title": "Số Con"},
+  {"key": "canLan", "title": "Cấn Lằn"},
+
   {"key": "quantityOrd", "title": "Đơn Hàng"},
   {"key": "qtyPaper", "title": "Giấy Tấm"},
   {"key": "needProd", "title": "Cần SX"},
-  {"key": "timeRunnings", "title": "Thời Gian Chạy"},
+
+  {"key": "timeRunning", "title": "Thời Gian Chạy"},
 
   //quantity
   {"key": "qtyPrinted", "title": "In"},
@@ -43,6 +42,7 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
   {"key": "wasteActually", "title": "PL Báo Cáo"},
   {"key": "shiftManager", "title": "Trưởng Máy"},
 
+  {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
 
   //isRequestCheck

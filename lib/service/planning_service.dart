@@ -57,75 +57,6 @@ class PlanningService {
     }
   }
 
-  //confirm complete
-  Future<bool> confirmCompletePlanning({
-    required List<int> ids,
-    String? machine,
-    bool isConfirm = true,
-    bool isBox = false, //flag FE
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final data = {
-        if (isBox) "planningBoxIds": ids else "planningIds": ids,
-        if (machine != null) "machine": machine,
-        "isConfirm": isConfirm,
-      };
-
-      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
-
-      await dioService.put(
-        "/api/planning/$endpoint",
-        data: data,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to confirm complete planning", error: e, stackTrace: s);
-      throw Exception('Failed to confirm complete planning: $e');
-    }
-  }
-
-  //pause or accept lack qty
-  Future<bool> pauseOrAcceptLackQty({
-    required List<int> ids,
-    required String newStatus,
-    String? machine,
-    bool isBox = false, //flag FE
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      final data = {
-        if (isBox) "planningBoxIds": ids else "planningIds": ids,
-        if (machine != null) "machine": machine,
-        "newStatus": newStatus,
-      };
-
-      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
-
-      await dioService.put(
-        "/api/planning/$endpoint",
-        data: data,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
-      throw Exception('Failed to pause machine: $e');
-    }
-  }
-
   //update index planning
   Future<bool> updateIndexWTimeRunning({
     required bool isNewDay,
@@ -164,16 +95,88 @@ class PlanningService {
     }
   }
 
+  //confirm complete
+  Future<bool> confirmOrRequestComplete({
+    required List<int> ids,
+    required String action,
+    String? machine,
+    bool isBox = false, //flag FE
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final data = {
+        "action": action,
+        if (isBox) "planningBoxIds": ids else "planningIds": ids,
+        if (machine != null) "machine": machine,
+      };
+
+      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
+
+      await dioService.put(
+        "/api/planning/$endpoint",
+        data: data,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } on DioException catch (e) {
+      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
+      return false;
+    } catch (e, s) {
+      AppLogger.e("Failed to confirm complete planning", error: e, stackTrace: s);
+      throw Exception('Failed to confirm complete planning: $e');
+    }
+  }
+
   //change machine paper
   Future<bool> changeMachinePlanning({
     required List<int> planningIds,
     required String newMachine,
+    required String action,
   }) async {
     return HelperService().updateItem(
       endpoint: "planning/planning-papers",
       queryParameters: {},
-      dataUpdated: {"planningIds": planningIds, "newMachine": newMachine},
+      dataUpdated: {"planningIds": planningIds, "newMachine": newMachine, "action": action},
     );
+  }
+
+  //pause or accept lack qty
+  Future<bool> pauseOrAcceptLackQty({
+    required List<int> ids,
+    required String newStatus,
+    required String action,
+    String? machine,
+    bool isBox = false, //flag FE
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final data = {
+        if (isBox) "planningBoxIds": ids else "planningIds": ids,
+        if (machine != null) "machine": machine,
+        "newStatus": newStatus,
+        "action": action,
+      };
+
+      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
+
+      await dioService.put(
+        "/api/planning/$endpoint",
+        data: data,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
+      throw Exception('Failed to pause machine: $e');
+    }
   }
 
   //notify planning

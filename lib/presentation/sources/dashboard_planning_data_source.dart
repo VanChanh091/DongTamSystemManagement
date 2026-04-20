@@ -64,6 +64,10 @@ class DashboardPaperDataSource extends DataGridSource {
       //other fields
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${paper.ghepKho} cm'),
+      DataGridCell<String>(
+        columnName: 'QcBox',
+        value: order?.QC_box != null && order!.QC_box!.isNotEmpty ? '${order.QC_box} cm' : '',
+      ),
       DataGridCell<String>(columnName: 'daoXa', value: order?.daoXa ?? ''),
       DataGridCell<String>(columnName: 'size', value: '${paper.sizePaperPLaning} cm'),
       DataGridCell<String>(

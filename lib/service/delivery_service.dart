@@ -37,7 +37,7 @@ class DeliveryService {
   }
 
   // confirm ready delivery
-  Future<bool> registerQtyDelivery({required int planningId, required int qtyRegistered}) async {
+  Future<bool> handlePutDelivery({required int planningId, int? qtyRegistered}) async {
     return HelperService().updateItem(
       endpoint: "delivery/estimate",
       queryParameters: const {},

@@ -12,30 +12,41 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
     "title": "Ngày Dự Kiến",
     "visiblePages": ["planning"],
   },
-  {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
 
   {"key": "customerName", "title": "Tên Khách Hàng"},
 
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
-  {"key": "canLan", "title": "Cấn Lằn"},
-  {"key": "daoXa", "title": "Dao Xả"},
   {"key": "size", "title": "Khổ"},
   {"key": "length", "title": "Dài"},
+  {"key": "canLan", "title": "Cấn Lằn"},
+  {"key": "daoXa", "title": "Dao Xả"},
   {"key": "child", "title": "Số Con"},
+  {"key": "instructSpecial", "title": "HD Đặc Biệt"},
+  {"key": "chongTham", "title": "Chống Thấm"},
+  {"key": "haveMadeBox", "title": "Làm Thùng?"},
 
-  {"key": "quantityOrd", "title": "Đơn Hàng"},
-  {"key": "qtyProduced", "title": "Đã Sản Xuất"},
+  {
+    "key": "quantityOrd",
+    "title": "Đơn Hàng",
+    "visiblePages": ["planning"],
+  },
+  {
+    "key": "qtyProduced",
+    "title": "Đã Sản Xuất",
+    "visiblePages": ["planning"],
+  },
   {"key": "runningPlanProd", "title": "Kế Hoạch Chạy"},
+
+  {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
+
   {
     "key": "inboundQty",
     "title": "Đã Nhập Kho",
     "visiblePages": ["checking"],
   },
 
-  {"key": "instructSpecial", "title": "HD Đặc Biệt"},
-  {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
   {
     "key": "totalPrice",
     "title": "Tổng Tiền",
@@ -52,12 +63,23 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   {"key": "totalLoss", "title": "Tổng PL"},
   {"key": "qtyWastes", "title": "PL Thực Tế"},
 
-  {"key": "shiftProduct", "title": "Ca Sản Xuất"},
-  {"key": "shiftManager", "title": "Trưởng Máy"},
+  {
+    "key": "shiftProduct",
+    "title": "Ca Sản Xuất",
+    "visiblePages": ["planning"],
+  },
+  {
+    "key": "shiftManager",
+    "title": "Trưởng Máy",
+    "visiblePages": ["planning"],
+  },
 
-  {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
-
-  {"key": "haveMadeBox", "title": "Làm Thùng?"},
+  {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
+  {
+    "key": "dayCompletedProd",
+    "title": "Ngày Hoàn Thành",
+    "visiblePages": ["planning"],
+  },
 
   //statusRequest
   {"key": "statusRequest", "title": "Kiểm Hàng"},
