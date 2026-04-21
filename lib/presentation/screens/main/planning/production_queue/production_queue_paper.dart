@@ -283,7 +283,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         context: context,
                                         selectedIds: selectedPlanningIds,
                                         onConfirmComplete: (ids) async {
-                                          return await PlanningService().confirmOrRequestComplete(
+                                          return await PlanningService().confirmCompletePlanning(
                                             ids: ids,
                                             action: 'CONFIRM_COMPLETE',
                                           );

@@ -75,8 +75,8 @@ class _PaperProductionState extends State<PaperProduction> {
   String filterType = "all";
   final Map<String, String> filterOptions = {
     'all': 'Tất cả',
-    'gtZero': 'Còn SL chạy',
-    'ltZero': 'Hết SL chạy',
+    'gtZero': 'Còn SL Chạy',
+    'ltZero': 'Hết SL Chạy',
   };
 
   //text controller
@@ -547,8 +547,8 @@ class _PaperProductionState extends State<PaperProduction> {
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
                                           onExecute:
-                                              (ids) => PlanningService().confirmOrRequestComplete(
-                                                ids: ids,
+                                              (ids) => ManufactureService().requestCompletePapers(
+                                                planningId: ids,
                                                 action: 'REQUEST_COMPLETE',
                                               ),
                                           onLoadPlanning: loadPlanning,
@@ -639,6 +639,13 @@ class _PaperProductionState extends State<PaperProduction> {
                     stackedHeaderRows: <StackedHeaderRow>[
                       StackedHeaderRow(
                         cells: [
+                          StackedHeaderCell(
+                            columnNames: ['qtyProduced', 'runningPlanProd'],
+                            child: Obx(
+                              () =>
+                                  formatColumn(label: 'Số Lượng', themeController: themeController),
+                            ),
+                          ),
                           StackedHeaderCell(
                             columnNames: [
                               'bottom',

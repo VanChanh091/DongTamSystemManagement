@@ -84,8 +84,8 @@ class MachinePaperDatasource extends DataGridSource {
           columnName: 'quantityOrd',
           value: planning.order?.quantityManufacture ?? 0,
         ),
-        DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       ],
+      DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       DataGridCell<int>(columnName: "runningPlanProd", value: planning.remainRunningPlan),
 
       DataGridCell<String>(
@@ -318,7 +318,7 @@ class MachinePaperDatasource extends DataGridSource {
     } else if (sortPlanning > 0 && status == "producing") {
       rowColor = Colors.orange.withValues(alpha: 0.4);
     } else if (sortPlanning > 0 && status == "requested") {
-      rowColor = Colors.tealAccent.withValues(alpha: 0.4);
+      rowColor = Colors.teal.withValues(alpha: 0.4);
     } else if (sortPlanning > 0 && status == "complete") {
       rowColor = Colors.green.withValues(alpha: 0.3);
     } else if (sortPlanning == 0) {

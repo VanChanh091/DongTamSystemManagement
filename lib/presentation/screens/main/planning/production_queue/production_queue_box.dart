@@ -290,7 +290,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                         context: context,
                                         selectedIds: selectedPlanningBoxIds,
                                         onConfirmComplete: (ids) async {
-                                          return await PlanningService().confirmOrRequestComplete(
+                                          return await PlanningService().confirmCompletePlanning(
                                             ids: ids,
                                             machine: machine,
                                             isBox: true,

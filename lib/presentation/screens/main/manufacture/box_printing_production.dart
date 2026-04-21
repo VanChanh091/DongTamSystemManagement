@@ -544,10 +544,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
                                           onExecute:
-                                              (ids) => PlanningService().confirmOrRequestComplete(
-                                                ids: ids,
+                                              (ids) => ManufactureService().requestCompleteBoxes(
+                                                planningBoxId: ids,
                                                 machine: machine,
-                                                isBox: true,
                                                 action: 'REQUEST_COMPLETE',
                                               ),
                                           onLoadPlanning: loadPlanning,

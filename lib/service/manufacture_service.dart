@@ -77,6 +77,32 @@ class ManufactureService {
     }
   }
 
+  //request complete paper
+  Future<bool> requestCompletePapers({
+    required List<int> planningId,
+    required String action,
+  }) async {
+    final token = await SecureStorageService().getToken();
+
+    try {
+      await dioService.put(
+        '/api/manufacture/paper',
+        data: {"planningId": planningId, "action": action},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } on DioException catch (e) {
+      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
+      return false;
+    } catch (e, s) {
+      AppLogger.e("Failed to request complete papers", error: e, stackTrace: s);
+      throw Exception('Failed to request complete papers: $e');
+    }
+  }
+
   Future<bool> confirmProducingPaper({required int planningId}) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -183,6 +209,33 @@ class ManufactureService {
     } catch (e, s) {
       AppLogger.e("Failed to confirm producing box", error: e, stackTrace: s);
       throw Exception('Failed to confirm producing box: $e');
+    }
+  }
+
+  //request complete box
+  Future<bool> requestCompleteBoxes({
+    required List<int> planningBoxId,
+    required String action,
+    required String machine,
+  }) async {
+    final token = await SecureStorageService().getToken();
+
+    try {
+      await dioService.put(
+        '/api/manufacture/box',
+        data: {"planningBoxId": planningBoxId, "machine": machine, "action": action},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } on DioException catch (e) {
+      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
+      return false;
+    } catch (e, s) {
+      AppLogger.e("Failed to request complete boxes", error: e, stackTrace: s);
+      throw Exception('Failed to request complete boxes: $e');
     }
   }
 

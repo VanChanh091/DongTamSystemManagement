@@ -96,7 +96,7 @@ class PlanningService {
   }
 
   //confirm complete
-  Future<bool> confirmOrRequestComplete({
+  Future<bool> confirmCompletePlanning({
     required List<int> ids,
     required String action,
     String? machine,

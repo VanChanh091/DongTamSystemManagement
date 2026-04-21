@@ -14,10 +14,10 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class DialogReportProduction extends StatefulWidget {
   final int planningId;
-  final VoidCallback onReport;
+  final int? qtyPaper;
   final bool isPaper;
   final String? machine;
-  final int? qtyPaper;
+  final VoidCallback onReport;
 
   //model
   final dynamic initialData;

@@ -32,20 +32,19 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
     "title": "Đơn Hàng",
     "visiblePages": ["planning"],
   },
+  {"key": "qtyProduced", "title": "Đã Sản Xuất"},
   {
-    "key": "qtyProduced",
-    "title": "Đã Sản Xuất",
-    "visiblePages": ["planning"],
+    "key": "runningPlanProd",
+    "title": "Kế Hoạch Chạy",
+    "visiblePages": ["planning", 'production'],
   },
-  {"key": "runningPlanProd", "title": "Kế Hoạch Chạy"},
-
-  {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
-
   {
     "key": "inboundQty",
     "title": "Đã Nhập Kho",
     "visiblePages": ["checking"],
   },
+
+  {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
 
   {
     "key": "totalPrice",

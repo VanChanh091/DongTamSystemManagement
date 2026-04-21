@@ -16,7 +16,7 @@ Future<void> handlePlanningTask({
       return;
     }
 
-    final confirm = await showConfirmDialog(
+    final bool confirm = await showConfirmDialog(
       context: context,
       title: "⚠️ Xác nhận",
       content: "Xác nhận yêu cầu hoàn thành kế hoạch này?",
@@ -24,7 +24,7 @@ Future<void> handlePlanningTask({
       confirmColor: const Color(0xffEA4346),
     );
 
-    if (confirm != true) return;
+    if (!confirm) return;
 
     if (!context.mounted) return;
     showLoadingDialog(context);
@@ -56,10 +56,11 @@ Future<void> handlePlanningTask({
       showSnackBarError(context, errorText);
     }
   } catch (e, s) {
+    if (context.mounted) Navigator.of(context).pop();
+    AppLogger.e("Error in planning task: $e", stackTrace: s);
+
     if (context.mounted) {
-      if (Navigator.canPop(context)) Navigator.of(context).pop();
-      AppLogger.e("Error in planning task: $e", stackTrace: s);
-      showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+      showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại sau');
     }
   }
 }

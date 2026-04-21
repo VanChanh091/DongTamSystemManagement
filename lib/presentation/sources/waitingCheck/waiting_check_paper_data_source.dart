@@ -32,10 +32,6 @@ class WaitingCheckPaperDataSource extends DataGridSource {
     return [
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
 
-      DataGridCell<String?>(
-        columnName: "dayStartProduction",
-        value: planning.dayStart != null ? formatter.format(planning.dayStart!) : null,
-      ),
       DataGridCell<String>(
         columnName: 'customerName',
         value: planning.order?.customer?.customerName ?? '',
@@ -43,24 +39,28 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
-      DataGridCell<String>(columnName: 'canLan', value: planning.order?.canLan ?? ''),
-      DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
-      DataGridCell<String>(columnName: 'size', value: '${planning.sizePaperPLaning} cm'),
+      DataGridCell<String>(
+        columnName: 'size',
+        value: planning.sizePaperPLaning > 0 ? '${planning.sizePaperPLaning} cm' : '0',
+      ),
       DataGridCell<String>(
         columnName: 'length',
         value: planning.lengthPaperPlanning > 0 ? '${planning.lengthPaperPlanning} cm' : "0",
       ),
+      DataGridCell<String>(columnName: 'canLan', value: planning.order?.canLan ?? ''),
+      DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
       DataGridCell<int>(columnName: 'child', value: planning.numberChild),
-
-      DataGridCell<int>(columnName: 'quantityOrd', value: planning.order?.quantityManufacture ?? 0),
-      DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
-      DataGridCell<int>(columnName: "runningPlanProd", value: planning.remainRunningPlan),
-      DataGridCell<int>(columnName: "inboundQty", value: planning.getTotalQtyInbound),
-
       DataGridCell<String>(
         columnName: "instructSpecial",
         value: planning.order?.instructSpecial ?? '',
       ),
+      DataGridCell<bool>(columnName: 'chongTham', value: planning.order!.chongTham),
+      DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
+
+      DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
+      // DataGridCell<int>(columnName: "runningPlanProd", value: planning.remainRunningPlan),
+      DataGridCell<int>(columnName: "inboundQty", value: planning.getTotalQtyInbound),
+
       DataGridCell<String>(
         columnName: 'timeRunningProd',
         value:
@@ -86,18 +86,10 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       buildWasteCell(columnName: 'totalLoss', value: planning.totalLoss ?? 0),
       buildWasteCell(columnName: 'qtyWastes', value: planning.qtyWasteNorm ?? 0),
 
-      DataGridCell<String>(columnName: "shiftProduct", value: planning.shiftProduction),
-      DataGridCell<String>(columnName: "shiftManager", value: planning.shiftManagement),
-
       DataGridCell<String?>(
-        columnName: "dayCompletedProd",
-        value:
-            planning.dayCompleted != null
-                ? formatterDayCompleted.format(planning.dayCompleted!)
-                : null,
+        columnName: "dayStartProduction",
+        value: planning.dayStart != null ? formatter.format(planning.dayStart!) : null,
       ),
-
-      DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
 
       //status request
       DataGridCell<String>(columnName: "statusRequest", value: planning.statusRequest),
@@ -121,7 +113,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ["haveMadeBox"];
+    const boolColumns = ["chongTham", "haveMadeBox"];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';

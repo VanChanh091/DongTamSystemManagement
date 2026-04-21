@@ -316,6 +316,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                     selectionMode: SelectionMode.multiple,
                     headerRowHeight: 35,
                     rowHeight: 40,
+                    frozenColumnsCount: 7,
                     columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
                       widths: columnWidths,
@@ -324,12 +325,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                       StackedHeaderRow(
                         cells: [
                           StackedHeaderCell(
-                            columnNames: [
-                              'quantityOrd',
-                              'runningPlanProd',
-                              'qtyProduced',
-                              "inboundQty",
-                            ],
+                            columnNames: ['qtyProduced', "inboundQty"],
                             child: formatColumn(
                               label: 'Số Lượng',
                               themeController: themeController,
