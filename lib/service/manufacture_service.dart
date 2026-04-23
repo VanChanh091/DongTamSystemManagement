@@ -5,6 +5,7 @@ import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import 'package:flutter/material.dart';
 
 class ManufactureService {
   final Dio dioService = DioClient().dio;
@@ -31,6 +32,7 @@ class ManufactureService {
     required DateTime dayCompleted,
     required String reportedBy,
     required Map<String, dynamic> reportData,
+    required String action,
     bool isUpdate = false,
   }) async {
     final token = await SecureStorageService().getToken();
@@ -50,7 +52,7 @@ class ManufactureService {
     try {
       await method(
         '/api/manufacture/paper',
-        queryParameters: {"planningId": planningId},
+        queryParameters: {"planningId": planningId, "action": isUpdate ? action : null},
         data: {
           "qtyProduced": qtyProduced,
           "qtyWasteNorm": qtyWasteNorm,
@@ -85,9 +87,13 @@ class ManufactureService {
     final token = await SecureStorageService().getToken();
 
     try {
+      final params = {"planningId": planningId, "action": action};
+
+      debugPrint("Params: $params");
+
       await dioService.put(
         '/api/manufacture/paper',
-        data: {"planningId": planningId, "action": action},
+        queryParameters: params,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
@@ -144,6 +150,7 @@ class ManufactureService {
     required double rpWasteLoss,
     required String shiftManagement,
     required String reportedBy,
+    required String action,
     bool isUpdate = false,
   }) async {
     final token = await SecureStorageService().getToken();
@@ -163,7 +170,11 @@ class ManufactureService {
     try {
       await method(
         '/api/manufacture/box',
-        queryParameters: {"planningBoxId": planningBoxId, "machine": machine},
+        queryParameters: {
+          "planningBoxId": planningBoxId,
+          "machine": machine,
+          "action": isUpdate ? action : null,
+        },
         data: {
           "dayCompleted": fullDateTime.toIso8601String(),
           "qtyProduced": qtyProduced,
@@ -223,7 +234,7 @@ class ManufactureService {
     try {
       await dioService.put(
         '/api/manufacture/box',
-        data: {"planningBoxId": planningBoxId, "machine": machine, "action": action},
+        queryParameters: {"planningBoxId": planningBoxId, "machine": machine, "action": action},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),

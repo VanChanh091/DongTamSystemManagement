@@ -9,14 +9,10 @@ import 'package:dongtam/presentation/components/headerTable/planning/header_tabl
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
 import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_box_data_source.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,12 +31,14 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
   late WaitingCheckBoxDataSource waitingCheckBoxDS;
   late List<GridColumn> columnsBox;
   late List<GridColumn> columnsStages;
+
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
 
   Map<String, double> columnWidthsPlanning = {};
   Map<String, double> columnWidthsStage = {};
+
   List<PlanningBox> planningList = [];
   List<PlanningStage> selectedStages = [];
   int? selectedPlanningBoxIds;
@@ -96,6 +94,15 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
 
   bool canFinalizePlanning({required PlanningBox planning}) {
     return planning.getTotalQtyInbound > 0;
+  }
+
+  int get minQtyProduced {
+    if (selectedStages.isEmpty) return 0;
+
+    // Lấy giá trị qtyProduced nhỏ nhất trong danh sách các công đoạn
+    return selectedStages
+        .map((s) => s.qtyProduced ?? 0)
+        .reduce((value, element) => value < element ? value : element);
   }
 
   @override
@@ -164,15 +171,18 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                                   onPressed:
                                       qcCheck
                                           ? () async {
+                                            final int remainQty =
+                                                minQtyProduced -
+                                                selectedPlanning!.getTotalQtyInbound;
+
                                             showDialog(
                                               context: context,
                                               builder:
                                                   (_) => DialogCheckQC(
                                                     planningBoxId: selectedPlanningBoxIds!,
                                                     onQcSessionAddOrUpdate: () => loadBoxWaiting(),
+                                                    valueInbound: remainQty,
                                                     type: 'box',
-                                                    valueInbound:
-                                                        selectedPlanning?.getTotalQtyInbound ?? 0,
                                                   ),
                                             );
                                           }
@@ -181,75 +191,6 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                                   icon: Symbols.input,
                                   backgroundColor: themeController.buttonColor,
                                 ),
-                                const SizedBox(width: 10),
-
-                                //confirm Finalized Session
-                                AnimatedButton(
-                                  onPressed:
-                                      qcCheck && canFinalizePlanning(planning: selectedPlanning!)
-                                          ? () async {
-                                            try {
-                                              if (selectedPlanningBoxIds == null) return;
-
-                                              final confirm = await showConfirmDialog(
-                                                context: context,
-                                                title: "Xác nhận hoàn thành",
-                                                content:
-                                                    "Bạn có muốn xác nhận hoàn thành phiên kiểm tra này không?",
-                                                confirmText: "Xác nhận",
-                                              );
-
-                                              if (confirm) {
-                                                final int selectedPlanningBoxId =
-                                                    selectedPlanningBoxIds!;
-
-                                                // Tìm planning tương ứng
-                                                final selectedPlanning = planningList.firstWhere(
-                                                  (p) => p.planningBoxId == selectedPlanningBoxId,
-                                                  orElse:
-                                                      () =>
-                                                          throw Exception(
-                                                            "Không tìm thấy kế hoạch",
-                                                          ),
-                                                );
-
-                                                // Gửi yêu cầu xác nhận sản xuất
-                                                await QualityControlService()
-                                                    .confirmFinalizeSession(
-                                                      planningBoxId: selectedPlanning.planningBoxId,
-                                                      isPaper: false,
-                                                    );
-
-                                                if (!context.mounted) return;
-                                                showSnackBarSuccess(
-                                                  context,
-                                                  "Xác nhận hoàn thành phiên kiểm tra thành công",
-                                                );
-
-                                                //cập nhật badge
-                                                badgesController.fetchBoxWaitingCheck();
-
-                                                loadBoxWaiting();
-                                              }
-                                            } catch (e, s) {
-                                              AppLogger.e(
-                                                "Lỗi khi xác nhận SX",
-                                                error: e,
-                                                stackTrace: s,
-                                              );
-                                              if (!context.mounted) return;
-                                              showSnackBarError(
-                                                context,
-                                                "Có lỗi khi hoàn thành phiên kiểm tra: $e",
-                                              );
-                                            }
-                                          }
-                                          : null,
-                                  label: "Hoàn Thành",
-                                  icon: Symbols.done_outline,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
-
                                 const SizedBox(width: 10),
                               ],
                             ),

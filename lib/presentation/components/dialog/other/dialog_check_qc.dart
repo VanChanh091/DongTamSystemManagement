@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
 import 'package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart';
 import 'package:dongtam/service/admin_service.dart';
@@ -9,6 +10,7 @@ import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class DialogCheckQC extends StatefulWidget {
   final int? planningId, planningBoxId;
@@ -33,6 +35,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
   late Future<List<QcCriteriaModel>> futureCriteria;
 
   final formKey = GlobalKey<FormState>();
+  final badgesController = Get.find<BadgesController>();
   final TextEditingController qtyController = TextEditingController();
 
   List<QcCriteriaModel> criteriaList = [];
@@ -95,6 +98,10 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
 
       // Thông báo thành công
       showSnackBarSuccess(context, "Báo cáo thành công");
+
+      widget.type == "paper"
+          ? badgesController.fetchPaperWaitingCheck()
+          : badgesController.fetchBoxWaitingCheck();
 
       widget.onQcSessionAddOrUpdate();
 

@@ -37,11 +37,15 @@ class DeliveryService {
   }
 
   // confirm ready delivery
-  Future<bool> handlePutDelivery({required int planningId, int? qtyRegistered}) async {
+  Future<bool> handlePutDelivery({
+    required List<int> planningId,
+    int? qtyRegistered,
+    bool? isPaper,
+  }) async {
     return HelperService().updateItem(
       endpoint: "delivery/estimate",
       queryParameters: const {},
-      dataUpdated: {'planningId': planningId, 'qtyRegistered': qtyRegistered},
+      dataUpdated: {'planningId': planningId, 'qtyRegistered': qtyRegistered, 'isPaper': isPaper},
     );
   }
 

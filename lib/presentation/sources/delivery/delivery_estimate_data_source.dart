@@ -7,13 +7,13 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class DeliveryEstimateDataSource extends DataGridSource {
   List<PlanningPaper> delivery = [];
-  int? selectedPaperId;
+  List<int> selectedPaperIds = [];
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  DeliveryEstimateDataSource({required this.delivery, this.selectedPaperId}) {
+  DeliveryEstimateDataSource({required this.delivery, required this.selectedPaperIds}) {
     buildDataGridRows();
   }
 
@@ -80,16 +80,17 @@ class DeliveryEstimateDataSource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final planningId = row.getCells().firstWhere((cell) => cell.columnName == 'planningId').value;
+    final isSelected = selectedPaperIds.contains(planningId);
 
-    Color backgroundColor;
-    if (selectedPaperId != null && selectedPaperId == planningId) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
+    Color rowColor;
+    if (isSelected) {
+      rowColor = Colors.blue.withValues(alpha: 0.3);
     } else {
-      backgroundColor = Colors.transparent;
+      rowColor = Colors.transparent;
     }
 
     return DataGridRowAdapter(
-      color: backgroundColor,
+      color: rowColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
             Alignment alignment;

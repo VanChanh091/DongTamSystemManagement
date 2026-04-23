@@ -145,7 +145,7 @@ class _InventoryState extends State<Inventory> {
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        "HÀNG TỒN KHO",
+                        "TỒN KHO THÀNH PHẨM",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,

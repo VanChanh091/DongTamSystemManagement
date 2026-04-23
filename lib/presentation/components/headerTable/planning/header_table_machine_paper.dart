@@ -32,12 +32,12 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
     "title": "Đơn Hàng",
     "visiblePages": ["planning"],
   },
-  {"key": "qtyProduced", "title": "Đã Sản Xuất"},
   {
     "key": "runningPlanProd",
     "title": "Kế Hoạch Chạy",
     "visiblePages": ["planning", 'production'],
   },
+  {"key": "qtyProduced", "title": "Đã Sản Xuất"},
   {
     "key": "inboundQty",
     "title": "Đã Nhập Kho",

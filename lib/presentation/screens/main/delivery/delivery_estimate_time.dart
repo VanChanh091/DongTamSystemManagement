@@ -36,15 +36,18 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   late DeliveryEstimateDataSource deliveryDataSource;
   late List<GridColumn> columnsPaper;
   late List<GridColumn> columnsStages;
+
+  final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  final dataGridController = DataGridController();
 
   Map<String, double> columnWidthsPlanning = {};
   Map<String, double> columnWidthsStage = {};
   List<PlanningStage> selectedStages = [];
+
   bool selectedAll = false;
-  int? selectedPaperId;
+  List<int> selectedPaperIds = [];
+  List<PlanningPaper> planningList = [];
 
   String allOrders = "false";
   final Map<String, String> filterOptions = {'false': 'Đơn Bản Thân', 'true': 'Tất Cả Đơn'};
@@ -99,7 +102,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
         ),
       );
 
-      selectedPaperId = null;
+      selectedPaperIds.clear();
       selectedStages = [];
     });
   }
@@ -220,7 +223,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                     //register delivery
                                     AnimatedButton(
                                       onPressed:
-                                          selectedPaperId == null
+                                          selectedPaperIds.isEmpty || selectedPaperIds.length > 1
                                               ? null
                                               : () async {
                                                 await showInputQtyDialog(
@@ -230,7 +233,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                     try {
                                                       final success = await DeliveryService()
                                                           .handlePutDelivery(
-                                                            planningId: selectedPaperId!,
+                                                            planningId: selectedPaperIds,
                                                             qtyRegistered: inputQty,
                                                           );
 
@@ -266,7 +269,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                     //close planning
                                     AnimatedButton(
                                       onPressed:
-                                          selectedPaperId == null
+                                          selectedPaperIds.isEmpty
                                               ? null
                                               : () async {
                                                 final bool confirm = await showConfirmDialog(
@@ -280,9 +283,23 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
                                                 if (confirm) {
                                                   try {
+                                                    final selectedPapers =
+                                                        planningList
+                                                            .where(
+                                                              (p) => selectedPaperIds.contains(
+                                                                p.planningId,
+                                                              ),
+                                                            )
+                                                            .toList();
+
+                                                    final bool isBoxType = selectedPapers.any(
+                                                      (p) => p.hasBox == true,
+                                                    );
+
                                                     final success = await DeliveryService()
                                                         .handlePutDelivery(
-                                                          planningId: selectedPaperId!,
+                                                          planningId: selectedPaperIds,
+                                                          isPaper: !isBoxType,
                                                         );
 
                                                     if (success) {
@@ -295,14 +312,20 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                       loadPlanningEstimate();
                                                     }
                                                   } on ApiException catch (e) {
-                                                    if (e.errorCode == 'CANNOT_CLOSE_EMPTY_PAPER') {
-                                                      if (context.mounted) {
+                                                    switch (e.errorCode) {
+                                                      case "CANNOT_CLOSE_EMPTY_PAPER":
+                                                        if (!context.mounted) return;
+                                                        showSnackBarError(context, e.message!);
+                                                        break;
+                                                      case "NO_INBOUND_HISTORY":
+                                                        if (!context.mounted) return;
+                                                        showSnackBarError(context, e.message!);
+                                                        break;
+                                                      default:
                                                         showSnackBarError(
                                                           context,
-                                                          e.message ??
-                                                              "Không thể đóng kế hoạch chưa sản xuất",
+                                                          "Có lỗi khi đóng đơn hàng",
                                                         );
-                                                      }
                                                     }
                                                   } catch (e) {
                                                     if (context.mounted) {
@@ -318,6 +341,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                       icon: Icons.delete,
                                       backgroundColor: const Color(0xffEA4346),
                                     ),
+
                                     const SizedBox(width: 10),
 
                                     //filter
@@ -328,7 +352,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                           (value) => {
                                             setState(() {
                                               allOrders = value!;
-                                              selectedPaperId = null;
+                                              selectedPaperIds.clear();
                                               loadPlanningEstimate();
                                             }),
                                           },
@@ -373,13 +397,16 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                   }
 
                   final data = snapshot.data!;
+
                   final dbPlanning = data['plannings'] as List<PlanningPaper>;
+                  planningList = dbPlanning;
+
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
                   deliveryDataSource = DeliveryEstimateDataSource(
                     delivery: dbPlanning,
-                    selectedPaperId: selectedPaperId,
+                    selectedPaperIds: selectedPaperIds,
                   );
 
                   return Column(
@@ -446,28 +473,37 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                 onSelectionChanged: (addedRows, removedRows) async {
                                   if (addedRows.isEmpty && removedRows.isEmpty) return;
 
-                                  final selectedRows = dataGridController.selectedRows;
-
-                                  final row = selectedRows.first;
-                                  final int planningId =
-                                      row
-                                              .getCells()
-                                              .firstWhere((cell) => cell.columnName == 'planningId')
-                                              .value
-                                          as int;
+                                  final List<int> ids =
+                                      dataGridController.selectedRows.map((row) {
+                                        return row
+                                                .getCells()
+                                                .firstWhere(
+                                                  (cell) => cell.columnName == 'planningId',
+                                                )
+                                                .value
+                                            as int;
+                                      }).toList();
 
                                   // Lấy data của list (summary)
                                   setState(() {
-                                    selectedPaperId = planningId;
+                                    selectedPaperIds = ids;
                                   });
 
-                                  final stages = await DashboardService().getDbPlanningDetail(
-                                    planningId: planningId,
-                                  );
+                                  if (ids.length == 1) {
+                                    final int targetId = ids.first;
 
-                                  setState(() {
-                                    selectedStages = stages;
-                                  });
+                                    final stages = await DashboardService().getDbPlanningDetail(
+                                      planningId: targetId,
+                                    );
+
+                                    setState(() {
+                                      selectedStages = stages;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      selectedStages = [];
+                                    });
+                                  }
                                 },
                               ),
                             ),

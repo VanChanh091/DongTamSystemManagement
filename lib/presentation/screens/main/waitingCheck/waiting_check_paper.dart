@@ -1,15 +1,11 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_check_qc.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_paper_data_source.dart';
-import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -32,11 +28,12 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
   late Future<List<PlanningPaper>> futurePlanning;
   late WaitingCheckPaperDataSource waitingCheckPaperDS;
   late List<GridColumn> columns;
-  final userController = Get.find<UserController>();
-  final themeController = Get.find<ThemeController>();
-  final badgesController = Get.find<BadgesController>();
+
   final formatter = DateFormat('dd/MM/yyyy');
   final dataGridController = DataGridController();
+  final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
+
   Map<String, double> columnWidths = {};
   List<PlanningPaper> planningList = [];
   List<String> selectedPlanningIds = [];
@@ -96,13 +93,6 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
           selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
           planningList: planningList,
         );
-
-    final PlanningPaper? selectedPlanning =
-        selectedPlanningIds.length == 1
-            ? planningList.firstWhereOrNull(
-              (p) => p.planningId == int.parse(selectedPlanningIds.first),
-            )
-            : null;
 
     return Scaffold(
       body: Container(
@@ -171,6 +161,10 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                                                           ),
                                                 );
 
+                                                final int remainQty =
+                                                    (selectedPlanning.qtyProduced ?? 0) -
+                                                    selectedPlanning.getTotalQtyInbound;
+
                                                 showDialog(
                                                   context: context,
                                                   builder:
@@ -179,83 +173,13 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                                                         onQcSessionAddOrUpdate:
                                                             () => loadPaperWaiting(),
                                                         type: 'paper',
-                                                        valueInbound:
-                                                            selectedPlanning.qtyProduced ?? 0,
+                                                        valueInbound: remainQty,
                                                       ),
                                                 );
                                               }
                                               : null,
                                       label: "Nhập Kho",
                                       icon: Symbols.input,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //confirm Finalized Session
-                                    AnimatedButton(
-                                      onPressed:
-                                          qcCheck &&
-                                                  canFinalizePlanning(planning: selectedPlanning!)
-                                              ? () async {
-                                                try {
-                                                  final confirm = await showConfirmDialog(
-                                                    context: context,
-                                                    title: "Xác nhận hoàn thành",
-                                                    content:
-                                                        "Bạn có muốn xác nhận hoàn thành phiên kiểm tra này không?",
-                                                    confirmText: "Xác nhận",
-                                                  );
-
-                                                  if (confirm) {
-                                                    final int selectedPlanningId = int.parse(
-                                                      selectedPlanningIds.first,
-                                                    );
-
-                                                    // Tìm planning tương ứng
-                                                    final selectedPlanning = planningList
-                                                        .firstWhere(
-                                                          (p) => p.planningId == selectedPlanningId,
-                                                          orElse:
-                                                              () =>
-                                                                  throw Exception(
-                                                                    "Không tìm thấy kế hoạch",
-                                                                  ),
-                                                        );
-
-                                                    // Gửi yêu cầu xác nhận sản xuất
-                                                    await QualityControlService()
-                                                        .confirmFinalizeSession(
-                                                          planningId: selectedPlanning.planningId,
-                                                          isPaper: true,
-                                                        );
-
-                                                    if (!context.mounted) return;
-                                                    showSnackBarSuccess(
-                                                      context,
-                                                      "Xác nhận hoàn thành phiên kiểm tra thành công",
-                                                    );
-
-                                                    //cập nhật badge
-                                                    badgesController.fetchPaperWaitingCheck();
-
-                                                    loadPaperWaiting();
-                                                  }
-                                                } catch (e, s) {
-                                                  AppLogger.e(
-                                                    "Lỗi khi xác nhận SX",
-                                                    error: e,
-                                                    stackTrace: s,
-                                                  );
-                                                  if (!context.mounted) return;
-                                                  showSnackBarError(
-                                                    context,
-                                                    "Có lỗi khi hoàn thành phiên kiểm tra: $e",
-                                                  );
-                                                }
-                                              }
-                                              : null,
-                                      label: "Hoàn Thành",
-                                      icon: Symbols.done_outline,
                                       backgroundColor: themeController.buttonColor,
                                     ),
                                     const SizedBox(width: 10),

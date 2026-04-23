@@ -44,7 +44,7 @@ class BoxMachineTime {
 
   factory BoxMachineTime.fromJson(Map<String, dynamic> json) {
     return BoxMachineTime(
-      boxTimeId: json['boxTimeId'],
+      boxTimeId: json['boxTimeId'] ?? 0,
       runningPlan: json['runningPlan'] ?? 0,
       timeRunning:
           json['timeRunning'] != null && json['timeRunning'] != ''

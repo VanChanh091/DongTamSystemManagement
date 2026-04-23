@@ -299,7 +299,6 @@ class MachinePaperDatasource extends DataGridSource {
     // ===== select and row color =====
     final planningId =
         row.getCells().firstWhere((c) => c.columnName == 'planningId').value.toString();
-
     final isSelected = selectedPlanningIds.contains(planningId);
 
     final sortPlanning = getCellValue<int>(row, 'index', 0);

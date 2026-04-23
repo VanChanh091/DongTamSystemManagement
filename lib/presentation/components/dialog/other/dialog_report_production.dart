@@ -133,6 +133,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           reportedBy: 'DTSX-${employeeCodeController.trimmed}',
           reportData: reportData,
           isUpdate: widget.initialData != null ? true : false,
+          action: "EDIT_REPORT",
         );
       } else {
         if (widget.qtyPaper == null || widget.qtyPaper == 0) {
@@ -161,6 +162,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           shiftManagement: shiftManagement,
           reportedBy: 'DTSX-${employeeCodeController.trimmed}',
           isUpdate: widget.initialData != null ? true : false,
+          action: "EDIT_REPORT",
         );
       }
 

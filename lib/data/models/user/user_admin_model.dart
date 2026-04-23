@@ -54,6 +54,7 @@ class UserAdminModel {
       "MachineRollPaper": "Máy Quấn Cuồn",
       "step2Production": "Công Đoạn 2",
       'QC': "Chất Lượng",
+      "delivery": "Giao Hàng",
       "read": "Chỉ đọc",
     };
 
