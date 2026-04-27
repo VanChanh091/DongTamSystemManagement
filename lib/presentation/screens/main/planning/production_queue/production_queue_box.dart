@@ -208,7 +208,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                   setState(() {
                                     searchType = value;
                                     isTextFieldEnabled = searchType != 'Tất cả';
-                                    searchController.clear();
+                                    searchType == 'Tất cả' ? searchController.clear() : null;
                                   });
                                 },
                                 controller: searchController,

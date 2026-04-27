@@ -517,31 +517,48 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
       return;
     }
 
-    bool confirm = await showConfirmDialog(
-      context: context,
-      title: title,
-      content: content,
-      confirmText: "Xác Nhận",
-    );
+    try {
+      final bool confirm = await showConfirmDialog(
+        context: context,
+        title: title,
+        content: content,
+        confirmText: "Xác Nhận",
+      );
 
-    if (confirm) {
-      try {
+      if (confirm) {
         final success = await DeliveryService().updateStatusDelivery(
           deliveryId: deliveryId,
           itemIds: selectedItemIds,
           action: action,
         );
 
-        if (!context.mounted) return;
         if (success) {
-          showSnackBarSuccess(context, successMessage);
-          badgesController.fetchDeliveryRequest();
-          onSuccess();
+          if (context.mounted) {
+            showSnackBarSuccess(context, successMessage);
+            badgesController.fetchDeliveryRequest();
+            onSuccess();
+          }
         }
-      } catch (e) {
-        if (!context.mounted) return;
-        showSnackBarError(context, errorMessage);
       }
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+
+      switch (e.errorCode) {
+        case "ITEMS_ALREADY_CANCELLED":
+          showSnackBarError(context, e.message!);
+          break;
+        case "ITEMS_STILL_REQUESTED":
+          showSnackBarError(context, e.message!);
+          break;
+        case "ITEMS_NOT_READY_PREPARED":
+          showSnackBarError(context, e.message!);
+          break;
+        default:
+          showSnackBarError(context, "Có lỗi xảy ra khi thao tác");
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      showSnackBarError(context, errorMessage);
     }
   }
 }

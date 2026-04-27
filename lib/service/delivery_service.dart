@@ -21,6 +21,8 @@ class DeliveryService {
     required DateTime dayStart,
     required String estimateTime,
     required String all,
+    String? field,
+    String? keyword,
   }) async {
     return HelperService().fetchPaginatedData<PlanningPaper>(
       endpoint: "delivery/estimate",
@@ -30,6 +32,8 @@ class DeliveryService {
         "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
         'estimateTime': estimateTime,
         'all': all,
+        if (field != null && keyword != null) 'field': field,
+        if (field != null && keyword != null) 'keyword': keyword,
       },
       fromJson: (json) => PlanningPaper.fromJson(json),
       dataKey: 'plannings',

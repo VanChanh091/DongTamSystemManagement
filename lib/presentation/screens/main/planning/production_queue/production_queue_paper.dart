@@ -48,7 +48,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   //search
   final Map<String, String> searchFieldMap = {
     'Mã Đơn Hàng': "orderId",
-    'Tên KH': "customerName",
+    'Tên Khách Hàng': "customerName",
     'Khổ Cấp Giấy': "ghepKho",
   };
   String searchType = "Tất cả";
@@ -199,12 +199,17 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                               flex: 1,
                               child: LeftButtonSearch(
                                 selectedType: searchType,
-                                types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Khổ Cấp Giấy'],
+                                types: const [
+                                  'Tất cả',
+                                  'Mã Đơn Hàng',
+                                  'Tên Khách Hàng',
+                                  'Khổ Cấp Giấy',
+                                ],
                                 onTypeChanged: (value) {
                                   setState(() {
                                     searchType = value;
                                     isTextFieldEnabled = value != 'Tất cả';
-                                    searchController.clear();
+                                    searchType == 'Tất cả' ? searchController.clear() : null;
                                   });
                                 },
                                 controller: searchController,

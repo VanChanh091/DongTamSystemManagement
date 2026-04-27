@@ -45,8 +45,8 @@ class _PlanningStopState extends State<PlanningStop> {
   List<String> selectedPlanningIds = [];
 
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {

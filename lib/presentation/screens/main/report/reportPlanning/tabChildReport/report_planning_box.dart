@@ -30,8 +30,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   late ReportBoxDatasource reportBoxDatasource;
   late List<GridColumn> columns;
   final Map<String, String> searchFieldMap = {
-    "Theo Mã ĐH": "orderId",
-    "Tên KH": "customerName",
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
     "Ngày Báo Cáo": "dayReported",
     "QC Thùng": "QcBox",
     "Trưởng Máy": "shiftManagement",
@@ -47,8 +47,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   bool isSearching = false;
 
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -64,45 +64,35 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     });
   }
 
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String date = dateController.text.trim().toLowerCase();
+
+    final String selectedField = searchFieldMap[searchType] ?? "";
+
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = isSearching && searchType != "Tất cả";
+    String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
+
+    futureReportBox = ensureMinLoading(
+      ReportPlanningService().getReportBoxes(
+        page: currentPage,
+        pageSize: pageSize,
+        machine: machine,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? apiKeyword : null,
+      ),
+    );
+
+    selectedReportId.clear();
+  }
+
   void loadReportBox() {
-    setState(() {
-      final String selectedField = searchFieldMap[searchType] ?? "";
-
-      String keyword = searchController.text.trim().toLowerCase();
-      String date = dateController.text.trim().toLowerCase();
-
-      AppLogger.d("loadReportBox | search keyword=$keyword | date=$date");
-
-      if (isSearching && searchType != "Tất cả") {
-        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
-
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getReportBoxes(
-            field: selectedField,
-            keyword: apiKeyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else {
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getReportBoxes(
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSize,
-          ),
-        );
-      }
-    });
+    setState(() => _fetchData());
   }
 
   void searchReportBox() {
     String keyword = searchController.text.trim().toLowerCase();
-    String date = dateController.text.trim().toLowerCase();
-    AppLogger.i(
-      "searchReportBox => searchType=$searchType | keyword=$keyword | date=$date | machine=$machine",
-    );
 
     if (isTextFieldEnabled && keyword.isEmpty) {
       AppLogger.w("searchReportBox => searchType=$searchType nhưng keyword rỗng");
@@ -112,28 +102,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     setState(() {
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futureReportBox = ensureMinLoading(
-          ReportPlanningService().getReportBoxes(
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSize,
-          ),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
-
-        futureReportBox = ReportPlanningService().getReportBoxes(
-          field: selectedField,
-          keyword: apiKeyword,
-          machine: machine,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      }
+      _fetchData();
     });
   }
 
@@ -189,8 +158,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                             selectedType: searchType,
                             types: const [
                               'Tất cả',
-                              "Theo Mã ĐH",
-                              'Tên KH',
+                              "Mã Đơn Hàng",
+                              "Tên Khách Hàng",
                               "Ngày Báo Cáo",
                               "QC Thùng",
                               "Trưởng Máy",
@@ -199,7 +168,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
+                                searchType == 'Tất cả' ? searchController.clear() : null;
                               });
                             },
                             controller: searchController,

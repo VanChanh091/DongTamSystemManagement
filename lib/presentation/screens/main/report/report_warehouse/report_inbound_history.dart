@@ -26,25 +26,34 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   late Future<Map<String, dynamic>> futureReportInbound;
   late ReportInboundDataSource reportInboundDataSource;
   late List<GridColumn> columns;
+
+  //controller
   final themeController = Get.find<ThemeController>();
   final dataGridController = DataGridController();
+
+  String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    "Theo Mã ĐH": "orderId",
-    "Tên KH": "customerName",
-    "Ngày Nhập": "dateInbound",
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
+    "Ngày Nhập Kho": "dateInbound",
     "Người Kiểm": "checkedBy",
   };
-  List<int> selectedInboundId = [];
+
+  //text controller
   TextEditingController searchController = TextEditingController();
   TextEditingController dateController = TextEditingController();
-  Map<String, double> columnWidths = {};
-  String searchType = "Tất cả";
+
+  List<int> selectedInboundId = [];
+  Map<String, double> columnWidths = {}; //map header table
+
+  //flag
   bool isTextFieldEnabled = false;
   bool isSearching = false;
 
+  //paging
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -60,14 +69,31 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
     });
   }
 
-  void loadReportInbound() {
-    setState(() {
-      futureReportInbound = ensureMinLoading(
-        WarehouseService().getAllInboundHistory(page: currentPage, pageSize: pageSize),
-      );
-    });
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String date = dateController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
+
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = isSearching && searchType != "Tất cả";
+    String apiKeyword = searchType == "Ngày Nhập Kho" ? date : keyword;
+
+    futureReportInbound = ensureMinLoading(
+      shouldSearch
+          ? WarehouseService().getInboundByField(
+            field: selectedField,
+            keyword: apiKeyword,
+            page: currentPage,
+            pageSize: pageSizeSearch,
+          )
+          : WarehouseService().getAllInboundHistory(page: currentPage, pageSize: pageSize),
+    );
 
     selectedInboundId.clear();
+  }
+
+  void loadReportInbound() {
+    setState(() => _fetchData());
   }
 
   void searchReportInbound() {
@@ -84,25 +110,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
     setState(() {
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futureReportInbound = ensureMinLoading(
-          WarehouseService().getAllInboundHistory(page: currentPage, pageSize: pageSize),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
-
-        futureReportInbound = ensureMinLoading(
-          WarehouseService().getInboundByField(
-            field: selectedField,
-            keyword: apiKeyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      }
+      _fetchData();
     });
   }
 
@@ -152,16 +160,16 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                             selectedType: searchType,
                             types: const [
                               'Tất cả',
-                              "Theo Mã ĐH",
-                              'Tên KH',
-                              "Ngày Nhập",
+                              "Mã Đơn Hàng",
+                              "Tên Khách Hàng",
+                              "Ngày Nhập Kho",
                               "Người Kiểm",
                             ],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
+                                searchType == 'Tất cả' ? searchController.clear() : null;
                               });
                             },
                             controller: searchController,
@@ -169,7 +177,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                             buttonColor: themeController.buttonColor,
                             onSearch: () => searchReportInbound(),
                             customInputBuilder: (inputWidth) {
-                              if (searchType != 'Ngày Báo Cáo') return null;
+                              if (searchType != "Ngày Nhập Kho") return null;
 
                               return SizedBox(
                                 width: inputWidth,

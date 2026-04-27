@@ -32,13 +32,13 @@ class OrderService {
   //===============================ACCEPT AND PLANNING====================================
 
   //get Order Accept And Planning and search
-  Future<Map<String, dynamic>> getOrderAcceptAndPlanning({
+  Future<Map<String, dynamic>> getOrderAcceptted({
     String? field,
     String? keyword,
     bool ownOnly = false,
   }) async {
     return HelperService().fetchPaginatedData<Order>(
-      endpoint: "order/accept-planning",
+      endpoint: "order/accept",
       queryParameters: {'field': field, 'keyword': keyword, 'ownOnly': ownOnly},
       fromJson: (json) => Order.fromJson(json),
       dataKey: 'orders',

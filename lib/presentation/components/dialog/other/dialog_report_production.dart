@@ -14,7 +14,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class DialogReportProduction extends StatefulWidget {
   final int planningId;
-  final int? qtyPaper;
+  final int? qtyPaper, runningPlan;
   final bool isPaper;
   final String? machine;
   final VoidCallback onReport;
@@ -29,6 +29,7 @@ class DialogReportProduction extends StatefulWidget {
     this.isPaper = true,
     this.machine,
     this.qtyPaper,
+    this.runningPlan,
 
     this.initialData,
   });
@@ -105,21 +106,44 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       return;
     }
 
+    final int runningPlan = widget.runningPlan ?? 0;
+    final int qtyProduced = int.tryParse(qtyProducedController.trimmed) ?? 0;
+
+    final DateTime completedDate = DateTime.now();
+    final String shiftManagement = shiftManagementSelected ?? "";
+    final double qtyWasteNorm = double.tryParse(qtyWasteNormController.trimmed) ?? 0;
+
+    final Map<String, dynamic> reportData = {
+      "shiftManagement": shiftManagement,
+      "shiftProduction": shiftProduction,
+    };
+
+    if (runningPlan > 0) {
+      final double limit = runningPlan * 1.05;
+      if (qtyProduced > limit) {
+        final int excessQty = qtyProduced - runningPlan;
+
+        // Hiển thị dialog cảnh báo
+        final bool confirmExcess = await showConfirmDialog(
+          context: context,
+          title: "⚠️ Cảnh Báo Vượt Mức Số Lượng",
+          content:
+              "Số lượng nhập dư: $excessQty.\n"
+              "Bạn có chắc chắn vẫn muốn lưu kết quả này không?",
+          confirmText: "Vẫn lưu",
+          cancelText: "Hủy",
+        );
+
+        // Nếu user chọn "Hủy" hoặc đóng dialog thì dừng lại
+        if (confirmExcess != true) {
+          return;
+        }
+      }
+    }
+
     _startCountdown();
 
     try {
-      final int qtyProduced = int.tryParse(qtyProducedController.trimmed) ?? 0;
-      final double qtyWasteNorm = double.tryParse(qtyWasteNormController.trimmed) ?? 0;
-
-      final DateTime completedDate = DateTime.now();
-
-      final String shiftManagement = shiftManagementSelected ?? "";
-
-      final Map<String, dynamic> reportData = {
-        "shiftManagement": shiftManagement,
-        "shiftProduction": shiftProduction,
-      };
-
       bool success;
       if (widget.isPaper == true) {
         final text = widget.initialData != null ? 'Cập nhật' : 'Báo cáo';

@@ -26,20 +26,28 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
   late Future<Map<String, dynamic>> futureOrdersAccept;
   late OrderDataSource orderDataSource;
   late List<GridColumn> columns;
+
+  final formatter = DateFormat('dd/MM/yyyy');
+
+  //controllers
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  final formatter = DateFormat('dd/MM/yyyy');
-  final Map<String, String> searchFieldMap = {
-    "Mã Đơn": "orderId",
-    "Tên KH": "customerName",
-    "Tên SP": "productName",
-    "QC Thùng": "qcBox",
-    "Đơn giá": "price",
-  };
-  TextEditingController searchController = TextEditingController();
-  Map<String, double> columnWidths = {};
+
+  //search
   String searchType = "Tất cả";
+  final Map<String, String> searchFieldMap = {
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
+    "Tên Sản Phẩm": "productName",
+    "QC Thùng": "qcBox",
+    "Đơn Giá": "price",
+  };
+
   String? selectedOrderId;
+  Map<String, double> columnWidths = {};
+  TextEditingController searchController = TextEditingController();
+
+  //flag
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool isSeenOrder = false;
@@ -58,6 +66,24 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
     });
   }
 
+  // void _fetchData({bool ownOnly = false}) {
+  //   final String keyword = searchController.text.trim().toLowerCase();
+  //   final String selectedField = searchFieldMap[searchType] ?? "";
+
+  //   // Điều kiện để xác định có thực hiện search hay load mặc định
+  //   final bool shouldSearch = isSearching && searchType != "Tất cả";
+
+  //   futureOrdersAccept = ensureMinLoading(
+  //     OrderService().getOrderAcceptted(
+  //       field: shouldSearch ? selectedField : null,
+  //       keyword: shouldSearch ? keyword : null,
+  //       ownOnly: ownOnly,
+  //     ),
+  //   );
+
+  //   selectedOrderId = null;
+  // }
+
   void loadOrders({bool ownOnly = false}) {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
@@ -68,12 +94,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
         AppLogger.d("loadOrderAccept_Planning: isSearching=true | keyword='$keyword'");
 
         futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderAcceptAndPlanning(field: selectedField, keyword: keyword),
+          OrderService().getOrderAcceptted(field: selectedField, keyword: keyword),
         );
       } else {
-        futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderAcceptAndPlanning(ownOnly: ownOnly),
-        );
+        futureOrdersAccept = ensureMinLoading(OrderService().getOrderAcceptted(ownOnly: ownOnly));
       }
     });
 
@@ -93,14 +117,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
       isSearching = (searchType != "Tất cả");
 
       if (searchType == "Tất cả") {
-        futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderAcceptAndPlanning(ownOnly: false),
-        );
+        futureOrdersAccept = ensureMinLoading(OrderService().getOrderAcceptted(ownOnly: false));
       } else {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         futureOrdersAccept = ensureMinLoading(
-          OrderService().getOrderAcceptAndPlanning(field: selectedField, keyword: keyword),
+          OrderService().getOrderAcceptted(field: selectedField, keyword: keyword),
         );
       }
     });
@@ -151,9 +173,9 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                             selectedType: searchType,
                             types: const [
                               'Tất cả',
-                              "Mã Đơn",
-                              "Tên KH",
-                              "Tên SP",
+                              "Mã Đơn Hàng",
+                              "Tên Khách Hàng",
+                              "Tên Sản Phẩm",
                               "QC Thùng",
                               'Đơn giá',
                             ],
@@ -161,7 +183,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
+                                searchType == 'Tất cả' ? searchController.clear() : null;
                               });
                             },
                             controller: searchController,

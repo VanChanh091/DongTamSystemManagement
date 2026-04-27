@@ -30,26 +30,34 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   late ReportPaperDatasource reportPaperDatasource;
   late List<GridColumn> columns;
 
+  //controller
   final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
+
+  String machine = "Máy 1350";
+  String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    "Theo Mã ĐH": "orderId",
-    "Tên KH": "customerName",
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
     "Ngày Báo Cáo": "dayReported",
     "Trưởng Máy": "shiftManagement",
   };
-  List<int> selectedReportId = [];
+
+  //text controller
   TextEditingController searchController = TextEditingController();
   TextEditingController dateController = TextEditingController();
-  Map<String, double> columnWidths = {};
-  String searchType = "Tất cả";
-  String machine = "Máy 1350";
+
+  List<int> selectedReportId = [];
+  Map<String, double> columnWidths = {}; //map header table
+
+  //flag
   bool isTextFieldEnabled = false;
   bool isSearching = false;
 
+  //paging
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -65,48 +73,35 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     });
   }
 
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String date = dateController.text.trim().toLowerCase();
+
+    final String selectedField = searchFieldMap[searchType] ?? "";
+
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = isSearching && searchType != "Tất cả";
+    String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
+
+    futureReportPaper = ensureMinLoading(
+      ReportPlanningService().getReportPapers(
+        page: currentPage,
+        pageSize: pageSize,
+        machine: machine,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? apiKeyword : null,
+      ),
+    );
+
+    selectedReportId.clear();
+  }
+
   void loadReportPaper() {
-    setState(() {
-      final String selectedField = searchFieldMap[searchType] ?? "";
-
-      String keyword = searchController.text.trim().toLowerCase();
-      String date = dateController.text.trim().toLowerCase();
-
-      if (isSearching && searchType != "Tất cả") {
-        AppLogger.d("loadReportPaper: isSearching=true | keyword=$keyword | date=$date");
-
-        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
-
-        futureReportPaper = ensureMinLoading(
-          ReportPlanningService().getReportPapers(
-            field: selectedField,
-            keyword: apiKeyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else {
-        futureReportPaper = ensureMinLoading(
-          ReportPlanningService().getReportPapers(
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSize,
-          ),
-        );
-      }
-
-      selectedReportId.clear();
-    });
+    setState(() => _fetchData());
   }
 
   void searchReportPaper() {
     String keyword = searchController.text.trim().toLowerCase();
-    String date = dateController.text.trim().toLowerCase();
-
-    AppLogger.i(
-      "searchReportPaper => searchType=$searchType | keyword=$keyword | date=$date | machine=$machine",
-    );
 
     if (isTextFieldEnabled && keyword.isEmpty) {
       AppLogger.w("searchReportPaper => searchType=$searchType nhưng keyword rỗng");
@@ -116,30 +111,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     setState(() {
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futureReportPaper = ensureMinLoading(
-          ReportPlanningService().getReportPapers(
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSize,
-          ),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
-
-        futureReportPaper = ensureMinLoading(
-          ReportPlanningService().getReportPapers(
-            field: selectedField,
-            keyword: apiKeyword,
-            machine: machine,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      }
+      _fetchData();
     });
   }
 
@@ -198,8 +170,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                             selectedType: searchType,
                             types: const [
                               'Tất cả',
-                              "Theo Mã ĐH",
-                              'Tên KH',
+                              "Mã Đơn Hàng",
+                              "Tên Khách Hàng",
                               "Ngày Báo Cáo",
                               "Trưởng Máy",
                             ],
@@ -207,7 +179,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
+                                searchType == 'Tất cả' ? searchController.clear() : null;
                               });
                             },
                             controller: searchController,
@@ -227,7 +199,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                     DateTime? picked = await showDatePicker(
                                       context: context,
                                       initialDate: now,
-                                      firstDate: DateTime(2020),
+                                      firstDate: DateTime(2025),
                                       lastDate: DateTime(2100),
                                       builder: (BuildContext context, Widget? child) {
                                         return Theme(

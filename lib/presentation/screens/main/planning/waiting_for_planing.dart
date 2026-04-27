@@ -44,8 +44,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   TextEditingController searchController = TextEditingController();
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    "Theo Mã": "orderId",
-    "Theo Tên KH": "customerName",
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
     "Theo Quy Cách": "QC_box",
   };
   bool isTextFieldEnabled = false;
@@ -156,15 +156,15 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                     selectedType: searchType,
                                     types: const [
                                       'Tất cả',
-                                      "Theo Mã",
-                                      "Theo Tên KH",
+                                      "Mã Đơn Hàng",
+                                      "Tên Khách Hàng",
                                       "Theo Quy Cách",
                                     ],
                                     onTypeChanged: (value) {
                                       setState(() {
                                         searchType = value;
                                         isTextFieldEnabled = searchType != 'Tất cả';
-                                        searchController.clear();
+                                        searchType == 'Tất cả' ? searchController.clear() : null;
                                       });
                                     },
                                     controller: searchController,

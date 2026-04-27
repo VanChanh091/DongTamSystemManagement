@@ -81,10 +81,16 @@ class LeftButtonSearch extends StatelessWidget {
               SizedBox(
                 width: dropdownWidth,
                 child: DropdownButtonFormField<String>(
+                  isExpanded: true,
                   value: selectedType,
                   items:
                       types
-                          .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+                          .map(
+                            (value) => DropdownMenuItem(
+                              value: value,
+                              child: Text(value, overflow: TextOverflow.ellipsis, maxLines: 1),
+                            ),
+                          )
                           .toList(),
                   onChanged: (value) {
                     if (value != null) onTypeChanged(value);

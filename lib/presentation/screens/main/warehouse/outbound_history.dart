@@ -6,6 +6,7 @@ import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.d
 import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_detail.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_history.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/warehouse/outbound/ob_detail_data_source.dart';
 import 'package:dongtam/presentation/sources/warehouse/outbound/ob_history_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
@@ -19,6 +20,7 @@ import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -34,31 +36,37 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   late ObHistoryDataSource obHistoryDataSource;
   late List<GridColumn> columnsOutbound;
   late List<GridColumn> columnsObDetail;
+
+  //controller
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
-  final Map<String, String> searchFieldMap = {
-    "Theo Mã Đơn": "orderId",
-    "Ghép Khổ": "ghepKho",
-    "Theo Máy": "machine",
-    "Tên Khách Hàng": "customerName",
-    "Tên Công Ty": "companyName",
-    "Tên Nhân Viên": "username",
-  };
-  String searchType = "Tất cả";
-
-  TextEditingController searchController = TextEditingController();
+  //width column
   Map<String, double> columnWidthsOutbound = {};
   Map<String, double> columnWidthsObDetail = {};
-  bool selectedAll = false;
-  bool isTextFieldEnabled = false;
-  bool isSearching = false; //dùng để phân trang cho tìm kiếm
-  int? selectedOutboundId;
   List<OutboundDetailModel> selectedObDetail = [];
 
+  //field search
+  String searchType = "Tất cả";
+  final Map<String, String> searchFieldMap = {
+    "Tên Khách Hàng": "customerName",
+    "Ngày Xuất Kho": "dateOutbound",
+  };
+
+  //text controller
+  TextEditingController searchController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+
+  //flag
+  bool selectedAll = false;
+  bool isSearching = false; //dùng để phân trang cho tìm kiếm
+  bool isTextFieldEnabled = false;
+  int? selectedOutboundId;
+
+  //paging
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -81,32 +89,30 @@ class _OutboundHistoryState extends State<OutboundHistory> {
     });
   }
 
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String date = dateController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
+
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = isSearching && searchType != "Tất cả";
+    String apiKeyword = searchType == "Ngày Xuất Kho" ? date : keyword;
+
+    futureOutbound = ensureMinLoading(
+      WarehouseService().getOutboundHistory(
+        page: currentPage,
+        pageSize: pageSize,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? apiKeyword : null,
+      ),
+    );
+
+    selectedOutboundId = null;
+    selectedObDetail = [];
+  }
+
   void loadOutbound() {
-    setState(() {
-      // final String selectedField = searchFieldMap[searchType] ?? "";
-
-      String keyword = searchController.text.trim().toLowerCase();
-
-      if (isSearching && searchType != "Tất cả") {
-        AppLogger.i("loadOutbound: isSearching=true, keyword='$keyword'");
-
-        // futureOutbound = ensureMinLoading(
-        //   DashboardService().getDbPlanningByFields(
-        //     field: selectedField,
-        //     keyword: keyword,
-        //     page: currentPage,
-        //     pageSize: pageSizeSearch,
-        //   ),
-        // );
-      } else {
-        futureOutbound = ensureMinLoading(
-          WarehouseService().getOutboundHistory(page: currentPage, pageSize: pageSize),
-        );
-      }
-
-      selectedOutboundId = null;
-      selectedObDetail = [];
-    });
+    setState(() => _fetchData());
   }
 
   void searchOutbound() {
@@ -121,26 +127,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
     setState(() {
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futureOutbound = ensureMinLoading(
-          WarehouseService().getOutboundHistory(page: currentPage, pageSize: pageSize),
-        );
-      } else {
-        // final selectedField = searchFieldMap[searchType] ?? "";
-
-        // futureOutbound = ensureMinLoading(
-        //   DashboardService().getDbPlanningByFields(
-        //     field: selectedField,
-        //     keyword: keyword,
-        //     page: currentPage,
-        //     pageSize: pageSizeSearch,
-        //   ),
-        // );
-      }
-
-      selectedOutboundId = null;
-      selectedObDetail = [];
+      _fetchData();
     });
   }
 
@@ -182,7 +169,83 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         //left button
-                        const SizedBox(),
+                        Expanded(
+                          flex: 1,
+                          child: LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const ['Tất cả', "Tên Khách Hàng", "Ngày Xuất Kho"],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = searchType != 'Tất cả';
+                                searchType == 'Tất cả' ? searchController.clear() : null;
+                              });
+                            },
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
+                            onSearch: () => searchOutbound(),
+                            customInputBuilder: (inputWidth) {
+                              if (searchType != 'Ngày Xuất Kho') return null;
+
+                              return SizedBox(
+                                width: inputWidth,
+                                height: 50,
+                                child: InkWell(
+                                  onTap: () async {
+                                    final now = DateTime.now();
+
+                                    DateTime? picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: now,
+                                      firstDate: DateTime(2025),
+                                      lastDate: DateTime(2100),
+                                      builder: (BuildContext context, Widget? child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme: ColorScheme.light(
+                                              primary: Colors.blue,
+                                              onPrimary: Colors.white,
+                                              onSurface: Colors.black,
+                                            ),
+                                            dialogTheme: DialogThemeData(
+                                              backgroundColor: Colors.white12,
+                                            ),
+                                          ),
+                                          child: child!,
+                                        );
+                                      },
+                                    );
+
+                                    if (picked != null) {
+                                      final displayDate = DateFormat('dd/MM/yyyy').format(picked);
+
+                                      setState(() {
+                                        dateController.text =
+                                            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+
+                                        searchController.text = displayDate;
+                                      });
+                                    }
+                                  },
+                                  child: IgnorePointer(
+                                    child: TextField(
+                                      controller: searchController,
+                                      decoration: InputDecoration(
+                                        hintText: 'Chọn ngày...',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        suffixIcon: const Icon(Icons.calendar_today),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
 
                         //right button
                         Expanded(

@@ -31,20 +31,31 @@ class _ProductPageState extends State<ProductPage> {
   late Future<Map<String, dynamic>> futureProduct;
   late ProductDataSource productDataSource;
   late List<GridColumn> columns;
-  final Map<String, String> searchFieldMap = {"Theo Mã": "productId", "Theo Tên SP": "productName"};
+
+  //search
+  String searchType = "Tất cả";
+  final Map<String, String> searchFieldMap = {
+    "Mã Sản Phẩm": "productId",
+    "Tên Sản Phẩm": "productName",
+  };
+
+  //controller
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  TextEditingController searchController = TextEditingController();
+
+  String? selectedProductId;
   Map<String, double> columnWidths = {};
+  TextEditingController searchController = TextEditingController();
+
+  //flag
+  bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
-  bool isSearching = false; //dùng để phân trang cho tìm kiếm
-  String searchType = "Tất cả";
-  String? selectedProductId;
 
+  //paging
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -60,31 +71,27 @@ class _ProductPageState extends State<ProductPage> {
     });
   }
 
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
+
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = isSearching && searchType != "Tất cả";
+
+    futureProduct = ensureMinLoading(
+      ProductService().getProducts(
+        page: currentPage,
+        pageSize: pageSize,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? keyword : null,
+      ),
+    );
+
+    selectedProductId = null;
+  }
+
   void loadProduct() {
-    setState(() {
-      final String selectedField = searchFieldMap[searchType] ?? "";
-
-      String keyword = searchController.text.trim().toLowerCase();
-
-      if (isSearching && searchType != "Tất cả") {
-        AppLogger.i("loadProducts: isSearching=true, keyword='$keyword'");
-
-        futureProduct = ensureMinLoading(
-          ProductService().getProducts(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else {
-        futureProduct = ensureMinLoading(
-          ProductService().getProducts(page: currentPage, pageSize: pageSize),
-        );
-      }
-
-      selectedProductId = null;
-    });
+    setState(() => _fetchData());
   }
 
   void searchProduct() {
@@ -99,23 +106,7 @@ class _ProductPageState extends State<ProductPage> {
     setState(() {
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        AppLogger.i("searchProduct: tìm tất cả SP");
-        futureProduct = ensureMinLoading(
-          ProductService().getProducts(page: currentPage, pageSize: pageSize),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        AppLogger.i("searchProduct: tìm theo field SP");
-        futureProduct = ProductService().getProducts(
-          field: selectedField,
-          keyword: keyword,
-          page: currentPage,
-          pageSize: pageSizeSearch,
-        );
-      }
+      _fetchData();
     });
   }
 
@@ -162,12 +153,12 @@ class _ProductPageState extends State<ProductPage> {
                           flex: 1,
                           child: LeftButtonSearch(
                             selectedType: searchType,
-                            types: const ['Tất cả', "Theo Mã", "Theo Tên SP"],
+                            types: const ['Tất cả', "Mã Sản Phẩm", "Tên Sản Phẩm"],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
+                                searchType == 'Tất cả' ? searchController.clear() : null;
                               });
                             },
                             controller: searchController,

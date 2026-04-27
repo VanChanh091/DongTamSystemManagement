@@ -40,8 +40,8 @@ class _InventoryState extends State<Inventory> {
 
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    "Theo Mã Đơn": "orderId",
-    "Theo Tên KH": "customerName",
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
   };
 
   List<int> selectedInventoryId = [];
@@ -52,8 +52,8 @@ class _InventoryState extends State<Inventory> {
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -69,28 +69,27 @@ class _InventoryState extends State<Inventory> {
     });
   }
 
-  void loadInventory() {
-    setState(() {
-      final String selectedField = searchFieldMap[searchType] ?? "";
-      String keyword = searchController.text.trim().toLowerCase();
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
 
-      if (isSearching && searchType != "Tất cả") {
-        futureInventory = ensureMinLoading(
-          WarehouseService().getInventory(
-            page: currentPage,
-            pageSize: pageSizeSearch,
-            field: selectedField,
-            keyword: keyword,
-          ),
-        );
-      } else {
-        futureInventory = ensureMinLoading(
-          WarehouseService().getInventory(page: currentPage, pageSize: pageSize),
-        );
-      }
-    });
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = isSearching && searchType != "Tất cả";
+
+    futureInventory = ensureMinLoading(
+      WarehouseService().getInventory(
+        page: currentPage,
+        pageSize: pageSize,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? keyword : null,
+      ),
+    );
 
     selectedInventoryId.clear();
+  }
+
+  void loadInventory() {
+    setState(() => _fetchData());
   }
 
   void searchInventory() {
@@ -105,23 +104,7 @@ class _InventoryState extends State<Inventory> {
     setState(() {
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futureInventory = ensureMinLoading(
-          WarehouseService().getInventory(page: currentPage, pageSize: pageSize),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        futureInventory = ensureMinLoading(
-          WarehouseService().getInventory(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      }
+      _fetchData();
     });
   }
 
@@ -167,12 +150,12 @@ class _InventoryState extends State<Inventory> {
                           flex: 1,
                           child: LeftButtonSearch(
                             selectedType: searchType,
-                            types: const ['Tất cả', "Theo Mã Đơn", "Theo Tên KH"],
+                            types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng"],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = searchType != 'Tất cả';
-                                searchController.clear();
+                                searchType == 'Tất cả' ? searchController.clear() : null;
                               });
                             },
                             controller: searchController,
@@ -213,34 +196,6 @@ class _InventoryState extends State<Inventory> {
                                   },
                                   label: "Xuất Excel",
                                   icon: Symbols.export_notes,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
-                                const SizedBox(width: 10),
-
-                                //transfer qty to other order
-                                AnimatedButton(
-                                  onPressed:
-                                      selectedInventoryId.length == 1
-                                          ? () async {
-                                            final inventory = await futureInventory;
-                                            final selectedInv = inventory['inventories'].firstWhere(
-                                              (i) => i.inventoryId == selectedInventoryId.first,
-                                            );
-
-                                            if (context.mounted) {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (_) => DialogTransferQty(
-                                                      inventory: selectedInv,
-                                                      onLoad: () => loadInventory(),
-                                                    ),
-                                              );
-                                            }
-                                          }
-                                          : null,
-                                  label: "Chuyển số lượng",
-                                  icon: Symbols.input,
                                   backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 10),
@@ -287,6 +242,34 @@ class _InventoryState extends State<Inventory> {
                                     );
                                   },
                                   label: "Xuất Kho",
+                                  icon: Symbols.input,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
+                                //transfer qty to other order
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedInventoryId.length == 1
+                                          ? () async {
+                                            final inventory = await futureInventory;
+                                            final selectedInv = inventory['inventories'].firstWhere(
+                                              (i) => i.inventoryId == selectedInventoryId.first,
+                                            );
+
+                                            if (context.mounted) {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => DialogTransferQty(
+                                                      inventory: selectedInv,
+                                                      onLoad: () => loadInventory(),
+                                                    ),
+                                              );
+                                            }
+                                          }
+                                          : null,
+                                  label: "Chuyển SL",
                                   icon: Symbols.input,
                                   backgroundColor: themeController.buttonColor,
                                 ),
@@ -357,7 +340,7 @@ class _InventoryState extends State<Inventory> {
                                             );
                                           }
                                           : null,
-                                  label: "Thanh lý tồn",
+                                  label: "Thanh Lý Tồn",
                                   icon: Symbols.input,
                                   backgroundColor: const Color(0xffEA4346),
                                 ),

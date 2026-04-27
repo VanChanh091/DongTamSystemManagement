@@ -6,6 +6,7 @@ import 'package:dongtam/presentation/components/headerTable/header_table_deliver
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/delivery/delivery_estimate_data_source.dart';
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
@@ -17,6 +18,7 @@ import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,10 +39,12 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   late List<GridColumn> columnsPaper;
   late List<GridColumn> columnsStages;
 
+  //controller
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
+  //width column
   Map<String, double> columnWidthsPlanning = {};
   Map<String, double> columnWidthsStage = {};
   List<PlanningStage> selectedStages = [];
@@ -49,15 +53,30 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   List<int> selectedPaperIds = [];
   List<PlanningPaper> planningList = [];
 
+  //filter
   String allOrders = "false";
   final Map<String, String> filterOptions = {'false': 'Đơn Bản Thân', 'true': 'Tất Cả Đơn'};
 
+  //search
+  String searchType = "Tất cả";
+  final Map<String, String> searchFieldMap = {
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
+  };
+
+  //text controller
+  TextEditingController searchController = TextEditingController();
   TextEditingController dayStartController = TextEditingController();
   TextEditingController estimateTimeController = TextEditingController();
 
+  //flag
+  bool isTextFieldEnabled = false;
+  bool isSearching = false; //dùng để phân trang cho tìm kiếm
+
+  //paging
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -88,22 +107,48 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
     loadPlanningEstimate();
   }
 
-  void loadPlanningEstimate() {
+  void _fetchData() {
     final dayStart = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
 
-    setState(() {
-      futurePaper = ensureMinLoading(
-        DeliveryService().getPlanningEstimateTime(
-          page: currentPage,
-          pageSize: pageSize,
-          dayStart: dayStart,
-          estimateTime: estimateTimeController.text,
-          all: allOrders,
-        ),
-      );
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
 
-      selectedPaperIds.clear();
-      selectedStages = [];
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = isSearching && searchType != "Tất cả";
+
+    futurePaper = ensureMinLoading(
+      DeliveryService().getPlanningEstimateTime(
+        page: currentPage,
+        pageSize: pageSize,
+        dayStart: dayStart,
+        estimateTime: estimateTimeController.text,
+        all: allOrders,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? keyword : null,
+      ),
+    );
+
+    selectedPaperIds.clear();
+    selectedStages = [];
+  }
+
+  void loadPlanningEstimate() {
+    setState(() => _fetchData());
+  }
+
+  void searchPlanningEstimate() {
+    String keyword = searchController.text.trim().toLowerCase();
+    AppLogger.i("searchPlanningEstimate: searchType=$searchType, keyword='$keyword'");
+
+    if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w("searchPlanningEstimate: search bị bỏ qua vì keyword trống");
+      return;
+    }
+
+    setState(() {
+      currentPage = 1;
+      isSearching = (searchType != "Tất cả");
+      _fetchData();
     });
   }
 
@@ -117,7 +162,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
           children: [
             //title & button
             SizedBox(
-              height: 105,
+              height: 140,
               width: double.infinity,
               child: Column(
                 children: [
@@ -139,226 +184,276 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
                   //button
                   SizedBox(
-                    height: 70,
+                    height: 105,
                     width: double.infinity,
                     child: Column(
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            //left button
+                            //button
                             Expanded(
                               flex: 1,
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 12),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                child: Column(
                                   children: [
-                                    // Ngày giao
-                                    buildLabelAndUnderlineInput(
-                                      label: "Ngày dự kiến:",
-                                      controller: dayStartController,
-                                      width: 120,
-                                      readOnly: true,
-                                      onTap: () async {
-                                        final selected = await showDatePicker(
-                                          context: context,
-                                          initialDate: DateTime.now(),
-                                          firstDate: DateTime(2026),
-                                          lastDate: DateTime(2100),
-                                          builder: (BuildContext context, Widget? child) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                colorScheme: ColorScheme.light(
-                                                  primary: Colors.blue,
-                                                  onPrimary: Colors.white,
-                                                  onSurface: Colors.black,
+                                    //search & button
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 1,
+                                          child: LeftButtonSearch(
+                                            selectedType: searchType,
+                                            types: const [
+                                              'Tất cả',
+                                              'Mã Đơn Hàng',
+                                              'Tên Khách Hàng',
+                                            ],
+                                            onTypeChanged: (value) {
+                                              setState(() {
+                                                searchType = value;
+                                                isTextFieldEnabled = value != 'Tất cả';
+                                                searchType == 'Tất cả'
+                                                    ? searchController.clear()
+                                                    : null;
+                                              });
+                                            },
+                                            buttonLabel: "Lọc Đơn",
+                                            controller: searchController,
+                                            textFieldEnabled: isTextFieldEnabled,
+                                            buttonColor: themeController.buttonColor,
+                                            onSearch: () => searchPlanningEstimate(),
+                                          ),
+                                        ),
+
+                                        //right button
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 8,
+                                              horizontal: 10,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                //register delivery
+                                                AnimatedButton(
+                                                  onPressed:
+                                                      selectedPaperIds.isEmpty ||
+                                                              selectedPaperIds.length > 1
+                                                          ? null
+                                                          : () async {
+                                                            await showInputQtyDialog(
+                                                              context: context,
+                                                              title: "Đăng Ký Giao Hàng",
+                                                              onConfirm: (inputQty) async {
+                                                                try {
+                                                                  final success =
+                                                                      await DeliveryService()
+                                                                          .handlePutDelivery(
+                                                                            planningId:
+                                                                                selectedPaperIds,
+                                                                            qtyRegistered: inputQty,
+                                                                          );
+
+                                                                  if (success) {
+                                                                    if (context.mounted) {
+                                                                      showSnackBarSuccess(
+                                                                        context,
+                                                                        "Xác nhận lên kế hoạch giao hàng thành công",
+                                                                      );
+                                                                    }
+                                                                    loadPlanningEstimate();
+                                                                    return true;
+                                                                  }
+                                                                  return false;
+                                                                } catch (e) {
+                                                                  if (context.mounted) {
+                                                                    showSnackBarError(
+                                                                      context,
+                                                                      "Có lỗi khi xác nhận lên kế hoạch giao hàng",
+                                                                    );
+                                                                  }
+                                                                  return false;
+                                                                }
+                                                              },
+                                                            );
+                                                          },
+                                                  label: 'Đăng Ký Giao',
+                                                  icon: Symbols.confirmation_number,
+                                                  backgroundColor: themeController.buttonColor,
                                                 ),
-                                                dialogTheme: DialogThemeData(
-                                                  backgroundColor: Colors.white12,
+                                                const SizedBox(width: 10),
+
+                                                //close planning
+                                                AnimatedButton(
+                                                  onPressed:
+                                                      selectedPaperIds.isEmpty
+                                                          ? null
+                                                          : () async {
+                                                            final bool
+                                                            confirm = await showConfirmDialog(
+                                                              context: context,
+                                                              title: "Xác Nhận Đóng Kế Hoạch Này",
+                                                              content:
+                                                                  "Bạn có chắc chắn muốn đóng kế hoạch này?",
+                                                              confirmText: "Xác Nhận",
+                                                              confirmColor: const Color(0xffEA4346),
+                                                            );
+
+                                                            if (confirm) {
+                                                              try {
+                                                                final selectedPapers =
+                                                                    planningList
+                                                                        .where(
+                                                                          (p) => selectedPaperIds
+                                                                              .contains(
+                                                                                p.planningId,
+                                                                              ),
+                                                                        )
+                                                                        .toList();
+
+                                                                final bool isBoxType =
+                                                                    selectedPapers.any(
+                                                                      (p) => p.hasBox == true,
+                                                                    );
+
+                                                                final success =
+                                                                    await DeliveryService()
+                                                                        .handlePutDelivery(
+                                                                          planningId:
+                                                                              selectedPaperIds,
+                                                                          isPaper: !isBoxType,
+                                                                        );
+
+                                                                if (success) {
+                                                                  if (context.mounted) {
+                                                                    showSnackBarSuccess(
+                                                                      context,
+                                                                      "Đóng kế hoạch thành công",
+                                                                    );
+                                                                  }
+                                                                  loadPlanningEstimate();
+                                                                }
+                                                              } on ApiException catch (e) {
+                                                                if (!context.mounted) return;
+
+                                                                switch (e.errorCode) {
+                                                                  case "CANNOT_CLOSE_EMPTY_PAPER":
+                                                                    showSnackBarError(
+                                                                      context,
+                                                                      e.message!,
+                                                                    );
+                                                                    break;
+                                                                  case "NO_INBOUND_HISTORY":
+                                                                    showSnackBarError(
+                                                                      context,
+                                                                      e.message!,
+                                                                    );
+                                                                    break;
+                                                                  default:
+                                                                    showSnackBarError(
+                                                                      context,
+                                                                      "Có lỗi khi đóng đơn hàng",
+                                                                    );
+                                                                }
+                                                              } catch (e) {
+                                                                if (context.mounted) {
+                                                                  showSnackBarError(
+                                                                    context,
+                                                                    "Có lỗi khi đóng kế hoạch",
+                                                                  );
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                  label: "Đóng Kế Hoạch",
+                                                  icon: Icons.delete,
+                                                  backgroundColor: const Color(0xffEA4346),
                                                 ),
-                                              ),
-                                              child: child!,
-                                            );
-                                          },
-                                        );
-                                        if (selected != null) {
-                                          dayStartController.text =
-                                              "${selected.day.toString().padLeft(2, '0')}/"
-                                              "${selected.month.toString().padLeft(2, '0')}/"
-                                              "${selected.year}";
-                                        }
-                                      },
+
+                                                const SizedBox(width: 10),
+
+                                                //filter
+                                                buildDropdownItems(
+                                                  value: allOrders,
+                                                  items: const ['false', 'true'],
+                                                  onChanged:
+                                                      (value) => {
+                                                        setState(() {
+                                                          allOrders = value!;
+                                                          selectedPaperIds.clear();
+                                                          loadPlanningEstimate();
+                                                        }),
+                                                      },
+                                                  itemLabelBuilder:
+                                                      (value) => filterOptions[value] ?? value,
+                                                ),
+                                                const SizedBox(width: 10),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 32),
+                                    const SizedBox(height: 5),
 
-                                    // Giờ dự kiến
-                                    buildLabelAndUnderlineInput(
-                                      label: "Giờ dự kiến:",
-                                      controller: estimateTimeController,
-                                      width: 60,
+                                    //set day and time
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 12),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          // Ngày giao
+                                          buildLabelAndUnderlineInput(
+                                            label: "Ngày dự kiến:",
+                                            controller: dayStartController,
+                                            width: 120,
+                                            readOnly: true,
+                                            onTap: () async {
+                                              final selected = await showDatePicker(
+                                                context: context,
+                                                initialDate: DateTime.now(),
+                                                firstDate: DateTime(2026),
+                                                lastDate: DateTime(2100),
+                                                builder: (BuildContext context, Widget? child) {
+                                                  return Theme(
+                                                    data: Theme.of(context).copyWith(
+                                                      colorScheme: ColorScheme.light(
+                                                        primary: Colors.blue,
+                                                        onPrimary: Colors.white,
+                                                        onSurface: Colors.black,
+                                                      ),
+                                                      dialogTheme: DialogThemeData(
+                                                        backgroundColor: Colors.white12,
+                                                      ),
+                                                    ),
+                                                    child: child!,
+                                                  );
+                                                },
+                                              );
+                                              if (selected != null) {
+                                                dayStartController.text =
+                                                    "${selected.day.toString().padLeft(2, '0')}/"
+                                                    "${selected.month.toString().padLeft(2, '0')}/"
+                                                    "${selected.year}";
+                                              }
+                                            },
+                                          ),
+                                          const SizedBox(width: 32),
+
+                                          // Giờ dự kiến
+                                          buildLabelAndUnderlineInput(
+                                            label: "Giờ dự kiến:",
+                                            controller: estimateTimeController,
+                                            width: 60,
+                                          ),
+                                          const SizedBox(width: 32),
+                                        ],
+                                      ),
                                     ),
-                                    const SizedBox(width: 32),
-
-                                    //filter
-                                    AnimatedButton(
-                                      onPressed: () => loadPlanningEstimate(),
-                                      label: 'Lọc Đơn',
-                                      icon: Symbols.filter_alt,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            //right button
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    //register delivery
-                                    AnimatedButton(
-                                      onPressed:
-                                          selectedPaperIds.isEmpty || selectedPaperIds.length > 1
-                                              ? null
-                                              : () async {
-                                                await showInputQtyDialog(
-                                                  context: context,
-                                                  title: "Đăng Ký Giao Hàng",
-                                                  onConfirm: (inputQty) async {
-                                                    try {
-                                                      final success = await DeliveryService()
-                                                          .handlePutDelivery(
-                                                            planningId: selectedPaperIds,
-                                                            qtyRegistered: inputQty,
-                                                          );
-
-                                                      if (success) {
-                                                        if (context.mounted) {
-                                                          showSnackBarSuccess(
-                                                            context,
-                                                            "Xác nhận lên kế hoạch giao hàng thành công",
-                                                          );
-                                                        }
-                                                        loadPlanningEstimate();
-                                                        return true;
-                                                      }
-                                                      return false;
-                                                    } catch (e) {
-                                                      if (context.mounted) {
-                                                        showSnackBarError(
-                                                          context,
-                                                          "Có lỗi khi xác nhận lên kế hoạch giao hàng",
-                                                        );
-                                                      }
-                                                      return false;
-                                                    }
-                                                  },
-                                                );
-                                              },
-                                      label: 'Đăng Ký Giao',
-                                      icon: Symbols.confirmation_number,
-                                      backgroundColor: themeController.buttonColor,
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    //close planning
-                                    AnimatedButton(
-                                      onPressed:
-                                          selectedPaperIds.isEmpty
-                                              ? null
-                                              : () async {
-                                                final bool confirm = await showConfirmDialog(
-                                                  context: context,
-                                                  title: "Xác Nhận Đóng Kế Hoạch Này",
-                                                  content:
-                                                      "Bạn có chắc chắn muốn đóng kế hoạch này?",
-                                                  confirmText: "Xác Nhận",
-                                                  confirmColor: const Color(0xffEA4346),
-                                                );
-
-                                                if (confirm) {
-                                                  try {
-                                                    final selectedPapers =
-                                                        planningList
-                                                            .where(
-                                                              (p) => selectedPaperIds.contains(
-                                                                p.planningId,
-                                                              ),
-                                                            )
-                                                            .toList();
-
-                                                    final bool isBoxType = selectedPapers.any(
-                                                      (p) => p.hasBox == true,
-                                                    );
-
-                                                    final success = await DeliveryService()
-                                                        .handlePutDelivery(
-                                                          planningId: selectedPaperIds,
-                                                          isPaper: !isBoxType,
-                                                        );
-
-                                                    if (success) {
-                                                      if (context.mounted) {
-                                                        showSnackBarSuccess(
-                                                          context,
-                                                          "Đóng kế hoạch thành công",
-                                                        );
-                                                      }
-                                                      loadPlanningEstimate();
-                                                    }
-                                                  } on ApiException catch (e) {
-                                                    switch (e.errorCode) {
-                                                      case "CANNOT_CLOSE_EMPTY_PAPER":
-                                                        if (!context.mounted) return;
-                                                        showSnackBarError(context, e.message!);
-                                                        break;
-                                                      case "NO_INBOUND_HISTORY":
-                                                        if (!context.mounted) return;
-                                                        showSnackBarError(context, e.message!);
-                                                        break;
-                                                      default:
-                                                        showSnackBarError(
-                                                          context,
-                                                          "Có lỗi khi đóng đơn hàng",
-                                                        );
-                                                    }
-                                                  } catch (e) {
-                                                    if (context.mounted) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        "Có lỗi khi đóng kế hoạch",
-                                                      );
-                                                    }
-                                                  }
-                                                }
-                                              },
-                                      label: "Đóng Kế Hoạch",
-                                      icon: Icons.delete,
-                                      backgroundColor: const Color(0xffEA4346),
-                                    ),
-
-                                    const SizedBox(width: 10),
-
-                                    //filter
-                                    buildDropdownItems(
-                                      value: allOrders,
-                                      items: const ['false', 'true'],
-                                      onChanged:
-                                          (value) => {
-                                            setState(() {
-                                              allOrders = value!;
-                                              selectedPaperIds.clear();
-                                              loadPlanningEstimate();
-                                            }),
-                                          },
-                                      itemLabelBuilder: (value) => filterOptions[value] ?? value,
-                                    ),
-                                    const SizedBox(width: 10),
                                   ],
                                 ),
                               ),

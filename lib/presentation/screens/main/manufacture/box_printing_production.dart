@@ -39,8 +39,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   late InitSocketManufacture _initSocket;
   late List<GridColumn> columns;
 
+  String machine = "Máy In";
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
+
+  //controller
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -51,13 +54,12 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   List<PlanningBox> planningList = [];
 
   //search
+  String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     'Mã Đơn Hàng': "orderId",
-    'Tên KH': "customerName",
+    'Tên Khách Hàng': "customerName",
     'Quy Cách': "QcBox",
   };
-  String searchType = "Tất cả";
-  String machine = "Máy In";
 
   //flag
   bool isTextFieldEnabled = false;
@@ -96,27 +98,29 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     });
   }
 
-  void loadPlanning() {
-    setState(() {
-      final String selectedField = searchFieldMap[searchType] ?? "";
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
 
-      String keyword = searchController.text.trim().toLowerCase();
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = (searchType != "Tất cả");
 
-      if (searchType == "Tất cả") {
-        futurePlanning = ensureMinLoading(ManufactureService().getPlanningBox(machine: machine));
-      } else {
-        futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningByMachine(
+    futurePlanning = ensureMinLoading(
+      shouldSearch
+          ? PlanningService().getPlanningByMachine(
             field: selectedField,
             keyword: keyword,
             machine: machine,
             isBox: true,
-          ),
-        );
-      }
+          )
+          : ManufactureService().getPlanningBox(machine: machine),
+    );
 
-      selectedPlanningIds.clear();
-    });
+    selectedPlanningIds.clear();
+  }
+
+  void loadPlanning() {
+    setState(() => _fetchData());
   }
 
   void searchPlanning() {
@@ -128,22 +132,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
       return;
     }
 
-    setState(() {
-      if (searchType == "Tất cả") {
-        futurePlanning = ensureMinLoading(ManufactureService().getPlanningBox(machine: machine));
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningByMachine(
-            field: selectedField,
-            keyword: keyword,
-            machine: machine,
-            isBox: true,
-          ),
-        );
-      }
-    });
+    setState(() => _fetchData());
   }
 
   Future<void> changeMachine(String newMachine) async {
@@ -272,12 +261,17 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                       !permissionCheck)
                                   ? LeftButtonSearch(
                                     selectedType: searchType,
-                                    types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Quy Cách'],
+                                    types: const [
+                                      'Tất cả',
+                                      'Mã Đơn Hàng',
+                                      'Tên Khách Hàng',
+                                      'Quy Cách',
+                                    ],
                                     onTypeChanged: (value) {
                                       setState(() {
                                         searchType = value;
                                         isTextFieldEnabled = searchType != 'Tất cả';
-                                        searchController.clear();
+                                        searchType == 'Tất cả' ? searchController.clear() : null;
                                       });
                                     },
                                     controller: searchController,

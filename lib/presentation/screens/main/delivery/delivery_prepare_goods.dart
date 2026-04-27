@@ -11,7 +11,6 @@ import 'package:dongtam/presentation/sources/delivery/delivery_schedule_data_sou
 import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/socket/socket_service.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
@@ -235,6 +234,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                                   ),
                                                 )
                                                 .toList();
+
                                         initialItems =
                                             selectedItems
                                                 .map(
@@ -267,6 +267,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                   icon: Symbols.input,
                                   backgroundColor: themeController.buttonColor,
                                 ),
+
                                 const SizedBox(width: 10),
 
                                 //complete
@@ -302,19 +303,6 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                                 badgesController.fetchPrepareGoods();
 
                                                 loadDeliveryPrepareGoods();
-                                              }
-                                            } on ApiException catch (e) {
-                                              if (!context.mounted) return;
-                                              if (e.errorCode == "NOT_REQUESTED_YET") {
-                                                showSnackBarError(
-                                                  context,
-                                                  "Chỉ có thể chuẩn bị hàng cho đơn đã được 'Yêu cầu'",
-                                                );
-                                              } else {
-                                                showSnackBarError(
-                                                  context,
-                                                  e.message ?? "Chuẩn bị hàng thất bại",
-                                                );
                                               }
                                             } catch (e) {
                                               if (!context.mounted) return;

@@ -41,8 +41,8 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
   // bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {

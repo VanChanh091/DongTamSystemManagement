@@ -65,8 +65,8 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
   List<PlanningStage> selectedStages = [];
 
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -228,7 +228,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
+                                searchType == 'Tất cả' ? searchController.clear() : null;
                               });
                             },
                             controller: searchController,

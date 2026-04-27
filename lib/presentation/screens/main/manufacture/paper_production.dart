@@ -41,6 +41,8 @@ class _PaperProductionState extends State<PaperProduction> {
 
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
+
+  //controller
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -51,13 +53,12 @@ class _PaperProductionState extends State<PaperProduction> {
   List<PlanningPaper> planningList = [];
 
   //search
+  String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     'Mã Đơn Hàng': "orderId",
-    'Tên KH': "customerName",
+    'Tên Khách Hàng': "customerName",
     'Khổ Cấp Giấy': "ghepKho",
   };
-  String searchType = "Tất cả";
-  String machine = "Máy 1350";
 
   //flag
   bool isTextFieldEnabled = false;
@@ -71,7 +72,8 @@ class _PaperProductionState extends State<PaperProduction> {
     "MachineRollPaper": "Máy Quấn Cuồn",
   };
 
-  //filter by runningPlan
+  //filter by machine & runningPlan
+  String machine = "Máy 1350";
   String filterType = "all";
   final Map<String, String> filterOptions = {
     'all': 'Tất cả',
@@ -111,28 +113,28 @@ class _PaperProductionState extends State<PaperProduction> {
     });
   }
 
-  void loadPlanning() {
-    setState(() {
-      final String selectedField = searchFieldMap[searchType] ?? "";
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
 
-      String keyword = searchController.text.trim().toLowerCase();
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = (searchType != "Tất cả");
 
-      if (searchType == "Tất cả") {
-        futurePlanning = ensureMinLoading(
-          ManufactureService().getPlanningPaper(machine: machine, filterType: filterType),
-        );
-      } else {
-        futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningByMachine(
+    futurePlanning = ensureMinLoading(
+      shouldSearch
+          ? PlanningService().getPlanningByMachine(
             field: selectedField,
             keyword: keyword,
             machine: machine,
-          ),
-        );
-      }
+          )
+          : ManufactureService().getPlanningPaper(machine: machine, filterType: filterType),
+    );
 
-      selectedPlanningIds.clear();
-    });
+    selectedPlanningIds.clear();
+  }
+
+  void loadPlanning() {
+    setState(() => _fetchData());
   }
 
   void searchPlanning() {
@@ -144,23 +146,7 @@ class _PaperProductionState extends State<PaperProduction> {
       return;
     }
 
-    setState(() {
-      if (searchType == "Tất cả") {
-        futurePlanning = ensureMinLoading(
-          ManufactureService().getPlanningPaper(machine: machine, filterType: filterType),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        futurePlanning = ensureMinLoading(
-          PlanningService().getPlanningByMachine(
-            field: selectedField,
-            keyword: keyword,
-            machine: machine,
-          ),
-        );
-      }
-    });
+    setState(() => _fetchData());
   }
 
   Future<void> changeMachine(String newMachine) async {
@@ -314,14 +300,14 @@ class _PaperProductionState extends State<PaperProduction> {
                                     types: const [
                                       'Tất cả',
                                       'Mã Đơn Hàng',
-                                      'Tên KH',
+                                      'Tên Khách Hàng',
                                       'Khổ Cấp Giấy',
                                     ],
                                     onTypeChanged: (value) {
                                       setState(() {
                                         searchType = value;
                                         isTextFieldEnabled = value != 'Tất cả';
-                                        searchController.clear();
+                                        searchType == 'Tất cả' ? searchController.clear() : null;
                                       });
                                     },
                                     controller: searchController,
@@ -367,6 +353,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                                   builder:
                                                       (_) => DialogReportProduction(
                                                         planningId: selectedPlanning.planningId,
+                                                        runningPlan: selectedPlanning.runningPlan,
                                                         onReport: () => loadPlanning(),
                                                       ),
                                                 );

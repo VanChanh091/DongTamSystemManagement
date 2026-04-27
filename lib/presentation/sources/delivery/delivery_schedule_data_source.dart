@@ -41,8 +41,8 @@ class DeliveryScheduleDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "QC_box", value: order.QC_box ?? ""),
       DataGridCell<String>(columnName: "structure", value: order.formatterStructureOrder),
 
-      DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeCustomer} cm'),
-      DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperCustomer} cm'),
+      DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeManufacture} cm'),
+      DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperManufacture} cm'),
       DataGridCell<int>(columnName: "qtyRegistered", value: item.request?.qtyRegistered ?? 0),
 
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
@@ -155,15 +155,15 @@ class DeliveryScheduleDataSource extends DataGridSource {
         case "none":
           return "";
         case "planned":
-          return "Đã lập kế hoạch";
+          return "Đã Lên Kế Hoạch";
         case "requested":
-          return "Đã yêu cầu";
+          return "Đang Chờ Hàng";
         case "prepared":
-          return "Đã chuẩn bị";
+          return "Đã Xuất Hàng";
         case "cancelled":
-          return "Đã hủy";
+          return "Đã Hủy";
         case "completed":
-          return "Hoàn thành";
+          return "Hoàn Thành";
         default:
           return status;
       }

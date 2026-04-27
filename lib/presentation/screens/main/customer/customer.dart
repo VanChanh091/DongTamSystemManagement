@@ -17,6 +17,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -31,27 +32,36 @@ class _CustomerPageState extends State<CustomerPage> {
   late Future<Map<String, dynamic>> futureCustomer;
   late CustomerDatasource customerDatasource;
   late List<GridColumn> columns;
+
+  //controller
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
+  //search
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    "Theo Mã": "customerId",
-    "Theo Tên KH": "customerName",
+    "Mã Khách Hàng": "customerId",
+    "Tên Khách Hàng": "customerName",
     "Theo CSKH": "cskh",
     "Theo SDT": "phone",
+    "Ngày Tạo": "dayCreated",
   };
 
-  Map<String, double> columnWidths = {}; //map header table
   String? selectedCustomerId;
+  Map<String, double> columnWidths = {}; //map header table
 
+  //text controller
   TextEditingController searchController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+
+  //flag
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
+  //paging
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -67,28 +77,29 @@ class _CustomerPageState extends State<CustomerPage> {
     });
   }
 
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String date = dateController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
+
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = isSearching && searchType != "Tất cả";
+    String apiKeyword = searchType == "Ngày Tạo" ? date : keyword;
+
+    futureCustomer = ensureMinLoading(
+      CustomerService().getCustomers(
+        page: currentPage,
+        pageSize: pageSize,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? apiKeyword : null,
+      ),
+    );
+
+    selectedCustomerId = null;
+  }
+
   void loadCustomer() {
-    setState(() {
-      final String selectedField = searchFieldMap[searchType] ?? "";
-      String keyword = searchController.text.trim().toLowerCase();
-
-      if (isSearching && searchType != "Tất cả") {
-        futureCustomer = ensureMinLoading(
-          CustomerService().getCustomers(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else {
-        futureCustomer = ensureMinLoading(
-          CustomerService().getCustomers(page: currentPage, pageSize: pageSize),
-        );
-      }
-
-      selectedCustomerId = null;
-    });
+    setState(() => _fetchData());
   }
 
   void searchCustomer() {
@@ -103,23 +114,7 @@ class _CustomerPageState extends State<CustomerPage> {
     setState(() {
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futureCustomer = ensureMinLoading(
-          CustomerService().getCustomers(page: currentPage, pageSize: pageSize),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        futureCustomer = ensureMinLoading(
-          CustomerService().getCustomers(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      }
+      _fetchData();
     });
   }
 
@@ -169,23 +164,82 @@ class _CustomerPageState extends State<CustomerPage> {
                             selectedType: searchType,
                             types: const [
                               'Tất cả',
-                              "Theo Mã",
-                              "Theo Tên KH",
+                              "Mã Khách Hàng",
+                              "Tên Khách Hàng",
                               "Theo CSKH",
                               "Theo SDT",
+                              "Ngày Tạo",
                             ],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = searchType != 'Tất cả';
-                                searchController.clear();
+                                searchType == 'Tất cả' ? searchController.clear() : null;
                               });
                             },
                             controller: searchController,
                             textFieldEnabled: isTextFieldEnabled,
                             buttonColor: themeController.buttonColor,
-
                             onSearch: () => searchCustomer(),
+                            customInputBuilder: (inputWidth) {
+                              if (searchType != 'Ngày Tạo') return null;
+
+                              return SizedBox(
+                                width: inputWidth,
+                                height: 50,
+                                child: InkWell(
+                                  onTap: () async {
+                                    final now = DateTime.now();
+
+                                    DateTime? picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: now,
+                                      firstDate: DateTime(2025),
+                                      lastDate: DateTime(2100),
+                                      builder: (BuildContext context, Widget? child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme: ColorScheme.light(
+                                              primary: Colors.blue,
+                                              onPrimary: Colors.white,
+                                              onSurface: Colors.black,
+                                            ),
+                                            dialogTheme: DialogThemeData(
+                                              backgroundColor: Colors.white12,
+                                            ),
+                                          ),
+                                          child: child!,
+                                        );
+                                      },
+                                    );
+
+                                    if (picked != null) {
+                                      final displayDate = DateFormat('dd/MM/yyyy').format(picked);
+
+                                      setState(() {
+                                        dateController.text =
+                                            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+
+                                        searchController.text = displayDate;
+                                      });
+                                    }
+                                  },
+                                  child: IgnorePointer(
+                                    child: TextField(
+                                      controller: searchController,
+                                      decoration: InputDecoration(
+                                        hintText: 'Chọn ngày...',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        suffixIcon: const Icon(Icons.calendar_today),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
 

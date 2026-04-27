@@ -31,26 +31,33 @@ class _EmployeeState extends State<Employee> {
   late Future<Map<String, dynamic>> futureEmployee;
   late EmployeeDataSource employeeDataSource;
   late List<GridColumn> columns;
+
+  //controller
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+
+  //search
+  String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    "Theo Tên": "fullName",
+    "Tên Nhân Viên": "fullName",
     "Số Điện Thoại": "phoneNumber",
     "Mã Nhân Viên": "employeeCode",
     "Tình Trạng": "status",
   };
 
-  TextEditingController searchController = TextEditingController();
+  int? selectedEmployeeId;
   Map<String, double> columnWidths = {}; //map header table
+  TextEditingController searchController = TextEditingController();
+
+  //flag
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
-  String searchType = "Tất cả";
-  int? selectedEmployeeId;
 
+  //paging
   int currentPage = 1;
-  int pageSize = 30;
-  int pageSizeSearch = 20;
+  int pageSize = 35;
+  int pageSizeSearch = 25;
 
   @override
   void initState() {
@@ -66,31 +73,27 @@ class _EmployeeState extends State<Employee> {
     });
   }
 
+  void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
+
+    // Điều kiện để xác định có thực hiện search hay load mặc định
+    final bool shouldSearch = isSearching && searchType != "Tất cả";
+
+    futureEmployee = ensureMinLoading(
+      EmployeeService().getEmployees(
+        page: currentPage,
+        pageSize: pageSize,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? keyword : null,
+      ),
+    );
+
+    selectedEmployeeId = null;
+  }
+
   void loadEmployee() {
-    setState(() {
-      final String selectedField = searchFieldMap[searchType] ?? "";
-
-      String keyword = searchController.text.trim().toLowerCase();
-
-      if (isSearching && searchType != "Tất cả") {
-        AppLogger.i("loadEmployee: isSearching=true, keyword='$keyword'");
-
-        futureEmployee = ensureMinLoading(
-          EmployeeService().getEmployees(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      } else {
-        futureEmployee = ensureMinLoading(
-          EmployeeService().getEmployees(page: currentPage, pageSize: pageSize),
-        );
-      }
-
-      selectedEmployeeId = null;
-    });
+    setState(() => _fetchData());
   }
 
   void searchEmployee() {
@@ -105,23 +108,7 @@ class _EmployeeState extends State<Employee> {
     setState(() {
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
-
-      if (searchType == "Tất cả") {
-        futureEmployee = ensureMinLoading(
-          EmployeeService().getEmployees(page: currentPage, pageSize: pageSize),
-        );
-      } else {
-        final selectedField = searchFieldMap[searchType] ?? "";
-
-        futureEmployee = ensureMinLoading(
-          EmployeeService().getEmployees(
-            field: selectedField,
-            keyword: keyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          ),
-        );
-      }
+      _fetchData();
     });
   }
 
@@ -171,7 +158,7 @@ class _EmployeeState extends State<Employee> {
                             selectedType: searchType,
                             types: const [
                               'Tất cả',
-                              "Theo Tên",
+                              "Tên Nhân Viên",
                               "Số Điện Thoại",
                               "Mã Nhân Viên",
                               "Tình Trạng",
@@ -180,7 +167,7 @@ class _EmployeeState extends State<Employee> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
+                                searchType == 'Tất cả' ? searchController.clear() : null;
                               });
                             },
                             controller: searchController,
