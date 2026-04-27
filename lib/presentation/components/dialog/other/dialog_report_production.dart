@@ -161,6 +161,8 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         );
       } else {
         if (widget.qtyPaper == null || widget.qtyPaper == 0) {
+          if (!mounted) return;
+
           final confirm = await showConfirmDialog(
             context: context,
             title: "⚠️ Thiếu số lượng giấy tấm",
