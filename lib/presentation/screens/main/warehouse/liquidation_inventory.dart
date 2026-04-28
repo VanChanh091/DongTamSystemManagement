@@ -144,6 +144,8 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
                   liquidationDataSource = LiquidationInvDataSource(
                     liquidations: liquidations,
                     selectedLiquidationId: selectedLiquidationId,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   return Column(

@@ -8,21 +8,29 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class ObHistoryDataSource extends DataGridSource {
   List<OutboundHistoryModel> outbounds = [];
   int? selectedOutboundId;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
 
-  ObHistoryDataSource({required this.outbounds, this.selectedOutboundId}) {
+  ObHistoryDataSource({
+    required this.outbounds,
+    this.selectedOutboundId,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildDbPaperCells(OutboundHistoryModel outbound) {
+  List<DataGridCell> buildDbPaperCells(OutboundHistoryModel outbound, int index) {
     final detail =
         outbound.detail != null && outbound.detail!.isNotEmpty ? outbound.detail!.first : null;
 
     final customer = detail?.order?.customer;
 
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "outboundSlipCode", value: outbound.outboundSlipCode),
       DataGridCell<String>(
         columnName: "dateOutbound",
@@ -78,9 +86,12 @@ class ObHistoryDataSource extends DataGridSource {
   List<DataGridRow> get rows => dbPaperDataGridRows;
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     dbPaperDataGridRows =
-        outbounds.map<DataGridRow>((o) {
-          final cells = buildDbPaperCells(o);
+        outbounds.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+          final cells = buildDbPaperCells(entry.value, globalIndex);
 
           // debugPrint("Row has ${cells.length} cells");
 

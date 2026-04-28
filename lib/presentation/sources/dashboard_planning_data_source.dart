@@ -9,19 +9,28 @@ class DashboardPaperDataSource extends DataGridSource {
   List<PlanningPaper> dbPlanning = [];
   int? selectedDbPaperId;
   String page;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  DashboardPaperDataSource({required this.dbPlanning, this.selectedDbPaperId, required this.page}) {
+  DashboardPaperDataSource({
+    required this.dbPlanning,
+    this.selectedDbPaperId,
+    required this.page,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildDbPaperCells(PlanningPaper paper) {
+  List<DataGridCell> buildDbPaperCells(PlanningPaper paper, int index) {
     final order = paper.order;
 
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
 
       //customer
@@ -182,9 +191,12 @@ class DashboardPaperDataSource extends DataGridSource {
   List<DataGridRow> get rows => dbPaperDataGridRows;
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     dbPaperDataGridRows =
-        dbPlanning.map<DataGridRow>((paper) {
-          final cells = buildDbPaperCells(paper);
+        dbPlanning.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+          final cells = buildDbPaperCells(entry.value, globalIndex);
 
           // debugPrint("Row has ${cells.length} cells");
 

@@ -8,20 +8,28 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class DeliveryEstimateDataSource extends DataGridSource {
   List<PlanningPaper> delivery = [];
   List<int> selectedPaperIds = [];
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  DeliveryEstimateDataSource({required this.delivery, required this.selectedPaperIds}) {
+  DeliveryEstimateDataSource({
+    required this.delivery,
+    required this.selectedPaperIds,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildDbPaperCells(PlanningPaper paper) {
+  List<DataGridCell> buildDbPaperCells(PlanningPaper paper, int index) {
     final order = paper.order;
 
     return [
       // Order
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
       DataGridCell<String>(
         columnName: "dateShipping",
@@ -67,9 +75,12 @@ class DeliveryEstimateDataSource extends DataGridSource {
   List<DataGridRow> get rows => dbPaperDataGridRows;
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     dbPaperDataGridRows =
-        delivery.map<DataGridRow>((paper) {
-          final cells = buildDbPaperCells(paper);
+        delivery.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+          final cells = buildDbPaperCells(entry.value, globalIndex);
 
           // debugPrint("Row has ${cells.length} cells");
 

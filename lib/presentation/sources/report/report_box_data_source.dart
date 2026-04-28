@@ -9,24 +9,32 @@ class ReportBoxDatasource extends DataGridSource {
   List<ReportBoxModel> reportPapers = [];
   List<int>? selectedReportId;
   String machine;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> reportDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayReported = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  ReportBoxDatasource({required this.reportPapers, this.selectedReportId, required this.machine}) {
+  ReportBoxDatasource({
+    required this.reportPapers,
+    this.selectedReportId,
+    required this.machine,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
 
     addColumnGroup(ColumnGroup(name: 'dateTimeRp', sortGroupRows: false));
   }
 
-  List<DataGridCell> buildReportInfoCell(ReportBoxModel reportBox, String machine) {
+  List<DataGridCell> buildReportInfoCell(ReportBoxModel reportBox, String machine, int index) {
     final orderCell = reportBox.planningBox!.order;
     final planningBoxCell = reportBox.planningBox!;
     final boxMachineTime = planningBoxCell.getBoxMachineTimeByMachine(machine);
 
     return [
-      //14 items
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: orderCell!.orderId),
       DataGridCell<int>(columnName: "reportBoxId", value: reportBox.reportBoxId),
       DataGridCell<String>(columnName: "customerName", value: orderCell.customer?.customerName),
@@ -61,6 +69,8 @@ class ReportBoxDatasource extends DataGridSource {
                 ? PlanningBox.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
                 : '',
       ),
+
+      ...buildBoxCells(reportBox, machine),
     ];
   }
 
@@ -145,11 +155,12 @@ class ReportBoxDatasource extends DataGridSource {
   List<DataGridRow> get rows => reportDataGridRows;
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     reportDataGridRows =
-        reportPapers.map<DataGridRow>((report) {
-          return DataGridRow(
-            cells: [...buildReportInfoCell(report, machine), ...buildBoxCells(report, machine)],
-          );
+        reportPapers.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+          return DataGridRow(cells: buildReportInfoCell(entry.value, machine, globalIndex));
         }).toList();
 
     notifyListeners();

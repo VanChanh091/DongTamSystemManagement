@@ -9,21 +9,29 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class ReportPaperDatasource extends DataGridSource {
   List<ReportPaperModel> reportPapers = [];
   List<int> selectedReportId;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> reportDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayReported = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  ReportPaperDatasource({required this.reportPapers, required this.selectedReportId}) {
+  ReportPaperDatasource({
+    required this.reportPapers,
+    required this.selectedReportId,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: 'dateTimeRp', sortGroupRows: false));
   }
 
-  List<DataGridCell> buildReportInfoCells(ReportPaperModel reportPaper) {
+  List<DataGridCell> buildReportInfoCells(ReportPaperModel reportPaper, int index) {
     final orderCell = reportPaper.planningPaper!.order;
     final planningPaper = reportPaper.planningPaper;
 
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: orderCell!.orderId),
       DataGridCell<int>(columnName: 'reportPaperId', value: reportPaper.reportPaperId),
       DataGridCell<String>(columnName: 'customerName', value: orderCell.customer?.customerName),
@@ -71,6 +79,8 @@ class ReportPaperDatasource extends DataGridSource {
         columnName: 'totalPrice',
         value: '${Order.formatCurrency(orderCell.totalPrice ?? 0)} VND',
       ),
+
+      ...buildWasteNormCell(reportPaper),
     ];
   }
 
@@ -130,11 +140,13 @@ class ReportPaperDatasource extends DataGridSource {
   List<DataGridRow> get rows => reportDataGridRows;
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     reportDataGridRows =
-        reportPapers.map<DataGridRow>((report) {
-          return DataGridRow(
-            cells: [...buildReportInfoCells(report), ...buildWasteNormCell(report)],
-          );
+        reportPapers.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+
+          return DataGridRow(cells: buildReportInfoCells(entry.value, globalIndex));
         }).toList();
 
     notifyListeners();

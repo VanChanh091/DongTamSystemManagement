@@ -4,17 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ProductDataSource extends DataGridSource {
-  final BuildContext context;
-  late List<DataGridRow> productDataGridRows;
   List<Product> products = [];
   String? selectedProductId;
+  int currentPage;
+  int pageSize;
 
-  ProductDataSource({required this.context, required this.products, this.selectedProductId}) {
+  final BuildContext context;
+  late List<DataGridRow> productDataGridRows;
+
+  ProductDataSource({
+    required this.context,
+    required this.products,
+    this.selectedProductId,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildProductCells(Product product) {
+  List<DataGridCell> buildProductCells(Product product, int index) {
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "productId", value: product.productId),
       DataGridCell<String>(columnName: "typeProduct", value: product.typeProduct),
       DataGridCell<String>(columnName: "productName", value: product.productName ?? ""),
@@ -30,9 +40,13 @@ class ProductDataSource extends DataGridSource {
   List<DataGridRow> get rows => productDataGridRows;
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     productDataGridRows =
-        products.map<DataGridRow>((product) {
-          return DataGridRow(cells: buildProductCells(product));
+        products.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+
+          return DataGridRow(cells: buildProductCells(entry.value, globalIndex));
         }).toList();
   }
 

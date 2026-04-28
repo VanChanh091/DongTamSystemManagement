@@ -70,7 +70,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _headerOrder = [
   // Order
-  // {"key": "stt", "title": "STT"},
+  {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "productName", "title": "Tên SP"},

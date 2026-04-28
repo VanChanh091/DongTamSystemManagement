@@ -7,19 +7,27 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class ReportInboundDataSource extends DataGridSource {
   List<InboundHistoryModel> reportInbounds = [];
   List<int>? selectedInboundId;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> reportDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
 
-  ReportInboundDataSource({required this.reportInbounds, this.selectedInboundId}) {
+  ReportInboundDataSource({
+    required this.reportInbounds,
+    this.selectedInboundId,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: 'dateInbound', sortGroupRows: false));
   }
 
-  List<DataGridCell> buildReportInfoCells(InboundHistoryModel inbound) {
+  List<DataGridCell> buildReportInfoCells(InboundHistoryModel inbound, int index) {
     final orderCell = inbound.order;
 
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'dateInbound', value: formatter.format(inbound.dateInbound)),
       DataGridCell<String>(columnName: 'orderId', value: inbound.orderId),
       DataGridCell<String>(
@@ -60,9 +68,12 @@ class ReportInboundDataSource extends DataGridSource {
   List<DataGridRow> get rows => reportDataGridRows;
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     reportDataGridRows =
-        reportInbounds.map<DataGridRow>((inbound) {
-          final cells = buildReportInfoCells(inbound);
+        reportInbounds.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+          final cells = buildReportInfoCells(entry.value, globalIndex);
 
           // debugPrint("Row has ${cells.length} cells");
 

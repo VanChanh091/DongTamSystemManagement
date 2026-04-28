@@ -352,6 +352,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                   reportPaperDatasource = ReportPaperDatasource(
                     reportPapers: reportPapers,
                     selectedReportId: selectedReportId,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   reportPaperDatasource.notifyListeners();

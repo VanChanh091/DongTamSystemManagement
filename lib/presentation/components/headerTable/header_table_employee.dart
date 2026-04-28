@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerEmployee = [
+  {"key": "index", "title": "STT"},
   {"key": "employeeCode", "title": "Mã Nhân Viên"},
   {"key": "fullName", "title": "Tên Nhân Viên"},
   {"key": "joinDate", "title": "Ngày Vào Làm"},

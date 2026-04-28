@@ -8,21 +8,29 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class InventoryDataSource extends DataGridSource {
   List<InventoryModel> inventory = [];
   List<int>? selectedInventoryId;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> inventoryDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
 
-  InventoryDataSource({required this.inventory, this.selectedInventoryId}) {
+  InventoryDataSource({
+    required this.inventory,
+    this.selectedInventoryId,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
   }
 
   @override
   List<DataGridRow> get rows => inventoryDataGridRows;
 
-  List<DataGridCell> buildInventoryCells(InventoryModel inventory) {
+  List<DataGridCell> buildInventoryCells(InventoryModel inventory, int index) {
     final order = inventory.order;
 
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: inventory.orderId),
       DataGridCell<String>(
         columnName: 'productName',
@@ -80,9 +88,12 @@ class InventoryDataSource extends DataGridSource {
   }
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     inventoryDataGridRows =
-        inventory.map<DataGridRow>((inventory) {
-          final cells = buildInventoryCells(inventory);
+        inventory.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+          final cells = buildInventoryCells(entry.value, globalIndex);
 
           // debugPrint("Row has ${cells.length} cells");
 

@@ -419,6 +419,8 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                   obHistoryDataSource = ObHistoryDataSource(
                     outbounds: outbounds,
                     selectedOutboundId: selectedOutboundId,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   return Column(

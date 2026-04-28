@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _reportPaperColumns = [
+  {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "reportPaperId", "title": "", "visible": false},
   {"key": "customerName", "title": "Tên Khách Hàng"},

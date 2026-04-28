@@ -391,6 +391,8 @@ class _InventoryState extends State<Inventory> {
                   inventoryDataSource = InventoryDataSource(
                     inventory: inventory,
                     selectedInventoryId: selectedInventoryId,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   return Column(

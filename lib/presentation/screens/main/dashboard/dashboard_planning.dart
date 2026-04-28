@@ -344,6 +344,8 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                     dbPlanning: dbPlanning,
                     selectedDbPaperId: selectedDbPaperId,
                     page: "dashboard",
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   return Column(

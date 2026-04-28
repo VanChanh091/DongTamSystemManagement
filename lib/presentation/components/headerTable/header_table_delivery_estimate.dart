@@ -5,6 +5,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerDeliveryEstimate = [
   // Order
+  {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
 

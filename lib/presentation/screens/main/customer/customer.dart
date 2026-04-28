@@ -413,6 +413,8 @@ class _CustomerPageState extends State<CustomerPage> {
                   customerDatasource = CustomerDatasource(
                     customer: customers,
                     selectedCustomerId: selectedCustomerId,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   return Column(
@@ -424,20 +426,6 @@ class _CustomerPageState extends State<CustomerPage> {
                           isScrollbarAlwaysShown: true,
                           columnWidthMode: ColumnWidthMode.auto,
                           selectionMode: SelectionMode.single,
-                          // allowColumnsDragging: true,
-                          // onColumnDragging: (DataGridColumnDragDetails details) {
-                          //   if (details.action == DataGridColumnDragAction.dropping &&
-                          //       details.to != null) {
-                          //     setState(() {
-                          //       final GridColumn dragColumn = columns[details.from];
-                          //       columns[details.from] = columns[details.to!];
-                          //       columns[details.to!] = dragColumn;
-
-                          //       customerDatasource.buildDataGridRows();
-                          //     });
-                          //   }
-                          //   return true;
-                          // },
                           headerRowHeight: 45,
                           rowHeight: 40,
                           columns: ColumnWidthTable.applySavedWidths(

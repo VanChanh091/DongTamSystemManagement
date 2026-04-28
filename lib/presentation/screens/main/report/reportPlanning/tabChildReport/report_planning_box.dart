@@ -29,6 +29,13 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   late Future<Map<String, dynamic>> futureReportBox;
   late ReportBoxDatasource reportBoxDatasource;
   late List<GridColumn> columns;
+
+  //controller
+  final dataGridController = DataGridController();
+  final themeController = Get.find<ThemeController>();
+
+  //search
+  String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Mã Đơn Hàng": "orderId",
     "Tên Khách Hàng": "customerName",
@@ -36,16 +43,21 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     "QC Thùng": "QcBox",
     "Trưởng Máy": "shiftManagement",
   };
-  final themeController = Get.find<ThemeController>();
+
+  String machine = "Máy In";
+
+  //text controller
   TextEditingController searchController = TextEditingController();
   TextEditingController dateController = TextEditingController();
-  Map<String, double> columnWidths = {};
-  String searchType = "Tất cả";
-  String machine = "Máy In";
+
   List<int> selectedReportId = [];
+  Map<String, double> columnWidths = {}; //map header table
+
+  //flag
   bool isTextFieldEnabled = false;
   bool isSearching = false;
 
+  //paging
   int currentPage = 1;
   int pageSize = 35;
   int pageSizeSearch = 25;
@@ -350,6 +362,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                     reportPapers: reportBoxes,
                     selectedReportId: selectedReportId,
                     machine: machine,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   return Column(
@@ -357,6 +371,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                       //table
                       Expanded(
                         child: SfDataGrid(
+                          controller: dataGridController,
                           source: reportBoxDatasource,
                           isScrollbarAlwaysShown: true,
                           allowExpandCollapseGroup: true, // Bật grouping
@@ -414,19 +429,27 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                               ),
 
                           onSelectionChanged: (addedRows, removedRows) {
+                            if (addedRows.isEmpty && removedRows.isEmpty) return;
+
                             setState(() {
-                              for (var row in addedRows) {
-                                final reportPaperId =
-                                    row
-                                        .getCells()
-                                        .firstWhere((cell) => cell.columnName == 'reportBoxId')
-                                        .value;
-                                if (selectedReportId.contains(reportPaperId)) {
-                                  selectedReportId.remove(reportPaperId);
-                                } else {
-                                  selectedReportId.add(reportPaperId);
-                                }
-                              }
+                              // Lấy selection thật sự từ controller
+                              final selectedRows = dataGridController.selectedRows;
+
+                              selectedReportId =
+                                  selectedRows
+                                      .map((row) {
+                                        final cell = row.getCells().firstWhere(
+                                          (c) => c.columnName == 'reportBoxId',
+                                          orElse:
+                                              () => const DataGridCell(
+                                                columnName: 'reportBoxId',
+                                                value: '',
+                                              ),
+                                        );
+                                        return int.tryParse(cell.value.toString()) ?? 0;
+                                      })
+                                      .where((id) => id != 0)
+                                      .toList();
 
                               reportBoxDatasource.selectedReportId = selectedReportId;
                               reportBoxDatasource.notifyListeners();

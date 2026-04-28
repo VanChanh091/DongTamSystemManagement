@@ -1,22 +1,25 @@
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:intl/intl.dart';
 
 class PlanningDataSource extends DataGridSource {
+  List<Order> orders;
+  String? selectedOrderId;
+  bool selectedAll = false;
+
   late List<DataGridRow> orderDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
-  List<Order> orders;
-  bool selectedAll = false;
-  String? selectedOrderId;
 
   PlanningDataSource({required this.orders, this.selectedOrderId}) {
     buildDataCell();
   }
 
-  List<DataGridCell> buildOrderCells(Order order) {
+  List<DataGridCell> buildOrderCells(Order order, int index) {
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
       DataGridCell<String>(
         columnName: 'dayReceiveOrder',
@@ -89,7 +92,10 @@ class PlanningDataSource extends DataGridSource {
 
   void buildDataCell() {
     orderDataGridRows =
-        orders.map<DataGridRow>((order) => DataGridRow(cells: buildOrderCells(order))).toList();
+        orders.asMap().entries.map<DataGridRow>((entry) {
+          int index = entry.key;
+          return DataGridRow(cells: buildOrderCells(entry.value, index));
+        }).toList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
@@ -98,7 +104,7 @@ class PlanningDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final orderId = row.getCells()[0].value.toString();
+    final orderId = getCellValue<String>(row, 'orderId', '');
 
     Color backgroundColor = Colors.transparent;
     if (selectedOrderId == orderId) {

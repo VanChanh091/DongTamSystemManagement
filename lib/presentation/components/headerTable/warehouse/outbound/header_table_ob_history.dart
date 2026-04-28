@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerOutboundHistory = [
+  {"key": "index", "title": "STT"},
   {"key": "outboundSlipCode", "title": "Mã Số PXK"},
   {"key": "dateOutbound", "title": "Ngày Xuất Kho"},
   {"key": "customerName", "title": "Tên Khách Hàng"},

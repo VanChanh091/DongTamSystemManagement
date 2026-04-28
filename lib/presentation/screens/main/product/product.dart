@@ -340,6 +340,8 @@ class _ProductPageState extends State<ProductPage> {
                     context: context,
                     products: products,
                     selectedProductId: selectedProductId,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
                   return Column(
                     children: [

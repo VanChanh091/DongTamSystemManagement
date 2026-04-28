@@ -308,6 +308,8 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                   reportInboundDataSource = ReportInboundDataSource(
                     reportInbounds: reportInbounds,
                     selectedInboundId: selectedInboundId,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   return Column(

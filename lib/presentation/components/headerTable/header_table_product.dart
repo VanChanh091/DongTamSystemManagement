@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerProduct = [
+  {"key": "index", "title": "STT"},
   {"key": "productId", "title": "Mã Sản Phẩm"},
   {"key": "typeProduct", "title": "Loại Sản Phẩm"},
   {"key": "productName", "title": "Tên Sản Phẩm"},

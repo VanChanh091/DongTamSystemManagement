@@ -502,6 +502,8 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                   deliveryDataSource = DeliveryEstimateDataSource(
                     delivery: dbPlanning,
                     selectedPaperIds: selectedPaperIds,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   return Column(

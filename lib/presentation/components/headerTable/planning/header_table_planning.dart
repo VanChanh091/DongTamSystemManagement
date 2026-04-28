@@ -5,6 +5,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _planningColumns = [
   // order
+  {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "dayReceiveOrder", "title": "Ngày Nhận Đơn"},
   {"key": "dateRequestShipping", "title": "Ngày Dự Kiến"},

@@ -7,18 +7,26 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class EmployeeDataSource extends DataGridSource {
   List<EmployeeBasicInfo> employee = [];
   int? selectedEmployeeId;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> employeeDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
 
-  EmployeeDataSource({required this.employee, this.selectedEmployeeId}) {
+  EmployeeDataSource({
+    required this.employee,
+    this.selectedEmployeeId,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildEmployeeCells(EmployeeBasicInfo employee) {
+  List<DataGridCell> buildEmployeeCells(EmployeeBasicInfo employee, int index) {
     final companyInfo = employee.companyInfo;
 
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "employeeCode", value: companyInfo?.employeeCode ?? ""),
       DataGridCell<String>(columnName: "fullName", value: employee.fullName),
       DataGridCell<String>(
@@ -64,9 +72,13 @@ class EmployeeDataSource extends DataGridSource {
   List<DataGridRow> get rows => employeeDataGridRows;
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     employeeDataGridRows =
-        employee.map<DataGridRow>((e) {
-          return DataGridRow(cells: buildEmployeeCells(e));
+        employee.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+
+          return DataGridRow(cells: buildEmployeeCells(entry.value, globalIndex));
         }).toList();
   }
 

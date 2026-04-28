@@ -8,18 +8,26 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class CustomerDatasource extends DataGridSource {
   List<Customer> customer = [];
   String? selectedCustomerId;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> customerDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
 
-  CustomerDatasource({required this.customer, this.selectedCustomerId}) {
+  CustomerDatasource({
+    required this.customer,
+    required this.currentPage,
+    required this.pageSize,
+    this.selectedCustomerId,
+  }) {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildCustomerCells(Customer customer) {
+  List<DataGridCell> buildCustomerCells(Customer customer, int index) {
     final payment = customer.payment;
 
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "customerId", value: customer.customerId),
       DataGridCell<String>(columnName: "maSoThue", value: customer.mst),
       DataGridCell<String>(columnName: "customerName", value: customer.customerName),
@@ -76,9 +84,13 @@ class CustomerDatasource extends DataGridSource {
   List<DataGridRow> get rows => customerDataGridRows;
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     customerDataGridRows =
-        customer.map<DataGridRow>((customer) {
-          return DataGridRow(cells: buildCustomerCells(customer));
+        customer.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+
+          return DataGridRow(cells: buildCustomerCells(entry.value, globalIndex));
         }).toList();
   }
 

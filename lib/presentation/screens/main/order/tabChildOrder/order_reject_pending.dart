@@ -301,13 +301,17 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     onSelectionChanged: (addedRows, removedRows) {
                       if (addedRows.isNotEmpty) {
                         final selectedRow = addedRows.first;
-                        final orderId = selectedRow.getCells()[0].value.toString();
+                        final orderId =
+                            selectedRow
+                                .getCells()
+                                .firstWhere((cell) => cell.columnName == 'orderId')
+                                .value
+                                .toString();
 
                         final selectedOrder = data.firstWhere((order) => order.orderId == orderId);
 
                         setState(() {
                           selectedOrderId = selectedOrder.orderId;
-                          // print("Selected Order ID: $selectedOrderId");
                         });
                       } else {
                         setState(() {

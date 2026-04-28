@@ -350,6 +350,8 @@ class _EmployeeState extends State<Employee> {
                   employeeDataSource = EmployeeDataSource(
                     employee: employees,
                     selectedEmployeeId: selectedEmployeeId,
+                    currentPage: currentPage,
+                    pageSize: pageSize,
                   );
 
                   return Column(

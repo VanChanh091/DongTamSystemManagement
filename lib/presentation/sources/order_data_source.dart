@@ -21,8 +21,9 @@ class OrderDataSource extends DataGridSource {
     buildDataCell();
   }
 
-  List<DataGridCell> buildOrderCells(Order order) {
+  List<DataGridCell> buildOrderCells(Order order, int index) {
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
       DataGridCell<String>(columnName: 'customerName', value: order.customer?.customerName ?? ''),
       DataGridCell<String>(columnName: 'productName', value: order.product?.productName ?? ''),
@@ -111,7 +112,10 @@ class OrderDataSource extends DataGridSource {
 
   void buildDataCell() {
     orderDataGridRows =
-        orders.map<DataGridRow>((order) => DataGridRow(cells: buildOrderCells(order))).toList();
+        orders.asMap().entries.map<DataGridRow>((entry) {
+          int index = entry.key;
+          return DataGridRow(cells: buildOrderCells(entry.value, index));
+        }).toList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
@@ -120,7 +124,7 @@ class OrderDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final orderId = row.getCells()[0].value.toString();
+    final orderId = getCellValue<String>(row, 'orderId', '');
 
     //get value cell
     final statusCell = getCellValue<String>(row, 'status', "");

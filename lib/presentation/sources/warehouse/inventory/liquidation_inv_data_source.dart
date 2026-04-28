@@ -6,10 +6,17 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class LiquidationInvDataSource extends DataGridSource {
   List<LiquidationInventoryModel> liquidations = [];
   List<int>? selectedLiquidationId;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> liquidationDataGridRows;
 
-  LiquidationInvDataSource({required this.liquidations, this.selectedLiquidationId}) {
+  LiquidationInvDataSource({
+    required this.liquidations,
+    this.selectedLiquidationId,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataGridRows();
   }
 
@@ -29,10 +36,11 @@ class LiquidationInvDataSource extends DataGridSource {
     return "Chờ xử lý";
   }
 
-  List<DataGridCell> buildLiquidationInvCells(LiquidationInventoryModel liquidation) {
+  List<DataGridCell> buildLiquidationInvCells(LiquidationInventoryModel liquidation, int index) {
     final order = liquidation.order;
 
     return [
+      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: liquidation.orderId),
       DataGridCell<String>(columnName: 'customerName', value: order?.customer?.customerName ?? ""),
       DataGridCell<String>(columnName: 'productName', value: order?.product?.productName ?? ""),
@@ -66,9 +74,12 @@ class LiquidationInvDataSource extends DataGridSource {
   }
 
   void buildDataGridRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
     liquidationDataGridRows =
-        liquidations.map<DataGridRow>((liquidation) {
-          final cells = buildLiquidationInvCells(liquidation);
+        liquidations.asMap().entries.map<DataGridRow>((entry) {
+          int globalIndex = offset + entry.key;
+          final cells = buildLiquidationInvCells(entry.value, globalIndex);
 
           // debugPrint("Row has ${cells.length} cells");
 
