@@ -45,10 +45,12 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   final customerNameController = TextEditingController();
   final saleNameController = TextEditingController();
 
-  final lengthController = TextEditingController();
-  final sizeController = TextEditingController();
-  final fluteController = TextEditingController();
+  final lengthManuController = TextEditingController();
+  final sizeManuController = TextEditingController();
+  final lengthCustController = TextEditingController();
+  final sizeCustController = TextEditingController();
 
+  final fluteController = TextEditingController();
   final qcBoxController = TextEditingController();
   final typeProductController = TextEditingController();
   final productNameController = TextEditingController();
@@ -59,6 +61,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
   //other fields
   final remainingQtyController = TextEditingController();
+  final totalOutboundController = TextEditingController();
   final qtyOutboundController = TextEditingController();
 
   @override
@@ -99,8 +102,10 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   void clearController() {
     orderIdController.clear();
     customerNameController.clear();
-    lengthController.clear();
-    sizeController.clear();
+    lengthManuController.clear();
+    sizeManuController.clear();
+    lengthCustController.clear();
+    sizeCustController.clear();
     saleNameController.clear();
     typeProductController.clear();
     productNameController.clear();
@@ -111,6 +116,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     pricePaperController.clear();
     qtyOutboundController.clear();
     remainingQtyController.clear();
+    totalOutboundController.clear();
   }
 
   void addToTempTable() {
@@ -140,8 +146,10 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       typeProduct: typeProductController.text,
       productName: productNameController.text,
       customerName: customerNameController.text,
-      length: double.tryParse(lengthController.text) ?? 0,
-      size: double.tryParse(sizeController.text) ?? 0,
+      lengthManufacture: double.tryParse(lengthManuController.text) ?? 0,
+      sizeManufacture: double.tryParse(sizeManuController.text) ?? 0,
+      lengthCustomer: double.tryParse(lengthCustController.text) ?? 0,
+      sizeCustomer: double.tryParse(sizeCustController.text) ?? 0,
       saleName: saleNameController.text,
       flute: fluteController.text,
       QC_box: qcBoxController.text,
@@ -167,8 +175,10 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   void fillFormFromTempItem(OutboundTempItem temp) {
     orderIdController.text = temp.orderId;
     customerNameController.text = temp.customerName;
-    lengthController.text = temp.length?.toString() ?? "";
-    sizeController.text = temp.size?.toString() ?? "";
+    lengthManuController.text = temp.lengthManufacture?.toString() ?? "";
+    sizeManuController.text = temp.sizeManufacture?.toString() ?? "";
+    lengthCustController.text = temp.lengthCustomer?.toString() ?? "";
+    sizeCustController.text = temp.sizeCustomer?.toString() ?? "";
     saleNameController.text = temp.saleName;
     typeProductController.text = temp.typeProduct;
     productNameController.text = temp.productName;
@@ -178,7 +188,9 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     quantityCustomerController.text = temp.quantityCustomer.toString();
     pricePaperController.text = temp.pricePaper.toString();
     qtyOutboundController.text = temp.qtyOutbound.toString();
+
     remainingQtyController.text = temp.qtyInventory?.toString() ?? "0";
+    totalOutboundController.text = temp.totalOutbound?.toString() ?? "0";
   }
 
   void submit() async {
@@ -249,19 +261,24 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
   @override
   void dispose() {
+    super.dispose();
     orderIdController.dispose();
     productNameController.dispose();
     typeProductController.dispose();
     customerNameController.dispose();
-    lengthController.dispose();
-    sizeController.dispose();
+    lengthManuController.dispose();
+    sizeManuController.dispose();
+    lengthCustController.dispose();
+    sizeCustController.dispose();
     qcBoxController.dispose();
     quantityCustomerController.dispose();
     pricePaperController.dispose();
     dvtController.dispose();
     saleNameController.dispose();
     fluteController.dispose();
-    super.dispose();
+    qtyOutboundController.dispose();
+    remainingQtyController.dispose();
+    totalOutboundController.dispose();
   }
 
   @override
@@ -274,15 +291,32 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         "leftValue": AutoCompleteField<Order>(
           controller: orderIdController,
           labelText: "Mã Đơn Hàng",
-          icon: Symbols.box,
+          icon: Symbols.orders,
           suggestionsCallback: (pattern) async {
             if (pattern.trim().length < 2) return [];
             return await WarehouseService().searchOrderIds(orderId: pattern);
           },
           displayStringForItem: (order) => order.orderId,
           itemBuilder: (context, order) {
+            String formatNumber(double value) {
+              String result;
+
+              // Nếu là số nguyên (ví dụ 123.0) thì chuyển về "123"
+              if (value == value.toInt()) {
+                result = value.toInt().toString();
+              } else {
+                // Nếu là số thập phân (46.5, 46.25) thì xóa dấu chấm
+                result = value.toString().replaceAll('.', '');
+              }
+
+              // Luôn bù số 0 cho đủ 4 ký tự
+              return result.padLeft(4, '0');
+            }
+
             return ListTile(
-              title: Text(order.orderId),
+              title: Text(
+                '${order.orderId} - ${formatNumber(order.lengthPaperManufacture)}x${formatNumber(order.paperSizeManufacture)}',
+              ),
               subtitle: Text(order.customer?.customerName ?? ""),
             );
           },
@@ -296,8 +330,12 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             if (selectedOrder == null) return;
 
             customerNameController.text = selectedOrder.customer?.customerName ?? "";
-            lengthController.text = selectedOrder.lengthPaperManufacture.toString();
-            sizeController.text = selectedOrder.paperSizeManufacture.toString();
+
+            lengthManuController.text = selectedOrder.lengthPaperManufacture.toString();
+            sizeManuController.text = selectedOrder.paperSizeManufacture.toString();
+            lengthCustController.text = selectedOrder.lengthPaperCustomer.toString();
+            sizeCustController.text = selectedOrder.paperSizeCustomer.toString();
+
             saleNameController.text = selectedOrder.user?.fullName ?? "";
             typeProductController.text = selectedOrder.product?.typeProduct ?? "";
             productNameController.text = selectedOrder.product?.productName ?? "";
@@ -308,6 +346,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             pricePaperController.text = selectedOrder.pricePaper?.toStringAsFixed(1) ?? "";
 
             remainingQtyController.text = selectedOrder.remainingQty.toString();
+            totalOutboundController.text = selectedOrder.totalOutbound.toString();
           },
 
           onChanged: (value) {
@@ -331,7 +370,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         "rightValue": ValidationOrder.validateInput(
           label: "NV Bán Hàng",
           controller: saleNameController,
-          icon: Symbols.orders,
+          icon: Symbols.person,
           readOnly: true,
         ),
       },
@@ -387,18 +426,18 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       },
 
       {
-        "leftKey": "Dài (SX)",
+        "leftKey": "Dài (KH)",
         "leftValue": ValidationOrder.validateInput(
-          label: "Dài (SX)",
-          controller: lengthController,
+          label: "Dài (KH)",
+          controller: lengthCustController,
           icon: Symbols.business,
           readOnly: true,
         ),
 
-        "middleKey": "Khổ (SX)",
+        "middleKey": "Khổ (KH)",
         "middleValue": ValidationOrder.validateInput(
-          label: "Khổ (SX)",
-          controller: sizeController,
+          label: "Khổ (KH)",
+          controller: sizeCustController,
           icon: Symbols.price_change,
           readOnly: true,
         ),
@@ -410,6 +449,27 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           icon: Symbols.waves,
           readOnly: true,
         ),
+      },
+
+      {
+        "leftKey": "Dài (SX)",
+        "leftValue": ValidationOrder.validateInput(
+          label: "Dài (SX)",
+          controller: lengthManuController,
+          icon: Symbols.business,
+          readOnly: true,
+        ),
+
+        "middleKey": "Khổ (SX)",
+        "middleValue": ValidationOrder.validateInput(
+          label: "Khổ (SX)",
+          controller: sizeManuController,
+          icon: Symbols.price_change,
+          readOnly: true,
+        ),
+
+        "rightKey": "",
+        "rightValue": const SizedBox(),
       },
     ];
 
@@ -451,13 +511,51 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          //qty outbound
+                          SizedBox(
+                            width: 260,
+                            child: Row(
+                              children: [
+                                Text(
+                                  "SL đã xuất:",
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: totalOutboundController,
+                                    readOnly: true,
+                                    decoration: InputDecoration(
+                                      hintText: "0",
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 15,
+                                        vertical: 10,
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      fillColor: Colors.grey.shade300,
+                                      filled: true,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+
                           //qty remain
                           SizedBox(
                             width: 260,
                             child: Row(
                               children: [
                                 Text(
-                                  "Số lượng còn lại:",
+                                  "Số lượng tồn:",
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
@@ -501,6 +599,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                     fontSize: 16,
                                   ),
                                 ),
+
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: TextFormField(

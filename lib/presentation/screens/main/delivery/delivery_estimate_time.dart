@@ -10,7 +10,7 @@ import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/delivery/delivery_estimate_data_source.dart';
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
-import 'package:dongtam/service/dashboard_service.dart';
+import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -589,9 +589,8 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                   if (ids.length == 1) {
                                     final int targetId = ids.first;
 
-                                    final stages = await DashboardService().getDbPlanningDetail(
-                                      planningId: targetId,
-                                    );
+                                    final stages = await SyntheticService()
+                                        .getSyntheticPlanningDetail(planningId: targetId);
 
                                     setState(() {
                                       selectedStages = stages;

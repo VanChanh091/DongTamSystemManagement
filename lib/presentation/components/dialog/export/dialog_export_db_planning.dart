@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dongtam/service/dashboard_service.dart';
+import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
@@ -55,7 +55,7 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
 
   void submit() async {
     try {
-      File? file = await DashboardService().exportExcelDbPlanning(
+      File? file = await SyntheticService().exportExcelSyntheticPlanning(
         username: selectedOption.value == 'username' ? usernameController.text : "",
         dayStart: selectedOption.value == 'dayStart' ? selectedDayStart : null,
         machine: selectedOption.value == 'machine' ? machine : null,

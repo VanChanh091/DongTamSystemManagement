@@ -47,6 +47,7 @@ class OrderDataSource extends DataGridSource {
         columnName: 'quantityCustomer',
         value: Order.formatCurrency(order.quantityCustomer),
       ),
+      DataGridCell<String>(columnName: 'vat', value: order.vat! > 0 ? "${order.vat}%" : "0"),
       DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
 
       ...userController.hasAnyRole(roles: ['admin', 'manager'])
@@ -89,18 +90,7 @@ class OrderDataSource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = [
-      'chongTham',
-      'canLanBox',
-      'canMang',
-      'xa',
-      'catKhe',
-      'be',
-      'dan_1_Manh',
-      'dan_2_Manh',
-      'dongGhimMotManh',
-      'dongGhimHaiManh',
-    ];
+    const boolColumns = ['chongTham', 'isBox'];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';

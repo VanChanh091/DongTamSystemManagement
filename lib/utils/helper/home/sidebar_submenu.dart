@@ -17,6 +17,8 @@ import 'package:dongtam/presentation/screens/main/planning/production_queue/prod
 import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart';
 import 'package:dongtam/presentation/screens/main/report/report_warehouse/report_inbound_history.dart';
+import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart';
+import 'package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/inventory.dart';
@@ -227,6 +229,30 @@ Widget buildReportMenu({
         icon: Icons.production_quantity_limits_outlined,
         label: "Lịch Sử Nhập Kho",
         pageType: ReportInboundHistory,
+      ),
+    ],
+  );
+}
+
+Widget buildSyntheticMenu({
+  required bool isSidebarOpen,
+  required bool isExpanded,
+  required VoidCallback onToggle,
+  required List<Widget> pages,
+}) {
+  return buildExpandedMenuHelper(
+    isSidebarOpen: isSidebarOpen,
+    title: "Tổng Hợp",
+    icon: Symbols.analytics,
+    isExpanded: isExpanded,
+    onToggle: onToggle,
+    pages: pages,
+    configs: [
+      SubMenuConfig(icon: Symbols.orders, label: "Tổng Hợp Đơn Hàng", pageType: SyntheticOrder),
+      SubMenuConfig(
+        icon: Symbols.dual_screen,
+        label: "Tổng Hợp Sản Xuất",
+        pageType: SyntheticPlanning,
       ),
     ],
   );

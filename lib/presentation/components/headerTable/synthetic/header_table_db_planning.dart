@@ -8,12 +8,8 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
 
-  // Customer
+  // Customer & Product
   {"key": "customerName", "title": "Tên Khách Hàng"},
-  {"key": "companyName", "title": "Tên Công Ty"},
-
-  // Product
-  {"key": "typeProduct", "title": "Loại SP"},
   {"key": "productName", "title": "Tên SP"},
 
   //structure
@@ -21,7 +17,6 @@ const List<Map<String, dynamic>> _headerDbPaper = [
 
   //day
   {"key": "dayReceive", "title": "Nhận Đơn"},
-  {"key": "dateShipping", "title": "Dự Kiến"},
   {"key": "dayStartProduction", "title": "Sản Xuất"},
   {"key": "dayCompletedProd", "title": "Hoàn Thành"},
   {"key": "dayCompletedOvfl", "title": "Hoàn Thành (Tràn)"},
@@ -33,7 +28,6 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "daoXa", "title": "Dao Xả"},
   {"key": "size", "title": "Khổ"},
   {"key": "length", "title": "Dài"},
-  {"key": "volume", "title": "Thể Tích"},
   {"key": "child", "title": "Số Con"},
 
   // Quantity
@@ -47,17 +41,7 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "timeRunningOvfl", "title": "Tràn"},
 
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
-
-  // Order money
   {"key": "dvt", "title": "DVT"},
-  {"key": "acreage", "title": "Diện Tích"},
-  {"key": "price", "title": "Đơn Giá"},
-  {"key": "pricePaper", "title": "Đơn Giá"},
-  {"key": "discounts", "title": "Chiết Khấu"},
-  {"key": "profitOrd", "title": "Lợi Nhuận"},
-  {"key": "vat", "title": "VAT"},
-  {"key": "totalPrice", "title": "Tổng Tiền"},
-  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền VAT"},
 
   //Waste
   {"key": "bottom", "title": "Đáy"},
@@ -74,8 +58,8 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "shiftManager", "title": "Trưởng Máy"},
   {"key": "machine", "title": "Loại Máy"},
 
-  // Staff
-  {"key": "staffOrder", "title": "Nhân Viên"},
+  {"key": "chongTham", "title": "Chống Thấm"},
+  {"key": "isBox", "title": "Làm Thùng?"},
 
   // Hidden
   {"key": "planningId", "title": "", "visible": false},

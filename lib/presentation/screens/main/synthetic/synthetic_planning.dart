@@ -3,12 +3,12 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/presentation/components/dialog/export/dialog_export_db_planning.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_db_planning.dart';
+import 'package:dongtam/presentation/components/headerTable/synthetic/header_table_db_planning.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/sources/dashboard_planning_data_source.dart';
+import 'package:dongtam/presentation/sources/synthetic/synthetic_planning_data_source.dart';
 import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
-import 'package:dongtam/service/dashboard_service.dart';
+import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
@@ -21,14 +21,14 @@ import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class DashboardPlanning extends StatefulWidget {
-  const DashboardPlanning({super.key});
+class SyntheticPlanning extends StatefulWidget {
+  const SyntheticPlanning({super.key});
 
   @override
-  State<DashboardPlanning> createState() => _DashboardPlanningState();
+  State<SyntheticPlanning> createState() => _SyntheticPlanningState();
 }
 
-class _DashboardPlanningState extends State<DashboardPlanning> {
+class _SyntheticPlanningState extends State<SyntheticPlanning> {
   late Future<Map<String, dynamic>> futureDbPaper;
   late DashboardPaperDataSource dbPaperDatasource;
   late List<GridColumn> columnsPaper;
@@ -42,7 +42,6 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
     "Theo Máy": "machine",
     "Tên Khách Hàng": "customerName",
     "Tên Công Ty": "companyName",
-    "Tên Nhân Viên": "username",
   };
   String searchType = "Tất cả";
 
@@ -100,7 +99,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
         AppLogger.i("loadDbPaper: isSearching=true, keyword='$keyword'");
 
         futureDbPaper = ensureMinLoading(
-          DashboardService().getDbPlanningByFields(
+          SyntheticService().getSyntheticPlanningByFields(
             field: selectedField,
             keyword: keyword,
             page: currentPage,
@@ -109,7 +108,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
         );
       } else {
         futureDbPaper = ensureMinLoading(
-          DashboardService().getAllDataDashboard(
+          SyntheticService().getAllSyntheticPlanning(
             page: currentPage,
             pageSize: pageSize,
             status: selectedStatus,
@@ -139,7 +138,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
 
       if (searchType == "Tất cả") {
         futureDbPaper = ensureMinLoading(
-          DashboardService().getAllDataDashboard(
+          SyntheticService().getAllSyntheticPlanning(
             page: currentPage,
             pageSize: pageSize,
             status: selectedStatus,
@@ -149,7 +148,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
         final selectedField = searchFieldMap[searchType] ?? "";
 
         futureDbPaper = ensureMinLoading(
-          DashboardService().getDbPlanningByFields(
+          SyntheticService().getSyntheticPlanningByFields(
             field: selectedField,
             keyword: keyword,
             page: currentPage,
@@ -391,6 +390,7 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                           'qtyProduced',
                                           'runningPlanProd',
                                           "totalOutbound",
+                                          "qtyInventory",
                                         ],
                                         child: Obx(
                                           () => formatColumn(
@@ -421,30 +421,6 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                         child: Obx(
                                           () => formatColumn(
                                             label: 'Định Mức Phế Liệu',
-                                            themeController: themeController,
-                                          ),
-                                        ),
-                                      ),
-                                      StackedHeaderCell(
-                                        columnNames: [
-                                          'inMatTruoc',
-                                          'inMatSau',
-                                          'canLanBox',
-                                          'canMang',
-                                          'xa',
-                                          'catKhe',
-                                          'be',
-                                          'dan_1_Manh',
-                                          'dan_2_Manh',
-                                          'dongGhimMotManh',
-                                          'dongGhimHaiManh',
-                                          'chongTham',
-                                          'dongGoi',
-                                          'maKhuon',
-                                        ],
-                                        child: Obx(
-                                          () => formatColumn(
-                                            label: 'Công Đoạn 2',
                                             themeController: themeController,
                                           ),
                                         ),
@@ -497,9 +473,10 @@ class _DashboardPlanningState extends State<DashboardPlanning> {
                                     selectedDbPaperId = selectedDbPaper.planningId;
                                   });
 
-                                  final stages = await DashboardService().getDbPlanningDetail(
-                                    planningId: selectedDbPaper.planningId,
-                                  );
+                                  final stages = await SyntheticService()
+                                      .getSyntheticPlanningDetail(
+                                        planningId: selectedDbPaper.planningId,
+                                      );
 
                                   setState(() {
                                     selectedStages = stages;

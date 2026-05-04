@@ -9,15 +9,19 @@ class OutboundTempItem {
   final String productName;
   final String saleName;
 
-  final double? length;
-  final double? size;
+  final double? lengthManufacture;
+  final double? sizeManufacture;
+  final double? lengthCustomer;
+  final double? sizeCustomer;
   final String? flute;
   final String? QC_box;
   final String dvt;
 
   final double quantityCustomer;
   final int qtyOutbound;
+
   final int? qtyInventory;
+  final int? totalOutbound;
 
   final double pricePaper;
 
@@ -28,8 +32,10 @@ class OutboundTempItem {
     required this.productName,
     required this.saleName,
 
-    this.length,
-    this.size,
+    this.lengthManufacture,
+    this.sizeManufacture,
+    this.lengthCustomer,
+    this.sizeCustomer,
     this.flute,
     this.QC_box,
     required this.dvt,
@@ -37,7 +43,7 @@ class OutboundTempItem {
     required this.quantityCustomer,
     required this.qtyOutbound,
     this.qtyInventory,
-
+    this.totalOutbound,
     required this.pricePaper,
   });
 
@@ -46,10 +52,12 @@ class OutboundTempItem {
 
     return OutboundTempItem(
       orderId: detail.orderId,
-
       customerName: order?.customer?.customerName ?? "",
-      length: order?.lengthPaperManufacture.toDouble() ?? 0,
-      size: order?.paperSizeManufacture.toDouble() ?? 0,
+
+      lengthManufacture: order?.lengthPaperManufacture.toDouble() ?? 0,
+      sizeManufacture: order?.paperSizeManufacture.toDouble() ?? 0,
+      lengthCustomer: order?.lengthPaperCustomer.toDouble() ?? 0,
+      sizeCustomer: order?.paperSizeCustomer.toDouble() ?? 0,
 
       typeProduct: order?.product?.typeProduct ?? "",
       productName: order?.product?.productName ?? "",
@@ -64,7 +72,10 @@ class OutboundTempItem {
 
       pricePaper: detail.price.toDouble(),
       qtyOutbound: detail.outboundQty,
+
+      //qty
       qtyInventory: detail.order?.Inventory?.qtyInventory ?? 0,
+      totalOutbound: detail.order?.Inventory?.totalQtyOutbound ?? 0,
     );
   }
 
@@ -75,8 +86,10 @@ class OutboundTempItem {
       orderId: inventory.orderId,
 
       customerName: order?.customer?.customerName ?? "",
-      length: order?.lengthPaperCustomer.toDouble() ?? 0,
-      size: order?.paperSizeCustomer.toDouble() ?? 0,
+      lengthManufacture: order?.lengthPaperCustomer.toDouble() ?? 0,
+      sizeManufacture: order?.paperSizeCustomer.toDouble() ?? 0,
+      lengthCustomer: order?.lengthPaperCustomer.toDouble() ?? 0,
+      sizeCustomer: order?.paperSizeCustomer.toDouble() ?? 0,
 
       typeProduct: order?.product?.typeProduct ?? "",
       productName: order?.product?.productName ?? "",
@@ -92,6 +105,7 @@ class OutboundTempItem {
       pricePaper: order?.pricePaper?.toDouble() ?? 0,
       qtyOutbound: 0,
       qtyInventory: inventory.qtyInventory,
+      totalOutbound: inventory.totalQtyOutbound,
     );
   }
 
@@ -102,8 +116,12 @@ class OutboundTempItem {
     return OutboundTempItem(
       orderId: order?.orderId ?? "",
       customerName: order?.customer?.customerName ?? "",
-      length: order?.lengthPaperCustomer.toDouble() ?? 0,
-      size: order?.paperSizeCustomer.toDouble() ?? 0,
+
+      lengthManufacture: order?.lengthPaperCustomer.toDouble() ?? 0,
+      sizeManufacture: order?.paperSizeCustomer.toDouble() ?? 0,
+      lengthCustomer: order?.lengthPaperCustomer.toDouble() ?? 0,
+      sizeCustomer: order?.paperSizeCustomer.toDouble() ?? 0,
+
       typeProduct: order?.product?.typeProduct ?? "",
       productName: order?.product?.productName ?? "",
       saleName: order?.user?.fullName ?? "",
@@ -114,6 +132,7 @@ class OutboundTempItem {
       pricePaper: order?.pricePaper?.toDouble() ?? 0,
       qtyOutbound: 0,
       qtyInventory: inventory?.qtyInventory ?? 0,
+      totalOutbound: inventory?.totalQtyOutbound ?? 0,
     );
   }
 }

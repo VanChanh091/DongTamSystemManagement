@@ -140,7 +140,9 @@ class _OrderDialogState extends State<OrderDialog> {
     fetchAllProduct();
     addListenerForField();
 
-    vatController.text = "8";
+    if (widget.order == null) {
+      vatController.text = "8";
+    }
   }
 
   //init data to update
@@ -723,22 +725,22 @@ class _OrderDialogState extends State<OrderDialog> {
       },
 
       {
-        "leftKey": "Dài Khách Đặt",
+        "leftKey": "Dài Tính Tiền",
         "leftValue": ValidationOrder.validateInput(
-          label: "Dài Khách Đặt (cm)",
+          label: "Dài Tính Tiền (cm)",
           controller: lengthCustomerController,
           icon: Symbols.vertical_distribute,
         ),
-        "middleKey": "Khổ Khách Đặt",
+        "middleKey": "Khổ Tính Tiền",
         "middleValue": ValidationOrder.validateInput(
-          label: "Khổ Khách Đặt (cm)",
+          label: "Khổ Tính Tiền (cm)",
           controller: sizeCustomerController,
           icon: Symbols.horizontal_distribute,
           isCalculate: true,
         ),
         "rightKey": "Số Lượng",
         "rightValue": ValidationOrder.validateInput(
-          label: "Số Lượng (KH)",
+          label: "Số Lượng Tính Tiền",
           controller: quantityCustomerController,
           icon: Symbols.filter_9_plus,
         ),

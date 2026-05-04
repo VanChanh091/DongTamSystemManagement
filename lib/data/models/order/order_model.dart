@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:dongtam/data/models/order/box_model.dart';
 import 'package:dongtam/data/models/order/order_images.dart';
+import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/data/models/user/user_user_model.dart';
@@ -12,8 +13,8 @@ import 'package:intl/intl.dart';
 class Order {
   final String orderId;
   final String daoXa, dvt, status;
-  final double lengthPaperCustomer, lengthPaperManufacture;
-  final double paperSizeCustomer, paperSizeManufacture;
+  final double lengthPaperCustomer, paperSizeCustomer;
+  final double lengthPaperManufacture, paperSizeManufacture;
   final double profit, price;
   final int quantityCustomer, quantityManufacture;
   final int numberChild;
@@ -29,6 +30,7 @@ class Order {
 
   //temp field
   final int? remainingQty;
+  final int? totalOutbound;
 
   //association
   final String customerId, productId;
@@ -38,6 +40,7 @@ class Order {
   final OrderImage? orderImage;
   final UserUserModel? user;
   final List<PlanningPaper>? planningPaper;
+  final List<PlanningBox>? planningBox;
   final InventoryModel? Inventory;
 
   Order({
@@ -84,6 +87,7 @@ class Order {
     required this.chongTham,
 
     this.remainingQty,
+    this.totalOutbound,
 
     //association
     this.customer,
@@ -91,6 +95,7 @@ class Order {
     this.product,
     this.user,
     this.planningPaper,
+    this.planningBox,
     this.Inventory,
     this.orderImage,
   });
@@ -149,6 +154,7 @@ class Order {
   }
 
   int get totalQtyProduced => getTotalByField((p) => p.qtyProduced);
+  int get totalQtyWasteNorm => getTotalByField((p) => p.qtyWasteNorm);
   int get totalQtyRunningPlan => getTotalByField((p) => p.runningPlan);
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -199,6 +205,7 @@ class Order {
       orderIdCustomer: json['orderIdCustomer'] ?? "",
 
       remainingQty: json['remainingQty'] ?? 0,
+      totalOutbound: json['totalOutbound'] ?? 0,
 
       //association
       customer: json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
@@ -211,6 +218,10 @@ class Order {
               ? List<PlanningPaper>.from(
                 json['PlanningPapers'].map((x) => PlanningPaper.fromJson(x)),
               )
+              : [],
+      planningBox:
+          json['PlanningBoxes'] != null
+              ? List<PlanningBox>.from(json['PlanningBoxes'].map((x) => PlanningBox.fromJson(x)))
               : [],
       Inventory: json['Inventory'] != null ? InventoryModel.fromJson(json['Inventory']) : null,
     );

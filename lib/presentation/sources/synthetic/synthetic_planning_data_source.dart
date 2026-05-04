@@ -1,4 +1,3 @@
-import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
@@ -29,46 +28,29 @@ class DashboardPaperDataSource extends DataGridSource {
   List<DataGridCell> buildDbPaperCells(PlanningPaper paper, int index) {
     final order = paper.order;
 
+    DataGridCell<String> buildGridCell(String columnName, DateTime? value) {
+      return DataGridCell<String>(
+        columnName: columnName,
+        value: value != null ? formatter.format(value) : "",
+      );
+    }
+
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
 
-      //customer
+      //customer & product
       DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
-      DataGridCell<String>(columnName: "companyName", value: order?.customer?.companyName ?? ""),
-
-      //product
-      DataGridCell<String>(columnName: "typeProduct", value: order?.product?.typeProduct ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
 
       //structure
       DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
 
       //day
-      DataGridCell<String>(
-        columnName: "dayReceive",
-        value: order?.dayReceiveOrder != null ? formatter.format(order!.dayReceiveOrder) : "",
-      ),
-      DataGridCell<String>(
-        columnName: "dateShipping",
-        value:
-            order?.dateRequestShipping != null ? formatter.format(order!.dateRequestShipping!) : "",
-      ),
-      DataGridCell<String>(
-        columnName: "dayStartProduction",
-        value: paper.dayStart != null ? formatter.format(paper.dayStart!) : "",
-      ),
-      DataGridCell<String>(
-        columnName: "dayCompletedProd",
-        value: paper.dayCompleted != null ? formatterDayCompleted.format(paper.dayCompleted!) : "",
-      ),
-      DataGridCell<String>(
-        columnName: "dayCompletedOvfl",
-        value:
-            paper.timeOverflowPlanning?.overflowDayCompleted != null
-                ? formatterDayCompleted.format(paper.timeOverflowPlanning!.overflowDayCompleted!)
-                : "",
-      ),
+      buildGridCell("dayReceive", order?.dayReceiveOrder),
+      buildGridCell("dayStartProduction", paper.dayStart),
+      buildGridCell("dayCompletedProd", paper.dayCompleted),
+      buildGridCell("dayCompletedOvfl", paper.timeOverflowPlanning?.overflowDayCompleted),
 
       //other fields
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
@@ -83,13 +65,6 @@ class DashboardPaperDataSource extends DataGridSource {
         columnName: 'length',
         value: paper.lengthPaperPlanning > 0 ? '${paper.lengthPaperPlanning} cm' : "0",
       ),
-      DataGridCell<String>(
-        columnName: 'volume',
-        value:
-            order?.volume != null && order!.volume! > 0
-                ? '${Order.formatCurrency(order.volume ?? 0)} m³'
-                : "0",
-      ),
       DataGridCell<int>(columnName: 'child', value: paper.numberChild),
 
       //quantity
@@ -97,8 +72,8 @@ class DashboardPaperDataSource extends DataGridSource {
       DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
       DataGridCell<int>(columnName: "runningPlanProd", value: paper.runningPlan),
       DataGridCell<int>(
-        columnName: "totalOutbound",
-        value: paper.order?.Inventory?.totalQtyOutbound ?? 0,
+        columnName: "qtyInventory",
+        value: paper.order?.Inventory?.qtyInventory ?? 0,
       ),
 
       //time running
@@ -119,48 +94,16 @@ class DashboardPaperDataSource extends DataGridSource {
                 : '',
       ),
       DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ''),
+      DataGridCell<String>(columnName: "dvt", value: order?.dvt ?? ""),
 
-      // order
-      ...buildOrderCells(paper),
-
-      //phe lieu
+      //Waste
       if (page == "dashboard") ...[...buildWasteAndManufactureCells(paper)],
 
-      //user
-      DataGridCell<String>(columnName: "staffOrder", value: order?.user?.fullName ?? ""),
+      DataGridCell<bool>(columnName: "chongTham", value: order?.chongTham ?? false),
+      DataGridCell<bool>(columnName: "isBox", value: order?.isBox ?? false),
 
       // hidden technical fields
       DataGridCell<int>(columnName: "planningId", value: paper.planningId),
-    ];
-  }
-
-  List<DataGridCell> buildOrderCells(PlanningPaper paper) {
-    DataGridCell<String> buildPriceCell({required String columnName, required double value}) {
-      return DataGridCell<String>(
-        columnName: columnName,
-        value: value > 0 ? '${Order.formatCurrency(value)} VND' : '0',
-      );
-    }
-
-    final order = paper.order;
-
-    return [
-      DataGridCell<String>(columnName: "dvt", value: order?.dvt ?? ""),
-      if (page == "dashboard") ...[
-        DataGridCell<double>(columnName: "acreage", value: order?.acreage),
-      ],
-      buildPriceCell(columnName: "price", value: order?.price ?? 0),
-      if (page == "dashboard") ...[
-        buildPriceCell(columnName: "pricePaper", value: order?.pricePaper ?? 0),
-        buildPriceCell(columnName: "discounts", value: order?.discount ?? 0),
-        buildPriceCell(columnName: "profitOrd", value: order?.profit ?? 0),
-        DataGridCell<String>(
-          columnName: "vat",
-          value: (order?.vat ?? 0) > 0 ? '${order?.vat}%' : "0",
-        ),
-        buildPriceCell(columnName: "totalPrice", value: order?.totalPrice ?? 0),
-        buildPriceCell(columnName: "totalPriceAfterVAT", value: order?.totalPriceVAT ?? 0),
-      ],
     ];
   }
 
@@ -189,6 +132,19 @@ class DashboardPaperDataSource extends DataGridSource {
 
   @override
   List<DataGridRow> get rows => dbPaperDataGridRows;
+
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = ['chongTham', 'isBox'];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
+
+    return value?.toString() ?? '';
+  }
 
   void buildDataGridRows() {
     final int offset = (currentPage - 1) * pageSize;
@@ -219,14 +175,18 @@ class DashboardPaperDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            final cellText = _formatCellValueBool(dataCell);
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
+            } else if (cellText == '✅') {
+              alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
           }).toList(),
     );
   }

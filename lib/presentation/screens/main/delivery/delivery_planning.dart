@@ -302,15 +302,15 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                             }
                                           }
 
-                                          if (overloadedList.isNotEmpty) {
-                                            String errorMsg = overloadedList.join(", ");
+                                          // if (overloadedList.isNotEmpty) {
+                                          //   String errorMsg = overloadedList.join(", ");
 
-                                            showSnackBarError(
-                                              context,
-                                              "Các xe sau đang quá tải: $errorMsg",
-                                            );
-                                            return;
-                                          }
+                                          //   showSnackBarError(
+                                          //     context,
+                                          //     "Các xe sau đang quá tải: $errorMsg",
+                                          //   );
+                                          //   return;
+                                          // }
 
                                           setState(() => _isSaving = true);
 

@@ -12,7 +12,8 @@ import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
-import 'package:dongtam/presentation/screens/main/dashboard/dashboard_planning.dart';
+import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart';
+import 'package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_prepare_goods.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart';
@@ -72,6 +73,7 @@ class _HomePageState extends State<HomePage> {
   bool _isWaitingExpanded = false;
   bool _isWarehouseExpanded = false;
   bool _isDeliveryExpanded = false;
+  bool _isSyntheticExpanded = false;
 
   static const double _sidebarOpenWidth = 300;
   static const double _sidebarCollapsedWidth = 60;
@@ -118,8 +120,9 @@ class _HomePageState extends State<HomePage> {
       TopTabHistoryReport(),
       ReportInboundHistory(),
 
-      //dashboard planning
-      DashboardPlanning(),
+      //synthetic
+      SyntheticPlanning(),
+      _buildPage(permissions: ['sale'], child: SyntheticOrder()),
 
       // admin
       _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),
@@ -283,11 +286,12 @@ class _HomePageState extends State<HomePage> {
             pages: pages,
           ),
 
-          //dashboard
-          _buildSidebarItem(
-            icon: Symbols.dual_screen,
-            title: "Tổng Hợp Sản Xuất",
-            index: pages.indexWhere((w) => w is DashboardPlanning),
+          //synthetic
+          buildSyntheticMenu(
+            isSidebarOpen: _isSidebarOpen,
+            isExpanded: _isSyntheticExpanded,
+            onToggle: () => setState(() => _isSyntheticExpanded = !_isSyntheticExpanded),
+            pages: pages,
           ),
 
           //admin

@@ -46,6 +46,8 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   Map<String, double> columnWidthsObDetail = {};
   List<OutboundDetailModel> selectedObDetail = [];
 
+  int? selectedOutboundId;
+
   //field search
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
@@ -61,7 +63,6 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   bool selectedAll = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool isTextFieldEnabled = false;
-  int? selectedOutboundId;
 
   //paging
   int currentPage = 1;

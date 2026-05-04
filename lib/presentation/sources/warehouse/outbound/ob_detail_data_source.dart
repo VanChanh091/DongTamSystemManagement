@@ -19,12 +19,31 @@ class ObDetailDataSource extends DataGridSource {
   List<DataGridCell> buildStagesCells(OutboundDetailModel detail) {
     final order = detail.order;
 
+    String formatNumber(double value) {
+      String result;
+
+      // Nếu là số nguyên (ví dụ 123.0) thì chuyển về "123"
+      if (value == value.toInt()) {
+        result = value.toInt().toString();
+      } else {
+        // Nếu là số thập phân (46.5, 46.25) thì xóa dấu chấm
+        result = value.toString().replaceAll('.', '');
+      }
+
+      // Luôn bù số 0 cho đủ 4 ký tự
+      return result.padLeft(4, '0');
+    }
+
     return [
       DataGridCell<String>(columnName: "orderId", value: detail.orderId),
       DataGridCell<String>(columnName: "typeProduct", value: order!.product!.typeProduct),
       DataGridCell<String>(columnName: "productName", value: order.product!.productName),
       DataGridCell<String>(columnName: "QC_box", value: order.QC_box ?? ""),
-      DataGridCell<String>(columnName: "flute", value: order.flute ?? ""),
+      DataGridCell<String>(
+        columnName: "flute",
+        value:
+            '${order.flute ?? ""}-${formatNumber(order.lengthPaperManufacture)}x${formatNumber(order.paperSizeManufacture)}',
+      ),
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
       DataGridCell<int>(columnName: "deliveredQty", value: detail.deliveredQty),
       DataGridCell<int>(columnName: "outboundQty", value: detail.outboundQty),

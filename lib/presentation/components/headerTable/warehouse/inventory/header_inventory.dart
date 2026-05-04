@@ -5,13 +5,16 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _inventoryColumns = [
   {"key": "index", "title": "STT"},
+
   {"key": "orderId", "title": "Mã Đơn Hàng"},
+  {"key": "typeProduct", "title": "Loại Sản Phẩm"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
   {"key": "customerName", "title": "Khách Hàng"},
+  {"key": "QcBox", "title": "QC Thùng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
-  {"key": "size", "title": "Khổ"},
-  {"key": "length", "title": "Dài"},
+  {"key": "size", "title": "Khổ (KH)"},
+  {"key": "length", "title": "Dài (KH)"},
   {"key": "qtyCustomer", "title": "Số Lượng"},
   {"key": "dvt", "title": "DVT"},
   {"key": "price", "title": "Đơn Giá"},

@@ -136,6 +136,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                 onPressed: () {
                                   showDialog(
                                     context: context,
+                                    barrierDismissible: false,
                                     builder:
                                         (_) => OrderDialog(
                                           order: null,

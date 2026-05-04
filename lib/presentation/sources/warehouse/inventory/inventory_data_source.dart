@@ -33,6 +33,10 @@ class InventoryDataSource extends DataGridSource {
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: inventory.orderId),
       DataGridCell<String>(
+        columnName: 'typeProduct',
+        value: inventory.order?.product?.typeProduct ?? "",
+      ),
+      DataGridCell<String>(
         columnName: 'productName',
         value: inventory.order?.product?.productName ?? "",
       ),
@@ -40,6 +44,7 @@ class InventoryDataSource extends DataGridSource {
         columnName: 'customerName',
         value: inventory.order?.customer?.customerName ?? "",
       ),
+      DataGridCell<String>(columnName: 'QcBox', value: order?.QC_box ?? ""),
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ""),
       DataGridCell<String>(columnName: 'structure', value: order?.formatterStructureOrder ?? ""),
       DataGridCell<String>(
