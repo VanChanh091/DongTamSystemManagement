@@ -69,6 +69,7 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'length',
         value: planning.lengthPaperPlanning > 0 ? '${planning.lengthPaperPlanning} cm' : "0",
       ),
+      DataGridCell<String>(columnName: 'qcBox', value: planning.order?.QC_box ?? ""),
       DataGridCell<String>(columnName: 'canLan', value: planning.order?.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
       DataGridCell<int>(columnName: 'child', value: planning.numberChild),
@@ -169,35 +170,6 @@ class MachinePaperDatasource extends DataGridSource {
     return match != null ? int.parse(match.group(0)!) : 0;
   }
 
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = ["chongTham", "haveMadeBox"];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
-    }
-
-    if (dataCell.columnName == "statusRequest") {
-      switch (value) {
-        case "requested":
-          return "Chờ nhập kho";
-        case "reject":
-          return "Từ chối";
-        case "inbounded":
-          return "Đã nhập kho";
-        case "finalize":
-          return "Chốt nhập kho";
-        case "none":
-        default:
-          return "";
-      }
-    }
-
-    return value?.toString() ?? '';
-  }
-
   void buildDataGridRows() {
     planningDataGridRows =
         planning
@@ -235,6 +207,35 @@ class MachinePaperDatasource extends DataGridSource {
     );
   }
 
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = ["chongTham", "haveMadeBox"];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
+
+    if (dataCell.columnName == "statusRequest") {
+      switch (value) {
+        case "requested":
+          return "Chờ nhập kho";
+        case "reject":
+          return "Từ chối";
+        case "inbounded":
+          return "Đã nhập kho";
+        case "finalize":
+          return "Chốt nhập kho";
+        case "none":
+        default:
+          return "";
+      }
+    }
+
+    return value?.toString() ?? '';
+  }
+
   //check ghepKho is same
   String? getKhoAtRow(int rowIndex) {
     if (rowIndex < 0 || rowIndex >= planningDataGridRows.length) return null;
@@ -248,6 +249,25 @@ class MachinePaperDatasource extends DataGridSource {
     return cell.value?.toString();
   }
 
+  Widget? buildCellLeading(
+    DataGridCell dataCell,
+    bool? isKhoTransition,
+    Color? transitionColor,
+    bool isDuplicateOrder,
+  ) {
+    // check ghepKho
+    if (dataCell.columnName == 'khoCapGiay' && isKhoTransition == true) {
+      return Icon(Icons.warning_amber_rounded, size: 16, color: transitionColor);
+    }
+
+    // check orderId
+    if (dataCell.columnName == 'orderId' && isDuplicateOrder) {
+      return const Icon(Icons.copy_rounded, size: 14, color: Colors.redAccent);
+    }
+
+    return null;
+  }
+
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
@@ -256,11 +276,22 @@ class MachinePaperDatasource extends DataGridSource {
 
     String displayDate = '';
     String itemCount = '';
+    String totalPriceStr = '';
 
     if (match != null) {
       displayDate = match.group(1) ?? '';
       final count = match.group(2) ?? '0';
       itemCount = '$count đơn hàng';
+
+      if (page == 'planning' && displayDate.isNotEmpty) {
+        double totalGroupPrice = planning
+            .where((p) => p.dayStart != null && formatter.format(p.dayStart!) == displayDate)
+            .fold(0, (sum, p) => sum + (p.order?.totalPrice ?? 0));
+
+        if (totalGroupPrice > 0) {
+          totalPriceStr = ' – Tổng: ${Order.formatCurrency(totalGroupPrice)} VNĐ';
+        }
+      }
     }
 
     return Container(
@@ -270,7 +301,7 @@ class MachinePaperDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày sản xuất: $displayDate – $itemCount'
+            ? '📅 Ngày sản xuất: $displayDate – $itemCount$totalPriceStr'
             : '📅 Ngày sản xuất: Không xác định',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
@@ -281,6 +312,8 @@ class MachinePaperDatasource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     // ===== Index row =====
     final int rowIndex = planningDataGridRows.indexOf(row);
+
+    final currentPlanning = planning[rowIndex];
 
     final String? currentKho = getKhoAtRow(rowIndex);
     final String? prevKho = getKhoAtRow(rowIndex - 1);
@@ -331,7 +364,6 @@ class MachinePaperDatasource extends DataGridSource {
     final widgets =
         row.getCells().asMap().entries.map<Widget>((entry) {
           final DataGridCell dataCell = entry.value;
-
           final cellText = _formatCellValueBool(dataCell);
 
           Alignment alignment;
@@ -341,6 +373,30 @@ class MachinePaperDatasource extends DataGridSource {
             alignment = Alignment.center;
           } else {
             alignment = Alignment.centerLeft;
+          }
+
+          TextStyle? customTextStyle;
+          if (page == 'planning' && dataCell.columnName == 'dateShipping') {
+            final DateTime? shipDate = currentPlanning.order?.dateRequestShipping;
+            if (shipDate != null) {
+              final now = DateTime.now();
+
+              // Reset về 0h 0p 0s để so sánh ngày
+              final today = DateTime(now.year, now.month, now.day);
+              final compareDate = DateTime(shipDate.year, shipDate.month, shipDate.day);
+
+              if (today.isAfter(compareDate)) {
+                customTextStyle = TextStyle(
+                  color: Colors.redAccent.shade400,
+                  fontWeight: FontWeight.bold,
+                );
+              } else if (today.isAtSameMomentAs(compareDate)) {
+                customTextStyle = TextStyle(
+                  color: Colors.orangeAccent.shade400,
+                  fontWeight: FontWeight.bold,
+                );
+              }
+            }
           }
 
           Color cellColor = Colors.transparent;
@@ -354,29 +410,11 @@ class MachinePaperDatasource extends DataGridSource {
             label: cellText,
             alignment: alignment,
             cellColor: cellColor,
+            textStyle: customTextStyle,
             leading: buildCellLeading(dataCell, isKhoTransition, transitionColor, isDuplicateOrder),
           );
         }).toList();
 
     return DataGridRowAdapter(color: rowColor, cells: widgets);
   }
-}
-
-Widget? buildCellLeading(
-  DataGridCell dataCell,
-  bool? isKhoTransition,
-  Color? transitionColor,
-  bool isDuplicateOrder,
-) {
-  // check ghepKho
-  if (dataCell.columnName == 'khoCapGiay' && isKhoTransition == true) {
-    return Icon(Icons.warning_amber_rounded, size: 16, color: transitionColor);
-  }
-
-  // check orderId
-  if (dataCell.columnName == 'orderId' && isDuplicateOrder) {
-    return const Icon(Icons.copy_rounded, size: 14, color: Colors.redAccent);
-  }
-
-  return null;
 }

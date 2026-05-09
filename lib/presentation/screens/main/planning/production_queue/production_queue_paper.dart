@@ -63,9 +63,9 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
   //flag
   bool isLoading = false;
-  bool isTextFieldEnabled = false;
   bool showGroup = true;
   bool isNewDay = false;
+  bool isTextFieldEnabled = false;
 
   //text controller
   TextEditingController searchController = TextEditingController();
@@ -103,7 +103,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   void loadPlanning() {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
-
       String keyword = searchController.text.trim().toLowerCase();
 
       if (searchType != "Tất cả") {

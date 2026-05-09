@@ -55,6 +55,7 @@ Widget formatDataTable({
   required String label,
   required Alignment alignment,
   Color cellColor = Colors.transparent,
+  TextStyle? textStyle,
   Widget? leading,
 }) {
   return Container(
@@ -71,7 +72,7 @@ Widget formatDataTable({
           child: Text(
             label,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+            style: textStyle ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
           ),
         ),
         const SizedBox(width: 5),

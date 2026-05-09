@@ -239,14 +239,18 @@ class HelperService {
   }
 
   //helper export
-  Future<File?> saveExcelFile({required List<int> bytes, required String fileNamePrefix}) async {
+  Future<File?> saveExcelFile({
+    required List<int> bytes,
+    required String fileNamePrefix,
+    DateTime? dateTime,
+  }) async {
     try {
       // Cho người dùng chọn thư mục lưu
       final dirPath = await FilePicker.platform.getDirectoryPath();
       if (dirPath == null) return null;
 
       // Tạo file name
-      final now = DateTime.now();
+      final now = dateTime ?? DateTime.now();
       final fileName = "${fileNamePrefix}_${now.toIso8601String().split('T')[0]}.xlsx";
       final file = File("$dirPath/$fileName");
 

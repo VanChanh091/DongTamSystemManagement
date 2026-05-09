@@ -8,18 +8,62 @@ final List<Map<String, dynamic>> _headerOrder = [
   // Order
   {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
+
+  {"key": "dayReceive", "title": "Ngày Nhận"},
+  {"key": "dateShipping", "title": "Ngày Dự Kiến"},
+
   {"key": "customerName", "title": "Tên Khách Hàng"},
+  {"key": "companyName", "title": "Tên Công Ty"},
+  {"key": "typeProduct", "title": "Loại SP"},
   {"key": "productName", "title": "Tên SP"},
+
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
-  {"key": "sizeCustomer", "title": "Khổ (KH)"},
-  {"key": "lengthCus", "title": "Dài (KH)"},
   {"key": "canLan", "title": "Cấn Lằn"},
   {"key": "daoXaOrd", "title": "Dao Xả"},
+
+  {"key": "sizeCustomer", "title": "Khổ (KH)"},
+  {"key": "sizeManufacture", "title": "Khổ (SX)"},
+  {"key": "lengthCus", "title": "Dài (KH)"},
+  {"key": "lengthMf", "title": "Dài (SX)"},
   {"key": "quantityCustomer", "title": "Số Lượng (KH)"},
+  {"key": "qtyManufacture", "title": "Số Lượng (SX)"},
+
+  {"key": "volume", "title": "Thể tích"},
+  {"key": "child", "title": "Số con"},
+  {"key": "dvt", "title": "ĐVT"},
+
+  {"key": "acreage", "title": "Diện Tích"},
+  {"key": "price", "title": "Giá m²/pcs"},
+  {"key": "pricePaper", "title": "Đơn Giá"},
+  {"key": "discounts", "title": "Chiết Khấu"},
+  {"key": "profitOrd", "title": "Lợi Nhuận"},
+
   {"key": "vat", "title": "VAT"},
-  {"key": "instructSpecial", "title": "HD Đặc Biệt"},
+  {"key": "HD_special", "title": "HD Đặc Biệt"},
+
+  {"key": "totalPrice", "title": "Tổng Tiền"},
+  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền VAT"},
+
+  // Box
+  {"key": "inMatTruoc", "title": "In Mặt Trước"},
+  {"key": "inMatSau", "title": "In Mặt Sau"},
+
+  {"key": "chongTham", "title": "Chống Thấm"},
+  {"key": "canLanBox", "title": "Cấn Lằn"},
+  {"key": "canMang", "title": "Cán Màng"},
+  {"key": "xa", "title": "Xả"},
+  {"key": "catKhe", "title": "Cắt Khe"},
+  {"key": "be", "title": "Bế"},
+  {"key": "maKhuon", "title": "Mã Khuôn"},
+  {"key": "dan_1_Manh", "title": "Dán 1 Mảnh"},
+  {"key": "dan_2_Manh", "title": "Dán 2 Mảnh"},
+  {"key": "dongGhimMotManh", "title": "Đóng Ghim 1 Mảnh"},
+  {"key": "dongGhimHaiManh", "title": "Đóng Ghim 2 Mảnh"},
+  {"key": "dongGoi", "title": "Đóng Gói"},
+
+  {"key": "orderIdCustomer", "title": "PO Khách"},
 
   // Role-based
   {
@@ -31,6 +75,7 @@ final List<Map<String, dynamic>> _headerOrder = [
   // Status
   {"key": "status", "title": "Trạng thái"},
   {"key": "rejectReason", "title": "Lý do"},
+  {"key": "note", "title": "Ghi chú"},
   {"key": "orderImage", "title": "Hình ảnh"},
 ];
 

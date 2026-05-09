@@ -426,17 +426,17 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       },
 
       {
-        "leftKey": "Dài (KH)",
+        "leftKey": "Dài TT",
         "leftValue": ValidationOrder.validateInput(
-          label: "Dài (KH)",
+          label: "Dài Tính Tiền",
           controller: lengthCustController,
           icon: Symbols.business,
           readOnly: true,
         ),
 
-        "middleKey": "Khổ (KH)",
+        "middleKey": "Khổ TT",
         "middleValue": ValidationOrder.validateInput(
-          label: "Khổ (KH)",
+          label: "Khổ Tính Tiền",
           controller: sizeCustController,
           icon: Symbols.price_change,
           readOnly: true,

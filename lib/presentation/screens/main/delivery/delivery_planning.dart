@@ -1,9 +1,12 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/admin/admin_vehicle_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_request_model.dart';
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/service/delivery_service.dart';
@@ -31,26 +34,36 @@ class DeliveryPlanning extends StatefulWidget {
 }
 
 class _DeliveryPlanningState extends State<DeliveryPlanning> {
+  //controller
+  final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  final unsavedChangeController = Get.find<UnsavedChangeController>();
   final badgesController = Get.find<BadgesController>();
-  final Map<int, TextEditingController> _noteControllers = {};
-  final Map<int, bool> _showNoteMap = {};
+  final unsavedChangeController = Get.find<UnsavedChangeController>();
 
-  Map<String, List<DeliveryRequest>> vehicleOrders = {}; //final
+  //width column
+  Map<String, List<DeliveryRequest>> vehicleOrders = {};
   Map<String, List<DeliveryRequest>> originalVehicleOrders = {};
 
+  List<DeliveryTrip> trips = [];
   List<AdminVehicleModel> vehicles = [];
   List<DeliveryRequest> pendingRequests = [];
-  List<DeliveryTrip> trips = [];
 
+  //search
+  String searchType = "Tất cả";
+  final Map<String, String> searchFieldMap = {
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
+  };
+
+  //flag
   bool _isLoading = true;
+  bool _isPendingLoading = false;
   bool _isSaving = false;
+  bool isTextFieldEnabled = false;
   String selectedTripFilter = "Tài 1";
 
   TextEditingController dayStartController = TextEditingController();
-
-  //===============================INIT DATA===============================
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -75,11 +88,38 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     }
   }
 
-  Future<void> getPlanningRequest() async {
-    final data = await DeliveryService().getPlanningRequest();
-    setState(() {
-      pendingRequests = data;
-    });
+  void _fetchData() async {
+    final String keyword = searchController.text.trim();
+    final String? selectedField = searchFieldMap[searchType];
+
+    final bool shouldSearch = searchType != "Tất cả" && keyword.isNotEmpty;
+
+    getPlanningRequest(
+      field: shouldSearch ? selectedField : null,
+      keyword: shouldSearch ? keyword : null,
+    );
+  }
+
+  Future<void> getPlanningRequest({String? field, String? keyword}) async {
+    setState(() => _isPendingLoading = true);
+
+    try {
+      final data = await ensureMinLoading(
+        DeliveryService().getPlanningRequest(field: field, keyword: keyword),
+      );
+
+      setState(() {
+        pendingRequests = data;
+      });
+    } catch (e) {
+      if (mounted) {
+        showSnackBarError(context, "Không thể tải đơn hàng chờ xếp xe");
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isPendingLoading = false);
+      }
+    }
   }
 
   Future<void> loadVehicles() async {
@@ -101,7 +141,9 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   Future<void> loadPlannedOrders() async {
     try {
       final date = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
-      final plan = await DeliveryService().getDeliveryPlanDetail(deliveryDate: date);
+      final plan = await ensureMinLoading(
+        DeliveryService().getDeliveryPlanDetail(deliveryDate: date),
+      );
 
       setState(() {
         vehicleOrders.clear();
@@ -111,11 +153,6 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
           if (plan.deliveryItems != null) {
             for (var item in plan.deliveryItems!) {
               if (item.request != null) {
-                // item.request!.itemStatus = item.status;
-
-                final rId = item.request!.requestId;
-                _noteControllers[rId] = TextEditingController(text: item.note ?? "");
-
                 final String key = buildVehicleKey(item.sequence, item.vehicleId);
 
                 vehicleOrders.putIfAbsent(key, () => []);
@@ -173,14 +210,15 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
   @override
   void dispose() {
-    for (var controller in _noteControllers.values) {
-      controller.dispose();
-    }
     super.dispose();
+    dayStartController.dispose();
+    searchController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isPlan = userController.hasPermission(permission: "plan");
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -189,7 +227,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
             const SizedBox(height: 20),
             //button
             SizedBox(
-              height: 60,
+              height: 70,
               width: double.infinity,
               child: Column(
                 children: [
@@ -199,20 +237,21 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                       //left button
                       Expanded(
                         flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 20),
-                          child: SizedBox(
-                            height: 45,
-                            width: double.infinity,
-                            child: Text(
-                              "XẾP TÀI GIAO HÀNG",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22,
-                                color: themeController.currentColor.value,
-                              ),
-                            ),
-                          ),
+                        child: LeftButtonSearch(
+                          selectedType: searchType,
+                          types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng"],
+                          onTypeChanged: (value) {
+                            setState(() {
+                              searchType = value;
+                              isTextFieldEnabled = value != 'Tất cả';
+                              searchType == 'Tất cả' ? searchController.clear() : null;
+                            });
+                          },
+                          controller: searchController,
+                          textFieldEnabled: isTextFieldEnabled,
+                          buttonColor: themeController.buttonColor,
+
+                          onSearch: () => _fetchData(),
                         ),
                       ),
 
@@ -270,158 +309,176 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                               const SizedBox(width: 15),
 
                               //save
-                              AnimatedButton(
-                                label: _isSaving ? 'Đang lưu...' : 'Lưu',
-                                icon: _isSaving ? null : Symbols.save,
-                                backgroundColor:
-                                    (!_isEditable || _isSaving)
-                                        ? Colors.grey
-                                        : themeController.buttonColor,
-                                onPressed:
-                                    (!_isEditable || _isSaving)
-                                        ? null
-                                        : () async {
-                                          //check overload
-                                          List<String> overloadedList = [];
+                              isPlan
+                                  ? Row(
+                                    children: [
+                                      AnimatedButton(
+                                        label: _isSaving ? 'Đang lưu...' : 'Lưu',
+                                        icon: _isSaving ? null : Symbols.save,
+                                        backgroundColor:
+                                            (!_isEditable || _isSaving)
+                                                ? Colors.grey
+                                                : themeController.buttonColor,
+                                        onPressed:
+                                            (!_isEditable || _isSaving)
+                                                ? null
+                                                : () async {
+                                                  //check overload
+                                                  // List<String> overloadedList = [];
 
-                                          for (var vehicle in vehicles) {
-                                            for (String seq in ["1", "2", "3", "Xe Ngoài"]) {
-                                              final key = buildVehicleKey(seq, vehicle.vehicleId!);
-                                              final ordersInVehicle = vehicleOrders[key] ?? [];
+                                                  // for (var vehicle in vehicles) {
+                                                  //   for (String seq in ["1", "2", "3", "Xe Ngoài"]) {
+                                                  //     final key = buildVehicleKey(seq, vehicle.vehicleId!);
+                                                  //     final ordersInVehicle = vehicleOrders[key] ?? [];
 
-                                              if (ordersInVehicle.isNotEmpty) {
-                                                double currentVol = _calculateTotalVolume(key);
-                                                double maxVol = vehicle.volumeCapacity;
+                                                  //     if (ordersInVehicle.isNotEmpty) {
+                                                  //       double currentVol = _calculateTotalVolume(key);
+                                                  //       double maxVol = vehicle.volumeCapacity;
 
-                                                if (currentVol > maxVol) {
-                                                  overloadedList.add(
-                                                    "${vehicle.vehicleName} (Tài: $seq)",
-                                                  );
-                                                }
-                                              }
-                                            }
-                                          }
+                                                  //       if (currentVol > maxVol) {
+                                                  //         overloadedList.add(
+                                                  //           "${vehicle.vehicleName} (Tài: $seq)",
+                                                  //         );
+                                                  //       }
+                                                  //     }
+                                                  //   }
+                                                  // }
 
-                                          // if (overloadedList.isNotEmpty) {
-                                          //   String errorMsg = overloadedList.join(", ");
+                                                  // if (overloadedList.isNotEmpty) {
+                                                  //   String errorMsg = overloadedList.join(", ");
 
-                                          //   showSnackBarError(
-                                          //     context,
-                                          //     "Các xe sau đang quá tải: $errorMsg",
-                                          //   );
-                                          //   return;
-                                          // }
+                                                  //   showSnackBarError(
+                                                  //     context,
+                                                  //     "Các xe sau đang quá tải: $errorMsg",
+                                                  //   );
+                                                  //   return;
+                                                  // }
 
-                                          setState(() => _isSaving = true);
+                                                  setState(() => _isSaving = true);
 
-                                          try {
-                                            // Kiểm tra xem đã có đơn hàng nào được xếp vào xe chưa
-                                            if (vehicleOrders.values.every(
-                                              (list) => list.isEmpty,
-                                            )) {
-                                              showSnackBarError(
-                                                context,
-                                                "Vui lòng xếp ít nhất một đơn hàng vào xe",
-                                              );
-                                              return;
-                                            }
+                                                  try {
+                                                    // Kiểm tra xem đã có đơn hàng nào được xếp vào xe chưa
+                                                    if (vehicleOrders.values.every(
+                                                      (list) => list.isEmpty,
+                                                    )) {
+                                                      showSnackBarError(
+                                                        context,
+                                                        "Vui lòng xếp ít nhất một đơn hàng vào xe",
+                                                      );
+                                                      return;
+                                                    }
 
-                                            List<Map<String, dynamic>> items = [];
+                                                    List<Map<String, dynamic>> items = [];
 
-                                            vehicleOrders.forEach((key, requests) {
-                                              // Key có định dạng: "tripSeq_vehicleId" (ví dụ: "1_3")
-                                              final parts = key.split('_');
-                                              final seq = parts[0];
-                                              final int vehicleId = int.parse(parts[1]);
+                                                    vehicleOrders.forEach((key, requests) {
+                                                      // Key có định dạng: "tripSeq_vehicleId" (ví dụ: "1_3")
+                                                      final parts = key.split('_');
+                                                      final seq = parts[0];
+                                                      final int vehicleId = int.parse(parts[1]);
 
-                                              for (var req in requests) {
-                                                items.add({
-                                                  "requestId": req.requestId,
-                                                  "vehicleId": vehicleId,
-                                                  "sequence": seq,
-                                                  'note':
-                                                      _noteControllers[req.requestId]?.text ?? "",
-                                                });
-                                              }
-                                            });
+                                                      for (int i = 0; i < requests.length; i++) {
+                                                        var req = requests[i];
+                                                        items.add({
+                                                          "requestId": req.requestId,
+                                                          "vehicleId": vehicleId,
+                                                          "sequence": seq,
+                                                          "idxOrder": i + 1,
+                                                        });
+                                                      }
+                                                    });
 
-                                            final dayStart = DateFormat(
-                                              'dd/MM/yyyy',
-                                            ).parse(dayStartController.text);
+                                                    final dayStart = DateFormat(
+                                                      'dd/MM/yyyy',
+                                                    ).parse(dayStartController.text);
 
-                                            bool success = await DeliveryService()
-                                                .createDeliveryPlan(
-                                                  deliveryDate: dayStart,
-                                                  items: items,
-                                                );
+                                                    bool success = await DeliveryService()
+                                                        .createDeliveryPlan(
+                                                          deliveryDate: dayStart,
+                                                          items: items,
+                                                        );
 
-                                            if (success) {
-                                              if (!context.mounted) return;
-                                              showSnackBarSuccess(
-                                                context,
-                                                "Lưu kế hoạch giao hàng thành công",
-                                              );
+                                                    if (success) {
+                                                      if (!context.mounted) return;
+                                                      showSnackBarSuccess(
+                                                        context,
+                                                        "Lưu kế hoạch giao hàng thành công",
+                                                      );
 
-                                              await Future.wait([
-                                                getPlanningRequest(),
-                                                loadPlannedOrders(),
-                                              ]);
+                                                      await Future.wait([
+                                                        getPlanningRequest(),
+                                                        loadPlannedOrders(),
+                                                      ]);
 
-                                              // Cập nhật số lượng badge
-                                              badgesController.fetchDeliveryRequest();
-                                            }
+                                                      // Cập nhật số lượng badge
+                                                      badgesController.fetchDeliveryRequest();
+                                                    }
 
-                                            unsavedChangeController.resetUnsavedChanges();
-                                            await Future.delayed(const Duration(seconds: 1));
-                                          } catch (e) {
-                                            if (!context.mounted) return;
-                                            showSnackBarError(context, "Có lỗi xảy ra");
-                                          } finally {
-                                            setState(() => _isSaving = false);
-                                          }
-                                        },
-                              ),
-                              const SizedBox(width: 10),
+                                                    unsavedChangeController.resetUnsavedChanges();
+                                                    await Future.delayed(
+                                                      const Duration(seconds: 1),
+                                                    );
+                                                  } catch (e) {
+                                                    if (!context.mounted) return;
+                                                    showSnackBarError(context, "Có lỗi xảy ra");
+                                                  } finally {
+                                                    setState(() => _isSaving = false);
+                                                  }
+                                                },
+                                      ),
+                                      const SizedBox(width: 10),
+                                    ],
+                                  )
+                                  : const SizedBox.shrink(),
 
                               //confirm delivery
-                              AnimatedButton(
-                                onPressed:
-                                    !_isEditable
-                                        ? null
-                                        : () async {
-                                          try {
-                                            bool confirm = await showConfirmDialog(
-                                              context: context,
-                                              title: "Xác Nhận Lịch Giao Hàng",
-                                              content:
-                                                  'Bạn có muốn triển khai lịch giao hàng này không?',
-                                              confirmText: "Xác nhận",
-                                            );
+                              isPlan
+                                  ? Row(
+                                    children: [
+                                      AnimatedButton(
+                                        onPressed:
+                                            !_isEditable
+                                                ? null
+                                                : () async {
+                                                  try {
+                                                    bool confirm = await showConfirmDialog(
+                                                      context: context,
+                                                      title: "Xác Nhận Lịch Giao Hàng",
+                                                      content:
+                                                          'Bạn có muốn triển khai lịch giao hàng này không?',
+                                                      confirmText: "Xác nhận",
+                                                    );
 
-                                            if (confirm) {
-                                              await DeliveryService().confirmForDeliveryPlanning(
-                                                deliveryDate: DateFormat(
-                                                  'dd/MM/yyyy',
-                                                ).parse(dayStartController.text),
-                                              );
-                                              unsavedChangeController.resetUnsavedChanges();
+                                                    if (confirm) {
+                                                      await DeliveryService()
+                                                          .confirmForDeliveryPlanning(
+                                                            deliveryDate: DateFormat(
+                                                              'dd/MM/yyyy',
+                                                            ).parse(dayStartController.text),
+                                                          );
+                                                      unsavedChangeController.resetUnsavedChanges();
 
-                                              if (!context.mounted) return;
-                                              showSnackBarSuccess(
-                                                context,
-                                                "Triển khai lịch giao hàng thành công",
-                                              );
-                                            }
-                                          } catch (e) {
-                                            if (!context.mounted) return;
-                                            showSnackBarError(context, "Lỗi không xác định");
-                                          }
-                                        },
-                                label: 'Triển Khai',
-                                icon: Symbols.confirmation_number,
-                                backgroundColor: themeController.buttonColor,
-                              ),
-                              const SizedBox(width: 10),
+                                                      if (!context.mounted) return;
+                                                      showSnackBarSuccess(
+                                                        context,
+                                                        "Triển khai lịch giao hàng thành công",
+                                                      );
+                                                    }
+                                                  } catch (e) {
+                                                    if (!context.mounted) return;
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Lỗi không xác định",
+                                                    );
+                                                  }
+                                                },
+                                        label: 'Triển Khai',
+                                        icon: Symbols.confirmation_number,
+                                        backgroundColor: themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+                                    ],
+                                  )
+                                  : const SizedBox.shrink(),
                             ],
                           ),
                         ),
@@ -513,7 +570,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
               // BODY
               Expanded(
                 child:
-                    _isLoading
+                    _isPendingLoading
                         ? Padding(
                           padding: const EdgeInsets.all(12),
                           child: buildShimmerSkeletonTable(context: context, rowCount: 10),
@@ -537,11 +594,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                               separatorBuilder: (_, _) => const SizedBox(height: 10),
                               itemBuilder: (context, index) {
                                 final paper = pendingRequests[index];
-                                return _buildDraggablePaper(
-                                  paper,
-                                  constraints.maxWidth - 24,
-                                  allowNote: false,
-                                );
+                                return _buildDraggablePaper(paper, constraints.maxWidth - 24);
                               },
                             );
                           },
@@ -554,23 +607,18 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     );
   }
 
-  Widget _requestedCard({
-    required DeliveryRequest req,
-    String? status,
-    bool isDragging = false,
-    bool allowNote = true,
-  }) {
+  Widget _requestedCard({required DeliveryRequest req, String? status, bool isDragging = false}) {
+    final formatter = DateFormat('dd/MM/yyyy');
+
     final currentStatus = status ?? req.status;
     final bool isCancelled = currentStatus == 'cancelled';
-    final pId = req.planningId;
-    final bool isOpen = _showNoteMap[pId] ?? false;
-    final controller = _noteControllers.putIfAbsent(pId, () => TextEditingController());
 
     final planning = req.paper;
-    final order = req.paper?.order;
+    final order = planning?.order;
     final qcBox = order?.QC_box;
     final product = order?.product;
     final customer = order?.customer;
+    final inventory = order?.Inventory;
 
     final information =
         "${product!.productName} - ${planning?.lengthPaperPlanning ?? 0}*${planning?.sizePaperPLaning ?? 0} ${qcBox != "" && qcBox != null ? "- $qcBox" : ""}";
@@ -598,12 +646,13 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Mã Đơn: ${order!.orderId} ${order.flute != null ? '- ${order.flute}' : ''}',
+                        'Khách Hàng: ${customer!.customerName}',
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
+
                       Text(
-                        'Thông tin: $information',
+                        "Mã Đơn: ${order!.orderId} - SL Đơn Hàng: ${order.quantityCustomer}",
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -611,8 +660,9 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                         ),
                       ),
                       const SizedBox(height: 4),
+
                       Text(
-                        "Khách Hàng: ${customer!.customerName}",
+                        'Thông tin: $information',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -625,55 +675,43 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
                 // PHẦN BÊN PHẢI: VOLUME (TRÊN) & FULLNAME (DƯỚI)
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (allowNote) ...[
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _showNoteMap[pId] = !isOpen;
-                              });
-                            },
-                            child: Icon(
-                              isOpen ? Icons.remove_circle : Icons.add_circle,
-                              color: isOpen ? Colors.red : Colors.green,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade100,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Text(
-                            "${req.volume} m³",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue.shade900,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
                       child: Text(
-                        "Nguời ĐK: ${req.user!.fullName ?? ""}",
+                        "${req.volume} m³",
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey.shade600,
-                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade900,
+                          fontSize: 12,
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+
+                    Text(
+                      "SL Đã Giao: ${inventory?.totalQtyOutbound ?? 0} - SL Yêu Cầu: ${req.qtyRegistered}",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+
+                    Text(
+                      ((inventory?.qtyInventory ?? 0) > 0)
+                          ? "SL Tồn: ${inventory!.qtyInventory}"
+                          : "TG Dự Kiến: ${formatter.format(planning!.dayStart!)} - ${PlanningPaper.formatTimeOfDay(timeOfDay: planning.timeRunning!)}",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
                       ),
                     ),
                   ],
@@ -681,39 +719,6 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
               ],
             ),
           ),
-
-          // INPUT GHI CHÚ
-          if (isOpen)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: TextField(
-                controller: controller,
-                maxLines: 2,
-                minLines: 1,
-                style: const TextStyle(fontSize: 15, color: Colors.black87),
-                decoration: InputDecoration(
-                  hintText: "Thêm ghi chú cho đơn này...",
-                  hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
-                  isDense: true,
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  prefixIcon: Icon(
-                    Icons.sticky_note_2_outlined,
-                    size: 20,
-                    color: Colors.blueGrey.shade400,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.blue, width: 1.5),
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );
@@ -910,7 +915,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
               const SizedBox(height: 8),
 
               ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 250),
+                constraints: const BoxConstraints(maxHeight: 300),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     if (orders.isEmpty) return const SizedBox.shrink();
@@ -949,23 +954,17 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   }
 
   //helper
-  Widget _buildDraggablePaper(DeliveryRequest req, double width, {bool allowNote = true}) {
+  Widget _buildDraggablePaper(DeliveryRequest req, double width) {
     return Draggable<DeliveryRequest>(
       data: req,
       maxSimultaneousDrags: _isEditable ? 1 : 0,
       feedback: Material(
         elevation: 6,
         borderRadius: BorderRadius.circular(10),
-        child: SizedBox(
-          width: width,
-          child: _requestedCard(req: req, isDragging: true, allowNote: allowNote),
-        ),
+        child: SizedBox(width: width, child: _requestedCard(req: req, isDragging: true)),
       ),
-      childWhenDragging: Opacity(
-        opacity: 0.3,
-        child: _requestedCard(req: req, allowNote: allowNote),
-      ),
-      child: _requestedCard(req: req, allowNote: allowNote),
+      childWhenDragging: Opacity(opacity: 0.3, child: _requestedCard(req: req)),
+      child: _requestedCard(req: req),
     );
   }
 }

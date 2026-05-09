@@ -70,6 +70,8 @@ class UploadCloudinaryService {
         },
       );
 
+      // print('Cloudinary response: ${response.data}');
+
       return {"imageUrl": response.data['secure_url'], "publicId": response.data['public_id']};
     } catch (e) {
       if (e is DioException) {

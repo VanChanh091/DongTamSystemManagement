@@ -79,7 +79,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
       futurePlanning = Future.error("NO_PERMISSION");
     }
 
-    columns = buildMachineBoxColumns(machine: machine, themeController: themeController);
+    columns = buildMachineBoxColumns(
+      machine: machine,
+      themeController: themeController,
+      page: 'planning',
+    );
 
     ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((w) {
       setState(() {
@@ -478,6 +482,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     selectedPlanningIds: selectedPlanningBoxIds,
                     unsavedChange: unsavedChangeController,
                     machine: machine,
+                    page: 'planning',
                     showGroup: showGroup,
                   );
 

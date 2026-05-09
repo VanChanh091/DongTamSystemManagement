@@ -106,15 +106,15 @@ class _HomePageState extends State<HomePage> {
       _buildPage(permissions: ['QC'], child: WaitingCheckBox()),
 
       //outbound
-      _buildPage(permissions: ['delivery'], child: OutboundHistory()),
+      _buildPage(permissions: ['delivery', 'accountant'], child: OutboundHistory()),
       Inventory(),
       LiquidationInventory(),
 
       //delivery
       _buildPage(permissions: ['plan', 'sale'], child: DeliveryEstimateTime()),
-      _buildPage(permissions: ['plan'], child: DeliveryPlanning()),
+      DeliveryPlanning(),
       DeliverySchedule(),
-      _buildPage(permissions: ['delivery'], child: DeliveryPrepareGoods()),
+      _buildPage(permissions: ['delivery', 'accountant'], child: DeliveryPrepareGoods()),
 
       //reporting hitstory
       TopTabHistoryReport(),

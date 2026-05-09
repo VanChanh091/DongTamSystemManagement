@@ -8,6 +8,7 @@ import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
     "Tên Khách Hàng": "customerName",
     "Tên Sản Phẩm": "productName",
     "QC Thùng": "qcBox",
-    "Đơn Giá": "price",
   };
 
   String? selectedOrderId;
@@ -177,7 +177,6 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                               "Tên Khách Hàng",
                               "Tên Sản Phẩm",
                               "QC Thùng",
-                              'Đơn giá',
                             ],
                             onTypeChanged: (value) {
                               setState(() {
@@ -265,6 +264,36 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                             columns: columns,
                             widths: columnWidths,
                           ),
+                          stackedHeaderRows: <StackedHeaderRow>[
+                            StackedHeaderRow(
+                              cells: [
+                                StackedHeaderCell(
+                                  columnNames: [
+                                    'inMatTruoc',
+                                    'inMatSau',
+                                    'canMang',
+                                    'canLanBox',
+                                    'xa',
+                                    'catKhe',
+                                    'be',
+                                    'dan_1_Manh',
+                                    'dan_2_Manh',
+                                    'dongGhimMotManh',
+                                    'dongGhimHaiManh',
+                                    'chongTham',
+                                    'dongGoi',
+                                    'maKhuon',
+                                  ],
+                                  child: Obx(
+                                    () => formatColumn(
+                                      label: 'Công Đoạn 2',
+                                      themeController: themeController,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
 
                           //auto resize
                           allowColumnsResizing: true,

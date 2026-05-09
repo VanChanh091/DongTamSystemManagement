@@ -76,7 +76,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   //paging
   int currentPage = 1;
   int pageSize = 35;
-  int pageSizeSearch = 25;
+  int pageSizeSearch = 30;
 
   @override
   void initState() {
@@ -154,6 +154,8 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isPlan = userController.hasPermission(permission: "plan");
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -172,7 +174,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        "ĐƠN HÀNG CHỜ SẢN XUẤT VÀ GIAO HÀNG",
+                        "ĐĂNG KÝ GIAO HÀNG",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
@@ -288,93 +290,106 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                 const SizedBox(width: 10),
 
                                                 //close planning
-                                                AnimatedButton(
-                                                  onPressed:
-                                                      selectedPaperIds.isEmpty
-                                                          ? null
-                                                          : () async {
-                                                            final bool
-                                                            confirm = await showConfirmDialog(
-                                                              context: context,
-                                                              title: "Xác Nhận Đóng Kế Hoạch Này",
-                                                              content:
-                                                                  "Bạn có chắc chắn muốn đóng kế hoạch này?",
-                                                              confirmText: "Xác Nhận",
-                                                              confirmColor: const Color(0xffEA4346),
-                                                            );
-
-                                                            if (confirm) {
-                                                              try {
-                                                                final selectedPapers =
-                                                                    planningList
-                                                                        .where(
-                                                                          (p) => selectedPaperIds
-                                                                              .contains(
-                                                                                p.planningId,
-                                                                              ),
-                                                                        )
-                                                                        .toList();
-
-                                                                final bool isBoxType =
-                                                                    selectedPapers.any(
-                                                                      (p) => p.hasBox == true,
+                                                isPlan
+                                                    ? Row(
+                                                      children: [
+                                                        AnimatedButton(
+                                                          onPressed:
+                                                              selectedPaperIds.isEmpty
+                                                                  ? null
+                                                                  : () async {
+                                                                    final bool
+                                                                    confirm = await showConfirmDialog(
+                                                                      context: context,
+                                                                      title:
+                                                                          "Xác Nhận Đóng Kế Hoạch Này",
+                                                                      content:
+                                                                          "Bạn có chắc chắn muốn đóng kế hoạch này?",
+                                                                      confirmText: "Xác Nhận",
+                                                                      confirmColor: const Color(
+                                                                        0xffEA4346,
+                                                                      ),
                                                                     );
 
-                                                                final success =
-                                                                    await DeliveryService()
-                                                                        .handlePutDelivery(
-                                                                          planningId:
-                                                                              selectedPaperIds,
-                                                                          isPaper: !isBoxType,
-                                                                        );
+                                                                    if (confirm) {
+                                                                      try {
+                                                                        final selectedPapers =
+                                                                            planningList
+                                                                                .where(
+                                                                                  (
+                                                                                    p,
+                                                                                  ) => selectedPaperIds
+                                                                                      .contains(
+                                                                                        p.planningId,
+                                                                                      ),
+                                                                                )
+                                                                                .toList();
 
-                                                                if (success) {
-                                                                  if (context.mounted) {
-                                                                    showSnackBarSuccess(
-                                                                      context,
-                                                                      "Đóng kế hoạch thành công",
-                                                                    );
-                                                                  }
-                                                                  loadPlanningEstimate();
-                                                                }
-                                                              } on ApiException catch (e) {
-                                                                if (!context.mounted) return;
+                                                                        final bool isBoxType =
+                                                                            selectedPapers.any(
+                                                                              (p) =>
+                                                                                  p.hasBox == true,
+                                                                            );
 
-                                                                switch (e.errorCode) {
-                                                                  case "CANNOT_CLOSE_EMPTY_PAPER":
-                                                                    showSnackBarError(
-                                                                      context,
-                                                                      e.message!,
-                                                                    );
-                                                                    break;
-                                                                  case "NO_INBOUND_HISTORY":
-                                                                    showSnackBarError(
-                                                                      context,
-                                                                      e.message!,
-                                                                    );
-                                                                    break;
-                                                                  default:
-                                                                    showSnackBarError(
-                                                                      context,
-                                                                      "Có lỗi khi đóng đơn hàng",
-                                                                    );
-                                                                }
-                                                              } catch (e) {
-                                                                if (context.mounted) {
-                                                                  showSnackBarError(
-                                                                    context,
-                                                                    "Có lỗi khi đóng kế hoạch",
-                                                                  );
-                                                                }
-                                                              }
-                                                            }
-                                                          },
-                                                  label: "Đóng Kế Hoạch",
-                                                  icon: Icons.delete,
-                                                  backgroundColor: const Color(0xffEA4346),
-                                                ),
+                                                                        final success =
+                                                                            await DeliveryService()
+                                                                                .handlePutDelivery(
+                                                                                  planningId:
+                                                                                      selectedPaperIds,
+                                                                                  isPaper:
+                                                                                      !isBoxType,
+                                                                                );
 
-                                                const SizedBox(width: 10),
+                                                                        if (success) {
+                                                                          if (context.mounted) {
+                                                                            showSnackBarSuccess(
+                                                                              context,
+                                                                              "Đóng kế hoạch thành công",
+                                                                            );
+                                                                          }
+                                                                          loadPlanningEstimate();
+                                                                        }
+                                                                      } on ApiException catch (e) {
+                                                                        if (!context.mounted)
+                                                                          return;
+
+                                                                        switch (e.errorCode) {
+                                                                          case "CANNOT_CLOSE_EMPTY_PAPER":
+                                                                            showSnackBarError(
+                                                                              context,
+                                                                              e.message!,
+                                                                            );
+                                                                            break;
+                                                                          case "NO_INBOUND_HISTORY":
+                                                                            showSnackBarError(
+                                                                              context,
+                                                                              e.message!,
+                                                                            );
+                                                                            break;
+                                                                          default:
+                                                                            showSnackBarError(
+                                                                              context,
+                                                                              "Có lỗi khi đóng đơn hàng",
+                                                                            );
+                                                                        }
+                                                                      } catch (e) {
+                                                                        if (context.mounted) {
+                                                                          showSnackBarError(
+                                                                            context,
+                                                                            "Có lỗi khi đóng kế hoạch",
+                                                                          );
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                          label: "Đóng Kế Hoạch",
+                                                          icon: Icons.delete,
+                                                          backgroundColor: const Color(0xffEA4346),
+                                                        ),
+                                                        const SizedBox(width: 10),
+                                                      ],
+                                                    )
+                                                    : const SizedBox.shrink(),
 
                                                 //filter
                                                 buildDropdownItems(
@@ -534,7 +549,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                         columnNames: [
                                           'quantityOrd',
                                           'qtyProduced',
-                                          'runningPlanProd',
+                                          'qtyOutbound',
                                           "qtyInventory",
                                         ],
                                         child: Obx(

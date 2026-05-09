@@ -56,10 +56,13 @@ class DeliveryService {
   //=========================PLANNING DELIVERY===========================
 
   //get all planning waiting delivery
-  Future<List<DeliveryRequest>> getPlanningRequest() async {
+  Future<List<DeliveryRequest>> getPlanningRequest({String? field, String? keyword}) async {
     return HelperService().fetchingData<DeliveryRequest>(
       endpoint: "delivery/planning",
-      queryParameters: const {},
+      queryParameters: {
+        if (field != null && keyword != null) 'field': field,
+        if (field != null && keyword != null) 'keyword': keyword,
+      },
       fromJson: (json) => DeliveryRequest.fromJson(json),
     );
   }
@@ -135,6 +138,7 @@ class DeliveryService {
         return await HelperService().saveExcelFile(
           bytes: response.data as List<int>,
           fileNamePrefix: "delivery_schedule",
+          dateTime: deliveryDate,
         );
       } else {
         AppLogger.w("Export failed with statusCode: ${response.statusCode}");

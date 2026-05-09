@@ -46,7 +46,7 @@ class _PlanningStopState extends State<PlanningStop> {
 
   int currentPage = 1;
   int pageSize = 35;
-  int pageSizeSearch = 25;
+  int pageSizeSearch = 30;
 
   @override
   void initState() {

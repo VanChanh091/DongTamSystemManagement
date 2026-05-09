@@ -22,33 +22,87 @@ class OrderDataSource extends DataGridSource {
   }
 
   List<DataGridCell> buildOrderCells(Order order, int index) {
+    DataGridCell<String> buildCurrencyCell(String columnName, num value, String? unit) {
+      return DataGridCell<String>(
+        columnName: columnName,
+        value: (value) > 0 ? '${Order.formatCurrency(value)} $unit' : "0",
+      );
+    }
+
+    DataGridCell<String> buildDateCell(String columnName, DateTime value) {
+      return DataGridCell<String>(columnName: columnName, value: formatter.format(value));
+    }
+
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
+
+      buildDateCell('dayReceive', order.dayReceiveOrder),
+      buildDateCell('dateShipping', order.dateRequestShipping!),
+
       DataGridCell<String>(columnName: 'customerName', value: order.customer?.customerName ?? ''),
+      DataGridCell<String>(columnName: 'companyName', value: order.customer?.companyName ?? ''),
+      DataGridCell<String>(columnName: 'typeProduct', value: order.product?.typeProduct ?? ''),
       DataGridCell<String>(columnName: 'productName', value: order.product?.productName ?? ''),
+
       DataGridCell<String>(columnName: 'flute', value: order.flute ?? ''),
       DataGridCell<String>(columnName: 'QC_box', value: order.QC_box ?? ''),
       DataGridCell<String>(columnName: 'structure', value: order.formatterStructureOrder),
-      DataGridCell<String>(
-        columnName: 'sizeCustomer',
-        value: '${Order.formatCurrency(order.paperSizeCustomer)} cm',
-      ),
-      DataGridCell<String>(
-        columnName: 'lengthCus',
-        value:
-            ((order.lengthPaperCustomer) > 0)
-                ? '${Order.formatCurrency(order.lengthPaperCustomer)} cm'
-                : '0',
-      ),
       DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXaOrd', value: order.daoXa),
+
+      buildCurrencyCell('sizeCustomer', order.paperSizeCustomer, 'cm'),
+      buildCurrencyCell('sizeManufacture', order.paperSizeManufacture, 'cm'),
+      buildCurrencyCell('lengthCus', order.lengthPaperCustomer, 'cm'),
+      buildCurrencyCell('lengthMf', order.lengthPaperManufacture, 'cm'),
+      buildCurrencyCell('quantityCustomer', order.quantityCustomer, ''),
+      buildCurrencyCell('qtyManufacture', order.quantityManufacture, ''),
+
       DataGridCell<String>(
-        columnName: 'quantityCustomer',
-        value: Order.formatCurrency(order.quantityCustomer),
+        columnName: 'volume',
+        value: order.volume! > 0 ? '${Order.formatCurrency(order.volume ?? 0)} m³' : "0",
       ),
-      DataGridCell<String>(columnName: 'vat', value: order.vat! > 0 ? "${order.vat}%" : "0"),
-      DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
+      DataGridCell<int>(columnName: 'child', value: order.numberChild),
+      DataGridCell<String>(columnName: 'dvt', value: order.dvt),
+
+      buildCurrencyCell('acreage', order.acreage ?? 0, ""),
+      buildCurrencyCell('price', order.price, "VNĐ"),
+      buildCurrencyCell('pricePaper', order.pricePaper ?? 0, "VNĐ"),
+      buildCurrencyCell('discounts', order.discount ?? 0, "VNĐ"),
+      DataGridCell<String>(
+        columnName: 'profitOrd',
+        value: order.profit > 0 ? '${Order.formatCurrency(order.profit)}%' : "0",
+      ),
+
+      DataGridCell<String>(columnName: 'vat', value: order.vat! > 0 ? '${order.vat ?? 0}%' : "0"),
+      DataGridCell<String>(columnName: 'HD_special', value: order.instructSpecial ?? ""),
+
+      buildCurrencyCell('totalPrice', order.totalPrice ?? 0, "VNĐ"),
+      buildCurrencyCell('totalPriceAfterVAT', order.totalPriceVAT ?? 0, "VNĐ"),
+
+      ...buildBoxCells(order),
+    ];
+  }
+
+  List<DataGridCell> buildBoxCells(Order order) {
+    return [
+      DataGridCell<int>(columnName: 'inMatTruoc', value: order.box?.inMatTruoc ?? 0),
+      DataGridCell<int>(columnName: 'inMatSau', value: order.box?.inMatSau ?? 0),
+
+      DataGridCell<bool>(columnName: 'chongTham', value: order.box?.chongTham ?? false),
+      DataGridCell<bool>(columnName: 'canLanBox', value: order.box?.canLan ?? false),
+      DataGridCell<bool>(columnName: 'canMang', value: order.box?.canMang ?? false),
+      DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa ?? false),
+      DataGridCell<bool>(columnName: 'catKhe', value: order.box?.catKhe ?? false),
+      DataGridCell<bool>(columnName: 'be', value: order.box?.be ?? false),
+      DataGridCell<String>(columnName: 'maKhuon', value: order.box?.maKhuon ?? ""),
+      DataGridCell<bool>(columnName: 'dan_1_Manh', value: order.box?.dan_1_Manh ?? false),
+      DataGridCell<bool>(columnName: 'dan_2_Manh', value: order.box?.dan_2_Manh ?? false),
+      DataGridCell<bool>(columnName: 'dongGhimMotManh', value: order.box?.dongGhim1Manh ?? false),
+      DataGridCell<bool>(columnName: 'dongGhimHaiManh', value: order.box?.dongGhim2Manh ?? false),
+      DataGridCell<String>(columnName: 'dongGoi', value: order.box?.dongGoi ?? ""),
+
+      DataGridCell<String>(columnName: 'orderIdCustomer', value: order.orderIdCustomer ?? ""),
 
       ...userController.hasAnyRole(roles: ['admin', 'manager'])
           ? [
@@ -69,6 +123,7 @@ class OrderDataSource extends DataGridSource {
 
       DataGridCell(columnName: 'status', value: formatStatus(order.status)),
       DataGridCell(columnName: 'rejectReason', value: order.rejectReason ?? ""),
+      DataGridCell(columnName: 'note', value: order.note ?? ""),
       DataGridCell(columnName: 'orderImage', value: order.orderImage?.imageUrl ?? ""),
     ];
   }
@@ -90,7 +145,19 @@ class OrderDataSource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ['chongTham', 'isBox'];
+    const boolColumns = [
+      'chongTham',
+      'canLanBox',
+      'canMang',
+      'xa',
+      'catKhe',
+      'be',
+      'dan_1_Manh',
+      'dan_2_Manh',
+      'dongGhimMotManh',
+      'dongGhimHaiManh',
+      'isBox',
+    ];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';

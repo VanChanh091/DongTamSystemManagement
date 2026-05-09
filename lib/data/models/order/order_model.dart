@@ -23,7 +23,7 @@ class Order {
 
   final String? flute, QC_box, canLan;
   final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
-  final String? instructSpecial, rejectReason, orderIdCustomer;
+  final String? instructSpecial, rejectReason, orderIdCustomer, note;
   final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT, volume;
   final DateTime? dateRequestShipping;
   final int? vat;
@@ -81,6 +81,7 @@ class Order {
     required this.status,
     this.rejectReason,
     this.orderIdCustomer,
+    this.note,
     this.totalPrice,
     this.totalPriceVAT,
     required this.isBox,
@@ -203,7 +204,7 @@ class Order {
       status: json['status'] ?? "",
       rejectReason: json['rejectReason'] ?? "",
       orderIdCustomer: json['orderIdCustomer'] ?? "",
-
+      note: json['note'] ?? "",
       remainingQty: json['remainingQty'] ?? 0,
       totalOutbound: json['totalOutbound'] ?? 0,
 
@@ -259,6 +260,7 @@ class Order {
       'profit': profit,
       'dateRequestShipping': DateFormat('yyyy-MM-dd').format(dateRequestShipping!),
       'instructSpecial': instructSpecial,
+      'note': note,
       "isBox": isBox,
       "chongTham": chongTham,
       'status': status,

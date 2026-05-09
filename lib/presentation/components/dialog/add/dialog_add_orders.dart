@@ -46,7 +46,7 @@ class _OrderDialogState extends State<OrderDialog> {
   Timer? _productIdDebounce;
   String lastSearchedCustomerId = "";
   String lastSearchedProductId = "";
-  final List<String> itemsDvt = ['Tấm', 'Tấm Bao Khổ', 'Kg', 'Cái', 'M2', 'Lần'];
+  final List<String> itemsDvt = ['M2', 'Tấm', 'Tấm Bao Khổ', 'Kg', 'Cái', 'Lần'];
   final List<String> itemsDaoXa = ["Tề Gọn", "Tề Biên Đẹp", "Tề Biên Cột", "Quấn Cuồn"];
   late String originalOrderId;
   List<Customer> allCustomers = [];
@@ -89,12 +89,15 @@ class _OrderDialogState extends State<OrderDialog> {
   final discountController = TextEditingController();
   final profitController = TextEditingController();
   final vatController = TextEditingController();
-  final instructSpecialController = TextEditingController();
   final orderIdCustomerController = TextEditingController();
+
+  //instruct special & note
+  final instructSpecialController = TextEditingController();
+  final noteController = TextEditingController();
 
   final dvtController = TextEditingController();
   final daoXaController = TextEditingController();
-  late String typeDVT = "Tấm";
+  late String typeDVT = "M2";
   late String typeDaoXa = "Tề Gọn";
 
   final dateShippingController = TextEditingController(); //ngày giao
@@ -195,6 +198,7 @@ class _OrderDialogState extends State<OrderDialog> {
     });
 
     instructSpecialController.text = selectedOrder.instructSpecial ?? "";
+    noteController.text = selectedOrder.note ?? "";
 
     if (selectedOrder.dateRequestShipping != null) {
       dateShipping = selectedOrder.dateRequestShipping;
@@ -299,7 +303,7 @@ class _OrderDialogState extends State<OrderDialog> {
         productId: productIdController.trimmed.toUpperCase(),
 
         dayReceiveOrder: dayReceive ?? DateTime.now(),
-        QC_box: qcBoxController.trimmed.toLowerCase(),
+        QC_box: qcBoxController.trimmed,
         canLan: canLanController.trimmed,
         daoXa: typeDaoXa,
 
@@ -330,7 +334,9 @@ class _OrderDialogState extends State<OrderDialog> {
 
         dateRequestShipping: dateShipping ?? DateTime.now(),
         vat: int.tryParse(vatController.trimmed) ?? 0,
+
         instructSpecial: instructSpecialController.trimmed,
+        note: noteController.trimmed,
 
         chongTham: chongThamPaperChecked.value,
         isBox: isBoxChecked.value,
@@ -459,6 +465,7 @@ class _OrderDialogState extends State<OrderDialog> {
     orderIdController.dispose();
     orderIdCustomerController.dispose();
     instructSpecialController.dispose();
+    noteController.dispose();
     customerIdController.dispose();
     productIdController.dispose();
     dateShippingController.dispose();
@@ -1142,24 +1149,62 @@ class _OrderDialogState extends State<OrderDialog> {
                             ),
 
                             const SizedBox(height: 16),
-                            const Text(
-                              'Hướng dẫn đặc biệt:',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(height: 10),
 
-                            TextFormField(
-                              controller: instructSpecialController,
-                              decoration: InputDecoration(
-                                hintText: 'Nhập ghi chú tại đây...',
-                                fillColor: Colors.white,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Colors.grey),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Hướng dẫn đặc biệt:',
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextFormField(
+                                        controller: instructSpecialController,
+                                        decoration: InputDecoration(
+                                          hintText: 'Nhập nội dung...',
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        maxLines: 3,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              maxLines: 3,
+
+                                const SizedBox(width: 16),
+
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Ghi Chú:',
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextFormField(
+                                        controller: noteController,
+                                        decoration: InputDecoration(
+                                          hintText: 'Nhập ghi chú...',
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        maxLines: 3,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),

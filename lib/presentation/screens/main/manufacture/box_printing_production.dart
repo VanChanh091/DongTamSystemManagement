@@ -89,7 +89,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
     loadPlanning();
 
-    columns = buildMachineBoxColumns(machine: machine, themeController: themeController);
+    columns = buildMachineBoxColumns(
+      machine: machine,
+      themeController: themeController,
+      page: 'production',
+    );
 
     ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((w) {
       setState(() {
@@ -608,6 +612,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
+                    page: 'production',
                     machine: machine,
                   );
 
@@ -626,7 +631,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                       columns: columns,
                       widths: columnWidths,
                     ),
-                    frozenColumnsCount: 7,
+                    frozenColumnsCount: 6,
                     stackedHeaderRows: <StackedHeaderRow>[
                       StackedHeaderRow(
                         cells: [

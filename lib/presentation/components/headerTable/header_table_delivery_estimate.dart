@@ -20,6 +20,7 @@ const List<Map<String, dynamic>> _headerDeliveryEstimate = [
   // Quantity
   {"key": "quantityOrd", "title": "Đơn Hàng"},
   {"key": "qtyProduced", "title": "Đã Sản Xuất"},
+  {"key": "qtyOutbound", "title": "Đã Xuất Kho"},
   {"key": "qtyInventory", "title": "Tồn Kho"},
 
   {"key": "dvt", "title": "DVT"},

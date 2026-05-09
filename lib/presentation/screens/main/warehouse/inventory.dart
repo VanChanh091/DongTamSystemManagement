@@ -54,7 +54,7 @@ class _InventoryState extends State<Inventory> {
 
   int currentPage = 1;
   int pageSize = 35;
-  int pageSizeSearch = 25;
+  int pageSizeSearch = 30;
 
   @override
   void initState() {
@@ -232,6 +232,7 @@ class _InventoryState extends State<Inventory> {
                                     if (!context.mounted) return;
                                     showDialog(
                                       context: context,
+                                      barrierDismissible: false,
                                       builder:
                                           (_) => OutBoundDialog(
                                             outbound: null,
@@ -450,6 +451,7 @@ class _InventoryState extends State<Inventory> {
                                 ),
                                 StackedHeaderCell(
                                   columnNames: [
+                                    "qtyCustomer",
                                     "totalQtyInbound",
                                     "totalQtyOutbound",
                                     "qtyInventory",
@@ -457,6 +459,15 @@ class _InventoryState extends State<Inventory> {
                                   child: Obx(
                                     () => formatColumn(
                                       label: 'Số Lượng',
+                                      themeController: themeController,
+                                    ),
+                                  ),
+                                ),
+                                StackedHeaderCell(
+                                  columnNames: ["totalPrice", "totalPriceVAT"],
+                                  child: Obx(
+                                    () => formatColumn(
+                                      label: 'Tổng Tiền',
                                       themeController: themeController,
                                     ),
                                   ),

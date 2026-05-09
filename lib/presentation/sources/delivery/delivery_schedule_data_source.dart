@@ -18,7 +18,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
     buildDataGridRows();
 
     addColumnGroup(ColumnGroup(name: 'sequence', sortGroupRows: false));
-    addColumnGroup(ColumnGroup(name: 'customerName', sortGroupRows: false));
+    addColumnGroup(ColumnGroup(name: 'vehicleName', sortGroupRows: false));
   }
 
   List<DataGridCell> buildDbPaperCells(DeliveryPlanModel plan, DeliveryItemModel item) {
@@ -28,43 +28,27 @@ class DeliveryScheduleDataSource extends DataGridSource {
     final product = order?.product;
 
     return [
-      DataGridCell<String>(columnName: "vehicleName", value: vehicle?.vehicleName ?? ""),
-      DataGridCell<String>(columnName: "licensePlate", value: vehicle?.licensePlate ?? ""),
-
       //order
       DataGridCell<String>(columnName: "orderId", value: order!.orderId),
+      DataGridCell<String>(columnName: "status", value: item.status),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
-      DataGridCell<String>(columnName: "companyName", value: customer?.companyName ?? ""),
       DataGridCell<String>(columnName: "productName", value: product?.productName ?? ""),
 
-      DataGridCell<String>(columnName: "flute", value: order.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: order.QC_box ?? ""),
       DataGridCell<String>(columnName: "structure", value: order.formatterStructureOrder),
 
       DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeManufacture} cm'),
       DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperManufacture} cm'),
       DataGridCell<int>(columnName: "qtyRegistered", value: item.request?.qtyRegistered ?? 0),
+      DataGridCell<int>(columnName: "qtyOutbound", value: order.Inventory?.totalQtyOutbound ?? 0),
 
+      DataGridCell<String>(columnName: "note", value: order.note ?? ""),
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
       DataGridCell<String>(
         columnName: "volume",
         value: item.request!.volume != 0 ? "${item.request!.volume} m³" : "",
       ),
-
-      //vehicle
-      DataGridCell<String>(
-        columnName: "maxPayload",
-        value: vehicle?.maxPayload != 0 ? "${vehicle?.maxPayload} kg" : "",
-      ),
-      DataGridCell<String>(
-        columnName: "volumeCapacity",
-        value: vehicle?.volumeCapacity != 0 ? "${vehicle?.volumeCapacity} m³" : "",
-      ),
       DataGridCell<String>(columnName: "vehicleHouse", value: vehicle?.vehicleHouse ?? ""),
-
-      //delivery item
-      DataGridCell<String>(columnName: "note", value: item.note ?? ""),
-      DataGridCell<String>(columnName: "status", value: item.status),
 
       //hidden field
       DataGridCell<int>(columnName: "deliveryId", value: plan.deliveryId),
@@ -74,6 +58,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
         value: plan.deliveryDate != null ? formatter.format(plan.deliveryDate!) : "",
       ),
       DataGridCell<String>(columnName: "status", value: item.status), //status of delivery item
+      DataGridCell<String>(columnName: "vehicleName", value: vehicle?.vehicleName ?? ""),
       DataGridCell<String>(columnName: "sequence", value: item.sequence),
     ];
   }
@@ -113,8 +98,8 @@ class DeliveryScheduleDataSource extends DataGridSource {
         caption = '🚚 Tài: $groupValue - $itemCount đơn hàng';
         break;
 
-      case 'customerName':
-        caption = 'Khách Hàng: $groupValue';
+      case 'vehicleName':
+        caption = '$groupValue - $itemCount đơn hàng';
         break;
 
       default:

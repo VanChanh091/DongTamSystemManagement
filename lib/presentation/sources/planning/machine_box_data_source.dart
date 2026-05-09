@@ -1,4 +1,5 @@
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/planning_helper.dart';
@@ -13,6 +14,7 @@ class MachineBoxDatasource extends DataGridSource {
   UnsavedChangeController? unsavedChange;
   String machine;
   bool showGroup;
+  String page;
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -25,6 +27,7 @@ class MachineBoxDatasource extends DataGridSource {
     required this.selectedPlanningIds,
     required this.showGroup,
     required this.machine,
+    required this.page,
     this.unsavedChange,
   }) {
     buildDataGridRows();
@@ -40,13 +43,15 @@ class MachineBoxDatasource extends DataGridSource {
     return [
       //14 items
       DataGridCell<String>(columnName: "orderId", value: planning.orderId),
-      DataGridCell<String>(
-        columnName: "dateShipping",
-        value:
-            planning.order?.dateRequestShipping != null
-                ? formatter.format(planning.order!.dateRequestShipping!)
-                : '',
-      ),
+      if (page == "planning") ...[
+        DataGridCell<String>(
+          columnName: "dateShipping",
+          value:
+              planning.order?.dateRequestShipping != null
+                  ? formatter.format(planning.order!.dateRequestShipping!)
+                  : '',
+        ),
+      ],
       DataGridCell<String>(
         columnName: "customerName",
         value: planning.order?.customer?.customerName ?? "",
@@ -132,6 +137,15 @@ class MachineBoxDatasource extends DataGridSource {
                 ? formatterDayCompleted.format(boxMachineTime!.dayCompleted!)
                 : '',
       ),
+      if (page == "planning") ...[
+        DataGridCell<String>(
+          columnName: 'totalPrice',
+          value:
+              (planning.order?.totalPrice ?? 0) > 0
+                  ? '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND'
+                  : "0",
+        ),
+      ],
 
       //isRequestCheck
       DataGridCell<String>(columnName: "statusRequest", value: planning.statusRequest),
@@ -252,11 +266,25 @@ class MachineBoxDatasource extends DataGridSource {
 
     String displayDate = '';
     String itemCount = '';
+    String totalPriceStr = '';
 
     if (match != null) {
       displayDate = match.group(1) ?? '';
       final count = match.group(2) ?? '0';
       itemCount = '$count đơn hàng';
+
+      if (page == 'planning' && displayDate.isNotEmpty) {
+        double totalGroupPrice = planning
+            .where((p) {
+              final bt = p.getBoxMachineTimeByMachine(machine); // Lấy thông tin theo máy hiện tại
+              return bt?.dayStart != null && formatter.format(bt!.dayStart!) == displayDate;
+            })
+            .fold(0, (sum, p) => sum + (p.order?.totalPrice ?? 0));
+
+        if (totalGroupPrice > 0) {
+          totalPriceStr = ' – Tổng: ${Order.formatCurrency(totalGroupPrice)} VND';
+        }
+      }
     }
 
     return Container(
@@ -266,7 +294,7 @@ class MachineBoxDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày sản xuất: $displayDate – $itemCount'
+            ? '📅 Ngày sản xuất: $displayDate – $itemCount$totalPriceStr'
             : '📅 Ngày sản xuất: Không xác định',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
@@ -275,6 +303,10 @@ class MachineBoxDatasource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
+    // ===== Index row =====
+    final int rowIndex = planningDataGridRows.indexOf(row);
+    final currentPlanning = planning[rowIndex];
+
     final planningBoxId =
         row.getCells().firstWhere((cell) => cell.columnName == 'planningBoxId').value.toString();
 
@@ -330,6 +362,25 @@ class MachineBoxDatasource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
+            TextStyle? customTextStyle;
+            if (page == 'planning' && dataCell.columnName == 'dateShipping') {
+              final DateTime? shipDate = currentPlanning.order?.dateRequestShipping;
+              if (shipDate != null) {
+                final now = DateTime.now();
+                final today = DateTime(now.year, now.month, now.day);
+                final compareDate = DateTime(shipDate.year, shipDate.month, shipDate.day);
+
+                if (today.isAfter(compareDate)) {
+                  customTextStyle = const TextStyle(color: Colors.red, fontWeight: FontWeight.bold);
+                } else if (today.isAtSameMomentAs(compareDate)) {
+                  customTextStyle = const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                  );
+                }
+              }
+            }
+
             Color cellColor = Colors.transparent;
             //tô màu cho waste loss
             if (dataCell.columnName == 'wasteActually' && totalWasteActually > totalDmWasteLoss) {
@@ -350,6 +401,7 @@ class MachineBoxDatasource extends DataGridSource {
               label: _formatCellValueBool(dataCell),
               alignment: alignment,
               cellColor: cellColor,
+              textStyle: customTextStyle,
             );
           }).toList(),
     );

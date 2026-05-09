@@ -49,6 +49,41 @@ class SyntheticService {
     );
   }
 
+  Future<File?> exportExcelOrders({DateTime? fromDate, DateTime? toDate}) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final Map<String, dynamic> body = {};
+
+      if (fromDate != null && toDate != null) {
+        body["fromDate"] = fromDate.toIso8601String();
+        body["toDate"] = toDate.toIso8601String();
+      }
+
+      final response = await dioService.post(
+        "/api/synthetic/orders/export",
+        data: body,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "orders",
+        );
+      } else {
+        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
+        return null;
+      }
+    } catch (e, s) {
+      AppLogger.e("failed to export orders", error: e, stackTrace: s);
+      return null;
+    }
+  }
+
   //=========================PLANNING=========================
   //get data planning paper
   Future<Map<String, dynamic>> getAllSyntheticPlanning({

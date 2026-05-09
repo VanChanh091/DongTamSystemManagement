@@ -15,6 +15,7 @@ import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/socket/init_socket_prepare_goods.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -390,12 +391,25 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    headerRowHeight: 35,
-                    rowHeight: 40,
+                    headerRowHeight: 30,
+                    rowHeight: 37,
                     columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
                       widths: columnWidths,
                     ),
+                    stackedHeaderRows: <StackedHeaderRow>[
+                      StackedHeaderRow(
+                        cells: [
+                          StackedHeaderCell(
+                            columnNames: ["qtyRegistered", "qtyOutbound"],
+                            child: Obx(
+                              () =>
+                                  formatColumn(label: 'Số Lượng', themeController: themeController),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
 
                     //auto resize
                     allowColumnsResizing: true,

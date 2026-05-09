@@ -142,13 +142,13 @@ class WarehouseService {
     );
   }
 
-  Future<File?> exportFilePDFOutbound({required int outboundId}) async {
+  Future<File?> exportFilePDFOutbound({required int outboundId, required bool hasMoney}) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.post(
         "/api/warehouse/outbound/export",
-        queryParameters: {'outboundId': outboundId},
+        data: {'outboundId': outboundId, 'hasMoney': hasMoney},
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
           responseType: ResponseType.bytes,

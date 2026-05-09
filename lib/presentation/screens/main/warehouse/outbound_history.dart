@@ -52,6 +52,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Tên Khách Hàng": "customerName",
+    "Mã Phiếu XK": "outboundSlipCode",
     "Ngày Xuất Kho": "dateOutbound",
   };
 
@@ -67,7 +68,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   //paging
   int currentPage = 1;
   int pageSize = 35;
-  int pageSizeSearch = 25;
+  int pageSizeSearch = 30;
 
   @override
   void initState() {
@@ -174,7 +175,12 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                           flex: 1,
                           child: LeftButtonSearch(
                             selectedType: searchType,
-                            types: const ['Tất cả', "Tên Khách Hàng", "Ngày Xuất Kho"],
+                            types: const [
+                              'Tất cả',
+                              "Tên Khách Hàng",
+                              "Mã Phiếu XK",
+                              "Ngày Xuất Kho",
+                            ],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
@@ -257,42 +263,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 //export pdf
-                                AnimatedButton(
-                                  onPressed:
-                                      selectedOutboundId != null
-                                          ? () async {
-                                            final confirm = await showConfirmDialog(
-                                              context: context,
-                                              title: "Lập phiếu xuất kho",
-                                              content: "Bạn muốn lập phiếu xuất kho cho đơn này?",
-                                              confirmText: "Xác Nhận",
-                                              confirmColor: const Color(0xffEA4346),
-                                            );
-
-                                            if (confirm) {
-                                              final file = await WarehouseService()
-                                                  .exportFilePDFOutbound(
-                                                    outboundId: selectedOutboundId!,
-                                                  );
-
-                                              if (file != null && context.mounted) {
-                                                showSnackBarSuccess(
-                                                  context,
-                                                  "Lập phiếu xuất kho thành công",
-                                                );
-                                              } else if (context.mounted) {
-                                                showSnackBarError(
-                                                  context,
-                                                  "Lập phiếu xuất kho thất bại",
-                                                );
-                                              }
-                                            }
-                                          }
-                                          : null,
-                                  label: "Xuất file",
-                                  icon: Symbols.export_notes,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
+                                handleExportFile(),
                                 const SizedBox(width: 10),
 
                                 //outbound
@@ -600,6 +571,111 @@ class _OutboundHistoryState extends State<OutboundHistory> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget handleExportFile() {
+    final bool isAccountant = userController.hasPermission(permission: "accountant");
+    bool isButtonDisabled = selectedOutboundId == null;
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        PopupMenuButton<String>(
+          color: Colors.white,
+          position: PopupMenuPosition.under,
+          enabled: !isButtonDisabled,
+          offset: const Offset(35, 5),
+          onSelected: (value) async {
+            bool hasMoney = (value == "hasMoney");
+
+            final confirm = await showConfirmDialog(
+              context: context,
+              title: "Lập phiếu xuất kho",
+              content: "Bạn muốn lập phiếu xuất kho cho đơn này?",
+              confirmText: "Xác Nhận",
+              confirmColor: const Color(0xffEA4346),
+            );
+
+            if (confirm == true && context.mounted) {
+              final file = await WarehouseService().exportFilePDFOutbound(
+                outboundId: selectedOutboundId!,
+                hasMoney: hasMoney,
+              );
+
+              // 4. Xử lý kết quả trả về
+              if (mounted) {
+                if (file != null) {
+                  showSnackBarSuccess(context, "Lập phiếu xuất kho thành công");
+                } else {
+                  showSnackBarError(context, "Lập phiếu xuất kho thất bại");
+                }
+              }
+            }
+          },
+          itemBuilder:
+              (context) => [
+                PopupMenuItem<String>(
+                  value: "hasMoney",
+                  enabled: isAccountant,
+                  child: ListTile(
+                    leading: Icon(Symbols.attach_money, color: Colors.green),
+                    title: Text(
+                      "Có Tiền",
+                      style: TextStyle(color: isAccountant ? Colors.black87 : Colors.grey),
+                    ),
+                    subtitle:
+                        !isAccountant
+                            ? const Text("Chỉ dành cho kế toán", style: TextStyle(fontSize: 10))
+                            : null,
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: "noMoney",
+                  child: ListTile(
+                    leading: Icon(Symbols.do_not_disturb, color: Colors.blue),
+                    title: Text("Không có tiền"),
+                  ),
+                ),
+              ],
+          child: ElevatedButton(
+            onPressed: null,
+            style: ButtonStyle(
+              elevation: WidgetStateProperty.all(0),
+              backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                if (isButtonDisabled) {
+                  return Colors.grey.shade300;
+                }
+                return themeController.buttonColor.value;
+              }),
+              foregroundColor: WidgetStateProperty.all<Color>(
+                isButtonDisabled ? Colors.white70 : Colors.white,
+              ),
+              padding: WidgetStateProperty.all<EdgeInsets>(
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              ),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.save),
+                const SizedBox(width: 4),
+                Text(
+                  "Xuất File",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isButtonDisabled ? Colors.grey.shade500 : Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

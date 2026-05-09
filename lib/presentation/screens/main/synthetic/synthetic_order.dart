@@ -2,8 +2,10 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
+import 'package:dongtam/presentation/components/dialog/export/dialog_export_orders.dart';
 import 'package:dongtam/presentation/components/headerTable/synthetic/orders/header_synthetic_order_detail.dart';
 import 'package:dongtam/presentation/components/headerTable/synthetic/orders/header_synthetic_orders.dart';
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
@@ -18,6 +20,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class SyntheticOrder extends StatefulWidget {
@@ -56,8 +59,9 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   String filterType = "all";
   final Map<String, String> filterOptions = {
     'all': 'Tất cả',
+    'accept': "Đã Duyệt",
     'planning': 'Lên Kế Hoạch',
-    'complete': 'Hoàn Thành',
+    'completed': 'Hoàn Thành',
   };
 
   //text controller
@@ -75,7 +79,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   //paging
   int currentPage = 1;
   int pageSize = 35;
-  int pageSizeSearch = 25;
+  int pageSizeSearch = 30;
 
   @override
   void initState() {
@@ -112,7 +116,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
     futureOrders = ensureMinLoading(
       SyntheticService().getAllSyntheticOrders(
         page: currentPage,
-        pageSize: shouldSearch ? pageSizeSearch : pageSize,
+        pageSize: pageSize,
         status: filterType,
         allOrders: filterType,
         field: (shouldSearch && isDateSearch) ? selectedField : null,
@@ -150,7 +154,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSale = userController.hasPermission(permission: "sale");
+    final bool isAccountant = userController.hasPermission(permission: "accountant");
 
     return Scaffold(
       body: Container(
@@ -294,31 +298,43 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                           flex: 1,
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child:
-                                isSale
-                                    ? Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        //filter
-                                        buildDropdownItems(
-                                          value: filterType,
-                                          items: const ['all', 'planning', 'complete'],
-                                          onChanged:
-                                              (value) => {
-                                                setState(() {
-                                                  filterType = value!;
-                                                  selectedOrderId = null;
-                                                  selectedBoxesDetail = [];
-                                                  loadOrders();
-                                                }),
-                                              },
-                                          itemLabelBuilder:
-                                              (value) => filterOptions[value] ?? value,
-                                        ),
-                                        const SizedBox(width: 10),
-                                      ],
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                //export excel
+                                isAccountant
+                                    ? AnimatedButton(
+                                      onPressed: () async {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => DialogExportOrders(),
+                                        );
+                                      },
+                                      label: "Xuất Excel",
+                                      icon: Symbols.export_notes,
+                                      backgroundColor: themeController.buttonColor,
                                     )
                                     : const SizedBox.shrink(),
+                                const SizedBox(width: 10),
+
+                                //filter
+                                buildDropdownItems(
+                                  value: filterType,
+                                  items: const ['all', 'accept', 'planning', 'completed'],
+                                  onChanged:
+                                      (value) => {
+                                        setState(() {
+                                          filterType = value!;
+                                          selectedOrderId = null;
+                                          selectedBoxesDetail = [];
+                                          loadOrders();
+                                        }),
+                                      },
+                                  itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                                ),
+                                const SizedBox(width: 10),
+                              ],
+                            ),
                           ),
                         ),
                       ],

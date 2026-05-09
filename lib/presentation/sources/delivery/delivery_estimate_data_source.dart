@@ -26,6 +26,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
 
   List<DataGridCell> buildDbPaperCells(PlanningPaper paper, int index) {
     final order = paper.order;
+    final inventory = order?.Inventory;
 
     return [
       // Order
@@ -48,7 +49,8 @@ class DeliveryEstimateDataSource extends DataGridSource {
       //quantity
       DataGridCell<int>(columnName: 'quantityOrd', value: order.quantityManufacture),
       DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
-      DataGridCell<int>(columnName: "qtyInventory", value: order.Inventory?.qtyInventory ?? 0),
+      DataGridCell<int>(columnName: "qtyOutbound", value: inventory?.totalQtyOutbound ?? 0),
+      DataGridCell<int>(columnName: "qtyInventory", value: inventory?.qtyInventory ?? 0),
 
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
       DataGridCell<String>(

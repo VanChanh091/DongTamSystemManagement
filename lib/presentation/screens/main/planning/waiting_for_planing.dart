@@ -38,7 +38,11 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   final formatter = DateFormat('dd/MM/yyyy');
 
   String type = 'unplanned';
-  final Map<String, String> filterOptions = {'unplanned': 'Chưa xếp', 'planned': 'Đã xếp'};
+  final Map<String, String> filterOptions = {
+    'unplanned': 'Chưa xếp',
+    'partial': "Xếp 1 phần",
+    'planned': 'Đã xếp',
+  };
 
   //search
   TextEditingController searchController = TextEditingController();
@@ -240,7 +244,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                       //filter
                                       buildDropdownItems(
                                         value: type,
-                                        items: const ['unplanned', 'planned'],
+                                        items: const ['unplanned', 'partial', 'planned'],
                                         onChanged: (value) => changeFilter(value!),
                                         itemLabelBuilder: (value) => filterOptions[value] ?? value,
                                       ),

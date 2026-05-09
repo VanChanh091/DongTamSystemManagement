@@ -29,53 +29,29 @@ class InventoryDataSource extends DataGridSource {
   List<DataGridCell> buildInventoryCells(InventoryModel inventory, int index) {
     final order = inventory.order;
 
+    DataGridCell<String> buildCurrencyCell(String columnName, num value) {
+      return DataGridCell<String>(
+        columnName: columnName,
+        value: (value) > 0 ? '${Order.formatCurrency(value)} cm' : "0",
+      );
+    }
+
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
+
       DataGridCell<String>(columnName: 'orderId', value: inventory.orderId),
-      DataGridCell<String>(
-        columnName: 'typeProduct',
-        value: inventory.order?.product?.typeProduct ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: 'productName',
-        value: inventory.order?.product?.productName ?? "",
-      ),
-      DataGridCell<String>(
-        columnName: 'customerName',
-        value: inventory.order?.customer?.customerName ?? "",
-      ),
+      DataGridCell<String>(columnName: 'customerName', value: order?.customer?.customerName ?? ""),
+      DataGridCell<String>(columnName: 'typeProduct', value: order?.product?.typeProduct ?? ""),
+      DataGridCell<String>(columnName: 'productName', value: order?.product?.productName ?? ""),
+
       DataGridCell<String>(columnName: 'QcBox', value: order?.QC_box ?? ""),
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ""),
       DataGridCell<String>(columnName: 'structure', value: order?.formatterStructureOrder ?? ""),
-      DataGridCell<String>(
-        columnName: 'size',
-        value:
-            ((order?.paperSizeCustomer ?? 0) > 0)
-                ? '${Order.formatCurrency(order?.paperSizeCustomer ?? 0)} cm'
-                : '0',
-      ),
-      DataGridCell<String>(
-        columnName: 'length',
-        value:
-            ((order?.lengthPaperCustomer ?? 0) > 0)
-                ? '${Order.formatCurrency(order?.lengthPaperCustomer ?? 0)} cm'
-                : '0',
-      ),
+
+      buildCurrencyCell('size', order?.paperSizeCustomer ?? 0),
+      buildCurrencyCell('length', order?.lengthPaperCustomer ?? 0),
+
       DataGridCell<int>(columnName: 'qtyCustomer', value: order?.quantityCustomer ?? 0),
-      DataGridCell<String>(columnName: 'dvt', value: order?.dvt ?? ""),
-      DataGridCell<String>(
-        columnName: 'price',
-        value: '${Order.formatCurrency(order?.pricePaper ?? 0)} VNĐ',
-      ),
-      DataGridCell<String>(columnName: 'vat', value: '${order?.vat ?? 0}%'),
-      DataGridCell<String>(
-        columnName: 'totalPrice',
-        value: '${Order.formatCurrency(order?.totalPrice ?? 0)} VNĐ',
-      ),
-      DataGridCell<String>(
-        columnName: 'totalPriceVAT',
-        value: '${Order.formatCurrency(order?.totalPriceVAT ?? 0)} VNĐ',
-      ),
       DataGridCell<int>(columnName: 'totalQtyInbound', value: inventory.totalQtyInbound),
       DataGridCell<int>(columnName: 'totalQtyOutbound', value: inventory.totalQtyOutbound),
       DataGridCell<int>(columnName: 'qtyInventory', value: inventory.qtyInventory),
@@ -85,6 +61,23 @@ class InventoryDataSource extends DataGridSource {
             inventory.valueInventory > 0
                 ? '${Order.formatCurrency(inventory.valueInventory)} VNĐ'
                 : "0",
+      ),
+      DataGridCell<String>(columnName: 'dvt', value: order?.dvt ?? ""),
+      DataGridCell<String>(
+        columnName: 'price',
+        value: '${Order.formatCurrency(order?.pricePaper ?? 0)} VNĐ',
+      ),
+      DataGridCell<String>(
+        columnName: 'vat',
+        value: (order?.vat ?? 0) > 0 ? '${order?.vat ?? 0}%' : "",
+      ),
+      DataGridCell<String>(
+        columnName: 'totalPrice',
+        value: '${Order.formatCurrency(order?.totalPrice ?? 0)} VNĐ',
+      ),
+      DataGridCell<String>(
+        columnName: 'totalPriceVAT',
+        value: '${Order.formatCurrency(order?.totalPriceVAT ?? 0)} VNĐ',
       ),
 
       //hidden

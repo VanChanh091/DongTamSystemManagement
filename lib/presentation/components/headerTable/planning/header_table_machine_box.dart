@@ -5,7 +5,11 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _machineBoxColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
-  {"key": "dateShipping", "title": "Ngày Dự Kiến"},
+  {
+    "key": "dateShipping",
+    "title": "Ngày Dự Kiến",
+    "visiblePages": ["planning"],
+  },
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "QC_box", "title": "QC Thùng"},
@@ -43,6 +47,11 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
 
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
+  {
+    "key": "totalPrice",
+    "title": "Tổng Tiền",
+    "visiblePages": ["planning"],
+  },
 
   //isRequestCheck
   {"key": "statusRequest", "title": "Kiểm Hàng"},
@@ -56,13 +65,15 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
 List<GridColumn> buildMachineBoxColumns({
   required String machine,
   required ThemeController themeController,
+  required String page,
 }) {
   return [
     for (var item in _machineBoxColumns)
-      GridColumn(
-        columnName: item['key']!,
-        label: Obx(() => formatColumn(label: item['title']!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+      if (!item.containsKey("visiblePages") || (item["visiblePages"] as List).contains(page))
+        GridColumn(
+          columnName: item['key']!,
+          label: Obx(() => formatColumn(label: item['title']!, themeController: themeController)),
+          visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+        ),
   ];
 }

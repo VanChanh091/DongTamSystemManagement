@@ -13,6 +13,7 @@ import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -72,21 +73,6 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
     });
   }
 
-  bool get _isEditable {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-
-    try {
-      final selectedDate = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
-
-      // Cho phép sửa nếu >= hôm qua
-      return !selectedDate.isBefore(yesterday);
-    } catch (e) {
-      return false;
-    }
-  }
-
   void loadDeliverySchedule() {
     setState(() {
       final parsedDate = formatter.parse(dayStartController.text);
@@ -101,8 +87,8 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDelivery =
-        _isEditable && userController.hasAnyPermission(permission: ["delivery", 'plan']);
+    final bool isDelivery = userController.hasAnyPermission(permission: ["delivery", "plan"]);
+    final bool isPlan = userController.hasAnyPermission(permission: ["plan"]);
 
     final bool isAdmin = userController.hasAnyRole(roles: ['admin']);
 
@@ -301,58 +287,75 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                 const SizedBox(width: 10),
 
                                 //complete
-                                AnimatedButton(
-                                  onPressed:
-                                      isActionable
-                                          ? () async {
-                                            await handleDeliveryAction(
-                                              context: context,
-                                              deliveryId: currentDeliveryId!,
-                                              selectedItemIds: selectedDeliveryIds,
-                                              action: "complete",
-                                              title: "Xác Nhận Hoàn Thành Giao Hàng",
-                                              content: "Hoàn thành các kế hoạch giao hàng đã chọn?",
-                                              successMessage: "Hoàn thành giao hàng thành công",
-                                              errorMessage: "Hoàn thành giao hàng thất bại",
-                                              onSuccess: () {
-                                                loadDeliverySchedule();
-                                              },
-                                            );
-                                          }
-                                          : null,
-                                  label: "Hoàn Thành",
-                                  icon: Symbols.check,
-                                  backgroundColor:
-                                      isActionable ? themeController.buttonColor : Colors.grey,
-                                ),
-                                const SizedBox(width: 10),
+                                isPlan
+                                    ? Row(
+                                      children: [
+                                        AnimatedButton(
+                                          onPressed:
+                                              isActionable
+                                                  ? () async {
+                                                    await handleDeliveryAction(
+                                                      context: context,
+                                                      deliveryId: currentDeliveryId!,
+                                                      selectedItemIds: selectedDeliveryIds,
+                                                      action: "complete",
+                                                      title: "Xác Nhận Hoàn Thành Giao Hàng",
+                                                      content:
+                                                          "Hoàn thành các kế hoạch giao hàng đã chọn?",
+                                                      successMessage:
+                                                          "Hoàn thành giao hàng thành công",
+                                                      errorMessage: "Hoàn thành giao hàng thất bại",
+                                                      onSuccess: () {
+                                                        loadDeliverySchedule();
+                                                      },
+                                                    );
+                                                  }
+                                                  : null,
+                                          label: "Hoàn Thành",
+                                          icon: Symbols.check,
+                                          backgroundColor:
+                                              isActionable
+                                                  ? themeController.buttonColor
+                                                  : Colors.grey,
+                                        ),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    )
+                                    : const SizedBox.shrink(),
 
                                 //cancel
-                                AnimatedButton(
-                                  onPressed:
-                                      isActionable
-                                          ? () async {
-                                            await handleDeliveryAction(
-                                              context: context,
-                                              deliveryId: currentDeliveryId!,
-                                              selectedItemIds: selectedDeliveryIds,
-                                              action: "cancel",
-                                              title: "Xác Nhận Hủy Giao Hàng",
-                                              content: "Hủy các kế hoạch giao hàng đã chọn?",
-                                              successMessage: "Hủy giao hàng thành công",
-                                              errorMessage: "Hủy giao hàng thất bại",
-                                              onSuccess: () {
-                                                loadDeliverySchedule();
-                                              },
-                                            );
-                                          }
-                                          : null,
-                                  label: "Hủy Giao",
-                                  icon: Symbols.cancel,
-                                  backgroundColor:
-                                      isActionable ? const Color(0xffEA4346) : Colors.grey,
-                                ),
-                                const SizedBox(width: 10),
+                                isPlan
+                                    ? Row(
+                                      children: [
+                                        AnimatedButton(
+                                          onPressed:
+                                              isActionable
+                                                  ? () async {
+                                                    await handleDeliveryAction(
+                                                      context: context,
+                                                      deliveryId: currentDeliveryId!,
+                                                      selectedItemIds: selectedDeliveryIds,
+                                                      action: "cancel",
+                                                      title: "Xác Nhận Hủy Giao Hàng",
+                                                      content:
+                                                          "Hủy các kế hoạch giao hàng đã chọn?",
+                                                      successMessage: "Hủy giao hàng thành công",
+                                                      errorMessage: "Hủy giao hàng thất bại",
+                                                      onSuccess: () {
+                                                        loadDeliverySchedule();
+                                                      },
+                                                    );
+                                                  }
+                                                  : null,
+                                          label: "Hủy Giao",
+                                          icon: Symbols.cancel,
+                                          backgroundColor:
+                                              isActionable ? const Color(0xffEA4346) : Colors.grey,
+                                        ),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    )
+                                    : const SizedBox.shrink(),
                               ],
                             ),
                           ),
@@ -425,12 +428,25 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                     columnWidthMode: ColumnWidthMode.auto,
                     navigationMode: GridNavigationMode.row,
                     selectionMode: SelectionMode.multiple,
-                    headerRowHeight: 35,
-                    rowHeight: 40,
+                    headerRowHeight: 30,
+                    rowHeight: 37,
                     columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
                       widths: columnWidths,
                     ),
+                    stackedHeaderRows: <StackedHeaderRow>[
+                      StackedHeaderRow(
+                        cells: [
+                          StackedHeaderCell(
+                            columnNames: ["qtyRegistered", "qtyOutbound"],
+                            child: Obx(
+                              () =>
+                                  formatColumn(label: 'Số Lượng', themeController: themeController),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
 
                     //auto resize
                     allowColumnsResizing: true,
