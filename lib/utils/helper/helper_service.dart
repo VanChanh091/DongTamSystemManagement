@@ -93,6 +93,7 @@ class HelperService {
       return data.map((json) => fromJson(json as Map<String, dynamic>)).toList();
     } catch (e, s) {
       AppLogger.e("Failed to load data from $endpoint\nError: $e\nStackTrace: $s");
+
       throw Exception('Failed to load data from $endpoint: $e');
     }
   }

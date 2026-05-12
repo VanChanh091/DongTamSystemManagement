@@ -87,6 +87,14 @@ class DeliveryService {
     );
   }
 
+  //back delivery request
+  Future<bool> backDeliveryRequest({required List<int> requestIds}) async {
+    return HelperService().addItem(
+      endpoint: "delivery/planning",
+      itemData: {"requestIds": requestIds},
+    );
+  }
+
   //confirm for delivery
   Future<bool> confirmForDeliveryPlanning({required DateTime deliveryDate}) async {
     return HelperService().updateItem(

@@ -37,17 +37,16 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
 
-      buildDateCell('dayReceive', order.dayReceiveOrder),
       buildDateCell('dateShipping', order.dateRequestShipping!),
 
       DataGridCell<String>(columnName: 'customerName', value: order.customer?.customerName ?? ''),
-      DataGridCell<String>(columnName: 'companyName', value: order.customer?.companyName ?? ''),
       DataGridCell<String>(columnName: 'typeProduct', value: order.product?.typeProduct ?? ''),
       DataGridCell<String>(columnName: 'productName', value: order.product?.productName ?? ''),
 
       DataGridCell<String>(columnName: 'flute', value: order.flute ?? ''),
       DataGridCell<String>(columnName: 'QC_box', value: order.QC_box ?? ''),
       DataGridCell<String>(columnName: 'structure', value: order.formatterStructureOrder),
+      DataGridCell<bool>(columnName: 'CTPaper', value: order.chongTham),
       DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXaOrd', value: order.daoXa),
 
@@ -75,10 +74,9 @@ class OrderDataSource extends DataGridSource {
       ),
 
       DataGridCell<String>(columnName: 'vat', value: order.vat! > 0 ? '${order.vat ?? 0}%' : "0"),
-      DataGridCell<String>(columnName: 'HD_special', value: order.instructSpecial ?? ""),
+      DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
 
       buildCurrencyCell('totalPrice', order.totalPrice ?? 0, "VNĐ"),
-      buildCurrencyCell('totalPriceAfterVAT', order.totalPriceVAT ?? 0, "VNĐ"),
 
       ...buildBoxCells(order),
     ];
@@ -95,11 +93,11 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa ?? false),
       DataGridCell<bool>(columnName: 'catKhe', value: order.box?.catKhe ?? false),
       DataGridCell<bool>(columnName: 'be', value: order.box?.be ?? false),
-      DataGridCell<String>(columnName: 'maKhuon', value: order.box?.maKhuon ?? ""),
       DataGridCell<bool>(columnName: 'dan_1_Manh', value: order.box?.dan_1_Manh ?? false),
       DataGridCell<bool>(columnName: 'dan_2_Manh', value: order.box?.dan_2_Manh ?? false),
       DataGridCell<bool>(columnName: 'dongGhimMotManh', value: order.box?.dongGhim1Manh ?? false),
       DataGridCell<bool>(columnName: 'dongGhimHaiManh', value: order.box?.dongGhim2Manh ?? false),
+      DataGridCell<String>(columnName: 'maKhuon', value: order.box?.maKhuon ?? ""),
       DataGridCell<String>(columnName: 'dongGoi', value: order.box?.dongGoi ?? ""),
 
       DataGridCell<String>(columnName: 'orderIdCustomer', value: order.orderIdCustomer ?? ""),
@@ -157,6 +155,7 @@ class OrderDataSource extends DataGridSource {
       'dongGhimMotManh',
       'dongGhimHaiManh',
       'isBox',
+      'CTPaper',
     ];
 
     if (boolColumns.contains(dataCell.columnName)) {

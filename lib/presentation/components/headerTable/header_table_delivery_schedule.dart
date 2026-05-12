@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 const List<Map<String, dynamic>> _headerDeliverySchedule = [
   //order
   {"key": "orderId", "title": "Mã Đơn Hàng"},
+  {"key": "orderIdCus", "title": "Mã PO"},
   {"key": "status", "title": "Trạng Thái"},
   {"key": "customerName", "title": "Khách Hàng"},
   {"key": "productName", "title": "Tên Sản Phẩm"},

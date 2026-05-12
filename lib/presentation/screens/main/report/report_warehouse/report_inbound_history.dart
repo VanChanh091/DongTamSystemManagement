@@ -1,6 +1,9 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
+import 'package:dongtam/presentation/components/dialog/export/dialog_export_inbound.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_report_inbound.dart';
+import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/warehouse/report_inbound_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
@@ -13,6 +16,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportInboundHistory extends StatefulWidget {
@@ -28,6 +32,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   late List<GridColumn> columns;
 
   //controller
+  final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final dataGridController = DataGridController();
 
@@ -42,6 +47,10 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   //text controller
   TextEditingController searchController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+
+  //date range
+  DateTime? startDate;
+  DateTime? endDate;
 
   List<int> selectedInboundId = [];
   Map<String, double> columnWidths = {}; //map header table
@@ -71,22 +80,25 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
 
   void _fetchData() {
     final String keyword = searchController.text.trim().toLowerCase();
-    final String date = dateController.text.trim().toLowerCase();
     final String selectedField = searchFieldMap[searchType] ?? "";
 
     // Điều kiện để xác định có thực hiện search hay load mặc định
     final bool shouldSearch = isSearching && searchType != "Tất cả";
-    String apiKeyword = searchType == "Ngày Nhập Kho" ? date : keyword;
+    final bool isDateSearch = searchType == "Ngày Nhập Kho";
+
+    // print(
+    //   '_fetchData => keyword: $keyword, selectedField: $selectedField, shouldSearch: $shouldSearch, isDateSearch: $isDateSearch, startDate: $startDate, endDate: $endDate',
+    // );
 
     futureReportInbound = ensureMinLoading(
-      shouldSearch
-          ? WarehouseService().getInboundByField(
-            field: selectedField,
-            keyword: apiKeyword,
-            page: currentPage,
-            pageSize: pageSizeSearch,
-          )
-          : WarehouseService().getAllInboundHistory(page: currentPage, pageSize: pageSize),
+      WarehouseService().getAllInboundHistory(
+        page: currentPage,
+        pageSize: pageSize,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? keyword : null,
+        startDate: (shouldSearch && isDateSearch) ? startDate : null,
+        endDate: (shouldSearch && isDateSearch) ? endDate : null,
+      ),
     );
 
     selectedInboundId.clear();
@@ -98,11 +110,14 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
 
   void searchReportInbound() {
     String keyword = searchController.text.trim().toLowerCase();
-    String date = dateController.text.trim().toLowerCase();
+    final bool isDateSearch = searchType == "Ngày Nhập Kho";
 
-    AppLogger.i("searchReportInbound => searchType=$searchType | keyword=$keyword | date=$date");
-
-    if (isTextFieldEnabled && keyword.isEmpty) {
+    if (isDateSearch) {
+      if (startDate == null || endDate == null) {
+        AppLogger.w("searchOrders => chưa chọn khoảng thời gian");
+        return;
+      }
+    } else if (isTextFieldEnabled && keyword.isEmpty) {
       AppLogger.w("searchReportInbound => searchType=$searchType nhưng keyword rỗng");
       return;
     }
@@ -116,6 +131,8 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isAccountant = userController.hasPermission(permission: "accountant");
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -169,7 +186,15 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
+
                                 searchType == 'Tất cả' ? searchController.clear() : null;
+                                startDate = null;
+                                endDate = null;
+
+                                if (value == 'Tất cả') {
+                                  currentPage = 1;
+                                  _fetchData();
+                                }
                               });
                             },
                             controller: searchController,
@@ -185,37 +210,48 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                                 child: InkWell(
                                   onTap: () async {
                                     final now = DateTime.now();
+                                    final size = MediaQuery.of(context).size;
 
-                                    DateTime? picked = await showDatePicker(
+                                    final DateTimeRange? picked = await showDateRangePicker(
                                       context: context,
-                                      initialDate: now,
                                       firstDate: DateTime(2020),
                                       lastDate: DateTime(2100),
-                                      builder: (BuildContext context, Widget? child) {
-                                        return Theme(
-                                          data: Theme.of(context).copyWith(
-                                            colorScheme: ColorScheme.light(
-                                              primary: Colors.blue,
-                                              onPrimary: Colors.white,
-                                              onSurface: Colors.black,
+                                      initialDateRange:
+                                          (startDate != null && endDate != null)
+                                              ? DateTimeRange(start: startDate!, end: endDate!)
+                                              : DateTimeRange(
+                                                start: now.subtract(const Duration(days: 7)),
+                                                end: now,
+                                              ),
+                                      builder: (context, child) {
+                                        return Center(
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: size.width * 0.3,
+                                              maxHeight: size.height * 0.8,
                                             ),
-                                            dialogTheme: DialogThemeData(
-                                              backgroundColor: Colors.white12,
+                                            child: Material(
+                                              borderRadius: BorderRadius.circular(16),
+                                              clipBehavior: Clip.antiAlias,
+                                              child: child!,
                                             ),
                                           ),
-                                          child: child!,
                                         );
                                       },
                                     );
 
                                     if (picked != null) {
-                                      final displayDate = DateFormat('dd/MM/yyyy').format(picked);
+                                      final displayStart = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(picked.start);
+                                      final displayEnd = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(picked.end);
 
                                       setState(() {
-                                        dateController.text =
-                                            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-
-                                        searchController.text = displayDate;
+                                        startDate = picked.start;
+                                        endDate = picked.end;
+                                        searchController.text = '$displayStart - $displayEnd';
                                       });
                                     }
                                   },
@@ -247,23 +283,19 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 //export excel
-                                // AnimatedButton(
-                                //   // onPressed: () async {
-                                //   //   showDialog(
-                                //   //     context: context,
-                                //   //     builder:
-                                //   //         (_) => DialogSelectExportExcel(
-                                //   //           selectedInboundId: selectedInboundId,
-                                //   //           onPlanningIdsOrRangeDate: () => loadReportInbound(),
-                                //   //           machine: machine,
-                                //   //         ),
-                                //   //   );
-                                //   // },
-                                //   onPressed: () {},
-                                //   label: "Xuất Excel",
-                                //   icon: Symbols.export_notes,
-                                //   backgroundColor: themeController.buttonColor,
-                                // ),
+                                isAccountant
+                                    ? AnimatedButton(
+                                      onPressed: () async {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => DialogExportInbound(),
+                                        );
+                                      },
+                                      label: "Xuất Excel",
+                                      icon: Symbols.export_notes,
+                                      backgroundColor: themeController.buttonColor,
+                                    )
+                                    : const SizedBox.shrink(),
                                 const SizedBox(width: 10),
                               ],
                             ),

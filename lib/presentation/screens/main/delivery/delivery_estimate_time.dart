@@ -350,8 +350,9 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                                           loadPlanningEstimate();
                                                                         }
                                                                       } on ApiException catch (e) {
-                                                                        if (!context.mounted)
+                                                                        if (!context.mounted) {
                                                                           return;
+                                                                        }
 
                                                                         switch (e.errorCode) {
                                                                           case "CANNOT_CLOSE_EMPTY_PAPER":

@@ -49,27 +49,59 @@ class WarehouseService {
   Future<Map<String, dynamic>> getAllInboundHistory({
     required int page,
     required int pageSize,
+    String? field,
+    String? keyword,
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     return HelperService().fetchPaginatedData<InboundHistoryModel>(
       endpoint: "warehouse/inbound",
-      queryParameters: {'page': page, 'pageSize': pageSize},
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (field != null) 'field': field,
+        if (keyword != null) 'keyword': keyword,
+        if (startDate != null) 'startDate': startDate.toIso8601String(),
+        if (endDate != null) 'endDate': endDate.toIso8601String(),
+      },
       fromJson: (json) => InboundHistoryModel.fromJson(json),
       dataKey: 'inbounds',
     );
   }
 
-  Future<Map<String, dynamic>> getInboundByField({
-    required String field,
-    required String keyword,
-    required int page,
-    required int pageSize,
-  }) async {
-    return HelperService().fetchPaginatedData<InboundHistoryModel>(
-      endpoint: 'warehouse/inbound',
-      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
-      fromJson: (json) => InboundHistoryModel.fromJson(json),
-      dataKey: 'inbounds',
-    );
+  Future<File?> exportExcelInbounds({DateTime? fromDate, DateTime? toDate}) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final Map<String, dynamic> body = {};
+
+      if (fromDate != null && toDate != null) {
+        body["fromDate"] = fromDate.toIso8601String();
+        body["toDate"] = toDate.toIso8601String();
+      }
+
+      final response = await dioService.post(
+        "/api/warehouse/inbound/export",
+        data: body,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "inbound_histories",
+        );
+      } else {
+        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
+        return null;
+      }
+    } catch (e, s) {
+      AppLogger.e("failed to export inbound histories", error: e, stackTrace: s);
+      return null;
+    }
   }
 
   //============================OUTBOUND HISTORY===============================

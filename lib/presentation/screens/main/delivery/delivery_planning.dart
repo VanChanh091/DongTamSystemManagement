@@ -47,6 +47,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   List<DeliveryTrip> trips = [];
   List<AdminVehicleModel> vehicles = [];
   List<DeliveryRequest> pendingRequests = [];
+  Set<int> selectedPendingIds = {};
 
   //search
   String searchType = "Tất cả";
@@ -60,6 +61,8 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   bool _isPendingLoading = false;
   bool _isSaving = false;
   bool isTextFieldEnabled = false;
+  bool _isDraggingSelected = false;
+
   String selectedTripFilter = "Tài 1";
 
   TextEditingController dayStartController = TextEditingController();
@@ -79,7 +82,10 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   }
 
   Future<void> _initializeData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      selectedPendingIds.clear();
+    });
 
     await Future.wait([getPlanningRequest(), loadVehicles(), loadPlannedOrders()]);
 
@@ -308,10 +314,10 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                               ),
                               const SizedBox(width: 15),
 
-                              //save
                               isPlan
                                   ? Row(
                                     children: [
+                                      //save
                                       AnimatedButton(
                                         label: _isSaving ? 'Đang lưu...' : 'Lưu',
                                         icon: _isSaving ? null : Symbols.save,
@@ -426,14 +432,8 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                 },
                                       ),
                                       const SizedBox(width: 10),
-                                    ],
-                                  )
-                                  : const SizedBox.shrink(),
 
-                              //confirm delivery
-                              isPlan
-                                  ? Row(
-                                    children: [
+                                      //confirm delivery
                                       AnimatedButton(
                                         onPressed:
                                             !_isEditable
@@ -474,6 +474,55 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                         label: 'Triển Khai',
                                         icon: Symbols.confirmation_number,
                                         backgroundColor: themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      //back request
+                                      AnimatedButton(
+                                        onPressed:
+                                            !_isEditable || selectedPendingIds.isEmpty
+                                                ? null
+                                                : () async {
+                                                  try {
+                                                    bool confirm = await showConfirmDialog(
+                                                      context: context,
+                                                      title: "Xác Nhận Hủy Yêu Cầu",
+                                                      content:
+                                                          'Bạn có muốn hủy ${selectedPendingIds.length} yêu cầu giao hàng này không?',
+                                                      confirmText: "Xác nhận",
+                                                    );
+
+                                                    if (confirm) {
+                                                      bool success = await DeliveryService()
+                                                          .backDeliveryRequest(
+                                                            requestIds: selectedPendingIds.toList(),
+                                                          );
+
+                                                      if (success) {
+                                                        if (!context.mounted) return;
+                                                        showSnackBarSuccess(
+                                                          context,
+                                                          "Hủy yêu cầu thành công",
+                                                        );
+
+                                                        setState(() {
+                                                          selectedPendingIds.clear();
+                                                        });
+
+                                                        _initializeData();
+                                                      }
+                                                    }
+                                                  } catch (e) {
+                                                    if (!context.mounted) return;
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Lỗi không xác định",
+                                                    );
+                                                  }
+                                                },
+                                        label: 'Hủy Yêu Cầu',
+                                        icon: Symbols.delete,
+                                        backgroundColor: const Color(0xffEA4346),
                                       ),
                                       const SizedBox(width: 10),
                                     ],
@@ -526,18 +575,19 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
   //left UI
   Widget _buildPendingOrders() {
-    return DragTarget<DeliveryRequest>(
+    return DragTarget<List<DeliveryRequest>>(
       onAcceptWithDetails: (details) {
-        final req = details.data;
-
-        bool alreadyInPending = pendingRequests.any((p) => p.requestId == req.requestId);
-
-        if (alreadyInPending) return;
+        final List<DeliveryRequest> droppedItems = details.data;
 
         setState(() {
-          _removeRequestFromEverywhere(req);
-          pendingRequests.add(req);
+          for (var item in droppedItems) {
+            bool alreadyInPending = pendingRequests.any((p) => p.requestId == item.requestId);
+            if (alreadyInPending) continue;
 
+            _removeRequestFromEverywhere(item);
+            selectedPendingIds.remove(item.requestId);
+            pendingRequests.add(item);
+          }
           unsavedChangeController.setUnsavedChanges(value: true);
         });
       },
@@ -594,7 +644,11 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                               separatorBuilder: (_, _) => const SizedBox(height: 10),
                               itemBuilder: (context, index) {
                                 final paper = pendingRequests[index];
-                                return _buildDraggablePaper(paper, constraints.maxWidth - 24);
+                                return _buildDraggablePaper(
+                                  paper,
+                                  constraints.maxWidth - 24,
+                                  isSelectable: true,
+                                );
                               },
                             );
                           },
@@ -607,7 +661,12 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     );
   }
 
-  Widget _requestedCard({required DeliveryRequest req, String? status, bool isDragging = false}) {
+  Widget _requestedCard({
+    required DeliveryRequest req,
+    String? status,
+    bool isDragging = false,
+    bool isSelected = false,
+  }) {
     final formatter = DateFormat('dd/MM/yyyy');
 
     final currentStatus = status ?? req.status;
@@ -630,9 +689,22 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
         color: isDragging ? Colors.blue.shade50 : (isCancelled ? Colors.red.shade50 : Colors.white),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: isCancelled ? Colors.red.shade300 : Colors.grey.shade300,
-          width: isCancelled ? 1.5 : 1,
+          color:
+              isSelected
+                  ? Colors.blueAccent.shade200
+                  : (isCancelled ? Colors.red.shade300 : Colors.grey.shade300),
+          width: isSelected ? 2.5 : (isCancelled ? 1.5 : 1),
         ),
+        boxShadow:
+            isSelected
+                ? [
+                  BoxShadow(
+                    color: Colors.blue.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ]
+                : null,
       ),
       child: Column(
         children: [
@@ -834,23 +906,24 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     final maxVolume = vehicle.volumeCapacity;
     final isOverloaded = currentVolume > maxVolume;
 
-    return DragTarget<DeliveryRequest>(
+    return DragTarget<List<DeliveryRequest>>(
       onWillAcceptWithDetails: (details) {
         if (!_isEditable) return false;
 
-        final req = details.data;
-        return !orders.any((p) => p.requestId == req.requestId);
+        return !details.data.any((req) => orders.any((p) => p.requestId == req.requestId));
       },
 
       onAcceptWithDetails: (details) {
-        final req = details.data;
+        final List<DeliveryRequest> droppedItems = details.data;
 
         setState(() {
-          _removeRequestFromEverywhere(req);
+          for (var item in droppedItems) {
+            _removeRequestFromEverywhere(item);
+            selectedPendingIds.remove(item.requestId);
 
-          vehicleOrders.putIfAbsent(key, () => []);
-          vehicleOrders[key]!.add(req);
-
+            vehicleOrders.putIfAbsent(key, () => []);
+            vehicleOrders[key]!.add(item);
+          }
           unsavedChangeController.setUnsavedChanges(value: true);
         });
       },
@@ -939,7 +1012,11 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                         return Container(
                           key: ValueKey("${req.requestId}_$index"),
                           padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: _buildDraggablePaper(req, constraints.maxWidth),
+                          child: _buildDraggablePaper(
+                            req,
+                            constraints.maxWidth,
+                            isSelectable: false,
+                          ),
                         );
                       },
                     );
@@ -954,17 +1031,84 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   }
 
   //helper
-  Widget _buildDraggablePaper(DeliveryRequest req, double width) {
-    return Draggable<DeliveryRequest>(
-      data: req,
+  Widget _buildDraggablePaper(DeliveryRequest req, double width, {bool isSelectable = true}) {
+    final bool isSelected = isSelectable && selectedPendingIds.contains(req.requestId);
+
+    final List<DeliveryRequest> itemsToDrag =
+        isSelected
+            ? pendingRequests.where((r) => selectedPendingIds.contains(r.requestId)).toList()
+            : [req];
+
+    return Draggable<List<DeliveryRequest>>(
+      data: itemsToDrag,
       maxSimultaneousDrags: _isEditable ? 1 : 0,
+
+      onDragStarted: () {
+        if (isSelected) {
+          setState(() {
+            _isDraggingSelected = true;
+          });
+        }
+      },
+      onDragEnd: (details) {
+        setState(() {
+          _isDraggingSelected = false;
+        });
+      },
+
       feedback: Material(
         elevation: 6,
         borderRadius: BorderRadius.circular(10),
-        child: SizedBox(width: width, child: _requestedCard(req: req, isDragging: true)),
+        child: SizedBox(
+          width: width,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              _requestedCard(req: req, isDragging: true),
+              // Nếu kéo nhiều đơn, hiện một Badge số lượng cho người dùng biết
+              if (itemsToDrag.length > 1)
+                Positioned(
+                  right: -10,
+                  top: -10,
+                  child: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: Colors.red,
+                    child: Text(
+                      "${itemsToDrag.length}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
+
       childWhenDragging: Opacity(opacity: 0.3, child: _requestedCard(req: req)),
-      child: _requestedCard(req: req),
+
+      child: InkWell(
+        onTap:
+            isSelectable
+                ? () {
+                  setState(() {
+                    if (isSelected) {
+                      selectedPendingIds.remove(req.requestId);
+                    } else {
+                      selectedPendingIds.add(req.requestId);
+                    }
+                  });
+                }
+                : null,
+        borderRadius: BorderRadius.circular(10),
+        child: Opacity(
+          opacity: (isSelected && _isDraggingSelected) ? 0.3 : 1.0,
+          child: _requestedCard(req: req, isSelected: isSelected),
+        ),
+      ),
     );
   }
 }

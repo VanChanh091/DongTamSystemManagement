@@ -9,17 +9,16 @@ final List<Map<String, dynamic>> _headerOrder = [
   {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
 
-  {"key": "dayReceive", "title": "Ngày Nhận"},
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
 
   {"key": "customerName", "title": "Tên Khách Hàng"},
-  {"key": "companyName", "title": "Tên Công Ty"},
   {"key": "typeProduct", "title": "Loại SP"},
   {"key": "productName", "title": "Tên SP"},
 
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "CTPaper", "title": "Chống Thấm"},
   {"key": "canLan", "title": "Cấn Lằn"},
   {"key": "daoXaOrd", "title": "Dao Xả"},
 
@@ -41,10 +40,9 @@ final List<Map<String, dynamic>> _headerOrder = [
   {"key": "profitOrd", "title": "Lợi Nhuận"},
 
   {"key": "vat", "title": "VAT"},
-  {"key": "HD_special", "title": "HD Đặc Biệt"},
+  {"key": "instructSpecial", "title": "HD Đặc Biệt"},
 
   {"key": "totalPrice", "title": "Tổng Tiền"},
-  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền VAT"},
 
   // Box
   {"key": "inMatTruoc", "title": "In Mặt Trước"},
@@ -56,11 +54,11 @@ final List<Map<String, dynamic>> _headerOrder = [
   {"key": "xa", "title": "Xả"},
   {"key": "catKhe", "title": "Cắt Khe"},
   {"key": "be", "title": "Bế"},
-  {"key": "maKhuon", "title": "Mã Khuôn"},
   {"key": "dan_1_Manh", "title": "Dán 1 Mảnh"},
   {"key": "dan_2_Manh", "title": "Dán 2 Mảnh"},
   {"key": "dongGhimMotManh", "title": "Đóng Ghim 1 Mảnh"},
   {"key": "dongGhimHaiManh", "title": "Đóng Ghim 2 Mảnh"},
+  {"key": "maKhuon", "title": "Mã Khuôn"},
   {"key": "dongGoi", "title": "Đóng Gói"},
 
   {"key": "orderIdCustomer", "title": "PO Khách"},

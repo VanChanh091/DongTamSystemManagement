@@ -36,6 +36,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
         columnName: 'customerName',
         value: planning.order?.customer?.customerName ?? '',
       ),
+
       DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
@@ -58,7 +59,6 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
 
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
-      // DataGridCell<int>(columnName: "runningPlanProd", value: planning.remainRunningPlan),
       DataGridCell<int>(columnName: "inboundQty", value: planning.getTotalQtyInbound),
 
       DataGridCell<String>(

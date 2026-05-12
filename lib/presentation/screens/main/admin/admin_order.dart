@@ -463,21 +463,53 @@ class _ManageOrderState extends State<AdminOrder> {
     );
   }
 
-  Widget _infoRow(String label, String value, {String? unit, Color? valueColor}) {
+  Widget _infoRow(
+    String label,
+    String value, {
+    String? unit,
+    Color? valueColor,
+    String? secondLabel,
+    String? secondValue,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Nhãn chính
           Text(label, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(width: 8),
+
           Expanded(
-            child: Text(
-              unit != null ? '$value $unit' : value,
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500,
-                color: valueColor ?? Colors.black87,
-                fontSize: 16,
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  // Giá trị chính
+                  TextSpan(
+                    text: unit != null ? '$value $unit' : value,
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w500,
+                      color: valueColor ?? Colors.black87,
+                      fontSize: 16,
+                    ),
+                  ),
+
+                  // Nếu có dữ liệu thứ 2 thì nối thêm vào
+                  if (secondLabel != null) ...[
+                    TextSpan(
+                      text: ' - $secondLabel ',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    TextSpan(
+                      text: secondValue ?? '',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                        color: valueColor ?? Colors.black87,
+                      ),
+                    ),
+                  ],
+                ],
               ),
               softWrap: true,
               overflow: TextOverflow.visible,
@@ -493,6 +525,7 @@ class _ManageOrderState extends State<AdminOrder> {
 
     // Danh sách các _infoRow
     final infoRows = [
+      //left
       _infoRow('🧾 Mã đơn:', order.orderId),
       _infoRow('📅 Ngày nhận:', formatter.format(order.dayReceiveOrder)),
       _infoRow('🚚 Ngày giao:', formatter.format(order.dateRequestShipping!)),
@@ -502,15 +535,23 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('🛒 Tên sản phẩm:', order.product!.productName ?? ""),
       _infoRow('📦 Quy cách thùng:', order.QC_box.toString()),
       _infoRow('🔢 Cấn lằn:', order.canLan.toString()),
-      _infoRow('🔪 Dao xả:', order.daoXa.toString()),
-      _infoRow('🔧 Kết cấu:', '${order.formatterStructureOrder} - ${order.flute}'),
-      _infoRow('✂️ Cắt (Khách Hàng):', Order.formatCurrency(order.lengthPaperCustomer), unit: "cm"),
       _infoRow(
-        '✂️ Cắt (Sản Xuất) :',
+        '🔪 Dao xả:',
+        order.daoXa.toString(),
+        secondLabel: 'Chống thấm:',
+        secondValue: order.chongTham ? '✅' : '',
+      ),
+      _infoRow('🔧 Kết cấu:', '${order.formatterStructureOrder} - ${order.flute}'),
+      _infoRow('✂️ Dài Tính Tiền:', Order.formatCurrency(order.lengthPaperCustomer), unit: "cm"),
+      _infoRow(
+        '✂️ Dài (Sản Xuất) :',
         Order.formatCurrency(order.lengthPaperManufacture),
         unit: "cm",
       ),
-      _infoRow('📏 Khổ (Khách Hàng):', Order.formatCurrency(order.paperSizeCustomer), unit: "cm"),
+      _infoRow('📝 HD đặc biệt:', order.instructSpecial!),
+
+      //right
+      _infoRow('📏 Khổ Tính Tiền:', Order.formatCurrency(order.paperSizeCustomer), unit: "cm"),
       _infoRow('📏 Khổ (Sản Xuất):', Order.formatCurrency(order.paperSizeManufacture), unit: "cm"),
       _infoRow('📐 Đơn vị tính:', order.dvt),
       _infoRow('🔢 Số lượng (Khách Hàng):', order.quantityCustomer.toString(), unit: ""),
@@ -531,6 +572,7 @@ class _ManageOrderState extends State<AdminOrder> {
         'Trước ${Order.formatCurrency(order.totalPrice ?? 0)} - Sau ${Order.formatCurrency(order.totalPriceVAT ?? 0)}',
         unit: "VNĐ",
       ),
+      _infoRow('📝 Ghi Chú:', order.note ?? ""),
     ];
 
     return Card(
@@ -584,14 +626,15 @@ class _ManageOrderState extends State<AdminOrder> {
             ),
 
             //instruct special
-            if (order.instructSpecial != null && order.instructSpecial!.isNotEmpty) ...[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: _infoRow('📝 Hướng dẫn đặc biệt:', order.instructSpecial!)),
-                ],
-              ),
-            ],
+            // if (order.instructSpecial != null && order.instructSpecial!.isNotEmpty) ...[
+            //   Row(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       Expanded(child: _infoRow('📝 Hướng dẫn đặc biệt:', order.instructSpecial!)),
+            //       Expanded(child: _infoRow('📝 Ghi Chú:', order.note ?? "")),
+            //     ],
+            //   ),
+            // ],
 
             // Hình ảnh đơn hàng (nếu có)
             if (order.orderImage != null && order.orderImage?.imageUrl.isNotEmpty == true) ...[

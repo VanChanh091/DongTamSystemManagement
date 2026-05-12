@@ -193,7 +193,7 @@ Widget buildDeliveryMenu({
       ),
       SubMenuConfig(
         icon: Symbols.calendar_add_on,
-        label: "Kế Hoạch Giao Hàng",
+        label: "Xếp Xe Giao Hàng",
         pageType: DeliveryPlanning,
         showBadge: true,
         badge: badges.numberDeliveryRequest,

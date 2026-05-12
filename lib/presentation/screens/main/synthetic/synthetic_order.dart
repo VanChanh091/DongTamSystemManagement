@@ -66,7 +66,6 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
 
   //text controller
   TextEditingController searchController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
 
   //date range
   DateTime? startDate;
@@ -119,8 +118,8 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
         pageSize: pageSize,
         status: filterType,
         allOrders: filterType,
-        field: (shouldSearch && isDateSearch) ? selectedField : null,
-        keyword: (shouldSearch && isDateSearch) ? keyword : null,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? keyword : null,
         startDate: (shouldSearch && isDateSearch) ? startDate : null,
         endDate: (shouldSearch && isDateSearch) ? endDate : null,
       ),
@@ -206,10 +205,12 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchController.clear();
-                                dateController.clear();
+
+                                searchType == 'Tất cả' ? searchController.clear() : null;
+
                                 startDate = null;
                                 endDate = null;
+
                                 if (value == 'Tất cả') {
                                   currentPage = 1;
                                   _fetchData();
