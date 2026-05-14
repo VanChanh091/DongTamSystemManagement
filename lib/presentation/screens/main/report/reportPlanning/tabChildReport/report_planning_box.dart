@@ -57,6 +57,10 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   bool isTextFieldEnabled = false;
   bool isSearching = false;
 
+  //date range
+  DateTime? startDate;
+  DateTime? endDate;
+
   //paging
   int currentPage = 1;
   int pageSize = 35;
@@ -78,13 +82,11 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
   void _fetchData() {
     final String keyword = searchController.text.trim().toLowerCase();
-    final String date = dateController.text.trim().toLowerCase();
-
     final String selectedField = searchFieldMap[searchType] ?? "";
 
     // Điều kiện để xác định có thực hiện search hay load mặc định
     final bool shouldSearch = isSearching && searchType != "Tất cả";
-    String apiKeyword = searchType == "Ngày Báo Cáo" ? date : keyword;
+    final bool isDateSearch = searchType == "Ngày Báo Cáo";
 
     futureReportBox = ensureMinLoading(
       ReportPlanningService().getReportBoxes(
@@ -92,7 +94,9 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
         pageSize: pageSize,
         machine: machine,
         field: shouldSearch ? selectedField : null,
-        keyword: shouldSearch ? apiKeyword : null,
+        keyword: shouldSearch ? keyword : null,
+        startDate: (shouldSearch && isDateSearch) ? startDate : null,
+        endDate: (shouldSearch && isDateSearch) ? endDate : null,
       ),
     );
 
@@ -105,8 +109,14 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
   void searchReportBox() {
     String keyword = searchController.text.trim().toLowerCase();
+    final bool isDateSearch = searchType == "Ngày Báo Cáo";
 
-    if (isTextFieldEnabled && keyword.isEmpty) {
+    if (isDateSearch) {
+      if (startDate == null || endDate == null) {
+        AppLogger.w("searchOrders => chưa chọn khoảng thời gian");
+        return;
+      }
+    } else if (isTextFieldEnabled && keyword.isEmpty) {
       AppLogger.w("searchReportBox => searchType=$searchType nhưng keyword rỗng");
       return;
     }
@@ -135,12 +145,12 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
         padding: const EdgeInsets.all(5),
         child: Column(
           children: [
-            //button
             SizedBox(
               height: 105,
               width: double.infinity,
               child: Column(
                 children: [
+                  //title
                   SizedBox(
                     height: 35,
                     width: double.infinity,
@@ -157,6 +167,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                       ),
                     ),
                   ),
+
+                  //button
                   SizedBox(
                     height: 70,
                     width: double.infinity,
@@ -196,37 +208,48 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                 child: InkWell(
                                   onTap: () async {
                                     final now = DateTime.now();
+                                    final size = MediaQuery.of(context).size;
 
-                                    DateTime? picked = await showDatePicker(
+                                    final DateTimeRange? picked = await showDateRangePicker(
                                       context: context,
-                                      initialDate: now,
                                       firstDate: DateTime(2020),
                                       lastDate: DateTime(2100),
-                                      builder: (BuildContext context, Widget? child) {
-                                        return Theme(
-                                          data: Theme.of(context).copyWith(
-                                            colorScheme: ColorScheme.light(
-                                              primary: Colors.blue,
-                                              onPrimary: Colors.white,
-                                              onSurface: Colors.black,
+                                      initialDateRange:
+                                          (startDate != null && endDate != null)
+                                              ? DateTimeRange(start: startDate!, end: endDate!)
+                                              : DateTimeRange(
+                                                start: now.subtract(const Duration(days: 7)),
+                                                end: now,
+                                              ),
+                                      builder: (context, child) {
+                                        return Center(
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: size.width * 0.3,
+                                              maxHeight: size.height * 0.8,
                                             ),
-                                            dialogTheme: DialogThemeData(
-                                              backgroundColor: Colors.white12,
+                                            child: Material(
+                                              borderRadius: BorderRadius.circular(16),
+                                              clipBehavior: Clip.antiAlias,
+                                              child: child!,
                                             ),
                                           ),
-                                          child: child!,
                                         );
                                       },
                                     );
 
                                     if (picked != null) {
-                                      final displayDate = DateFormat('dd/MM/yyyy').format(picked);
+                                      final displayStart = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(picked.start);
+                                      final displayEnd = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(picked.end);
 
                                       setState(() {
-                                        dateController.text =
-                                            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-
-                                        searchController.text = displayDate;
+                                        startDate = picked.start;
+                                        endDate = picked.end;
+                                        searchController.text = '$displayStart - $displayEnd';
                                       });
                                     }
                                   },

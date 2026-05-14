@@ -14,20 +14,24 @@ class ReportPlanningService {
   //============================REPORT PAPER=================================
   // get all and search
   Future<Map<String, dynamic>> getReportPapers({
+    required String machine,
+    required int page,
+    required int pageSize,
     String? field,
     String? keyword,
-    String? machine,
-    int? page,
-    int? pageSize,
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     return HelperService().fetchPaginatedData<ReportPaperModel>(
       endpoint: "report/paper",
       queryParameters: {
-        'field': field,
-        'keyword': keyword,
-        'machine': machine,
         'page': page,
         'pageSize': pageSize,
+        'machine': machine,
+        if (field != null) 'field': field,
+        if (keyword != null) 'keyword': keyword,
+        if (startDate != null) 'startDate': startDate.toIso8601String(),
+        if (endDate != null) 'endDate': endDate.toIso8601String(),
       },
       fromJson: (json) => ReportPaperModel.fromJson(json),
       dataKey: 'reportPapers',
@@ -37,20 +41,24 @@ class ReportPlanningService {
   //============================REPORT BOX=================================
   // get all and search
   Future<Map<String, dynamic>> getReportBoxes({
+    required String machine,
+    required int page,
+    required int pageSize,
     String? field,
     String? keyword,
-    String? machine,
-    int? page,
-    int? pageSize,
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     return HelperService().fetchPaginatedData<ReportBoxModel>(
       endpoint: "report/box",
       queryParameters: {
-        'field': field,
-        'keyword': keyword,
         'machine': machine,
         'page': page,
         'pageSize': pageSize,
+        if (field != null) 'field': field,
+        if (keyword != null) 'keyword': keyword,
+        if (startDate != null) 'startDate': startDate.toIso8601String(),
+        if (endDate != null) 'endDate': endDate.toIso8601String(),
       },
       fromJson: (json) => ReportBoxModel.fromJson(json),
       dataKey: 'reportBoxes',

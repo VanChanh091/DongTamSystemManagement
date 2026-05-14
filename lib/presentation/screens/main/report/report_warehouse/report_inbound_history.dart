@@ -86,10 +86,6 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
     final bool shouldSearch = isSearching && searchType != "Tất cả";
     final bool isDateSearch = searchType == "Ngày Nhập Kho";
 
-    // print(
-    //   '_fetchData => keyword: $keyword, selectedField: $selectedField, shouldSearch: $shouldSearch, isDateSearch: $isDateSearch, startDate: $startDate, endDate: $endDate',
-    // );
-
     futureReportInbound = ensureMinLoading(
       WarehouseService().getAllInboundHistory(
         page: currentPage,
@@ -214,7 +210,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
 
                                     final DateTimeRange? picked = await showDateRangePicker(
                                       context: context,
-                                      firstDate: DateTime(2020),
+                                      firstDate: DateTime(2025),
                                       lastDate: DateTime(2100),
                                       initialDateRange:
                                           (startDate != null && endDate != null)

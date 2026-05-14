@@ -40,8 +40,9 @@ class DeliveryService {
     );
   }
 
-  // confirm ready delivery
+  // register qty or close planning
   Future<bool> handlePutDelivery({
+    required String action,
     required List<int> planningId,
     int? qtyRegistered,
     bool? isPaper,
@@ -49,7 +50,12 @@ class DeliveryService {
     return HelperService().updateItem(
       endpoint: "delivery/estimate",
       queryParameters: const {},
-      dataUpdated: {'planningId': planningId, 'qtyRegistered': qtyRegistered, 'isPaper': isPaper},
+      dataUpdated: {
+        'action': action,
+        'planningId': planningId,
+        if (qtyRegistered != null) 'qtyRegistered': qtyRegistered,
+        'isPaper': isPaper,
+      },
     );
   }
 
@@ -116,7 +122,7 @@ class DeliveryService {
 
   // update Status Delivery
   // status complete or cancel
-  Future<bool> updateStatusDelivery({
+  Future<bool> cancelOrCompleteDelivery({
     required int deliveryId,
     required List<int> itemIds,
     required String action,

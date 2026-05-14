@@ -84,21 +84,6 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
     });
   }
 
-  bool get _isEditable {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-
-    try {
-      final selectedDate = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
-
-      // Cho phép sửa nếu >= hôm qua
-      return !selectedDate.isBefore(yesterday);
-    } catch (e) {
-      return false;
-    }
-  }
-
   void loadDeliveryPrepareGoods() {
     setState(() {
       final parsedDate = formatter.parse(dayStartController.text);
@@ -119,9 +104,6 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDelivery =
-        _isEditable && userController.hasAnyPermission(permission: ["delivery"]);
-
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -274,7 +256,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                 //complete
                                 AnimatedButton(
                                   onPressed:
-                                      isDelivery && selectedDeliveryIds.length == 1
+                                      selectedDeliveryIds.length == 1
                                           ? () async {
                                             bool confirm = await showConfirmDialog(
                                               context: context,
@@ -314,7 +296,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                   label: "Hoàn Tất",
                                   icon: Symbols.check,
                                   backgroundColor:
-                                      _isEditable && selectedDeliveryIds.length == 1
+                                      selectedDeliveryIds.length == 1
                                           ? themeController.buttonColor
                                           : Colors.grey,
                                 ),

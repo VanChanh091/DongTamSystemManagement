@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -37,6 +38,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
         value:
             order?.dateRequestShipping != null ? formatter.format(order!.dateRequestShipping!) : "",
       ),
+      DataGridCell<String>(columnName: "delivered", value: paper.deliveryPlanned ?? ""),
 
       //customer
       DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
@@ -95,17 +97,46 @@ class DeliveryEstimateDataSource extends DataGridSource {
     final planningId = row.getCells().firstWhere((cell) => cell.columnName == 'planningId').value;
     final isSelected = selectedPaperIds.contains(planningId);
 
+    final status = getCellValue<String>(row, 'delivered', "");
+
     Color rowColor;
     if (isSelected) {
       rowColor = Colors.blue.withValues(alpha: 0.3);
+    } else if (status.isNotEmpty) {
+      if (status == "pending") {
+        rowColor = Colors.orange.withValues(alpha: 0.3);
+      } else if (status == "planned") {
+        rowColor = Colors.green.withValues(alpha: 0.3);
+      } else {
+        rowColor = Colors.transparent;
+      }
     } else {
       rowColor = Colors.transparent;
+    }
+
+    String getStatusVi(String status) {
+      switch (status) {
+        case "none":
+          return "";
+        case "pending":
+          return "Đã Đăng Ký";
+        case "planned":
+          return "Đã Xếp Xe";
+        default:
+          return status;
+      }
     }
 
     return DataGridRowAdapter(
       color: rowColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            String displayValue = dataCell.value?.toString() ?? "";
+
+            if (dataCell.columnName == 'delivered') {
+              displayValue = getStatusVi(displayValue);
+            }
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
@@ -113,7 +144,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

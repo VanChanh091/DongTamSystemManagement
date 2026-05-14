@@ -1,3 +1,4 @@
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
@@ -43,6 +44,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final badgesController = Get.find<BadgesController>();
 
   //width column
   Map<String, double> columnWidthsPlanning = {};
@@ -200,9 +202,9 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                 padding: const EdgeInsets.only(left: 12),
                                 child: Column(
                                   children: [
-                                    //search & button
                                     Row(
                                       children: [
+                                        //left button
                                         Expanded(
                                           flex: 1,
                                           child: LeftButtonSearch(
@@ -255,6 +257,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                                   final success =
                                                                       await DeliveryService()
                                                                           .handlePutDelivery(
+                                                                            action: "REGISTER_QTY",
                                                                             planningId:
                                                                                 selectedPaperIds,
                                                                             qtyRegistered: inputQty,
@@ -267,6 +270,10 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                                         "Xác nhận lên kế hoạch giao hàng thành công",
                                                                       );
                                                                     }
+
+                                                                    // Cập nhật số lượng badge
+                                                                    badgesController
+                                                                        .fetchDeliveryRequest();
                                                                     loadPlanningEstimate();
                                                                     return true;
                                                                   }
@@ -334,6 +341,8 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                                         final success =
                                                                             await DeliveryService()
                                                                                 .handlePutDelivery(
+                                                                                  action:
+                                                                                      "CLOSE_PLANNING",
                                                                                   planningId:
                                                                                       selectedPaperIds,
                                                                                   isPaper:
@@ -354,23 +363,30 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                                           return;
                                                                         }
 
+                                                                        final showError =
+                                                                            showSnackBarError(
+                                                                              context,
+                                                                              e.message!,
+                                                                            );
+
                                                                         switch (e.errorCode) {
                                                                           case "CANNOT_CLOSE_EMPTY_PAPER":
-                                                                            showSnackBarError(
-                                                                              context,
-                                                                              e.message!,
-                                                                            );
+                                                                            showError;
+                                                                            break;
+                                                                          case "NO_STAGES_FOUND":
+                                                                            showError;
+                                                                            break;
+                                                                          case "STAGE_NOT_PRODUCED":
+                                                                            showError;
                                                                             break;
                                                                           case "NO_INBOUND_HISTORY":
-                                                                            showSnackBarError(
-                                                                              context,
-                                                                              e.message!,
-                                                                            );
+                                                                            showError;
                                                                             break;
                                                                           default:
                                                                             showSnackBarError(
                                                                               context,
-                                                                              "Có lỗi khi đóng đơn hàng",
+                                                                              e.message ??
+                                                                                  "Có lỗi khi đóng kế hoạch",
                                                                             );
                                                                         }
                                                                       } catch (e) {
@@ -383,9 +399,10 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                                       }
                                                                     }
                                                                   },
-                                                          label: "Đóng Kế Hoạch",
-                                                          icon: Icons.delete,
-                                                          backgroundColor: const Color(0xffEA4346),
+                                                          label: "Hoàn Thành",
+                                                          icon: Symbols.check,
+                                                          backgroundColor:
+                                                              themeController.buttonColor,
                                                         ),
                                                         const SizedBox(width: 10),
                                                       ],
@@ -578,7 +595,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                 onColumnResizeEnd:
                                     (details) => GridResizeHelper.onResizeEnd(
                                       details: details,
-                                      tableKey: 'plannings',
+                                      tableKey: 'estimateTime',
                                       columnWidths: columnWidthsPlanning,
                                       setState: setState,
                                     ),

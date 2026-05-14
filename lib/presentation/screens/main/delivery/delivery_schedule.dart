@@ -93,10 +93,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
     final bool isAdmin = userController.hasAnyRole(roles: ['admin']);
 
     final bool isActionable =
-        isDelivery &&
-        selectedDeliveryIds.length == 1 &&
-        selectedStatus != 'completed' &&
-        (selectedStatus != 'cancelled' || isAdmin);
+        isDelivery && selectedStatus != 'completed' && (selectedStatus != 'cancelled' || isAdmin);
 
     return Scaffold(
       body: Container(
@@ -222,7 +219,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                 //request prepare goods
                                 AnimatedButton(
                                   onPressed:
-                                      isActionable
+                                      selectedDeliveryIds.length == 1 && isActionable
                                           ? () async {
                                             bool confirm = await showConfirmDialog(
                                               context: context,
@@ -286,10 +283,10 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                 ),
                                 const SizedBox(width: 10),
 
-                                //complete
                                 isPlan
                                     ? Row(
                                       children: [
+                                        //complete
                                         AnimatedButton(
                                           onPressed:
                                               isActionable
@@ -319,14 +316,8 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                                   : Colors.grey,
                                         ),
                                         const SizedBox(width: 10),
-                                      ],
-                                    )
-                                    : const SizedBox.shrink(),
 
-                                //cancel
-                                isPlan
-                                    ? Row(
-                                      children: [
+                                        //cancel
                                         AnimatedButton(
                                           onPressed:
                                               isActionable
@@ -542,7 +533,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
       );
 
       if (confirm) {
-        final success = await DeliveryService().updateStatusDelivery(
+        final success = await DeliveryService().cancelOrCompleteDelivery(
           deliveryId: deliveryId,
           itemIds: selectedItemIds,
           action: action,
@@ -561,12 +552,6 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
       switch (e.errorCode) {
         case "ITEMS_ALREADY_CANCELLED":
-          showSnackBarError(context, e.message!);
-          break;
-        case "ITEMS_STILL_REQUESTED":
-          showSnackBarError(context, e.message!);
-          break;
-        case "ITEMS_NOT_READY_PREPARED":
           showSnackBarError(context, e.message!);
           break;
         default:

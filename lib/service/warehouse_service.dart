@@ -108,14 +108,23 @@ class WarehouseService {
 
   //get outbound
   Future<Map<String, dynamic>> getOutboundHistory({
-    String? field,
-    String? keyword,
     required int page,
     required int pageSize,
+    String? field,
+    String? keyword,
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     return HelperService().fetchPaginatedData<OutboundHistoryModel>(
       endpoint: "warehouse/outbound",
-      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (field != null) 'field': field,
+        if (keyword != null) 'keyword': keyword,
+        if (startDate != null) 'startDate': startDate.toIso8601String(),
+        if (endDate != null) 'endDate': endDate.toIso8601String(),
+      },
       fromJson: (json) => OutboundHistoryModel.fromJson(json),
       dataKey: 'outbounds',
     );

@@ -128,10 +128,16 @@ class DeliveryScheduleDataSource extends DataGridSource {
     Color? rowColor;
     if (isSelected) {
       rowColor = Colors.blue.withValues(alpha: 0.3);
-    } else if (status == "completed") {
-      rowColor = Colors.green.withValues(alpha: 0.3);
-    } else if (status == "cancelled") {
-      rowColor = Colors.red.withValues(alpha: 0.4);
+    } else if (status.isNotEmpty) {
+      if (status == "completed") {
+        rowColor = Colors.green.withValues(alpha: 0.3);
+      } else if (status == "cancelled") {
+        rowColor = Colors.red.withValues(alpha: 0.4);
+      } else if (status == "requested") {
+        rowColor = Colors.orange.withValues(alpha: 0.3);
+      } else if (status == "prepared") {
+        rowColor = Colors.yellow.withValues(alpha: 0.4);
+      }
     } else {
       rowColor = Colors.transparent;
     }
@@ -147,7 +153,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
         case "prepared":
           return "Đã Xuất Hàng";
         case "cancelled":
-          return "Đã Hủy";
+          return "Đã Hủy Giao";
         case "completed":
           return "Hoàn Thành";
         default:
