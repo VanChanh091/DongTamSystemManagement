@@ -33,7 +33,7 @@ class CustomerService {
 
   // add customer
   Future<bool> addCustomer({required Map<String, dynamic> customerData}) async {
-    return HelperService().addItem(endpoint: "customer", itemData: customerData);
+    return HelperService().addItem(endpoint: "customer", body: customerData);
   }
 
   // update customer
@@ -44,7 +44,7 @@ class CustomerService {
     return HelperService().updateItem(
       endpoint: "customer",
       queryParameters: {"customerId": customerId},
-      dataUpdated: updateCustomer,
+      body: updateCustomer,
     );
   }
 

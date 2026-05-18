@@ -46,9 +46,12 @@ class _OrderDialogState extends State<OrderDialog> {
   Timer? _productIdDebounce;
   String lastSearchedCustomerId = "";
   String lastSearchedProductId = "";
+
   final List<String> itemsDvt = ['M2', 'Tấm', 'Tấm Bao Khổ', 'Kg', 'Cái', 'Lần'];
   final List<String> itemsDaoXa = ["Tề Gọn", "Tề Biên Đẹp", "Tề Biên Cột", "Quấn Cuồn"];
+
   late String originalOrderId;
+
   List<Customer> allCustomers = [];
   List<Product> allProducts = [];
 

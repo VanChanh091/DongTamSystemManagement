@@ -88,7 +88,7 @@ class AdminService {
         if (userId != null) "userId": userId,
         if (newRole != null && newRole.isNotEmpty) "newRole": newRole,
       },
-      dataUpdated: {
+      body: {
         if (permissions != null && permissions.isNotEmpty) "permissions": permissions,
         if (userIds != null && userIds.isNotEmpty) "userIds": userIds,
         if (newPassword != null && newPassword.isNotEmpty) "newPassword": newPassword,
@@ -120,7 +120,7 @@ class AdminService {
     return HelperService().updateItem(
       endpoint: 'admin/machine-papers',
       queryParameters: {"machineId": machineId},
-      dataUpdated: machineUpdate,
+      body: machineUpdate,
     );
   }
 
@@ -151,7 +151,7 @@ class AdminService {
     return HelperService().updateItem(
       endpoint: 'admin/machine-boxes',
       queryParameters: {"machineId": machineId},
-      dataUpdated: machineUpdate,
+      body: machineUpdate,
     );
   }
 
@@ -182,7 +182,7 @@ class AdminService {
     return HelperService().updateItem(
       endpoint: 'admin/waste-norms/papers',
       queryParameters: {"wasteNormId": wasteNormId},
-      dataUpdated: wasteNormUpdate,
+      body: wasteNormUpdate,
     );
   }
 
@@ -213,7 +213,7 @@ class AdminService {
     return HelperService().updateItem(
       endpoint: 'admin/waste-norms/boxes',
       queryParameters: {"wasteNormId": wasteNormId},
-      dataUpdated: wasteNormUpdate,
+      body: wasteNormUpdate,
     );
   }
 
@@ -244,7 +244,7 @@ class AdminService {
     return HelperService().updateItem(
       endpoint: 'admin/wave-crest-coeff',
       queryParameters: {"waveCrestId": waveCrestId},
-      dataUpdated: waveCrestUpdate,
+      body: waveCrestUpdate,
     );
   }
 
@@ -267,7 +267,7 @@ class AdminService {
   }
 
   Future<bool> createNewCriteria({required Map<String, dynamic> criteriaData}) async {
-    return HelperService().addItem(endpoint: 'admin/criterias', itemData: criteriaData);
+    return HelperService().addItem(endpoint: 'admin/criterias', body: criteriaData);
   }
 
   Future<bool> updateCriteria({
@@ -277,7 +277,7 @@ class AdminService {
     return HelperService().updateItem(
       endpoint: 'admin/criterias',
       queryParameters: {"qcCriteriaId": qcCriteriaId},
-      dataUpdated: criteriaUpdated,
+      body: criteriaUpdated,
     );
   }
 
@@ -301,7 +301,7 @@ class AdminService {
 
   // add flute ratio
   Future<bool> addFluteRatio({required Map<String, dynamic> fluteRatioData}) async {
-    return HelperService().addItem(endpoint: 'admin/flute-ratios', itemData: fluteRatioData);
+    return HelperService().addItem(endpoint: 'admin/flute-ratios', body: fluteRatioData);
   }
 
   //update flute ratio
@@ -312,7 +312,7 @@ class AdminService {
     return HelperService().updateItem(
       endpoint: 'admin/flute-ratios',
       queryParameters: {"fluteRatioId": fluteRatioId},
-      dataUpdated: fluteRatioUpdate,
+      body: fluteRatioUpdate,
     );
   }
 
@@ -337,7 +337,7 @@ class AdminService {
 
   // add qc criteria
   Future<bool> addVehicle({required Map<String, dynamic> vehicleData}) async {
-    return HelperService().addItem(endpoint: 'admin/vehicles', itemData: vehicleData);
+    return HelperService().addItem(endpoint: 'admin/vehicles', body: vehicleData);
   }
 
   //update vehicle
@@ -348,7 +348,7 @@ class AdminService {
     return HelperService().updateItem(
       endpoint: 'admin/vehicles',
       queryParameters: {"vehicleId": vehicleId},
-      dataUpdated: vehicleUpdate,
+      body: vehicleUpdate,
     );
   }
 

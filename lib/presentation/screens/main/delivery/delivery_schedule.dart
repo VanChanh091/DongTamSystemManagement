@@ -286,6 +286,18 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                 isPlan
                                     ? Row(
                                       children: [
+                                        AnimatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              showGroup = !showGroup;
+                                            });
+                                          },
+                                          label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                          icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
+                                          backgroundColor: themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
+
                                         //complete
                                         AnimatedButton(
                                           onPressed:
@@ -408,6 +420,8 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                   deliveryDatasource = DeliveryScheduleDataSource(
                     delivery: data,
                     selectedDeliveryId: selectedDeliveryIds,
+                    showGroup: showGroup,
+                    page: 'schedule',
                   );
 
                   return SfDataGrid(

@@ -28,7 +28,7 @@ class QualityControlService {
     return HelperService().updateItem(
       endpoint: "qc/session",
       queryParameters: const {},
-      dataUpdated: {"qcSessionId": qcSessionId, "status": status, "totalSample": totalSample},
+      body: {"qcSessionId": qcSessionId, "status": status, "totalSample": totalSample},
     );
   }
 
@@ -80,7 +80,7 @@ class QualityControlService {
     return HelperService().updateItem(
       endpoint: "qc/result/confirm",
       queryParameters: {},
-      dataUpdated: {"planningId": planningId, 'planningBoxId': planningBoxId, "isPaper": isPaper},
+      body: {"planningId": planningId, 'planningBoxId': planningBoxId, "isPaper": isPaper},
     );
   }
 

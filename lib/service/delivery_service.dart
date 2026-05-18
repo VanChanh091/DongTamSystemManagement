@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_request_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
@@ -46,14 +47,16 @@ class DeliveryService {
     required List<int> planningId,
     int? qtyRegistered,
     bool? isPaper,
+    String? note,
   }) async {
     return HelperService().updateItem(
       endpoint: "delivery/estimate",
       queryParameters: const {},
-      dataUpdated: {
+      body: {
         'action': action,
         'planningId': planningId,
         if (qtyRegistered != null) 'qtyRegistered': qtyRegistered,
+        if (note != null) 'note': note,
         'isPaper': isPaper,
       },
     );
@@ -89,16 +92,13 @@ class DeliveryService {
   }) async {
     return HelperService().addItem(
       endpoint: "delivery/planning",
-      itemData: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate), "items": items},
+      body: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate), "items": items},
     );
   }
 
   //back delivery request
   Future<bool> backDeliveryRequest({required List<int> requestIds}) async {
-    return HelperService().addItem(
-      endpoint: "delivery/planning",
-      itemData: {"requestIds": requestIds},
-    );
+    return HelperService().addItem(endpoint: "delivery/planning", body: {"requestIds": requestIds});
   }
 
   //confirm for delivery
@@ -120,6 +120,22 @@ class DeliveryService {
     );
   }
 
+  Future<List<DeliveryItemModel>> searchOrderIdsByKey({required String orderId}) async {
+    return HelperService().fetchingData<DeliveryItemModel>(
+      endpoint: "delivery/schedule/get-search",
+      queryParameters: {"orderId": orderId},
+      fromJson: (json) => DeliveryItemModel.fromJson(json),
+    );
+  }
+
+  Future<DeliveryItemModel?> getDeliveryItemsById({required int deliveryItemId}) async {
+    return HelperService().fetchSingleData<DeliveryItemModel>(
+      endpoint: "delivery/schedule/get-search",
+      queryParameters: {"deliveryItemId": deliveryItemId},
+      parser: (json) => DeliveryItemModel.fromJson(json),
+    );
+  }
+
   // update Status Delivery
   // status complete or cancel
   Future<bool> cancelOrCompleteDelivery({
@@ -130,7 +146,7 @@ class DeliveryService {
     return HelperService().updateItem(
       endpoint: "delivery/schedule",
       queryParameters: {"deliveryId": deliveryId},
-      dataUpdated: {"itemIds": itemIds, "action": action},
+      body: {"itemIds": itemIds, "action": action},
     );
   }
 

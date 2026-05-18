@@ -130,6 +130,12 @@ class SavePlanning extends StatelessWidget {
       return;
     }
 
+    final timeRegex = RegExp(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$');
+    if (!timeRegex.hasMatch(timeStartController.text)) {
+      showSnackBarError(context, "Giờ bắt đầu không đúng định dạng (hh:mm). Ví dụ: 08:00");
+      return;
+    }
+
     onStartLoading();
 
     try {

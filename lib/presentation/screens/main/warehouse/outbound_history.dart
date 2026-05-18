@@ -287,24 +287,6 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                 handleExportFile(),
                                 const SizedBox(width: 10),
 
-                                //outbound
-                                AnimatedButton(
-                                  onPressed: () async {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => OutBoundDialog(
-                                            outbound: null,
-                                            onOutboundHistory: () => loadOutbound(),
-                                          ),
-                                    );
-                                  },
-                                  label: "Xuất Kho",
-                                  icon: Symbols.input,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
-                                const SizedBox(width: 10),
-
                                 //update
                                 AnimatedButton(
                                   onPressed:
@@ -337,7 +319,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                             }
                                           }
                                           : null,
-                                  label: "Sửa",
+                                  label: "Sửa Phiếu",
                                   icon: Symbols.construction,
                                   backgroundColor: themeController.buttonColor,
                                 ),

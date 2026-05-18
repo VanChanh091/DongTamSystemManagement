@@ -9,16 +9,25 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class DeliveryScheduleDataSource extends DataGridSource {
   List<DeliveryPlanModel> delivery = [];
   List<int> selectedDeliveryId;
+  bool showGroup;
+  String page;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  DeliveryScheduleDataSource({required this.delivery, required this.selectedDeliveryId}) {
+  DeliveryScheduleDataSource({
+    required this.delivery,
+    required this.selectedDeliveryId,
+    required this.showGroup,
+    required this.page,
+  }) {
     buildDataGridRows();
 
-    addColumnGroup(ColumnGroup(name: 'sequence', sortGroupRows: false));
-    addColumnGroup(ColumnGroup(name: 'vehicleName', sortGroupRows: false));
+    if (showGroup) {
+      addColumnGroup(ColumnGroup(name: 'sequence', sortGroupRows: false));
+      addColumnGroup(ColumnGroup(name: 'vehicleName', sortGroupRows: false));
+    }
   }
 
   List<DataGridCell> buildDbPaperCells(DeliveryPlanModel plan, DeliveryItemModel item) {
@@ -41,7 +50,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeManufacture} cm'),
       DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperManufacture} cm'),
       DataGridCell<int>(columnName: "qtyRegistered", value: item.request?.qtyRegistered ?? 0),
-      DataGridCell<int>(columnName: "qtyOutbound", value: order.Inventory?.totalQtyOutbound ?? 0),
+      DataGridCell<int>(columnName: "qtyOutbound", value: item.outboundDetail?.outboundQty ?? 0),
 
       DataGridCell<String>(columnName: "note", value: order.note ?? ""),
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
@@ -134,7 +143,9 @@ class DeliveryScheduleDataSource extends DataGridSource {
       } else if (status == "cancelled") {
         rowColor = Colors.red.withValues(alpha: 0.4);
       } else if (status == "requested") {
-        rowColor = Colors.orange.withValues(alpha: 0.3);
+        page == 'schedule'
+            ? rowColor = Colors.orange.withValues(alpha: 0.3)
+            : rowColor = Colors.transparent;
       } else if (status == "prepared") {
         rowColor = Colors.yellow.withValues(alpha: 0.4);
       }
@@ -147,13 +158,13 @@ class DeliveryScheduleDataSource extends DataGridSource {
         case "none":
           return "";
         case "planned":
-          return "Đã Lên Kế Hoạch";
+          return "Chờ";
         case "requested":
-          return "Đang Chờ Hàng";
+          return "Đã Yêu Cầu";
         case "prepared":
           return "Đã Xuất Hàng";
         case "cancelled":
-          return "Đã Hủy Giao";
+          return "Hủy Giao";
         case "completed":
           return "Hoàn Thành";
         default:

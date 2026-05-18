@@ -159,7 +159,7 @@ class HelperService {
   Future<bool> addItem({
     required String endpoint,
     Map<String, dynamic>? queryParameters,
-    required Map<String, dynamic> itemData,
+    required Map<String, dynamic> body,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -167,7 +167,7 @@ class HelperService {
       await dioService.post(
         "/api/$endpoint",
         queryParameters: queryParameters,
-        data: itemData,
+        data: body,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
@@ -187,7 +187,7 @@ class HelperService {
   Future<bool> updateItem({
     required String endpoint,
     required Map<String, dynamic> queryParameters,
-    Map<String, dynamic>? dataUpdated,
+    Map<String, dynamic>? body,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -195,7 +195,7 @@ class HelperService {
       await dioService.put(
         "/api/$endpoint",
         queryParameters: queryParameters,
-        data: dataUpdated,
+        data: body,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),

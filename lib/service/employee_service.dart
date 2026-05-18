@@ -41,7 +41,7 @@ class EmployeeService {
 
   // add employee
   Future<bool> addEmployee({required Map<String, dynamic> employeeData}) async {
-    return HelperService().addItem(endpoint: "employee", itemData: employeeData);
+    return HelperService().addItem(endpoint: "employee", body: employeeData);
   }
 
   // update employee
@@ -52,7 +52,7 @@ class EmployeeService {
     return HelperService().updateItem(
       endpoint: "employee",
       queryParameters: {"employeeId": employeeId},
-      dataUpdated: updateEmployeeData,
+      body: updateEmployeeData,
     );
   }
 

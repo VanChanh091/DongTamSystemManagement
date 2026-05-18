@@ -70,6 +70,8 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   TextEditingController searchController = TextEditingController();
   TextEditingController dayStartController = TextEditingController();
   TextEditingController estimateTimeController = TextEditingController();
+  TextEditingController registeredController = TextEditingController();
+  TextEditingController noteController = TextEditingController();
 
   //flag
   bool isTextFieldEnabled = false;
@@ -147,11 +149,27 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
       return;
     }
 
+    final timeRegex = RegExp(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$');
+    if (!timeRegex.hasMatch(estimateTimeController.text)) {
+      showSnackBarError(context, "Giờ bắt đầu không đúng định dạng (hh:mm). Ví dụ: 08:00");
+      return;
+    }
+
     setState(() {
       currentPage = 1;
       isSearching = (searchType != "Tất cả");
       _fetchData();
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+    dayStartController.dispose();
+    estimateTimeController.dispose();
+    registeredController.dispose();
+    noteController.dispose();
   }
 
   @override
@@ -249,10 +267,13 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                               selectedPaperIds.length > 1
                                                           ? null
                                                           : () async {
+                                                            registeredController.clear();
+                                                            noteController.clear();
+
                                                             await showInputQtyDialog(
                                                               context: context,
                                                               title: "Đăng Ký Giao Hàng",
-                                                              onConfirm: (inputQty) async {
+                                                              onConfirm: () async {
                                                                 try {
                                                                   final success =
                                                                       await DeliveryService()
@@ -260,7 +281,12 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                                             action: "REGISTER_QTY",
                                                                             planningId:
                                                                                 selectedPaperIds,
-                                                                            qtyRegistered: inputQty,
+                                                                            qtyRegistered: int.parse(
+                                                                              registeredController
+                                                                                  .text,
+                                                                            ),
+                                                                            note:
+                                                                                noteController.text,
                                                                           );
 
                                                                   if (success) {
@@ -765,108 +791,122 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
       ),
     );
   }
-}
 
-Future<bool?> showInputQtyDialog({
-  required BuildContext context,
-  required String title,
-  required Future<bool> Function(int) onConfirm,
-}) async {
-  final TextEditingController controller = TextEditingController();
-  final formKey = GlobalKey<FormState>();
-  bool isLoading = false;
+  Future<bool?> showInputQtyDialog({
+    required BuildContext context,
+    required String title,
+    required Future<bool> Function() onConfirm,
+  }) async {
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
 
-  return showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            content: SizedBox(
-              width: 350,
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      controller: controller,
-                      keyboardType: TextInputType.number,
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        labelText: "Nhập số lượng muốn giao",
-                        border: OutlineInputBorder(),
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              content: SizedBox(
+                width: 350,
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: registeredController,
+                        keyboardType: TextInputType.number,
+                        autofocus: true,
+                        decoration: const InputDecoration(
+                          labelText: "Nhập số lượng muốn giao",
+                          labelStyle: TextStyle(fontSize: 15),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return "Không được để trống";
+                          final n = int.tryParse(value);
+                          if (n == null || n <= 0) return "Số lượng phải lớn hơn 0";
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return "Không được để trống";
-                        final n = int.tryParse(value);
-                        if (n == null || n <= 0) return "Số lượng phải lớn hơn 0";
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: isLoading ? null : () => Navigator.pop(context),
-                child: const Text(
-                  "Hủy",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54,
+                      const SizedBox(height: 10),
+
+                      TextFormField(
+                        controller: noteController,
+                        decoration: const InputDecoration(
+                          labelText: "Ghi chú",
+                          labelStyle: TextStyle(fontSize: 15),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xffEA4346),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              actions: [
+                TextButton(
+                  onPressed: isLoading ? null : () => Navigator.pop(context),
+                  child: const Text(
+                    "Hủy",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
                 ),
-                onPressed:
-                    isLoading
-                        ? null
-                        : () async {
-                          if (formKey.currentState!.validate()) {
-                            setState(() {
-                              isLoading = true;
-                            });
-                            final success = await onConfirm(int.parse(controller.text));
-                            if (context.mounted) {
-                              if (success) {
-                                Navigator.pop(context, true);
-                              } else {
-                                setState(() {
-                                  isLoading = false;
-                                });
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffEA4346),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed:
+                      isLoading
+                          ? null
+                          : () async {
+                            if (formKey.currentState!.validate()) {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              final success = await onConfirm();
+                              if (context.mounted) {
+                                if (success) {
+                                  Navigator.pop(context, true);
+                                } else {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                }
                               }
                             }
-                          }
-                        },
-                child:
-                    isLoading
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                        : const Text(
-                          'Xác nhận',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
+                          },
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                          : const Text(
+                            'Xác nhận',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }

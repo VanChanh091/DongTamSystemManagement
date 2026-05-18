@@ -140,7 +140,7 @@ class PlanningService {
     return HelperService().updateItem(
       endpoint: "planning/planning-papers",
       queryParameters: {},
-      dataUpdated: {"planningIds": planningIds, "newMachine": newMachine, "action": action},
+      body: {"planningIds": planningIds, "newMachine": newMachine, "action": action},
     );
   }
 
@@ -259,7 +259,7 @@ class PlanningService {
     return HelperService().addItem(
       endpoint: "planning/planning-orders",
       queryParameters: {"orderId": orderId},
-      itemData: orderPlanning,
+      body: orderPlanning,
     );
   }
 

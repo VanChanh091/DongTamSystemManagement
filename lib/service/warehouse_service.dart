@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
@@ -161,7 +160,7 @@ class WarehouseService {
   Future<bool> createOutbound({required List<Map<String, dynamic>> list}) async {
     return await HelperService().addItem(
       endpoint: 'warehouse/outbound',
-      itemData: {'outboundDetails': list},
+      body: {'outboundDetails': list},
     );
   }
 
@@ -172,7 +171,7 @@ class WarehouseService {
     return HelperService().updateItem(
       endpoint: 'warehouse/outbound',
       queryParameters: const {},
-      dataUpdated: {"outboundId": outboundId, "outboundDetails": list},
+      body: {"outboundId": outboundId, "outboundDetails": list},
     );
   }
 
@@ -266,7 +265,7 @@ class WarehouseService {
       'inventoryId': inventoryId,
     }..removeWhere((key, value) => value == null);
 
-    return HelperService().addItem(endpoint: 'warehouse/inventory', itemData: payload);
+    return HelperService().addItem(endpoint: 'warehouse/inventory', body: payload);
   }
 
   //export inventory

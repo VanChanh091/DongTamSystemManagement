@@ -234,6 +234,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
 
                                     if (!context.mounted) return;
                                     showDialog(
+                                      barrierDismissible: false,
                                       context: context,
                                       builder:
                                           (_) => OutBoundDialog(
@@ -362,6 +363,8 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                   deliveryDatasource = DeliveryScheduleDataSource(
                     delivery: data,
                     selectedDeliveryId: selectedDeliveryIds,
+                    showGroup: true,
+                    page: 'prepare',
                   );
 
                   return SfDataGrid(

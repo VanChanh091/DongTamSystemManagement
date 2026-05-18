@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/models/employee/employee_basic_info.dart';
 import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/service/manufacture_service.dart';
@@ -10,6 +11,7 @@ import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class DialogReportProduction extends StatefulWidget {
@@ -41,6 +43,8 @@ class DialogReportProduction extends StatefulWidget {
 class _DialogReportProductionState extends State<DialogReportProduction> {
   late Future<List<EmployeeBasicInfo>> futureEmployee;
   final formKey = GlobalKey<FormState>();
+
+  final badgesController = Get.find<BadgesController>();
 
   Timer? _timer;
   int _countdown = 0;
@@ -203,6 +207,12 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
         showSnackBarSuccess(context, 'Báo cáo sản xuất thành công');
         widget.onReport();
+
+        //cập nhật badge
+        if (widget.isPaper) {
+          badgesController.fetchPaperWaitingCheck();
+          badgesController.fetchOrderPendingPlanning();
+        }
 
         if (!mounted) return;
         Navigator.of(context).pop();

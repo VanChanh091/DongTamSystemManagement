@@ -7,6 +7,8 @@ class ValidationOrder {
     required String label,
     required ValueNotifier<bool> notifier,
     bool enabled = true,
+    ListTileControlAffinity controlAffinity = ListTileControlAffinity.leading,
+    void Function(bool?)? onChanged,
   }) {
     return ValueListenableBuilder<bool>(
       valueListenable: notifier,
@@ -31,9 +33,13 @@ class ValidationOrder {
                 enabled
                     ? (bool? value) {
                       notifier.value = value ?? false;
+
+                      if (onChanged != null) {
+                        onChanged(value);
+                      }
                     }
                     : null,
-            controlAffinity: ListTileControlAffinity.leading,
+            controlAffinity: controlAffinity,
             tileColor: Colors.transparent,
             contentPadding: EdgeInsets.zero,
           ),
@@ -120,7 +126,7 @@ class ValidationOrder {
             final requiredFields = [
               "Mã Đơn Hàng",
               "Ngày Yêu Cầu Giao",
-              "Số Lượng (KH)",
+              "Số Lượng Tính Tiền",
               "Khổ Khách Đặt (cm)",
               "Số Con",
               "Đơn Giá (M2)",

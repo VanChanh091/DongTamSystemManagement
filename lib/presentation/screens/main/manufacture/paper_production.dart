@@ -1,4 +1,3 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
@@ -46,7 +45,6 @@ class _PaperProductionState extends State<PaperProduction> {
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  final badgesController = Get.find<BadgesController>();
 
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
@@ -357,10 +355,6 @@ class _PaperProductionState extends State<PaperProduction> {
                                                         onReport: () => loadPlanning(),
                                                       ),
                                                 );
-
-                                                //cập nhật badge
-                                                badgesController.fetchPaperWaitingCheck();
-                                                badgesController.fetchOrderPendingPlanning();
                                               } catch (e, s) {
                                                 if (selectedPlanningIds.isEmpty) {
                                                   showSnackBarError(
@@ -420,10 +414,6 @@ class _PaperProductionState extends State<PaperProduction> {
                                                         onReport: () => loadPlanning(),
                                                       ),
                                                 );
-
-                                                //cập nhật badge
-                                                badgesController.fetchPaperWaitingCheck();
-                                                badgesController.fetchOrderPendingPlanning();
                                               } catch (e, s) {
                                                 if (selectedPlanningIds.isEmpty) {
                                                   showSnackBarError(

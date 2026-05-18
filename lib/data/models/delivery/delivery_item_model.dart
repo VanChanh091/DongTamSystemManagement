@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/admin/admin_vehicle_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_request_model.dart';
+import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
 
 class DeliveryItemModel {
   final int deliveryItemId;
@@ -16,6 +17,7 @@ class DeliveryItemModel {
   final DeliveryPlanModel? deliveryPlan;
   final DeliveryRequest? request;
   final AdminVehicleModel? vehicle;
+  final OutboundDetailModel? outboundDetail;
 
   DeliveryItemModel({
     required this.deliveryItemId,
@@ -27,6 +29,7 @@ class DeliveryItemModel {
     required this.deliveryId,
     required this.requestId,
     required this.vehicleId,
+    this.outboundDetail,
 
     this.deliveryPlan,
     this.vehicle,
@@ -50,6 +53,10 @@ class DeliveryItemModel {
       request:
           json['DeliveryRequest'] != null
               ? DeliveryRequest.fromJson(json['DeliveryRequest'])
+              : null,
+      outboundDetail:
+          json['OutboundDetail'] != null
+              ? OutboundDetailModel.fromJson(json['OutboundDetail'])
               : null,
     );
   }

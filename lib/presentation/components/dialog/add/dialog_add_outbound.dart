@@ -1,7 +1,9 @@
+import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -35,15 +37,19 @@ class OutBoundDialog extends StatefulWidget {
 
 class _OutBoundDialogState extends State<OutBoundDialog> {
   final formKey = GlobalKey<FormState>();
-  String lastSearchedOrderId = "";
+
   int? editingIndex; // null = add, != null = update
+  int? currentDeliveryItemId;
   String? errRemainQty;
+  String lastSearchedOrderId = "";
+
+  List<dynamic> availableDeliveries = [];
+  dynamic selectedDelivery;
 
   final List<OutboundTempItem> tempItems = [];
 
   final orderIdController = TextEditingController();
   final customerNameController = TextEditingController();
-  final saleNameController = TextEditingController();
 
   final lengthManuController = TextEditingController();
   final sizeManuController = TextEditingController();
@@ -64,9 +70,28 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   final totalOutboundController = TextEditingController();
   final qtyOutboundController = TextEditingController();
 
+  final dayStartController = TextEditingController();
+  final orderIdDeliveryController = TextEditingController();
+  final qtyRegisterController = TextEditingController();
+  final vehicleNameController = TextEditingController();
+
+  late String typeOrderId = "";
+  final List<String> itemOrderId = [];
+
+  //checkbox
+  ValueNotifier<bool> isDeliveryChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> isPromotionChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> isNegativeStockAllowed = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
+
+    final now = DateTime.now();
+    dayStartController.text =
+        "${now.day.toString().padLeft(2, '0')}/"
+        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.year}";
 
     if (widget.outbound != null) {
       outboundInitState();
@@ -100,13 +125,14 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   }
 
   void clearController() {
+    currentDeliveryItemId = null;
+
     orderIdController.clear();
     customerNameController.clear();
     lengthManuController.clear();
     sizeManuController.clear();
     lengthCustController.clear();
     sizeCustController.clear();
-    saleNameController.clear();
     typeProductController.clear();
     productNameController.clear();
     fluteController.clear();
@@ -117,40 +143,44 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     qtyOutboundController.clear();
     remainingQtyController.clear();
     totalOutboundController.clear();
+
+    //delivery
+    orderIdDeliveryController.clear();
+    qtyRegisterController.clear();
+    vehicleNameController.clear();
+
+    //check box
+    isDeliveryChecked.value = false;
+    isPromotionChecked.value = false;
+    isNegativeStockAllowed.value = false;
   }
 
   void addToTempTable() {
     if (orderIdController.text.isEmpty) return;
 
-    if (editingIndex == null && tempItems.any((x) => x.orderId == orderIdController.text)) {
-      showSnackBarError(context, "Đơn hàng này đã được thêm");
-      return;
-    }
-
     int qtyOutbound = (int.tryParse(qtyOutboundController.text) ?? 0);
     int remainQty = (int.tryParse(remainingQtyController.text) ?? 0);
 
-    if (qtyOutbound > remainQty) {
+    if (qtyOutbound > remainQty && !isNegativeStockAllowed.value) {
       setState(() {
         errRemainQty = 'Vượt quá số lượng tồn';
       });
       return;
     }
 
-    setState(() {
-      errRemainQty = null;
-    });
+    setState(() => errRemainQty = null);
+
+    final itemId = isDeliveryChecked.value ? currentDeliveryItemId : null;
 
     final newOutboundItem = OutboundTempItem(
+      deliveryItemId: itemId,
       orderId: orderIdController.text,
-      typeProduct: typeProductController.text,
       productName: productNameController.text,
       customerName: customerNameController.text,
       lengthManufacture: double.tryParse(lengthManuController.text) ?? 0,
       sizeManufacture: double.tryParse(sizeManuController.text) ?? 0,
       lengthCustomer: double.tryParse(lengthCustController.text) ?? 0,
       sizeCustomer: double.tryParse(sizeCustController.text) ?? 0,
-      saleName: saleNameController.text,
       flute: fluteController.text,
       QC_box: qcBoxController.text,
       dvt: dvtController.text,
@@ -158,6 +188,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       quantityCustomer: double.tryParse(quantityCustomerController.text) ?? 0,
       qtyOutbound: int.tryParse(qtyOutboundController.text) ?? 0,
       qtyInventory: remainQty,
+      isPromotion: isPromotionChecked.value,
     );
 
     setState(() {
@@ -173,21 +204,27 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   }
 
   void fillFormFromTempItem(OutboundTempItem temp) {
+    isPromotionChecked.value = temp.isPromotion;
+    currentDeliveryItemId = temp.deliveryItemId;
     orderIdController.text = temp.orderId;
+    orderIdDeliveryController.text = temp.orderId;
     customerNameController.text = temp.customerName;
     lengthManuController.text = temp.lengthManufacture?.toString() ?? "";
     sizeManuController.text = temp.sizeManufacture?.toString() ?? "";
     lengthCustController.text = temp.lengthCustomer?.toString() ?? "";
     sizeCustController.text = temp.sizeCustomer?.toString() ?? "";
-    saleNameController.text = temp.saleName;
-    typeProductController.text = temp.typeProduct;
     productNameController.text = temp.productName;
     fluteController.text = temp.flute ?? "";
     qcBoxController.text = temp.QC_box ?? "";
     dvtController.text = temp.dvt;
     quantityCustomerController.text = temp.quantityCustomer.toString();
-    pricePaperController.text = temp.pricePaper.toString();
     qtyOutboundController.text = temp.qtyOutbound.toString();
+
+    if (temp.isPromotion) {
+      pricePaperController.text = "0";
+    } else {
+      pricePaperController.text = temp.pricePaper.toString();
+    }
 
     remainingQtyController.text = temp.qtyInventory?.toString() ?? "0";
     totalOutboundController.text = temp.totalOutbound?.toString() ?? "0";
@@ -205,23 +242,24 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
     try {
       final bool isAdd = widget.outbound == null;
-      AppLogger.i(isAdd ? "Thêm phiếu xuất kho mới" : "Cập nhật phiếu xuất kho");
+
+      final payload =
+          tempItems.map((outbound) {
+            return {
+              "orderId": outbound.orderId,
+              "outboundQty": outbound.qtyOutbound,
+              "deliveryItemId": isDeliveryChecked.value ? outbound.deliveryItemId : null,
+              "isPromotion": outbound.isPromotion,
+            };
+          }).toList();
 
       final bool success;
       if (isAdd) {
-        success = await WarehouseService().createOutbound(
-          list:
-              tempItems.map((outbound) {
-                return {"orderId": outbound.orderId, "outboundQty": outbound.qtyOutbound};
-              }).toList(),
-        );
+        success = await WarehouseService().createOutbound(list: payload);
       } else {
         success = await WarehouseService().updateOutbound(
           outboundId: widget.outbound!.outboundId,
-          list:
-              tempItems.map((outbound) {
-                return {"orderId": outbound.orderId, "outboundQty": outbound.qtyOutbound};
-              }).toList(),
+          list: payload,
         );
       }
 
@@ -238,8 +276,9 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       }
     } on ApiException catch (e) {
       final errorText = switch (e.errorCode) {
-        'EMPTY_ORDER_LIST' => "Phải chọn ít nhất 1 đơn hàng",
-        'CUSTOMER_MISMATCH' => "Các đơn hàng không cùng khách hàng",
+        'EMPTY_ORDER_LIST' => e.message!,
+        'CUSTOMER_MISMATCH' => e.message!,
+        "DELIVERY_ITEM_ALREADY_EXISTS" => e.message!,
         _ => 'Có lỗi xảy ra, vui lòng thử lại',
       };
 
@@ -274,11 +313,11 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     quantityCustomerController.dispose();
     pricePaperController.dispose();
     dvtController.dispose();
-    saleNameController.dispose();
     fluteController.dispose();
     qtyOutboundController.dispose();
     remainingQtyController.dispose();
     totalOutboundController.dispose();
+    isDeliveryChecked = ValueNotifier<bool>(false);
   }
 
   @override
@@ -290,7 +329,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         "leftKey": "Mã Đơn Hàng",
         "leftValue": AutoCompleteField<Order>(
           controller: orderIdController,
-          labelText: "Mã Đơn Hàng",
+          labelText: "",
           icon: Symbols.orders,
           suggestionsCallback: (pattern) async {
             if (pattern.trim().length < 2) return [];
@@ -329,6 +368,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
             if (selectedOrder == null) return;
 
+            // Điền các thông tin cơ bản
             customerNameController.text = selectedOrder.customer?.customerName ?? "";
 
             lengthManuController.text = selectedOrder.lengthPaperManufacture.toString();
@@ -336,7 +376,6 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             lengthCustController.text = selectedOrder.lengthPaperCustomer.toString();
             sizeCustController.text = selectedOrder.paperSizeCustomer.toString();
 
-            saleNameController.text = selectedOrder.user?.fullName ?? "";
             typeProductController.text = selectedOrder.product?.typeProduct ?? "";
             productNameController.text = selectedOrder.product?.productName ?? "";
             fluteController.text = selectedOrder.flute ?? "";
@@ -347,6 +386,32 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
             remainingQtyController.text = selectedOrder.remainingQty.toString();
             totalOutboundController.text = selectedOrder.totalOutbound.toString();
+
+            //logic tính sl tồn còn lại
+            int alreadyStagedQty = 0;
+
+            for (int i = 0; i < tempItems.length; i++) {
+              if (editingIndex != null && i == editingIndex) continue;
+
+              // Nếu trùng mã đơn hàng, cộng dồn số lượng đã gán ở các dòng khác vào
+              if (tempItems[i].orderId == order.orderId) {
+                alreadyStagedQty += tempItems[i].qtyOutbound;
+              }
+            }
+
+            // Lấy số lượng tồn kho và đã xuất gốc từ API trả về
+            int apiRemainingQty = selectedOrder.remainingQty ?? 0;
+            int apiTotalOutbound = selectedOrder.totalOutbound ?? 0;
+
+            // Tính toán lại số liệu hiển thị trên ô nhập dựa trên những gì đã xếp vào phiếu
+            int dynamicRemainingQty = apiRemainingQty - alreadyStagedQty;
+            int dynamicTotalOutbound = apiTotalOutbound + alreadyStagedQty;
+
+            // Đẩy số liệu đã tính toán động lên giao diện
+            remainingQtyController.text = dynamicRemainingQty.toString();
+            totalOutboundController.text = dynamicTotalOutbound.toString();
+
+            setState(() {});
           },
 
           onChanged: (value) {
@@ -358,118 +423,135 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           },
         ),
 
-        "middleKey": "Tên Khách Hàng",
-        "middleValue": ValidationOrder.validateInput(
-          label: "Tên Khách Hàng",
-          controller: customerNameController,
-          icon: Symbols.person,
-          readOnly: true,
-        ),
+        "middleKey": "",
+        "middleValue": const SizedBox(),
 
-        "rightKey": "NV Bán Hàng",
-        "rightValue": ValidationOrder.validateInput(
-          label: "NV Bán Hàng",
-          controller: saleNameController,
-          icon: Symbols.person,
-          readOnly: true,
-        ),
+        "rightKey": "",
+        "rightValue": const SizedBox(),
       },
 
       {
-        "leftKey": "QC Thùng",
-        "leftValue": ValidationOrder.validateInput(
-          label: "QC Thùng",
-          controller: qcBoxController,
-          icon: Symbols.deployed_code,
-          readOnly: true,
-        ),
+        "leftKey": "Tên Khách Hàng",
+        "leftValue": customerNameController.text,
+
         "middleKey": "Loại sản phẩm",
-        "middleValue": ValidationOrder.validateInput(
-          label: "Loại sản phẩm",
-          controller: typeProductController,
-          icon: Symbols.comment,
-          readOnly: true,
-        ),
+        "middleValue": typeProductController.text,
+
         "rightKey": "Tên sản phẩm",
-        "rightValue": ValidationOrder.validateInput(
-          label: "Tên sản phẩm",
-          controller: productNameController,
-          icon: Symbols.box,
-          readOnly: true,
-        ),
+        "rightValue": productNameController.text,
       },
 
       {
-        "leftKey": "Số lượng",
-        "leftValue": ValidationOrder.validateInput(
-          label: "Số lượng (KH)",
-          controller: quantityCustomerController,
-          icon: Symbols.filter_9_plus,
-          readOnly: true,
-        ),
+        "leftKey": "Số lượng (KH)",
+        "leftValue": quantityCustomerController.text,
 
-        "middleKey": "Đơn giá",
-        "middleValue": ValidationOrder.validateInput(
-          label: "Đơn giá (M2)",
-          controller: pricePaperController,
-          icon: Symbols.price_change,
-          readOnly: true,
-        ),
+        "middleKey": "Đơn giá (M2)",
+        "middleValue": pricePaperController.text,
 
         "rightKey": "Đơn Vị Tính",
-        "rightValue": ValidationOrder.validateInput(
-          label: "Đơn Vị Tính",
-          controller: dvtController,
-          icon: Symbols.deployed_code,
-          readOnly: true,
-        ),
+        "rightValue": dvtController.text,
       },
 
       {
         "leftKey": "Dài TT",
-        "leftValue": ValidationOrder.validateInput(
-          label: "Dài Tính Tiền",
-          controller: lengthCustController,
-          icon: Symbols.business,
-          readOnly: true,
-        ),
+        "leftValue": lengthCustController.text,
 
         "middleKey": "Khổ TT",
-        "middleValue": ValidationOrder.validateInput(
-          label: "Khổ Tính Tiền",
-          controller: sizeCustController,
-          icon: Symbols.price_change,
-          readOnly: true,
-        ),
+        "middleValue": sizeCustController.text,
 
-        "rightKey": "Sóng",
-        "rightValue": ValidationOrder.validateInput(
-          label: "Sóng",
-          controller: fluteController,
-          icon: Symbols.waves,
-          readOnly: true,
-        ),
+        "rightKey": "QC Thùng",
+        "rightValue": qcBoxController.text,
       },
 
       {
         "leftKey": "Dài (SX)",
-        "leftValue": ValidationOrder.validateInput(
-          label: "Dài (SX)",
-          controller: lengthManuController,
-          icon: Symbols.business,
-          readOnly: true,
-        ),
+        "leftValue": lengthManuController.text,
 
         "middleKey": "Khổ (SX)",
+        "middleValue": sizeManuController.text,
+
+        "rightKey": "Sóng",
+        "rightValue": fluteController.text,
+      },
+    ];
+
+    final List<Map<String, dynamic>> infoDeliveryRows = [
+      {
+        "leftKey": "Mã Đơn Hàng",
+        "leftValue": AutoCompleteField<DeliveryItemModel>(
+          controller: orderIdDeliveryController,
+          labelText: "",
+          icon: Symbols.orders,
+          suggestionsCallback: (pattern) async {
+            if (pattern.trim().length < 2) return [];
+            return await DeliveryService().searchOrderIdsByKey(orderId: pattern);
+          },
+          displayStringForItem: (items) => items.request!.paper!.orderId,
+          itemBuilder: (context, items) {
+            String formatNumber(double value) {
+              String result;
+
+              // Nếu là số nguyên (ví dụ 123.0) thì chuyển về "123"
+              if (value == value.toInt()) {
+                result = value.toInt().toString();
+              } else {
+                // Nếu là số thập phân (46.5, 46.25) thì xóa dấu chấm
+                result = value.toString().replaceAll('.', '');
+              }
+
+              // Luôn bù số 0 cho đủ 4 ký tự
+              return result.padLeft(4, '0');
+            }
+
+            final order = items.request!.paper!.order!;
+            return ListTile(
+              title: Text(
+                '${order.orderId} - ${formatNumber(order.lengthPaperManufacture)}x${formatNumber(order.paperSizeManufacture)}',
+              ),
+              subtitle: Text(order.customer?.companyName ?? ""),
+            );
+          },
+          onSelected: (items) async {
+            final orderId = items.request!.paper!.orderId;
+            final itemId = items.deliveryItemId;
+
+            currentDeliveryItemId = itemId;
+
+            final selectedOrder = await DeliveryService().getDeliveryItemsById(
+              deliveryItemId: itemId,
+            );
+
+            orderIdDeliveryController.text = orderId;
+            qtyRegisterController.text = selectedOrder?.request?.qtyRegistered.toString() ?? '';
+            vehicleNameController.text = selectedOrder?.vehicle?.vehicleName ?? '';
+
+            setState(() {});
+          },
+
+          onChanged: (value) {
+            if (value.isEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                clearController();
+              });
+            }
+          },
+        ),
+
+        "middleKey": "Số lượng giao",
         "middleValue": ValidationOrder.validateInput(
-          label: "Khổ (SX)",
-          controller: sizeManuController,
+          label: "",
+          controller: qtyRegisterController,
           icon: Symbols.price_change,
           readOnly: true,
         ),
 
-        "rightKey": "",
-        "rightValue": const SizedBox(),
+        "rightKey": "Tên Xe",
+        "rightValue": ValidationOrder.validateInput(
+          label: "",
+          controller: vehicleNameController,
+          icon: Symbols.price_change,
+          readOnly: true,
+        ),
       },
     ];
 
@@ -503,158 +585,258 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                         centerAlign: true,
                       ),
                     ),
-                    const SizedBox(height: 4),
+
+                    //outbound for delivery
+                    ValueListenableBuilder<bool>(
+                      valueListenable: isDeliveryChecked,
+                      builder: (context, isChecked, child) {
+                        if (!isChecked) return const SizedBox.shrink();
+
+                        return Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            buildingCard(
+                              title: "Mã Đơn Giao Hàng",
+                              children: formatKeyValueRows(
+                                rows: infoDeliveryRows,
+                                columnCount: 3,
+                                labelWidth: 150,
+                                centerAlign: true,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
 
                     //button
                     Align(
                       alignment: Alignment.centerRight,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          //qty outbound
-                          SizedBox(
-                            width: 260,
-                            child: Row(
-                              children: [
-                                Text(
-                                  "SL đã xuất:",
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: totalOutboundController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      hintText: "0",
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 15,
-                                        vertical: 10,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      fillColor: Colors.grey.shade300,
-                                      filled: true,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey.shade200),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.02),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
                             ),
-                          ),
-                          const SizedBox(width: 15),
-
-                          //qty remain
-                          SizedBox(
-                            width: 260,
-                            child: Row(
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            //CHECKBOX
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Text(
-                                  "Số lượng tồn:",
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: remainingQtyController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      hintText: "0",
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                        vertical: 15,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      fillColor: Colors.grey.shade300,
-                                      filled: true,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-
-                          //qty outbound
-                          SizedBox(
-                            width: 320,
-                            child: Row(
-                              children: [
-                                Text(
-                                  "Số lượng xuất:",
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: qtyOutboundController,
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                    decoration: InputDecoration(
-                                      hintText: "Nhập số lượng",
-                                      isDense: true,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                        vertical: 15,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      errorText: errRemainQty,
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.trim().isEmpty) {
-                                        return "Không được để trống";
+                                SizedBox(
+                                  width: 180,
+                                  child: ValidationOrder.checkboxForBox(
+                                    label: "Xuất Giao Hàng",
+                                    notifier: isDeliveryChecked,
+                                    onChanged: (val) {
+                                      if (val == false) {
+                                        setState(() {
+                                          currentDeliveryItemId = null;
+                                          orderIdDeliveryController.clear();
+                                          qtyRegisterController.clear();
+                                          vehicleNameController.clear();
+                                        });
                                       }
+                                    },
+                                  ),
+                                ),
+                                buildLineVertical(),
 
-                                      final parsed = int.tryParse(value);
-                                      if (parsed == null) {
-                                        return "Số lượng phải là số nguyên";
-                                      } else if (parsed <= 0) {
-                                        return "Số lượng phải lớn hơn 0";
+                                // Checkbox: Xuất Âm
+                                SizedBox(
+                                  width: 130,
+                                  child: ValidationOrder.checkboxForBox(
+                                    label: "Xuất Âm",
+                                    notifier: isNegativeStockAllowed,
+                                    onChanged: (val) {
+                                      if (val == true) {
+                                        setState(() => errRemainQty = null);
                                       }
+                                    },
+                                  ),
+                                ),
+                                buildLineVertical(),
 
-                                      return null;
+                                // Checkbox: Hàng Tặng
+                                SizedBox(
+                                  width: 140,
+                                  child: ValidationOrder.checkboxForBox(
+                                    label: "Hàng Tặng",
+                                    notifier: isPromotionChecked,
+                                    onChanged: (val) {
+                                      if (val == true) {
+                                        pricePaperController.text = "0";
+                                      }
                                     },
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 15),
+                            const SizedBox(height: 12),
 
-                          //button add
-                          AnimatedButton(
-                            onPressed: () {
-                              //bắt validate form
-                              if (!formKey.currentState!.validate()) {
-                                return;
-                              }
-                              addToTempTable();
-                            },
-                            label: editingIndex == null ? "Thêm" : "Cập nhật",
-                            icon: editingIndex == null ? Icons.add : Icons.save,
-                          ),
-                          const SizedBox(width: 5),
-                        ],
+                            //INPUT QTY OUTBOUND
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                //qty outbound
+                                SizedBox(
+                                  width: 260,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "SL đã xuất:",
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+
+                                      Expanded(
+                                        child: TextFormField(
+                                          controller: totalOutboundController,
+                                          readOnly: true,
+                                          decoration: InputDecoration(
+                                            hintText: "0",
+                                            contentPadding: const EdgeInsets.symmetric(
+                                              horizontal: 15,
+                                              vertical: 10,
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            fillColor: Colors.grey.shade300,
+                                            filled: true,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+
+                                //qty remain
+                                SizedBox(
+                                  width: 260,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Số lượng tồn:",
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: TextFormField(
+                                          controller: remainingQtyController,
+                                          readOnly: true,
+                                          decoration: InputDecoration(
+                                            hintText: "0",
+                                            contentPadding: const EdgeInsets.symmetric(
+                                              horizontal: 20,
+                                              vertical: 15,
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            fillColor: Colors.grey.shade300,
+                                            filled: true,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+
+                                //qty outbound
+                                SizedBox(
+                                  width: 320,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Số lượng xuất:",
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: TextFormField(
+                                          controller: qtyOutboundController,
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                          decoration: InputDecoration(
+                                            hintText: "Nhập số lượng",
+                                            isDense: true,
+                                            contentPadding: const EdgeInsets.symmetric(
+                                              horizontal: 20,
+                                              vertical: 15,
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            errorText: errRemainQty,
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.trim().isEmpty) {
+                                              return "Không được để trống";
+                                            }
+
+                                            final parsed = int.tryParse(value);
+                                            if (parsed == null) {
+                                              return "Số lượng phải là số nguyên";
+                                            } else if (parsed <= 0) {
+                                              return "Số lượng phải lớn hơn 0";
+                                            }
+
+                                            return null;
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+
+                                //btn add/update
+                                AnimatedButton(
+                                  onPressed: () {
+                                    //bắt validate form
+                                    if (!formKey.currentState!.validate()) {
+                                      return;
+                                    }
+                                    addToTempTable();
+                                  },
+                                  label: editingIndex == null ? "Thêm" : "Cập nhật",
+                                  icon: editingIndex == null ? Icons.add : Icons.save,
+                                ),
+                                const SizedBox(width: 5),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                          ],
+                        ),
                       ),
                     ),
+
                     const Divider(height: 40),
 
                     /// ===== TABLE =====
@@ -678,12 +860,12 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                           columns: [
                             buildHeader("Mã Đơn Hàng"),
                             buildHeader("Tên Khách Hàng"),
-                            buildHeader("Loại Sản Phẩm"),
                             buildHeader("Tên Sản phẩm"),
                             buildHeader("Quy Cách"),
                             buildHeader("DVT"),
                             buildHeader("Số Lượng Xuất"),
-                            buildHeader("Giá Tấm"),
+                            buildHeader("Đơn Giá"),
+                            buildHeader("Loại"),
                             buildHeader(""),
                           ],
 
@@ -700,17 +882,35 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                     state(() {
                                       editingIndex = index;
                                       fillFormFromTempItem(e);
+                                      isNegativeStockAllowed.value =
+                                          (e.qtyOutbound > (e.qtyInventory ?? 0));
+                                      setState(() {});
                                     });
                                   },
                                   cells: [
                                     buildCell(e.orderId),
                                     buildCell(e.customerName),
-                                    buildCell(e.typeProduct),
                                     buildCell(e.productName),
                                     buildCell(e.QC_box ?? ""),
                                     buildCell(e.dvt),
                                     buildCell(e.qtyOutbound.toString()),
                                     buildCell(e.pricePaper.toString()),
+                                    DataCell(
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: e.isPromotion ? Colors.orange : Colors.blue,
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                        child: Text(
+                                          e.isPromotion ? "Hàng Tặng" : "Bán Hàng",
+                                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
                                     DataCell(
                                       IconButton(
                                         icon: const Icon(Icons.delete_outline, color: Colors.red),
@@ -780,6 +980,13 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
       ),
+    );
+  }
+
+  Widget buildLineVertical() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Container(width: 1, height: 30, color: Colors.grey.shade300),
     );
   }
 }

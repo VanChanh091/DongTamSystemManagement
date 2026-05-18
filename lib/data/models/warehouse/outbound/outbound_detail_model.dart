@@ -1,3 +1,4 @@
+import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 
@@ -7,10 +8,14 @@ class OutboundDetailModel {
   final double price;
   final double totalPriceOutbound;
   final int deliveredQty;
+  final bool isPromotion;
 
-  //FL
+  //FK
   final String orderId;
   final Order? order;
+
+  final int? deliveryItemId;
+  final DeliveryItemModel? deliveryItem;
 
   OutboundDetailModel({
     required this.outboundDetailId,
@@ -18,9 +23,14 @@ class OutboundDetailModel {
     required this.price,
     required this.totalPriceOutbound,
     required this.deliveredQty,
+    required this.isPromotion,
 
+    //FK
     required this.orderId,
     this.order,
+
+    this.deliveryItemId,
+    this.deliveryItem,
   });
 
   factory OutboundDetailModel.fromJson(Map<String, dynamic> json) {
@@ -30,9 +40,14 @@ class OutboundDetailModel {
       price: toDouble(json['price']),
       totalPriceOutbound: toDouble(json['totalPriceOutbound']),
       deliveredQty: json['deliveredQty'] ?? 0,
+      isPromotion: json['isPromotion'] ?? false,
 
       orderId: json['orderId'] ?? "",
       order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
+
+      deliveryItemId: json['deliveryItemId'],
+      deliveryItem:
+          json['DeliveryItem'] != null ? DeliveryItemModel.fromJson(json['DeliveryItem']) : null,
     );
   }
 }
