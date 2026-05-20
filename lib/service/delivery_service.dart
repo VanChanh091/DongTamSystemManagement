@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
-import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
+import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_request_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
@@ -77,11 +77,11 @@ class DeliveryService {
   }
 
   //get delivery plan detail for edit
-  Future<DeliveryPlanModel?> getDeliveryPlanDetail({required DateTime deliveryDate}) async {
-    return HelperService().fetchingSingleListData<DeliveryPlanModel>(
+  Future<DeliveryScheduleModel?> getDeliveryPlanDetail({required DateTime deliveryDate}) async {
+    return HelperService().fetchingSingleListData<DeliveryScheduleModel>(
       endpoint: "delivery/planning",
       queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
-      fromJson: (json) => DeliveryPlanModel.fromJson(json),
+      fromJson: (json) => DeliveryScheduleModel.fromJson(json),
     );
   }
 
@@ -112,11 +112,11 @@ class DeliveryService {
   //=========================SCHEDULE DELIVERY===========================
 
   // get schedule delivery
-  Future<List<DeliveryPlanModel>> getScheduleDelivery({required DateTime deliveryDate}) async {
-    return HelperService().fetchingData<DeliveryPlanModel>(
+  Future<List<DeliveryScheduleModel>> getScheduleDelivery({required DateTime deliveryDate}) async {
+    return HelperService().fetchingData<DeliveryScheduleModel>(
       endpoint: "delivery/schedule",
       queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
-      fromJson: (json) => DeliveryPlanModel.fromJson(json),
+      fromJson: (json) => DeliveryScheduleModel.fromJson(json),
     );
   }
 
@@ -183,18 +183,28 @@ class DeliveryService {
   //=========================PREPARE GOODS===========================
 
   // get delivery request for prepare goods
-  Future<List<DeliveryPlanModel>> getRequestPrepareGoods({required DateTime deliveryDate}) async {
-    return HelperService().fetchingData<DeliveryPlanModel>(
+  Future<List<DeliveryScheduleModel>> getRequestPrepareGoods({
+    required DateTime deliveryDate,
+  }) async {
+    return HelperService().fetchingData<DeliveryScheduleModel>(
       endpoint: "delivery/prepare",
       queryParameters: {"deliveryDate": DateFormat('yyyy-MM-dd').format(deliveryDate)},
-      fromJson: (json) => DeliveryPlanModel.fromJson(json),
+      fromJson: (json) => DeliveryScheduleModel.fromJson(json),
     );
   }
 
-  Future<bool> requestOrPrepareGoods({required int deliveryItemId, required bool isRequest}) async {
+  Future<bool> requestOrPrepareGoods({
+    required int deliveryItemId,
+    required bool isRequest,
+    String? empCode,
+  }) async {
     return HelperService().updateItem(
       endpoint: "delivery/prepare",
-      queryParameters: {"deliveryItemId": deliveryItemId, "isRequest": isRequest},
+      queryParameters: {
+        "deliveryItemId": deliveryItemId,
+        "isRequest": isRequest,
+        if (empCode != null) "empCode": empCode,
+      },
     );
   }
 

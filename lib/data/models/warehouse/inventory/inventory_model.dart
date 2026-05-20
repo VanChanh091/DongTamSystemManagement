@@ -5,7 +5,6 @@ class InventoryModel {
   final int inventoryId;
   final int totalQtyInbound;
   final int totalQtyOutbound;
-  final int? qtyLoan;
   final int qtyInventory;
   final double valueInventory;
 
@@ -17,7 +16,6 @@ class InventoryModel {
     required this.inventoryId,
     required this.totalQtyInbound,
     required this.totalQtyOutbound,
-    this.qtyLoan,
     required this.qtyInventory,
     required this.valueInventory,
 
@@ -30,7 +28,6 @@ class InventoryModel {
       inventoryId: json['inventoryId'] ?? 0,
       totalQtyInbound: json['totalQtyInbound'] ?? 0,
       totalQtyOutbound: json['totalQtyOutbound'] ?? 0,
-      qtyLoan: json['qtyLoan'] ?? 0,
       qtyInventory: json['qtyInventory'] ?? 0,
       valueInventory: toDouble(json['valueInventory']),
 

@@ -56,6 +56,10 @@ class ObDetailDataSource extends DataGridSource {
         columnName: "totalPriceOutbound",
         value: '${Order.formatCurrency(detail.totalPriceOutbound)} VNĐ',
       ),
+      DataGridCell<String>(
+        columnName: "type",
+        value: detail.isPromotion ? "Hàng Tặng" : "Hàng Bán",
+      ),
 
       //hidden
       DataGridCell<int>(columnName: "outboundDetailId", value: detail.outboundDetailId),

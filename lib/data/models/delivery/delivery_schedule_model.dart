@@ -1,14 +1,14 @@
 import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
 import 'package:intl/intl.dart';
 
-class DeliveryPlanModel {
+class DeliveryScheduleModel {
   final int deliveryId;
   final DateTime? deliveryDate;
   final String status;
 
   final List<DeliveryItemModel>? deliveryItems;
 
-  DeliveryPlanModel({
+  DeliveryScheduleModel({
     required this.deliveryId,
     required this.deliveryDate,
     required this.status,
@@ -17,8 +17,8 @@ class DeliveryPlanModel {
     this.deliveryItems,
   });
 
-  factory DeliveryPlanModel.fromJson(Map<String, dynamic> json) {
-    return DeliveryPlanModel(
+  factory DeliveryScheduleModel.fromJson(Map<String, dynamic> json) {
+    return DeliveryScheduleModel(
       deliveryId: json['deliveryId'] ?? 0,
       deliveryDate:
           json['deliveryDate'] != null && json['deliveryDate'] != ''

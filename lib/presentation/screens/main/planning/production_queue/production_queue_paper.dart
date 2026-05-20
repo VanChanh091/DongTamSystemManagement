@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_change_machine.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
@@ -73,6 +74,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   TextEditingController timeStartController = TextEditingController();
   TextEditingController totalTimeWorkingController = TextEditingController();
 
+  double displayTotalPrice = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -114,7 +117,16 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
           ),
         );
       } else {
-        futurePlanning = ensureMinLoading(PlanningService().getPlanningByMachine(machine: machine));
+        futurePlanning = ensureMinLoading(
+          PlanningService().getPlanningByMachine(
+            machine: machine,
+            onTotalCalculated: (total) {
+              setState(() {
+                displayTotalPrice = total;
+              });
+            },
+          ),
+        );
       }
     });
   }
@@ -527,11 +539,38 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
                         //set day and time for time running
                         const SizedBox(height: 5),
-                        timeAndDayPlanning(
-                          context: context,
-                          dayStartController: dayStartController,
-                          timeStartController: timeStartController,
-                          totalTimeWorkingController: totalTimeWorkingController,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            timeAndDayPlanning(
+                              context: context,
+                              dayStartController: dayStartController,
+                              timeStartController: timeStartController,
+                              totalTimeWorkingController: totalTimeWorkingController,
+                            ),
+
+                            //total price
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0, right: 10.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "Tổng Giá Trị Tồn: ",
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  Text(
+                                    "${Order.formatCurrency(displayTotalPrice)} VNĐ",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: Colors.green.shade500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -631,7 +670,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                             ],
                             child: Obx(
                               () => formatColumn(
-                                label: 'Định Mức Phế Liệu',
+                                label: 'Định Mức Phế Liệu (Kg)',
                                 themeController: themeController,
                               ),
                             ),

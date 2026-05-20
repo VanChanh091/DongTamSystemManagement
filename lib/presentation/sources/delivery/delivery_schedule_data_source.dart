@@ -1,5 +1,5 @@
 import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
-import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
+import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class DeliveryScheduleDataSource extends DataGridSource {
-  List<DeliveryPlanModel> delivery = [];
+  List<DeliveryScheduleModel> delivery = [];
   List<int> selectedDeliveryId;
   bool showGroup;
   String page;
@@ -30,7 +30,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
     }
   }
 
-  List<DataGridCell> buildDbPaperCells(DeliveryPlanModel plan, DeliveryItemModel item) {
+  List<DataGridCell> buildDbPaperCells(DeliveryScheduleModel schedule, DeliveryItemModel item) {
     final vehicle = item.vehicle;
     final order = item.request?.paper?.order;
     final customer = order?.customer;
@@ -50,9 +50,9 @@ class DeliveryScheduleDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeManufacture} cm'),
       DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperManufacture} cm'),
       DataGridCell<int>(columnName: "qtyRegistered", value: item.request?.qtyRegistered ?? 0),
-      DataGridCell<int>(columnName: "qtyOutbound", value: item.outboundDetail?.outboundQty ?? 0),
+      DataGridCell<int>(columnName: "qtyOutbound", value: item.getTotalQtyOutbound),
 
-      DataGridCell<String>(columnName: "note", value: order.note ?? ""),
+      DataGridCell<String>(columnName: "note", value: item.request?.note ?? ""),
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
       DataGridCell<String>(
         columnName: "volume",
@@ -61,11 +61,11 @@ class DeliveryScheduleDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "vehicleHouse", value: vehicle?.vehicleHouse ?? ""),
 
       //hidden field
-      DataGridCell<int>(columnName: "deliveryId", value: plan.deliveryId),
+      DataGridCell<int>(columnName: "deliveryId", value: schedule.deliveryId),
       DataGridCell<int>(columnName: "deliveryItemId", value: item.deliveryItemId),
       DataGridCell<String>(
         columnName: "deliveryDate",
-        value: plan.deliveryDate != null ? formatter.format(plan.deliveryDate!) : "",
+        value: schedule.deliveryDate != null ? formatter.format(schedule.deliveryDate!) : "",
       ),
       DataGridCell<String>(columnName: "status", value: item.status), //status of delivery item
       DataGridCell<String>(columnName: "vehicleName", value: vehicle?.vehicleName ?? ""),

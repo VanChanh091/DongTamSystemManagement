@@ -97,6 +97,11 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       outboundInitState();
     } else if (widget.initialItems != null) {
       tempItems.addAll(widget.initialItems!);
+
+      // Automatically check "Xuất Giao Hàng" if any item comes from Delivery
+      if (tempItems.any((item) => item.deliveryItemId != null)) {
+        isDeliveryChecked.value = true;
+      }
     }
   }
 
@@ -205,14 +210,17 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
   void fillFormFromTempItem(OutboundTempItem temp) {
     isPromotionChecked.value = temp.isPromotion;
+    isDeliveryChecked.value = temp.deliveryItemId != null;
     currentDeliveryItemId = temp.deliveryItemId;
     orderIdController.text = temp.orderId;
     orderIdDeliveryController.text = temp.orderId;
     customerNameController.text = temp.customerName;
+
     lengthManuController.text = temp.lengthManufacture?.toString() ?? "";
     sizeManuController.text = temp.sizeManufacture?.toString() ?? "";
     lengthCustController.text = temp.lengthCustomer?.toString() ?? "";
     sizeCustController.text = temp.sizeCustomer?.toString() ?? "";
+
     productNameController.text = temp.productName;
     fluteController.text = temp.flute ?? "";
     qcBoxController.text = temp.QC_box ?? "";
@@ -248,7 +256,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             return {
               "orderId": outbound.orderId,
               "outboundQty": outbound.qtyOutbound,
-              "deliveryItemId": isDeliveryChecked.value ? outbound.deliveryItemId : null,
+              "deliveryItemId": outbound.deliveryItemId,
               "isPromotion": outbound.isPromotion,
             };
           }).toList();
@@ -538,20 +546,10 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         ),
 
         "middleKey": "Số lượng giao",
-        "middleValue": ValidationOrder.validateInput(
-          label: "",
-          controller: qtyRegisterController,
-          icon: Symbols.price_change,
-          readOnly: true,
-        ),
+        "middleValue": qtyRegisterController.text,
 
         "rightKey": "Tên Xe",
-        "rightValue": ValidationOrder.validateInput(
-          label: "",
-          controller: vehicleNameController,
-          icon: Symbols.price_change,
-          readOnly: true,
-        ),
+        "rightValue": vehicleNameController.text,
       },
     ];
 
@@ -906,7 +904,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                           borderRadius: BorderRadius.circular(5),
                                         ),
                                         child: Text(
-                                          e.isPromotion ? "Hàng Tặng" : "Bán Hàng",
+                                          e.isPromotion ? "Hàng Tặng" : "Hàng Bán",
                                           style: const TextStyle(color: Colors.white, fontSize: 12),
                                         ),
                                       ),

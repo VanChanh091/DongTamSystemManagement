@@ -63,6 +63,7 @@ class _PaperProductionState extends State<PaperProduction> {
   bool showGroup = true;
 
   //permission
+  String machine = "Máy 1350";
   Map<String, String> permissionToMachineMap = {
     "machine1350": "Máy 1350",
     "machine1900": "Máy 1900",
@@ -71,7 +72,6 @@ class _PaperProductionState extends State<PaperProduction> {
   };
 
   //filter by machine & runningPlan
-  String machine = "Máy 1350";
   String filterType = "all";
   final Map<String, String> filterOptions = {
     'all': 'Tất cả',
@@ -459,6 +459,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
                                   //filter
                                   buildDropdownItems(
+                                    width: 155,
                                     value: filterType,
                                     items: const ['all', 'gtZero', 'ltZero'],
                                     onChanged:

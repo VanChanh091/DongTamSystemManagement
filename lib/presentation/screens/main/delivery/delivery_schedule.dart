@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
+import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_delivery_schedule.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
@@ -29,7 +29,7 @@ class DeliverySchedule extends StatefulWidget {
 }
 
 class _DeliveryScheduleState extends State<DeliverySchedule> {
-  late Future<List<DeliveryPlanModel>> futureDelivery;
+  late Future<List<DeliveryScheduleModel>> futureDelivery;
   late DeliveryScheduleDataSource deliveryDatasource;
 
   late List<GridColumn> columns;
@@ -413,7 +413,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                     );
                   }
 
-                  final List<DeliveryPlanModel> data = snapshot.data!;
+                  final List<DeliveryScheduleModel> data = snapshot.data!;
 
                   currentDeliveryId ??= data.first.deliveryId;
 

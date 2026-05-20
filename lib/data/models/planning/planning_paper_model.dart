@@ -14,6 +14,7 @@ class PlanningPaper {
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
 
   final double lengthPaperPlanning, sizePaperPLaning;
+  final double? totalPrice;
   final int runningPlan, numberChild;
   final int? qtyProduced;
   final int ghepKho;
@@ -48,8 +49,9 @@ class PlanningPaper {
   PlanningPaper({
     required this.planningId,
     required this.runningPlan,
-    this.timeRunning,
+
     this.dayStart,
+    this.timeRunning,
     this.dayReplace,
     this.matEReplace,
     this.matBReplace,
@@ -59,11 +61,14 @@ class PlanningPaper {
     this.songBReplace,
     this.songCReplace,
     this.songE2Replace,
+
     required this.lengthPaperPlanning,
     required this.sizePaperPLaning,
     required this.ghepKho,
     required this.numberChild,
     required this.chooseMachine,
+    this.totalPrice,
+
     this.bottom,
     this.fluteE,
     this.fluteB,
@@ -72,16 +77,18 @@ class PlanningPaper {
     this.knife,
     this.totalLoss,
     this.sortPlanning,
-    required this.status,
+
     this.statusRequest,
     this.dayCompleted,
     this.qtyProduced,
     this.qtyWasteNorm,
     this.shiftManagement,
     this.shiftProduction,
-    required this.hasBox,
     this.deliveryPlanned,
     this.hasOverFlow,
+
+    required this.status,
+    required this.hasBox,
 
     //field temp
     // this.itemStatus,
@@ -134,6 +141,7 @@ class PlanningPaper {
   factory PlanningPaper.fromJson(Map<String, dynamic> json) {
     return PlanningPaper(
       planningId: json["planningId"],
+
       dayStart:
           json['dayStart'] != null && json['dayStart'] != ''
               ? DateTime.tryParse(json['dayStart'])
@@ -146,6 +154,7 @@ class PlanningPaper {
           json['timeRunning'] != null && json['timeRunning'] != ''
               ? parseTimeOfDay(json['timeRunning'])
               : null,
+
       runningPlan: json['runningPlan'] ?? 0,
       dayReplace: json['dayReplace'] ?? "",
       matEReplace: json['matEReplace'] ?? "",
@@ -156,17 +165,22 @@ class PlanningPaper {
       songBReplace: json['songBReplace'] ?? "",
       songCReplace: json['songCReplace'] ?? "",
       songE2Replace: json['songE2Replace'] ?? "",
+
       lengthPaperPlanning: toDouble(json['lengthPaperPlanning']),
       sizePaperPLaning: toDouble((json['sizePaperPLaning'])),
+
       ghepKho: json['ghepKho'] ?? 0,
       numberChild: json['numberChild'] ?? 0,
       chooseMachine: json['chooseMachine'] ?? "",
+      totalPrice: toDouble(json['totalPrice']),
+
       bottom: toDouble(json['bottom']),
       fluteE: toDouble(json['fluteE']),
       fluteB: toDouble(json['fluteB']),
       fluteC: toDouble(json['fluteC']),
       fluteE2: toDouble(json['fluteE2']),
       knife: toDouble(json['knife']),
+
       totalLoss: toDouble(json['totalLoss']),
       sortPlanning: json['sortPlanning'] ?? 0,
       status: json['status'] ?? "",

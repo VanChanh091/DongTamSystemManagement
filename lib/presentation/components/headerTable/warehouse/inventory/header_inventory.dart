@@ -16,16 +16,16 @@ final List<Map<String, dynamic>> _inventoryColumns = [
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "size", "title": "Khổ (KH)"},
   {"key": "length", "title": "Dài (KH)"},
-  {"key": "qtyCustomer", "title": "Khách Đặt"},
-  {"key": "totalQtyInbound", "title": "Tổng Nhập"},
+
+  {"key": "totalQtyInbound", "title": "Nhập Kho"},
   {"key": "totalQtyOutbound", "title": "Tổng Xuất"},
-  {"key": "qtyInventory", "title": "Số Lượng Tồn"},
-  {"key": "valueInventory", "title": "Giá Trị Tồn"},
+  {"key": "qtyInventory", "title": "Tồn"},
+
   {"key": "dvt", "title": "DVT"},
   {"key": "price", "title": "Đơn Giá"},
-  {"key": "vat", "title": "VAT"},
-  {"key": "totalPrice", "title": "Trước VAT"},
-  {"key": "totalPriceVAT", "title": "Sau VAT"},
+  {"key": "valueInventory", "title": "Giá Trị Tồn"},
+
+  {"key": "fullName", "title": "Nhân Viên"},
 
   //hidden
   {"key": "inventoryId", "title": "", "visible": false},

@@ -237,12 +237,19 @@ class WarehouseService {
   Future<Map<String, dynamic>> getInventory({
     required int page,
     required int pageSize,
+    required String filter,
     String? field,
     String? keyword,
   }) async {
     return HelperService().fetchPaginatedData<InventoryModel>(
       endpoint: "warehouse/inventory",
-      queryParameters: {'page': page, 'pageSize': pageSize, 'field': field, 'keyword': keyword},
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        'filter': filter,
+        'field': field,
+        'keyword': keyword,
+      },
       fromJson: (json) => InventoryModel.fromJson(json),
       dataKey: 'inventories',
     );

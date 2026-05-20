@@ -23,6 +23,7 @@ class PlanningService {
     String? field,
     String? keyword,
     bool isBox = false,
+    Function(double)? onTotalCalculated,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -38,13 +39,16 @@ class PlanningService {
       );
 
       final List<dynamic> planningData = response.data['data'];
+      final double totalPrice = double.tryParse(response.data['totalPrice'].toString()) ?? 0.0;
+
+      print("Total price from response: $totalPrice");
+
+      if (onTotalCalculated != null) {
+        onTotalCalculated(totalPrice);
+      }
 
       return planningData.map<T>((json) {
-        if (isBox) {
-          return PlanningBox.fromJson(json) as T;
-        } else {
-          return PlanningPaper.fromJson(json) as T;
-        }
+        return isBox ? PlanningBox.fromJson(json) as T : PlanningPaper.fromJson(json) as T;
       }).toList();
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {

@@ -7,6 +7,7 @@ class DeliveryRequest {
   final int qtyRegistered;
   final double volume;
   final String status;
+  final String? note;
 
   //FK
   final int userId;
@@ -20,6 +21,7 @@ class DeliveryRequest {
     required this.qtyRegistered,
     required this.volume,
     required this.status,
+    this.note,
 
     //ASSOCIATION
     required this.userId,
@@ -35,6 +37,7 @@ class DeliveryRequest {
       qtyRegistered: json['qtyRegistered'] ?? 0,
       volume: toDouble(json['volume']),
       status: json['status'] ?? "",
+      note: json['note'],
 
       //ASSOCIATION
       userId: json['userId'] ?? 0,

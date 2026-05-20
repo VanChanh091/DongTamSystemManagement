@@ -38,6 +38,10 @@ class MachineBoxDatasource extends DataGridSource {
   }
 
   List<DataGridCell> buildPlanningCells(PlanningBox planning, String machine) {
+    DataGridCell<String> buildCurrencyCell(String columnName, num value) {
+      return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? '$value' : "0");
+    }
+
     final boxMachineTime = planning.getBoxMachineTimeByMachine(machine);
 
     return [
@@ -58,14 +62,10 @@ class MachineBoxDatasource extends DataGridSource {
       ),
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
-      DataGridCell<String>(
-        columnName: "size",
-        value: planning.size > 0 ? '${planning.size} cm' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: "length",
-        value: planning.length > 0 ? '${planning.length} cm' : "0",
-      ),
+
+      buildCurrencyCell('size', planning.size),
+      buildCurrencyCell('length', planning.size),
+
       DataGridCell<String>(columnName: "canLan", value: planning.order?.canLan ?? ""),
 
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),
@@ -273,18 +273,18 @@ class MachineBoxDatasource extends DataGridSource {
       final count = match.group(2) ?? '0';
       itemCount = '$count đơn hàng';
 
-      if (page == 'planning' && displayDate.isNotEmpty) {
-        double totalGroupPrice = planning
-            .where((p) {
-              final bt = p.getBoxMachineTimeByMachine(machine); // Lấy thông tin theo máy hiện tại
-              return bt?.dayStart != null && formatter.format(bt!.dayStart!) == displayDate;
-            })
-            .fold(0, (sum, p) => sum + (p.order?.totalPrice ?? 0));
+      // if (page == 'planning' && displayDate.isNotEmpty) {
+      //   double totalGroupPrice = planning
+      //       .where((p) {
+      //         final bt = p.getBoxMachineTimeByMachine(machine); // Lấy thông tin theo máy hiện tại
+      //         return bt?.dayStart != null && formatter.format(bt!.dayStart!) == displayDate;
+      //       })
+      //       .fold(0, (sum, p) => sum + (p.order?.totalPrice ?? 0));
 
-        if (totalGroupPrice > 0) {
-          totalPriceStr = ' – Tổng: ${Order.formatCurrency(totalGroupPrice)} VND';
-        }
-      }
+      //   if (totalGroupPrice > 0) {
+      //     totalPriceStr = ' – Tổng: ${Order.formatCurrency(totalGroupPrice)} VND';
+      //   }
+      // }
     }
 
     return Container(

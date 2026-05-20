@@ -18,8 +18,10 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
-  {"key": "size", "title": "Khổ"},
-  {"key": "length", "title": "Dài"},
+
+  {"key": "size", "title": "Khổ (cm)"},
+  {"key": "length", "title": "Dài (cm)"},
+
   {
     "key": "qcBox",
     "title": "QC Thùng",
@@ -53,7 +55,7 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
 
   {
     "key": "totalPrice",
-    "title": "Tổng Tiền",
+    "title": "Tổng Tiền (VNĐ)",
     "visiblePages": ["planning"],
   },
 

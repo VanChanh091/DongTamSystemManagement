@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
-import 'package:dongtam/data/models/delivery/delivery_plan_model.dart';
+import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_delivery_schedule.dart';
@@ -11,8 +11,9 @@ import 'package:dongtam/presentation/sources/delivery/delivery_schedule_data_sou
 import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/socket/socket_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -32,7 +33,7 @@ class DeliveryPrepareGoods extends StatefulWidget {
 }
 
 class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
-  late Future<List<DeliveryPlanModel>> futureDelivery;
+  late Future<List<DeliveryScheduleModel>> futureDelivery;
   late DeliveryScheduleDataSource deliveryDatasource;
   late InitSocketPrepareGoods _initSocket;
   late List<GridColumn> columns;
@@ -54,6 +55,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
   int? currentDeliveryId;
 
   TextEditingController dayStartController = TextEditingController();
+  TextEditingController employeeCodeController = TextEditingController();
 
   @override
   void initState() {
@@ -99,6 +101,8 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
   @override
   void dispose() {
     _initSocket.stop();
+    dayStartController.dispose();
+    employeeCodeController.dispose();
     super.dispose();
   }
 
@@ -259,39 +263,56 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                   onPressed:
                                       selectedDeliveryIds.length == 1
                                           ? () async {
-                                            bool confirm = await showConfirmDialog(
+                                            employeeCodeController.clear();
+
+                                            await showInputQtyDialog(
                                               context: context,
-                                              title: "Xác nhận chuẩn bị hàng",
-                                              content:
-                                                  "Bạn có chắc chắn muốn hoàn thành chuẩn bị đơn hàng đã chọn?",
-                                              confirmText: "Xác Nhận",
+                                              title: "Xác nhận hoàn tất",
+                                              onConfirm: () async {
+                                                try {
+                                                  final success = await DeliveryService()
+                                                      .requestOrPrepareGoods(
+                                                        deliveryItemId: selectedDeliveryIds.first,
+                                                        isRequest: false,
+                                                        empCode:
+                                                            'DTGH-${employeeCodeController.trimmed}',
+                                                      );
+
+                                                  if (success) {
+                                                    if (context.mounted) {
+                                                      showSnackBarSuccess(
+                                                        context,
+                                                        "Đã hoàn thành chuẩn bị hàng",
+                                                      );
+                                                    }
+
+                                                    badgesController.fetchPrepareGoods();
+
+                                                    loadDeliveryPrepareGoods();
+                                                    return true;
+                                                  }
+                                                  return false;
+                                                } on ApiException catch (e) {
+                                                  final errorText = switch (e.errorCode) {
+                                                    'EMPLOYEE_NOT_FOUND' => e.message!,
+                                                    _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                  };
+
+                                                  if (context.mounted) {
+                                                    showSnackBarError(context, errorText);
+                                                  }
+                                                  return false;
+                                                } catch (e) {
+                                                  if (context.mounted) {
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Chuẩn bị hàng thất bại",
+                                                    );
+                                                  }
+                                                  return false;
+                                                }
+                                              },
                                             );
-
-                                            if (!confirm) return;
-
-                                            try {
-                                              final success = await DeliveryService()
-                                                  .requestOrPrepareGoods(
-                                                    deliveryItemId: selectedDeliveryIds.first,
-                                                    isRequest: false,
-                                                  );
-
-                                              if (!context.mounted) return;
-
-                                              if (success) {
-                                                showSnackBarSuccess(
-                                                  context,
-                                                  "Đã hoàn thành chuẩn bị hàng",
-                                                );
-
-                                                badgesController.fetchPrepareGoods();
-
-                                                loadDeliveryPrepareGoods();
-                                              }
-                                            } catch (e) {
-                                              if (!context.mounted) return;
-                                              showSnackBarError(context, "Chuẩn bị hàng thất bại");
-                                            }
                                           }
                                           : null,
                                   label: "Hoàn Tất",
@@ -356,7 +377,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                     );
                   }
 
-                  final List<DeliveryPlanModel> data = snapshot.data!;
+                  final List<DeliveryScheduleModel> data = snapshot.data!;
 
                   currentDeliveryId ??= data.first.deliveryId;
 
@@ -450,6 +471,110 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
           child: const Icon(Icons.refresh, color: Colors.white),
         ),
       ),
+    );
+  }
+
+  Future<bool?> showInputQtyDialog({
+    required BuildContext context,
+    required String title,
+    required Future<bool> Function() onConfirm,
+  }) async {
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              content: SizedBox(
+                width: 350,
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: employeeCodeController,
+                        decoration: const InputDecoration(
+                          labelText: "Nhập mã nhân viên",
+                          labelStyle: TextStyle(fontSize: 15),
+                          prefixText: "DTGH-",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return "Không được để trống";
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isLoading ? null : () => Navigator.pop(context),
+                  child: const Text(
+                    "Hủy",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffEA4346),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed:
+                      isLoading
+                          ? null
+                          : () async {
+                            if (formKey.currentState!.validate()) {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              final success = await onConfirm();
+                              if (context.mounted) {
+                                if (success) {
+                                  Navigator.pop(context, true);
+                                } else {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                }
+                              }
+                            }
+                          },
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                          : const Text(
+                            'Xác nhận',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -15,6 +15,7 @@ const List<Map<String, dynamic>> _headerOutboundDetail = [
   {"key": "price", "title": "Đơn Giá"},
   {"key": "discount", "title": "Chiết Khấu"},
   {"key": "totalPriceOutbound", "title": "Thành Tiền"},
+  {"key": "type", "title": "Loại"},
 
   //hidden
   {"key": "outboundDetailId", "title": "", "visible": false},

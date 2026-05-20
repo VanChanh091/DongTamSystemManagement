@@ -300,6 +300,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                                     // Cập nhật số lượng badge
                                                                     badgesController
                                                                         .fetchDeliveryRequest();
+
                                                                     loadPlanningEstimate();
                                                                     return true;
                                                                   }

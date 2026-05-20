@@ -11,10 +11,13 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
     "visiblePages": ["planning"],
   },
   {"key": "customerName", "title": "Tên Khách Hàng"},
+
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "QC_box", "title": "QC Thùng"},
-  {"key": "size", "title": "Khổ"},
-  {"key": "length", "title": "Dài"},
+
+  {"key": "size", "title": "Khổ (cm)"},
+  {"key": "length", "title": "Dài (cm)"},
+
   {"key": "canLan", "title": "Cấn Lằn"},
 
   {"key": "qtyPaper", "title": "Giấy Tấm"},

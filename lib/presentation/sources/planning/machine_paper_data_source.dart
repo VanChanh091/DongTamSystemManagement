@@ -41,6 +41,10 @@ class MachinePaperDatasource extends DataGridSource {
 
   // create list cell for planning
   List<DataGridCell> buildPlanningInfoCells(PlanningPaper planning) {
+    DataGridCell<String> buildCurrencyCell(String columnName, num value) {
+      return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? '$value' : "0");
+    }
+
     return [
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
 
@@ -61,14 +65,10 @@ class MachinePaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
-      DataGridCell<String>(
-        columnName: 'size',
-        value: planning.sizePaperPLaning > 0 ? '${planning.sizePaperPLaning} cm' : '0',
-      ),
-      DataGridCell<String>(
-        columnName: 'length',
-        value: planning.lengthPaperPlanning > 0 ? '${planning.lengthPaperPlanning} cm' : "0",
-      ),
+
+      buildCurrencyCell('size', planning.sizePaperPLaning),
+      buildCurrencyCell('length', planning.lengthPaperPlanning),
+
       DataGridCell<String>(columnName: 'qcBox', value: planning.order?.QC_box ?? ""),
       DataGridCell<String>(columnName: 'canLan', value: planning.order?.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
@@ -99,10 +99,7 @@ class MachinePaperDatasource extends DataGridSource {
       if (page == "planning") ...[
         DataGridCell<String>(
           columnName: 'totalPrice',
-          value:
-              (planning.order?.totalPrice ?? 0) > 0
-                  ? '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND'
-                  : "0",
+          value: (planning.totalPrice ?? 0) > 0 ? Order.formatCurrency(planning.totalPrice!) : "0",
         ),
       ],
     ];
@@ -110,7 +107,7 @@ class MachinePaperDatasource extends DataGridSource {
 
   List<DataGridCell> buildWasteNormCell(PlanningPaper planning) {
     DataGridCell<String> buildWasteCell({required String columnName, required double value}) {
-      return DataGridCell<String>(columnName: columnName, value: value != 0 ? '$value kg' : '0');
+      return DataGridCell<String>(columnName: columnName, value: value != 0 ? '$value' : '0');
     }
 
     return [
@@ -286,7 +283,7 @@ class MachinePaperDatasource extends DataGridSource {
       if (page == 'planning' && displayDate.isNotEmpty) {
         double totalGroupPrice = planning
             .where((p) => p.dayStart != null && formatter.format(p.dayStart!) == displayDate)
-            .fold(0, (sum, p) => sum + (p.order?.totalPrice ?? 0));
+            .fold(0, (sum, p) => sum + (p.totalPrice ?? 0));
 
         if (totalGroupPrice > 0) {
           totalPriceStr = ' – Tổng: ${Order.formatCurrency(totalGroupPrice)} VNĐ';
