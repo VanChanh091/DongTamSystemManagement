@@ -10,7 +10,7 @@ import 'package:dongtam/presentation/components/shared/planning/save_planning.da
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -46,6 +46,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   final badgesController = Get.find<BadgesController>();
   final unsavedChangeController = Get.find<UnsavedChangeController>();
 
+  double displayTotalPrice = 0.0;
+
   //search
   final Map<String, String> searchFieldMap = {
     'Mã Đơn Hàng': "orderId",
@@ -73,8 +75,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   TextEditingController dayStartController = TextEditingController();
   TextEditingController timeStartController = TextEditingController();
   TextEditingController totalTimeWorkingController = TextEditingController();
-
-  double displayTotalPrice = 0.0;
+  TextEditingController noteController = TextEditingController();
 
   @override
   void initState() {
@@ -164,6 +165,16 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
       selectedPlanningIds.clear();
       loadPlanning();
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+    dayStartController.dispose();
+    timeStartController.dispose();
+    totalTimeWorkingController.dispose();
+    noteController.dispose();
   }
 
   @override
@@ -422,8 +433,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               onSuccess: () => loadPlanning(),
                                             );
                                           } else if (value == 'notify') {
-                                            if (!context.mounted) return;
-
                                             bool confirm = await showConfirmDialog(
                                               context: context,
                                               title: "Xác Nhận Lịch Sản Xuất",
@@ -455,6 +464,64 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 );
                                               }
                                             }
+                                          } else if (value == 'note') {
+                                            if (selectedPlanningIds.isEmpty) {
+                                              showSnackBarError(
+                                                context,
+                                                "Chưa chọn kế hoạch cần ghi chú",
+                                              );
+                                              return;
+                                            } else if (selectedPlanningIds.length > 1) {
+                                              showSnackBarError(
+                                                context,
+                                                "Chỉ chọn một kế hoạch để thêm ghi chú",
+                                              );
+                                              return;
+                                            }
+
+                                            //clear text field
+                                            noteController.clear();
+
+                                            await showInputQtyDialog(
+                                              context: context,
+                                              controller: noteController,
+                                              maxLines: 3,
+                                              title: "Thêm Ghi Chú",
+                                              labelText: "Ghi chú",
+                                              onConfirm: () async {
+                                                try {
+                                                  final success = await PlanningService()
+                                                      .addNoteToPlanning(
+                                                        planningId: int.parse(
+                                                          selectedPlanningIds.first,
+                                                        ),
+                                                        note: noteController.text.trim(),
+                                                        action: "NOTE",
+                                                      );
+
+                                                  if (success) {
+                                                    if (context.mounted) {
+                                                      showSnackBarSuccess(
+                                                        context,
+                                                        "Thêm ghi chú thành công",
+                                                      );
+                                                    }
+
+                                                    loadPlanning();
+                                                    return true;
+                                                  }
+                                                  return false;
+                                                } catch (e) {
+                                                  if (context.mounted) {
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Thêm ghi chú thất bại",
+                                                    );
+                                                  }
+                                                  return false;
+                                                }
+                                              },
+                                            );
                                           } else if (value == 'export') {
                                             bool confirm = await showConfirmDialog(
                                               context: context,
@@ -517,6 +584,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 child: ListTile(
                                                   leading: Icon(Symbols.send),
                                                   title: Text('Gửi Kế Hoạch SX'),
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'note',
+                                                child: ListTile(
+                                                  leading: Icon(Symbols.note_add),
+                                                  title: Text('Thêm Ghi Chú'),
                                                 ),
                                               ),
                                               const PopupMenuItem<String>(

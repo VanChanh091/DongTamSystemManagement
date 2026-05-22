@@ -5,7 +5,7 @@ import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.d
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';

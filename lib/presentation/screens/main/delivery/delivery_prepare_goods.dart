@@ -6,6 +6,7 @@ import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_delivery_schedule.dart';
+import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/delivery/delivery_schedule_data_source.dart';
 import 'package:dongtam/service/delivery_service.dart';
@@ -268,6 +269,9 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                             await showInputQtyDialog(
                                               context: context,
                                               title: "Xác nhận hoàn tất",
+                                              labelText: "Nhập mã nhân viên",
+                                              prefixText: "DTGH-",
+                                              controller: employeeCodeController,
                                               onConfirm: () async {
                                                 try {
                                                   final success = await DeliveryService()
@@ -471,110 +475,6 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
           child: const Icon(Icons.refresh, color: Colors.white),
         ),
       ),
-    );
-  }
-
-  Future<bool?> showInputQtyDialog({
-    required BuildContext context,
-    required String title,
-    required Future<bool> Function() onConfirm,
-  }) async {
-    final formKey = GlobalKey<FormState>();
-    bool isLoading = false;
-
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              surfaceTintColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-              content: SizedBox(
-                width: 350,
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: employeeCodeController,
-                        decoration: const InputDecoration(
-                          labelText: "Nhập mã nhân viên",
-                          labelStyle: TextStyle(fontSize: 15),
-                          prefixText: "DTGH-",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) return "Không được để trống";
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isLoading ? null : () => Navigator.pop(context),
-                  child: const Text(
-                    "Hủy",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffEA4346),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed:
-                      isLoading
-                          ? null
-                          : () async {
-                            if (formKey.currentState!.validate()) {
-                              setState(() {
-                                isLoading = true;
-                              });
-                              final success = await onConfirm();
-                              if (context.mounted) {
-                                if (success) {
-                                  Navigator.pop(context, true);
-                                } else {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                }
-                              }
-                            }
-                          },
-                  child:
-                      isLoading
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                          )
-                          : const Text(
-                            'Xác nhận',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                ),
-              ],
-            );
-          },
-        );
-      },
     );
   }
 }

@@ -13,6 +13,7 @@ class AdminMachinePaperModel {
   int speed7Layer;
   int paperRollSpeed;
   double machinePerformance;
+  String type;
 
   AdminMachinePaperModel({
     required this.machineId,
@@ -27,6 +28,7 @@ class AdminMachinePaperModel {
     required this.speed7Layer,
     required this.paperRollSpeed,
     required this.machinePerformance,
+    required this.type,
   });
 
   factory AdminMachinePaperModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +45,7 @@ class AdminMachinePaperModel {
       speed7Layer: json['speed7Layer'] ?? 0,
       paperRollSpeed: json['paperRollSpeed'] ?? 0,
       machinePerformance: toDouble(json['machinePerformance']),
+      type: json['type'] ?? '',
     );
   }
 
@@ -59,6 +62,7 @@ class AdminMachinePaperModel {
       "speed7Layer": speed7Layer,
       "paperRollSpeed": paperRollSpeed,
       "machinePerformance": machinePerformance,
+      "type": type,
     };
   }
 }

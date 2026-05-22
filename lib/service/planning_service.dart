@@ -41,8 +41,6 @@ class PlanningService {
       final List<dynamic> planningData = response.data['data'];
       final double totalPrice = double.tryParse(response.data['totalPrice'].toString()) ?? 0.0;
 
-      print("Total price from response: $totalPrice");
-
       if (onTotalCalculated != null) {
         onTotalCalculated(totalPrice);
       }
@@ -180,6 +178,30 @@ class PlanningService {
     } catch (e, s) {
       AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
       throw Exception('Failed to pause machine: $e');
+    }
+  }
+
+  //pause or accept lack qty
+  Future<bool> addNoteToPlanning({
+    required int planningId,
+    required String note,
+    required String action,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      await dioService.put(
+        "/api/planning/planning-papers",
+        data: {"planningIds": planningId, "note": note, "action": action},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        ),
+      );
+
+      return true;
+    } catch (e, s) {
+      AppLogger.e("Failed to add note to planning", error: e, stackTrace: s);
+      throw Exception('Failed to add note to planning: $e');
     }
   }
 

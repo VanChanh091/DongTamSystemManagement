@@ -33,6 +33,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
       // Order
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
+      DataGridCell<String>(columnName: "orderIdCust", value: order?.orderIdCustomer ?? ""),
       DataGridCell<String>(
         columnName: "dateShipping",
         value:

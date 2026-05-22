@@ -7,7 +7,7 @@ import 'package:dongtam/presentation/components/shared/planning/save_planning.da
 import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';

@@ -7,6 +7,7 @@ const List<Map<String, dynamic>> _headerDeliveryEstimate = [
   // Order
   {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
+  {"key": "orderIdCust", "title": "PO Khách"},
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "delivered", "title": "Trạng Thái"},
 

@@ -377,6 +377,8 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                   syntheticOrders = SyntheticOrdersDataSource(
                     orders: orders,
                     selectedOrderId: selectedOrderId,
+                    currentPage: currentPg,
+                    pageSize: pageSize,
                   );
 
                   return Column(

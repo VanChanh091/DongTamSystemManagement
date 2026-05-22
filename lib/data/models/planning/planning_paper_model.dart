@@ -23,8 +23,7 @@ class PlanningPaper {
   final double? qtyWasteNorm;
 
   final String chooseMachine;
-  final String? shiftProduction;
-  final String? shiftManagement;
+  final String? shiftProduction, shiftManagement, note;
 
   final String status;
   final String? statusRequest;
@@ -86,12 +85,12 @@ class PlanningPaper {
     this.shiftProduction,
     this.deliveryPlanned,
     this.hasOverFlow,
+    this.note,
 
     required this.status,
     required this.hasBox,
 
     //field temp
-    // this.itemStatus,
     this.tempVolume,
 
     required this.orderId,
@@ -185,10 +184,14 @@ class PlanningPaper {
       sortPlanning: json['sortPlanning'] ?? 0,
       status: json['status'] ?? "",
       statusRequest: json['statusRequest'] ?? "",
+
       qtyProduced: json['qtyProduced'] ?? 0,
       qtyWasteNorm: toDouble(json['qtyWasteNorm']),
+
       shiftManagement: json['shiftManagement'] ?? "",
       shiftProduction: json['shiftProduction'] ?? "",
+      note: json['note'] ?? "",
+
       hasBox: json['hasBox'] ?? false,
       hasOverFlow: json['hasOverFlow'] ?? false,
       deliveryPlanned: json['deliveryPlanned'] ?? "",

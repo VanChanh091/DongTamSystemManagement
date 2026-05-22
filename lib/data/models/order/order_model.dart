@@ -233,7 +233,6 @@ class Order {
       'prefix': orderId,
       'customerId': customerId,
       'productId': productId,
-      'dayReceiveOrder': DateFormat('yyyy-MM-dd').format(dayReceiveOrder),
       'QC_box': QC_box,
       'canLan': canLan,
       'daoXa': daoXa,

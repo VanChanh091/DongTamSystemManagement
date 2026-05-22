@@ -6,7 +6,7 @@ import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_delivery_estimate.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/delivery/delivery_estimate_data_source.dart';
@@ -273,6 +273,20 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                             await showInputQtyDialog(
                                                               context: context,
                                                               title: "Đăng Ký Giao Hàng",
+                                                              labelText: "Số lượng đăng ký",
+                                                              controller: registeredController,
+                                                              validator: (value) {
+                                                                final n = int.tryParse(value!);
+                                                                if (n == null || n <= 0) {
+                                                                  return "Số lượng phải lớn hơn 0";
+                                                                }
+
+                                                                return null;
+                                                              },
+
+                                                              //input 2
+                                                              labelText2: "Ghi chú",
+                                                              controller2: noteController,
                                                               onConfirm: () async {
                                                                 try {
                                                                   final success =
@@ -790,124 +804,6 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
-    );
-  }
-
-  Future<bool?> showInputQtyDialog({
-    required BuildContext context,
-    required String title,
-    required Future<bool> Function() onConfirm,
-  }) async {
-    final formKey = GlobalKey<FormState>();
-    bool isLoading = false;
-
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              surfaceTintColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-              content: SizedBox(
-                width: 350,
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: registeredController,
-                        keyboardType: TextInputType.number,
-                        autofocus: true,
-                        decoration: const InputDecoration(
-                          labelText: "Nhập số lượng muốn giao",
-                          labelStyle: TextStyle(fontSize: 15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) return "Không được để trống";
-                          final n = int.tryParse(value);
-                          if (n == null || n <= 0) return "Số lượng phải lớn hơn 0";
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-
-                      TextFormField(
-                        controller: noteController,
-                        decoration: const InputDecoration(
-                          labelText: "Ghi chú",
-                          labelStyle: TextStyle(fontSize: 15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isLoading ? null : () => Navigator.pop(context),
-                  child: const Text(
-                    "Hủy",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffEA4346),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed:
-                      isLoading
-                          ? null
-                          : () async {
-                            if (formKey.currentState!.validate()) {
-                              setState(() {
-                                isLoading = true;
-                              });
-                              final success = await onConfirm();
-                              if (context.mounted) {
-                                if (success) {
-                                  Navigator.pop(context, true);
-                                } else {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                }
-                              }
-                            }
-                          },
-                  child:
-                      isLoading
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                          )
-                          : const Text(
-                            'Xác nhận',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                ),
-              ],
-            );
-          },
-        );
-      },
     );
   }
 }

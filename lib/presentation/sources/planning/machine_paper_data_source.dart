@@ -69,6 +69,7 @@ class MachinePaperDatasource extends DataGridSource {
       buildCurrencyCell('size', planning.sizePaperPLaning),
       buildCurrencyCell('length', planning.lengthPaperPlanning),
 
+      DataGridCell<String>(columnName: 'note', value: planning.note ?? ""),
       DataGridCell<String>(columnName: 'qcBox', value: planning.order?.QC_box ?? ""),
       DataGridCell<String>(columnName: 'canLan', value: planning.order?.canLan ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
@@ -88,6 +89,7 @@ class MachinePaperDatasource extends DataGridSource {
       ],
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       DataGridCell<int>(columnName: "runningPlanProd", value: planning.remainRunningPlan),
+      DataGridCell<String>(columnName: "dvt", value: planning.order?.dvt),
 
       DataGridCell<String>(
         columnName: 'timeRunningProd',

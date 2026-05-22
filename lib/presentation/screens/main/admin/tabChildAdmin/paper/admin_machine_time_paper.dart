@@ -52,12 +52,12 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
         padding: const EdgeInsets.all(5),
         child: Column(
           children: [
-            //button
             SizedBox(
               height: 90,
               width: double.infinity,
               child: Column(
                 children: [
+                  //title
                   SizedBox(
                     height: 30,
                     width: double.infinity,
@@ -74,6 +74,8 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                       ),
                     ),
                   ),
+
+                  //button
                   SizedBox(
                     height: 60,
                     width: double.infinity,
@@ -127,6 +129,7 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                                                 "paperRollSpeed": item.paperRollSpeed,
                                                 "machinePerformance": item.machinePerformance,
                                                 "machineName": item.machineName,
+                                                'type': item.type,
                                               },
                                             );
                                           }
@@ -341,198 +344,12 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
                     updatedMachine = data;
 
                     return SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
+                      scrollDirection: Axis.horizontal,
                       child: DataTable(
                         columnSpacing: 25,
                         headingRowColor: WidgetStatePropertyAll(themeController.currentColor.value),
-                        columns: [
-                          DataColumn(
-                            label: Theme(
-                              data: Theme.of(context).copyWith(
-                                checkboxTheme: CheckboxThemeData(
-                                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return Colors.red;
-                                    }
-                                    return Colors.white;
-                                  }),
-                                  checkColor: WidgetStateProperty.all<Color>(Colors.white),
-                                  side: const BorderSide(color: Colors.black, width: 1),
-                                ),
-                              ),
-                              child: Checkbox(
-                                value: selectedAll,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedAll = value!;
-                                    if (selectedAll) {
-                                      isSelected = data.map((e) => e.machineId).toList();
-                                    } else {
-                                      isSelected.clear();
-                                    }
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          DataColumn(label: styleText("Tgian đổi khổ")),
-                          DataColumn(label: styleText("Tgian đổi cùng khổ")),
-                          DataColumn(label: styleText("Tốc độ 2 lớp")),
-                          DataColumn(label: styleText("Tốc độ 3 lớp")),
-                          DataColumn(label: styleText("Tốc độ 4 lớp")),
-                          DataColumn(label: styleText("Tốc độ 5 lớp")),
-                          DataColumn(label: styleText("Tốc độ 6 lớp")),
-                          DataColumn(label: styleText("Tốc độ 7 lớp")),
-                          DataColumn(label: styleText("Tốc độ quấn cuồn")),
-                          DataColumn(label: styleText("Hiệu suất")),
-                          DataColumn(label: styleText("Loại Máy")),
-                        ],
-                        rows: List<DataRow>.generate(data.length, (index) {
-                          final machine = data[index];
-                          return DataRow(
-                            cells: [
-                              DataCell(
-                                Theme(
-                                  data: Theme.of(context).copyWith(
-                                    checkboxTheme: CheckboxThemeData(
-                                      fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-                                        if (states.contains(WidgetState.selected)) {
-                                          return Colors.red;
-                                        }
-                                        return Colors.white;
-                                      }),
-                                      checkColor: WidgetStateProperty.all<Color>(Colors.white),
-                                      side: const BorderSide(color: Colors.black, width: 1),
-                                    ),
-                                  ),
-                                  child: Checkbox(
-                                    value: isSelected.contains(machine.machineId),
-                                    onChanged: (val) {
-                                      setState(() {
-                                        if (val == true) {
-                                          isSelected.add(machine.machineId);
-                                        } else {
-                                          isSelected.remove(machine.machineId);
-                                        }
-
-                                        selectedAll = isSelected.length == data.length;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: '${machine.timeChangeSize.toString()} phút',
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.timeChangeSize = int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text:
-                                      machine.timeChangeSameSize == 0
-                                          ? "0"
-                                          : '${machine.timeChangeSameSize.toString()} phút',
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.timeChangeSameSize = int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: showText(machine.speed2Layer),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.speed2Layer = int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: showText(machine.speed3Layer),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.speed3Layer = int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: showText(machine.speed4Layer),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.speed4Layer = int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: showText(machine.speed5Layer),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.speed5Layer = int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: showText(machine.speed6Layer),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.speed6Layer = int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: showText(machine.speed7Layer),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.speed7Layer = int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: showText(machine.paperRollSpeed),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.paperRollSpeed = int.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: '${machine.machinePerformance}%',
-                                  onChanged: (value) {
-                                    setState(() {
-                                      machine.machinePerformance = double.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              DataCell(
-                                styleCellAdmin(
-                                  text: machine.machineName.toString(),
-                                  onChanged: null,
-                                ),
-                              ),
-                            ],
-                          );
-                        }),
+                        columns: _buildColumns(context, data),
+                        rows: _buildRows(data, context),
                       ),
                     );
                   },
@@ -555,7 +372,151 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
     );
   }
 
-  String showText(dynamic text) {
-    return text == 0 ? "0" : '$text m/phút';
+  List<DataColumn> _buildColumns(BuildContext context, List<AdminMachinePaperModel> data) {
+    return [
+      DataColumn(label: _buildSelectAllCheckbox(data)),
+      DataColumn(label: styleText("Tgian đổi khổ")),
+      DataColumn(label: styleText("Tgian đổi cùng khổ")),
+      DataColumn(label: styleText("Tốc độ 2 lớp")),
+      DataColumn(label: styleText("Tốc độ 3 lớp")),
+      DataColumn(label: styleText("Tốc độ 4 lớp")),
+      DataColumn(label: styleText("Tốc độ 5 lớp")),
+      DataColumn(label: styleText("Tốc độ 6 lớp")),
+      DataColumn(label: styleText("Tốc độ 7 lớp")),
+      DataColumn(label: styleText("Tốc độ quấn cuộn")),
+      DataColumn(label: styleText("Hiệu suất")),
+      DataColumn(label: styleText("Tên Máy")),
+      DataColumn(label: styleText("Loại")),
+    ];
+  }
+
+  Widget _buildSelectAllCheckbox(List<AdminMachinePaperModel> data) {
+    return Checkbox(
+      value: selectedAll,
+      fillColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected) ? Colors.red : Colors.white,
+      ),
+      checkColor: Colors.white,
+      side: const BorderSide(color: Colors.black),
+      onChanged: (value) {
+        setState(() {
+          selectedAll = value!;
+          isSelected = selectedAll ? data.map((e) => e.machineId).toList() : [];
+        });
+      },
+    );
+  }
+
+  List<DataRow> _buildRows(List<AdminMachinePaperModel> data, BuildContext context) {
+    return List<DataRow>.generate(data.length, (index) {
+      final machine = data[index];
+
+      return DataRow(
+        cells: [
+          //checkbox
+          DataCell(
+            Theme(
+              data: Theme.of(context).copyWith(
+                checkboxTheme: CheckboxThemeData(
+                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                    return states.contains(WidgetState.selected) ? Colors.red : Colors.white;
+                  }),
+                  checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                  side: const BorderSide(color: Colors.black, width: 1),
+                ),
+              ),
+              child: Checkbox(
+                value: isSelected.contains(machine.machineId),
+                onChanged: (val) {
+                  setState(() {
+                    if (val == true) {
+                      isSelected.add(machine.machineId);
+                    } else {
+                      isSelected.remove(machine.machineId);
+                    }
+                    selectedAll = isSelected.length == data.length;
+                  });
+                },
+              ),
+            ),
+          ),
+
+          // 2. Tgian đổi khổ
+          _buildEditableCell(
+            text: '${machine.timeChangeSize} phút',
+            onChanged: (value) => machine.timeChangeSize = int.tryParse(value) ?? 0,
+          ),
+
+          // 3. Tgian đổi cùng khổ
+          _buildEditableCell(
+            text: machine.timeChangeSameSize == 0 ? "0" : '${machine.timeChangeSameSize} phút',
+            onChanged: (value) => machine.timeChangeSameSize = int.tryParse(value) ?? 0,
+          ),
+
+          // 4 -> 9. Các loại tốc độ lớp (2 - 7)
+          _buildEditableCell(
+            text: showText(text: machine.speed2Layer, type: ''),
+            onChanged: (value) => machine.speed2Layer = int.tryParse(value) ?? 0,
+          ),
+          _buildEditableCell(
+            text: showText(text: machine.speed3Layer, type: machine.type),
+            onChanged: (value) => machine.speed3Layer = int.tryParse(value) ?? 0,
+          ),
+          _buildEditableCell(
+            text: showText(text: machine.speed4Layer, type: machine.type),
+            onChanged: (value) => machine.speed4Layer = int.tryParse(value) ?? 0,
+          ),
+          _buildEditableCell(
+            text: showText(text: machine.speed5Layer, type: machine.type),
+            onChanged: (value) => machine.speed5Layer = int.tryParse(value) ?? 0,
+          ),
+          _buildEditableCell(
+            text: showText(text: machine.speed6Layer, type: machine.type),
+            onChanged: (value) => machine.speed6Layer = int.tryParse(value) ?? 0,
+          ),
+          _buildEditableCell(
+            text: showText(text: machine.speed7Layer, type: machine.type),
+            onChanged: (value) => machine.speed7Layer = int.tryParse(value) ?? 0,
+          ),
+
+          // 10. Tốc độ quấn cuộn
+          _buildEditableCell(
+            text: showText(text: machine.paperRollSpeed, type: machine.type),
+            onChanged: (value) => machine.paperRollSpeed = int.tryParse(value) ?? 0,
+          ),
+
+          // 11. Hiệu suất
+          _buildEditableCell(
+            text: '${machine.machinePerformance}%',
+            onChanged: (value) => machine.machinePerformance = double.tryParse(value) ?? 0,
+          ),
+
+          // 12. Tên Máy (Chỉ xem)
+          DataCell(styleCellAdmin(text: machine.machineName, onChanged: null)),
+
+          // 13. Loại (Chỉ xem)
+          DataCell(styleCellAdmin(text: machine.type, onChanged: null)),
+        ],
+      );
+    });
+  }
+
+  // Helper
+  String showText({required dynamic text, required String type}) {
+    final unit = (type == 'M2') ? 'm' : 'kg';
+    return text == 0 ? "0" : '$text $unit/phút';
+  }
+
+  DataCell _buildEditableCell({required String text, required Function(String) onChanged}) {
+    return DataCell(
+      styleCellAdmin(
+        text: text,
+        onChanged: (value) {
+          setState(() {
+            onChanged(value);
+          });
+        },
+      ),
+    );
   }
 }

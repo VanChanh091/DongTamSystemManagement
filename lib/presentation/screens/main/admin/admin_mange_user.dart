@@ -5,7 +5,7 @@ import 'package:dongtam/presentation/components/dialog/other/dialog_permission_r
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/confirm_dialog.dart';
+import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';

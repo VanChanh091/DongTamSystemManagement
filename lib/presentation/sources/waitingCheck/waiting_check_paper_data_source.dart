@@ -29,17 +29,17 @@ class WaitingCheckPaperDataSource extends DataGridSource {
 
   // create list cell for planning
   List<DataGridCell> buildPlanningInfoCells(PlanningPaper planning) {
+    final order = planning.order;
+
     return [
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
 
-      DataGridCell<String>(
-        columnName: 'customerName',
-        value: planning.order?.customer?.customerName ?? '',
-      ),
+      DataGridCell<String>(columnName: 'customerName', value: order?.customer?.customerName ?? ''),
 
       DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
-      DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
+      DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
+
       DataGridCell<String>(
         columnName: 'size',
         value: planning.sizePaperPLaning > 0 ? '${planning.sizePaperPLaning} cm' : '0',
@@ -48,18 +48,17 @@ class WaitingCheckPaperDataSource extends DataGridSource {
         columnName: 'length',
         value: planning.lengthPaperPlanning > 0 ? '${planning.lengthPaperPlanning} cm' : "0",
       ),
-      DataGridCell<String>(columnName: 'canLan', value: planning.order?.canLan ?? ''),
-      DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
+
+      DataGridCell<String>(columnName: 'canLan', value: order?.canLan ?? ''),
+      DataGridCell<String>(columnName: 'daoXa', value: order?.daoXa ?? ''),
       DataGridCell<int>(columnName: 'child', value: planning.numberChild),
-      DataGridCell<String>(
-        columnName: "instructSpecial",
-        value: planning.order?.instructSpecial ?? '',
-      ),
-      DataGridCell<bool>(columnName: 'chongTham', value: planning.order!.chongTham),
-      DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
+      DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ''),
+      DataGridCell<bool>(columnName: 'chongTham', value: order!.chongTham),
+      DataGridCell<bool>(columnName: 'haveMadeBox', value: order.isBox),
 
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       DataGridCell<int>(columnName: "inboundQty", value: planning.getTotalQtyInbound),
+      DataGridCell<String>(columnName: "dvt", value: order.dvt),
 
       DataGridCell<String>(
         columnName: 'timeRunningProd',

@@ -10,12 +10,19 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class SyntheticOrdersDataSource extends DataGridSource {
   List<Order> orders;
   String? selectedOrderId;
+  int currentPage;
+  int pageSize;
 
   late List<DataGridRow> orderDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final userController = Get.find<UserController>();
 
-  SyntheticOrdersDataSource({required this.orders, this.selectedOrderId}) {
+  SyntheticOrdersDataSource({
+    required this.orders,
+    this.selectedOrderId,
+    required this.currentPage,
+    required this.pageSize,
+  }) {
     buildDataCell();
   }
 
@@ -68,20 +75,9 @@ class SyntheticOrdersDataSource extends DataGridSource {
       buildCurrencyCell('qtyWasteNorm', order.totalQtyWasteNorm),
 
       DataGridCell<String>(columnName: 'unit', value: order.dvt),
-      DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
 
-      DataGridCell(
-        columnName: 'staffOrder',
-        value: () {
-          final fullName = order.user?.fullName ?? ""; //Nguyễn Văn Chánh
-          final parts = fullName.trim().split(" "); //["Nguyễn", "Văn", "Chánh"]
-          if (parts.length >= 2) {
-            return parts.sublist(parts.length - 2).join(" "); //Văn Chánh
-          } else {
-            return fullName;
-          }
-        }(),
-      ),
+      DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
+      DataGridCell(columnName: 'staffOrder', value: order.user?.fullName ?? ""),
 
       DataGridCell<bool>(columnName: 'isBox', value: order.isBox),
       DataGridCell<String>(columnName: 'status', value: formatStatus(order.status)),
@@ -105,15 +101,16 @@ class SyntheticOrdersDataSource extends DataGridSource {
   }
 
   void buildDataCell() {
+    final int offset = (currentPage - 1) * pageSize;
+
     orderDataGridRows =
         orders.asMap().entries.map<DataGridRow>((entry) {
-          int index = entry.key;
-          return DataGridRow(cells: buildOrderCells(entry.value, index));
+          int globalIndex = offset + entry.key;
+
+          return DataGridRow(cells: buildOrderCells(entry.value, globalIndex));
         }).toList();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    notifyListeners();
   }
 
   @override
