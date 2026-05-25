@@ -159,7 +159,7 @@ class HelperService {
   Future<bool> addItem({
     required String endpoint,
     Map<String, dynamic>? queryParameters,
-    required Map<String, dynamic> body,
+    Map<String, dynamic>? body,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -186,7 +186,7 @@ class HelperService {
   //update item
   Future<bool> updateItem({
     required String endpoint,
-    required Map<String, dynamic> queryParameters,
+    Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? body,
   }) async {
     try {

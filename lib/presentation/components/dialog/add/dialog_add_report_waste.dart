@@ -1,38 +1,29 @@
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/service/planning_service.dart';
+import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
 import 'package:flutter/material.dart';
 
-class ChangeMachineDialog extends StatefulWidget {
+class DialogAddReportWaste extends StatefulWidget {
   final List<PlanningPaper> planning;
-  final VoidCallback onChangeMachine;
+  final VoidCallback onUpdatePlanning;
 
-  const ChangeMachineDialog({super.key, required this.planning, required this.onChangeMachine});
+  const DialogAddReportWaste({super.key, required this.planning, required this.onUpdatePlanning});
 
   @override
-  State<ChangeMachineDialog> createState() => _ChangeMachineDialogState();
+  State<DialogAddReportWaste> createState() => _DialogAddReportWasteState();
 }
 
-class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
+class _DialogAddReportWasteState extends State<DialogAddReportWaste> {
   final formKey = GlobalKey<FormState>();
   late List<int> planningIds = [];
-  final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp', "Máy Quấn Cuồn"];
 
-  //planning
-  late String chooseMachine = 'Máy 1350';
+  final lengthManuController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
     planningIds = widget.planning.map((p) => p.planningId).toList();
-
-    if (widget.planning.isNotEmpty) {
-      chooseMachine = widget.planning.first.chooseMachine;
-    }
   }
 
   void submit() async {
@@ -41,22 +32,22 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
     }
 
     try {
-      await PlanningService().changeMachinePlanning(
-        newMachine: chooseMachine,
-        planningIds: planningIds,
-        action: 'CHANGE_MACHINE',
+      await ManufactureService().reportWasteNormPaper(
+        planningId: planningIds,
+        qtyWasteNorm: double.parse(lengthManuController.text),
+        action: 'REPORT_WASTE_NORM',
       );
 
-      if (!mounted) return; // check context
-      showSnackBarSuccess(context, 'Chuyển đơn hàng sang $chooseMachine thành công');
+      if (mounted) {
+        showSnackBarSuccess(context, 'Báo cáo phế liệu cho các đơn hàng thành công');
 
-      if (!mounted) return; // check context
-      widget.onChangeMachine();
-      Navigator.of(context).pop();
-    } catch (e, s) {
-      if (!mounted) return; // check context
-      AppLogger.e("Lỗi khi chuyển đơn hàng sang máy khác", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+        widget.onUpdatePlanning();
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      }
     }
   }
 
@@ -76,9 +67,8 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 10),
                     const Text(
-                      "Chuyển máy",
+                      "Báo Cáo Phế Liệu",
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                     const SizedBox(height: 10),
@@ -98,10 +88,11 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              "Đơn hàng cần chuyển máy:",
+                              "Đơn hàng cần báo cáo:",
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             const SizedBox(height: 5),
+
                             ...widget.planning.map(
                               (p) => Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -120,42 +111,38 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 15),
+
+                            //input
+                            TextFormField(
+                              controller: lengthManuController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: "Nhập số lượng phế liệu",
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Vui lòng nhập số lượng phế liệu';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Vui lòng nhập một số hợp lệ';
+                                }
+                                if (double.parse(value) < 0) {
+                                  return 'Số lượng phế liệu không được âm';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 8),
                           ],
                         ),
                       ),
                     ),
-
-                    // Dropdown chọn máy
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      margin: const EdgeInsets.only(bottom: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade400),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Chọn máy cần chuyển',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          const SizedBox(height: 12),
-                          ValidationOrder.dropdownForTypes(
-                            items: machineList,
-                            type: chooseMachine,
-                            onChanged: (value) {
-                              setState(() {
-                                chooseMachine = value!;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
                   ],
                 ),
               ),
@@ -167,19 +154,19 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Hủy",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black54),
               ),
             ),
             ElevatedButton(
               onPressed: submit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text(
-                "Chuyển",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                "Xác Nhận",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
               ),
             ),
           ],

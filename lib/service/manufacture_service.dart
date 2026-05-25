@@ -5,13 +5,11 @@ import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:flutter/material.dart';
 
 class ManufactureService {
   final Dio dioService = DioClient().dio;
 
   //===============================MANUFACTURE PAPER====================================
-
   //get planning paper
   Future<List<PlanningPaper>> getPlanningPaper({
     required String machine,
@@ -77,56 +75,35 @@ class ManufactureService {
     }
   }
 
+  //report waste norm paper
+  Future<bool> reportWasteNormPaper({
+    required List<int> planningId,
+    required double qtyWasteNorm,
+    required String action,
+  }) async {
+    return HelperService().updateItem(
+      endpoint: "manufacture/paper",
+      queryParameters: {"planningId": planningId, "qtyWasteNorm": qtyWasteNorm, "action": action},
+    );
+  }
+
   //request complete paper
   Future<bool> requestCompletePapers({
     required List<int> planningId,
     required String action,
   }) async {
-    final token = await SecureStorageService().getToken();
-
-    try {
-      final params = {"planningId": planningId, "action": action};
-
-      debugPrint("Params: $params");
-
-      await dioService.put(
-        '/api/manufacture/paper',
-        queryParameters: params,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to request complete papers", error: e, stackTrace: s);
-      throw Exception('Failed to request complete papers: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: "manufacture/paper",
+      queryParameters: {"planningId": planningId, "action": action},
+    );
   }
 
+  //confirm producing
   Future<bool> confirmProducingPaper({required int planningId}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        '/api/manufacture/paper/confirm',
-        queryParameters: {"planningId": planningId},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to confirm producing paper", error: e, stackTrace: s);
-      throw Exception('Failed to confirm producing paper: $e');
-    }
+    return HelperService().addItem(
+      endpoint: "manufacture/paper/confirm",
+      queryParameters: {"planningId": planningId},
+    );
   }
 
   //===============================MANUFACTURE BOX====================================

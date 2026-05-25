@@ -40,7 +40,7 @@ final List<Map<String, dynamic>> _reportPaperColumns = [
   // box
   {"key": "hasMadeBox", "title": "Làm Thùng?"},
 
-  //hidden
+  //hidden fields
   {"key": "reportPaperId", "title": "", "visible": false},
   {"key": "dateTimeRp", "title": "", "visible": false},
 ];

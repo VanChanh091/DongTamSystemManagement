@@ -46,7 +46,7 @@ final List<Map<String, dynamic>> _reportBoxColumns = [
   {"key": "shiftManager", "title": "Trưởng Máy"},
   {"key": "reportedBy", "title": "Người Báo Cáo"},
 
-  //hidden
+  //hidden fields
   {"key": "reportBoxId", "title": "", "visible": false},
   {"key": "dateTimeRp", "title": "", "visible": false},
 ];

@@ -234,6 +234,7 @@ Widget confirmCompleteButton({
         final errorText = switch (e.errorCode) {
           'LACK_QUANTITY' => e.message!,
           'PLANNING_NOT_REQUESTED' => e.message!,
+          'PLANNING_NO_WASTE' => e.message!,
           _ => 'Có lỗi xảy ra, vui lòng thử lại',
         };
 

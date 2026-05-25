@@ -33,7 +33,6 @@ class ReportPaperDatasource extends DataGridSource {
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: orderCell!.orderId),
-      DataGridCell<int>(columnName: 'reportPaperId', value: reportPaper.reportPaperId),
       DataGridCell<String>(columnName: 'customerName', value: orderCell.customer?.customerName),
       DataGridCell<String>(
         columnName: "dateShipping",
@@ -47,10 +46,7 @@ class ReportPaperDatasource extends DataGridSource {
         columnName: "dayReported",
         value: formatterDayReported.format(reportPaper.dayReport),
       ),
-      DataGridCell<String?>(
-        columnName: "dateTimeRp",
-        value: formatter.format(reportPaper.dayReport),
-      ),
+
       DataGridCell<String>(columnName: 'structure', value: planningPaper.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: orderCell.flute ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: orderCell.daoXa),
@@ -81,6 +77,13 @@ class ReportPaperDatasource extends DataGridSource {
       ),
 
       ...buildWasteNormCell(reportPaper),
+
+      //hidden fields
+      DataGridCell<int>(columnName: 'reportPaperId', value: reportPaper.reportPaperId),
+      DataGridCell<String?>(
+        columnName: "dateTimeRp",
+        value: formatter.format(reportPaper.dayReport),
+      ),
     ];
   }
 

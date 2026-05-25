@@ -36,7 +36,6 @@ class ReportBoxDatasource extends DataGridSource {
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: orderCell!.orderId),
-      DataGridCell<int>(columnName: "reportBoxId", value: reportBox.reportBoxId),
       DataGridCell<String>(columnName: "customerName", value: orderCell.customer?.customerName),
       DataGridCell<String>(
         columnName: "dateShipping",
@@ -50,7 +49,6 @@ class ReportBoxDatasource extends DataGridSource {
         columnName: "dayReported",
         value: formatterDayReported.format(reportBox.dayReport),
       ),
-      DataGridCell<String?>(columnName: "dateTimeRp", value: formatter.format(reportBox.dayReport)),
       DataGridCell<String>(columnName: "structure", value: planningBoxCell.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: orderCell.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: orderCell.QC_box ?? ""),
@@ -71,6 +69,9 @@ class ReportBoxDatasource extends DataGridSource {
       ),
 
       ...buildBoxCells(reportBox, machine),
+
+      DataGridCell<int>(columnName: "reportBoxId", value: reportBox.reportBoxId),
+      DataGridCell<String?>(columnName: "dateTimeRp", value: formatter.format(reportBox.dayReport)),
     ];
   }
 
