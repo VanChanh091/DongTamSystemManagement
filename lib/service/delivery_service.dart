@@ -193,15 +193,16 @@ class DeliveryService {
     );
   }
 
-  Future<bool> requestOrPrepareGoods({
-    required int deliveryItemId,
+  Future<bool> requestOrPreparedGoods({
+    required List<int> deliveryItemIds,
     required bool isRequest,
     String? empCode,
   }) async {
     return HelperService().updateItem(
       endpoint: "delivery/prepare",
-      queryParameters: {
-        "deliveryItemId": deliveryItemId,
+      queryParameters: const {},
+      body: {
+        "deliveryItemIds": deliveryItemIds,
         "isRequest": isRequest,
         if (empCode != null) "empCode": empCode,
       },

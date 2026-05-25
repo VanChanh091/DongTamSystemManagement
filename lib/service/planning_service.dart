@@ -175,6 +175,9 @@ class PlanningService {
       );
 
       return true;
+    } on DioException catch (e) {
+      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
+      return false;
     } catch (e, s) {
       AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
       throw Exception('Failed to pause machine: $e');

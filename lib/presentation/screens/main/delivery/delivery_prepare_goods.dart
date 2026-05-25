@@ -275,8 +275,10 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                               onConfirm: () async {
                                                 try {
                                                   final success = await DeliveryService()
-                                                      .requestOrPrepareGoods(
-                                                        deliveryItemId: selectedDeliveryIds.first,
+                                                      .requestOrPreparedGoods(
+                                                        deliveryItemIds: [
+                                                          selectedDeliveryIds.first,
+                                                        ],
                                                         isRequest: false,
                                                         empCode:
                                                             'DTGH-${employeeCodeController.trimmed}',
@@ -326,6 +328,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                           ? themeController.buttonColor
                                           : Colors.grey,
                                 ),
+
                                 const SizedBox(width: 10),
                               ],
                             ),

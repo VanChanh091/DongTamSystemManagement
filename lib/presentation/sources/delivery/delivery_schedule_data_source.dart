@@ -92,7 +92,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
     final parts = summaryValue.split(':');
     if (parts.length < 2) return null;
 
-    final fieldName = parts[0].trim(); // sequence | customerName
+    final fieldName = parts[0].trim(); // sequence
     final valuePart = parts[1].trim(); // "1 - 3 items" | "chanh 1 - 2 items"
 
     final valuePieces = valuePart.split('-');

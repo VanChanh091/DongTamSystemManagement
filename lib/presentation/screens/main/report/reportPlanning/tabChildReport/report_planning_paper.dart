@@ -398,6 +398,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                             columns: columns,
                             widths: columnWidths,
                           ),
+                          frozenColumnsCount: 7,
                           stackedHeaderRows: <StackedHeaderRow>[
                             StackedHeaderRow(
                               cells: [

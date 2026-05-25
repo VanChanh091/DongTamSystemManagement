@@ -206,6 +206,7 @@ class _PlanningStopState extends State<PlanningStop> {
                             columns: columns,
                             widths: columnWidths,
                           ),
+                          frozenColumnsCount: 8,
                           stackedHeaderRows: <StackedHeaderRow>[
                             StackedHeaderRow(
                               cells: [

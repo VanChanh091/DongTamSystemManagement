@@ -140,6 +140,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
         DeliveryTrip(sequence: "2", vehicles: vehicles),
         DeliveryTrip(sequence: "3", vehicles: vehicles),
         DeliveryTrip(sequence: "Xe Ngoài", vehicles: vehicles),
+        DeliveryTrip(sequence: "Tại Kho", vehicles: vehicles),
       ];
     });
   }
@@ -666,6 +667,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     String? status,
     bool isDragging = false,
     bool isSelected = false,
+    bool isSelectable = true,
   }) {
     final formatter = DateFormat('dd/MM/yyyy');
 
@@ -707,6 +709,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                 : null,
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IntrinsicHeight(
             child: Row(
@@ -746,51 +749,65 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                 ),
 
                 // PHẦN BÊN PHẢI: VOLUME (TRÊN) & FULLNAME (DƯỚI)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade100,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Text(
-                        "${req.volume} m³",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade900,
-                          fontSize: 12,
+                Padding(
+                  padding: EdgeInsets.only(right: isSelectable ? 0 : 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade100,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Text(
+                          "${req.volume} m³",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue.shade900,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
+                      const SizedBox(height: 4),
 
-                    Text(
-                      "SL Đã Giao: ${inventory?.totalQtyOutbound ?? 0} - SL Yêu Cầu: ${req.qtyRegistered}",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade700,
+                      Text(
+                        "SL Đã Giao: ${inventory?.totalQtyOutbound ?? 0} - SL Yêu Cầu: ${req.qtyRegistered}",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
+                      const SizedBox(height: 4),
 
-                    Text(
-                      ((inventory?.qtyInventory ?? 0) > 0)
-                          ? "SL Tồn: ${inventory!.qtyInventory}"
-                          : "TG Dự Kiến: ${formatter.format(planning!.dayStart!)} - ${PlanningPaper.formatTimeOfDay(timeOfDay: planning.timeRunning!)}",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade700,
+                      Text(
+                        ((inventory?.qtyInventory ?? 0) > 0)
+                            ? "SL Tồn: ${inventory!.qtyInventory}"
+                            : "TG Dự Kiến: ${formatter.format(planning!.dayStart!)} - ${PlanningPaper.formatTimeOfDay(timeOfDay: planning.timeRunning!)}",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
+
+          if (req.note != null && req.note!.isNotEmpty) ...[
+            Text(
+              "Ghi chú: ${req.note}",
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.deepOrange.shade700,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -839,6 +856,11 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                       label: Text("Xe Ngoài"),
                       icon: Icon(Icons.local_shipping),
                     ),
+                    ButtonSegment(
+                      value: "Tại Kho",
+                      label: Text("Tại Kho"),
+                      icon: Icon(Icons.warehouse),
+                    ),
                   ],
                   selected: {selectedTripFilter},
                   onSelectionChanged: (newSelection) {
@@ -872,6 +894,11 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
       return house.contains("ngoài") || house.contains("ngoai");
     }
 
+    bool checkIsWarehouse(AdminVehicleModel v) {
+      final house = (v.vehicleHouse).toLowerCase();
+      return house.contains("tại kho") || house.contains("tai kho");
+    }
+
     if (selectedTripFilter == "Xe Ngoài") {
       final externalVehicles = vehicles.where((v) => checkIsExternal(v)).toList();
 
@@ -879,15 +906,20 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
       // Khi ở tab Xe Ngoài, mặc định gán tạm vào sequence 1
       return externalVehicles.map((v) => _buildVehicleCard(v, "Xe Ngoài")).toList();
+    } else if (selectedTripFilter == "Tại Kho") {
+      final warehouseVehicles = vehicles.where((v) => checkIsWarehouse(v)).toList();
+
+      if (warehouseVehicles.isEmpty) return [const Center(child: Text("Không có xe tại kho"))];
+
+      return warehouseVehicles.map((v) => _buildVehicleCard(v, "Tại Kho")).toList();
     } else {
       // Xử lý cho Tài 1, 2, 3
       final targetSeq = selectedTripFilter.split(" ").last;
-
-      // Tìm đúng chuyến cần hiển thị
       final trip = trips.firstWhere((t) => t.sequence == targetSeq, orElse: () => trips.first);
 
-      // chỉ lấy xe nội bộ
-      final internalVehicles = trip.vehicles.where((v) => !checkIsExternal(v)).toList();
+      // Lấy xe nội bộ
+      final internalVehicles =
+          trip.vehicles.where((v) => !checkIsExternal(v) && !checkIsWarehouse(v)).toList();
 
       if (internalVehicles.isEmpty) {
         return [const Center(child: Text("Không có xe nội bộ cho Tài này"))];
@@ -1050,6 +1082,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
           });
         }
       },
+
       onDragEnd: (details) {
         setState(() {
           _isDraggingSelected = false;
@@ -1064,7 +1097,12 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              _requestedCard(req: req, isDragging: true),
+              _requestedCard(
+                req: req,
+                isDragging: true,
+                isSelected: isSelected,
+                isSelectable: isSelectable,
+              ),
               // Nếu kéo nhiều đơn, hiện một Badge số lượng cho người dùng biết
               if (itemsToDrag.length > 1)
                 Positioned(
@@ -1088,7 +1126,15 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
         ),
       ),
 
-      childWhenDragging: Opacity(opacity: 0.3, child: _requestedCard(req: req)),
+      childWhenDragging: Opacity(
+        opacity: 0.3,
+        child: _requestedCard(
+          req: req,
+          isDragging: true,
+          isSelected: isSelected,
+          isSelectable: isSelectable,
+        ),
+      ),
 
       child: InkWell(
         onTap:
@@ -1106,7 +1152,12 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
         borderRadius: BorderRadius.circular(10),
         child: Opacity(
           opacity: (isSelected && _isDraggingSelected) ? 0.3 : 1.0,
-          child: _requestedCard(req: req, isSelected: isSelected),
+          child: _requestedCard(
+            req: req,
+            isDragging: false,
+            isSelected: isSelected,
+            isSelectable: isSelectable,
+          ),
         ),
       ),
     );

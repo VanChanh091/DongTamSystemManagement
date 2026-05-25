@@ -85,7 +85,7 @@ void _showOverlay(BuildContext? context, String message, Color backgroundColor, 
   overlay.insert(overlayEntry);
 
   // Tự động đóng sau 2 giây
-  Timer(const Duration(milliseconds: 2000), () {
+  Timer(const Duration(milliseconds: 2500), () {
     if (overlayEntry.mounted) {
       overlayEntry.remove();
     }

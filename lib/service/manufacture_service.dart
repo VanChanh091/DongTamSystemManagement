@@ -28,7 +28,6 @@ class ManufactureService {
   Future<bool> createOrUpdateReportPaper({
     required int planningId,
     required int qtyProduced,
-    required double qtyWasteNorm,
     required DateTime dayCompleted,
     required String reportedBy,
     required Map<String, dynamic> reportData,
@@ -55,7 +54,6 @@ class ManufactureService {
         queryParameters: {"planningId": planningId, "action": isUpdate ? action : null},
         data: {
           "qtyProduced": qtyProduced,
-          "qtyWasteNorm": qtyWasteNorm,
           "dayCompleted": fullDateTime.toIso8601String(),
           "reportedBy": reportedBy,
           ...reportData,
@@ -147,7 +145,6 @@ class ManufactureService {
     required String machine,
     required DateTime dayCompleted,
     required int qtyProduced,
-    required double rpWasteLoss,
     required String shiftManagement,
     required String reportedBy,
     required String action,
@@ -178,7 +175,6 @@ class ManufactureService {
         data: {
           "dayCompleted": fullDateTime.toIso8601String(),
           "qtyProduced": qtyProduced,
-          "rpWasteLoss": rpWasteLoss,
           "shiftManagement": shiftManagement,
           "reportedBy": reportedBy,
         },

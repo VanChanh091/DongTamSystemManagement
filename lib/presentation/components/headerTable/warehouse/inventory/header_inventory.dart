@@ -14,8 +14,8 @@ final List<Map<String, dynamic>> _inventoryColumns = [
   {"key": "QcBox", "title": "QC Thùng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
-  {"key": "size", "title": "Khổ (KH)"},
-  {"key": "length", "title": "Dài (KH)"},
+  {"key": "size", "title": "Khổ (SX)"},
+  {"key": "length", "title": "Dài (SX)"},
 
   {"key": "totalQtyInbound", "title": "Nhập Kho"},
   {"key": "totalQtyOutbound", "title": "Tổng Xuất"},

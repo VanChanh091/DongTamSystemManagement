@@ -50,7 +50,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   int _countdown = 0;
 
   final qtyProducedController = TextEditingController();
-  final qtyWasteNormController = TextEditingController();
   final dayCompletedController = TextEditingController();
   final employeeCodeController = TextEditingController();
 
@@ -65,8 +64,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   void initState() {
     super.initState();
     futureEmployee = EmployeeService().getEmployeeByPosition();
-
-    qtyWasteNormController.text = "1";
 
     if (widget.initialData != null) {
       Map<String, dynamic> data = widget.initialData;
@@ -115,7 +112,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
     final DateTime completedDate = DateTime.now();
     final String shiftManagement = shiftManagementSelected ?? "";
-    final double qtyWasteNorm = double.tryParse(qtyWasteNormController.trimmed) ?? 0;
 
     final Map<String, dynamic> reportData = {
       "shiftManagement": shiftManagement,
@@ -156,7 +152,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         success = await ManufactureService().createOrUpdateReportPaper(
           planningId: widget.planningId,
           qtyProduced: qtyProduced,
-          qtyWasteNorm: qtyWasteNorm,
           dayCompleted: completedDate,
           reportedBy: 'DTSX-${employeeCodeController.trimmed}',
           reportData: reportData,
@@ -188,7 +183,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           machine: widget.machine ?? "",
           dayCompleted: completedDate,
           qtyProduced: qtyProduced,
-          rpWasteLoss: qtyWasteNorm,
           shiftManagement: shiftManagement,
           reportedBy: 'DTSX-${employeeCodeController.trimmed}',
           isUpdate: widget.initialData != null ? true : false,
@@ -295,7 +289,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     super.dispose();
     _timer?.cancel();
     qtyProducedController.dispose();
-    qtyWasteNormController.dispose();
     dayCompletedController.dispose();
     shiftManagementController.dispose();
     shiftProductionController.dispose();
@@ -328,9 +321,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                   qtyProducedController,
                   Symbols.production_quantity_limits,
                 ),
-                const SizedBox(height: 10),
-
-                validateInput("Phế Liệu Thực Tế", qtyWasteNormController, Symbols.box),
                 const SizedBox(height: 10),
 
                 FormField<String>(

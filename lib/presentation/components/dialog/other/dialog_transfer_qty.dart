@@ -5,6 +5,7 @@ import 'package:dongtam/presentation/components/shared/cardForm/format_key_value
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/service/order_service.dart';
 import 'package:dongtam/service/warehouse_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/auto_complete_field.dart';
@@ -52,6 +53,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
   final _orderIdReceiveControler = TextEditingController();
   final _cusNameReceiveControler = TextEditingController();
   final _qtyTransferController = TextEditingController();
+  final _reasonController = TextEditingController();
 
   @override
   void initState() {
@@ -104,6 +106,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
         sourceOrderId: _orderIdController.text,
         targetOrderId: _orderIdReceiveControler.text,
         qtyTransfer: int.parse(_qtyTransferController.text),
+        reason: _reasonController.trimmed,
       );
 
       if (success) {
@@ -152,6 +155,8 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
     _dvtController.dispose();
     _qtyInventoryController.dispose();
     _valueInventoryController.dispose();
+    _reasonController.dispose();
+
     _matEController.dispose();
     _matBController.dispose();
     _matCController.dispose();
@@ -199,11 +204,6 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
     final List<Map<String, dynamic>> inputRows = [
       {
         "leftKey": "Mã Đơn Hàng",
-        // "leftValue": validateInput(
-        //   label: "Mã Đơn Hàng Nhận",
-        //   controller: _orderIdReceiveControler,
-        //   icon: Symbols.orders,
-        // ),
         "leftValue": AutoCompleteField<Order>(
           controller: _orderIdReceiveControler,
           labelText: "Mã Đơn Hàng Nhận",
@@ -246,14 +246,18 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
         ),
       },
       {
-        "leftKey": "Số lượng chuyển",
+        "leftKey": "Số Lượng Chuyển",
         "leftValue": validateInput(
-          label: "Số lượng chuyển giao",
+          label: "Số Lượng Chuyển Giao",
           controller: _qtyTransferController,
           icon: Icons.numbers,
         ),
-        "rightKey": "",
-        "rightValue": "",
+        "rightKey": "Lý Do Chuyển",
+        "rightValue": validateInput(
+          label: "Lý Do Chuyển",
+          controller: _reasonController,
+          icon: Icons.note,
+        ),
       },
     ];
 
@@ -350,7 +354,7 @@ Widget validateInput({
     validator: (value) {
       final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
 
-      final requiredFields = ["Mã Đơn Hàng Nhận", "Số lượng chuyển giao"];
+      final requiredFields = ["Mã Đơn Hàng Nhận", "Số Lượng Chuyển Giao", "Lý Do Chuyển"];
 
       if (requiredFields.contains(label) && cleanValue.isEmpty) {
         return 'Không được để trống';

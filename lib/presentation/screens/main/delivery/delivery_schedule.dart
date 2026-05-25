@@ -219,21 +219,21 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                 //request prepare goods
                                 AnimatedButton(
                                   onPressed:
-                                      selectedDeliveryIds.length == 1 && isActionable
+                                      isActionable
                                           ? () async {
                                             bool confirm = await showConfirmDialog(
                                               context: context,
                                               title: "Yêu cầu chuẩn bị hàng",
                                               content:
-                                                  "Bạn có muốn gửi yêu cầu chuẩn bị hàng cho đơn này?",
+                                                  "Bạn có muốn gửi yêu cầu chuẩn bị hàng cho ${selectedDeliveryIds.length} đơn này?",
                                               confirmText: "Xác Nhận",
                                             );
 
                                             if (confirm) {
                                               try {
                                                 final success = await DeliveryService()
-                                                    .requestOrPrepareGoods(
-                                                      deliveryItemId: selectedDeliveryIds.first,
+                                                    .requestOrPreparedGoods(
+                                                      deliveryItemIds: selectedDeliveryIds,
                                                       isRequest: true,
                                                     );
 

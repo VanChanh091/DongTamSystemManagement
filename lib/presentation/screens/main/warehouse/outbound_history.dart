@@ -287,6 +287,24 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                 handleExportFile(),
                                 const SizedBox(width: 10),
 
+                                //outbound
+                                // AnimatedButton(
+                                //   onPressed: () async {
+                                //     showDialog(
+                                //       context: context,
+                                //       builder:
+                                //           (_) => OutBoundDialog(
+                                //             outbound: null,
+                                //             onOutboundHistory: () => loadOutbound(),
+                                //           ),
+                                //     );
+                                //   },
+                                //   label: "Xuất Kho",
+                                //   icon: Symbols.input,
+                                //   backgroundColor: themeController.buttonColor,
+                                // ),
+                                // const SizedBox(width: 10),
+
                                 //update
                                 AnimatedButton(
                                   onPressed:
@@ -667,7 +685,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                 const Icon(Icons.save),
                 const SizedBox(width: 4),
                 Text(
-                  "Xuất File",
+                  "Xuất Phiếu",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

@@ -6,12 +6,10 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 final List<Map<String, dynamic>> _reportBoxColumns = [
   {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
-  {"key": "reportBoxId", "title": "", "visible": false},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "dayReported", "title": "Ngày Báo Cáo"},
-  {"key": "dateTimeRp", "title": "", "visible": false},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},
@@ -47,6 +45,10 @@ final List<Map<String, dynamic>> _reportBoxColumns = [
 
   {"key": "shiftManager", "title": "Trưởng Máy"},
   {"key": "reportedBy", "title": "Người Báo Cáo"},
+
+  //hidden
+  {"key": "reportBoxId", "title": "", "visible": false},
+  {"key": "dateTimeRp", "title": "", "visible": false},
 ];
 
 List<GridColumn> buildReportBoxColumn({required ThemeController themeController}) {

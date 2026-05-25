@@ -48,8 +48,8 @@ class InventoryDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ""),
       DataGridCell<String>(columnName: 'structure', value: order?.formatterStructureOrder ?? ""),
 
-      buildCurrencyCell('size', order?.paperSizeCustomer ?? 0),
-      buildCurrencyCell('length', order?.lengthPaperCustomer ?? 0),
+      buildCurrencyCell('size', order?.paperSizeManufacture ?? 0),
+      buildCurrencyCell('length', order?.lengthPaperManufacture ?? 0),
 
       DataGridCell<int>(columnName: 'totalQtyInbound', value: inventory.totalQtyInbound),
       DataGridCell<int>(columnName: 'totalQtyOutbound', value: inventory.totalQtyOutbound),

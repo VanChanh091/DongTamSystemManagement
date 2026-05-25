@@ -12,6 +12,7 @@ import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -388,7 +389,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   ),
                                             );
                                             return;
-                                          } else if (value == 'stop') {
+                                          } else if (value == 'reject') {
                                             await handlePlanningAction(
                                               context: context,
                                               selectedPlanningIds: selectedPlanningIds,
@@ -404,7 +405,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 badgesController.fetchPlanningStop();
                                               },
                                             );
-                                          } else if (value == 'reject') {
+                                          } else if (value == 'stop') {
                                             await handlePlanningAction(
                                               context: context,
                                               selectedPlanningIds: selectedPlanningIds,
@@ -849,26 +850,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
     //pause or cancel order
     if (status == 'complete') {
-      //check sort planning
-      final hasNoSortPlanning = selectedPlannings.any(
-        (p) => p.sortPlanning == null || p.sortPlanning == 0,
-      );
-      if (hasNoSortPlanning) {
-        showSnackBarError(context, "Đơn hàng chưa được sắp xếp");
-        return;
-      }
-
       //check dayCompleted
       final hasDayCompleted = selectedPlannings.any((p) => p.dayCompleted == null);
       if (hasDayCompleted) {
         showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
-        return;
-      }
-    } else if (status == 'reject') {
-      //check qtyProduced > 0
-      final hasQtyProduced = selectedPlannings.any((p) => (p.qtyProduced ?? 0) > 0);
-      if (hasQtyProduced) {
-        showSnackBarError(context, "Không thể hủy đơn hàng đã có số lượng");
         return;
       }
     }
@@ -896,10 +881,21 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
           action: 'PAUSE_OR_ACCEPT_LACK',
         );
 
-        if (!context.mounted) return;
         if (success) {
-          showSnackBarSuccess(context, successMessage);
-          onSuccess();
+          if (context.mounted) {
+            showSnackBarSuccess(context, successMessage);
+            onSuccess();
+          }
+        }
+      } on ApiException catch (e) {
+        final errorText = switch (e.errorCode) {
+          'CANNOT_REJECT_PRODUCED_PLANNING' => e.message!,
+          'CANNOT_COMPLETE_WITHOUT_SORT' => e.message!,
+          _ => 'Có lỗi xảy ra, vui lòng thử lại',
+        };
+
+        if (context.mounted) {
+          showSnackBarError(context, errorText);
         }
       } catch (e) {
         if (!context.mounted) return;
