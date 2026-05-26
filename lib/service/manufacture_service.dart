@@ -75,34 +75,13 @@ class ManufactureService {
     }
   }
 
-  //report waste norm paper
-  Future<bool> reportWasteNormPaper({
-    required List<int> planningId,
-    required double qtyWasteNorm,
-    required String action,
-  }) async {
-    return HelperService().updateItem(
-      endpoint: "manufacture/paper",
-      queryParameters: {"planningId": planningId, "qtyWasteNorm": qtyWasteNorm, "action": action},
-    );
-  }
-
-  //request complete paper
-  Future<bool> requestCompletePapers({
+  Future<bool> handlePutManufacturePaper({
     required List<int> planningId,
     required String action,
   }) async {
     return HelperService().updateItem(
       endpoint: "manufacture/paper",
       queryParameters: {"planningId": planningId, "action": action},
-    );
-  }
-
-  //confirm producing
-  Future<bool> confirmProducingPaper({required int planningId}) async {
-    return HelperService().addItem(
-      endpoint: "manufacture/paper/confirm",
-      queryParameters: {"planningId": planningId},
     );
   }
 
@@ -174,77 +153,14 @@ class ManufactureService {
     }
   }
 
-  Future<bool> confirmProducingBox({required int planningBoxId, required String machine}) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.post(
-        '/api/manufacture/box/confirm',
-        queryParameters: {"planningBoxId": planningBoxId, "machine": machine},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to confirm producing box", error: e, stackTrace: s);
-      throw Exception('Failed to confirm producing box: $e');
-    }
-  }
-
-  //request complete box
-  Future<bool> requestCompleteBoxes({
+  Future<bool> handlePutManufactureBox({
     required List<int> planningBoxId,
+    required String machine,
     required String action,
-    required String machine,
   }) async {
-    final token = await SecureStorageService().getToken();
-
-    try {
-      await dioService.put(
-        '/api/manufacture/box',
-        queryParameters: {"planningBoxId": planningBoxId, "machine": machine, "action": action},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to request complete boxes", error: e, stackTrace: s);
-      throw Exception('Failed to request complete boxes: $e');
-    }
-  }
-
-  Future<bool> updateRequestStockCheck({
-    required int planningBoxId,
-    required String machine,
-  }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        '/api/manufacture/box/request',
-        queryParameters: {"planningBoxId": planningBoxId, 'machine': machine},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to update request check", error: e, stackTrace: s);
-      throw Exception('Failed to update request check: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: "manufacture/box",
+      queryParameters: {"planningBoxId": planningBoxId, "machine": machine, "action": action},
+    );
   }
 }

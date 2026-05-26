@@ -2,7 +2,6 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_report_production.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_report_waste.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/planning/handle_request_complete.dart';
@@ -493,8 +492,9 @@ class _PaperProductionState extends State<PaperProduction> {
                                                 () => throw Exception("Không tìm thấy kế hoạch"),
                                           );
 
-                                          await ManufactureService().confirmProducingPaper(
-                                            planningId: selectedPlanning.planningId,
+                                          await ManufactureService().handlePutManufacturePaper(
+                                            planningId: [selectedPlanning.planningId],
+                                            action: "CONFIRM_PRODUCING",
                                           );
 
                                           loadPlanning();
@@ -526,50 +526,13 @@ class _PaperProductionState extends State<PaperProduction> {
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
                                           onExecute:
-                                              (ids) => ManufactureService().requestCompletePapers(
-                                                planningId: ids,
-                                                action: 'REQUEST_COMPLETE',
-                                              ),
+                                              (ids) =>
+                                                  ManufactureService().handlePutManufacturePaper(
+                                                    planningId: ids,
+                                                    action: 'REQUEST_COMPLETE',
+                                                  ),
                                           onLoadPlanning: loadPlanning,
                                         );
-                                      } else if (value == 'reportWaste') {
-                                        if (selectedPlanningIds.isEmpty) {
-                                          showSnackBarError(
-                                            context,
-                                            "Chưa chọn kế hoạch cần báo cáo phế liệu",
-                                          );
-                                          return;
-                                        }
-
-                                        final planning = await futurePlanning;
-                                        if (!context.mounted) return;
-
-                                        final selectedPlans =
-                                            planning
-                                                .where(
-                                                  (p) => selectedPlanningIds.contains(
-                                                    p.planningId.toString(),
-                                                  ),
-                                                )
-                                                .toList();
-
-                                        if (selectedPlans.isEmpty) {
-                                          showSnackBarError(
-                                            context,
-                                            "Không tìm thấy kế hoạch hợp lệ để báo cáo",
-                                          );
-                                          return;
-                                        }
-
-                                        await showDialog(
-                                          context: context,
-                                          builder:
-                                              (_) => DialogAddReportWaste(
-                                                planning: selectedPlans,
-                                                onUpdatePlanning: () => loadPlanning(),
-                                              ),
-                                        );
-                                        return;
                                       }
                                     },
                                     itemBuilder:
@@ -588,15 +551,9 @@ class _PaperProductionState extends State<PaperProduction> {
                                               title: Text('Yêu Cầu Hoàn Thành'),
                                             ),
                                           ),
-                                          const PopupMenuItem<String>(
-                                            value: 'reportWaste',
-                                            child: ListTile(
-                                              leading: Icon(Symbols.report),
-                                              title: Text('Báo Cáo Phế Liệu'),
-                                            ),
-                                          ),
                                         ],
                                   ),
+
                                   const SizedBox(width: 10),
                                 ],
                               ),

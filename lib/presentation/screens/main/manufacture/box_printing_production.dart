@@ -431,9 +431,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                           ),
                                                 );
 
-                                                await ManufactureService().confirmProducingBox(
-                                                  planningBoxId: selectedPlanning.planningBoxId,
+                                                await ManufactureService().handlePutManufactureBox(
+                                                  planningBoxId: [selectedPlanning.planningBoxId],
                                                   machine: machine,
+                                                  action: "CONFIRM_PRODUCING",
                                                 );
 
                                                 loadPlanning();
@@ -506,9 +507,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                 () => throw Exception("Không tìm thấy kế hoạch"),
                                           );
 
-                                          await ManufactureService().updateRequestStockCheck(
-                                            planningBoxId: selectedPlanning.planningBoxId,
+                                          await ManufactureService().handlePutManufactureBox(
+                                            planningBoxId: [selectedPlanning.planningBoxId],
                                             machine: machine,
+                                            action: "REQUEST_STOCK_CHECK",
                                           );
 
                                           //cập nhật badge
@@ -542,7 +544,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
                                           onExecute:
-                                              (ids) => ManufactureService().requestCompleteBoxes(
+                                              (ids) => ManufactureService().handlePutManufactureBox(
                                                 planningBoxId: ids,
                                                 machine: machine,
                                                 action: 'REQUEST_COMPLETE',

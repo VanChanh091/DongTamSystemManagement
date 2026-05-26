@@ -389,7 +389,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                   ),
                                             );
                                             return;
-                                          } else if (value == 'reject') {
+                                          } else if (value == "stop") {
                                             await handlePlanningAction(
                                               context: context,
                                               selectedPlanningIds: selectedPlanningIds,
@@ -405,7 +405,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 badgesController.fetchPlanningStop();
                                               },
                                             );
-                                          } else if (value == 'stop') {
+                                          } else if (value == 'reject') {
                                             await handlePlanningAction(
                                               context: context,
                                               selectedPlanningIds: selectedPlanningIds,
