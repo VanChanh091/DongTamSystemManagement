@@ -16,15 +16,19 @@ class CustomerService {
     int? page,
     int? pageSize,
     bool noPaging = false,
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     return HelperService().fetchPaginatedData<Customer>(
       endpoint: "customer",
       queryParameters: {
-        'field': field,
-        'keyword': keyword,
-        'page': page,
-        'pageSize': pageSize,
         'noPaging': noPaging,
+        if (page != null) 'page': page,
+        if (pageSize != null) 'pageSize': pageSize,
+        if (field != null) 'field': field,
+        if (keyword != null) 'keyword': keyword,
+        if (startDate != null) 'startDate': startDate.toIso8601String(),
+        if (endDate != null) 'endDate': endDate.toIso8601String(),
       },
       fromJson: (json) => Customer.fromJson(json),
       dataKey: 'customers',

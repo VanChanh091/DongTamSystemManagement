@@ -86,7 +86,7 @@ class LeftButtonSearch extends StatelessWidget {
                   items:
                       types
                           .map(
-                            (value) => DropdownMenuItem(
+                            (value) => DropdownMenuItem<String>(
                               value: value,
                               child: Text(value, overflow: TextOverflow.ellipsis, maxLines: 1),
                             ),

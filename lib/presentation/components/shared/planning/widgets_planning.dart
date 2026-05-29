@@ -264,13 +264,18 @@ Widget buildDropdownItems({
   return SizedBox(
     width: width,
     child: DropdownButtonFormField<String>(
+      isExpanded: true,
       value: value,
       items:
           items
               .map(
-                (String v) => DropdownMenuItem<String>(
-                  value: v,
-                  child: Text(itemLabelBuilder != null ? itemLabelBuilder(v) : v),
+                (value) => DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(
+                    itemLabelBuilder != null ? itemLabelBuilder(value) : value,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
                 ),
               )
               .toList(),

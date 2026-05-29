@@ -109,6 +109,8 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDelivery = userController.hasPermission(permission: "delivery");
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -260,75 +262,76 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                 const SizedBox(width: 10),
 
                                 //complete
-                                AnimatedButton(
-                                  onPressed:
-                                      selectedDeliveryIds.length == 1
-                                          ? () async {
-                                            employeeCodeController.clear();
+                                isDelivery
+                                    ? AnimatedButton(
+                                      onPressed:
+                                          selectedDeliveryIds.length == 1
+                                              ? () async {
+                                                employeeCodeController.clear();
 
-                                            await showInputQtyDialog(
-                                              context: context,
-                                              title: "Xác nhận hoàn tất",
-                                              labelText: "Nhập mã nhân viên",
-                                              prefixText: "DTGH-",
-                                              controller: employeeCodeController,
-                                              onConfirm: () async {
-                                                try {
-                                                  final success = await DeliveryService()
-                                                      .requestOrPreparedGoods(
-                                                        deliveryItemIds: [
-                                                          selectedDeliveryIds.first,
-                                                        ],
-                                                        isRequest: false,
-                                                        empCode:
-                                                            'DTGH-${employeeCodeController.trimmed}',
-                                                      );
+                                                await showInputQtyDialog(
+                                                  context: context,
+                                                  title: "Xác nhận hoàn tất",
+                                                  labelText: "Nhập mã nhân viên",
+                                                  prefixText: "DTGH-",
+                                                  controller: employeeCodeController,
+                                                  onConfirm: () async {
+                                                    try {
+                                                      final success = await DeliveryService()
+                                                          .requestOrPreparedGoods(
+                                                            deliveryItemIds: [
+                                                              selectedDeliveryIds.first,
+                                                            ],
+                                                            isRequest: false,
+                                                            empCode:
+                                                                'DTGH-${employeeCodeController.trimmed}',
+                                                          );
 
-                                                  if (success) {
-                                                    if (context.mounted) {
-                                                      showSnackBarSuccess(
-                                                        context,
-                                                        "Đã hoàn thành chuẩn bị hàng",
-                                                      );
+                                                      if (success) {
+                                                        if (context.mounted) {
+                                                          showSnackBarSuccess(
+                                                            context,
+                                                            "Đã hoàn thành chuẩn bị hàng",
+                                                          );
+                                                        }
+
+                                                        badgesController.fetchPrepareGoods();
+
+                                                        loadDeliveryPrepareGoods();
+                                                        return true;
+                                                      }
+                                                      return false;
+                                                    } on ApiException catch (e) {
+                                                      final errorText = switch (e.errorCode) {
+                                                        'EMPLOYEE_NOT_FOUND' => e.message!,
+                                                        _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                      };
+
+                                                      if (context.mounted) {
+                                                        showSnackBarError(context, errorText);
+                                                      }
+                                                      return false;
+                                                    } catch (e) {
+                                                      if (context.mounted) {
+                                                        showSnackBarError(
+                                                          context,
+                                                          "Chuẩn bị hàng thất bại",
+                                                        );
+                                                      }
+                                                      return false;
                                                     }
-
-                                                    badgesController.fetchPrepareGoods();
-
-                                                    loadDeliveryPrepareGoods();
-                                                    return true;
-                                                  }
-                                                  return false;
-                                                } on ApiException catch (e) {
-                                                  final errorText = switch (e.errorCode) {
-                                                    'EMPLOYEE_NOT_FOUND' => e.message!,
-                                                    _ => 'Có lỗi xảy ra, vui lòng thử lại',
-                                                  };
-
-                                                  if (context.mounted) {
-                                                    showSnackBarError(context, errorText);
-                                                  }
-                                                  return false;
-                                                } catch (e) {
-                                                  if (context.mounted) {
-                                                    showSnackBarError(
-                                                      context,
-                                                      "Chuẩn bị hàng thất bại",
-                                                    );
-                                                  }
-                                                  return false;
-                                                }
-                                              },
-                                            );
-                                          }
-                                          : null,
-                                  label: "Hoàn Tất",
-                                  icon: Symbols.check,
-                                  backgroundColor:
-                                      selectedDeliveryIds.length == 1
-                                          ? themeController.buttonColor
-                                          : Colors.grey,
-                                ),
-
+                                                  },
+                                                );
+                                              }
+                                              : null,
+                                      label: "Hoàn Tất",
+                                      icon: Symbols.check,
+                                      backgroundColor:
+                                          selectedDeliveryIds.length == 1
+                                              ? themeController.buttonColor
+                                              : Colors.grey,
+                                    )
+                                    : const SizedBox.shrink(),
                                 const SizedBox(width: 10),
                               ],
                             ),

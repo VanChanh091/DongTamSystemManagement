@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
+import 'package:dongtam/presentation/components/dialog/export/dialog_export_inventory.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_transfer_qty.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/inventory/header_inventory.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -344,23 +345,10 @@ class _InventoryState extends State<Inventory> {
                                         },
                                       );
                                     } else if (value == 'export') {
-                                      bool confirm = await showConfirmDialog(
+                                      showDialog(
                                         context: context,
-                                        title: "Xuất Tồn Kho",
-                                        content: "Xuất tất cả dữ liệu tồn kho?",
-                                        confirmText: "Xác Nhận",
+                                        builder: (_) => DialogExportInventory(),
                                       );
-
-                                      if (confirm) {
-                                        final file =
-                                            await WarehouseService().exportExcelInventory();
-
-                                        if (file != null && context.mounted) {
-                                          showSnackBarSuccess(context, "Xuất file thành công");
-                                        } else if (context.mounted) {
-                                          showSnackBarError(context, "Xuất file thất bại");
-                                        }
-                                      }
                                     }
                                   },
                                   itemBuilder:

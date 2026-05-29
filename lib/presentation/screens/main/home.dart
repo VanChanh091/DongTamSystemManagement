@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
 
       //synthetic
       SyntheticPlanning(),
-      _buildPage(permissions: ['sale'], child: SyntheticOrder()),
+      _buildPage(permissions: ['sale', 'accountant', 'plan'], child: SyntheticOrder()),
 
       // admin
       _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),

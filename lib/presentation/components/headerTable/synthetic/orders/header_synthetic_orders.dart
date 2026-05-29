@@ -6,7 +6,10 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 final List<Map<String, dynamic>> _headerSyntheticOrder = [
   // Order
   {"key": "index", "title": "STT"},
+
   {"key": "orderId", "title": "Mã Đơn Hàng"},
+  {"key": "orderIdCus", "title": "PO Khách"},
+
   {"key": "dayReceive", "title": "Ngày Nhận Đơn"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
@@ -27,6 +30,11 @@ final List<Map<String, dynamic>> _headerSyntheticOrder = [
   {"key": "qtyWasteNorm", "title": "Phế Liệu"},
 
   {"key": "unit", "title": "DVT"},
+  {"key": "vat", "title": "VAT"},
+  {"key": "pricePaper", "title": "Đơn Giá"},
+  {"key": "totalPrice", "title": "Tổng Tiền"},
+  {"key": "totalPriceVAT", "title": "Tổng Tiền (VAT)"},
+
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
 
   {"key": "staffOrder", "title": "Nhân Viên"},

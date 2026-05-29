@@ -52,7 +52,10 @@ class _CustomerPageState extends State<CustomerPage> {
 
   //text controller
   TextEditingController searchController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
+
+  //date range
+  DateTime? startDate;
+  DateTime? endDate;
 
   //flag
   bool isTextFieldEnabled = false;
@@ -79,19 +82,20 @@ class _CustomerPageState extends State<CustomerPage> {
 
   void _fetchData() {
     final String keyword = searchController.text.trim().toLowerCase();
-    final String date = dateController.text.trim().toLowerCase();
     final String selectedField = searchFieldMap[searchType] ?? "";
 
     // Điều kiện để xác định có thực hiện search hay load mặc định
-    final bool shouldSearch = isSearching && searchType != "Tất cả";
-    String apiKeyword = searchType == "Ngày Tạo" ? date : keyword;
+    final bool shouldSearch = (searchType != "Tất cả");
+    final bool isDateSearch = searchType == "Ngày Tạo";
 
     futureCustomer = ensureMinLoading(
       CustomerService().getCustomers(
         page: currentPage,
         pageSize: pageSize,
         field: shouldSearch ? selectedField : null,
-        keyword: shouldSearch ? apiKeyword : null,
+        keyword: shouldSearch ? keyword : null,
+        startDate: (shouldSearch && isDateSearch) ? startDate : null,
+        endDate: (shouldSearch && isDateSearch) ? endDate : null,
       ),
     );
 
@@ -175,6 +179,14 @@ class _CustomerPageState extends State<CustomerPage> {
                                 searchType = value;
                                 isTextFieldEnabled = searchType != 'Tất cả';
                                 searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                startDate = null;
+                                endDate = null;
+
+                                if (value == "Tất cả") {
+                                  currentPage = 1;
+                                  _fetchData();
+                                }
                               });
                             },
                             controller: searchController,
@@ -190,37 +202,48 @@ class _CustomerPageState extends State<CustomerPage> {
                                 child: InkWell(
                                   onTap: () async {
                                     final now = DateTime.now();
+                                    final size = MediaQuery.of(context).size;
 
-                                    DateTime? picked = await showDatePicker(
+                                    final DateTimeRange? picked = await showDateRangePicker(
                                       context: context,
-                                      initialDate: now,
                                       firstDate: DateTime(2025),
                                       lastDate: DateTime(2100),
-                                      builder: (BuildContext context, Widget? child) {
-                                        return Theme(
-                                          data: Theme.of(context).copyWith(
-                                            colorScheme: ColorScheme.light(
-                                              primary: Colors.blue,
-                                              onPrimary: Colors.white,
-                                              onSurface: Colors.black,
+                                      initialDateRange:
+                                          (startDate != null && endDate != null)
+                                              ? DateTimeRange(start: startDate!, end: endDate!)
+                                              : DateTimeRange(
+                                                start: now.subtract(const Duration(days: 7)),
+                                                end: now,
+                                              ),
+                                      builder: (context, child) {
+                                        return Center(
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: size.width * 0.3,
+                                              maxHeight: size.height * 0.8,
                                             ),
-                                            dialogTheme: DialogThemeData(
-                                              backgroundColor: Colors.white12,
+                                            child: Material(
+                                              borderRadius: BorderRadius.circular(16),
+                                              clipBehavior: Clip.antiAlias,
+                                              child: child!,
                                             ),
                                           ),
-                                          child: child!,
                                         );
                                       },
                                     );
 
                                     if (picked != null) {
-                                      final displayDate = DateFormat('dd/MM/yyyy').format(picked);
+                                      final displayStart = DateFormat(
+                                        "dd/MM/yyyy",
+                                      ).format(picked.start);
+                                      final displayEnd = DateFormat(
+                                        "dd/MM/yyyy",
+                                      ).format(picked.end);
 
                                       setState(() {
-                                        dateController.text =
-                                            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-
-                                        searchController.text = displayDate;
+                                        startDate = picked.start;
+                                        endDate = picked.end;
+                                        searchController.text = "$displayStart - $displayEnd";
                                       });
                                     }
                                   },
@@ -228,7 +251,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                     child: TextField(
                                       controller: searchController,
                                       decoration: InputDecoration(
-                                        hintText: 'Chọn ngày...',
+                                        hintText: "Chọn khoảng thời gian...",
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
                                         ),

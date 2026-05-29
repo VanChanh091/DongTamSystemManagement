@@ -49,6 +49,10 @@ class SyntheticService {
     );
   }
 
+  Future<bool> completeOrders({required List<String> orderIds}) async {
+    return HelperService().updateItem(endpoint: "synthetic/orders", body: {"orderIds": orderIds});
+  }
+
   Future<File?> exportExcelOrders({DateTime? fromDate, DateTime? toDate}) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -129,12 +133,13 @@ class SyntheticService {
     String? machine,
     String? customerName,
     DateTime? dayStart,
-    bool all = false,
+    // bool all = false,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
 
-      final Map<String, dynamic> body = {"all": all};
+      // final Map<String, dynamic> body = {"all": all};
+      final Map<String, dynamic> body = {};
       if (username != null) {
         body['username'] = username;
       } else if (machine != null) {

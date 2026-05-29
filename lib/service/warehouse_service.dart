@@ -276,12 +276,20 @@ class WarehouseService {
   }
 
   //export inventory
-  Future<File?> exportExcelInventory() async {
+  Future<File?> exportExcelInventory({DateTime? fromDate, DateTime? toDate}) async {
     try {
       final token = await SecureStorageService().getToken();
 
+      final Map<String, dynamic> body = {};
+
+      if (fromDate != null && toDate != null) {
+        body["fromDate"] = fromDate.toIso8601String();
+        body["toDate"] = toDate.toIso8601String();
+      }
+
       final response = await dioService.post(
         "/api/warehouse/inventory/export",
+        data: body,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
           responseType: ResponseType.bytes,

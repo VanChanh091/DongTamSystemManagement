@@ -142,7 +142,6 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
   void searchPlanningEstimate() {
     String keyword = searchController.text.trim().toLowerCase();
-    AppLogger.i("searchPlanningEstimate: searchType=$searchType, keyword='$keyword'");
 
     if (isTextFieldEnabled && keyword.isEmpty) {
       AppLogger.w("searchPlanningEstimate: search bị bỏ qua vì keyword trống");

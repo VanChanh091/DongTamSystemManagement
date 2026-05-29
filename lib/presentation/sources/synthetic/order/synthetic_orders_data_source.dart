@@ -8,8 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class SyntheticOrdersDataSource extends DataGridSource {
-  List<Order> orders;
-  String? selectedOrderId;
+  List<Order> orders = [];
+  List<String> selectedOrderIds;
   int currentPage;
   int pageSize;
 
@@ -19,7 +19,7 @@ class SyntheticOrdersDataSource extends DataGridSource {
 
   SyntheticOrdersDataSource({
     required this.orders,
-    this.selectedOrderId,
+    required this.selectedOrderIds,
     required this.currentPage,
     required this.pageSize,
   }) {
@@ -28,11 +28,11 @@ class SyntheticOrdersDataSource extends DataGridSource {
 
   String formatStatus(String status) {
     if (status == 'accept') {
-      return 'Chấp nhận';
-    } else if (status == 'reject') {
-      return "Từ chối";
+      return 'Chờ lên kế hoạch';
     } else if (status == 'planning') {
       return "Đã lên kế hoạch";
+    } else if (status == 'completed') {
+      return "Hoàn thành";
     }
     return "Chờ Duyệt";
   }
@@ -45,13 +45,14 @@ class SyntheticOrdersDataSource extends DataGridSource {
       );
     }
 
-    DataGridCell<String> buildCurrencyCell(String columnName, int value) {
+    DataGridCell<String> buildCurrencyCell(String columnName, num value) {
       return DataGridCell<String>(columnName: columnName, value: Order.formatCurrency(value));
     }
 
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
+      DataGridCell<String>(columnName: 'orderIdCus', value: order.orderIdCustomer ?? ""),
       DataGridCell<String>(
         columnName: 'dayReceive',
         value: formatter.format(order.dayReceiveOrder),
@@ -75,6 +76,11 @@ class SyntheticOrdersDataSource extends DataGridSource {
       buildCurrencyCell('qtyWasteNorm', order.totalQtyWasteNorm),
 
       DataGridCell<String>(columnName: 'unit', value: order.dvt),
+      DataGridCell<String>(columnName: 'vat', value: order.vat != null ? '${order.vat}%' : ''),
+
+      buildCurrencyCell("pricePaper", order.pricePaper ?? 0),
+      buildCurrencyCell("totalPrice", order.totalPrice ?? 0),
+      buildCurrencyCell("totalPriceVAT", order.totalPriceVAT ?? 0),
 
       DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
       DataGridCell(columnName: 'staffOrder', value: order.user?.fullName ?? ""),
@@ -121,9 +127,11 @@ class SyntheticOrdersDataSource extends DataGridSource {
     final statusCell = getCellValue<String>(row, 'status', "");
     final status = statusCell.toString().toLowerCase();
 
+    final isSelected = selectedOrderIds.contains(orderId);
+
     // Chọn màu nền theo status
     Color backgroundColor;
-    if (selectedOrderId == orderId) {
+    if (isSelected) {
       backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
       switch (status) {

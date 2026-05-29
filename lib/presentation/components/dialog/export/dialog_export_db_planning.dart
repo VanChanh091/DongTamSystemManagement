@@ -1,11 +1,10 @@
 import 'dart:io';
-
+import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/validation/validation_order.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class DialogExportDbPlannings extends StatefulWidget {
   const DialogExportDbPlannings({super.key});
@@ -59,7 +58,7 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
         username: selectedOption.value == 'username' ? usernameController.text : "",
         dayStart: selectedOption.value == 'dayStart' ? selectedDayStart : null,
         machine: selectedOption.value == 'machine' ? machine : null,
-        all: selectedOption.value == 'all' ? true : false,
+        // all: selectedOption.value == 'all' ? true : false,
       );
 
       if (!mounted) return;
@@ -98,13 +97,12 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              RadioListTile<String>(
-                title: const Text("Tất cả", style: TextStyle(fontSize: 16)),
-                value: 'all',
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
-
+              // RadioListTile<String>(
+              //   title: const Text("Tất cả", style: TextStyle(fontSize: 16)),
+              //   value: 'all',
+              //   groupValue: value,
+              //   onChanged: (val) => selectedOption.value = val,
+              // ),
               const SizedBox(height: 5),
               RadioListTile<String>(
                 title: const Text("Tên Nhân Viên", style: TextStyle(fontSize: 16)),

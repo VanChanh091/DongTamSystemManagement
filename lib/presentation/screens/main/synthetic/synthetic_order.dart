@@ -1,27 +1,30 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_orders.dart';
-import 'package:dongtam/presentation/components/headerTable/synthetic/orders/header_synthetic_order_detail.dart';
-import 'package:dongtam/presentation/components/headerTable/synthetic/orders/header_synthetic_orders.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/sources/synthetic/order/synthetic_box_detail_data_source.dart';
-import 'package:dongtam/presentation/sources/synthetic/order/synthetic_orders_data_source.dart';
-import 'package:dongtam/service/synthetic_service.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_orders.dart";
+import "package:dongtam/presentation/components/headerTable/synthetic/orders/header_synthetic_order_detail.dart";
+import "package:dongtam/presentation/components/headerTable/synthetic/orders/header_synthetic_orders.dart";
+import "package:dongtam/presentation/components/shared/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/sources/synthetic/order/synthetic_box_detail_data_source.dart";
+import "package:dongtam/presentation/sources/synthetic/order/synthetic_orders_data_source.dart";
+import "package:dongtam/service/synthetic_service.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/symbols.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class SyntheticOrder extends StatefulWidget {
   const SyntheticOrder({super.key});
@@ -37,6 +40,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   late List<GridColumn> columnsBoxes;
 
   //controller
+  final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
@@ -45,7 +49,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   Map<String, double> columnWidthBoxes = {};
   List<PlanningBox> selectedBoxesDetail = [];
 
-  String? selectedOrderId;
+  List<String> selectedOrderIds = [];
 
   //search
   String searchType = "Tất cả";
@@ -58,10 +62,10 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   //filter by machine & runningPlan
   String filterType = "all";
   final Map<String, String> filterOptions = {
-    'all': 'Tất cả',
-    'accept': "Đã Duyệt",
-    'planning': 'Lên Kế Hoạch',
-    'completed': 'Hoàn Thành',
+    "all": "Tất cả",
+    "accept": "Chờ Lên Kế Hoạch",
+    "planning": "Chưa Hoàn Thành",
+    "completed": "Hoàn Thành",
   };
 
   //text controller
@@ -88,13 +92,13 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
     columnsOrders = buildSyntheticOrderColumn(themeController: themeController);
     columnsBoxes = buildSyntheticBoxesColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'syntheticOrders', columns: columnsOrders).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "syntheticOrders", columns: columnsOrders).then((w) {
       setState(() {
         columnWidthOrders = w;
       });
     });
 
-    ColumnWidthTable.loadWidths(tableKey: 'syntheticBoxes', columns: columnsBoxes).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "syntheticBoxes", columns: columnsBoxes).then((w) {
       setState(() {
         columnWidthBoxes = w;
       });
@@ -105,7 +109,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
     final String keyword = searchController.text.trim().toLowerCase();
     final String selectedField =
         searchFieldMap.entries
-            .firstWhere((e) => e.value == searchType, orElse: () => const MapEntry('', ''))
+            .firstWhere((e) => e.value == searchType, orElse: () => const MapEntry("", ""))
             .key;
 
     // Điều kiện để xác định có thực hiện search hay load mặc định
@@ -125,7 +129,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
       ),
     );
 
-    selectedOrderId = null;
+    selectedOrderIds.clear();
     selectedBoxesDetail = [];
   }
 
@@ -154,6 +158,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   @override
   Widget build(BuildContext context) {
     final bool isAccountant = userController.hasPermission(permission: "accountant");
+    final bool isPlan = userController.hasPermission(permission: "plan");
 
     return Scaffold(
       body: Container(
@@ -196,22 +201,22 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                           child: LeftButtonSearch(
                             selectedType: searchType,
                             types: const [
-                              'Tất cả',
-                              'Mã Đơn Hàng',
-                              'Tên Khách Hàng',
-                              'Ngày Nhận Đơn',
+                              "Tất cả",
+                              "Mã Đơn Hàng",
+                              "Tên Khách Hàng",
+                              "Ngày Nhận Đơn",
                             ],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
+                                isTextFieldEnabled = value != "Tất cả";
 
-                                searchType == 'Tất cả' ? searchController.clear() : null;
+                                searchType == "Tất cả" ? searchController.clear() : null;
 
                                 startDate = null;
                                 endDate = null;
 
-                                if (value == 'Tất cả') {
+                                if (value == "Tất cả") {
                                   currentPage = 1;
                                   _fetchData();
                                 }
@@ -222,7 +227,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                             buttonColor: themeController.buttonColor,
                             onSearch: () => searchOrders(),
                             customInputBuilder: (inputWidth) {
-                              if (searchType != 'Ngày Nhận Đơn') return null;
+                              if (searchType != "Ngày Nhận Đơn") return null;
 
                               return SizedBox(
                                 width: inputWidth,
@@ -262,16 +267,16 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
 
                                     if (picked != null) {
                                       final displayStart = DateFormat(
-                                        'dd/MM/yyyy',
+                                        "dd/MM/yyyy",
                                       ).format(picked.start);
                                       final displayEnd = DateFormat(
-                                        'dd/MM/yyyy',
+                                        "dd/MM/yyyy",
                                       ).format(picked.end);
 
                                       setState(() {
                                         startDate = picked.start;
                                         endDate = picked.end;
-                                        searchController.text = '$displayStart - $displayEnd';
+                                        searchController.text = "$displayStart - $displayEnd";
                                       });
                                     }
                                   },
@@ -279,7 +284,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                     child: TextField(
                                       controller: searchController,
                                       decoration: InputDecoration(
-                                        hintText: 'Chọn khoảng thời gian...',
+                                        hintText: "Chọn khoảng thời gian...",
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
                                         ),
@@ -318,15 +323,81 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                     : const SizedBox.shrink(),
                                 const SizedBox(width: 10),
 
+                                //complete order
+                                isPlan
+                                    ? AnimatedButton(
+                                      onPressed:
+                                          selectedOrderIds.isEmpty
+                                              ? null
+                                              : () async {
+                                                try {
+                                                  final bool confirm = await showConfirmDialog(
+                                                    context: context,
+                                                    title: "Xác nhận hoàn thành đơn hàng",
+                                                    content:
+                                                        "Bạn có chắc chắn muốn hoàn thành đơn hàng này?",
+                                                    confirmText: "Xác nhận",
+                                                  );
+
+                                                  if (confirm) {
+                                                    final success = await SyntheticService()
+                                                        .completeOrders(orderIds: selectedOrderIds);
+
+                                                    if (success) {
+                                                      if (context.mounted) {
+                                                        showSnackBarSuccess(
+                                                          context,
+                                                          "Đơn hàng đã được hoàn thành thành công.",
+                                                        );
+
+                                                        setState(() {
+                                                          selectedOrderIds.clear();
+                                                          loadOrders();
+                                                        });
+                                                      }
+                                                    }
+                                                    return true;
+                                                  }
+                                                  return false;
+                                                } on ApiException catch (e) {
+                                                  final errorText = switch (e.errorCode) {
+                                                    "EMPLOYEE_NOT_FOUND" => e.message!,
+                                                    "INVALID_ORDER_STATUS" => e.message!,
+                                                    "ZERO_QTY_PRODUCED" => e.message!,
+                                                    _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                  };
+
+                                                  if (context.mounted) {
+                                                    showSnackBarError(context, errorText);
+                                                  }
+                                                  return false;
+                                                } catch (e) {
+                                                  if (context.mounted) {
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Hoàn thành đơn hàng thất bại",
+                                                    );
+                                                  }
+                                                  return false;
+                                                }
+                                              },
+                                      label: "Hoàn Thành",
+                                      icon: Symbols.export_notes,
+                                      backgroundColor: themeController.buttonColor,
+                                    )
+                                    : const SizedBox.shrink(),
+                                const SizedBox(width: 10),
+
                                 //filter
                                 buildDropdownItems(
                                   value: filterType,
-                                  items: const ['all', 'accept', 'planning', 'completed'],
+                                  items: const ["all", "accept", "planning", "completed"],
+                                  width: 180,
                                   onChanged:
                                       (value) => {
                                         setState(() {
                                           filterType = value!;
-                                          selectedOrderId = null;
+                                          selectedOrderIds.clear();
                                           selectedBoxesDetail = [];
                                           loadOrders();
                                         }),
@@ -360,7 +431,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['orders'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!["orders"].isEmpty) {
                     return const Center(
                       child: Text(
                         "Không có đơn hàng nào",
@@ -370,13 +441,13 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                   }
 
                   final data = snapshot.data!;
-                  final orders = data['orders'] as List<Order>;
-                  final currentPg = data['currentPage'];
-                  final totalPgs = data['totalPages'];
+                  final orders = data["orders"] as List<Order>;
+                  final currentPg = data["currentPage"];
+                  final totalPgs = data["totalPages"];
 
                   syntheticOrders = SyntheticOrdersDataSource(
                     orders: orders,
-                    selectedOrderId: selectedOrderId,
+                    selectedOrderIds: selectedOrderIds,
                     currentPage: currentPg,
                     pageSize: pageSize,
                   );
@@ -390,10 +461,11 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                             Expanded(
                               flex: 2,
                               child: SfDataGrid(
+                                controller: dataGridController,
                                 source: syntheticOrders,
                                 isScrollbarAlwaysShown: true,
                                 columnWidthMode: ColumnWidthMode.auto,
-                                selectionMode: SelectionMode.single,
+                                selectionMode: SelectionMode.multiple,
                                 headerRowHeight: 35,
                                 rowHeight: 40,
                                 columns: ColumnWidthTable.applySavedWidths(
@@ -412,7 +484,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                         ],
                                         child: Obx(
                                           () => formatColumn(
-                                            label: 'Quy Cách',
+                                            label: "Quy Cách",
                                             themeController: themeController,
                                           ),
                                         ),
@@ -420,14 +492,14 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                       StackedHeaderCell(
                                         columnNames: [
                                           "quantityCustomer",
-                                          'qtyOutbound',
+                                          "qtyOutbound",
                                           "qtyProduced",
                                           "qtyInventory",
-                                          'qtyWasteNorm',
+                                          "qtyWasteNorm",
                                         ],
                                         child: Obx(
                                           () => formatColumn(
-                                            label: 'Số Lượng',
+                                            label: "Số Lượng",
                                             themeController: themeController,
                                           ),
                                         ),
@@ -450,38 +522,40 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                 onColumnResizeEnd:
                                     (details) => GridResizeHelper.onResizeEnd(
                                       details: details,
-                                      tableKey: 'syntheticOrders',
+                                      tableKey: "syntheticOrders",
                                       columnWidths: columnWidthOrders,
                                       setState: setState,
                                     ),
 
                                 onSelectionChanged: (addedRows, removedRows) async {
-                                  if (addedRows.isEmpty) {
+                                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                                  if (dataGridController.selectedRows.isEmpty) {
                                     setState(() {
-                                      selectedOrderId = null;
+                                      selectedOrderIds.clear();
                                       selectedBoxesDetail = [];
                                     });
                                     return;
                                   }
 
-                                  final selectedRow = addedRows.first;
+                                  final List<String> currentSelectedIds =
+                                      dataGridController.selectedRows.map((row) {
+                                        return row
+                                            .getCells()
+                                            .firstWhere((cell) => cell.columnName == 'orderId')
+                                            .value
+                                            .toString();
+                                      }).toList();
 
-                                  final orderId =
-                                      selectedRow
-                                          .getCells()
-                                          .firstWhere((cell) => cell.columnName == 'orderId')
-                                          .value
-                                          .toString();
+                                  setState(() {
+                                    selectedOrderIds = currentSelectedIds;
+                                    selectedBoxesDetail = [];
+                                  });
 
                                   // Lấy data của list (summary)
                                   final selectedOrder = orders.firstWhere(
-                                    (order) => order.orderId == orderId,
+                                    (order) => order.orderId == currentSelectedIds.first,
                                   );
-
-                                  setState(() {
-                                    selectedOrderId = selectedOrder.orderId;
-                                    selectedBoxesDetail = [];
-                                  });
 
                                   if (selectedOrder.isBox == true) {
                                     final detail = await SyntheticService().getSyntheticBoxDetail(
@@ -530,7 +604,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                       onColumnResizeEnd:
                                           (details) => GridResizeHelper.onResizeEnd(
                                             details: details,
-                                            tableKey: 'boxesDetail',
+                                            tableKey: "boxesDetail",
                                             columnWidths: columnWidthBoxes,
                                             setState: setState,
                                           ),
