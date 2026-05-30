@@ -129,6 +129,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isManager = userController.hasAnyRole(roles: ['manager', 'admin']);
 
@@ -182,7 +188,11 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
+                                  loadOrders();
+                                }
                               });
                             },
                             controller: searchController,

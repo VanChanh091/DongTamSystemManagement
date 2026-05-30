@@ -138,6 +138,13 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+    dateController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -192,7 +199,12 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
+                                  currentPage = 1;
+                                  _fetchData();
+                                }
                               });
                             },
                             controller: searchController,

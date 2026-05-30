@@ -123,6 +123,12 @@ class _CustomerPageState extends State<CustomerPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isSale = userController.hasPermission(permission: "sale");
 
@@ -178,12 +184,12 @@ class _CustomerPageState extends State<CustomerPage> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = searchType != 'Tất cả';
-                                searchType == 'Tất cả' ? searchController.clear() : null;
 
                                 startDate = null;
                                 endDate = null;
 
-                                if (value == "Tất cả") {
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
                                   currentPage = 1;
                                   _fetchData();
                                 }

@@ -173,6 +173,12 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -227,7 +233,12 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
-                                searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
+                                  currentPage = 1;
+                                  loadDashboard();
+                                }
                               });
                             },
                             controller: searchController,

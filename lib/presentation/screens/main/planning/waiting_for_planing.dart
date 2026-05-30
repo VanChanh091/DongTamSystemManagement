@@ -114,6 +114,12 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isPlan = userController.hasPermission(permission: "plan");
 
@@ -168,7 +174,12 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                       setState(() {
                                         searchType = value;
                                         isTextFieldEnabled = searchType != 'Tất cả';
-                                        searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                        if (searchType == "Tất cả" &&
+                                            searchController.text.isNotEmpty) {
+                                          searchController.clear();
+                                          loadOrders();
+                                        }
                                       });
                                     },
                                     controller: searchController,

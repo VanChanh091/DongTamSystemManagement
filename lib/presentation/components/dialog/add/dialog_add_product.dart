@@ -30,6 +30,7 @@ class _ProductDialogState extends State<ProductDialog> {
   final nameProductController = TextEditingController();
   final maKhuonController = TextEditingController();
   final typeProductController = TextEditingController();
+
   String typeProduct = "Giấy Tấm";
   final List<String> itemsTypeProduct = [
     "Giấy Tấm",
@@ -233,6 +234,7 @@ class _ProductDialogState extends State<ProductDialog> {
     idController.dispose();
     nameProductController.dispose();
     maKhuonController.dispose();
+    typeProductController.dispose();
   }
 
   @override

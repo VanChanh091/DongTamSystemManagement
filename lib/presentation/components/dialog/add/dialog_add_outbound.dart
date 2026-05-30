@@ -311,22 +311,28 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   void dispose() {
     super.dispose();
     orderIdController.dispose();
-    productNameController.dispose();
-    typeProductController.dispose();
     customerNameController.dispose();
     lengthManuController.dispose();
     sizeManuController.dispose();
     lengthCustController.dispose();
     sizeCustController.dispose();
+    fluteController.dispose();
     qcBoxController.dispose();
+    typeProductController.dispose();
+    productNameController.dispose();
     quantityCustomerController.dispose();
     pricePaperController.dispose();
     dvtController.dispose();
-    fluteController.dispose();
     qtyOutboundController.dispose();
     remainingQtyController.dispose();
     totalOutboundController.dispose();
+    dayStartController.dispose();
+    orderIdDeliveryController.dispose();
+    qtyRegisterController.dispose();
+    vehicleNameController.dispose();
     isDeliveryChecked = ValueNotifier<bool>(false);
+    isPromotionChecked = ValueNotifier<bool>(false);
+    isNegativeStockAllowed = ValueNotifier<bool>(false);
   }
 
   @override

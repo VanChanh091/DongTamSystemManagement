@@ -96,7 +96,7 @@ class ManufactureService {
   }
 
   //create report for planning
-  Future<bool> createOrUpdateReportBox({
+  Future<Map<String, dynamic>> createOrUpdateReportBox({
     required int planningBoxId,
     required String machine,
     required DateTime dayCompleted,
@@ -107,6 +107,7 @@ class ManufactureService {
     bool isUpdate = false,
   }) async {
     final token = await SecureStorageService().getToken();
+    final method = isUpdate ? dioService.put : dioService.post;
 
     final now = DateTime.now();
     final fullDateTime = DateTime(
@@ -118,10 +119,8 @@ class ManufactureService {
       now.second,
     );
 
-    final method = isUpdate ? dioService.put : dioService.post;
-
     try {
-      await method(
+      final response = await method(
         '/api/manufacture/box',
         queryParameters: {
           "planningBoxId": planningBoxId,
@@ -139,17 +138,19 @@ class ManufactureService {
         ),
       );
 
-      return true;
+      final bool isLastStage = response.data['data']['isLastStage'] ?? false;
+
+      return {"success": true, "isLastStage": isLastStage};
     } on DioException catch (e) {
       HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
+      return {"success": false, "isLastStage": false};
     } catch (e, s) {
       AppLogger.e(
         "Failed to ${isUpdate ? 'update' : 'create'} report box",
         error: e,
         stackTrace: s,
       );
-      throw Exception('Failed to ${isUpdate ? 'update' : 'create'} report box: $e');
+      return {"success": false, "isLastStage": false};
     }
   }
 

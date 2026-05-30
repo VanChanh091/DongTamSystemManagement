@@ -251,7 +251,11 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                             setState(() {
                               searchType = value;
                               isTextFieldEnabled = value != 'Tất cả';
-                              searchType == 'Tất cả' ? searchController.clear() : null;
+
+                              if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                searchController.clear();
+                                _fetchData();
+                              }
                             });
                           },
                           controller: searchController,

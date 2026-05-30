@@ -144,11 +144,10 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     _startCountdown();
 
     try {
-      bool success;
-      if (widget.isPaper == true) {
-        final text = widget.initialData != null ? 'Cập nhật' : 'Báo cáo';
+      bool success = false;
+      bool isLastStage = false;
 
-        AppLogger.i("$text sản xuất giấy tấm: ${widget.planningId}");
+      if (widget.isPaper == true) {
         success = await ManufactureService().createOrUpdateReportPaper(
           planningId: widget.planningId,
           qtyProduced: qtyProduced,
@@ -178,7 +177,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         }
 
         AppLogger.i("Báo cáo sản xuất thùng: ID = ${widget.planningId}");
-        success = await ManufactureService().createOrUpdateReportBox(
+        final resultBox = await ManufactureService().createOrUpdateReportBox(
           planningBoxId: widget.planningId,
           machine: widget.machine ?? "",
           dayCompleted: completedDate,
@@ -188,6 +187,9 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           isUpdate: widget.initialData != null ? true : false,
           action: "EDIT_REPORT",
         );
+
+        success = resultBox['success'] ?? false;
+        isLastStage = resultBox['isLastStage'] ?? false;
       }
 
       if (success) {
@@ -199,6 +201,18 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         if (!mounted) return;
         Navigator.pop(context); // đóng dialog loading
 
+        if (!widget.isPaper && isLastStage) {
+          if (!mounted) return;
+          await showConfirmDialog(
+            context: context,
+            title: "Hoàn Thành Các Công Đoạn",
+            content: "Đây là công đoạn cuối cùng của đơn hàng này.\nHãy gửi yêu cầu kiểm hàng",
+            confirmText: "Xác nhận",
+            cancelText: "Hủy",
+          );
+        }
+
+        if (!mounted) return;
         showSnackBarSuccess(context, 'Báo cáo sản xuất thành công');
         widget.onReport();
 

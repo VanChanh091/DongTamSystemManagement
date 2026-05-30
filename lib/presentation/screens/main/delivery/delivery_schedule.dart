@@ -86,6 +86,12 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    dayStartController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isDelivery = userController.hasAnyPermission(permission: ["delivery", "plan"]);
     final bool isPlan = userController.hasAnyPermission(permission: ["plan"]);

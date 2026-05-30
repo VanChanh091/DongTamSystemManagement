@@ -16,9 +16,10 @@ class DialogExportDbPlannings extends StatefulWidget {
 class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
   ValueNotifier<String?> selectedOption = ValueNotifier<String?>(null);
 
+  DateTime? selectedDayStart;
   final usernameController = TextEditingController();
   final dayStartController = TextEditingController();
-  DateTime? selectedDayStart;
+
   //machine
   String machine = "Máy 1350";
   final List<String> itemsMachine = ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
@@ -79,10 +80,10 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
 
   @override
   void dispose() {
+    super.dispose();
+    selectedOption.dispose();
     usernameController.dispose();
     dayStartController.dispose();
-    selectedOption.dispose();
-    super.dispose();
   }
 
   @override

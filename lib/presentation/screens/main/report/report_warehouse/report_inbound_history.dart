@@ -126,6 +126,13 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+    dateController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isAccountant = userController.hasPermission(permission: "accountant");
 
@@ -183,11 +190,11 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                                 searchType = value;
                                 isTextFieldEnabled = value != 'Tất cả';
 
-                                searchType == 'Tất cả' ? searchController.clear() : null;
                                 startDate = null;
                                 endDate = null;
 
-                                if (value == 'Tất cả') {
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
                                   currentPage = 1;
                                   _fetchData();
                                 }

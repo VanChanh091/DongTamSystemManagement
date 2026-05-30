@@ -64,7 +64,7 @@ class MachineBoxDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
 
       buildCurrencyCell('size', planning.size),
-      buildCurrencyCell('length', planning.size),
+      buildCurrencyCell('length', planning.length),
 
       DataGridCell<String>(columnName: "canLan", value: planning.order?.canLan ?? ""),
 

@@ -144,6 +144,13 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+    dateController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -195,7 +202,12 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = searchType != 'Tất cả';
-                                searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
+                                  currentPage = 1;
+                                  _fetchData();
+                                }
                               });
                             },
                             controller: searchController,

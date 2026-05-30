@@ -121,6 +121,12 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    qtyController.dispose();
+  }
+
   // ===== CONTENT =====
   Widget buildQcContent() {
     return FutureBuilder<List<QcCriteriaModel>>(

@@ -111,6 +111,13 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    selectedOption.dispose();
+    planningIdsController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,

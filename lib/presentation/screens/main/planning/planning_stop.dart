@@ -74,6 +74,12 @@ class _PlanningStopState extends State<PlanningStop> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isPlan = userController.hasPermission(permission: "plan");
 

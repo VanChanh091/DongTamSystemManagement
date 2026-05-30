@@ -72,11 +72,11 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   bool isTextFieldEnabled = false;
 
   //text controller
+  TextEditingController noteController = TextEditingController();
   TextEditingController searchController = TextEditingController();
   TextEditingController dayStartController = TextEditingController();
   TextEditingController timeStartController = TextEditingController();
   TextEditingController totalTimeWorkingController = TextEditingController();
-  TextEditingController noteController = TextEditingController();
 
   @override
   void initState() {
@@ -232,7 +232,12 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                   setState(() {
                                     searchType = value;
                                     isTextFieldEnabled = value != 'Tất cả';
-                                    searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                    if (searchType == "Tất cả" &&
+                                        searchController.text.isNotEmpty) {
+                                      searchController.clear();
+                                      loadPlanning();
+                                    }
                                   });
                                 },
                                 controller: searchController,

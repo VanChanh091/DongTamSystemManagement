@@ -56,10 +56,16 @@ class _InventoryState extends State<Inventory> {
   List<int> selectedInventoryId = [];
   Map<String, double> columnWidths = {};
 
-  TextEditingController searchController = TextEditingController();
+  //controller
+  final searchController = TextEditingController();
+  final qtyController = TextEditingController();
+  final reasonController = TextEditingController();
+
+  //flag
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
+  //paging
   int currentPage = 1;
   int pageSize = 35;
   int pageSizeSearch = 30;
@@ -119,6 +125,14 @@ class _InventoryState extends State<Inventory> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+    qtyController.dispose();
+    reasonController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -170,7 +184,12 @@ class _InventoryState extends State<Inventory> {
                               setState(() {
                                 searchType = value;
                                 isTextFieldEnabled = searchType != 'Tất cả';
-                                searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
+                                  currentPage = 1;
+                                  _fetchData();
+                                }
                               });
                             },
                             controller: searchController,
@@ -586,131 +605,129 @@ class _InventoryState extends State<Inventory> {
       ),
     );
   }
-}
 
-Future<bool?> showInputQtyDialog({
-  required BuildContext context,
-  required String title,
-  required Future<bool> Function(int qty, String reason) onConfirm,
-}) async {
-  final TextEditingController qtyController = TextEditingController();
-  final TextEditingController reasonController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
-  bool isLoading = false;
+  Future<bool?> showInputQtyDialog({
+    required BuildContext context,
+    required String title,
+    required Future<bool> Function(int qty, String reason) onConfirm,
+  }) async {
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
 
-  return showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            content: SizedBox(
-              width: 350,
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      controller: qtyController,
-                      keyboardType: TextInputType.number,
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        labelText: "Số lượng thanh lý",
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.numbers),
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              content: SizedBox(
+                width: 350,
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: qtyController,
+                        keyboardType: TextInputType.number,
+                        autofocus: true,
+                        decoration: const InputDecoration(
+                          labelText: "Số lượng thanh lý",
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.numbers),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return "Không được để trống";
+                          final n = int.tryParse(value);
+                          if (n == null || n <= 0) return "Số lượng phải lớn hơn 0";
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return "Không được để trống";
-                        final n = int.tryParse(value);
-                        if (n == null || n <= 0) return "Số lượng phải lớn hơn 0";
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: reasonController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: "Lý do thanh lý",
-                        alignLabelWithHint: true,
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.edit_note),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: reasonController,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                          labelText: "Lý do thanh lý",
+                          alignLabelWithHint: true,
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.edit_note),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) return "Vui lòng nhập lý do";
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) return "Vui lòng nhập lý do";
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  "Hủy",
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54,
+                    ],
                   ),
                 ),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xffEA4346),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    "Hủy",
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
                 ),
-                onPressed:
-                    isLoading
-                        ? null
-                        : () async {
-                          if (formKey.currentState!.validate()) {
-                            setState(() => isLoading = true);
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffEA4346),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed:
+                      isLoading
+                          ? null
+                          : () async {
+                            if (formKey.currentState!.validate()) {
+                              setState(() => isLoading = true);
 
-                            // Truyền cả 2 giá trị vào onConfirm
-                            final success = await onConfirm(
-                              int.parse(qtyController.text),
-                              reasonController.text,
-                            );
+                              // Truyền cả 2 giá trị vào onConfirm
+                              final success = await onConfirm(
+                                int.parse(qtyController.text),
+                                reasonController.text,
+                              );
 
-                            if (context.mounted) {
-                              if (success) {
-                                Navigator.pop(context, true);
-                              } else {
-                                setState(() => isLoading = false);
+                              if (context.mounted) {
+                                if (success) {
+                                  Navigator.pop(context, true);
+                                } else {
+                                  setState(() => isLoading = false);
+                                }
                               }
                             }
-                          }
-                        },
-                child:
-                    isLoading
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                        : const Text(
-                          'Xác nhận',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.white,
+                          },
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                          : const Text(
+                            'Xác nhận',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }

@@ -226,8 +226,9 @@ class _PaperProductionState extends State<PaperProduction> {
 
   @override
   void dispose() {
-    _initSocket.stop(machine);
     super.dispose();
+    searchController.dispose();
+    _initSocket.stop(machine);
   }
 
   @override
@@ -305,7 +306,12 @@ class _PaperProductionState extends State<PaperProduction> {
                                       setState(() {
                                         searchType = value;
                                         isTextFieldEnabled = value != 'Tất cả';
-                                        searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                        if (searchType == "Tất cả" &&
+                                            searchController.text.isNotEmpty) {
+                                          searchController.clear();
+                                          _fetchData();
+                                        }
                                       });
                                     },
                                     controller: searchController,

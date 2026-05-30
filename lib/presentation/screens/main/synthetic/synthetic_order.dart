@@ -156,6 +156,12 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isAccountant = userController.hasPermission(permission: "accountant");
     final bool isPlan = userController.hasPermission(permission: "plan");
@@ -211,12 +217,11 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                 searchType = value;
                                 isTextFieldEnabled = value != "Tất cả";
 
-                                searchType == "Tất cả" ? searchController.clear() : null;
-
                                 startDate = null;
                                 endDate = null;
 
-                                if (value == "Tất cả") {
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
                                   currentPage = 1;
                                   _fetchData();
                                 }

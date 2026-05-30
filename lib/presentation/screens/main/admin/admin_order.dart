@@ -28,6 +28,8 @@ class _ManageOrderState extends State<AdminOrder> {
   final themeController = Get.find<ThemeController>();
   final formatter = DateFormat('dd/MM/yyyy');
 
+  final TextEditingController reasonController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -53,6 +55,12 @@ class _ManageOrderState extends State<AdminOrder> {
       grouped[prefix]!.add(order);
     }
     return grouped;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    reasonController.dispose();
   }
 
   @override
@@ -342,8 +350,6 @@ class _ManageOrderState extends State<AdminOrder> {
                                       //reject
                                       AnimatedButton(
                                         onPressed: () {
-                                          final TextEditingController reasonController =
-                                              TextEditingController();
                                           final formKey = GlobalKey<FormState>();
 
                                           showDialog(

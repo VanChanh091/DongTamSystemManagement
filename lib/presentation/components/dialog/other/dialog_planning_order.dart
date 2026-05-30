@@ -60,10 +60,10 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final instructSpecialController = TextEditingController();
 
   //planning
+  late String chooseMachine = 'Máy 1350';
   final ghepKhoController = TextEditingController();
   final numberChildController = TextEditingController();
   final fluteController = TextEditingController();
-  late String chooseMachine = 'Máy 1350';
   final dayReplaceController = TextEditingController();
   final matEReplaceController = TextEditingController();
   final matBReplaceController = TextEditingController();
@@ -78,8 +78,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final runningPlanController = TextEditingController();
   final quantityPLanningsController = TextEditingController();
   final numberLayerPaperController = TextEditingController();
-  ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
   final structureController = TextEditingController();
+  ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
 
   //paper consumption norm
   final dayController = TextEditingController();
@@ -377,6 +377,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     numberChildController.dispose();
     numberChildController.removeListener(calculateDefaultGhepKho);
     sizeOrderController.removeListener(calculateDefaultGhepKho);
+    structureController.dispose();
   }
 
   @override

@@ -68,6 +68,12 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
     selectedLiquidationId.clear();
   }
 
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   searchController.dispose();
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

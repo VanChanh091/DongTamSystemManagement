@@ -165,6 +165,11 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
     _songBController.dispose();
     _songCController.dispose();
     _songE2Controller.dispose();
+
+    _orderIdReceiveControler.dispose();
+    _cusNameReceiveControler.dispose();
+    _qtyTransferController.dispose();
+    _reasonController.dispose();
   }
 
   @override

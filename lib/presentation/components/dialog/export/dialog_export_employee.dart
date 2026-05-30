@@ -18,6 +18,7 @@ class DialogExportEmployee extends StatefulWidget {
 class _DialogExportEmployeeState extends State<DialogExportEmployee> {
   final statusController = TextEditingController();
   final joinDateController = TextEditingController();
+
   DateTime? selectedDate;
   ValueNotifier<String?> selectedOption = ValueNotifier<String?>(null);
 
@@ -83,10 +84,10 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
 
   @override
   void dispose() {
+    super.dispose();
+    selectedOption.dispose();
     statusController.dispose();
     joinDateController.dispose();
-    selectedOption.dispose();
-    super.dispose();
   }
 
   @override

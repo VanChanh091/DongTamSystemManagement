@@ -164,6 +164,15 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+    dayStartController.dispose();
+    timeStartController.dispose();
+    totalTimeWorkingController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -212,7 +221,12 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                   setState(() {
                                     searchType = value;
                                     isTextFieldEnabled = searchType != 'Tất cả';
-                                    searchType == 'Tất cả' ? searchController.clear() : null;
+
+                                    if (searchType == "Tất cả" &&
+                                        searchController.text.isNotEmpty) {
+                                      searchController.clear();
+                                      loadPlanning();
+                                    }
                                   });
                                 },
                                 controller: searchController,

@@ -235,9 +235,12 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                               setState(() {
                                                 searchType = value;
                                                 isTextFieldEnabled = value != 'Tất cả';
-                                                searchType == 'Tất cả'
-                                                    ? searchController.clear()
-                                                    : null;
+
+                                                if (searchType == "Tất cả" &&
+                                                    searchController.text.isNotEmpty) {
+                                                  currentPage = 1;
+                                                  _fetchData();
+                                                }
                                               });
                                             },
                                             buttonLabel: "Lọc Đơn",

@@ -70,6 +70,12 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
 
