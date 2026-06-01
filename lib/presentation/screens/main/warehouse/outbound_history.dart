@@ -143,6 +143,29 @@ class _OutboundHistoryState extends State<OutboundHistory> {
     });
   }
 
+  // 🌟 1. Viết một hàm check quyền trả về bool (Đặt hàm này trong Widget hoặc Controller của bạn)
+  // bool _canEditOutbound() {
+  //   // Nếu chưa chọn phiếu nào thì disable nút
+  //   if (selectedOutbound == null) return false;
+
+  //   final DateTime? ticketDate = selectedOutbound!.createdAt; // Đổi thành trường ngày của bạn
+  //   final DateTime now = DateTime.now();
+
+  //   // Kiểm tra xem phiếu có phải trong ngày hôm nay không
+  //   final bool isToday =
+  //       ticketDate != null &&
+  //       ticketDate.year == now.year &&
+  //       ticketDate.month == now.month &&
+  //       ticketDate.day == now.day;
+
+  //   // Kiểm tra quyền admin/manager
+  //   final String userRole = userController.role.toLowerCase();
+  //   final bool isAdminOrManager = userRole == 'admin' || userRole == 'manager';
+
+  //   // Thỏa mãn điều kiện: Trong ngày HOẶC là Admin/Manager thì trả về true (cho phép sửa)
+  //   return isToday || isAdminOrManager;
+  // }
+
   @override
   void dispose() {
     super.dispose();
@@ -333,6 +356,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                               if (!context.mounted) return;
 
                                               showDialog(
+                                                barrierDismissible: false,
                                                 context: context,
                                                 builder:
                                                     (_) => OutBoundDialog(
@@ -353,6 +377,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                   icon: Symbols.construction,
                                   backgroundColor: themeController.buttonColor,
                                 ),
+
                                 const SizedBox(width: 10),
 
                                 //delete

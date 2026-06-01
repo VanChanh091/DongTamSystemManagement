@@ -15,12 +15,13 @@ class OutboundTempItem {
   final String? QC_box;
   final String dvt;
 
-  final double quantityCustomer;
+  final int quantityCustomer;
   final int qtyOutbound;
 
   final int? qtyInventory;
   final int? totalOutbound;
   final int? deliveryItemId;
+  final int? outboundDetailId;
 
   final bool isPromotion;
 
@@ -41,9 +42,11 @@ class OutboundTempItem {
 
     required this.quantityCustomer,
     required this.qtyOutbound,
+
     this.qtyInventory,
     this.totalOutbound,
     this.deliveryItemId,
+    this.outboundDetailId,
     required this.pricePaper,
     required this.isPromotion,
   });
@@ -58,6 +61,8 @@ class OutboundTempItem {
     //   'sizeManufacture': order?.paperSizeManufacture.toDouble() ?? 0,
     //   'lengthCustomer': order?.lengthPaperCustomer.toDouble() ?? 0,
     //   'sizeCustomer': order?.paperSizeCustomer.toDouble() ?? 0,
+    //   'quantityCustomer': order?.quantityCustomer ?? 0,
+    //   'totalOutbound': order?.Inventory?.totalQtyOutbound ?? 0,
     //   'deliveryItemId': detail.deliveryItemId ?? "",
     // });
     // print('--- CHECKING DATA END ---');
@@ -77,7 +82,7 @@ class OutboundTempItem {
       QC_box: order?.QC_box ?? "",
 
       dvt: order?.dvt ?? "",
-      quantityCustomer: order?.quantityCustomer.toDouble() ?? 0,
+      quantityCustomer: order?.quantityCustomer ?? 0,
 
       pricePaper: detail.price.toDouble(),
       qtyOutbound: detail.outboundQty,
@@ -88,6 +93,7 @@ class OutboundTempItem {
       qtyInventory: detail.order?.Inventory?.qtyInventory ?? 0,
       totalOutbound: detail.order?.Inventory?.totalQtyOutbound ?? 0,
       deliveryItemId: detail.deliveryItemId,
+      outboundDetailId: detail.outboundDetailId,
     );
   }
 
@@ -101,6 +107,8 @@ class OutboundTempItem {
     //   'sizeManufacture': order?.paperSizeManufacture.toDouble() ?? 0,
     //   'lengthCustomer': order?.lengthPaperCustomer.toDouble() ?? 0,
     //   'sizeCustomer': order?.paperSizeCustomer.toDouble() ?? 0,
+    //   'quantityCustomer': order?.quantityCustomer ?? 0,
+    //   'totalOutbound': order?.Inventory?.totalQtyOutbound ?? 0,
     // });
     // print('--- CHECKING DATA END ---');
 
@@ -119,7 +127,7 @@ class OutboundTempItem {
       QC_box: order?.QC_box ?? "",
 
       dvt: order?.dvt ?? "",
-      quantityCustomer: order?.quantityCustomer.toDouble() ?? 0,
+      quantityCustomer: order?.quantityCustomer ?? 0,
 
       pricePaper: order?.pricePaper?.toDouble() ?? 0,
       qtyOutbound: 0,
@@ -141,6 +149,8 @@ class OutboundTempItem {
     //   'lengthCustomer': order?.lengthPaperCustomer.toDouble() ?? 0,
     //   'sizeCustomer': order?.paperSizeCustomer.toDouble() ?? 0,
     //   'deliveryItemId': item.deliveryItemId,
+    //   'quantityCustomer': order?.quantityCustomer ?? 0,
+    //   'totalOutbound': order?.Inventory?.totalQtyOutbound ?? 0,
     // });
     // print('--- CHECKING DATA END ---');
 
@@ -158,7 +168,7 @@ class OutboundTempItem {
       flute: order?.flute ?? "",
       QC_box: order?.QC_box ?? "",
       dvt: order?.dvt ?? "",
-      quantityCustomer: order?.quantityCustomer.toDouble() ?? 0,
+      quantityCustomer: order?.quantityCustomer ?? 0,
       pricePaper: order?.pricePaper?.toDouble() ?? 0,
       qtyOutbound: 0,
       qtyInventory: inventory?.qtyInventory ?? 0,

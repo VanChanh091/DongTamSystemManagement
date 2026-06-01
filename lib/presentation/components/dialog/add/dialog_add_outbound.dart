@@ -49,6 +49,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   final List<OutboundTempItem> tempItems = [];
 
   final orderIdController = TextEditingController();
+  final oubDetailIdController = TextEditingController();
   final customerNameController = TextEditingController();
 
   final lengthManuController = TextEditingController();
@@ -133,6 +134,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     currentDeliveryItemId = null;
 
     orderIdController.clear();
+    oubDetailIdController.clear();
     customerNameController.clear();
     lengthManuController.clear();
     sizeManuController.clear();
@@ -176,9 +178,14 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     setState(() => errRemainQty = null);
 
     final itemId = isDeliveryChecked.value ? currentDeliveryItemId : null;
+    final outboundDetailId = int.tryParse(oubDetailIdController.text);
+
+    // print('qtyCustomer: ${quantityCustomerController.text}');
+    // print('totalOutbound: ${totalOutboundController.text}');
 
     final newOutboundItem = OutboundTempItem(
       deliveryItemId: itemId,
+      outboundDetailId: outboundDetailId,
       orderId: orderIdController.text,
       productName: productNameController.text,
       customerName: customerNameController.text,
@@ -190,7 +197,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       QC_box: qcBoxController.text,
       dvt: dvtController.text,
       pricePaper: double.tryParse(pricePaperController.text) ?? 0,
-      quantityCustomer: double.tryParse(quantityCustomerController.text) ?? 0,
+      quantityCustomer: int.tryParse(quantityCustomerController.text) ?? 0,
+      totalOutbound: int.tryParse(totalOutboundController.text) ?? 0,
       qtyOutbound: int.tryParse(qtyOutboundController.text) ?? 0,
       qtyInventory: remainQty,
       isPromotion: isPromotionChecked.value,
@@ -213,6 +221,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     isDeliveryChecked.value = temp.deliveryItemId != null;
     currentDeliveryItemId = temp.deliveryItemId;
     orderIdController.text = temp.orderId;
+    oubDetailIdController.text = temp.outboundDetailId?.toString() ?? "";
     orderIdDeliveryController.text = temp.orderId;
     customerNameController.text = temp.customerName;
 
@@ -244,7 +253,32 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       return;
     }
 
+    final bool hasExceededItem = tempItems.any((item) {
+      final int qtyCustomer = item.quantityCustomer;
+      final int qtyOutbound = item.qtyOutbound;
+      final int totalQtyOutbound = item.totalOutbound ?? 0;
+
+      // print(
+      //   "qtyCustomer=$qtyCustomer, qtyOutbound=$qtyOutbound, totalQtyOutbound=$totalQtyOutbound",
+      // );
+
+      return (totalQtyOutbound + qtyOutbound) > qtyCustomer;
+    });
+
+    if (hasExceededItem) {
+      final bool confirm = await showConfirmDialog(
+        context: context,
+        title: "Xuất vượt số lượng đơn hàng",
+        content:
+            "Số lượng đang xuất lớn hơn số lượng khách đặt.\nVui lòng xác nhận để tiếp tục xuất.",
+        confirmText: "Xác nhận",
+      );
+
+      if (!confirm) return;
+    }
+
     // Show loading
+    if (!mounted) return;
     showLoadingDialog(context);
     await Future.delayed(const Duration(seconds: 1));
 
@@ -258,6 +292,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
               "outboundQty": outbound.qtyOutbound,
               "deliveryItemId": outbound.deliveryItemId,
               "isPromotion": outbound.isPromotion,
+              if (!isAdd) "outboundDetailId": outbound.outboundDetailId,
             };
           }).toList();
 
@@ -292,8 +327,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       };
 
       if (mounted) {
-        showSnackBarError(context, errorText);
         Navigator.pop(context); // đóng dialog loading
+        showSnackBarError(context, errorText);
       }
     } catch (e, s) {
       if (widget.outbound == null) {
@@ -302,8 +337,10 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         AppLogger.e("Lỗi khi sửa phiếu xuất kho", error: e, stackTrace: s);
       }
 
-      if (!mounted) return;
-      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
+      if (mounted) {
+        Navigator.pop(context);
+        showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
+      }
     }
   }
 
@@ -311,6 +348,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   void dispose() {
     super.dispose();
     orderIdController.dispose();
+    oubDetailIdController.dispose();
     customerNameController.dispose();
     lengthManuController.dispose();
     sizeManuController.dispose();
@@ -396,7 +434,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             fluteController.text = selectedOrder.flute ?? "";
             qcBoxController.text = selectedOrder.QC_box ?? "";
             dvtController.text = selectedOrder.dvt;
-            quantityCustomerController.text = selectedOrder.quantityCustomer.toStringAsFixed(1);
+            quantityCustomerController.text = selectedOrder.quantityCustomer.toString();
             pricePaperController.text = selectedOrder.pricePaper?.toStringAsFixed(1) ?? "";
 
             remainingQtyController.text = selectedOrder.remainingQty.toString();

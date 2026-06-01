@@ -352,6 +352,8 @@ class _ManageOrderState extends State<AdminOrder> {
                                         onPressed: () {
                                           final formKey = GlobalKey<FormState>();
 
+                                          reasonController.clear();
+
                                           showDialog(
                                             context: context,
                                             builder: (context) {
@@ -409,22 +411,22 @@ class _ManageOrderState extends State<AdminOrder> {
                                                           rejectReason: reasonController.text,
                                                         );
 
-                                                        if (!context.mounted) {
-                                                          return;
+                                                        if (context.mounted) {
+                                                          showSnackBarSuccess(
+                                                            context,
+                                                            "Từ chối phê duyệt thành công",
+                                                          );
+
+                                                          await _loadOrders();
+
+                                                          //cập nhật lại badge
+                                                          badgesController.fetchPendingApprovals();
+
+                                                          setState(() {
+                                                            reasonController.clear();
+                                                            selectedOrder = null;
+                                                          });
                                                         }
-                                                        showSnackBarSuccess(
-                                                          context,
-                                                          "Từ chối phê duyệt thành công",
-                                                        );
-
-                                                        await _loadOrders();
-
-                                                        //cập nhật lại badge
-                                                        badgesController.fetchPendingApprovals();
-
-                                                        setState(() {
-                                                          selectedOrder = null;
-                                                        });
                                                       }
                                                     },
                                                     child: const Text(

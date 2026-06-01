@@ -148,6 +148,8 @@ class DeliveryScheduleDataSource extends DataGridSource {
             : rowColor = Colors.transparent;
       } else if (status == "prepared") {
         rowColor = Colors.yellow.withValues(alpha: 0.4);
+      } else if (status == "outbound") {
+        rowColor = Colors.teal.withValues(alpha: 0.3);
       }
     } else {
       rowColor = Colors.transparent;
@@ -163,6 +165,8 @@ class DeliveryScheduleDataSource extends DataGridSource {
           return "Đã Yêu Cầu";
         case "prepared":
           return "Đã Xuất Hàng";
+        case "outbound":
+          return "Đã Xuất Kho";
         case "cancelled":
           return "Hủy Giao";
         case "completed":

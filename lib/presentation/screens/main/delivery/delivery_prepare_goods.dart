@@ -1,10 +1,8 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_delivery_schedule.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
@@ -200,66 +198,6 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                   },
                                 ),
                                 const SizedBox(width: 15),
-
-                                //outbound
-                                AnimatedButton(
-                                  onPressed: () async {
-                                    if (!context.mounted) return;
-
-                                    if (selectedDeliveryIds.isNotEmpty) {
-                                      try {
-                                        final data = await futureDelivery;
-                                        final allItems =
-                                            data
-                                                .expand(
-                                                  (plan) =>
-                                                      plan.deliveryItems ?? <DeliveryItemModel>[],
-                                                )
-                                                .toList();
-                                        final selectedItems =
-                                            allItems
-                                                .where(
-                                                  (item) => selectedDeliveryIds.contains(
-                                                    item.deliveryItemId,
-                                                  ),
-                                                )
-                                                .toList();
-
-                                        initialItems =
-                                            selectedItems
-                                                .map(
-                                                  (item) =>
-                                                      OutboundTempItem.fromDeliveryItemModel(item),
-                                                )
-                                                .toList();
-                                      } catch (e) {
-                                        if (!context.mounted) return;
-                                        showSnackBarError(context, "Lấy dữ liệu xuất kho thất bại");
-                                        return;
-                                      }
-                                    }
-
-                                    if (!context.mounted) return;
-                                    showDialog(
-                                      barrierDismissible: false,
-                                      context: context,
-                                      builder:
-                                          (_) => OutBoundDialog(
-                                            outbound: null,
-                                            onOutboundHistory: () {
-                                              loadDeliveryPrepareGoods();
-                                            },
-                                            initialItems: initialItems,
-                                          ),
-                                    );
-                                  },
-
-                                  label: "Xuất Kho",
-                                  icon: Symbols.input,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
-
-                                const SizedBox(width: 10),
 
                                 //complete
                                 isDelivery
