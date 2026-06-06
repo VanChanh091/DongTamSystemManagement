@@ -67,6 +67,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
       //structure
       DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
       DataGridCell<String>(columnName: "instructSpecial", value: order.instructSpecial ?? ''),
+      DataGridCell<String>(columnName: "note", value: order.note ?? ''),
 
       //user
       DataGridCell<String>(columnName: "staffOrder", value: order.user?.fullName ?? ""),

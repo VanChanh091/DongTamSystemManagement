@@ -321,8 +321,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       final errorText = switch (e.errorCode) {
         'EMPTY_ORDER_LIST' => e.message!,
         'CUSTOMER_MISMATCH' => e.message!,
-        "DELIVERY_ITEM_ALREADY_EXISTS" => e.message!,
         "FEE_ORDER_NOT_INCLUDED" => e.message!,
+        "INVENTORY_NOT_FOUND" => e.message!,
         _ => 'Có lỗi xảy ra, vui lòng thử lại',
       };
 

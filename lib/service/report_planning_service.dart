@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:dongtam/data/models/report/report_planning_box.dart';
-import 'package:dongtam/data/models/report/report_planning_paper.dart';
+import 'package:dongtam/data/models/report/report_box_model.dart';
+import 'package:dongtam/data/models/report/report_paper_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -71,7 +71,6 @@ class ReportPlanningService {
   Future<File?> exportExcelReportPaper({
     DateTime? fromDate,
     DateTime? toDate,
-    List<int>? reportPaperId,
     required String machine,
   }) {
     return _exportExcelBase(
@@ -79,7 +78,6 @@ class ReportPlanningService {
       idKey: "reportPaperId",
       filePrefix: "bao_cao",
       machine: machine,
-      ids: reportPaperId,
       fromDate: fromDate,
       toDate: toDate,
     );
@@ -89,7 +87,6 @@ class ReportPlanningService {
   Future<File?> exportExcelReportBox({
     DateTime? fromDate,
     DateTime? toDate,
-    List<int>? reportBoxId,
     required String machine,
   }) {
     return _exportExcelBase(
@@ -97,7 +94,6 @@ class ReportPlanningService {
       idKey: "reportBoxId",
       filePrefix: "bao_cao",
       machine: machine,
-      ids: reportBoxId,
       fromDate: fromDate,
       toDate: toDate,
     );
@@ -109,7 +105,6 @@ class ReportPlanningService {
     required String idKey,
     required String filePrefix,
     required String machine,
-    List<int>? ids,
     DateTime? fromDate,
     DateTime? toDate,
   }) async {
@@ -118,9 +113,7 @@ class ReportPlanningService {
       final Map<String, dynamic> body = {"machine": machine};
 
       // Xử lý điều kiện lọc
-      if (ids != null && ids.isNotEmpty) {
-        body[idKey] = ids;
-      } else if (fromDate != null && toDate != null) {
+      if (fromDate != null && toDate != null) {
         body["fromDate"] = fromDate.toIso8601String();
         body["toDate"] = toDate.toIso8601String();
       }

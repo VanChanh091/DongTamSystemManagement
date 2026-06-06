@@ -50,6 +50,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   int _countdown = 0;
 
   final qtyProducedController = TextEditingController();
+  final qtyWasteNormController = TextEditingController();
   final dayCompletedController = TextEditingController();
   final employeeCodeController = TextEditingController();
 
@@ -112,6 +113,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
     final DateTime completedDate = DateTime.now();
     final String shiftManagement = shiftManagementSelected ?? "";
+    final double qtyWasteNorm = double.tryParse(qtyWasteNormController.trimmed) ?? 0;
 
     final Map<String, dynamic> reportData = {
       "shiftManagement": shiftManagement,
@@ -182,6 +184,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           machine: widget.machine ?? "",
           dayCompleted: completedDate,
           qtyProduced: qtyProduced,
+          rpWasteLoss: qtyWasteNorm,
           shiftManagement: shiftManagement,
           reportedBy: 'DTSX-${employeeCodeController.trimmed}',
           isUpdate: widget.initialData != null ? true : false,
@@ -206,7 +209,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           await showConfirmDialog(
             context: context,
             title: "Hoàn Thành Các Công Đoạn",
-            content: "Đây là công đoạn cuối cùng của đơn hàng này.\nHãy gửi yêu cầu kiểm hàng",
+            content: "Đây là công đoạn cuối cùng của đơn hàng này.\nVui lòng gửi yêu cầu kiểm hàng",
             confirmText: "Xác nhận",
             cancelText: "Hủy",
           );
@@ -307,6 +310,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     shiftManagementController.dispose();
     shiftProductionController.dispose();
     employeeCodeController.dispose();
+    qtyWasteNormController.dispose();
   }
 
   @override
@@ -336,6 +340,12 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                   Symbols.production_quantity_limits,
                 ),
                 const SizedBox(height: 10),
+
+                if (!widget.isPaper) ...[
+                  const SizedBox(height: 10),
+                  validateInput("Phế Liệu Thực Tế", qtyWasteNormController, Symbols.box),
+                  const SizedBox(height: 10),
+                ],
 
                 FormField<String>(
                   validator: (_) {

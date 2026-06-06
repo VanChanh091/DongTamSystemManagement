@@ -9,6 +9,7 @@ import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -675,14 +676,14 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     }
 
     // check dayCompleted
-    final hasNoDayCompleted = selectedPlannings.any((p) {
-      final boxTime = (p.boxTimes != null && p.boxTimes!.isNotEmpty) ? p.boxTimes!.first : null;
-      return boxTime == null || boxTime.dayCompleted == null;
-    });
-    if (hasNoDayCompleted) {
-      showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
-      return;
-    }
+    // final hasNoDayCompleted = selectedPlannings.any((p) {
+    //   final boxTime = (p.boxTimes != null && p.boxTimes!.isNotEmpty) ? p.boxTimes!.first : null;
+    //   return boxTime == null || boxTime.dayCompleted == null;
+    // });
+    // if (hasNoDayCompleted) {
+    //   showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
+    //   return;
+    // }
 
     bool confirm = await showConfirmDialog(
       context: context,
@@ -706,6 +707,16 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         if (success) {
           showSnackBarSuccess(context, successMessage);
           onSuccess();
+        }
+      } on ApiException catch (e) {
+        final errorText = switch (e.errorCode) {
+          'CANNOT_COMPLETE_WITHOUT_SORT' => e.message!,
+          "PLANNING_NOT_REQUESTED" => e.message!,
+          _ => 'Có lỗi xảy ra, vui lòng thử lại',
+        };
+
+        if (context.mounted) {
+          showSnackBarError(context, errorText);
         }
       } catch (e) {
         if (!context.mounted) return;

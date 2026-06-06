@@ -1,15 +1,14 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/models/report/report_box_model.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_excel_report.dart';
-import 'package:dongtam/presentation/components/headerTable/report/header_table_report_box.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
+import 'package:dongtam/data/models/scrap/scrap_report_model.dart';
+import 'package:dongtam/presentation/components/headerTable/header_table_scrap_report.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/sources/report/report_box_data_source.dart';
-import 'package:dongtam/service/report_planning_service.dart';
+import 'package:dongtam/presentation/sources/scrap_report_data_source.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/service/scrap_report_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -18,48 +17,40 @@ import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class ReportPlanningBox extends StatefulWidget {
-  const ReportPlanningBox({super.key});
+class ScrapReportPaper extends StatefulWidget {
+  const ScrapReportPaper({super.key});
 
   @override
-  State<ReportPlanningBox> createState() => _ReportPlanningBoxState();
+  State<ScrapReportPaper> createState() => _ScrapReportPaperState();
 }
 
-class _ReportPlanningBoxState extends State<ReportPlanningBox> {
-  late Future<Map<String, dynamic>> futureReportBox;
-  late ReportBoxDatasource reportBoxDatasource;
+class _ScrapReportPaperState extends State<ScrapReportPaper> {
+  late Future<Map<String, dynamic>> futureScrap;
+  late ScrapReportDataSource scrapReportDatasource;
   late List<GridColumn> columns;
 
   //controller
   final dataGridController = DataGridController();
+  final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
   //search
   String searchType = "Tất cả";
-  final Map<String, String> searchFieldMap = {
-    "Mã Đơn Hàng": "orderId",
-    "Tên Khách Hàng": "customerName",
-    "Ngày Báo Cáo": "dayReported",
-    "QC Thùng": "QcBox",
-    "Trưởng Máy": "shiftManagement",
-  };
+  final Map<String, String> searchFieldMap = {"Mã Khách Hàng": "customerId"};
 
-  String machine = "Máy In";
+  List<int> selectedScrapIds = [];
+  Map<String, double> columnWidths = {}; //map header table
 
   //text controller
   TextEditingController searchController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
-
-  List<int> selectedReportId = [];
-  Map<String, double> columnWidths = {}; //map header table
-
-  //flag
-  bool isTextFieldEnabled = false;
-  bool isSearching = false;
 
   //date range
   DateTime? startDate;
   DateTime? endDate;
+
+  //flag
+  bool isTextFieldEnabled = false;
+  bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
   //paging
   int currentPage = 1;
@@ -69,11 +60,11 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   @override
   void initState() {
     super.initState();
-    loadReportBox();
+    loadScrapReports();
 
-    columns = buildReportBoxColumn(themeController: themeController);
+    columns = buildScrapReportColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'reportBox', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: 'scrapReport', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -85,14 +76,13 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     final String selectedField = searchFieldMap[searchType] ?? "";
 
     // Điều kiện để xác định có thực hiện search hay load mặc định
-    final bool shouldSearch = isSearching && searchType != "Tất cả";
-    final bool isDateSearch = searchType == "Ngày Báo Cáo";
+    final bool shouldSearch = (searchType != "Tất cả");
+    final bool isDateSearch = searchType == "Ngày Tạo";
 
-    futureReportBox = ensureMinLoading(
-      ReportPlanningService().getReportBoxes(
+    futureScrap = ensureMinLoading(
+      ScrapReportService().getAllScrapReports(
         page: currentPage,
         pageSize: pageSize,
-        machine: machine,
         field: shouldSearch ? selectedField : null,
         keyword: shouldSearch ? keyword : null,
         startDate: (shouldSearch && isDateSearch) ? startDate : null,
@@ -100,24 +90,19 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
       ),
     );
 
-    selectedReportId.clear();
+    selectedScrapIds.clear();
   }
 
-  void loadReportBox() {
+  void loadScrapReports() {
     setState(() => _fetchData());
   }
 
-  void searchReportBox() {
+  void searchScrapReports() {
     String keyword = searchController.text.trim().toLowerCase();
-    final bool isDateSearch = searchType == "Ngày Báo Cáo";
+    AppLogger.i("searchScrapReports: searchType=$searchType, keyword='$keyword'");
 
-    if (isDateSearch) {
-      if (startDate == null || endDate == null) {
-        AppLogger.w("searchOrders => chưa chọn khoảng thời gian");
-        return;
-      }
-    } else if (isTextFieldEnabled && keyword.isEmpty) {
-      AppLogger.w("searchReportBox => searchType=$searchType nhưng keyword rỗng");
+    if (isTextFieldEnabled && keyword.isEmpty) {
+      AppLogger.w("searchScrapReports: search bị bỏ qua vì keyword trống");
       return;
     }
 
@@ -128,30 +113,23 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     });
   }
 
-  void changeMachine(String selectedMachine) {
-    AppLogger.i("changeMachine | from=$machine -> to=$selectedMachine");
-    setState(() {
-      machine = selectedMachine;
-      selectedReportId.clear();
-      loadReportBox();
-    });
-  }
-
   @override
   void dispose() {
     super.dispose();
     searchController.dispose();
-    dateController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isSale = userController.hasPermission(permission: "sale");
+
     return Scaffold(
       body: Container(
         color: Colors.white,
         padding: const EdgeInsets.all(5),
         child: Column(
           children: [
+            //button
             SizedBox(
               height: 105,
               width: double.infinity,
@@ -162,14 +140,12 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                     height: 35,
                     width: double.infinity,
                     child: Center(
-                      child: Obx(
-                        () => Text(
-                          "LỊCH SỬ BÁO CÁO THÙNG",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                            color: themeController.currentColor.value,
-                          ),
+                      child: Text(
+                        "BÁO CÁO PHẾ LIỆU",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: themeController.currentColor.value,
                         ),
                       ),
                     ),
@@ -187,18 +163,14 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                           flex: 1,
                           child: LeftButtonSearch(
                             selectedType: searchType,
-                            types: const [
-                              'Tất cả',
-                              "Mã Đơn Hàng",
-                              "Tên Khách Hàng",
-                              "Ngày Báo Cáo",
-                              "QC Thùng",
-                              "Trưởng Máy",
-                            ],
+                            types: const ['Tất cả', "Mã Khách Hàng"],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
+                                isTextFieldEnabled = searchType != 'Tất cả';
+
+                                startDate = null;
+                                endDate = null;
 
                                 if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                                   searchController.clear();
@@ -210,7 +182,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                             controller: searchController,
                             textFieldEnabled: isTextFieldEnabled,
                             buttonColor: themeController.buttonColor,
-                            onSearch: () => searchReportBox(),
+                            onSearch: () => searchScrapReports(),
                             customInputBuilder: (inputWidth) {
                               if (searchType != 'Ngày Báo Cáo') return null;
 
@@ -224,7 +196,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
                                     final DateTimeRange? picked = await showDateRangePicker(
                                       context: context,
-                                      firstDate: DateTime(2020),
+                                      firstDate: DateTime(2025),
                                       lastDate: DateTime(2100),
                                       initialDateRange:
                                           (startDate != null && endDate != null)
@@ -252,16 +224,16 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
 
                                     if (picked != null) {
                                       final displayStart = DateFormat(
-                                        'dd/MM/yyyy',
+                                        "dd/MM/yyyy",
                                       ).format(picked.start);
                                       final displayEnd = DateFormat(
-                                        'dd/MM/yyyy',
+                                        "dd/MM/yyyy",
                                       ).format(picked.end);
 
                                       setState(() {
                                         startDate = picked.start;
                                         endDate = picked.end;
-                                        searchController.text = '$displayStart - $displayEnd';
+                                        searchController.text = "$displayStart - $displayEnd";
                                       });
                                     }
                                   },
@@ -269,7 +241,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                     child: TextField(
                                       controller: searchController,
                                       decoration: InputDecoration(
-                                        hintText: 'Chọn ngày...',
+                                        hintText: "Chọn khoảng thời gian...",
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
                                         ),
@@ -289,71 +261,101 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                           flex: 1,
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                //export excel
-                                AnimatedButton(
-                                  onPressed: () async {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => DialogSelectExportExcel(
-                                            onPlanningIdsOrRangeDate: () => loadReportBox(),
-                                            machine: machine,
-                                            isBox: true,
-                                          ),
-                                    );
-                                  },
-                                  label: "Xuất Excel",
-                                  icon: Symbols.export_notes,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
-                                const SizedBox(width: 10),
+                            child:
+                                isSale
+                                    ? Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        //export excel
+                                        AnimatedButton(
+                                          onPressed: () async {
+                                            // showDialog(
+                                            //   context: context,
+                                            //   builder: (_) => DialogExportCusOrProd(),
+                                            // );
+                                          },
+                                          label: "Xuất Excel",
+                                          icon: Symbols.export_notes,
+                                          backgroundColor: themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                //choose machine
-                                SizedBox(
-                                  width: 175,
-                                  child: DropdownButtonFormField<String>(
-                                    value: machine,
-                                    items:
-                                        [
-                                          'Máy In',
-                                          "Máy Bế",
-                                          "Máy Xả",
-                                          "Máy Dán",
-                                          'Máy Cấn Lằn',
-                                          "Máy Cắt Khe",
-                                          "Máy Cán Màng",
-                                          "Máy Đóng Ghim",
-                                        ].map((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        changeMachine(value);
-                                      }
-                                    },
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                              ],
-                            ),
+                                        //add
+                                        AnimatedButton(
+                                          onPressed: () {
+                                            // showDialog(
+                                            //   context: context,
+                                            //   builder:
+                                            //       (_) => CustomerDialog(
+                                            //         customer: null,
+                                            //         onCustomerAddOrUpdate: () => loadScrapReports(),
+                                            //       ),
+                                            // );
+                                          },
+                                          label: "Thêm mới",
+                                          icon: Icons.add,
+                                          backgroundColor: themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
+
+                                        // update
+                                        AnimatedButton(
+                                          onPressed: () {},
+                                          // isSale &&
+                                          //         selectedScrapIds != null &&
+                                          //         selectedScrapIds!.isNotEmpty
+                                          //     ? () async {
+                                          //       try {
+                                          //         final customersData = await futureCustomer;
+                                          //         final List<Customer> customerList =
+                                          //             (customersData['customers'] as List? ??
+                                          //                     [])
+                                          //                 .cast<Customer>();
+                                          //         final selectedCustomer = customerList
+                                          //             .firstWhere(
+                                          //               (customer) =>
+                                          //                   customer.customerId ==
+                                          //                   selectedScrapIds,
+                                          //               orElse:
+                                          //                   () =>
+                                          //                       throw Exception(
+                                          //                         "Không tìm thấy khách hàng",
+                                          //                       ),
+                                          //             );
+
+                                          //         if (context.mounted) {
+                                          //           showDialog(
+                                          //             context: context,
+                                          //             builder:
+                                          //                 (_) => CustomerDialog(
+                                          //                   customer: selectedCustomer,
+                                          //                   onCustomerAddOrUpdate:
+                                          //                       () => loadScrapReports(),
+                                          //                 ),
+                                          //           );
+                                          //         }
+                                          //       } catch (e, s) {
+                                          //         AppLogger.e(
+                                          //           "Error in getCustomerById: $e",
+                                          //           stackTrace: s,
+                                          //         );
+
+                                          //         if (!context.mounted) return;
+                                          //         showSnackBarError(
+                                          //           context,
+                                          //           'Có lỗi xảy ra, vui lòng thử lại sau',
+                                          //         );
+                                          //       }
+                                          // }
+                                          // : null,
+                                          label: "Sửa",
+                                          icon: Symbols.construction,
+                                          backgroundColor: themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    )
+                                    : const SizedBox.shrink(),
                           ),
                         ),
                       ],
@@ -363,10 +365,10 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
               ),
             ),
 
-            //table
+            // table
             Expanded(
               child: FutureBuilder(
-                future: futureReportBox,
+                future: futureScrap,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Padding(
@@ -378,24 +380,23 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                     );
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['reportBoxes'].isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!['scrapReports'].isEmpty) {
                     return const Center(
                       child: Text(
-                        "Không có báo cáo nào",
+                        "Không có báo cáo thanh lý nào",
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                     );
                   }
 
                   final data = snapshot.data!;
-                  final reportBoxes = data['reportBoxes'] as List<ReportBoxModel>;
+                  final scrapReports = data['scrapReports'] as List<ScrapReportModel>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
-                  reportBoxDatasource = ReportBoxDatasource(
-                    reportPapers: reportBoxes,
-                    selectedReportId: selectedReportId,
-                    machine: machine,
+                  scrapReportDatasource = ScrapReportDataSource(
+                    scrapReports: scrapReports,
+                    selectedScrapIds: selectedScrapIds,
                     currentPage: currentPage,
                     pageSize: pageSize,
                   );
@@ -406,43 +407,16 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                       Expanded(
                         child: SfDataGrid(
                           controller: dataGridController,
-                          source: reportBoxDatasource,
+                          source: scrapReportDatasource,
                           isScrollbarAlwaysShown: true,
-                          allowExpandCollapseGroup: true, // Bật grouping
-                          autoExpandGroups: true,
                           columnWidthMode: ColumnWidthMode.auto,
                           selectionMode: SelectionMode.single,
-                          headerRowHeight: 35,
+                          headerRowHeight: 45,
                           rowHeight: 40,
                           columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
                             widths: columnWidths,
                           ),
-                          frozenColumnsCount: 7,
-                          stackedHeaderRows: <StackedHeaderRow>[
-                            StackedHeaderRow(
-                              cells: [
-                                StackedHeaderCell(
-                                  columnNames: [
-                                    'qtyPrinted',
-                                    'qtyCanLan',
-                                    'qtyCanMang',
-                                    'qtyXa',
-                                    'qtyCatKhe',
-                                    'qtyBe',
-                                    'qtyDan',
-                                    'qtyDongGhim',
-                                  ],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: 'Báo Cáo Số Lượng Các Công Đoạn',
-                                      themeController: themeController,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
 
                           //auto resize
                           allowColumnsResizing: true,
@@ -458,36 +432,32 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                           onColumnResizeEnd:
                               (details) => GridResizeHelper.onResizeEnd(
                                 details: details,
-                                tableKey: 'reportBox',
+                                tableKey: 'scrapReport',
                                 columnWidths: columnWidths,
                                 setState: setState,
                               ),
 
-                          onSelectionChanged: (addedRows, removedRows) {
+                          onSelectionChanged: (addedRows, removedRows) async {
                             if (addedRows.isEmpty && removedRows.isEmpty) return;
 
                             setState(() {
                               // Lấy selection thật sự từ controller
                               final selectedRows = dataGridController.selectedRows;
 
-                              selectedReportId =
-                                  selectedRows
-                                      .map((row) {
-                                        final cell = row.getCells().firstWhere(
-                                          (c) => c.columnName == 'reportBoxId',
-                                          orElse:
-                                              () => const DataGridCell(
-                                                columnName: 'reportBoxId',
-                                                value: '',
-                                              ),
-                                        );
-                                        return int.tryParse(cell.value.toString()) ?? 0;
-                                      })
-                                      .where((id) => id != 0)
-                                      .toList();
+                              selectedScrapIds =
+                                  selectedRows.map((row) {
+                                    final cell = row.getCells().firstWhere(
+                                      (c) => c.columnName == 'scrapId',
+                                      orElse:
+                                          () =>
+                                              const DataGridCell(columnName: 'scrapId', value: ''),
+                                    );
+                                    return cell.value as int;
+                                  }).toList();
 
-                              reportBoxDatasource.selectedReportId = selectedReportId;
-                              reportBoxDatasource.notifyListeners();
+                              // cập nhật cho datasource
+                              scrapReportDatasource.selectedScrapIds = selectedScrapIds;
+                              scrapReportDatasource.notifyListeners();
                             });
                           },
                         ),
@@ -500,19 +470,19 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                         onPrevious: () {
                           setState(() {
                             currentPage--;
-                            loadReportBox();
+                            loadScrapReports();
                           });
                         },
                         onNext: () {
                           setState(() {
                             currentPage++;
-                            loadReportBox();
+                            loadScrapReports();
                           });
                         },
                         onJumpToPage: (page) {
                           setState(() {
                             currentPage = page;
-                            loadReportBox();
+                            loadScrapReports();
                           });
                         },
                       ),
@@ -525,7 +495,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadReportBox(),
+        onPressed: () => loadScrapReports(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

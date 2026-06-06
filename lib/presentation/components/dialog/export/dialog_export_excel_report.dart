@@ -4,14 +4,12 @@ import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 
 class DialogSelectExportExcel extends StatefulWidget {
-  final List<int> selectedReportId;
   final VoidCallback onPlanningIdsOrRangeDate;
   final String machine;
   final bool isBox;
 
   const DialogSelectExportExcel({
     super.key,
-    required this.selectedReportId,
     required this.onPlanningIdsOrRangeDate,
     required this.machine,
     this.isBox = false,
@@ -58,12 +56,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
 
   void submit() async {
     try {
-      if (selectedOption.value == 'list') {
-        if (widget.selectedReportId.isEmpty) {
-          showSnackBarError(context, "Chưa chọn báo cáo nào");
-          return;
-        }
-      } else if (selectedOption.value == 'date') {
+      if (selectedOption.value == 'date') {
         if (selectedRange == null) {
           showSnackBarError(context, 'Vui lòng chọn khoảng thời gian');
           return;
@@ -80,7 +73,6 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
         await ReportPlanningService().exportExcelReportBox(
           fromDate: selectedRange?.start,
           toDate: selectedRange?.end,
-          reportBoxId: widget.selectedReportId,
           machine: widget.machine,
         );
       } else {
@@ -93,7 +85,6 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
         await ReportPlanningService().exportExcelReportPaper(
           fromDate: selectedRange?.start,
           toDate: selectedRange?.end,
-          reportPaperId: widget.selectedReportId,
           machine: widget.machine,
         );
       }
@@ -129,15 +120,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Option 1: Các báo cáo đã chọn
-              RadioListTile<String>(
-                title: const Text("Các Báo Cáo Đã Chọn", style: TextStyle(fontSize: 16)),
-                value: 'list',
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
-
-              // Option 2: Theo thời gian
+              // Option 1: Theo thời gian
               RadioListTile<String>(
                 title: const Text("Theo Ngày Báo Cáo", style: TextStyle(fontSize: 16)),
                 value: 'date',

@@ -122,8 +122,8 @@ class MachinePaperDatasource extends DataGridSource {
       buildWasteCell(columnName: 'totalLoss', value: planning.totalLoss ?? 0),
       buildWasteCell(columnName: 'qtyWastes', value: planning.qtyWasteNorm ?? 0),
 
+      DataGridCell<String>(columnName: 'shiftProduct', value: planning.shiftProduction),
       if (page == "planning") ...[
-        DataGridCell<String>(columnName: 'shiftProduct', value: planning.shiftProduction),
         DataGridCell<String>(columnName: 'shiftManager', value: planning.shiftManagement),
       ],
 

@@ -53,7 +53,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
   final _orderIdReceiveControler = TextEditingController();
   final _cusNameReceiveControler = TextEditingController();
   final _qtyTransferController = TextEditingController();
-  final _reasonController = TextEditingController();
+  final _reasonTransferController = TextEditingController();
 
   @override
   void initState() {
@@ -106,7 +106,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
         sourceOrderId: _orderIdController.text,
         targetOrderId: _orderIdReceiveControler.text,
         qtyTransfer: int.parse(_qtyTransferController.text),
-        reason: _reasonController.trimmed,
+        reason: _reasonTransferController.trimmed,
       );
 
       if (success) {
@@ -155,7 +155,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
     _dvtController.dispose();
     _qtyInventoryController.dispose();
     _valueInventoryController.dispose();
-    _reasonController.dispose();
+    _reasonTransferController.dispose();
 
     _matEController.dispose();
     _matBController.dispose();
@@ -169,7 +169,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
     _orderIdReceiveControler.dispose();
     _cusNameReceiveControler.dispose();
     _qtyTransferController.dispose();
-    _reasonController.dispose();
+    _reasonTransferController.dispose();
   }
 
   @override
@@ -260,7 +260,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
         "rightKey": "Lý Do Chuyển",
         "rightValue": validateInput(
           label: "Lý Do Chuyển",
-          controller: _reasonController,
+          controller: _reasonTransferController,
           icon: Icons.note,
         ),
       },

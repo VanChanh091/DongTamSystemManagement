@@ -30,6 +30,8 @@ class InventoryModel {
     this.liquidation,
   });
 
+  int get getTotalQtyTransfer => invTransfers?.fold(0, (sum, e) => sum! + e.qtyTransfers) ?? 0;
+
   factory InventoryModel.fromJson(Map<String, dynamic> json) {
     return InventoryModel(
       inventoryId: json['inventoryId'] ?? 0,

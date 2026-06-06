@@ -36,8 +36,8 @@ class ObHistoryDataSource extends DataGridSource {
         columnName: "dateOutbound",
         value: formatter.format(outbound.dateOutbound),
       ),
-      DataGridCell<String>(columnName: "customerName", value: customer!.customerName),
-      DataGridCell<String>(columnName: "companyName", value: customer.companyName),
+      DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
+      DataGridCell<String>(columnName: "companyName", value: customer?.companyName ?? ""),
       DataGridCell<int>(columnName: "totalOutboundQty", value: outbound.totalOutboundQty),
       DataGridCell<String>(
         columnName: "dueDate",

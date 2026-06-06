@@ -495,6 +495,7 @@ class _InventoryState extends State<Inventory> {
                                   columnNames: [
                                     "totalQtyInbound",
                                     "totalQtyOutbound",
+                                    "qtyTransfer",
                                     "qtyInventory",
                                   ],
                                   child: Obx(

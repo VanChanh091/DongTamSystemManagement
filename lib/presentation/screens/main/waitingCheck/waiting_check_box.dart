@@ -96,13 +96,15 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
     return planning.getTotalQtyInbound > 0;
   }
 
-  int get minQtyProduced {
+  int get requestQtyProduced {
     if (selectedStages.isEmpty) return 0;
 
-    // Lấy giá trị qtyProduced nhỏ nhất trong danh sách các công đoạn
-    return selectedStages
-        .map((s) => s.qtyProduced ?? 0)
-        .reduce((value, element) => value < element ? value : element);
+    for (var stage in selectedStages) {
+      if (stage.isRequest == true) {
+        return stage.qtyProduced ?? 0;
+      }
+    }
+    return 0;
   }
 
   @override
@@ -172,7 +174,7 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                                       qcCheck
                                           ? () async {
                                             final int remainQty =
-                                                minQtyProduced -
+                                                requestQtyProduced -
                                                 selectedPlanning!.getTotalQtyInbound;
 
                                             showDialog(
@@ -341,9 +343,10 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                                     selectedPlanningBoxIds = selectedDbPaper.planningBoxId;
                                   });
 
-                                  final stages = await WarehouseService().getDbPlanningDetail(
-                                    planningBoxId: selectedDbPaper.planningBoxId,
-                                  );
+                                  final stages = await WarehouseService()
+                                      .getBoxWaitingCheckedDetail(
+                                        planningBoxId: selectedDbPaper.planningBoxId,
+                                      );
 
                                   setState(() {
                                     selectedStages = stages;

@@ -35,7 +35,7 @@ class WarehouseService {
     );
   }
 
-  Future<List<PlanningStage>> getDbPlanningDetail({required int planningBoxId}) async {
+  Future<List<PlanningStage>> getBoxWaitingCheckedDetail({required int planningBoxId}) async {
     return HelperService().fetchingData(
       endpoint: 'warehouse/waiting-check',
       queryParameters: {'planningBoxId': planningBoxId},
@@ -276,15 +276,14 @@ class WarehouseService {
   }
 
   //export inventory
-  Future<File?> exportExcelInventory({DateTime? fromDate, DateTime? toDate}) async {
+  Future<File?> exportExcelInventory({DateTime? date}) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final Map<String, dynamic> body = {};
 
-      if (fromDate != null && toDate != null) {
-        body["fromDate"] = fromDate.toIso8601String();
-        body["toDate"] = toDate.toIso8601String();
+      if (date != null) {
+        body["date"] = date.toIso8601String();
       }
 
       final response = await dioService.post(

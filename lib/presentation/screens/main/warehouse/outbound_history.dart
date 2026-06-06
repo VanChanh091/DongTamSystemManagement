@@ -47,6 +47,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   List<OutboundDetailModel> selectedObDetail = [];
 
   int? selectedOutboundId;
+  OutboundHistoryModel? selectOutbound;
 
   //field search
   String searchType = "Tất cả";
@@ -143,28 +144,21 @@ class _OutboundHistoryState extends State<OutboundHistory> {
     });
   }
 
-  // 🌟 1. Viết một hàm check quyền trả về bool (Đặt hàm này trong Widget hoặc Controller của bạn)
-  // bool _canEditOutbound() {
-  //   // Nếu chưa chọn phiếu nào thì disable nút
-  //   if (selectedOutbound == null) return false;
+  bool canExecuteAction({required int? outboundId, required OutboundHistoryModel selectOutbound}) {
+    if (outboundId == null) return false;
 
-  //   final DateTime? ticketDate = selectedOutbound!.createdAt; // Đổi thành trường ngày của bạn
-  //   final DateTime now = DateTime.now();
+    if (userController.role.value == 'admin' || userController.role.value == 'manager') return true;
 
-  //   // Kiểm tra xem phiếu có phải trong ngày hôm nay không
-  //   final bool isToday =
-  //       ticketDate != null &&
-  //       ticketDate.year == now.year &&
-  //       ticketDate.month == now.month &&
-  //       ticketDate.day == now.day;
+    final dateOutbound = selectOutbound.dateOutbound;
 
-  //   // Kiểm tra quyền admin/manager
-  //   final String userRole = userController.role.toLowerCase();
-  //   final bool isAdminOrManager = userRole == 'admin' || userRole == 'manager';
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final completionDate = DateTime(dateOutbound.year, dateOutbound.month, dateOutbound.day);
 
-  //   // Thỏa mãn điều kiện: Trong ngày HOẶC là Admin/Manager thì trả về true (cho phép sửa)
-  //   return isToday || isAdminOrManager;
-  // }
+    if (today.isAfter(completionDate)) return false;
+
+    return true;
+  }
 
   @override
   void dispose() {
@@ -175,6 +169,10 @@ class _OutboundHistoryState extends State<OutboundHistory> {
 
   @override
   Widget build(BuildContext context) {
+    bool isEdit =
+        selectedOutboundId != null &&
+        canExecuteAction(outboundId: selectedOutboundId, selectOutbound: selectOutbound!);
+
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -343,7 +341,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                 //update
                                 AnimatedButton(
                                   onPressed:
-                                      selectedOutboundId != null
+                                      isEdit
                                           ? () async {
                                             try {
                                               final data = await futureOutbound;
@@ -536,6 +534,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
 
                                   setState(() {
                                     selectedOutboundId = selectedOutbound.outboundId;
+                                    selectOutbound = selectedOutbound;
                                   });
 
                                   final detail = await WarehouseService().getOutboundDetail(

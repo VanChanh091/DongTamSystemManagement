@@ -4,6 +4,7 @@ import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DialogExportInventory extends StatefulWidget {
   const DialogExportInventory({super.key});
@@ -14,67 +15,64 @@ class DialogExportInventory extends StatefulWidget {
 
 class _DialogExportInventoryState extends State<DialogExportInventory> {
   ValueNotifier<String?> selectedOption = ValueNotifier<String?>(null);
-  DateTimeRange? selectedRange;
+  DateTime? selectedDate;
 
-  Future<void> pickDateRange(BuildContext context) async {
-    final size = MediaQuery.of(context).size;
-
-    final DateTimeRange? result = await showDateRangePicker(
+  Future<void> pickDate(BuildContext context) async {
+    final DateTime? result = await showDatePicker(
       context: context,
-      firstDate: DateTime(2020),
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2026),
       lastDate: DateTime(2100),
-      initialDateRange: selectedRange,
-      builder: (context, child) {
-        return Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: size.width * 0.3, maxHeight: size.height * 0.8),
-            child: Material(
-              borderRadius: BorderRadius.circular(16),
-              clipBehavior: Clip.antiAlias,
-              child: child!,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.blue,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
+            dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
           ),
+          child: child!,
         );
       },
     );
 
     if (result != null) {
       setState(() {
-        selectedRange = result;
+        selectedDate = result;
       });
     }
   }
 
   void submit() async {
     try {
-      if (selectedOption.value == 'export') {
-        if (selectedRange == null) {
-          showSnackBarError(context, 'Vui lòng chọn khoảng thời gian');
+      if (selectedOption.value == 'dateInbound') {
+        if (selectedDate == null) {
+          showSnackBarError(context, 'Vui lòng chọn ngày');
           return;
         }
       }
 
       File? file;
+      file = await WarehouseService().exportExcelInventory(date: selectedDate);
 
-      file = await WarehouseService().exportExcelInventory(
-        fromDate: selectedRange?.start,
-        toDate: selectedRange?.end,
-      );
-
-      if (!mounted) return;
-
-      if (file != null) {
-        showSnackBarSuccess(context, 'Xuất dữ liệu thành công');
-      } else {
-        showSnackBarError(context, "Xuất file thất bại");
+      if (mounted) {
+        if (file != null) {
+          showSnackBarSuccess(context, 'Xuất dữ liệu thành công');
+        } else {
+          showSnackBarError(context, "Xuất file thất bại");
+        }
       }
 
-      if (!mounted) return; // check context
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     } catch (e, s) {
-      if (!mounted) return; // check context
-      AppLogger.e("Lỗi khi xuất excel", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể xuất dữ liệu');
+      if (mounted) {
+        AppLogger.e("Lỗi khi xuất excel", error: e, stackTrace: s);
+        showSnackBarError(context, 'Lỗi: Không thể xuất dữ liệu');
+      }
     }
   }
 
@@ -102,7 +100,7 @@ class _DialogExportInventoryState extends State<DialogExportInventory> {
               ),
               // Option 2: Theo ngày nhập kho
               RadioListTile<String>(
-                title: const Text("Ngày Nhập Kho", style: TextStyle(fontSize: 16)),
+                title: const Text("Tồn Đầu Ngày", style: TextStyle(fontSize: 16)),
                 value: 'dateInbound',
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
@@ -121,13 +119,12 @@ class _DialogExportInventoryState extends State<DialogExportInventory> {
                           side: BorderSide(color: Colors.blue.shade400, width: 1.5),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        onPressed: () => pickDateRange(context),
+                        onPressed: () => pickDate(context),
                         icon: Icon(Icons.date_range, color: Colors.blue.shade400),
                         label: Text(
-                          selectedRange == null
-                              ? "Chọn khoảng thời gian"
-                              : "${selectedRange!.start.day}/${selectedRange!.start.month}/${selectedRange!.start.year} - "
-                                  "${selectedRange!.end.day}/${selectedRange!.end.month}/${selectedRange!.end.year}",
+                          selectedDate == null
+                              ? "Chọn ngày"
+                              : DateFormat('dd/MM/yyyy').format(selectedDate!),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -137,9 +134,9 @@ class _DialogExportInventoryState extends State<DialogExportInventory> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    if (selectedRange == null)
+                    if (selectedDate == null)
                       const Text(
-                        "Chưa chọn khoảng thời gian",
+                        "Chưa chọn ngày nhập kho",
                         style: TextStyle(color: Colors.red, fontSize: 13),
                       ),
                   ],

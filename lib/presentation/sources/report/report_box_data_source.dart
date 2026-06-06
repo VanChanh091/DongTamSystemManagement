@@ -1,5 +1,5 @@
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/data/models/report/report_planning_box.dart';
+import 'package:dongtam/data/models/report/report_box_model.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

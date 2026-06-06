@@ -13,6 +13,7 @@ class PlanningStage {
   final double? rpWasteLoss;
   final String machine;
   final String? shiftManagement;
+  final bool? isRequest;
 
   final TimeOverflowPlanning? timeOverflow;
 
@@ -27,6 +28,7 @@ class PlanningStage {
     this.wasteBox,
     this.rpWasteLoss,
     this.shiftManagement,
+    this.isRequest,
 
     this.timeOverflow,
   });
@@ -57,6 +59,7 @@ class PlanningStage {
       rpWasteLoss: toDouble(json['rpWasteLoss']),
       machine: json['machine'] ?? "",
       shiftManagement: json['shiftManagement'] ?? "",
+      isRequest: json['isRequest'] ?? false,
       timeOverflow:
           json['timeOverFlow'] != null ? TimeOverflowPlanning.fromJson(json['timeOverFlow']) : null,
     );

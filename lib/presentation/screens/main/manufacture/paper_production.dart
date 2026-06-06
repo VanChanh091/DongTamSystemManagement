@@ -207,20 +207,6 @@ class _PaperProductionState extends State<PaperProduction> {
     // check số lượng sản xuất
     if ((selectedPlanning.qtyProduced ?? 0) <= 0) return false;
 
-    //Check thời gian: Nếu now > dayCompleted thì disable
-    if (selectedPlanning.dayCompleted != null) {
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-
-      final completionDate = DateTime(
-        selectedPlanning.dayCompleted!.year,
-        selectedPlanning.dayCompleted!.month,
-        selectedPlanning.dayCompleted!.day,
-      );
-
-      if (today.isAfter(completionDate)) return false;
-    }
-
     return true;
   }
 

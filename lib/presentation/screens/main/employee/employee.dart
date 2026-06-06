@@ -176,6 +176,7 @@ class _EmployeeState extends State<Employee> {
 
                                 if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                                   searchController.clear();
+                                  currentPage = 1;
                                   _fetchData();
                                 }
                               });

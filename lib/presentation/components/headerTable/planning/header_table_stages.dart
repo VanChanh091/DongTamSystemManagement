@@ -18,6 +18,7 @@ const List<Map<String, dynamic>> _headerStage = [
 
   //hide
   {"key": "planningBoxId", "title": "", "visible": false},
+  {"key": "isRequest", "title": "", "visible": false},
 ];
 
 List<GridColumn> buildStageColumn({required ThemeController themeController}) {

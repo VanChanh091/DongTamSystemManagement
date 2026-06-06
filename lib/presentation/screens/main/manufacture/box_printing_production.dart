@@ -149,7 +149,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     bool isRequest = false,
   }) {
     if (selectedPlanningIds.length != 1) return false;
-
     if (userController.role.value == 'admin') return true;
 
     final int selectedPlanningBoxId = selectedPlanningIds.first;
@@ -164,28 +163,12 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
     final box = boxTimes.first;
 
-    // disable nếu đã complete
-    if (box.status == "complete") return false;
-
     // ❌ disable nếu sản xuất đủ số lượng rồi
     // if ((box.qtyProduced ?? 0) >= box.runningPlan) return false;
 
     if (!isRequest) {
       // Nếu chưa có số lượng (runningPlan <= 0) thì không cho báo cáo
       if (box.runningPlan <= 0) return false;
-
-      // Nếu now > dayCompleted thì return false
-      if (box.dayCompleted != null) {
-        final now = DateTime.now();
-        final today = DateTime(now.year, now.month, now.day);
-        final completionDate = DateTime(
-          box.dayCompleted!.year,
-          box.dayCompleted!.month,
-          box.dayCompleted!.day,
-        );
-
-        if (today.isAfter(completionDate)) return false;
-      }
     }
 
     if (isRequest) {

@@ -896,6 +896,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         final errorText = switch (e.errorCode) {
           'CANNOT_REJECT_PRODUCED_PLANNING' => e.message!,
           'CANNOT_COMPLETE_WITHOUT_SORT' => e.message!,
+          "PLANNING_NOT_REQUESTED" => e.message!,
           _ => 'Có lỗi xảy ra, vui lòng thử lại',
         };
 

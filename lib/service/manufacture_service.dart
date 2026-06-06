@@ -101,6 +101,7 @@ class ManufactureService {
     required String machine,
     required DateTime dayCompleted,
     required int qtyProduced,
+    required double rpWasteLoss,
     required String shiftManagement,
     required String reportedBy,
     required String action,
@@ -130,6 +131,7 @@ class ManufactureService {
         data: {
           "dayCompleted": fullDateTime.toIso8601String(),
           "qtyProduced": qtyProduced,
+          "rpWasteLoss": rpWasteLoss,
           "shiftManagement": shiftManagement,
           "reportedBy": reportedBy,
         },

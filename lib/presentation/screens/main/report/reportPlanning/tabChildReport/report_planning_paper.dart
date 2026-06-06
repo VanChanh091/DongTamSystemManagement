@@ -1,5 +1,5 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/models/report/report_planning_paper.dart';
+import 'package:dongtam/data/models/report/report_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/export/dialog_export_excel_report.dart';
 import 'package:dongtam/presentation/components/headerTable/report/header_table_report_paper.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
@@ -296,7 +296,6 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                       context: context,
                                       builder:
                                           (_) => DialogSelectExportExcel(
-                                            selectedReportId: selectedReportId,
                                             onPlanningIdsOrRangeDate: () => loadReportPaper(),
                                             machine: machine,
                                           ),
@@ -419,27 +418,12 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                     'quantityOrd',
                                     'runningPlanProd',
                                     'qtyReported',
-                                    'LackOfQty',
+                                    "lackOfQty",
+                                    "qtyWasteRp",
                                   ],
                                   child: Obx(
                                     () => formatColumn(
                                       label: 'Số Lượng',
-                                      themeController: themeController,
-                                    ),
-                                  ),
-                                ),
-                                StackedHeaderCell(
-                                  columnNames: [
-                                    'bottom',
-                                    'fluteE',
-                                    'fluteB',
-                                    'fluteC',
-                                    'knife',
-                                    'totalLoss',
-                                  ],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: 'Định Mức Phế Liệu',
                                       themeController: themeController,
                                     ),
                                   ),

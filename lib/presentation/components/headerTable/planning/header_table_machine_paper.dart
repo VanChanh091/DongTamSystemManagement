@@ -76,11 +76,7 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   {"key": "totalLoss", "title": "Tổng PL"},
   {"key": "qtyWastes", "title": "PL Thực Tế"},
 
-  {
-    "key": "shiftProduct",
-    "title": "Ca Sản Xuất",
-    "visiblePages": ["planning"],
-  },
+  {"key": "shiftProduct", "title": "Ca SX"},
   {
     "key": "shiftManager",
     "title": "Trưởng Máy",

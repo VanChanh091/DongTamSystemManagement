@@ -37,6 +37,7 @@ class DeliveryEstimateTime extends StatefulWidget {
 class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   late Future<Map<String, dynamic>> futurePaper;
   late DeliveryEstimateDataSource deliveryDataSource;
+
   late List<GridColumn> columnsPaper;
   late List<GridColumn> columnsStages;
 
@@ -238,6 +239,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
                                                 if (searchType == "Tất cả" &&
                                                     searchController.text.isNotEmpty) {
+                                                  searchController.clear();
                                                   currentPage = 1;
                                                   _fetchData();
                                                 }

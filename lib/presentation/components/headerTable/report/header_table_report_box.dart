@@ -7,15 +7,18 @@ final List<Map<String, dynamic>> _reportBoxColumns = [
   {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
+
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "dayReported", "title": "Ngày Báo Cáo"},
+
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "size", "title": "Khổ"},
   {"key": "length", "title": "Dài"},
   {"key": "child", "title": "Số Con"},
+
   {"key": "quantityOrd", "title": "Đơn Hàng"},
   {"key": "qtyPaper", "title": "Giấy Tấm"},
   {"key": "timeRunnings", "title": "Thời Gian Chạy"},

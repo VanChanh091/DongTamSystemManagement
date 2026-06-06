@@ -164,7 +164,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
         case "requested":
           return "Đã Yêu Cầu";
         case "prepared":
-          return "Đã Xuất Hàng";
+          return "Đã Chuẩn Bị Hàng";
         case "outbound":
           return "Đã Xuất Kho";
         case "cancelled":

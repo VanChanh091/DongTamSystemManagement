@@ -53,6 +53,7 @@ class InventoryDataSource extends DataGridSource {
 
       DataGridCell<int>(columnName: 'totalQtyInbound', value: inventory.totalQtyInbound),
       DataGridCell<int>(columnName: 'totalQtyOutbound', value: inventory.totalQtyOutbound),
+      DataGridCell<int>(columnName: 'qtyTransfer', value: inventory.getTotalQtyTransfer),
       DataGridCell<int>(columnName: 'qtyInventory', value: inventory.qtyInventory),
 
       DataGridCell<String>(columnName: 'dvt', value: order?.dvt ?? ""),

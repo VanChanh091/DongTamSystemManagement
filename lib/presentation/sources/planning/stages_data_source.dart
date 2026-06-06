@@ -1,5 +1,6 @@
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -56,6 +57,7 @@ class StagesDataSource extends DataGridSource {
 
       //hide
       DataGridCell<int>(columnName: "planningBoxId", value: stage.planningBoxId),
+      DataGridCell<bool>(columnName: "isRequest", value: stage.isRequest),
     ];
   }
 
@@ -72,9 +74,17 @@ class StagesDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
+    final isRequest = getCellValue<bool>(row, 'isRequest', false);
+
     return DataGridRowAdapter(
       cells:
           row.getCells().map<Widget>((dataCell) {
+            String displayValue = dataCell.value?.toString() ?? "";
+
+            if (dataCell.columnName == 'qtyProduced') {
+              displayValue = isRequest == true ? '$displayValue*' : displayValue;
+            }
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
@@ -82,7 +92,7 @@ class StagesDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

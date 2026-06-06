@@ -1,6 +1,5 @@
-import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/data/models/report/report_planning_paper.dart';
+import 'package:dongtam/data/models/report/report_paper_model.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -34,10 +33,7 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: orderCell!.orderId),
       DataGridCell<String>(columnName: 'customerName', value: orderCell.customer?.customerName),
-      DataGridCell<String>(
-        columnName: "dateShipping",
-        value: formatter.format(orderCell.dateRequestShipping!),
-      ),
+
       DataGridCell<String>(
         columnName: "dayStartProduction",
         value: formatter.format(planningPaper!.dayStart!),
@@ -50,33 +46,33 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: 'structure', value: planningPaper.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: orderCell.flute ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: orderCell.daoXa),
-      DataGridCell<String>(columnName: 'size', value: '${planningPaper.sizePaperPLaning} cm'),
+      DataGridCell<String>(columnName: 'size', value: '${planningPaper.sizePaperPLaning}'),
       DataGridCell<String>(
         columnName: 'length',
-        value:
-            planningPaper.lengthPaperPlanning > 0 ? '${planningPaper.lengthPaperPlanning} cm' : "0",
+        value: planningPaper.lengthPaperPlanning > 0 ? '${planningPaper.lengthPaperPlanning}' : "0",
       ),
-      DataGridCell<int>(columnName: 'child', value: orderCell.numberChild),
+      DataGridCell<int>(columnName: 'numberChild', value: planningPaper.numberChild),
       DataGridCell<String>(columnName: 'khoCapGiay', value: '${planningPaper.ghepKho} cm'),
-      DataGridCell<int>(columnName: 'quantityOrd', value: orderCell.quantityManufacture),
+
       DataGridCell<int>(columnName: "runningPlanProd", value: planningPaper.runningPlan),
-      // DataGridCell<int>(
-      //   columnName: "qtyProduced",
-      //   value: planningPaper.qtyProduced ?? 0,
-      // ),
       DataGridCell<int>(columnName: "qtyReported", value: reportPaper.qtyProduced),
       DataGridCell<int>(columnName: "lackOfQty", value: reportPaper.lackOfQty),
+      DataGridCell<double>(
+        columnName: 'qtyWasteRp',
+        value: reportPaper.qtyWasteNorm > 0 ? reportPaper.qtyWasteNorm : 0,
+      ),
+
       DataGridCell<String>(
         columnName: 'timeRunningProd',
         value: PlanningPaper.formatTimeOfDay(timeOfDay: planningPaper.timeRunning!),
       ),
       DataGridCell<String>(columnName: "HD_special", value: orderCell.instructSpecial ?? ''),
-      DataGridCell<String>(
-        columnName: 'totalPrice',
-        value: '${Order.formatCurrency(orderCell.totalPrice ?? 0)} VND',
-      ),
 
-      ...buildWasteNormCell(reportPaper),
+      DataGridCell<String>(columnName: 'shiftProduction', value: reportPaper.shiftProduction),
+      DataGridCell<String>(columnName: 'shiftManager', value: reportPaper.shiftManagement),
+      DataGridCell<String>(columnName: 'reportedBy', value: reportPaper.reportedBy),
+
+      DataGridCell<bool>(columnName: 'hasMadeBox', value: reportPaper.planningPaper!.hasBox),
 
       //hidden fields
       DataGridCell<int>(columnName: 'reportPaperId', value: reportPaper.reportPaperId),
@@ -84,45 +80,6 @@ class ReportPaperDatasource extends DataGridSource {
         columnName: "dateTimeRp",
         value: formatter.format(reportPaper.dayReport),
       ),
-    ];
-  }
-
-  List<DataGridCell> buildWasteNormCell(ReportPaperModel reportPaper) {
-    final planningPaper = reportPaper.planningPaper!;
-    return [
-      DataGridCell<String>(
-        columnName: 'bottom',
-        value: planningPaper.bottom != 0 ? '${planningPaper.bottom} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'fluteE',
-        value: planningPaper.fluteE != 0 ? '${planningPaper.fluteE} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'fluteB',
-        value: planningPaper.fluteB != 0 ? '${planningPaper.fluteB} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'fluteC',
-        value: planningPaper.fluteC != 0 ? '${planningPaper.fluteC} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'knife',
-        value: planningPaper.knife != 0 ? '${planningPaper.knife} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'totalLoss',
-        value: planningPaper.totalLoss != 0 ? '${planningPaper.totalLoss} kg' : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'qtyWasteRp',
-        value: reportPaper.qtyWasteNorm != 0 ? '${reportPaper.qtyWasteNorm} kg' : "0",
-      ),
-      DataGridCell<String>(columnName: 'shiftProduct', value: reportPaper.shiftProduction),
-      DataGridCell<String>(columnName: 'shiftManager', value: reportPaper.shiftManagement),
-      DataGridCell<String>(columnName: 'reportedBy', value: reportPaper.reportedBy),
-
-      DataGridCell<bool>(columnName: 'hasMadeBox', value: reportPaper.planningPaper!.hasBox),
     ];
   }
 
