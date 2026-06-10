@@ -10,8 +10,7 @@ import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_customer.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -315,7 +314,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
     final List<Map<String, dynamic>> basicInfoRows = [
       {
         "leftKey": "Mã khách hàng",
-        "leftValue": ValidationCustomer.validateInput(
+        "leftValue": ValidationHelper.customerInput(
           label: "Mã khách hàng",
           controller: _idController,
           icon: Icons.badge,
@@ -327,7 +326,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
           },
         ),
         "rightKey": "Tên khách hàng",
-        "rightValue": ValidationCustomer.validateInput(
+        "rightValue": ValidationHelper.customerInput(
           label: "Tên khách hàng",
           controller: _nameController,
           icon: Icons.person,
@@ -336,13 +335,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
       {
         "leftKey": "Tên công ty",
-        "leftValue": ValidationCustomer.validateInput(
+        "leftValue": ValidationHelper.customerInput(
           label: "Tên công ty",
           controller: _companyNameController,
           icon: Icons.business,
         ),
         "rightKey": "Mã Số Thuế",
-        "rightValue": ValidationCustomer.validateInput(
+        "rightValue": ValidationHelper.customerInput(
           label: "MST",
           controller: _mstController,
           icon: Icons.numbers,
@@ -355,13 +354,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
       {
         "leftKey": "Địa chỉ công ty",
-        "leftValue": ValidationCustomer.validateInput(
+        "leftValue": ValidationHelper.customerInput(
           label: "Địa chỉ công ty",
           controller: _companyAddressController,
           icon: Icons.location_city,
         ),
         "rightKey": "Địa chỉ giao hàng",
-        "rightValue": ValidationCustomer.validateInput(
+        "rightValue": ValidationHelper.customerInput(
           label: "Địa chỉ giao hàng",
           controller: _shippingAddressController,
           icon: Icons.local_shipping,
@@ -370,13 +369,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
       {
         "leftKey": "Số Điện Thoại",
-        "leftValue": ValidationCustomer.validateInput(
+        "leftValue": ValidationHelper.customerInput(
           label: "SDT",
           controller: _phoneController,
           icon: Icons.phone,
         ),
         "rightKey": "Người Liên Hệ",
-        "rightValue": ValidationCustomer.validateInput(
+        "rightValue": ValidationHelper.customerInput(
           label: "Người Liên Hệ",
           controller: _contactPersonController,
           icon: Icons.person,
@@ -385,13 +384,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
       {
         "leftKey": "CSKH",
-        "leftValue": ValidationCustomer.validateInput(
+        "leftValue": ValidationHelper.customerInput(
           label: "CSKH",
           controller: _cskhController,
           icon: Icons.support_agent,
         ),
         "rightKey": "Nguồn Khách Hàng",
-        "rightValue": ValidationCustomer.validateInput(
+        "rightValue": ValidationHelper.customerInput(
           label: "Nguồn Khách Hàng",
           controller: _customerSourceController,
           icon: Icons.source,
@@ -402,14 +401,14 @@ class _CustomerDialogState extends State<CustomerDialog> {
     final List<Map<String, dynamic>> otherInfoRows = [
       {
         "leftKey": "Hạn Mức Công Nợ",
-        "leftValue": ValidationCustomer.validateInput(
+        "leftValue": ValidationHelper.customerInput(
           label: "Hạn Mức Công Nợ",
           controller: _debtLimitController,
           icon: Icons.money,
           readOnly: !canEditDebtLimit,
         ),
         "rightKey": "Hạn Thanh Toán",
-        "rightValue": ValidationCustomer.validateInput(
+        "rightValue": ValidationHelper.customerInput(
           label: "Thời Hạn Thanh Toán",
           controller: _timePaymentController,
           icon: Symbols.calendar_month,
@@ -446,7 +445,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       },
       {
         "leftKey": "Kiểu Thanh Toán",
-        "leftValue": ValidationOrder.dropdownForTypes(
+        "leftValue": ValidationHelper.dropdownForTypes(
           items: itemsPaymentType,
           type: paymentType,
           onChanged: (value) {
@@ -456,7 +455,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
           },
         ),
         "rightKey": "Ngày Chốt Công Nợ",
-        "rightValue": ValidationCustomer.validateInput(
+        "rightValue": ValidationHelper.customerInput(
           label: "Ngày Chốt Công Nợ",
           controller: _closingDateController,
           icon: Icons.calendar_today,
@@ -464,13 +463,13 @@ class _CustomerDialogState extends State<CustomerDialog> {
       },
       {
         "leftKey": "Khoảng Cách Giao Hàng",
-        "leftValue": ValidationCustomer.validateInput(
+        "leftValue": ValidationHelper.customerInput(
           label: "Khoảng Cách Giao Hàng (km)",
           controller: _distanceController,
           icon: Icons.social_distance,
         ),
         "rightKey": "Đánh Giá",
-        "rightValue": ValidationOrder.dropdownForTypes(
+        "rightValue": ValidationHelper.dropdownForTypes(
           items: itemRating,
           type: typeRating,
           onChanged: (value) {

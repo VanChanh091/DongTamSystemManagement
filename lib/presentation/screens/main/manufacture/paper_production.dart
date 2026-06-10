@@ -2,6 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_report_production.dart';
+import 'package:dongtam/presentation/components/dialog/add/dialog_add_scrap_report.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/planning/handle_request_complete.dart';
@@ -525,6 +526,52 @@ class _PaperProductionState extends State<PaperProduction> {
                                                   ),
                                           onLoadPlanning: loadPlanning,
                                         );
+                                      } else if (value == 'scrapReport') {
+                                        if (selectedPlanningIds.isEmpty) {
+                                          showSnackBarError(
+                                            context,
+                                            "Chưa chọn dòng để báo cáo phế liệu",
+                                          );
+                                          return;
+                                        }
+
+                                        final int selectedPlanningId = int.parse(
+                                          selectedPlanningIds.first,
+                                        );
+
+                                        final selectedPlanning = planningList.firstWhere(
+                                          (p) => p.planningId == selectedPlanningId,
+                                          orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+                                        );
+
+                                        if (selectedPlanning.qtyProduced == null ||
+                                            selectedPlanning.qtyProduced! == 0) {
+                                          showSnackBarError(
+                                            context,
+                                            "Chưa có số lượng sản xuất, không thể báo cáo phế liệu",
+                                          );
+                                          return;
+                                        }
+
+                                        final existingData = {
+                                          "machine": selectedPlanning.chooseMachine,
+                                          "shiftManagement": selectedPlanning.shiftManagement,
+                                          "shiftProduction": selectedPlanning.shiftProduction,
+                                          "dayCompleted": selectedPlanning.dayCompleted,
+                                        };
+
+                                        showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder:
+                                              (_) => ScrapReportDialog(
+                                                scrapReport: null,
+                                                initialData: existingData,
+                                                onSubmit: () {
+                                                  loadPlanning();
+                                                },
+                                              ),
+                                        );
                                       }
                                     },
                                     itemBuilder:
@@ -543,9 +590,15 @@ class _PaperProductionState extends State<PaperProduction> {
                                               title: Text('Yêu Cầu Hoàn Thành'),
                                             ),
                                           ),
+                                          const PopupMenuItem<String>(
+                                            value: 'scrapReport',
+                                            child: ListTile(
+                                              leading: Icon(Symbols.add),
+                                              title: Text('Báo Cáo Phế Liệu'),
+                                            ),
+                                          ),
                                         ],
                                   ),
-
                                   const SizedBox(width: 10),
                                 ],
                               ),

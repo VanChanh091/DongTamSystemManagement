@@ -566,11 +566,21 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('🔢 Số lượng (Sản Xuất):', order.quantityManufacture.toString(), unit: ""),
       _infoRow('📜 Số con:', Order.formatCurrency(order.numberChild), unit: "Con"),
       _infoRow('🌍 Diện tích:', Order.formatCurrency(order.acreage ?? 0), unit: 'm²'),
-      if (!order.isBox) _infoRow('💲 Giá:', Order.formatCurrency(order.price), unit: 'VNĐ/m²'),
+      if (!order.isBox)
+        _infoRow(
+          '💲 Giá:',
+          Order.formatCurrency(order.price),
+          unit: 'VNĐ/${order.dvt == "Kg" ? "Kg" : "m²"}',
+        ),
       _infoRow(
         '💵 Đơn Giá:',
         Order.formatCurrency(order.pricePaper ?? 0),
-        unit: "VNĐ/${order.isBox ? "Cái" : "Tấm"}",
+        unit:
+            "VNĐ/${order.isBox
+                ? "Cái"
+                : order.dvt == "Kg"
+                ? "Kg"
+                : "Tấm"}",
       ),
       _infoRow('💵 Chiết khấu:', Order.formatCurrency(order.discount ?? 0), unit: "VNĐ"),
       _infoRow('💵 Lợi nhuận:', Order.formatCurrency(order.profit), unit: "VNĐ"),

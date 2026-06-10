@@ -4,7 +4,7 @@ import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:flutter/material.dart';
 
 class DialogExportCusOrProd extends StatefulWidget {
@@ -177,7 +177,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
                   ],
                 ),
               ] else if (value == 'typeProduct') ...[
-                ValidationOrder.dropdownForTypes(
+                ValidationHelper.dropdownForTypes(
                   items: itemsTypeProduct,
                   type: typeProduct,
                   onChanged: (value) {

@@ -4,14 +4,11 @@ import 'package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart';
 import 'package:dongtam/data/models/qualityControl/qc_session_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
 
 class QualityControlService {
   final Dio dioService = DioClient().dio;
 
   //============================QC SESSION=================================
-
   Future<List<QcSessionModel>> getAllQcSession() async {
     return HelperService().fetchingData<QcSessionModel>(
       endpoint: "qc/session",
@@ -33,7 +30,6 @@ class QualityControlService {
   }
 
   //============================QC SAMPLE==================================
-
   Future<List<QcSampleResultModel>> getAllQcResult({required int qcSessionId}) async {
     return HelperService().fetchingData<QcSampleResultModel>(
       endpoint: "qc/result",
@@ -47,29 +43,13 @@ class QualityControlService {
     int? sampleIndex = 3,
     required List<QcSampleSubmitModel> samples,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
+    final data = {
+      "qcSessionId": qcSessionId,
+      "sampleIndex": sampleIndex,
+      "samples": samples.map((sample) => sample.toJson()).toList(),
+    };
 
-      await dioService.put(
-        '/api/qc/result',
-        data: {
-          "qcSessionId": qcSessionId,
-          "sampleIndex": sampleIndex,
-          "samples": samples.map((sample) => sample.toJson()).toList(),
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to update QC sample result", error: e, stackTrace: s);
-      throw Exception('Failed to update QC sample result: $e');
-    }
+    return HelperService().updateItem(endpoint: "qc/result", body: data);
   }
 
   Future<bool> confirmFinalizeSession({
@@ -85,7 +65,6 @@ class QualityControlService {
   }
 
   //===========================ORCHESTRATOR================================
-
   Future<bool> submitQC({
     required int inboundQty,
     required String processType,
@@ -94,31 +73,38 @@ class QualityControlService {
     int totalSample = 3,
     required List<QcSampleSubmitModel> samples,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
+    final data = {
+      'inboundQty': inboundQty,
+      "processType": processType,
+      "planningId": planningId,
+      "planningBoxId": planningBoxId,
+      "totalSample": totalSample,
+      "samples": samples.map((sample) => sample.toJson()).toList(),
+    };
 
-      await dioService.post(
-        '/api/qc/submit',
-        data: {
-          'inboundQty': inboundQty,
-          "processType": processType,
-          "planningId": planningId,
-          "planningBoxId": planningBoxId,
-          "totalSample": totalSample,
-          "samples": samples.map((sample) => sample.toJson()).toList(),
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
+    return HelperService().addItem(endpoint: "qc/submit", body: data);
+  }
 
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to submit QC", error: e, stackTrace: s);
-      throw Exception('Failed to submit QC: $e');
-    }
+  //==================SCRAP REPORT====================
+  Future<bool> handleUpdateScrapReport({
+    required List<int> scrapId,
+    required String action,
+    String? status,
+    String? machine,
+    String? rejectReason,
+    DateTime? dayCompleted,
+    String? shiftProduction,
+  }) async {
+    final data = {
+      "scrapId": scrapId,
+      "action": action,
+      if (status != null) "status": status,
+      if (machine != null) "machine": machine,
+      if (rejectReason != null) "rejectReason": rejectReason,
+      if (dayCompleted != null) "dayCompleted": dayCompleted,
+      if (shiftProduction != null) "shiftProduction": shiftProduction,
+    };
+
+    return HelperService().updateItem(endpoint: "qc/scrap-report", body: data);
   }
 }

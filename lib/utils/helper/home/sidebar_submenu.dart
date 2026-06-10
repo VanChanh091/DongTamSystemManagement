@@ -11,6 +11,7 @@ import 'package:dongtam/presentation/screens/main/delivery/delivery_prepare_good
 import 'package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
+import 'package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart';
 import 'package:dongtam/presentation/screens/main/planning/planning_stop.dart';
 import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_box.dart';
 import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart';
@@ -21,6 +22,7 @@ import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
+import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_scrap_report.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/inventory.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dart';
@@ -107,6 +109,11 @@ Widget buildManufactureMenu({
         label: "Thùng và In ấn",
         pageType: BoxPrintingProduction,
       ),
+      SubMenuConfig(
+        icon: Symbols.delete_sweep,
+        label: "Báo Cáo Phế Liệu",
+        pageType: ScrapReportPaper,
+      ),
     ],
   );
 }
@@ -140,6 +147,13 @@ Widget buildWaitingCheckMenu({
         pageType: WaitingCheckBox,
         showBadge: true,
         badge: badges.numberBoxWaiting,
+      ),
+      SubMenuConfig(
+        icon: Symbols.delete_sweep,
+        label: "Chờ Kiểm Phế Liệu",
+        pageType: WaitingCheckScrapReport,
+        showBadge: true,
+        badge: badges.numberScrapWaiting,
       ),
     ],
   );

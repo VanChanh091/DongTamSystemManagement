@@ -10,8 +10,7 @@ import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
-import 'package:dongtam/utils/validation/validation_planning.dart';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -428,19 +427,19 @@ class _PLanningDialogState extends State<PLanningDialog> {
     final List<Map<String, dynamic>> structureInfoRows = [
       {
         "leftKey": "Mặt E",
-        "leftValue": ValidationPlanning.validateInput(
+        "leftValue": ValidationHelper.planningInput(
           label: "Mặt E thay thế (g)",
           controller: matEReplaceController,
           icon: Symbols.vertical_align_center,
         ),
         "middleKey": "Mặt B",
-        "middleValue": ValidationPlanning.validateInput(
+        "middleValue": ValidationHelper.planningInput(
           label: "Mặt B thay thế (g)",
           controller: matBReplaceController,
           icon: Symbols.vertical_align_center,
         ),
         "rightKey": "Mặt C",
-        "rightValue": ValidationPlanning.validateInput(
+        "rightValue": ValidationHelper.planningInput(
           label: "Mặt C thay thế (g)",
           controller: matCReplaceController,
           icon: Symbols.vertical_align_center,
@@ -449,19 +448,19 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       {
         "leftKey": "Sóng E",
-        "leftValue": ValidationPlanning.validateInput(
+        "leftValue": ValidationHelper.planningInput(
           label: "Sóng E thay thế (g)",
           controller: songEReplaceController,
           icon: Symbols.airwave,
         ),
         "middleKey": "Sóng B",
-        "middleValue": ValidationPlanning.validateInput(
+        "middleValue": ValidationHelper.planningInput(
           label: "Sóng B thay thế (g)",
           controller: songBReplaceController,
           icon: Symbols.airwave,
         ),
         "rightKey": "Sóng C",
-        "rightValue": ValidationPlanning.validateInput(
+        "rightValue": ValidationHelper.planningInput(
           label: "Sóng C thay thế (g)",
           controller: songCReplaceController,
           icon: Symbols.airwave,
@@ -470,19 +469,19 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       {
         "leftKey": "Sóng E2",
-        "leftValue": ValidationPlanning.validateInput(
+        "leftValue": ValidationHelper.planningInput(
           label: "Sóng E2 thay thế (g)",
           controller: songE2ReplaceController,
           icon: Symbols.airwave,
         ),
         "middleKey": "Mặt E2",
-        "middleValue": ValidationPlanning.validateInput(
+        "middleValue": ValidationHelper.planningInput(
           label: "Mặt E2 thay thế (g)",
           controller: matE2ReplaceController,
           icon: Symbols.vertical_align_center,
         ),
         "rightKey": "Đáy",
-        "rightValue": ValidationPlanning.validateInput(
+        "rightValue": ValidationHelper.planningInput(
           label: "Đáy thay thế (g)",
           controller: dayReplaceController,
           icon: Symbols.vertical_align_bottom,
@@ -491,7 +490,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       {
         "leftKey": "Kết Cấu",
-        "leftValue": ValidationPlanning.validateInput(
+        "leftValue": ValidationHelper.planningInput(
           label: "Kết Cấu Thay thế",
           controller: structureController,
           icon: Symbols.waves,
@@ -503,19 +502,19 @@ class _PLanningDialogState extends State<PLanningDialog> {
     final List<Map<String, dynamic>> manufactureInfoRows = [
       {
         "leftKey": "Dài sản xuất",
-        "leftValue": ValidationPlanning.validateInput(
+        "leftValue": ValidationHelper.planningInput(
           label: "Dài sản xuất (cm)",
           controller: lengthPaperPlanningController,
           icon: Symbols.horizontal_distribute,
         ),
         "middleKey": "Khổ sản xuất",
-        "middleValue": ValidationPlanning.validateInput(
+        "middleValue": ValidationHelper.planningInput(
           label: "Khổ sản xuất (cm)",
           controller: sizePaperPLaningController,
           icon: Symbols.horizontal_distribute,
         ),
         "rightKey": "Số Lớp Sóng",
-        "rightValue": ValidationPlanning.validateInput(
+        "rightValue": ValidationHelper.planningInput(
           label: "Số Lớp Sóng",
           controller: fluteController,
           icon: Symbols.stacks,
@@ -524,31 +523,31 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       {
         "leftKey": "Số Con",
-        "leftValue": ValidationPlanning.validateInput(
+        "leftValue": ValidationHelper.planningInput(
           label: "Số Con",
           controller: numberChildController,
           icon: Symbols.numbers,
         ),
         "middleKey": "Ghép Khổ",
-        "middleValue": ValidationPlanning.validateInput(
+        "middleValue": ValidationHelper.planningInput(
           label: "Ghép Khổ",
           controller: ghepKhoController,
           icon: Symbols.layers,
         ),
 
         "rightKey": "Kế hoạch chạy",
-        "rightValue": ValidationPlanning.validateInput(
+        "rightValue": ValidationHelper.planningInput(
           label: "Kế hoạch chạy",
           controller: runningPlanController,
           icon: Symbols.production_quantity_limits,
           qtyProduced: widget.order?.totalQtyProduced,
-          quantityOrderController: quantityOrderController,
+          qtyOrderController: quantityOrderController,
         ),
       },
 
       {
         "leftKey": "Chọn Máy",
-        "leftValue": ValidationOrder.dropdownForTypes(
+        "leftValue": ValidationHelper.dropdownForTypes(
           items: machineList,
           type: chooseMachine,
           onChanged: (value) {
@@ -556,7 +555,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
           },
         ),
         "middleKey": "Dao Xả",
-        "middleValue": ValidationPlanning.validateInput(
+        "middleValue": ValidationHelper.planningInput(
           label: "Dao Xả",
           controller: daoXaOrderController,
           icon: Symbols.layers,

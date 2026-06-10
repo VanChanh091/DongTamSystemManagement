@@ -8,7 +8,7 @@ import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:diacritic/diacritic.dart';
@@ -254,7 +254,7 @@ class _ProductDialogState extends State<ProductDialog> {
       },
       {
         "leftKey": "Loại Sản Phẩm",
-        "leftValue": ValidationOrder.dropdownForTypes(
+        "leftValue": ValidationHelper.dropdownForTypes(
           items: itemsTypeProduct,
           type: typeProduct,
           onChanged: (value) {

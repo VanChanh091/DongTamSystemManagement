@@ -59,7 +59,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
     "dayReceiveOrder": "Ngày Nhận Đơn",
   };
 
-  //filter by machine & runningPlan
+  //filter by status
   String filterType = "all";
   final Map<String, String> filterOptions = {
     "all": "Tất cả",

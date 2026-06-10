@@ -1,4 +1,5 @@
 import 'package:dongtam/data/models/scrap/scrap_report_model.dart';
+import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +12,7 @@ class ScrapReportDataSource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> scrapDataGridRows;
+  final formatterHHmm = DateFormat('dd/MM/yyyy HH:mm:ss');
   final formatter = DateFormat('dd/MM/yyyy');
 
   ScrapReportDataSource({
@@ -25,6 +27,31 @@ class ScrapReportDataSource extends DataGridSource {
   List<DataGridCell> buildScrapReportCells(ScrapReportModel scrapReport, int index) {
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
+      DataGridCell<String>(columnName: "status", value: scrapReport.status),
+
+      DataGridCell<String>(
+        columnName: "reportedAt",
+        value: formatterHHmm.format(scrapReport.reportedAt!),
+      ),
+      DataGridCell<String>(
+        columnName: "dayCompleted",
+        value: formatter.format(scrapReport.dayCompleted!),
+      ),
+
+      DataGridCell<String>(columnName: "reportedBy", value: scrapReport.reportedBy),
+      DataGridCell<String>(columnName: "shiftProduction", value: scrapReport.shiftProduction),
+
+      DataGridCell<double>(columnName: "qtyForklift", value: scrapReport.qtyForklift),
+      DataGridCell<double>(columnName: "qtyInventory", value: scrapReport.qtyInventory),
+      DataGridCell<double>(columnName: "qtyCoreTube", value: scrapReport.qtyCoreTube),
+      DataGridCell<double>(columnName: "qtyProduction", value: scrapReport.qtyProduction),
+      DataGridCell<double>(columnName: "qtyOther", value: scrapReport.qtyOther),
+      DataGridCell<double>(columnName: "totalQtyScrap", value: scrapReport.totalQtyScrap),
+
+      DataGridCell<String>(columnName: "machine", value: scrapReport.machine),
+      DataGridCell<String>(columnName: "rejectReason", value: scrapReport.rejectReason),
+
+      //hidden field
       DataGridCell<int>(columnName: "scrapId", value: scrapReport.scrapId),
     ];
   }
@@ -46,14 +73,40 @@ class ScrapReportDataSource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final scrapId = row.getCells().firstWhere((cell) => cell.columnName == 'scrapId').value;
-
     final isSelected = selectedScrapIds.contains(scrapId);
+
+    //get value cell
+    final statusCell = getCellValue<String>(row, 'status', "");
 
     Color backgroundColor;
     if (isSelected) {
       backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
-      backgroundColor = Colors.transparent;
+      switch (statusCell) {
+        case "pending":
+          backgroundColor = Colors.yellow.withValues(alpha: 0.3);
+          break;
+        case "rejected":
+          backgroundColor = Colors.red.withValues(alpha: 0.3);
+          break;
+        default:
+          backgroundColor = Colors.transparent;
+      }
+    }
+
+    String getStatusVi(String status) {
+      switch (status) {
+        case "pending":
+          return "Chờ Xác Nhận";
+        case "confirmed":
+          return "Đã Xác Nhận";
+        case "rejected":
+          return "Bị Từ Chối";
+        case "allocated":
+          return "Đã Phân Bổ";
+        default:
+          return status;
+      }
     }
 
     return DataGridRowAdapter(
@@ -61,6 +114,10 @@ class ScrapReportDataSource extends DataGridSource {
       cells:
           row.getCells().map<Widget>((dataCell) {
             String displayValue = dataCell.value?.toString() ?? "";
+
+            if (dataCell.columnName == 'status') {
+              displayValue = getStatusVi(displayValue);
+            }
 
             Alignment alignment;
             if (dataCell.value is num) {

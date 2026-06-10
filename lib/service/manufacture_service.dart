@@ -13,11 +13,18 @@ class ManufactureService {
   //get planning paper
   Future<List<PlanningPaper>> getPlanningPaper({
     required String machine,
-    required String filterType,
+    String? filterType,
+    DateTime? dayCompleted,
+    String? shiftProduction,
   }) async {
     return HelperService().fetchingData<PlanningPaper>(
       endpoint: "manufacture/paper",
-      queryParameters: {"machine": machine, "filterType": filterType},
+      queryParameters: {
+        "machine": machine,
+        "filterType": filterType,
+        if (shiftProduction != null) "shiftProduction": shiftProduction,
+        if (dayCompleted != null) "dayCompleted": dayCompleted.toIso8601String(),
+      },
       fromJson: (json) => PlanningPaper.fromJson(json),
     );
   }

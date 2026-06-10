@@ -1,10 +1,10 @@
 import 'dart:io';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
 
 class DialogExportDbPlannings extends StatefulWidget {
   const DialogExportDbPlannings({super.key});
@@ -169,7 +169,7 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
               ),
               const SizedBox(height: 5),
               if (value == 'machine') ...[
-                ValidationOrder.dropdownForTypes(
+                ValidationHelper.dropdownForTypes(
                   items: itemsMachine,
                   type: machine,
                   onChanged: (value) {

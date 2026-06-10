@@ -25,6 +25,7 @@ class BadgesController extends GetxController {
   //waiting check
   RxInt numberPaperWaiting = 0.obs;
   RxInt numberBoxWaiting = 0.obs;
+  RxInt numberScrapWaiting = 0.obs;
 
   //delivery
   RxInt numberDeliveryRequest = 0.obs;
@@ -115,9 +116,11 @@ class BadgesController extends GetxController {
     if (_userController.hasPermission(permission: "QC")) {
       tasks.add(fetchPaperWaitingCheck());
       tasks.add(fetchBoxWaitingCheck());
+      tasks.add(fetchScrapReportWaitingCheck());
     } else {
       numberPaperWaiting.value = 0;
       numberBoxWaiting.value = 0;
+      numberScrapWaiting.value = 0;
     }
 
     //badge cho đơn chờ giao hàng
@@ -204,6 +207,13 @@ class BadgesController extends GetxController {
     );
   }
 
+  Future<void> fetchScrapReportWaitingCheck() async {
+    await fetchBadgeCount(
+      badgeCount: numberScrapWaiting,
+      fetcher: () => BadgeService().countWaitingCheck("scrap"),
+    );
+  }
+
   // Hàm gọi API để lấy đơn bị từ chối
   Future<void> fetchOrderReject() async {
     await fetchBadgeCount(
@@ -237,5 +247,6 @@ class BadgesController extends GetxController {
     numberOrderReject.value = 0;
     numberDeliveryRequest.value = 0;
     numberPrepareGoods.value = 0;
+    numberScrapWaiting.value = 0;
   }
 }

@@ -53,7 +53,6 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Tên Khách Hàng": "customerName",
-    "Mã Phiếu XK": "outboundSlipCode",
     "Ngày Xuất Kho": "dateOutbound",
   };
 
@@ -169,6 +168,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isSale = userController.hasPermission(permission: "sale");
     bool isEdit =
         selectedOutboundId != null &&
         canExecuteAction(outboundId: selectedOutboundId, selectOutbound: selectOutbound!);
@@ -179,7 +179,6 @@ class _OutboundHistoryState extends State<OutboundHistory> {
         padding: const EdgeInsets.all(5),
         child: Column(
           children: [
-            //button
             SizedBox(
               height: 105,
               width: double.infinity,
@@ -213,12 +212,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                           flex: 1,
                           child: LeftButtonSearch(
                             selectedType: searchType,
-                            types: const [
-                              'Tất cả',
-                              "Tên Khách Hàng",
-                              "Mã Phiếu XK",
-                              "Ngày Xuất Kho",
-                            ],
+                            types: const ['Tất cả', "Tên Khách Hàng", "Ngày Xuất Kho"],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
@@ -381,7 +375,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                 //delete
                                 AnimatedButton(
                                   onPressed:
-                                      selectedOutboundId != null
+                                      selectedOutboundId != null && !isSale
                                           ? () async {
                                             await showDeleteConfirmHelper(
                                               context: context,
@@ -632,7 +626,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   }
 
   Widget handleExportFile() {
-    final bool isAccountant = userController.hasPermission(permission: "accountant");
+    final bool canAction = userController.hasAnyPermission(permission: ["accountant", "sale"]);
     bool isButtonDisabled = selectedOutboundId == null;
 
     return Stack(
@@ -674,15 +668,15 @@ class _OutboundHistoryState extends State<OutboundHistory> {
               (context) => [
                 PopupMenuItem<String>(
                   value: "hasMoney",
-                  enabled: isAccountant,
+                  enabled: canAction,
                   child: ListTile(
                     leading: Icon(Symbols.attach_money, color: Colors.green),
                     title: Text(
                       "Có Tiền",
-                      style: TextStyle(color: isAccountant ? Colors.black87 : Colors.grey),
+                      style: TextStyle(color: canAction ? Colors.black87 : Colors.grey),
                     ),
                     subtitle:
-                        !isAccountant
+                        !canAction
                             ? const Text("Chỉ dành cho kế toán", style: TextStyle(fontSize: 10))
                             : null,
                   ),

@@ -21,7 +21,7 @@ import 'package:dongtam/utils/helper/paste_image_order.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -560,13 +560,13 @@ class _OrderDialogState extends State<OrderDialog> {
         ),
 
         "middleKey": "QC Thùng",
-        "middleValue": ValidationOrder.validateInput(
+        "middleValue": ValidationHelper.orderInput(
           label: "QC Thùng",
           controller: qcBoxController,
           icon: Symbols.deployed_code,
         ),
         "rightKey": "Ngày Giao",
-        "rightValue": ValidationOrder.validateInput(
+        "rightValue": ValidationHelper.orderInput(
           label: "Ngày Yêu Cầu Giao",
           controller: dateShippingController,
           icon: Symbols.calendar_month,
@@ -654,14 +654,14 @@ class _OrderDialogState extends State<OrderDialog> {
         ),
 
         "middleKey": "Tên Khách Hàng",
-        "middleValue": ValidationOrder.validateInput(
+        "middleValue": ValidationHelper.orderInput(
           label: "Tên Khách Hàng",
           controller: customerNameController,
           icon: Symbols.person,
           readOnly: true,
         ),
         "rightKey": "Tên Công Ty",
-        "rightValue": ValidationOrder.validateInput(
+        "rightValue": ValidationHelper.orderInput(
           label: "Tên Công Ty KH",
           controller: customerCompanyController,
           icon: Symbols.business,
@@ -719,14 +719,14 @@ class _OrderDialogState extends State<OrderDialog> {
           },
         ),
         "middleKey": "Loại Sản Phẩm",
-        "middleValue": ValidationOrder.validateInput(
+        "middleValue": ValidationHelper.orderInput(
           label: "Loại Sản Phẩm",
           controller: typeProduct,
           icon: Symbols.comment,
           readOnly: true,
         ),
         "rightKey": "Tên Sản Phẩm",
-        "rightValue": ValidationOrder.validateInput(
+        "rightValue": ValidationHelper.orderInput(
           label: "Tên Sản Phẩm",
           controller: nameSpController,
           icon: Symbols.box,
@@ -736,20 +736,20 @@ class _OrderDialogState extends State<OrderDialog> {
 
       {
         "leftKey": "Dài Tính Tiền",
-        "leftValue": ValidationOrder.validateInput(
+        "leftValue": ValidationHelper.orderInput(
           label: "Dài Tính Tiền (cm)",
           controller: lengthCustomerController,
           icon: Symbols.vertical_distribute,
         ),
         "middleKey": "Khổ Tính Tiền",
-        "middleValue": ValidationOrder.validateInput(
+        "middleValue": ValidationHelper.orderInput(
           label: "Khổ Tính Tiền (cm)",
           controller: sizeCustomerController,
           icon: Symbols.horizontal_distribute,
           isCalculate: true,
         ),
         "rightKey": "Số Lượng",
-        "rightValue": ValidationOrder.validateInput(
+        "rightValue": ValidationHelper.orderInput(
           label: "Số Lượng Tính Tiền",
           controller: quantityCustomerController,
           icon: Symbols.filter_9_plus,
@@ -758,19 +758,19 @@ class _OrderDialogState extends State<OrderDialog> {
 
       {
         "leftKey": "Dài sản xuất",
-        "leftValue": ValidationOrder.validateInput(
+        "leftValue": ValidationHelper.orderInput(
           label: "Dài sản xuất (cm)",
           controller: lengthManufactureController,
           icon: Symbols.vertical_distribute,
         ),
         "middleKey": "Khổ sản xuất",
-        "middleValue": ValidationOrder.validateInput(
+        "middleValue": ValidationHelper.orderInput(
           label: "Khổ sản xuất (cm)",
           controller: sizeManufactureController,
           icon: Symbols.horizontal_distribute,
         ),
         "rightKey": "Số lượng",
-        "rightValue": ValidationOrder.validateInput(
+        "rightValue": ValidationHelper.orderInput(
           label: "Số lượng (SX)",
           controller: quantityManufactureController,
           icon: Symbols.filter_9_plus,
@@ -779,7 +779,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
       {
         "leftKey": "Dao Tề",
-        "leftValue": ValidationOrder.dropdownForTypes(
+        "leftValue": ValidationHelper.dropdownForTypes(
           items: itemsDaoXa,
           type: typeDaoXa,
           onChanged: (value) {
@@ -789,13 +789,13 @@ class _OrderDialogState extends State<OrderDialog> {
           },
         ),
         "middleKey": "Số Con",
-        "middleValue": ValidationOrder.validateInput(
+        "middleValue": ValidationHelper.orderInput(
           label: "Số Con",
           controller: numberChildController,
           icon: Symbols.box,
         ),
         "rightKey": "PO Khách",
-        "rightValue": ValidationOrder.validateInput(
+        "rightValue": ValidationHelper.orderInput(
           label: "PO Khách",
           controller: orderIdCustomerController,
           icon: Symbols.orders,
@@ -806,19 +806,19 @@ class _OrderDialogState extends State<OrderDialog> {
     final List<Map<String, dynamic>> costRows = [
       {
         "leftKey": "Đơn Giá",
-        "leftValue": ValidationOrder.validateInput(
+        "leftValue": ValidationHelper.orderInput(
           label: "Đơn Giá (M2)",
           controller: priceController,
           icon: Symbols.price_change,
         ),
         "middleKey": "Chiết Khấu",
-        "middleValue": ValidationOrder.validateInput(
+        "middleValue": ValidationHelper.orderInput(
           label: "Chiết Khấu",
           controller: discountController,
           icon: Symbols.price_change,
         ),
         "rightKey": "Lợi Nhuận",
-        "rightValue": ValidationOrder.validateInput(
+        "rightValue": ValidationHelper.orderInput(
           label: "Lợi Nhuận",
           controller: profitController,
           icon: Symbols.price_change,
@@ -826,20 +826,20 @@ class _OrderDialogState extends State<OrderDialog> {
       },
       {
         "leftKey": "VAT",
-        "leftValue": ValidationOrder.validateInput(
+        "leftValue": ValidationHelper.orderInput(
           label: "VAT",
           controller: vatController,
           icon: Symbols.percent,
         ),
         "middleKey": "Giá Tấm Bao Khổ",
-        "middleValue": ValidationOrder.validateInput(
+        "middleValue": ValidationHelper.orderInput(
           label: "Giá Tấm Bao Khổ (M2)",
           controller: pricePaperController,
           icon: Symbols.price_change,
           readOnly: typeDVT != 'Tấm Bao Khổ',
         ),
         "rightKey": "Đơn Vị Tính",
-        "rightValue": ValidationOrder.dropdownForTypes(
+        "rightValue": ValidationHelper.dropdownForTypes(
           items: itemsDvt,
           type: typeDVT,
           onChanged: (value) {
@@ -854,19 +854,19 @@ class _OrderDialogState extends State<OrderDialog> {
     final List<Map<String, dynamic>> structureRows = [
       {
         "leftKey": "Đáy",
-        "leftValue": ValidationOrder.validateInput(
+        "leftValue": ValidationHelper.orderInput(
           label: "Đáy (g)",
           controller: dayController,
           icon: Symbols.vertical_align_bottom,
         ),
         "middle_1Key": "Cấn Lằn",
-        "middle_1Value": ValidationOrder.validateInput(
+        "middle_1Value": ValidationHelper.orderInput(
           label: "Cấn Lằn",
           controller: canLanController,
           icon: Symbols.bottom_sheets,
         ),
         "middle_2Key": "",
-        "middle_2Value": ValidationOrder.checkboxForBox(
+        "middle_2Value": ValidationHelper.checkboxForBox(
           label: "Chống Thấm",
           notifier: chongThamPaperChecked,
         ),
@@ -876,25 +876,25 @@ class _OrderDialogState extends State<OrderDialog> {
 
       {
         "leftKey": "Sóng E",
-        "leftValue": ValidationOrder.validateInput(
+        "leftValue": ValidationHelper.orderInput(
           label: "Sóng E (g)",
           controller: songEController,
           icon: Symbols.airwave,
         ),
         "middle_1Key": "Sóng B",
-        "middle_1Value": ValidationOrder.validateInput(
+        "middle_1Value": ValidationHelper.orderInput(
           label: "Sóng B (g)",
           controller: songBController,
           icon: Symbols.airwave,
         ),
         "middle_2Key": "Sóng C",
-        "middle_2Value": ValidationOrder.validateInput(
+        "middle_2Value": ValidationHelper.orderInput(
           label: "Sóng C (g)",
           controller: songCController,
           icon: Symbols.airwave,
         ),
         "rightKey": "Sóng E2",
-        "rightValue": ValidationOrder.validateInput(
+        "rightValue": ValidationHelper.orderInput(
           label: "Sóng E2 (g)",
           controller: songE2Controller,
           icon: Symbols.airwave,
@@ -903,25 +903,25 @@ class _OrderDialogState extends State<OrderDialog> {
 
       {
         "leftKey": "Mặt E",
-        "leftValue": ValidationOrder.validateInput(
+        "leftValue": ValidationHelper.orderInput(
           label: "Mặt E (g)",
           controller: matEController,
           icon: Symbols.vertical_align_center,
         ),
         "middle_1Key": "Mặt B",
-        "middle_1Value": ValidationOrder.validateInput(
+        "middle_1Value": ValidationHelper.orderInput(
           label: "Mặt B (g)",
           controller: matBController,
           icon: Symbols.vertical_align_center,
         ),
         "middle_2Key": "Mặt C",
-        "middle_2Value": ValidationOrder.validateInput(
+        "middle_2Value": ValidationHelper.orderInput(
           label: "Mặt C (g)",
           controller: matCController,
           icon: Symbols.vertical_align_center,
         ),
         "rightKey": "Mặt E2",
-        "rightValue": ValidationOrder.validateInput(
+        "rightValue": ValidationHelper.orderInput(
           label: "Mặt E2 (g)",
           controller: matE2Controller,
           icon: Symbols.vertical_align_center,
@@ -934,28 +934,28 @@ class _OrderDialogState extends State<OrderDialog> {
       return [
         {
           'left':
-              () => ValidationOrder.validateInput(
+              () => ValidationHelper.orderInput(
                 label: "Số Màu In Mặt Trước",
                 controller: inMatTruocController,
                 icon: Symbols.print,
                 enabled: isEnabled,
               ),
           'middle_1':
-              () => ValidationOrder.validateInput(
+              () => ValidationHelper.orderInput(
                 label: "Số Màu In Mặt Sau",
                 controller: inMatSauController,
                 icon: Symbols.print,
                 enabled: isEnabled,
               ),
           'middle_2':
-              () => ValidationOrder.validateInput(
+              () => ValidationHelper.orderInput(
                 label: "Cách Đóng Gói",
                 controller: dongGoiController,
                 icon: Symbols.box,
                 enabled: isEnabled,
               ),
           'middle_3':
-              () => ValidationOrder.validateInput(
+              () => ValidationHelper.orderInput(
                 label: "Mã Khuôn",
                 controller: maKhuonController,
                 icon: Symbols.box,
@@ -966,31 +966,31 @@ class _OrderDialogState extends State<OrderDialog> {
         },
         {
           'left':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Chống Thấm",
                 notifier: chongThamChecked,
                 enabled: isEnabled,
               ),
           'middle_1':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Xả",
                 notifier: xaChecked,
                 enabled: isEnabled,
               ),
           'middle_2':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Cắt Khe",
                 notifier: catKheChecked,
                 enabled: isEnabled,
               ),
           'middle_3':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Dán 1 Mảnh",
                 notifier: dan1ManhChecked,
                 enabled: isEnabled,
               ),
           'right':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Dán 2 Mảnh",
                 notifier: dan2ManhChecked,
                 enabled: isEnabled,
@@ -998,33 +998,33 @@ class _OrderDialogState extends State<OrderDialog> {
         },
         {
           'left':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Cán Màng",
                 notifier: canMangChecked,
                 enabled: isEnabled,
               ),
           'middle_1':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Bế",
                 notifier: beChecked,
                 enabled: isEnabled,
               ),
           'middle_2':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Cấn Lằn",
                 notifier: canLanChecked,
                 enabled: isEnabled,
               ),
 
           'middle_3':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Đóng Ghim 1 Mảnh",
                 notifier: dongGhim1ManhChecked,
                 enabled: isEnabled,
               ),
 
           'right':
-              () => ValidationOrder.checkboxForBox(
+              () => ValidationHelper.checkboxForBox(
                 label: "Đóng Ghim 2 Mảnh",
                 notifier: dongGhim2ManhChecked,
                 enabled: isEnabled,
@@ -1109,7 +1109,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               alignment: Alignment.centerRight,
                               child: SizedBox(
                                 width: 150,
-                                child: ValidationOrder.checkboxForBox(
+                                child: ValidationHelper.checkboxForBox(
                                   label: "Làm thùng?",
                                   notifier: isBoxChecked,
                                 ),

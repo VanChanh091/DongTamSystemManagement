@@ -9,8 +9,7 @@ import 'package:dongtam/presentation/components/shared/cardForm/format_key_value
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/validation/validation_employee.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -235,7 +234,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
     final List<Map<String, dynamic>> basicInfoRows = [
       {
         "leftKey": "Tên Nhân Viên",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Tên Nhân Viên",
           controller: _fullNameController,
           icon: Symbols.person,
@@ -244,7 +243,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "Ngày Sinh",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Ngày Sinh",
           controller: _birthdayController,
           icon: Symbols.calendar_month,
@@ -279,7 +278,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
           },
         ),
         "rightKey": "Giới Tính",
-        "rightValue": ValidationOrder.dropdownForTypes(
+        "rightValue": ValidationHelper.dropdownForTypes(
           items: itemGender,
           type: typeGender,
           onChanged: (value) {
@@ -292,13 +291,13 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "Nơi Sinh",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Nơi Sinh",
           controller: _birthPlaceController,
           icon: Symbols.place,
         ),
         "rightKey": "Nguyên Quán",
-        "rightValue": ValidationEmployee.validateInput(
+        "rightValue": ValidationHelper.employeeInput(
           label: "Nguyên Quán",
           controller: _homeTownController,
           icon: Symbols.home_pin,
@@ -307,13 +306,13 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "Số Điện Thoại",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Số Điện Thoại",
           controller: _phoneNumberController,
           icon: Symbols.phone,
         ),
         "rightKey": "Trình Độ Văn Hóa",
-        "rightValue": ValidationEmployee.validateInput(
+        "rightValue": ValidationHelper.employeeInput(
           label: "Trình Độ Văn Hóa",
           controller: _educationLevelController,
           icon: Symbols.book_ribbon,
@@ -321,13 +320,13 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       },
       {
         "leftKey": "Hệ Đào Tạo",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Hệ Đào Tạo",
           controller: _educationSystemController,
           icon: Symbols.book_5,
         ),
         "rightKey": "Chuyên Ngành",
-        "rightValue": ValidationEmployee.validateInput(
+        "rightValue": ValidationHelper.employeeInput(
           label: "Chuyên Ngành",
           controller: _majorController,
           icon: Symbols.menu_book,
@@ -338,13 +337,13 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
     final List<Map<String, dynamic>> cccdInfoRows = [
       {
         "leftKey": "Số CCCD",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Số CCCD",
           controller: _citizenIdController,
           icon: Symbols.numbers,
         ),
         "rightKey": "Dân Tộc",
-        "rightValue": ValidationEmployee.validateInput(
+        "rightValue": ValidationHelper.employeeInput(
           label: "Dân Tộc",
           controller: _ethnicityController,
           icon: Symbols.accessibility,
@@ -353,7 +352,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "Ngày Cấp",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Ngày Cấp",
           controller: _citizenIssuedDateController,
           icon: Symbols.calendar_month,
@@ -387,7 +386,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
           },
         ),
         "rightKey": "Nơi Cấp",
-        "rightValue": ValidationEmployee.validateInput(
+        "rightValue": ValidationHelper.employeeInput(
           label: "Nơi Cấp",
           controller: _citizenIssuedPlaceController,
           icon: Symbols.location_on,
@@ -396,7 +395,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "ĐC Thường Trú",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "ĐC Thường Trú",
           controller: _permanentAddressController,
           icon: Symbols.add_location,
@@ -405,7 +404,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "ĐC Tạm Trú",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "ĐC Tạm Trú",
           controller: _temporaryAddressController,
           icon: Symbols.edit_location,
@@ -416,7 +415,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
     final List<Map<String, dynamic>> companyInfoRows = [
       {
         "leftKey": "Mã Nhân Viên",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Mã Nhân Viên",
           controller: _employeeCodeController,
           icon: Symbols.person_pin,
@@ -427,7 +426,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
           },
         ),
         "rightKey": "Ngày Vào Làm",
-        "rightValue": ValidationEmployee.validateInput(
+        "rightValue": ValidationHelper.employeeInput(
           label: "Ngày Vào Làm",
           controller: _joinDateController,
           icon: Symbols.calendar_month,
@@ -464,13 +463,13 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "Bộ Phận",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Bộ Phận",
           controller: _departmentController,
           icon: Symbols.business,
         ),
         "rightKey": "Chức Vụ",
-        "rightValue": ValidationEmployee.validateInput(
+        "rightValue": ValidationHelper.employeeInput(
           label: "Chức Vụ",
           controller: _positionController,
           icon: Symbols.home_repair_service,
@@ -479,13 +478,13 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "SDT Liên Hệ",
-        "leftValue": ValidationEmployee.validateInput(
+        "leftValue": ValidationHelper.employeeInput(
           label: "Số LH Khẩn Cấp",
           controller: _emergencyPhoneController,
           icon: Symbols.emergency,
         ),
         "rightKey": "Người Liên Hệ",
-        "rightValue": ValidationEmployee.validateInput(
+        "rightValue": ValidationHelper.employeeInput(
           label: "Người LH Khẩn Cấp",
           controller: _emergencyContactController,
           icon: Symbols.emergency,
@@ -494,7 +493,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       {
         "leftKey": "Tình Trạng",
-        "leftValue": ValidationOrder.dropdownForTypes(
+        "leftValue": ValidationHelper.dropdownForTypes(
           items: itemStatusWorking,
           type: typeStatusWorking,
           onChanged: (value) {

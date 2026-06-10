@@ -13,7 +13,7 @@ import 'package:dongtam/presentation/components/shared/cardForm/format_key_value
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -678,7 +678,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                               children: [
                                 SizedBox(
                                   width: 180,
-                                  child: ValidationOrder.checkboxForBox(
+                                  child: ValidationHelper.checkboxForBox(
                                     label: "Xuất Giao Hàng",
                                     notifier: isDeliveryChecked,
                                     onChanged: (val) {
@@ -698,7 +698,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                 // Checkbox: Xuất Âm
                                 SizedBox(
                                   width: 130,
-                                  child: ValidationOrder.checkboxForBox(
+                                  child: ValidationHelper.checkboxForBox(
                                     label: "Xuất Âm",
                                     notifier: isNegativeStockAllowed,
                                     onChanged: (val) {
@@ -713,7 +713,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                 // Checkbox: Hàng Tặng
                                 SizedBox(
                                   width: 140,
-                                  child: ValidationOrder.checkboxForBox(
+                                  child: ValidationHelper.checkboxForBox(
                                     label: "Hàng Tặng",
                                     notifier: isPromotionChecked,
                                     onChanged: (val) {
@@ -894,7 +894,9 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                           columnSpacing: 24,
                           horizontalMargin: 16,
                           dividerThickness: 0.6,
-                          headingRowColor: WidgetStateProperty.all(Colors.grey.shade100),
+                          headingRowColor: WidgetStateProperty.all(
+                            Color.fromARGB(255, 250, 235, 148),
+                          ),
                           border: TableBorder(
                             horizontalInside: BorderSide(color: Colors.grey.shade300),
                             top: BorderSide(color: Colors.grey.shade300),

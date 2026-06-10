@@ -3,7 +3,7 @@ import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:flutter/material.dart';
 
 class ChangeMachineDialog extends StatefulWidget {
@@ -143,7 +143,7 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const SizedBox(height: 12),
-                          ValidationOrder.dropdownForTypes(
+                          ValidationHelper.dropdownForTypes(
                             items: machineList,
                             type: chooseMachine,
                             onChanged: (value) {

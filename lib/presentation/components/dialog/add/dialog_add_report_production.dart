@@ -9,7 +9,7 @@ import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_order.dart';
+import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -399,7 +399,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                                   style: TextStyle(fontWeight: FontWeight.w500),
                                 ),
                                 const SizedBox(height: 6),
-                                ValidationOrder.dropdownForTypes(
+                                ValidationHelper.dropdownForTypes(
                                   items: items,
                                   type: shiftManagementSelected!,
                                   onChanged: (value) {
@@ -432,7 +432,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                     children: [
                       const Text("Ca Sản Xuất", style: TextStyle(fontWeight: FontWeight.w500)),
                       const SizedBox(height: 6),
-                      ValidationOrder.dropdownForTypes(
+                      ValidationHelper.dropdownForTypes(
                         items: itemShiftProduction,
                         type: shiftProduction,
                         onChanged: (value) {

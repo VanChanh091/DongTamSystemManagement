@@ -12,6 +12,7 @@ import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
+import 'package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart';
@@ -31,6 +32,7 @@ import 'package:dongtam/presentation/screens/main/report/report_warehouse/report
 import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
+import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_scrap_report.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/inventory.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dart';
@@ -100,19 +102,24 @@ class _HomePageState extends State<HomePage> {
       // manufacture
       PaperProduction(),
       BoxPrintingProduction(),
+      _buildPage(
+        permissions: ["machine1350", "machine1900", "machine2Layer", "MachineRollPaper"],
+        child: ScrapReportPaper(),
+      ),
 
       //waiting check
       _buildPage(permissions: ['QC'], child: WaitingCheckPaper()),
       _buildPage(permissions: ['QC'], child: WaitingCheckBox()),
+      _buildPage(permissions: ['QC'], child: WaitingCheckScrapReport()),
 
       //outbound
-      _buildPage(permissions: ['delivery', 'accountant'], child: OutboundHistory()),
+      _buildPage(permissions: ['delivery', 'accountant', 'sale'], child: OutboundHistory()),
       Inventory(),
       LiquidationInventory(),
 
       //delivery
       _buildPage(permissions: ['plan', 'sale'], child: DeliveryEstimateTime()),
-      DeliveryPlanning(),
+      _buildPage(permissions: ['plan', 'sale'], child: DeliveryPlanning()),
       DeliverySchedule(),
       _buildPage(permissions: ['delivery', 'accountant'], child: DeliveryPrepareGoods()),
 
