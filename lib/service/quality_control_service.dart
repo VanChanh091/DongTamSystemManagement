@@ -87,7 +87,7 @@ class QualityControlService {
 
   //==================SCRAP REPORT====================
   Future<bool> handleUpdateScrapReport({
-    required List<int> scrapId,
+    required List<int> scrapIds,
     required String action,
     String? status,
     String? machine,
@@ -96,12 +96,12 @@ class QualityControlService {
     String? shiftProduction,
   }) async {
     final data = {
-      "scrapId": scrapId,
+      "scrapId": scrapIds,
       "action": action,
       if (status != null) "status": status,
       if (machine != null) "machine": machine,
       if (rejectReason != null) "rejectReason": rejectReason,
-      if (dayCompleted != null) "dayCompleted": dayCompleted,
+      if (dayCompleted != null) "dayCompleted": dayCompleted.toIso8601String(),
       if (shiftProduction != null) "shiftProduction": shiftProduction,
     };
 

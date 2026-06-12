@@ -22,6 +22,8 @@ class ScrapReportDataSource extends DataGridSource {
     required this.pageSize,
   }) {
     buildDataGridRows();
+
+    addColumnGroup(ColumnGroup(name: 'reportAt', sortGroupRows: false));
   }
 
   List<DataGridCell> buildScrapReportCells(ScrapReportModel scrapReport, int index) {
@@ -53,6 +55,10 @@ class ScrapReportDataSource extends DataGridSource {
 
       //hidden field
       DataGridCell<int>(columnName: "scrapId", value: scrapReport.scrapId),
+      DataGridCell<String>(
+        columnName: "reportAt",
+        value: formatter.format(scrapReport.reportedAt!),
+      ),
     ];
   }
 
@@ -68,6 +74,36 @@ class ScrapReportDataSource extends DataGridSource {
 
           return DataGridRow(cells: buildScrapReportCells(entry.value, globalIndex));
         }).toList();
+  }
+
+  @override
+  Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
+    // Bắt ngày và số item, không phân biệt hoa thường
+    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final match = regex.firstMatch(summaryValue);
+
+    String displayDate = '';
+    String itemCount = '';
+
+    if (match != null) {
+      final fullDate = match.group(1) ?? '';
+      displayDate = fullDate.split(' ').first; // chỉ lấy phần ngày
+      final count = match.group(2) ?? '0';
+      itemCount = '$count báo cáo';
+    }
+
+    return Container(
+      width: double.infinity,
+      color: Colors.grey.shade200,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        displayDate.isNotEmpty
+            ? '📅 Ngày báo cáo: $displayDate – $itemCount'
+            : '📅 Ngày báo cáo: Không xác định',
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      ),
+    );
   }
 
   @override

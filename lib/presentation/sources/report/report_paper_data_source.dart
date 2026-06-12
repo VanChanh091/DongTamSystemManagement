@@ -135,7 +135,7 @@ class ReportPaperDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày báo cáo: $displayDate  $itemCount'
+            ? '📅 Ngày báo cáo: $displayDate – $itemCount'
             : '📅 Ngày báo cáo: Không xác định',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),

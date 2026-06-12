@@ -49,6 +49,8 @@ class SyntheticOrdersDataSource extends DataGridSource {
       return DataGridCell<String>(columnName: columnName, value: Order.formatCurrency(value));
     }
 
+    final inventory = order.Inventory;
+
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
@@ -75,9 +77,9 @@ class SyntheticOrdersDataSource extends DataGridSource {
       buildDimensionCell('lengthManu', order.lengthPaperManufacture),
 
       buildCurrencyCell('quantityCustomer', order.quantityCustomer),
-      buildCurrencyCell('qtyProduced', order.totalQtyProduced),
-      buildCurrencyCell('qtyOutbound', order.Inventory?.totalQtyOutbound ?? 0),
-      buildCurrencyCell('qtyInventory', order.Inventory?.qtyInventory ?? 0),
+      buildCurrencyCell('qtyInventory', inventory?.qtyInventory ?? 0),
+      buildCurrencyCell('qtyOutbound', inventory?.totalQtyOutbound ?? 0),
+      buildCurrencyCell('qtyVariance', inventory?.qtyVariance ?? 0),
       buildCurrencyCell('qtyWasteNorm', order.totalQtyWasteNorm),
 
       DataGridCell<String>(columnName: 'unit', value: order.dvt),

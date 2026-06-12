@@ -49,6 +49,12 @@ class DeliveryScheduleDataSource extends DataGridSource {
 
       DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeManufacture} cm'),
       DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperManufacture} cm'),
+
+      DataGridCell<int>(columnName: "qtyCustomer", value: order.quantityCustomer),
+      DataGridCell<int>(
+        columnName: "totalQtyOutbound",
+        value: order.Inventory?.totalQtyOutbound ?? 0,
+      ),
       DataGridCell<int>(columnName: "qtyRegistered", value: item.request?.qtyRegistered ?? 0),
       DataGridCell<int>(columnName: "qtyOutbound", value: item.getTotalQtyOutbound),
 

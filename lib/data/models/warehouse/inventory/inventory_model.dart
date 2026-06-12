@@ -8,6 +8,7 @@ class InventoryModel {
   final int totalQtyInbound;
   final int totalQtyOutbound;
   final int qtyInventory;
+  final int? qtyVariance;
   final double valueInventory;
 
   //FK
@@ -23,6 +24,7 @@ class InventoryModel {
     required this.totalQtyOutbound,
     required this.qtyInventory,
     required this.valueInventory,
+    this.qtyVariance,
 
     required this.orderId,
     this.order,
@@ -38,6 +40,7 @@ class InventoryModel {
       totalQtyInbound: json['totalQtyInbound'] ?? 0,
       totalQtyOutbound: json['totalQtyOutbound'] ?? 0,
       qtyInventory: json['qtyInventory'] ?? 0,
+      qtyVariance: json['qtyVariance'] ?? 0,
       valueInventory: toDouble(json['valueInventory']),
 
       orderId: json['orderId'] ?? "",

@@ -16,8 +16,11 @@ const List<Map<String, dynamic>> _headerDeliverySchedule = [
 
   {"key": "sizeProd", "title": "Khổ (SX)"},
   {"key": "lengthProd", "title": "Dài (SX)"},
+
+  {"key": "qtyCustomer", "title": "Đơn Hàng"},
+  {"key": "totalQtyOutbound", "title": "Tổng Xuất"},
   {"key": "qtyRegistered", "title": "Yêu Cầu"},
-  {"key": "qtyOutbound", "title": "Xuất"},
+  {"key": "qtyOutbound", "title": "Xuất Kho"},
 
   {"key": "note", "title": "Ghi Chú"},
   {"key": "dvt", "title": "DVT"},

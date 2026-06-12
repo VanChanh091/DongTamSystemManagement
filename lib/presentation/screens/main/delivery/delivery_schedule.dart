@@ -513,7 +513,12 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                       StackedHeaderRow(
                         cells: [
                           StackedHeaderCell(
-                            columnNames: ["qtyRegistered", "qtyOutbound"],
+                            columnNames: [
+                              "qtyRegistered",
+                              "qtyOutbound",
+                              "qtyCustomer",
+                              "totalQtyOutbound",
+                            ],
                             child: Obx(
                               () =>
                                   formatColumn(label: 'Số Lượng', themeController: themeController),

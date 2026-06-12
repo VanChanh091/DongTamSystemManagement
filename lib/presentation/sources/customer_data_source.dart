@@ -34,10 +34,6 @@ class CustomerDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "phone", value: customer.phone),
       DataGridCell<String>(columnName: "contactPerson", value: customer.contactPerson ?? ""),
       DataGridCell<String>(
-        columnName: "dayCreatedCus",
-        value: customer.dayCreated != null ? formatter.format(customer.dayCreated!) : "",
-      ),
-      DataGridCell<String>(
         columnName: "debtLimitCustomer",
         value:
             (payment?.debtLimit ?? 0) > 0

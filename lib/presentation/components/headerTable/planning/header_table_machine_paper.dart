@@ -67,14 +67,46 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   },
 
   //waste
-  {"key": "bottom", "title": "Đáy"},
-  {"key": "fluteE", "title": "Sóng E"},
-  {"key": "fluteE2", "title": "Sóng E2"},
-  {"key": "fluteB", "title": "Sóng B"},
-  {"key": "fluteC", "title": "Sóng C"},
-  {"key": "knife", "title": "Dao"},
-  {"key": "totalLoss", "title": "Tổng PL"},
-  {"key": "qtyWastes", "title": "PL Thực Tế"},
+  {
+    "key": "bottom",
+    "title": "Đáy",
+    "visiblePages": ["planning", 'production'],
+  },
+  {
+    "key": "fluteE",
+    "title": "Sóng E",
+    "visiblePages": ["planning", 'production'],
+  },
+  {
+    "key": "fluteE2",
+    "title": "Sóng E2",
+    "visiblePages": ["planning", 'production'],
+  },
+  {
+    "key": "fluteB",
+    "title": "Sóng B",
+    "visiblePages": ["planning", 'production'],
+  },
+  {
+    "key": "fluteC",
+    "title": "Sóng C",
+    "visiblePages": ["planning", 'production'],
+  },
+  {
+    "key": "knife",
+    "title": "Dao",
+    "visiblePages": ["planning", 'production'],
+  },
+  {
+    "key": "totalLoss",
+    "title": "Tổng PL",
+    "visiblePages": ["planning", 'production'],
+  },
+  {
+    "key": "qtyWastes",
+    "title": "PL Thực Tế",
+    "visiblePages": ["planning", 'production'],
+  },
 
   {"key": "shiftProduct", "title": "Ca SX"},
   {

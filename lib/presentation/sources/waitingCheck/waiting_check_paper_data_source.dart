@@ -67,23 +67,6 @@ class WaitingCheckPaperDataSource extends DataGridSource {
                 ? PlanningPaper.formatTimeOfDay(timeOfDay: planning.timeRunning!)
                 : '',
       ),
-    ];
-  }
-
-  List<DataGridCell> buildWasteNormCell(PlanningPaper planning) {
-    DataGridCell<String> buildWasteCell({required String columnName, required double value}) {
-      return DataGridCell<String>(columnName: columnName, value: value != 0 ? '$value kg' : '0');
-    }
-
-    return [
-      buildWasteCell(columnName: 'bottom', value: planning.bottom ?? 0),
-      buildWasteCell(columnName: 'fluteE', value: planning.fluteE ?? 0),
-      buildWasteCell(columnName: 'fluteE2', value: planning.fluteE2 ?? 0),
-      buildWasteCell(columnName: 'fluteB', value: planning.fluteB ?? 0),
-      buildWasteCell(columnName: 'fluteC', value: planning.fluteC ?? 0),
-      buildWasteCell(columnName: 'knife', value: planning.knife ?? 0),
-      buildWasteCell(columnName: 'totalLoss', value: planning.totalLoss ?? 0),
-      buildWasteCell(columnName: 'qtyWastes', value: planning.qtyWasteNorm ?? 0),
 
       DataGridCell<String?>(columnName: "shiftProduct", value: planning.shiftProduction ?? ""),
       DataGridCell<String?>(
@@ -141,9 +124,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
     planningDataGridRows =
         planning
             .map<DataGridRow>(
-              (planning) => DataGridRow(
-                cells: [...buildPlanningInfoCells(planning), ...buildWasteNormCell(planning)],
-              ),
+              (planning) => DataGridRow(cells: [...buildPlanningInfoCells(planning)]),
             )
             .toList();
 

@@ -12,8 +12,8 @@ const List<Map<String, dynamic>> _headerStage = [
   {"key": "timeRunningOvfl", "title": "Tràn"},
   {"key": "runningPlan", "title": "Kế Hoạch Chạy"},
   {"key": "qtyProduced", "title": "SL Đã SX"},
-  {"key": "wasteBox", "title": "PL Thực Tế"},
-  {"key": "rpWasteLoss", "title": "PL Hao Hụt"},
+  {"key": "wasteBox", "title": "Thực Tế"},
+  {"key": "rpWasteLoss", "title": "Hao Hụt"},
   {"key": "shiftManagement", "title": "Trưởng Máy"},
 
   //hide

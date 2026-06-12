@@ -49,7 +49,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
   final _contactPersonController = TextEditingController();
 
   final _customerSourceController = TextEditingController();
-  DateTime? dayCreated;
 
   late String typeRating = "Bình Thường";
   final List<String> itemRating = ["Xấu", "Bình Thường", "Tốt", "VIP"];
@@ -220,7 +219,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
         phone: _phoneController.trimmed,
         cskh: _cskhController.superClean,
         contactPerson: _contactPersonController.superClean,
-        dayCreated: DateTime.now(),
         rateCustomer: typeRating,
         customerSource: _customerSourceController.trimmed,
         payment: payment,

@@ -21,6 +21,7 @@ class DeliveryItemModel {
   final DeliveryRequest? request;
   final AdminVehicleModel? vehicle;
   final List<OutboundDetailModel>? outboundDetails;
+  final DeliveryScheduleModel? DeliverySchedule;
 
   DeliveryItemModel({
     required this.deliveryItemId,
@@ -36,6 +37,7 @@ class DeliveryItemModel {
     required this.requestId,
     required this.vehicleId,
     this.outboundDetails,
+    this.DeliverySchedule,
 
     this.deliverySchedule,
     this.vehicle,
@@ -66,6 +68,10 @@ class DeliveryItemModel {
       request:
           json['DeliveryRequest'] != null
               ? DeliveryRequest.fromJson(json['DeliveryRequest'])
+              : null,
+      DeliverySchedule:
+          json['DeliveryPlan'] != null
+              ? DeliveryScheduleModel.fromJson(json['DeliveryPlan'])
               : null,
       outboundDetails:
           json['OutboundDetails'] != null

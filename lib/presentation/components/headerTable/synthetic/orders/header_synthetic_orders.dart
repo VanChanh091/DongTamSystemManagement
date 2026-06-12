@@ -25,9 +25,9 @@ final List<Map<String, dynamic>> _headerSyntheticOrder = [
   {"key": "lengthManu", "title": "Dài (SX)"},
 
   {"key": "quantityCustomer", "title": "Đơn Hàng"},
-  {"key": "qtyProduced", "title": "CD Giấy Tấm"},
-  {"key": "qtyOutbound", "title": "Xuất Kho"},
   {"key": "qtyInventory", "title": "Tồn Kho"},
+  {"key": "qtyOutbound", "title": "Xuất Kho"},
+  {"key": "qtyVariance", "title": "Sai Số"},
   {"key": "qtyWasteNorm", "title": "Phế Liệu"},
 
   {"key": "unit", "title": "DVT"},

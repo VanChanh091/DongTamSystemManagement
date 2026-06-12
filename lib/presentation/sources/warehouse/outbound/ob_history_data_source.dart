@@ -21,6 +21,7 @@ class ObHistoryDataSource extends DataGridSource {
     required this.pageSize,
   }) {
     buildDataGridRows();
+    addColumnGroup(ColumnGroup(name: 'dateOutbound', sortGroupRows: false));
   }
 
   List<DataGridCell> buildDbPaperCells(OutboundHistoryModel outbound, int index) {
@@ -97,6 +98,36 @@ class ObHistoryDataSource extends DataGridSource {
 
           return DataGridRow(cells: cells);
         }).toList();
+  }
+
+  @override
+  Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
+    // Bắt ngày và số item, không phân biệt hoa thường
+    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final match = regex.firstMatch(summaryValue);
+
+    String displayDate = '';
+    String itemCount = '';
+
+    if (match != null) {
+      final fullDate = match.group(1) ?? '';
+      displayDate = fullDate.split(' ').first; // chỉ lấy phần ngày
+      final count = match.group(2) ?? '0';
+      itemCount = '$count Phiếu';
+    }
+
+    return Container(
+      width: double.infinity,
+      color: Colors.grey.shade200,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        displayDate.isNotEmpty
+            ? '📅 Ngày xuất kho: $displayDate – $itemCount'
+            : '📅 Ngày xuất kho: Không xác định',
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      ),
+    );
   }
 
   @override

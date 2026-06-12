@@ -10,7 +10,6 @@ const List<Map<String, dynamic>> _headerCustomer = [
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "phone", "title": "Số Điện Thoại"},
   {"key": "contactPerson", "title": "Người Liên Hệ"},
-  {"key": "dayCreatedCus", "title": "Ngày Tạo"},
   {"key": "debtLimitCustomer", "title": "Hạn Mức Công Nợ"},
   {"key": "debtCurrentCustomer", "title": "Công Nợ Hiện Tại"},
   {"key": "termPaymentCost", "title": "Hạn Thanh Toán"},

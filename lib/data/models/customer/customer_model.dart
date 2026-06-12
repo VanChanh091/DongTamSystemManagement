@@ -1,6 +1,5 @@
 import 'package:dongtam/data/models/customer/customer_payment_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
-import 'package:intl/intl.dart';
 
 class Customer {
   final String customerId;
@@ -14,7 +13,6 @@ class Customer {
   final String cskh;
   final String? contactPerson;
   final String customerSource;
-  final DateTime? dayCreated;
   final String? rateCustomer;
   final DateTime? createdAt;
 
@@ -32,7 +30,6 @@ class Customer {
     required this.cskh,
     this.contactPerson,
     this.distance,
-    this.dayCreated,
     this.rateCustomer,
     this.createdAt,
 
@@ -51,10 +48,6 @@ class Customer {
       phone: json['phone'] ?? "",
       cskh: json['cskh'] ?? "",
       contactPerson: json['contactPerson'] ?? "",
-      dayCreated:
-          json['dayCreated'] != null && json['dayCreated'].toString().isNotEmpty
-              ? DateTime.tryParse(json['dayCreated'].toString())
-              : null,
       rateCustomer: json['rateCustomer'] ?? "",
       customerSource: json['customerSource'] ?? "",
       createdAt:
@@ -77,7 +70,6 @@ class Customer {
       'phone': phone,
       'cskh': cskh,
       "contactPerson": contactPerson,
-      "dayCreated": DateFormat('yyyy-MM-dd').format(dayCreated!),
       "rateCustomer": rateCustomer,
       "customerSource": customerSource,
       'payment': payment!.toJson(),

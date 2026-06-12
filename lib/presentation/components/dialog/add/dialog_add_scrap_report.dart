@@ -22,8 +22,8 @@ import 'package:material_symbols_icons/symbols.dart';
 
 class ScrapReportDialog extends StatefulWidget {
   final ScrapReportModel? scrapReport;
-  final dynamic initialData;
   final VoidCallback onSubmit;
+  final dynamic initialData;
 
   const ScrapReportDialog({super.key, this.scrapReport, this.initialData, required this.onSubmit});
 

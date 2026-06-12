@@ -44,7 +44,7 @@ class _CustomerPageState extends State<CustomerPage> {
     "Tên Khách Hàng": "customerName",
     "Theo CSKH": "cskh",
     "Theo SDT": "phone",
-    "Ngày Tạo": "dayCreated",
+    "Ngày Tạo": "createdAt",
   };
 
   String? selectedCustomerId;

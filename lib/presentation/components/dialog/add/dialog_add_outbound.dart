@@ -17,6 +17,7 @@ import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class OutBoundDialog extends StatefulWidget {
@@ -390,24 +391,9 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           },
           displayStringForItem: (order) => order.orderId,
           itemBuilder: (context, order) {
-            String formatNumber(double value) {
-              String result;
-
-              // Nếu là số nguyên (ví dụ 123.0) thì chuyển về "123"
-              if (value == value.toInt()) {
-                result = value.toInt().toString();
-              } else {
-                // Nếu là số thập phân (46.5, 46.25) thì xóa dấu chấm
-                result = value.toString().replaceAll('.', '');
-              }
-
-              // Luôn bù số 0 cho đủ 4 ký tự
-              return result.padLeft(4, '0');
-            }
-
             return ListTile(
               title: Text(
-                '${order.orderId} - ${formatNumber(order.lengthPaperManufacture)}x${formatNumber(order.paperSizeManufacture)}',
+                '${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}',
               ),
               subtitle: Text(order.customer?.customerName ?? ""),
             );
@@ -541,27 +527,19 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           },
           displayStringForItem: (items) => items.request!.paper!.orderId,
           itemBuilder: (context, items) {
-            String formatNumber(double value) {
-              String result;
-
-              // Nếu là số nguyên (ví dụ 123.0) thì chuyển về "123"
-              if (value == value.toInt()) {
-                result = value.toInt().toString();
-              } else {
-                // Nếu là số thập phân (46.5, 46.25) thì xóa dấu chấm
-                result = value.toString().replaceAll('.', '');
-              }
-
-              // Luôn bù số 0 cho đủ 4 ký tự
-              return result.padLeft(4, '0');
-            }
-
+            final formatter = DateFormat('dd/MM/yyyy');
             final order = items.request!.paper!.order!;
+
+            final deliveryDate =
+                items.DeliverySchedule?.deliveryDate != null
+                    ? formatter.format(items.DeliverySchedule!.deliveryDate!)
+                    : "";
+
             return ListTile(
               title: Text(
-                '${order.orderId} - ${formatNumber(order.lengthPaperManufacture)}x${formatNumber(order.paperSizeManufacture)}',
+                '${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}',
               ),
-              subtitle: Text(order.customer?.companyName ?? ""),
+              subtitle: Text('${order.customer?.customerName ?? ""} - $deliveryDate'),
             );
           },
           onSelected: (items) async {
@@ -725,7 +703,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
 
                             //INPUT QTY OUTBOUND
                             Row(
@@ -879,7 +857,6 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                         ),
                       ),
                     ),
-
                     const Divider(height: 40),
 
                     /// ===== TABLE =====
@@ -890,10 +867,11 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                         scrollDirection: Axis.vertical,
                         child: DataTable(
                           headingRowHeight: 44,
-                          dataRowMinHeight: 42,
+                          dataRowMinHeight: 40,
                           columnSpacing: 24,
                           horizontalMargin: 16,
                           dividerThickness: 0.6,
+                          showCheckboxColumn: false,
                           headingRowColor: WidgetStateProperty.all(
                             Color.fromARGB(255, 250, 235, 148),
                           ),
@@ -906,7 +884,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                             buildHeader("Mã Đơn Hàng"),
                             buildHeader("Tên Khách Hàng"),
                             buildHeader("Tên Sản phẩm"),
-                            buildHeader("Quy Cách"),
+                            buildHeader("QC Giấy"),
+                            buildHeader("QC Thùng"),
                             buildHeader("DVT"),
                             buildHeader("Số Lượng Xuất"),
                             buildHeader("Đơn Giá"),
@@ -936,10 +915,13 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                     buildCell(e.orderId),
                                     buildCell(e.customerName),
                                     buildCell(e.productName),
+                                    buildCell(
+                                      formatDimensions(e.lengthManufacture, e.sizeManufacture),
+                                    ),
                                     buildCell(e.QC_box ?? ""),
                                     buildCell(e.dvt),
-                                    buildCell(e.qtyOutbound.toString()),
-                                    buildCell(e.pricePaper.toString()),
+                                    buildCell(Order.formatCurrency(e.qtyOutbound)),
+                                    buildCell(Order.formatCurrency(e.pricePaper)),
                                     DataCell(
                                       Container(
                                         padding: const EdgeInsets.symmetric(
@@ -1033,5 +1015,20 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(width: 1, height: 30, color: Colors.grey.shade300),
     );
+  }
+
+  String formatDimensions(num? length, num? size) {
+    if (length == 0 && size == 0) return "";
+
+    // Hàm phụ để xử lý định dạng từng số (cm -> mm -> chuỗi 4 chữ số)
+    String formatValue(num? val) {
+      if (val == null) return "";
+      return (val * 10).round().toString().padLeft(4, '0');
+    }
+
+    final lengthStr = formatValue(length);
+    final sizeStr = formatValue(size);
+
+    return "${lengthStr}x$sizeStr";
   }
 }

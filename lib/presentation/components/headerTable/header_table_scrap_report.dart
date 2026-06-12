@@ -25,6 +25,7 @@ const List<Map<String, dynamic>> _headerScrapReport = [
 
   //hidden field
   {"key": "scrapId", "title": "", "visible": false},
+  {"key": "reportAt", "title": "", "visible": false},
 ];
 
 List<GridColumn> buildScrapReportColumn({required ThemeController themeController}) {

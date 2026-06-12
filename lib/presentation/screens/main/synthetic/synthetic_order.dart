@@ -498,8 +498,8 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                         columnNames: [
                                           "quantityCustomer",
                                           "qtyOutbound",
-                                          "qtyProduced",
                                           "qtyInventory",
+                                          "qtyVariance",
                                           "qtyWasteNorm",
                                         ],
                                         child: Obx(
