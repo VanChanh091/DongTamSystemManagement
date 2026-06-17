@@ -380,12 +380,14 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                   final reportPapers = data['reportPapers'] as List<ReportPaperModel>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
+                  final summaryByDate = data['summaryByDate'] as Map<String, dynamic>;
 
                   reportPaperDatasource = ReportPaperDatasource(
                     reportPapers: reportPapers,
                     selectedReportId: selectedReportId,
                     currentPage: currentPage,
                     pageSize: pageSize,
+                    summaryByDate: summaryByDate,
                   );
 
                   reportPaperDatasource.notifyListeners();
@@ -419,11 +421,26 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                                     'runningPlanProd',
                                     'qtyReported',
                                     "lackOfQty",
-                                    "qtyWasteRp",
                                   ],
                                   child: Obx(
                                     () => formatColumn(
                                       label: 'Số Lượng',
+                                      themeController: themeController,
+                                    ),
+                                  ),
+                                ),
+                                StackedHeaderCell(
+                                  columnNames: [
+                                    'bottom',
+                                    'fluteE',
+                                    'fluteB',
+                                    'fluteC',
+                                    'knife',
+                                    'totalLoss',
+                                  ],
+                                  child: Obx(
+                                    () => formatColumn(
+                                      label: 'Định Mức Phế Liệu (Kg)',
                                       themeController: themeController,
                                     ),
                                   ),

@@ -233,6 +233,38 @@ class WarehouseService {
     }
   }
 
+  // Export outbound detail
+  Future<File?> exportOutboundDetail({DateTime? fromDate, DateTime? toDate}) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.post(
+        "/api/warehouse/outbound/export-detail",
+        data: {
+          if (fromDate != null) "fromDate": fromDate.toIso8601String(),
+          if (toDate != null) "toDate": toDate.toIso8601String(),
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "outbound_detail",
+        );
+      } else {
+        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
+        return null;
+      }
+    } catch (e, s) {
+      AppLogger.e("Failed to export outbound detail", error: e, stackTrace: s);
+      return null;
+    }
+  }
+
   //============================INVENTORY===============================
   Future<Map<String, dynamic>> getInventory({
     required int page,

@@ -23,10 +23,20 @@ final List<Map<String, dynamic>> _reportPaperColumns = [
   {"key": "runningPlanProd", "title": "Kế Hoạch Chạy"},
   {"key": "qtyReported", "title": "SL Báo Cáo"},
   {"key": "lackOfQty", "title": "Thiếu/Đủ SL"},
-  {"key": "qtyWasteRp", "title": "PL Báo Cáo"},
 
   {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
+  {"key": "averageSpeed", "title": "Hiệu Suất (m/p)"},
+
   {"key": "HD_special", "title": "HD Đặc Biệt"},
+
+  //waste norm
+  {"key": "bottom", "title": "Đáy"},
+  {"key": "fluteE", "title": "Sóng E"},
+  {"key": "fluteB", "title": "Sóng B"},
+  {"key": "fluteC", "title": "Sóng C"},
+  {"key": "knife", "title": "Dao"},
+  {"key": "totalLoss", "title": "Tổng PL"},
+  {"key": "qtyWasteRp", "title": "PL Báo Cáo"},
 
   {"key": "shiftProduction", "title": "Ca SX"},
   {"key": "shiftManager", "title": "Trưởng Máy"},

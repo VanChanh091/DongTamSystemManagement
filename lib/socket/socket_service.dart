@@ -107,6 +107,14 @@ class SocketService {
     AppLogger.i("➡️ socket join: prepare-goods");
   }
 
+  //join delivery schedule room
+  Future<void> joinDeliveryScheduleRoom(DateTime deliverDate) async {
+    if (_socket == null || !_socket!.connected) await connectSocket();
+    final dateStr = deliverDate.toIso8601String().split('T').first;
+    _socket!.emit('delivery-schedule', dateStr); //delivery-${dateStr} -> room
+    AppLogger.i("➡️ socket join: delivery-$dateStr");
+  }
+
   /// Leave a room (server must implement socket.on("leave-room", ...))
   Future<void> leaveRoom(String roomName) async {
     if (_socket == null || !_socket!.connected) return;

@@ -10,12 +10,14 @@ import 'package:dongtam/presentation/components/shared/planning/widgets_planning
 import 'package:dongtam/presentation/sources/delivery/delivery_schedule_data_source.dart';
 import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/socket/init_socket_delivery_schedule.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -33,13 +35,14 @@ class DeliverySchedule extends StatefulWidget {
 class _DeliveryScheduleState extends State<DeliverySchedule> {
   late Future<List<DeliveryScheduleModel>> futureDelivery;
   late DeliveryScheduleDataSource deliveryDatasource;
-
+  late InitSocketDeliverySchedule _initSocket;
   late List<GridColumn> columns;
 
-  final themeController = Get.find<ThemeController>();
-  final userController = Get.find<UserController>();
-  final badgesController = Get.find<BadgesController>();
+  final socketService = SocketService();
   final dataGridController = DataGridController();
+  final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
+  final badgesController = Get.find<BadgesController>();
   final formatter = DateFormat('dd/MM/yyyy');
 
   List<OutboundTempItem>? initialItems;
@@ -64,6 +67,15 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
         "${now.month.toString().padLeft(2, '0')}/"
         "${now.year}";
 
+    _initSocket = InitSocketDeliverySchedule(
+      context: context,
+      socketService: socketService,
+      onLoadData: loadDeliverySchedule,
+      deliveryDate: formatter.parse(dayStartController.text),
+    );
+
+    _initSocket.registerSocket();
+
     loadDeliverySchedule();
 
     columns = buildDeliveryScheduleColumn(themeController: themeController);
@@ -76,8 +88,10 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   }
 
   void loadDeliverySchedule() {
+    final parsedDate = formatter.parse(dayStartController.text);
+    _initSocket.changeDeliveryDate(parsedDate);
+
     setState(() {
-      final parsedDate = formatter.parse(dayStartController.text);
       futureDelivery = ensureMinLoading(
         DeliveryService().getScheduleDelivery(deliveryDate: parsedDate),
       );
@@ -90,6 +104,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   @override
   void dispose() {
     super.dispose();
+    _initSocket.stop();
     dayStartController.dispose();
   }
 

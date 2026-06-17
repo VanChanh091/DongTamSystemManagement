@@ -1,28 +1,21 @@
-import 'package:dongtam/service/report_planning_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
+import 'dart:io';
+
+import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 
-class DialogSelectExportExcel extends StatefulWidget {
-  final VoidCallback onPlanningIdsOrRangeDate;
-  final String machine;
-  final bool isBox;
+class DialogExportOutbound extends StatefulWidget {
+  final VoidCallback onLoading;
 
-  const DialogSelectExportExcel({
-    super.key,
-    required this.onPlanningIdsOrRangeDate,
-    required this.machine,
-    this.isBox = false,
-  });
+  const DialogExportOutbound({super.key, required this.onLoading});
 
   @override
-  State<DialogSelectExportExcel> createState() => _DialogSelectExportExcelState();
+  State<DialogExportOutbound> createState() => _DialogExportOutboundState();
 }
 
-class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
+class _DialogExportOutboundState extends State<DialogExportOutbound> {
   ValueNotifier<String?> selectedOption = ValueNotifier<String?>(null);
-
-  final TextEditingController planningIdsController = TextEditingController();
   DateTimeRange? selectedRange;
 
   Future<void> pickDateRange(BuildContext context) async {
@@ -30,7 +23,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
 
     final DateTimeRange? result = await showDateRangePicker(
       context: context,
-      firstDate: DateTime(2020),
+      firstDate: DateTime(2025),
       lastDate: DateTime(2100),
       initialDateRange: selectedRange,
       builder: (context, child) {
@@ -56,65 +49,35 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
 
   void submit() async {
     try {
-      final currentOption = selectedOption.value;
-
-      if (currentOption == null) {
-        showSnackBarError(context, 'Vui lòng chọn phương thức xuất báo cáo');
-        return;
-      }
-
-      if (currentOption == 'dateHasMachine' || currentOption == 'dateNoMachine') {
+      if (selectedOption.value == 'dateOutbound') {
         if (selectedRange == null) {
           showSnackBarError(context, 'Vui lòng chọn khoảng thời gian');
           return;
         }
       }
 
-      final String? machineParam = (currentOption == 'dateHasMachine') ? widget.machine : null;
+      File? file;
 
-      if (widget.isBox) {
-        AppLogger.i(
-          "Export báo cáo BOX | "
-          "from=${selectedRange?.start}, to=${selectedRange?.end}, "
-          "machine=$machineParam",
-        );
+      file = await WarehouseService().exportOutboundDetail(
+        fromDate: selectedRange?.start,
+        toDate: selectedRange?.end,
+      );
 
-        await ReportPlanningService().exportExcelReportBox(
-          fromDate: selectedRange?.start,
-          toDate: selectedRange?.end,
-          machine: machineParam,
-        );
-      } else {
-        AppLogger.i(
-          "Export báo cáo PAPER | "
-          "from=${selectedRange?.start}, to=${selectedRange?.end}, "
-          "machine=$machineParam",
-        );
-
-        await ReportPlanningService().exportExcelReportPaper(
-          fromDate: selectedRange?.start,
-          toDate: selectedRange?.end,
-          machine: machineParam,
-        );
-      }
       if (!mounted) return;
-      showSnackBarSuccess(context, "Lưu thành công");
+
+      if (file != null) {
+        showSnackBarSuccess(context, 'Xuất dữ liệu thành công');
+      } else {
+        showSnackBarError(context, "Xuất file thất bại");
+      }
 
       if (!mounted) return; // check context
-      widget.onPlanningIdsOrRangeDate();
       Navigator.of(context).pop();
     } catch (e, s) {
       if (!mounted) return; // check context
-      AppLogger.e("Lỗi khi xuất báo cáo", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      AppLogger.e("Lỗi khi xuất excel", error: e, stackTrace: s);
+      showSnackBarError(context, 'Lỗi: Không thể xuất dữ liệu');
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    selectedOption.dispose();
-    planningIdsController.dispose();
   }
 
   @override
@@ -122,31 +85,23 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text("Xuất File Excel"),
+      title: const Text("Xuất Chi Tiết PXK"),
       content: ValueListenableBuilder<String?>(
         valueListenable: selectedOption,
         builder: (context, value, _) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Option 1: Theo thời gian (has machine)
+              // Option 2: Theo thời gian
               RadioListTile<String>(
-                title: const Text("Theo Ngày (Từng Máy)", style: TextStyle(fontSize: 16)),
-                value: 'dateHasMachine',
+                title: const Text("Ngày Xuất Kho", style: TextStyle(fontSize: 16)),
+                value: 'dateOutbound',
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
 
-              // Option 2: Theo thời gian (no machine machine)
-              RadioListTile<String>(
-                title: const Text("Theo Ngày (Tất Cả Máy)", style: TextStyle(fontSize: 16)),
-                value: 'dateNoMachine',
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
               const SizedBox(height: 10),
-
-              if (value == 'dateHasMachine' || value == 'dateNoMachine')
+              if (value == 'dateOutbound') ...[
                 Column(
                   children: [
                     SizedBox(
@@ -181,6 +136,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
                       ),
                   ],
                 ),
+              ],
             ],
           );
         },

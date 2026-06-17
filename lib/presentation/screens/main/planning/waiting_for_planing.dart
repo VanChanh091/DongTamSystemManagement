@@ -210,6 +210,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
                                                     if (context.mounted) {
                                                       showDialog(
+                                                        barrierDismissible: false,
                                                         context: context,
                                                         builder:
                                                             (_) => PLanningDialog(

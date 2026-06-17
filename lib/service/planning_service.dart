@@ -61,40 +61,26 @@ class PlanningService {
 
   //update index planning
   Future<bool> updateIndexWTimeRunning({
-    required bool isNewDay,
     required String machine,
     required DateTime dayStart,
     required TimeOfDay timeStart,
     required int totalTimeWorking,
     required List<Map<String, dynamic>> updateIndex,
+    bool? isNewDay,
     bool isBox = false, //flag FE
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
+    final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
+    final data = {
+      'machine': machine,
+      "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
+      "timeStart":
+          "${timeStart.hour.toString().padLeft(2, '0')}:${timeStart.minute.toString().padLeft(2, '0')}",
+      "totalTimeWorking": totalTimeWorking,
+      "updateIndex": updateIndex,
+      'isNewDay': isNewDay,
+    };
 
-      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
-
-      await dioService.post(
-        "/api/planning/$endpoint",
-        data: {
-          'machine': machine,
-          "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
-          "timeStart":
-              "${timeStart.hour.toString().padLeft(2, '0')}:${timeStart.minute.toString().padLeft(2, '0')}",
-          "totalTimeWorking": totalTimeWorking,
-          "updateIndex": updateIndex,
-          'isNewDay': isNewDay,
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to update planning", error: e, stackTrace: s);
-      throw Exception('Failed to update planning: $e');
-    }
+    return await HelperService().addItem(endpoint: "planning/$endpoint", body: data);
   }
 
   //confirm complete
@@ -104,33 +90,14 @@ class PlanningService {
     String? machine,
     bool isBox = false, //flag FE
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
+    final data = {
+      "action": action,
+      if (isBox) "planningBoxIds": ids else "planningIds": ids,
+      if (machine != null) "machine": machine,
+    };
+    final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
 
-      final data = {
-        "action": action,
-        if (isBox) "planningBoxIds": ids else "planningIds": ids,
-        if (machine != null) "machine": machine,
-      };
-
-      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
-
-      await dioService.put(
-        "/api/planning/$endpoint",
-        data: data,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to confirm complete planning", error: e, stackTrace: s);
-      throw Exception('Failed to confirm complete planning: $e');
-    }
+    return await HelperService().updateItem(endpoint: "planning/$endpoint", body: data);
   }
 
   //change machine paper
@@ -154,34 +121,16 @@ class PlanningService {
     String? machine,
     bool isBox = false, //flag FE
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
+    final data = {
+      if (isBox) "planningBoxIds": ids else "planningIds": ids,
+      if (machine != null) "machine": machine,
+      "newStatus": newStatus,
+      "action": action,
+    };
 
-      final data = {
-        if (isBox) "planningBoxIds": ids else "planningIds": ids,
-        if (machine != null) "machine": machine,
-        "newStatus": newStatus,
-        "action": action,
-      };
+    final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
 
-      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
-
-      await dioService.put(
-        "/api/planning/$endpoint",
-        data: data,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } on DioException catch (e) {
-      HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
-      return false;
-    } catch (e, s) {
-      AppLogger.e("Failed to pause machine", error: e, stackTrace: s);
-      throw Exception('Failed to pause machine: $e');
-    }
+    return await HelperService().updateItem(endpoint: "planning/$endpoint", body: data);
   }
 
   //pause or accept lack qty
@@ -190,22 +139,10 @@ class PlanningService {
     required String note,
     required String action,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        "/api/planning/planning-papers",
-        data: {"planningIds": planningId, "note": note, "action": action},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to add note to planning", error: e, stackTrace: s);
-      throw Exception('Failed to add note to planning: $e');
-    }
+    return HelperService().updateItem(
+      endpoint: "planning/planning-papers",
+      body: {"planningIds": planningId, "note": note, "action": action},
+    );
   }
 
   //notify planning
@@ -214,24 +151,12 @@ class PlanningService {
     required bool isPaper,
     bool isPlan = true,
   }) async {
-    try {
-      final token = await SecureStorageService().getToken();
+    final keyName = isPaper ? "planningPaperUpdated" : "planningBoxUpdated";
 
-      final keyName = isPaper ? "planningPaperUpdated" : "planningBoxUpdated";
-
-      await dioService.post(
-        "/api/planning/notify-planning",
-        data: {'machine': machine, "keyName": keyName, "isPlan": isPlan},
-        options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        ),
-      );
-
-      return true;
-    } catch (e, s) {
-      AppLogger.e("Failed to notify planning", error: e, stackTrace: s);
-      throw Exception('Failed to notify planning: $e');
-    }
+    return await HelperService().addItem(
+      endpoint: "planning/notify-planning",
+      body: {'machine': machine, "keyName": keyName, "isPlan": isPlan},
+    );
   }
 
   // Export Paper

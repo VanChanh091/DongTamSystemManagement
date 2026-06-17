@@ -68,15 +68,11 @@ class ReportPlanningService {
   //============================EXPORT EXCEL=================================
 
   // Export Paper
-  Future<File?> exportExcelReportPaper({
-    DateTime? fromDate,
-    DateTime? toDate,
-    required String machine,
-  }) {
+  Future<File?> exportExcelReportPaper({DateTime? fromDate, DateTime? toDate, String? machine}) {
     return _exportExcelBase(
       endpoint: "/api/report/export-paper",
       idKey: "reportPaperId",
-      filePrefix: "bao_cao",
+      filePrefix: "report_paper",
       machine: machine,
       fromDate: fromDate,
       toDate: toDate,
@@ -84,15 +80,11 @@ class ReportPlanningService {
   }
 
   // Export Box
-  Future<File?> exportExcelReportBox({
-    DateTime? fromDate,
-    DateTime? toDate,
-    required String machine,
-  }) {
+  Future<File?> exportExcelReportBox({DateTime? fromDate, DateTime? toDate, String? machine}) {
     return _exportExcelBase(
       endpoint: "/api/report/export-box",
       idKey: "reportBoxId",
-      filePrefix: "bao_cao",
+      filePrefix: "report_box",
       machine: machine,
       fromDate: fromDate,
       toDate: toDate,
@@ -104,13 +96,17 @@ class ReportPlanningService {
     required String endpoint,
     required String idKey,
     required String filePrefix,
-    required String machine,
+    String? machine,
     DateTime? fromDate,
     DateTime? toDate,
   }) async {
     try {
       final token = await SecureStorageService().getToken();
-      final Map<String, dynamic> body = {"machine": machine};
+      final Map<String, dynamic> body = {};
+
+      if (machine != null && machine.trim().isNotEmpty) {
+        body["machine"] = machine;
+      }
 
       // Xử lý điều kiện lọc
       if (fromDate != null && toDate != null) {
@@ -128,7 +124,7 @@ class ReportPlanningService {
       );
 
       if (response.statusCode == 200) {
-        final safeMachine = makeSafeFileName(input: machine);
+        final safeMachine = makeSafeFileName(input: machine ?? "all_machines");
 
         return await HelperService().saveExcelFile(
           bytes: response.data as List<int>,

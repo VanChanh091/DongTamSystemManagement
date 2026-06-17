@@ -3,6 +3,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
+import 'package:dongtam/presentation/components/dialog/export/dialog_export_outbound.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_detail.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_history.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -168,7 +169,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSale = userController.hasPermission(permission: "sale");
+    final bool isAccountant = userController.hasPermission(permission: "accountant");
     bool isEdit =
         selectedOutboundId != null &&
         canExecuteAction(outboundId: selectedOutboundId, selectOutbound: selectOutbound!);
@@ -314,90 +315,100 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                 handleExportFile(),
                                 const SizedBox(width: 10),
 
-                                //outbound
-                                // AnimatedButton(
-                                //   onPressed: () async {
-                                //     showDialog(
-                                //       context: context,
-                                //       builder:
-                                //           (_) => OutBoundDialog(
-                                //             outbound: null,
-                                //             onOutboundHistory: () => loadOutbound(),
-                                //           ),
-                                //     );
-                                //   },
-                                //   label: "Xuất Kho",
-                                //   icon: Symbols.input,
-                                //   backgroundColor: themeController.buttonColor,
-                                // ),
-                                // const SizedBox(width: 10),
+                                //export excel
+                                isAccountant
+                                    ? Row(
+                                      children: [
+                                        AnimatedButton(
+                                          onPressed:
+                                              selectedOutboundId != null
+                                                  ? () async {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (_) => DialogExportOutbound(
+                                                            onLoading: () => loadOutbound(),
+                                                          ),
+                                                    );
+                                                  }
+                                                  : null,
+                                          label: "Xuất Excel",
+                                          icon: Symbols.file_download,
+                                          backgroundColor: themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                //update
-                                AnimatedButton(
-                                  onPressed:
-                                      isEdit
-                                          ? () async {
-                                            try {
-                                              final data = await futureOutbound;
-                                              final orders =
-                                                  data['outbounds'] as List<OutboundHistoryModel>;
-                                              final selectedOutbound = orders.firstWhere(
-                                                (order) => order.outboundId == selectedOutboundId,
-                                              );
+                                        //update
+                                        AnimatedButton(
+                                          onPressed:
+                                              isEdit
+                                                  ? () async {
+                                                    try {
+                                                      final data = await futureOutbound;
+                                                      final orders =
+                                                          data['outbounds']
+                                                              as List<OutboundHistoryModel>;
+                                                      final selectedOutbound = orders.firstWhere(
+                                                        (order) =>
+                                                            order.outboundId == selectedOutboundId,
+                                                      );
 
-                                              if (!context.mounted) return;
+                                                      if (!context.mounted) return;
 
-                                              showDialog(
-                                                barrierDismissible: false,
-                                                context: context,
-                                                builder:
-                                                    (_) => OutBoundDialog(
-                                                      outbound: selectedOutbound,
-                                                      onOutboundHistory: () => loadOutbound(),
-                                                    ),
-                                              );
-                                            } catch (e, s) {
-                                              AppLogger.e(
-                                                "Lỗi không tìm thấy phiếu xuất kho",
-                                                error: e,
-                                                stackTrace: s,
-                                              );
-                                            }
-                                          }
-                                          : null,
-                                  label: "Sửa Phiếu",
-                                  icon: Symbols.construction,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
+                                                      showDialog(
+                                                        barrierDismissible: false,
+                                                        context: context,
+                                                        builder:
+                                                            (_) => OutBoundDialog(
+                                                              outbound: selectedOutbound,
+                                                              onOutboundHistory:
+                                                                  () => loadOutbound(),
+                                                            ),
+                                                      );
+                                                    } catch (e, s) {
+                                                      AppLogger.e(
+                                                        "Lỗi không tìm thấy phiếu xuất kho",
+                                                        error: e,
+                                                        stackTrace: s,
+                                                      );
+                                                    }
+                                                  }
+                                                  : null,
+                                          label: "Sửa Phiếu",
+                                          icon: Symbols.construction,
+                                          backgroundColor: themeController.buttonColor,
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                const SizedBox(width: 10),
-
-                                //delete
-                                AnimatedButton(
-                                  onPressed:
-                                      selectedOutboundId != null && !isSale
-                                          ? () async {
-                                            await showDeleteConfirmHelper(
-                                              context: context,
-                                              title: "⚠️ Xác nhận xoá",
-                                              content:
-                                                  "Bạn có chắc chắn muốn hủy phiếu xuất kho này?",
-                                              onDelete: () async {
-                                                await WarehouseService().deleteOutbound(
-                                                  outboundId: selectedOutboundId!,
-                                                );
-                                              },
-                                              onSuccess: () {
-                                                setState(() => selectedOutboundId = null);
-                                                loadOutbound();
-                                              },
-                                            );
-                                          }
-                                          : null,
-                                  label: "Hủy Phiếu",
-                                  icon: Icons.delete,
-                                  backgroundColor: const Color(0xffEA4346),
-                                ),
+                                        //delete
+                                        AnimatedButton(
+                                          onPressed:
+                                              isEdit
+                                                  ? () async {
+                                                    await showDeleteConfirmHelper(
+                                                      context: context,
+                                                      title: "⚠️ Xác nhận xoá",
+                                                      content:
+                                                          "Bạn có chắc chắn muốn hủy phiếu xuất kho này?",
+                                                      onDelete: () async {
+                                                        await WarehouseService().deleteOutbound(
+                                                          outboundId: selectedOutboundId!,
+                                                        );
+                                                      },
+                                                      onSuccess: () {
+                                                        setState(() => selectedOutboundId = null);
+                                                        loadOutbound();
+                                                      },
+                                                    );
+                                                  }
+                                                  : null,
+                                          label: "Hủy Phiếu",
+                                          icon: Icons.delete,
+                                          backgroundColor: const Color(0xffEA4346),
+                                        ),
+                                      ],
+                                    )
+                                    : const SizedBox.shrink(),
                               ],
                             ),
                           ),

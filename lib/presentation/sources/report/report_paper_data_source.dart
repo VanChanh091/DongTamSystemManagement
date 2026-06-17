@@ -8,6 +8,8 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class ReportPaperDatasource extends DataGridSource {
   List<ReportPaperModel> reportPapers = [];
   List<int> selectedReportId;
+  Map<String, dynamic> summaryByDate = {};
+
   int currentPage;
   int pageSize;
 
@@ -20,6 +22,7 @@ class ReportPaperDatasource extends DataGridSource {
     required this.selectedReportId,
     required this.currentPage,
     required this.pageSize,
+    required this.summaryByDate,
   }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: 'dateTimeRp', sortGroupRows: false));
@@ -46,6 +49,7 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: 'structure', value: planningPaper.formatterStructureOrder),
       DataGridCell<String>(columnName: 'flute', value: orderCell.flute ?? ''),
       DataGridCell<String>(columnName: 'daoXa', value: orderCell.daoXa),
+
       DataGridCell<String>(columnName: 'size', value: '${planningPaper.sizePaperPLaning}'),
       DataGridCell<String>(
         columnName: 'length',
@@ -57,18 +61,36 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<int>(columnName: "runningPlanProd", value: planningPaper.runningPlan),
       DataGridCell<int>(columnName: "qtyReported", value: reportPaper.qtyProduced),
       DataGridCell<int>(columnName: "lackOfQty", value: reportPaper.lackOfQty),
-      DataGridCell<double>(
-        columnName: 'qtyWasteRp',
-        value: reportPaper.qtyWasteNorm > 0 ? reportPaper.qtyWasteNorm : 0,
-      ),
 
       DataGridCell<String>(
         columnName: 'timeRunningProd',
         value: PlanningPaper.formatTimeOfDay(timeOfDay: planningPaper.timeRunning!),
       ),
+      DataGridCell<double>(columnName: "averageSpeed", value: reportPaper.averageSpeed),
+
       DataGridCell<String>(columnName: "HD_special", value: orderCell.instructSpecial ?? ''),
 
-      DataGridCell<String>(columnName: 'shiftProduction', value: reportPaper.shiftProduction),
+      ...buildWasteNormCell(reportPaper),
+    ];
+  }
+
+  List<DataGridCell> buildWasteNormCell(ReportPaperModel reportPaper) {
+    final planningPaper = reportPaper.planningPaper!;
+
+    DataGridCell<double> buildWasteNormCell(String columnName, double value) {
+      return DataGridCell<double>(columnName: columnName, value: (value) > 0 ? value : 0);
+    }
+
+    return [
+      buildWasteNormCell('bottom', planningPaper.bottom ?? 0),
+      buildWasteNormCell('fluteE', planningPaper.fluteE ?? 0),
+      buildWasteNormCell('fluteB', planningPaper.fluteB ?? 0),
+      buildWasteNormCell('fluteC', planningPaper.fluteC ?? 0),
+      buildWasteNormCell('knife', planningPaper.knife ?? 0),
+      buildWasteNormCell('totalLoss', planningPaper.totalLoss ?? 0),
+      buildWasteNormCell('qtyWasteRp', reportPaper.qtyWasteNorm),
+
+      DataGridCell<String>(columnName: 'shiftProduct', value: reportPaper.shiftProduction),
       DataGridCell<String>(columnName: 'shiftManager', value: reportPaper.shiftManagement),
       DataGridCell<String>(columnName: 'reportedBy', value: reportPaper.reportedBy),
 
@@ -120,12 +142,55 @@ class ReportPaperDatasource extends DataGridSource {
 
     String displayDate = '';
     String itemCount = '';
+    String performanceText = '';
 
     if (match != null) {
       final fullDate = match.group(1) ?? '';
       displayDate = fullDate.split(' ').first; // chỉ lấy phần ngày
       final count = match.group(2) ?? '0';
       itemCount = '$count đơn hàng';
+    }
+
+    try {
+      if (displayDate.isNotEmpty && summaryByDate.isNotEmpty) {
+        // Chuyển đổi từ dd/MM/yyyy sang yyyy-MM-dd để làm Key tra cứu
+        final parsedDate = formatter.parse(displayDate);
+        final lookupKey = DateFormat('yyyy-MM-dd').format(parsedDate); // Kết quả: "2026-06-13"
+
+        // Tra cứu dữ liệu ngày đó trong Map summaryByDate
+        final dayPerf = summaryByDate[lookupKey];
+
+        if (dayPerf != null) {
+          // Lấy tốc độ cả máy
+          final machineSpeed = dayPerf['machineSpeed'] ?? 0;
+
+          // Lấy tốc độ theo từng loại sóng
+          final fluteData = Map<String, dynamic>.from(dayPerf['flute'] ?? {});
+
+          String waveSpeedsText = '';
+
+          if (fluteData.isNotEmpty) {
+            //Sắp xếp các loại sóng theo thứ tự số tăng dần
+            final sortedKeys =
+                fluteData.keys.toList()..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
+
+            // tự động map toàn bộ các sóng đang có thành mảng text
+            final waveParts =
+                sortedKeys.map((key) {
+                  final speed = fluteData[key] ?? 0;
+                  return '$key Lớp: ${speed.toStringAsFixed(2)}';
+                }).toList();
+
+            waveSpeedsText = ' (${waveParts.join(' – ')}) (m/p)';
+          }
+
+          // Tạo chuỗi text hiển thị
+          performanceText = '  |  ⚙️ Tốc độ máy: ${machineSpeed.toStringAsFixed(2)}$waveSpeedsText';
+        }
+      }
+    } catch (e) {
+      // Đề phòng trường hợp parse ngày lỗi thì grid không bị vỡ giao diện
+      performanceText = '';
     }
 
     return Container(
@@ -135,7 +200,7 @@ class ReportPaperDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày báo cáo: $displayDate – $itemCount'
+            ? '📅 Ngày báo cáo: $displayDate – $itemCount$performanceText'
             : '📅 Ngày báo cáo: Không xác định',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),

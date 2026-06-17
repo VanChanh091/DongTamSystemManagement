@@ -19,19 +19,19 @@ class ObDetailDataSource extends DataGridSource {
   List<DataGridCell> buildStagesCells(OutboundDetailModel detail) {
     final order = detail.order;
 
-    String formatNumber(double value) {
-      String result;
+    String formatDimensions(num? length, num? size) {
+      if (length == 0 && size == 0) return "";
 
-      // Nếu là số nguyên (ví dụ 123.0) thì chuyển về "123"
-      if (value == value.toInt()) {
-        result = value.toInt().toString();
-      } else {
-        // Nếu là số thập phân (46.5, 46.25) thì xóa dấu chấm
-        result = value.toString().replaceAll('.', '');
+      // Hàm phụ để xử lý định dạng từng số (cm -> mm -> chuỗi 4 chữ số)
+      String formatValue(num? val) {
+        if (val == null) return "";
+        return (val * 10).round().toString().padLeft(4, '0');
       }
 
-      // Luôn bù số 0 cho đủ 4 ký tự
-      return result.padLeft(4, '0');
+      final lengthStr = formatValue(length);
+      final sizeStr = formatValue(size);
+
+      return "${lengthStr}x$sizeStr";
     }
 
     return [
@@ -42,7 +42,7 @@ class ObDetailDataSource extends DataGridSource {
       DataGridCell<String>(
         columnName: "flute",
         value:
-            '${order.flute ?? ""}-${formatNumber(order.lengthPaperManufacture)}x${formatNumber(order.paperSizeManufacture)}',
+            '${order.flute ?? ""}-${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}',
       ),
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
       DataGridCell<int>(columnName: "deliveredQty", value: detail.deliveredQty),

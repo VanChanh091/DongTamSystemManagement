@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 class PlanningPaper {
   final int planningId;
   final DateTime? dayStart, dayCompleted;
-  final TimeOfDay? timeRunning;
+  final TimeOfDay? timeRunning, timeStart;
   final String? dayReplace, matEReplace, matBReplace, matCReplace, matE2Replace;
   final String? songEReplace, songBReplace, songCReplace, songE2Replace;
 
@@ -51,6 +51,7 @@ class PlanningPaper {
 
     this.dayStart,
     this.timeRunning,
+    this.timeStart,
     this.dayReplace,
     this.matEReplace,
     this.matBReplace,
@@ -152,6 +153,10 @@ class PlanningPaper {
       timeRunning:
           json['timeRunning'] != null && json['timeRunning'] != ''
               ? parseTimeOfDay(json['timeRunning'])
+              : null,
+      timeStart:
+          json['timeStart'] != null && json['timeStart'] != ''
+              ? parseTimeOfDay(json['timeStart'])
               : null,
 
       runningPlan: json['runningPlan'] ?? 0,

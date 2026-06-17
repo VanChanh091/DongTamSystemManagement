@@ -57,6 +57,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
     "orderId": "Mã Đơn Hàng",
     "customerName": "Tên Khách Hàng",
     "dayReceiveOrder": "Ngày Nhận Đơn",
+    "fullName": "Nhân Viên",
   };
 
   //filter by status
@@ -211,6 +212,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                               "Mã Đơn Hàng",
                               "Tên Khách Hàng",
                               "Ngày Nhận Đơn",
+                              "Nhân Viên",
                             ],
                             onTypeChanged: (value) {
                               setState(() {
