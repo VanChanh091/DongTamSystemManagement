@@ -9,6 +9,9 @@ class DeliveryRequest {
   final String status;
   final String? note;
 
+  //temp variable
+  bool hasOutbound = false;
+
   //FK
   final int userId;
   final int planningId;

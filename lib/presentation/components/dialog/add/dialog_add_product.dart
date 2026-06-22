@@ -1,17 +1,17 @@
-import 'dart:typed_data';
-import 'package:dongtam/data/models/product/product_model.dart';
-import 'package:dongtam/service/product_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:diacritic/diacritic.dart';
+import "dart:typed_data";
+import "package:dongtam/data/models/product/product_model.dart";
+import "package:dongtam/service/product_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:file_picker/file_picker.dart";
+import "package:flutter/material.dart";
+import "package:diacritic/diacritic.dart";
 
 class ProductDialog extends StatefulWidget {
   final Product? product;
@@ -34,7 +34,7 @@ class _ProductDialogState extends State<ProductDialog> {
   String typeProduct = "Giấy Tấm";
   final List<String> itemsTypeProduct = [
     "Giấy Tấm",
-    'Thùng/hộp',
+    "Thùng/hộp",
     "Giấy Quấn Cuồn",
     "Giấy Cuộn",
     "Giấy Kg",
@@ -129,11 +129,11 @@ class _ProductDialogState extends State<ProductDialog> {
     } on ApiException catch (e) {
       setState(() {
         switch (e.errorCode) {
-          case 'PREFIX_ALREADY_EXISTS':
-            serverIdError = 'Tiền mã sản phẩm đã tồn tại';
+          case "PREFIX_ALREADY_EXISTS":
+            serverIdError = "Tiền mã sản phẩm đã tồn tại";
             break;
           default:
-            showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+            showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại");
         }
       });
 
@@ -152,7 +152,7 @@ class _ProductDialogState extends State<ProductDialog> {
       }
 
       if (!mounted) return;
-      return showSnackBarError(context, 'Lỗi: không thể lưu dữ liệu');
+      return showSnackBarError(context, "Lỗi: không thể lưu dữ liệu");
     }
   }
 
@@ -205,14 +205,14 @@ class _ProductDialogState extends State<ProductDialog> {
 
           if (checkId) {
             if (value.length < 10) {
-              return 'Mã sản phẩm phải nhập 10 ký tự';
+              return "Mã sản phẩm phải nhập 10 ký tự";
             } else if (value.length > 10) {
-              return 'Mã sản phẩm vượt quá 10 ký tự';
+              return "Mã sản phẩm vượt quá 10 ký tự";
             }
 
             if (value.length == 10) {
               final lastChar = value.substring(value.length - 1);
-              if (RegExp(r'[0-9]').hasMatch(lastChar)) {
+              if (RegExp(r"[0-9]").hasMatch(lastChar)) {
                 return "Ký tự cuối không được là số";
               }
             }
@@ -342,7 +342,7 @@ class _ProductDialogState extends State<ProductDialog> {
                           children: [
                             Icon(Icons.error_outline, color: Colors.red, size: 50),
                             SizedBox(height: 10),
-                            Text('Lỗi tải ảnh', style: TextStyle(color: Colors.red, fontSize: 16)),
+                            Text("Lỗi tải ảnh", style: TextStyle(color: Colors.red, fontSize: 16)),
                           ],
                         ),
                       );
@@ -365,7 +365,7 @@ class _ProductDialogState extends State<ProductDialog> {
                       Icon(Icons.image_not_supported_outlined, color: Colors.grey, size: 50),
                       SizedBox(height: 10),
                       Text(
-                        'Không có ảnh',
+                        "Không có ảnh",
                         style: TextStyle(
                           fontSize: 16,
                           fontStyle: FontStyle.italic,

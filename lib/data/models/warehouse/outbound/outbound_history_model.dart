@@ -1,5 +1,5 @@
-import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class OutboundHistoryModel {
   final int outboundId;
@@ -35,27 +35,27 @@ class OutboundHistoryModel {
 
   factory OutboundHistoryModel.fromJson(Map<String, dynamic> json) {
     return OutboundHistoryModel(
-      outboundId: json['outboundId'],
-      dateOutbound: DateTime.parse(json['dateOutbound']),
-      outboundSlipCode: json['outboundSlipCode'] ?? "",
-      totalPriceOrder: toDouble(json['totalPriceOrder']),
-      totalPriceVAT: toDouble(json['totalPriceVAT']),
-      totalPricePayment: toDouble(json['totalPricePayment']),
-      totalOutboundQty: json['totalOutboundQty'] ?? 0,
-      dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate']) : null,
-      paidAmount: toDouble(json['paidAmount']),
-      remainingAmount: toDouble(json['remainingAmount']),
-      status: json['status'] ?? "",
+      outboundId: json["outboundId"],
+      dateOutbound: DateTime.parse(json["dateOutbound"]),
+      outboundSlipCode: json["outboundSlipCode"] ?? "",
+      totalPriceOrder: toDouble(json["totalPriceOrder"]),
+      totalPriceVAT: toDouble(json["totalPriceVAT"]),
+      totalPricePayment: toDouble(json["totalPricePayment"]),
+      totalOutboundQty: json["totalOutboundQty"] ?? 0,
+      dueDate: json["dueDate"] != null ? DateTime.parse(json["dueDate"]) : null,
+      paidAmount: toDouble(json["paidAmount"]),
+      remainingAmount: toDouble(json["remainingAmount"]),
+      status: json["status"] ?? "",
 
       detail:
-          json['detail'] != null
+          json["detail"] != null
               ? List<OutboundDetailModel>.from(
-                json['detail'].map((x) => OutboundDetailModel.fromJson(x)),
+                json["detail"].map((x) => OutboundDetailModel.fromJson(x)),
               )
               : [],
       // stages:
-      //     json['stages'] != null
-      //         ? List<PlanningStage>.from(json['stages'].map((x) => PlanningStage.fromJson(x)))
+      //     json["stages"] != null
+      //         ? List<PlanningStage>.from(json["stages"].map((x) => PlanningStage.fromJson(x)))
       //         : [],
     );
   }

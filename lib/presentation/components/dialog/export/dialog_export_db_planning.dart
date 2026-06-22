@@ -1,10 +1,10 @@
-import 'dart:io';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/service/synthetic_service.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
+import "dart:io";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:intl/intl.dart";
+import "package:flutter/material.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/service/synthetic_service.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
 
 class DialogExportDbPlannings extends StatefulWidget {
   const DialogExportDbPlannings({super.key});
@@ -22,7 +22,7 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
 
   //machine
   String machine = "Máy 1350";
-  final List<String> itemsMachine = ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
+  final List<String> itemsMachine = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
 
   Future<void> pickedDate(BuildContext context) async {
     final DateTime? date = await showDatePicker(
@@ -48,7 +48,7 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
     if (date != null && mounted) {
       setState(() {
         selectedDayStart = date;
-        dayStartController.text = DateFormat('dd/MM/yyyy').format(date);
+        dayStartController.text = DateFormat("dd/MM/yyyy").format(date);
       });
     }
   }
@@ -56,10 +56,10 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
   void submit() async {
     try {
       File? file = await SyntheticService().exportExcelSyntheticPlanning(
-        username: selectedOption.value == 'username' ? usernameController.text : "",
-        dayStart: selectedOption.value == 'dayStart' ? selectedDayStart : null,
-        machine: selectedOption.value == 'machine' ? machine : null,
-        // all: selectedOption.value == 'all' ? true : false,
+        username: selectedOption.value == "username" ? usernameController.text : "",
+        dayStart: selectedOption.value == "dayStart" ? selectedDayStart : null,
+        machine: selectedOption.value == "machine" ? machine : null,
+        // all: selectedOption.value == "all" ? true : false,
       );
 
       if (!mounted) return;
@@ -74,7 +74,7 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
     } catch (e, s) {
       if (!mounted) return; // check context
       AppLogger.e("Lỗi khi xuất báo cáo", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể xuất dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể xuất dữ liệu");
     }
   }
 
@@ -100,31 +100,31 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
             children: [
               // RadioListTile<String>(
               //   title: const Text("Tất cả", style: TextStyle(fontSize: 16)),
-              //   value: 'all',
+              //   value: "all",
               //   groupValue: value,
               //   onChanged: (val) => selectedOption.value = val,
               // ),
               const SizedBox(height: 5),
               RadioListTile<String>(
                 title: const Text("Tên Nhân Viên", style: TextStyle(fontSize: 16)),
-                value: 'username',
+                value: "username",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
               const SizedBox(height: 5),
-              if (value == 'username') ...[
-                textInputExport(controller: usernameController, label: 'Nhập tên nhân viên'),
+              if (value == "username") ...[
+                textInputExport(controller: usernameController, label: "Nhập tên nhân viên"),
               ],
 
               const SizedBox(height: 5),
               RadioListTile<String>(
                 title: const Text("Ngày Sản Xuất", style: TextStyle(fontSize: 16)),
-                value: 'dayStart',
+                value: "dayStart",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
               const SizedBox(height: 5),
-              if (value == 'dayStart') ...[
+              if (value == "dayStart") ...[
                 Column(
                   children: [
                     SizedBox(
@@ -141,7 +141,7 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
                         label: Text(
                           selectedDayStart == null
                               ? "Chọn ngày"
-                              : DateFormat('dd/MM/yyyy').format(selectedDayStart!),
+                              : DateFormat("dd/MM/yyyy").format(selectedDayStart!),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -163,12 +163,12 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
               const SizedBox(height: 5),
               RadioListTile<String>(
                 title: const Text("Loại Máy", style: TextStyle(fontSize: 16)),
-                value: 'machine',
+                value: "machine",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
               const SizedBox(height: 5),
-              if (value == 'machine') ...[
+              if (value == "machine") ...[
                 ValidationHelper.dropdownForTypes(
                   items: itemsMachine,
                   type: machine,

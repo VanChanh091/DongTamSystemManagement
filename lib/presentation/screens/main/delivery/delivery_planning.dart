@@ -11,6 +11,7 @@ import 'package:dongtam/presentation/components/shared/planning/widgets_planning
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/service/delivery_service.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
+import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -160,6 +161,9 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
           if (plan.deliveryItems != null) {
             for (var item in plan.deliveryItems!) {
               if (item.request != null) {
+                item.request!.hasOutbound =
+                    item.outboundDetails != null && item.outboundDetails!.isNotEmpty;
+
                 final String key = buildVehicleKey(item.sequence, item.vehicleId);
 
                 vehicleOrders.putIfAbsent(key, () => []);
@@ -428,6 +432,15 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                     await Future.delayed(
                                                       const Duration(seconds: 1),
                                                     );
+                                                  } on ApiException catch (e) {
+                                                    final errorText = switch (e.errorCode) {
+                                                      'HAS_DELIVERY_ITEM_OUTBOUND' => e.message!,
+                                                      _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                    };
+
+                                                    if (context.mounted) {
+                                                      showSnackBarError(context, errorText);
+                                                    }
                                                   } catch (e) {
                                                     if (!context.mounted) return;
                                                     showSnackBarError(context, "Có lỗi xảy ra");
@@ -678,6 +691,9 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     final currentStatus = status ?? req.status;
     final bool isCancelled = currentStatus == 'cancelled';
 
+    //flag outbound
+    final bool isOutbound = req.hasOutbound == true;
+
     final planning = req.paper;
     final order = planning?.order;
     final qcBox = order?.QC_box;
@@ -692,14 +708,21 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
       duration: const Duration(milliseconds: 120),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDragging ? Colors.blue.shade50 : (isCancelled ? Colors.red.shade50 : Colors.white),
+        color:
+            isDragging
+                ? Colors.blue.shade50
+                : (isCancelled
+                    ? Colors.red.shade50
+                    : (isOutbound ? Colors.green.shade50.withValues(alpha: 0.5) : Colors.white)),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color:
               isSelected
                   ? Colors.blueAccent.shade200
-                  : (isCancelled ? Colors.red.shade300 : Colors.grey.shade300),
-          width: isSelected ? 2.5 : (isCancelled ? 1.5 : 1),
+                  : (isCancelled
+                      ? Colors.red.shade300
+                      : (isOutbound ? Colors.green.shade400 : Colors.grey.shade300)),
+          width: isSelected ? 2.5 : (isCancelled || isOutbound ? 1.5 : 1),
         ),
         boxShadow:
             isSelected
@@ -758,20 +781,51 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade100,
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Text(
-                          "${req.volume} m³",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade900,
-                            fontSize: 12,
+                      Row(
+                        children: [
+                          if (isOutbound) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                              margin: const EdgeInsets.only(right: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade100,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: Colors.green.shade300),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.lock, size: 12, color: Colors.green),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    "Đã xuất kho",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const SizedBox(width: 4),
+
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade100,
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Text(
+                              "${req.volume} m³",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade900,
+                                fontSize: 12,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                       const SizedBox(height: 4),
 
@@ -1070,6 +1124,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   Widget _buildDraggablePaper(DeliveryRequest req, double width, {bool isSelectable = true}) {
     final bool isSelected = isSelectable && selectedPendingIds.contains(req.requestId);
 
+    final bool isOutbound = req.hasOutbound == true;
     final List<DeliveryRequest> itemsToDrag =
         isSelected
             ? pendingRequests.where((r) => selectedPendingIds.contains(r.requestId)).toList()
@@ -1077,7 +1132,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
     return Draggable<List<DeliveryRequest>>(
       data: itemsToDrag,
-      maxSimultaneousDrags: _isEditable ? 1 : 0,
+      maxSimultaneousDrags: (_isEditable && !isOutbound) ? 1 : 0,
 
       onDragStarted: () {
         if (isSelected) {

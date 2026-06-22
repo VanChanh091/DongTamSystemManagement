@@ -15,12 +15,12 @@ class OrderImage {
 
   factory OrderImage.fromJson(Map<String, dynamic> json) {
     return OrderImage(
-      imageId: json['imageId'] ?? 0,
-      imageUrl: json['imageUrl'] ?? "",
-      publicId: json['publicId'] ?? "",
+      imageId: json["imageId"] ?? 0,
+      imageUrl: json["imageUrl"] ?? "",
+      publicId: json["publicId"] ?? "",
 
       //FK
-      orderId: json['orderId'] ?? "",
+      orderId: json["orderId"] ?? "",
     );
   }
 }

@@ -1,4 +1,4 @@
-import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
+import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
 
 class InventoryTransfersModel {
   final int transferId;
@@ -24,14 +24,14 @@ class InventoryTransfersModel {
 
   factory InventoryTransfersModel.fromJson(Map<String, dynamic> json) {
     return InventoryTransfersModel(
-      transferId: json['transferId'] ?? 0,
-      sourceId: json['sourceId'] ?? "",
-      targetId: json['targetId'] ?? "",
-      qtyTransfers: json['qtyTransfers'] ?? 0,
-      reason: json['reason'] ?? "",
+      transferId: json["transferId"] ?? 0,
+      sourceId: json["sourceId"] ?? "",
+      targetId: json["targetId"] ?? "",
+      qtyTransfers: json["qtyTransfers"] ?? 0,
+      reason: json["reason"] ?? "",
 
-      inventoryId: json['inventoryId'] ?? 0,
-      inventory: json['Inventory'] != null ? InventoryModel.fromJson(json['Inventory']) : null,
+      inventoryId: json["inventoryId"] ?? 0,
+      inventory: json["Inventory"] != null ? InventoryModel.fromJson(json["Inventory"]) : null,
     );
   }
 }

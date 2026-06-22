@@ -33,10 +33,6 @@ class ObHistoryDataSource extends DataGridSource {
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "outboundSlipCode", value: outbound.outboundSlipCode),
-      DataGridCell<String>(
-        columnName: "dateOutbound",
-        value: formatter.format(outbound.dateOutbound),
-      ),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "companyName", value: customer?.companyName ?? ""),
       DataGridCell<int>(columnName: "totalOutboundQty", value: outbound.totalOutboundQty),
@@ -80,6 +76,10 @@ class ObHistoryDataSource extends DataGridSource {
 
       //hidden
       DataGridCell<int>(columnName: "outboundId", value: outbound.outboundId),
+      DataGridCell<String>(
+        columnName: "dateOutbound",
+        value: formatter.format(outbound.dateOutbound),
+      ),
     ];
   }
 

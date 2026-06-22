@@ -1,4 +1,4 @@
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class AdminMachinePaperModel {
   int machineId;
@@ -33,19 +33,19 @@ class AdminMachinePaperModel {
 
   factory AdminMachinePaperModel.fromJson(Map<String, dynamic> json) {
     return AdminMachinePaperModel(
-      machineId: json['machineId'],
-      machineName: json['machineName'],
-      timeChangeSize: json['timeChangeSize'] ?? 0,
-      timeChangeSameSize: json['timeChangeSameSize'] ?? 0,
-      speed2Layer: json['speed2Layer'] ?? 0,
-      speed3Layer: json['speed3Layer'] ?? 0,
-      speed4Layer: json['speed4Layer'] ?? 0,
-      speed5Layer: json['speed5Layer'] ?? 0,
-      speed6Layer: json['speed6Layer'] ?? 0,
-      speed7Layer: json['speed7Layer'] ?? 0,
-      paperRollSpeed: json['paperRollSpeed'] ?? 0,
-      machinePerformance: toDouble(json['machinePerformance']),
-      type: json['type'] ?? '',
+      machineId: json["machineId"],
+      machineName: json["machineName"],
+      timeChangeSize: json["timeChangeSize"] ?? 0,
+      timeChangeSameSize: json["timeChangeSameSize"] ?? 0,
+      speed2Layer: json["speed2Layer"] ?? 0,
+      speed3Layer: json["speed3Layer"] ?? 0,
+      speed4Layer: json["speed4Layer"] ?? 0,
+      speed5Layer: json["speed5Layer"] ?? 0,
+      speed6Layer: json["speed6Layer"] ?? 0,
+      speed7Layer: json["speed7Layer"] ?? 0,
+      paperRollSpeed: json["paperRollSpeed"] ?? 0,
+      machinePerformance: toDouble(json["machinePerformance"]),
+      type: json["type"] ?? "",
     );
   }
 

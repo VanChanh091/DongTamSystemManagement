@@ -1,4 +1,4 @@
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class AdminFluteRatioModel {
   int? fluteRatioId;
@@ -16,9 +16,9 @@ class AdminFluteRatioModel {
 
   factory AdminFluteRatioModel.fromJson(Map<String, dynamic> json) {
     return AdminFluteRatioModel(
-      fluteRatioId: json['fluteRatioId'] ?? 0,
-      fluteName: json['fluteName'] ?? "",
-      ratio: toDouble(json['ratio']),
+      fluteRatioId: json["fluteRatioId"] ?? 0,
+      fluteName: json["fluteName"] ?? "",
+      ratio: toDouble(json["ratio"]),
     );
   }
 

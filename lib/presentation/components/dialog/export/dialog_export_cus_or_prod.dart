@@ -1,11 +1,11 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:dongtam/service/customer_service.dart';
-import 'package:dongtam/service/product_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:flutter/material.dart';
+import "package:dongtam/service/customer_service.dart";
+import "package:dongtam/service/product_service.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:flutter/material.dart";
 
 class DialogExportCusOrProd extends StatefulWidget {
   final bool isProduct;
@@ -22,7 +22,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
   String typeProduct = "Giấy Tấm";
   final List<String> itemsTypeProduct = [
     "Giấy Tấm",
-    'Thùng/hộp',
+    "Thùng/hộp",
     "Giấy Quấn Cuồn",
     "Giấy Cuộn",
     "Giấy Kg",
@@ -60,9 +60,9 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
 
   void submit() async {
     try {
-      if (selectedOption.value == 'termPayment') {
+      if (selectedOption.value == "termPayment") {
         if (selectedRange == null) {
-          showSnackBarError(context, 'Vui lòng chọn khoảng thời gian');
+          showSnackBarError(context, "Vui lòng chọn khoảng thời gian");
           return;
         }
       }
@@ -72,21 +72,21 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
       if (widget.isProduct) {
         //export product
         file = await ProductService().exportExcelProduct(
-          typeProduct: selectedOption.value == 'typeProduct' ? typeProduct : null,
-          all: selectedOption.value == 'all' ? true : false,
+          typeProduct: selectedOption.value == "typeProduct" ? typeProduct : null,
+          all: selectedOption.value == "all" ? true : false,
         );
       } else {
         file = await CustomerService().exportExcelCustomer(
           fromDate: selectedRange?.start,
           toDate: selectedRange?.end,
-          all: selectedOption.value == 'all' ? true : false,
+          all: selectedOption.value == "all" ? true : false,
         );
       }
 
       if (!mounted) return;
 
       if (file != null) {
-        showSnackBarSuccess(context, 'Xuất dữ liệu thành công');
+        showSnackBarSuccess(context, "Xuất dữ liệu thành công");
       } else {
         showSnackBarError(context, "Xuất file thất bại");
       }
@@ -96,7 +96,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
     } catch (e, s) {
       if (!mounted) return; // check context
       AppLogger.e("Lỗi khi xuất báo cáo", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể xuất dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể xuất dữ liệu");
     }
   }
 
@@ -115,7 +115,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
               // Option 1: Tất cả báo cáo
               RadioListTile<String>(
                 title: const Text("Tất cả", style: TextStyle(fontSize: 16)),
-                value: 'all',
+                value: "all",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
@@ -124,7 +124,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
               !widget.isProduct
                   ? RadioListTile<String>(
                     title: const Text("Hạn Thanh Toán", style: TextStyle(fontSize: 16)),
-                    value: 'termPayment',
+                    value: "termPayment",
                     groupValue: value,
                     onChanged: (val) => selectedOption.value = val,
                   )
@@ -134,14 +134,14 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
               widget.isProduct
                   ? RadioListTile<String>(
                     title: const Text("Loại Sản Phẩm", style: TextStyle(fontSize: 16)),
-                    value: 'typeProduct',
+                    value: "typeProduct",
                     groupValue: value,
                     onChanged: (val) => selectedOption.value = val,
                   )
                   : const SizedBox.shrink(),
 
               const SizedBox(height: 10),
-              if (value == 'termPayment') ...[
+              if (value == "termPayment") ...[
                 Column(
                   children: [
                     SizedBox(
@@ -176,7 +176,7 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
                       ),
                   ],
                 ),
-              ] else if (value == 'typeProduct') ...[
+              ] else if (value == "typeProduct") ...[
                 ValidationHelper.dropdownForTypes(
                   items: itemsTypeProduct,
                   type: typeProduct,

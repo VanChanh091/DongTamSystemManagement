@@ -1,10 +1,10 @@
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:flutter/material.dart';
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:flutter/material.dart";
 
 class ChangeMachineDialog extends StatefulWidget {
   final List<PlanningPaper> planning;
@@ -19,10 +19,10 @@ class ChangeMachineDialog extends StatefulWidget {
 class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
   final formKey = GlobalKey<FormState>();
   late List<int> planningIds = [];
-  final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp', "Máy Quấn Cuồn"];
+  final List<String> machineList = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
 
   //planning
-  late String chooseMachine = 'Máy 1350';
+  late String chooseMachine = "Máy 1350";
 
   @override
   void initState() {
@@ -44,11 +44,11 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
       await PlanningService().changeMachinePlanning(
         newMachine: chooseMachine,
         planningIds: planningIds,
-        action: 'CHANGE_MACHINE',
+        action: "CHANGE_MACHINE",
       );
 
       if (!mounted) return; // check context
-      showSnackBarSuccess(context, 'Chuyển đơn hàng sang $chooseMachine thành công');
+      showSnackBarSuccess(context, "Chuyển đơn hàng sang $chooseMachine thành công");
 
       if (!mounted) return; // check context
       widget.onChangeMachine();
@@ -56,7 +56,7 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
     } catch (e, s) {
       if (!mounted) return; // check context
       AppLogger.e("Lỗi khi chuyển đơn hàng sang máy khác", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }
 
@@ -139,7 +139,7 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Chọn máy cần chuyển',
+                            "Chọn máy cần chuyển",
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const SizedBox(height: 12),

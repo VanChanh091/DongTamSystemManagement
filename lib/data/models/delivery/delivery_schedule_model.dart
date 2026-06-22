@@ -1,5 +1,5 @@
-import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
-import 'package:intl/intl.dart';
+import "package:dongtam/data/models/delivery/delivery_item_model.dart";
+import "package:intl/intl.dart";
 
 class DeliveryScheduleModel {
   final int deliveryId;
@@ -19,17 +19,17 @@ class DeliveryScheduleModel {
 
   factory DeliveryScheduleModel.fromJson(Map<String, dynamic> json) {
     return DeliveryScheduleModel(
-      deliveryId: json['deliveryId'] ?? 0,
+      deliveryId: json["deliveryId"] ?? 0,
       deliveryDate:
-          json['deliveryDate'] != null && json['deliveryDate'] != ''
-              ? DateTime.tryParse(json['deliveryDate'])
+          json["deliveryDate"] != null && json["deliveryDate"] != ""
+              ? DateTime.tryParse(json["deliveryDate"])
               : null,
-      status: json['status'] ?? "",
+      status: json["status"] ?? "",
 
       deliveryItems:
-          json['DeliveryItems'] != null
+          json["DeliveryItems"] != null
               ? List<DeliveryItemModel>.from(
-                json['DeliveryItems'].map((x) => DeliveryItemModel.fromJson(x)),
+                json["DeliveryItems"].map((x) => DeliveryItemModel.fromJson(x)),
               )
               : [],
     );
@@ -38,7 +38,7 @@ class DeliveryScheduleModel {
   Map<String, dynamic> toJson() {
     return {
       "deliveryId": deliveryId,
-      "deliveryDate": deliveryDate != null ? DateFormat('yyyy-MM-dd').format(deliveryDate!) : null,
+      "deliveryDate": deliveryDate != null ? DateFormat("yyyy-MM-dd").format(deliveryDate!) : null,
       "status": status,
     };
   }

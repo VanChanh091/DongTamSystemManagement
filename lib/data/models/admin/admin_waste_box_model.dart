@@ -1,4 +1,4 @@
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class AdminWasteBoxModel {
   int wasteBoxId;
@@ -17,11 +17,11 @@ class AdminWasteBoxModel {
 
   factory AdminWasteBoxModel.fromJson(Map<String, dynamic> json) {
     return AdminWasteBoxModel(
-      wasteBoxId: json['wasteBoxId'],
-      colorNumberOnProduct: json['colorNumberOnProduct'] ?? 0,
-      paperNumberOnProduct: json['paperNumberOnProduct'] ?? 0,
-      totalLossOnTotalQty: toDouble(json['totalLossOnTotalQty']),
-      machineName: json['machineName'] ?? "",
+      wasteBoxId: json["wasteBoxId"],
+      colorNumberOnProduct: json["colorNumberOnProduct"] ?? 0,
+      paperNumberOnProduct: json["paperNumberOnProduct"] ?? 0,
+      totalLossOnTotalQty: toDouble(json["totalLossOnTotalQty"]),
+      machineName: json["machineName"] ?? "",
     );
   }
 

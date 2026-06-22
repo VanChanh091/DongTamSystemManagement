@@ -1,18 +1,18 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/service/order_service.dart';
-import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/auto_complete_field.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
+import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
+import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/service/order_service.dart";
+import "package:dongtam/service/warehouse_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/auto_complete_field.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:flutter/material.dart";
+import "package:material_symbols_icons/symbols.dart";
 
 class DialogTransferQty extends StatefulWidget {
   final InventoryModel inventory;
@@ -102,7 +102,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
 
     try {
       final bool success = await WarehouseService().transferQtyToOrderOrQilidation(
-        action: 'TRANSFER_QTY',
+        action: "TRANSFER_QTY",
         sourceOrderId: _orderIdController.text,
         targetOrderId: _orderIdReceiveControler.text,
         qtyTransfer: int.parse(_qtyTransferController.text),
@@ -122,11 +122,11 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
     } on ApiException catch (e) {
       setState(() {
         switch (e.errorCode) {
-          case 'INSUFFICIENT_QUANTITY':
+          case "INSUFFICIENT_QUANTITY":
             showSnackBarError(context, "Số lượng tồn không đủ để chuyển giao");
             break;
           default:
-            showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+            showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại");
         }
       });
 
@@ -194,7 +194,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
       },
       {
         "leftKey": "Cắt",
-        "leftValue": '${_lengthController.text} cm',
+        "leftValue": "${_lengthController.text} cm",
         "rightKey": "Khổ",
         "rightValue": "${_sizeController.text} cm",
       },
@@ -357,15 +357,15 @@ Widget validateInput({
     ),
 
     validator: (value) {
-      final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
+      final cleanValue = value?.trim().replaceAll(RegExp(r"[\r\n]+"), " ") ?? "";
 
       final requiredFields = ["Mã Đơn Hàng Nhận", "Số Lượng Chuyển Giao", "Lý Do Chuyển"];
 
       if (requiredFields.contains(label) && cleanValue.isEmpty) {
-        return 'Không được để trống';
+        return "Không được để trống";
       }
 
-      if (label == 'Số lượng chuyển giao' && value != null) {
+      if (label == "Số lượng chuyển giao" && value != null) {
         final qty = int.tryParse(value);
         if (qty == null) {
           return "Chỉ chấp nhận số nguyên";

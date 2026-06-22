@@ -1,8 +1,8 @@
-import 'package:dongtam/data/models/user/user_admin_model.dart';
-import 'package:dongtam/service/admin_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:flutter/material.dart';
+import "package:dongtam/data/models/user/user_admin_model.dart";
+import "package:dongtam/service/admin_service.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:flutter/material.dart";
 
 class DialogPermissionRole extends StatefulWidget {
   final UserAdminModel userAdmin;
@@ -20,11 +20,11 @@ class DialogPermissionRole extends StatefulWidget {
 class _DialogPermissionRoleState extends State<DialogPermissionRole> {
   final formKey = GlobalKey<FormState>();
 
-  final List<String> roles = ['admin', 'manager', 'user'];
+  final List<String> roles = ["admin", "manager", "user"];
   final Map<String, String> roleLabels = {
-    'admin': 'Quản trị viên',
-    'manager': 'Quản lý',
-    'user': 'Người dùng',
+    "admin": "Quản trị viên",
+    "manager": "Quản lý",
+    "user": "Người dùng",
   };
 
   final List<String> permissions = [
@@ -37,7 +37,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "machine2Layer",
     "MachineRollPaper",
     "step2Production",
-    'QC',
+    "QC",
     "accountant",
     "design",
     "delivery",
@@ -87,10 +87,10 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     }
 
     try {
-      if (selectedOption.value == 'role') {
+      if (selectedOption.value == "role") {
         AppLogger.d("Cập nhật ROLE: $chosenRole cho user: $originalUserId");
         success = await AdminService().updateInfoUser(userId: originalUserId, newRole: chosenRole);
-      } else if (selectedOption.value == 'permission') {
+      } else if (selectedOption.value == "permission") {
         List<String> updatedPermissions =
             permissionCheckStates.entries
                 .where((entry) => entry.value.value)
@@ -106,7 +106,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
 
       if (success) {
         if (!mounted) return;
-        showSnackBarSuccess(context, 'Cập nhật thành công!');
+        showSnackBarSuccess(context, "Cập nhật thành công!");
         await Future.delayed(Duration(milliseconds: 500));
       } else {
         AppLogger.d("Cập nhật thất bại cho userId=$originalUserId (API trả về false)");
@@ -122,7 +122,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
         error: e,
         stackTrace: s,
       );
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }
 
@@ -155,13 +155,13 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                     children: [
                       RadioListTile<String>(
                         title: const Text("Vai trò", style: TextStyle(fontSize: 16)),
-                        value: 'role',
+                        value: "role",
                         groupValue: value,
                         onChanged: (val) => selectedOption.value = val,
                       ),
                       RadioListTile<String>(
                         title: const Text("Quyền truy cập", style: TextStyle(fontSize: 16)),
-                        value: 'permission',
+                        value: "permission",
                         groupValue: value,
                         onChanged: (val) => selectedOption.value = val,
                       ),
@@ -175,7 +175,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
               ValueListenableBuilder<String?>(
                 valueListenable: selectedOption,
                 builder: (context, value, _) {
-                  return value == 'role'
+                  return value == "role"
                       ? dropdownForTypes(
                         roles,
                         chosenRole,
@@ -194,7 +194,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                   child: ValueListenableBuilder<String?>(
                     valueListenable: selectedOption,
                     builder: (context, value, _) {
-                      return value == 'permission'
+                      return value == "permission"
                           ? Column(
                             children:
                                 permissions.map((perm) {

@@ -1,20 +1,20 @@
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/customer/customer_model.dart';
-import 'package:dongtam/data/models/customer/customer_payment_model.dart';
-import 'package:dongtam/service/customer_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/customer/customer_model.dart";
+import "package:dongtam/data/models/customer/customer_payment_model.dart";
+import "package:dongtam/service/customer_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
+import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/symbols.dart";
 
 class CustomerDialog extends StatefulWidget {
   final Customer? customer;
@@ -93,7 +93,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
     //date
     if (payment?.timePayment != null) {
       timePayment = payment?.timePayment;
-      _timePaymentController.text = DateFormat('dd/MM/yyyy').format(timePayment!);
+      _timePaymentController.text = DateFormat("dd/MM/yyyy").format(timePayment!);
     }
 
     _debtLimitController.text = payment?.debtLimit?.toString() ?? "0";
@@ -109,7 +109,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
     try {
       final result = await CustomerService().getCustomers(noPaging: true);
 
-      allCustomers = result['customers'] as List<Customer>;
+      allCustomers = result["customers"] as List<Customer>;
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
     } finally {
@@ -148,11 +148,11 @@ class _CustomerDialogState extends State<CustomerDialog> {
                       children: [
                         Icon(Icons.warning_amber_rounded, color: Colors.orange),
                         const SizedBox(width: 8),
-                        const Text('Cảnh báo', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text("Cảnh báo", style: TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                     content: const Text(
-                      'Số điện thoại này đã tồn tại trong hệ thống.\nBạn có chắc chắn muốn tiếp tục lưu không?',
+                      "Số điện thoại này đã tồn tại trong hệ thống.\nBạn có chắc chắn muốn tiếp tục lưu không?",
                       style: TextStyle(fontSize: 16),
                     ),
                     actionsPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
@@ -255,14 +255,14 @@ class _CustomerDialogState extends State<CustomerDialog> {
     } on ApiException catch (e) {
       setState(() {
         switch (e.errorCode) {
-          case 'PREFIX_ALREADY_EXISTS':
+          case "PREFIX_ALREADY_EXISTS":
             idServerError = "Mã khách hàng này đã tồn tại";
             break;
-          case 'MST_ALREADY_EXISTS':
+          case "MST_ALREADY_EXISTS":
             mstServerError = "Mã số thuế này đã tồn tại";
             break;
           default:
-            showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+            showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại");
         }
       });
 
@@ -307,7 +307,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.customer != null;
     final bool canEditDebtLimit =
-        widget.customer == null ? true : userController.hasAnyRole(roles: ['admin', 'manager']);
+        widget.customer == null ? true : userController.hasAnyRole(roles: ["admin", "manager"]);
 
     final List<Map<String, dynamic>> basicInfoRows = [
       {
@@ -435,7 +435,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
             if (pickedDate != null) {
               setState(() {
                 timePayment = pickedDate;
-                _timePaymentController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+                _timePaymentController.text = DateFormat("dd/MM/yyyy").format(pickedDate);
               });
             }
           },

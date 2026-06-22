@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';
+import "package:intl/intl.dart";
 
 class EmployeeCompanyInfo {
   final int companyInfoId;
@@ -23,24 +23,24 @@ class EmployeeCompanyInfo {
 
   factory EmployeeCompanyInfo.fromJson(Map<String, dynamic> json) {
     return EmployeeCompanyInfo(
-      companyInfoId: json['companyInfoId'] ?? 0,
-      employeeCode: json['employeeCode'] ?? "",
+      companyInfoId: json["companyInfoId"] ?? 0,
+      employeeCode: json["employeeCode"] ?? "",
       joinDate:
-          json['joinDate'] != null && json['joinDate'] != ''
-              ? DateTime.tryParse(json['joinDate'])
+          json["joinDate"] != null && json["joinDate"] != ""
+              ? DateTime.tryParse(json["joinDate"])
               : null,
-      department: json['department'] ?? "",
-      position: json['position'] ?? "",
-      emergencyPhone: json['emergencyPhone'] ?? "",
-      emergencyContact: json['emergencyContact'] ?? "",
-      status: json['status'] ?? "",
+      department: json["department"] ?? "",
+      position: json["position"] ?? "",
+      emergencyPhone: json["emergencyPhone"] ?? "",
+      emergencyContact: json["emergencyContact"] ?? "",
+      status: json["status"] ?? "",
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       "employeeCode": employeeCode,
-      "joinDate": DateFormat('yyyy-MM-dd').format(joinDate!),
+      "joinDate": DateFormat("yyyy-MM-dd").format(joinDate!),
       "department": department,
       "position": position,
       "emergencyPhone": emergencyPhone,

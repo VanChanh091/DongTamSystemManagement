@@ -1,9 +1,9 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:flutter/material.dart';
+import "package:dongtam/service/warehouse_service.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:flutter/material.dart";
 
 class DialogExportOutbound extends StatefulWidget {
   final VoidCallback onLoading;
@@ -49,9 +49,9 @@ class _DialogExportOutboundState extends State<DialogExportOutbound> {
 
   void submit() async {
     try {
-      if (selectedOption.value == 'dateOutbound') {
+      if (selectedOption.value == "dateOutbound") {
         if (selectedRange == null) {
-          showSnackBarError(context, 'Vui lòng chọn khoảng thời gian');
+          showSnackBarError(context, "Vui lòng chọn khoảng thời gian");
           return;
         }
       }
@@ -66,7 +66,7 @@ class _DialogExportOutboundState extends State<DialogExportOutbound> {
       if (!mounted) return;
 
       if (file != null) {
-        showSnackBarSuccess(context, 'Xuất dữ liệu thành công');
+        showSnackBarSuccess(context, "Xuất dữ liệu thành công");
       } else {
         showSnackBarError(context, "Xuất file thất bại");
       }
@@ -76,7 +76,7 @@ class _DialogExportOutboundState extends State<DialogExportOutbound> {
     } catch (e, s) {
       if (!mounted) return; // check context
       AppLogger.e("Lỗi khi xuất excel", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể xuất dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể xuất dữ liệu");
     }
   }
 
@@ -95,13 +95,13 @@ class _DialogExportOutboundState extends State<DialogExportOutbound> {
               // Option 2: Theo thời gian
               RadioListTile<String>(
                 title: const Text("Ngày Xuất Kho", style: TextStyle(fontSize: 16)),
-                value: 'dateOutbound',
+                value: "dateOutbound",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
 
               const SizedBox(height: 10),
-              if (value == 'dateOutbound') ...[
+              if (value == "dateOutbound") ...[
                 Column(
                   children: [
                     SizedBox(

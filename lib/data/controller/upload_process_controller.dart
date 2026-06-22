@@ -1,5 +1,5 @@
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:get/get.dart';
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:get/get.dart";
 
 class UploadProcessController extends GetxController {
   RxDouble progress = 0.0.obs;

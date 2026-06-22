@@ -1,14 +1,14 @@
-import 'package:dongtam/data/models/customer/customer_model.dart';
-import 'package:dongtam/data/models/order/box_model.dart';
-import 'package:dongtam/data/models/order/order_images.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/data/models/product/product_model.dart';
-import 'package:dongtam/data/models/user/user_user_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
-import 'package:flutter/widgets.dart';
-import 'package:intl/intl.dart';
+import "package:dongtam/data/models/customer/customer_model.dart";
+import "package:dongtam/data/models/order/box_model.dart";
+import "package:dongtam/data/models/order/order_images.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/data/models/product/product_model.dart";
+import "package:dongtam/data/models/user/user_user_model.dart";
+import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
+import "package:flutter/widgets.dart";
+import "package:intl/intl.dart";
 
 class Order {
   final String orderId;
@@ -116,13 +116,7 @@ class Order {
       }
     }
 
-    return formattedParts.join('/');
-  }
-
-  int getTotalByField(num? Function(PlanningPaper p) selector) {
-    if (planningPaper == null || planningPaper!.isEmpty) return 0;
-
-    return planningPaper!.fold<int>(0, (sum, p) => sum + (selector(p)?.toInt() ?? 0));
+    return formattedParts.join("/");
   }
 
   //listener
@@ -140,18 +134,23 @@ class Order {
   // helper: only add prefix if not empty and not already present
   static String addPrefixIfNeeded(String value, String prefix) {
     value = value.trim().toUpperCase();
-    if (value.isEmpty) return '';
-    return value.startsWith(prefix) ? value : '$prefix$value';
+    if (value.isEmpty) return "";
+    return value.startsWith(prefix) ? value : "$prefix$value";
   }
 
   // create a string after prefix
   static String generateOrderCode(String prefix) {
-    if (prefix.contains('/D')) return prefix;
+    if (prefix.contains("/D")) return prefix;
 
     final now = DateTime.now();
-    final String month = now.month.toString().padLeft(2, '0');
+    final String month = now.month.toString().padLeft(2, "0");
     final String year = now.year.toString().substring(2);
     return "$prefix/$month/$year/D";
+  }
+
+  int getTotalByField(num? Function(PlanningPaper p) selector) {
+    if (planningPaper == null || planningPaper!.isEmpty) return 0;
+    return planningPaper!.fold<int>(0, (sum, p) => sum + (selector(p)?.toInt() ?? 0));
   }
 
   int get totalQtyProduced => getTotalByField((p) => p.qtyProduced);
@@ -160,113 +159,113 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      orderId: json['orderId'] ?? 'ORDER',
-      customerId: json['customerId'] ?? 'CUSTOMER',
-      productId: json['productId'] ?? "PRODUCT",
-      dayReceiveOrder: DateTime.parse(json['dayReceiveOrder']),
-      flute: json['flute'] ?? "",
-      QC_box: json['QC_box'] ?? "",
-      canLan: json['canLan'] ?? "",
-      daoXa: json['daoXa'] ?? "",
-      day: json['day'] ?? "",
-      matE: json['matE'] ?? "",
-      matB: json['matB'] ?? "",
-      matC: json['matC'] ?? "",
-      matE2: json['matE2'] ?? "",
-      songE: json['songE'] ?? "",
-      songB: json['songB'] ?? "",
-      songC: json['songC'] ?? "",
-      songE2: json['songE2'] ?? "",
-      dvt: json['dvt'] ?? "",
-      vat: json['vat'] ?? 0,
-      quantityCustomer: json['quantityCustomer'] ?? 0,
-      quantityManufacture: json['quantityManufacture'] ?? 0,
-      lengthPaperCustomer: toDouble(json['lengthPaperCustomer']),
-      lengthPaperManufacture: toDouble(json['lengthPaperManufacture']),
-      paperSizeCustomer: toDouble(json['paperSizeCustomer']),
-      paperSizeManufacture: toDouble(json['paperSizeManufacture']),
-      numberChild: json['numberChild'] ?? 0,
-      acreage: toDouble(json['acreage']),
-      price: toDouble(json['price']),
-      pricePaper: toDouble(json['pricePaper']),
-      discount: toDouble(json['discount']),
-      profit: toDouble(json['profit']),
-      totalPrice: toDouble(json['totalPrice']),
-      totalPriceVAT: toDouble(json['totalPriceVAT']),
-      volume: toDouble(json['volume']),
+      orderId: json["orderId"] ?? "ORDER",
+      customerId: json["customerId"] ?? "CUSTOMER",
+      productId: json["productId"] ?? "PRODUCT",
+      dayReceiveOrder: DateTime.parse(json["dayReceiveOrder"]),
+      flute: json["flute"] ?? "",
+      QC_box: json["QC_box"] ?? "",
+      canLan: json["canLan"] ?? "",
+      daoXa: json["daoXa"] ?? "",
+      day: json["day"] ?? "",
+      matE: json["matE"] ?? "",
+      matB: json["matB"] ?? "",
+      matC: json["matC"] ?? "",
+      matE2: json["matE2"] ?? "",
+      songE: json["songE"] ?? "",
+      songB: json["songB"] ?? "",
+      songC: json["songC"] ?? "",
+      songE2: json["songE2"] ?? "",
+      dvt: json["dvt"] ?? "",
+      vat: json["vat"] ?? 0,
+      quantityCustomer: json["quantityCustomer"] ?? 0,
+      quantityManufacture: json["quantityManufacture"] ?? 0,
+      lengthPaperCustomer: toDouble(json["lengthPaperCustomer"]),
+      lengthPaperManufacture: toDouble(json["lengthPaperManufacture"]),
+      paperSizeCustomer: toDouble(json["paperSizeCustomer"]),
+      paperSizeManufacture: toDouble(json["paperSizeManufacture"]),
+      numberChild: json["numberChild"] ?? 0,
+      acreage: toDouble(json["acreage"]),
+      price: toDouble(json["price"]),
+      pricePaper: toDouble(json["pricePaper"]),
+      discount: toDouble(json["discount"]),
+      profit: toDouble(json["profit"]),
+      totalPrice: toDouble(json["totalPrice"]),
+      totalPriceVAT: toDouble(json["totalPriceVAT"]),
+      volume: toDouble(json["volume"]),
       dateRequestShipping:
-          json['dateRequestShipping'] != null && json['dateRequestShipping'] != ''
-              ? DateTime.tryParse(json['dateRequestShipping'])
+          json["dateRequestShipping"] != null && json["dateRequestShipping"] != ""
+              ? DateTime.tryParse(json["dateRequestShipping"])
               : null,
-      instructSpecial: json['instructSpecial'] ?? "",
-      isBox: json['isBox'] ?? false,
-      chongTham: json['chongTham'] ?? false,
-      status: json['status'] ?? "",
-      rejectReason: json['rejectReason'] ?? "",
-      orderIdCustomer: json['orderIdCustomer'] ?? "",
-      note: json['note'] ?? "",
-      remainingQty: json['remainingQty'] ?? 0,
-      totalOutbound: json['totalOutbound'] ?? 0,
+      instructSpecial: json["instructSpecial"] ?? "",
+      isBox: json["isBox"] ?? false,
+      chongTham: json["chongTham"] ?? false,
+      status: json["status"] ?? "",
+      rejectReason: json["rejectReason"] ?? "",
+      orderIdCustomer: json["orderIdCustomer"] ?? "",
+      note: json["note"] ?? "",
+      remainingQty: json["remainingQty"] ?? 0,
+      totalOutbound: json["totalOutbound"] ?? 0,
 
       //association
-      customer: json['Customer'] != null ? Customer.fromJson(json['Customer']) : null,
-      product: json['Product'] != null ? Product.fromJson(json['Product']) : null,
-      box: json['box'] != null ? Box.fromJson(json['box']) : null,
-      orderImage: json['OrderImage'] != null ? OrderImage.fromJson(json['OrderImage']) : null,
-      user: json['User'] != null ? UserUserModel.fromJson(json['User']) : null,
+      customer: json["Customer"] != null ? Customer.fromJson(json["Customer"]) : null,
+      product: json["Product"] != null ? Product.fromJson(json["Product"]) : null,
+      box: json["box"] != null ? Box.fromJson(json["box"]) : null,
+      orderImage: json["OrderImage"] != null ? OrderImage.fromJson(json["OrderImage"]) : null,
+      user: json["User"] != null ? UserUserModel.fromJson(json["User"]) : null,
       planningPaper:
-          json['PlanningPapers'] != null
+          json["PlanningPapers"] != null
               ? List<PlanningPaper>.from(
-                json['PlanningPapers'].map((x) => PlanningPaper.fromJson(x)),
+                json["PlanningPapers"].map((x) => PlanningPaper.fromJson(x)),
               )
               : [],
       planningBox:
-          json['PlanningBoxes'] != null
-              ? List<PlanningBox>.from(json['PlanningBoxes'].map((x) => PlanningBox.fromJson(x)))
+          json["PlanningBoxes"] != null
+              ? List<PlanningBox>.from(json["PlanningBoxes"].map((x) => PlanningBox.fromJson(x)))
               : [],
-      Inventory: json['Inventory'] != null ? InventoryModel.fromJson(json['Inventory']) : null,
+      Inventory: json["Inventory"] != null ? InventoryModel.fromJson(json["Inventory"]) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'prefix': orderId,
-      'customerId': customerId,
-      'productId': productId,
-      'QC_box': QC_box,
-      'canLan': canLan,
-      'daoXa': daoXa,
-      'day': day,
-      'matE': matE,
-      'matB': matB,
-      'matC': matC,
-      'matE2': matE2,
-      'songE': songE,
-      'songB': songB,
-      'songC': songC,
-      'songE2': songE2,
-      'lengthPaperCustomer': lengthPaperCustomer,
-      'lengthPaperManufacture': lengthPaperManufacture,
-      'paperSizeCustomer': paperSizeCustomer,
-      'paperSizeManufacture': paperSizeManufacture,
-      'quantityCustomer': quantityCustomer,
-      'quantityManufacture': quantityManufacture,
-      'numberChild': numberChild,
-      'dvt': dvt,
-      'price': price,
-      'pricePaper': pricePaper,
-      'discount': discount,
-      'profit': profit,
-      'dateRequestShipping': DateFormat('yyyy-MM-dd').format(dateRequestShipping!),
-      'instructSpecial': instructSpecial,
-      'note': note,
+      "prefix": orderId,
+      "customerId": customerId,
+      "productId": productId,
+      "QC_box": QC_box,
+      "canLan": canLan,
+      "daoXa": daoXa,
+      "day": day,
+      "matE": matE,
+      "matB": matB,
+      "matC": matC,
+      "matE2": matE2,
+      "songE": songE,
+      "songB": songB,
+      "songC": songC,
+      "songE2": songE2,
+      "lengthPaperCustomer": lengthPaperCustomer,
+      "lengthPaperManufacture": lengthPaperManufacture,
+      "paperSizeCustomer": paperSizeCustomer,
+      "paperSizeManufacture": paperSizeManufacture,
+      "quantityCustomer": quantityCustomer,
+      "quantityManufacture": quantityManufacture,
+      "numberChild": numberChild,
+      "dvt": dvt,
+      "price": price,
+      "pricePaper": pricePaper,
+      "discount": discount,
+      "profit": profit,
+      "dateRequestShipping": DateFormat("yyyy-MM-dd").format(dateRequestShipping!),
+      "instructSpecial": instructSpecial,
+      "note": note,
       "isBox": isBox,
       "chongTham": chongTham,
-      'status': status,
+      "status": status,
       "rejectReason": rejectReason,
       "orderIdCustomer": orderIdCustomer,
-      'vat': vat,
-      'box': box?.toJson(),
+      "vat": vat,
+      "box": box?.toJson(),
     };
   }
 }

@@ -1,18 +1,18 @@
-import 'package:dongtam/data/models/employee/employee_basic_info.dart';
-import 'package:dongtam/data/models/employee/employee_company_info.dart';
-import 'package:dongtam/service/employee_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import "package:dongtam/data/models/employee/employee_basic_info.dart";
+import "package:dongtam/data/models/employee/employee_company_info.dart";
+import "package:dongtam/service/employee_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
+import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/symbols.dart";
 
 class EmployeeDialog extends StatefulWidget {
   final EmployeeBasicInfo? employee;
@@ -96,14 +96,14 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
     //date
     birthday = employee.birthday;
-    _birthdayController.text = (birthday != null) ? DateFormat('dd/MM/yyyy').format(birthday!) : "";
+    _birthdayController.text = (birthday != null) ? DateFormat("dd/MM/yyyy").format(birthday!) : "";
 
     citizenIssuedDate = employee.citizenIssuedDate;
     _citizenIssuedDateController.text =
-        (citizenIssuedDate != null) ? DateFormat('dd/MM/yyyy').format(citizenIssuedDate!) : "";
+        (citizenIssuedDate != null) ? DateFormat("dd/MM/yyyy").format(citizenIssuedDate!) : "";
 
     joinDate = companyInfo.joinDate;
-    _joinDateController.text = (joinDate != null) ? DateFormat('dd/MM/yyyy').format(joinDate!) : "";
+    _joinDateController.text = (joinDate != null) ? DateFormat("dd/MM/yyyy").format(joinDate!) : "";
   }
 
   void submit() async {
@@ -177,11 +177,11 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
     } on ApiException catch (e) {
       setState(() {
         switch (e.errorCode) {
-          case 'EMPLOYEE_CODE_EXISTS':
+          case "EMPLOYEE_CODE_EXISTS":
             employeeCodeError = "Mã nhân viên này đã tồn tại";
             break;
           default:
-            showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+            showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại");
         }
       });
 
@@ -198,7 +198,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       } else {
         AppLogger.e("Lỗi khi sửa nhân viên", error: e, stackTrace: s);
       }
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }
 
@@ -272,7 +272,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
             if (pickedDate != null) {
               setState(() {
                 birthday = pickedDate;
-                _birthdayController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+                _birthdayController.text = DateFormat("dd/MM/yyyy").format(pickedDate);
               });
             }
           },
@@ -380,7 +380,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
             if (pickedDate != null) {
               setState(() {
                 citizenIssuedDate = pickedDate;
-                _citizenIssuedDateController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+                _citizenIssuedDateController.text = DateFormat("dd/MM/yyyy").format(pickedDate);
               });
             }
           },
@@ -454,7 +454,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
             if (pickedDate != null) {
               setState(() {
                 joinDate = pickedDate;
-                _joinDateController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+                _joinDateController.text = DateFormat("dd/MM/yyyy").format(pickedDate);
               });
             }
           },

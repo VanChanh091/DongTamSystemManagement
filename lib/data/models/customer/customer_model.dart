@@ -1,5 +1,5 @@
-import 'package:dongtam/data/models/customer/customer_payment_model.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/data/models/customer/customer_payment_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class Customer {
   final String customerId;
@@ -38,41 +38,41 @@ class Customer {
 
   factory Customer.fromJson(Map<String, dynamic> json) {
     return Customer(
-      customerId: json['customerId'] ?? 'CUSTOM',
-      customerName: json['customerName'] ?? "",
-      companyName: json['companyName'] ?? "",
-      companyAddress: json['companyAddress'] ?? "",
-      shippingAddress: json['shippingAddress'] ?? "",
-      distance: toDouble(json['distance']),
-      mst: json['mst'] ?? "",
-      phone: json['phone'] ?? "",
-      cskh: json['cskh'] ?? "",
-      contactPerson: json['contactPerson'] ?? "",
-      rateCustomer: json['rateCustomer'] ?? "",
-      customerSource: json['customerSource'] ?? "",
+      customerId: json["customerId"] ?? "CUSTOM",
+      customerName: json["customerName"] ?? "",
+      companyName: json["companyName"] ?? "",
+      companyAddress: json["companyAddress"] ?? "",
+      shippingAddress: json["shippingAddress"] ?? "",
+      distance: toDouble(json["distance"]),
+      mst: json["mst"] ?? "",
+      phone: json["phone"] ?? "",
+      cskh: json["cskh"] ?? "",
+      contactPerson: json["contactPerson"] ?? "",
+      rateCustomer: json["rateCustomer"] ?? "",
+      customerSource: json["customerSource"] ?? "",
       createdAt:
-          json['createdAt'] != null && json['createdAt'].toString().isNotEmpty
-              ? DateTime.tryParse(json['createdAt'].toString())
+          json["createdAt"] != null && json["createdAt"].toString().isNotEmpty
+              ? DateTime.tryParse(json["createdAt"].toString())
               : null,
-      payment: json['payment'] != null ? CustomerPayment.fromJson(json['payment']) : null,
+      payment: json["payment"] != null ? CustomerPayment.fromJson(json["payment"]) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'prefix': customerId,
-      'customerName': customerName,
-      'companyName': companyName,
-      'companyAddress': companyAddress,
-      'shippingAddress': shippingAddress,
-      'distance': distance,
-      'mst': mst,
-      'phone': phone,
-      'cskh': cskh,
+      "prefix": customerId,
+      "customerName": customerName,
+      "companyName": companyName,
+      "companyAddress": companyAddress,
+      "shippingAddress": shippingAddress,
+      "distance": distance,
+      "mst": mst,
+      "phone": phone,
+      "cskh": cskh,
       "contactPerson": contactPerson,
       "rateCustomer": rateCustomer,
       "customerSource": customerSource,
-      'payment': payment!.toJson(),
+      "payment": payment!.toJson(),
     };
   }
 }

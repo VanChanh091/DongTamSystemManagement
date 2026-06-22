@@ -1,24 +1,24 @@
-import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/service/delivery_service.dart';
-import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/auto_complete_field.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
+import "package:dongtam/data/models/delivery/delivery_item_model.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart";
+import "package:dongtam/presentation/components/shared/animated_button.dart";
+import "package:dongtam/service/delivery_service.dart";
+import "package:dongtam/service/warehouse_service.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/auto_complete_field.dart";
+import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
+import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:google_fonts/google_fonts.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
 
 class OutBoundDialog extends StatefulWidget {
   final OutboundHistoryModel? outbound;
@@ -91,8 +91,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
     final now = DateTime.now();
     dayStartController.text =
-        "${now.day.toString().padLeft(2, '0')}/"
-        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.day.toString().padLeft(2, "0")}/"
+        "${now.month.toString().padLeft(2, "0")}/"
         "${now.year}";
 
     if (widget.outbound != null) {
@@ -171,7 +171,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
     if (qtyOutbound > remainQty && !isNegativeStockAllowed.value) {
       setState(() {
-        errRemainQty = 'Vượt quá số lượng tồn';
+        errRemainQty = "Vượt quá số lượng tồn";
       });
       return;
     }
@@ -181,8 +181,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     final itemId = isDeliveryChecked.value ? currentDeliveryItemId : null;
     final outboundDetailId = int.tryParse(oubDetailIdController.text);
 
-    // print('qtyCustomer: ${quantityCustomerController.text}');
-    // print('totalOutbound: ${totalOutboundController.text}');
+    // print("qtyCustomer: ${quantityCustomerController.text}");
+    // print("totalOutbound: ${totalOutboundController.text}");
 
     final newOutboundItem = OutboundTempItem(
       deliveryItemId: itemId,
@@ -320,11 +320,11 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       }
     } on ApiException catch (e) {
       final errorText = switch (e.errorCode) {
-        'EMPTY_ORDER_LIST' => e.message!,
-        'CUSTOMER_MISMATCH' => e.message!,
+        "EMPTY_ORDER_LIST" => e.message!,
+        "CUSTOMER_MISMATCH" => e.message!,
         "FEE_ORDER_NOT_INCLUDED" => e.message!,
         "INVENTORY_NOT_FOUND" => e.message!,
-        _ => 'Có lỗi xảy ra, vui lòng thử lại',
+        _ => "Có lỗi xảy ra, vui lòng thử lại",
       };
 
       if (mounted) {
@@ -393,7 +393,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           itemBuilder: (context, order) {
             return ListTile(
               title: Text(
-                '${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}',
+                "${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}",
               ),
               subtitle: Text(order.customer?.customerName ?? ""),
             );
@@ -527,7 +527,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           },
           displayStringForItem: (items) => items.request!.paper!.orderId,
           itemBuilder: (context, items) {
-            final formatter = DateFormat('dd/MM/yyyy');
+            final formatter = DateFormat("dd/MM/yyyy");
             final order = items.request!.paper!.order!;
 
             final deliveryDate =
@@ -537,9 +537,9 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
             return ListTile(
               title: Text(
-                '${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}',
+                "${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}",
               ),
-              subtitle: Text('${order.customer?.customerName ?? ""} - $deliveryDate'),
+              subtitle: Text("${order.customer?.customerName ?? ""} - $deliveryDate"),
             );
           },
           onSelected: (items) async {
@@ -553,8 +553,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
             );
 
             orderIdDeliveryController.text = orderId;
-            qtyRegisterController.text = selectedOrder?.request?.qtyRegistered.toString() ?? '';
-            vehicleNameController.text = selectedOrder?.vehicle?.vehicleName ?? '';
+            qtyRegisterController.text = selectedOrder?.request?.qtyRegistered.toString() ?? "";
+            vehicleNameController.text = selectedOrder?.vehicle?.vehicleName ?? "";
 
             setState(() {});
           },
@@ -1023,7 +1023,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     // Hàm phụ để xử lý định dạng từng số (cm -> mm -> chuỗi 4 chữ số)
     String formatValue(num? val) {
       if (val == null) return "";
-      return (val * 10).round().toString().padLeft(4, '0');
+      return (val * 10).round().toString().padLeft(4, "0");
     }
 
     final lengthStr = formatValue(length);

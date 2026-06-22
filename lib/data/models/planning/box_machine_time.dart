@@ -1,5 +1,5 @@
-import 'package:dongtam/utils/helper/helper_model.dart';
-import 'package:flutter/material.dart';
+import "package:dongtam/utils/helper/helper_model.dart";
+import "package:flutter/material.dart";
 
 class BoxMachineTime {
   final int boxTimeId, runningPlan;
@@ -37,35 +37,35 @@ class BoxMachineTime {
   }
 
   static String formatTimeOfDay({required TimeOfDay timeOfDay}) {
-    final hour = timeOfDay.hour.toString().padLeft(2, '0');
-    final minute = timeOfDay.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
+    final hour = timeOfDay.hour.toString().padLeft(2, "0");
+    final minute = timeOfDay.minute.toString().padLeft(2, "0");
+    return "$hour:$minute";
   }
 
   factory BoxMachineTime.fromJson(Map<String, dynamic> json) {
     return BoxMachineTime(
-      boxTimeId: json['boxTimeId'] ?? 0,
-      runningPlan: json['runningPlan'] ?? 0,
+      boxTimeId: json["boxTimeId"] ?? 0,
+      runningPlan: json["runningPlan"] ?? 0,
       timeRunning:
-          json['timeRunning'] != null && json['timeRunning'] != ''
-              ? parseTimeOfDay(json['timeRunning'])
+          json["timeRunning"] != null && json["timeRunning"] != ""
+              ? parseTimeOfDay(json["timeRunning"])
               : null,
       dayStart:
-          json['dayStart'] != null && json['dayStart'] != ''
-              ? DateTime.tryParse(json['dayStart'])
+          json["dayStart"] != null && json["dayStart"] != ""
+              ? DateTime.tryParse(json["dayStart"])
               : null,
       dayCompleted:
-          json['dayCompleted'] != null && json['dayCompleted'] != ''
-              ? DateTime.tryParse(json['dayCompleted'])
+          json["dayCompleted"] != null && json["dayCompleted"] != ""
+              ? DateTime.tryParse(json["dayCompleted"])
               : null,
-      wasteBox: toDouble(json['wasteBox']),
-      rpWasteLoss: toDouble(json['rpWasteLoss']),
-      qtyProduced: json['qtyProduced'] ?? 0,
-      machine: json['machine'] ?? "",
-      shiftManagement: json['shiftManagement'] ?? "",
-      isRequestCheck: json['isRequestCheck'] ?? false,
-      status: json['status'] ?? "",
-      sortPlanning: json['sortPlanning'] ?? 0,
+      wasteBox: toDouble(json["wasteBox"]),
+      rpWasteLoss: toDouble(json["rpWasteLoss"]),
+      qtyProduced: json["qtyProduced"] ?? 0,
+      machine: json["machine"] ?? "",
+      shiftManagement: json["shiftManagement"] ?? "",
+      isRequestCheck: json["isRequestCheck"] ?? false,
+      status: json["status"] ?? "",
+      sortPlanning: json["sortPlanning"] ?? 0,
     );
   }
 

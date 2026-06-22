@@ -1,4 +1,4 @@
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class ScrapReportModel {
   final int scrapId;
@@ -41,44 +41,44 @@ class ScrapReportModel {
 
   factory ScrapReportModel.fromJson(Map<String, dynamic> json) {
     return ScrapReportModel(
-      scrapId: json['scrapId'] ?? 0,
+      scrapId: json["scrapId"] ?? 0,
 
-      qtyForklift: toDouble(json['qtyForklift']),
-      qtyInventory: toDouble(json['qtyInventory']),
-      qtyCoreTube: toDouble(json['qtyCoreTube']),
-      qtyOther: toDouble(json['qtyOther']),
-      qtyProduction: toDouble(json['qtyProduction']),
-      totalQtyScrap: toDouble(json['totalQtyScrap']),
+      qtyForklift: toDouble(json["qtyForklift"]),
+      qtyInventory: toDouble(json["qtyInventory"]),
+      qtyCoreTube: toDouble(json["qtyCoreTube"]),
+      qtyOther: toDouble(json["qtyOther"]),
+      qtyProduction: toDouble(json["qtyProduction"]),
+      totalQtyScrap: toDouble(json["totalQtyScrap"]),
 
-      machine: json['machine'] ?? "",
-      shiftProduction: json['shiftProduction'] ?? "",
-      reportedBy: json['reportedBy'] ?? "",
+      machine: json["machine"] ?? "",
+      shiftProduction: json["shiftProduction"] ?? "",
+      reportedBy: json["reportedBy"] ?? "",
       reportedAt:
-          json['reportedAt'] != null && json['reportedAt'].toString().isNotEmpty
-              ? DateTime.tryParse(json['reportedAt'].toString())
+          json["reportedAt"] != null && json["reportedAt"].toString().isNotEmpty
+              ? DateTime.tryParse(json["reportedAt"].toString())
               : null,
       dayCompleted:
-          json['dayCompleted'] != null && json['dayCompleted'].toString().isNotEmpty
-              ? DateTime.tryParse(json['dayCompleted'].toString())
+          json["dayCompleted"] != null && json["dayCompleted"].toString().isNotEmpty
+              ? DateTime.tryParse(json["dayCompleted"].toString())
               : null,
-      rejectReason: json['rejectReason'] ?? "",
-      status: json['status'] ?? "",
+      rejectReason: json["rejectReason"] ?? "",
+      status: json["status"] ?? "",
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'scrapId': scrapId,
+      "scrapId": scrapId,
 
-      // 'type': type,
-      'qtyForklift': qtyForklift,
-      'qtyInventory': qtyInventory,
-      'qtyCoreTube': qtyCoreTube,
-      'qtyOther': qtyOther,
+      // "type": type,
+      "qtyForklift": qtyForklift,
+      "qtyInventory": qtyInventory,
+      "qtyCoreTube": qtyCoreTube,
+      "qtyOther": qtyOther,
 
-      'shiftProduction': shiftProduction,
-      'reportedBy': reportedBy,
-      'reportedAt': reportedAt!.toIso8601String(),
+      "shiftProduction": shiftProduction,
+      "reportedBy": reportedBy,
+      "reportedAt": reportedAt!.toIso8601String(),
     };
   }
 }

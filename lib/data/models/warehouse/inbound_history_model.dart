@@ -1,5 +1,5 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/qualityControl/qc_session_model.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/qualityControl/qc_session_model.dart";
 
 class InboundHistoryModel {
   final int inboundId;
@@ -29,16 +29,16 @@ class InboundHistoryModel {
 
   factory InboundHistoryModel.fromJson(Map<String, dynamic> json) {
     return InboundHistoryModel(
-      inboundId: json['inboundId'] ?? 0,
-      dateInbound: DateTime.parse(json['dateInbound']),
-      qtyPaper: json['qtyPaper'] ?? 0,
-      qtyInbound: json['qtyInbound'] ?? 0,
+      inboundId: json["inboundId"] ?? 0,
+      dateInbound: DateTime.parse(json["dateInbound"]),
+      qtyPaper: json["qtyPaper"] ?? 0,
+      qtyInbound: json["qtyInbound"] ?? 0,
 
-      orderId: json['orderId'] ?? "",
-      order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
+      orderId: json["orderId"] ?? "",
+      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
 
-      qcSessionId: json['qcSessionId'] ?? 0,
-      qcSession: json['QcSession'] != null ? QcSessionModel.fromJson(json['QcSession']) : null,
+      qcSessionId: json["qcSessionId"] ?? 0,
+      qcSession: json["QcSession"] != null ? QcSessionModel.fromJson(json["QcSession"]) : null,
     );
   }
 }

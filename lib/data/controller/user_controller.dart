@@ -1,7 +1,7 @@
-import 'dart:convert';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:get/get.dart';
+import "dart:convert";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/secure_storage_service.dart";
+import "package:get/get.dart";
 
 class UserController extends GetxController {
   final SecureStorageService storage = SecureStorageService();

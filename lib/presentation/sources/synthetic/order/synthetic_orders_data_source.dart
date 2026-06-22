@@ -80,7 +80,6 @@ class SyntheticOrdersDataSource extends DataGridSource {
       buildCurrencyCell('qtyInventory', inventory?.qtyInventory ?? 0),
       buildCurrencyCell('qtyOutbound', inventory?.totalQtyOutbound ?? 0),
       buildCurrencyCell('qtyVariance', inventory?.qtyVariance ?? 0),
-      buildCurrencyCell('qtyWasteNorm', order.totalQtyWasteNorm),
 
       DataGridCell<String>(columnName: 'unit', value: order.dvt),
       DataGridCell<String>(columnName: 'vat', value: order.vat != null ? '${order.vat}%' : ''),

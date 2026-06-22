@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
 
       //delivery
       _buildPage(permissions: ['plan', 'sale'], child: DeliveryEstimateTime()),
-      _buildPage(permissions: ['plan', 'sale'], child: DeliveryPlanning()),
+      DeliveryPlanning(),
       DeliverySchedule(),
       _buildPage(permissions: ['delivery', 'accountant'], child: DeliveryPrepareGoods()),
 

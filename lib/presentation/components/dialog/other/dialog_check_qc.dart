@@ -1,16 +1,16 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
-import 'package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart';
-import 'package:dongtam/service/admin_service.dart';
-import 'package:dongtam/service/quality_control_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/models/admin/qc_criteria_model.dart";
+import "package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart";
+import "package:dongtam/service/admin_service.dart";
+import "package:dongtam/service/quality_control_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
 
 class DialogCheckQC extends StatefulWidget {
   final int? planningId, planningBoxId;
@@ -69,7 +69,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
     }
 
     try {
-      AppLogger.i("Thêm phiên kiểm tra mới cho ${widget.type == 'paper' ? "giấy" : "thùng"}");
+      AppLogger.i("Thêm phiên kiểm tra mới cho ${widget.type == "paper" ? "giấy" : "thùng"}");
 
       final submitSamples =
           samples.entries.map((entry) {
@@ -110,14 +110,14 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
     } on ApiException catch (e) {
       setState(() {
         inboundQtyError = switch (e.errorCode) {
-          'INBOUND_EXCEED_PRODUCED' => 'Số lượng nhập kho vượt quá số lượng sản xuất',
+          "INBOUND_EXCEED_PRODUCED" => "Số lượng nhập kho vượt quá số lượng sản xuất",
           _ => null,
         };
       });
     } catch (e, s) {
       if (!mounted) return;
       AppLogger.e("Lỗi khi thêm phiên QC", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }
 

@@ -1,21 +1,21 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
-import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart";
+import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
+import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:google_fonts/google_fonts.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
 
 class PLanningDialog extends StatefulWidget {
   final Order? order;
@@ -31,7 +31,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final formKey = GlobalKey<FormState>();
   final badgesController = Get.find<BadgesController>();
   late String originalOrderId;
-  final List<String> machineList = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp', "Máy Quấn Cuồn"];
+  final List<String> machineList = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
 
   //order
   DateTime? dateShipping;
@@ -59,7 +59,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final instructSpecialController = TextEditingController();
 
   //planning
-  late String chooseMachine = 'Máy 1350';
+  late String chooseMachine = "Máy 1350";
   final ghepKhoController = TextEditingController();
   final numberChildController = TextEditingController();
   final fluteController = TextEditingController();
@@ -134,7 +134,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     //date
     dateShipping = order.dateRequestShipping;
-    dateShippingController.text = DateFormat('dd/MM/yyyy').format(dateShipping!);
+    dateShippingController.text = DateFormat("dd/MM/yyyy").format(dateShipping!);
   }
 
   void fillDataOrderToPlanning() {
@@ -187,7 +187,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       matCReplace,
       songE2Replace,
       matE2Replace,
-    ].where((e) => e.trim().isNotEmpty).join('/');
+    ].where((e) => e.trim().isNotEmpty).join("/");
   }
 
   void _updateStructureController() {
@@ -229,12 +229,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
   }
 
   /// Trích xuất số từ chuỗi văn bản
-  String extractNumbers(String input, {String mode = 'all'}) {
-    if (mode == 'first') {
-      final match = RegExp(r'\d+').firstMatch(input);
-      return match?.group(0) ?? '';
+  String extractNumbers(String input, {String mode = "all"}) {
+    if (mode == "first") {
+      final match = RegExp(r"\d+").firstMatch(input);
+      return match?.group(0) ?? "";
     } else {
-      return input.replaceAll(RegExp(r'[^0-9]'), '');
+      return input.replaceAll(RegExp(r"[^0-9]"), "");
     }
   }
 
@@ -295,7 +295,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       numberChild: int.tryParse(numberChildController.trimmed) ?? 0,
       chooseMachine: chooseMachine,
       hasBox: widget.order!.isBox,
-      status: 'planning',
+      status: "planning",
 
       orderId: widget.order!.orderId,
       order: widget.order,
@@ -327,7 +327,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     } catch (e, s) {
       if (!mounted) return;
       AppLogger.e("Lỗi khi lên kế hoạch cho đơn hàng", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }
 

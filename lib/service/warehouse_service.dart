@@ -307,19 +307,19 @@ class WarehouseService {
     return HelperService().addItem(endpoint: 'warehouse/inventory', body: payload);
   }
 
-  //export inventory
-  Future<File?> exportExcelInventory({DateTime? date}) async {
+  //export inventory logs
+  Future<File?> exportExcelInventory({DateTime? targetDate}) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final Map<String, dynamic> body = {};
 
-      if (date != null) {
-        body["date"] = date.toIso8601String();
+      if (targetDate != null) {
+        body["targetDate"] = targetDate.toIso8601String();
       }
 
       final response = await dioService.post(
-        "/api/warehouse/inventory/export",
+        "/api/warehouse/inventory-logs/export",
         data: body,
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
@@ -331,6 +331,7 @@ class WarehouseService {
         return await HelperService().saveExcelFile(
           bytes: response.data as List<int>,
           fileNamePrefix: "inventory",
+          dateTime: targetDate,
         );
       } else {
         AppLogger.w("Export failed with statusCode: ${response.statusCode}");

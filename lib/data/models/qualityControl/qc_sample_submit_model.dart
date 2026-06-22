@@ -6,10 +6,10 @@ class QcSampleSubmitModel {
 
   factory QcSampleSubmitModel.fromJson(Map<String, dynamic> json) {
     return QcSampleSubmitModel(
-      sampleIndex: json['sampleIndex'] ?? 0,
+      sampleIndex: json["sampleIndex"] ?? 0,
       checklist:
-          json['checklist'] is Map<String, dynamic>
-              ? Map<String, bool>.from(json['checklist'])
+          json["checklist"] is Map<String, dynamic>
+              ? Map<String, bool>.from(json["checklist"])
               : const {},
     );
   }

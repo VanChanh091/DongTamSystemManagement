@@ -1,10 +1,10 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:dongtam/service/employee_service.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import "package:dongtam/service/employee_service.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
 
 class DialogExportEmployee extends StatefulWidget {
   final VoidCallback onEmployee;
@@ -46,24 +46,24 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
     if (date != null && mounted) {
       setState(() {
         selectedDate = date;
-        joinDateController.text = DateFormat('dd/MM/yyyy').format(date);
+        joinDateController.text = DateFormat("dd/MM/yyyy").format(date);
       });
     }
   }
 
   void submit() async {
     try {
-      if (selectedOption.value == 'joinDate') {
+      if (selectedOption.value == "joinDate") {
         if (selectedDate == null) {
-          showSnackBarError(context, 'Vui lòng chọn thời gian');
+          showSnackBarError(context, "Vui lòng chọn thời gian");
           return;
         }
       }
 
       File? file = await EmployeeService().exportExcelEmployee(
-        status: selectedOption.value == 'status' ? statusController.text : "",
-        joinDate: selectedOption.value == 'joinDate' ? selectedDate : null,
-        all: selectedOption.value == 'all' ? true : false,
+        status: selectedOption.value == "status" ? statusController.text : "",
+        joinDate: selectedOption.value == "joinDate" ? selectedDate : null,
+        all: selectedOption.value == "all" ? true : false,
       );
 
       if (!mounted) return;
@@ -78,7 +78,7 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
     } catch (e, s) {
       if (!mounted) return; // check context
       AppLogger.e("Lỗi khi xuất báo cáo", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể xuất dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể xuất dữ liệu");
     }
   }
 
@@ -104,20 +104,20 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
             children: [
               RadioListTile<String>(
                 title: const Text("Tất cả", style: TextStyle(fontSize: 17)),
-                value: 'all',
+                value: "all",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
 
               RadioListTile<String>(
                 title: const Text("Tình Trạng", style: TextStyle(fontSize: 17)),
-                value: 'status',
+                value: "status",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
               const SizedBox(height: 5),
 
-              if (value == 'status') ...[
+              if (value == "status") ...[
                 TextFormField(
                   controller: statusController,
                   style: const TextStyle(fontSize: 15),
@@ -135,13 +135,13 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
 
               RadioListTile<String>(
                 title: const Text("Ngày vào làm", style: TextStyle(fontSize: 17)),
-                value: 'joinDate',
+                value: "joinDate",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
               const SizedBox(height: 5),
 
-              if (value == 'joinDate') ...[
+              if (value == "joinDate") ...[
                 Column(
                   children: [
                     SizedBox(
@@ -158,7 +158,7 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
                         label: Text(
                           selectedDate == null
                               ? "Chọn ngày"
-                              : DateFormat('dd/MM/yyyy').format(selectedDate!),
+                              : DateFormat("dd/MM/yyyy").format(selectedDate!),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,

@@ -1,18 +1,18 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/models/employee/employee_basic_info.dart';
-import 'package:dongtam/service/employee_service.dart';
-import 'package:dongtam/service/manufacture_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/models/employee/employee_basic_info.dart";
+import "package:dongtam/service/employee_service.dart";
+import "package:dongtam/service/manufacture_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
 
 class DialogReportProduction extends StatefulWidget {
   final int planningId;
@@ -73,14 +73,14 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       String getLastValue(dynamic input) {
         if (input == null || input.toString().isEmpty) return "";
         String str = input.toString();
-        return str.contains(',') ? str.split(',').last.trim() : str.trim();
+        return str.contains(",") ? str.split(",").last.trim() : str.trim();
       }
 
-      shiftManagementSelected = getLastValue(data['manager']).toUpperCase();
+      shiftManagementSelected = getLastValue(data["manager"]).toUpperCase();
       shiftManagementController.text = shiftManagementSelected!;
 
       if (widget.isPaper) {
-        shiftProduction = getLastValue(data['shift']);
+        shiftProduction = getLastValue(data["shift"]);
         shiftProductionController.text = shiftProduction;
       }
     }
@@ -154,7 +154,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           planningId: widget.planningId,
           qtyProduced: qtyProduced,
           dayCompleted: completedDate,
-          reportedBy: 'DTSX-${employeeCodeController.trimmed}',
+          reportedBy: "DTSX-${employeeCodeController.trimmed}",
           reportData: reportData,
           isUpdate: widget.initialData != null ? true : false,
           action: "EDIT_REPORT",
@@ -186,13 +186,13 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           qtyProduced: qtyProduced,
           rpWasteLoss: qtyWasteNorm,
           shiftManagement: shiftManagement,
-          reportedBy: 'DTSX-${employeeCodeController.trimmed}',
+          reportedBy: "DTSX-${employeeCodeController.trimmed}",
           isUpdate: widget.initialData != null ? true : false,
           action: "EDIT_REPORT",
         );
 
-        success = resultBox['success'] ?? false;
-        isLastStage = resultBox['isLastStage'] ?? false;
+        success = resultBox["success"] ?? false;
+        isLastStage = resultBox["isLastStage"] ?? false;
       }
 
       if (success) {
@@ -216,7 +216,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         }
 
         if (!mounted) return;
-        showSnackBarSuccess(context, 'Báo cáo sản xuất thành công');
+        showSnackBarSuccess(context, "Báo cáo sản xuất thành công");
         widget.onReport();
 
         //cập nhật badge
@@ -230,10 +230,10 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       }
     } on ApiException catch (e) {
       final errorText = switch (e.errorCode) {
-        'ACCESS_DENIED' => 'Bạn không có quyền báo cáo máy này',
-        'INVALID_MACHINE' => 'Máy không hợp lệ',
-        'EMPLOYEE_NOT_FOUND' => 'Mã nhân viên không tồn tại',
-        _ => 'Có lỗi xảy ra, vui lòng thử lại',
+        "ACCESS_DENIED" => "Bạn không có quyền báo cáo máy này",
+        "INVALID_MACHINE" => "Máy không hợp lệ",
+        "EMPLOYEE_NOT_FOUND" => "Mã nhân viên không tồn tại",
+        _ => "Có lỗi xảy ra, vui lòng thử lại",
       };
 
       if (mounted) {
@@ -242,7 +242,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     } catch (e, s) {
       AppLogger.e("Lỗi khi báo cáo sản xuất", error: e, stackTrace: s);
       if (mounted) {
-        showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+        showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
       }
     }
   }
@@ -276,7 +276,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         if (label == "Số Lượng Đã Sản Xuất") {
           final intValue = int.tryParse(text);
 
-          if (!RegExp(r'^\d+$').hasMatch(text)) {
+          if (!RegExp(r"^\d+$").hasMatch(text)) {
             return "Chỉ được nhập số nguyên dương";
           } else if (intValue == 0 || intValue! < 0) {
             return "Số lượng không được bé hơn hoặc bằng 0";
@@ -284,7 +284,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         } else if (label == "Phế Liệu Thực Tế") {
           final doubleValue = double.tryParse(text);
 
-          if (!RegExp(r'^\d+([.]\d+)?$').hasMatch(text)) {
+          if (!RegExp(r"^\d+([.]\d+)?$").hasMatch(text)) {
             return "Chỉ được nhập số thực, chỉ được dùng dấu chấm";
           } else if (doubleValue == 0 || doubleValue! < 0) {
             return "Số lượng phế liệu không được bé hơn 0";

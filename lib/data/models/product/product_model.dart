@@ -15,21 +15,21 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      productId: json['productId'] ?? 'CUSTOM',
-      typeProduct: json['typeProduct'] ?? "",
-      productName: json['productName'] ?? "",
-      maKhuon: json['maKhuon'] ?? "",
-      productImage: json['productImage'] ?? "",
+      productId: json["productId"] ?? "CUSTOM",
+      typeProduct: json["typeProduct"] ?? "",
+      productName: json["productName"] ?? "",
+      maKhuon: json["maKhuon"] ?? "",
+      productImage: json["productImage"] ?? "",
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'prefix': productId,
-      'typeProduct': typeProduct,
-      'productName': productName,
-      'maKhuon': maKhuon,
-      'productImage': productImage,
+      "prefix": productId,
+      "typeProduct": typeProduct,
+      "productName": productName,
+      "maKhuon": maKhuon,
+      "productImage": productImage,
     };
   }
 }

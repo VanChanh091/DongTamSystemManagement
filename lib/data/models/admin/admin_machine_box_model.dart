@@ -13,10 +13,10 @@ class AdminMachineBoxModel {
 
   factory AdminMachineBoxModel.fromJson(Map<String, dynamic> json) {
     return AdminMachineBoxModel(
-      machineId: json['machineId'],
-      timeToProduct: json['timeToProduct'] ?? 0,
-      speedOfMachine: json['speedOfMachine'] ?? 0,
-      machineName: json['machineName'] ?? "",
+      machineId: json["machineId"],
+      timeToProduct: json["timeToProduct"] ?? 0,
+      speedOfMachine: json["speedOfMachine"] ?? 0,
+      machineName: json["machineName"] ?? "",
     );
   }
 

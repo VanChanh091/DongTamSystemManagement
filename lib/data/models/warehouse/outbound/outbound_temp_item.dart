@@ -1,6 +1,6 @@
-import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
+import "package:dongtam/data/models/delivery/delivery_item_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart";
+import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
 
 class OutboundTempItem {
   final String orderId;
@@ -54,18 +54,18 @@ class OutboundTempItem {
   factory OutboundTempItem.fromDetailModel(OutboundDetailModel detail) {
     final order = detail.order;
 
-    // print('--- CHECKING DATA START DETAIL ---');
+    // print("--- CHECKING DATA START DETAIL ---");
     // print({
-    //   'orderId': order?.orderId ?? "",
-    //   'lengthManufacture': order?.lengthPaperManufacture.toDouble() ?? 0,
-    //   'sizeManufacture': order?.paperSizeManufacture.toDouble() ?? 0,
-    //   'lengthCustomer': order?.lengthPaperCustomer.toDouble() ?? 0,
-    //   'sizeCustomer': order?.paperSizeCustomer.toDouble() ?? 0,
-    //   'quantityCustomer': order?.quantityCustomer ?? 0,
-    //   'totalOutbound': order?.Inventory?.totalQtyOutbound ?? 0,
-    //   'deliveryItemId': detail.deliveryItemId ?? "",
+    //   "orderId": order?.orderId ?? "",
+    //   "lengthManufacture": order?.lengthPaperManufacture.toDouble() ?? 0,
+    //   "sizeManufacture": order?.paperSizeManufacture.toDouble() ?? 0,
+    //   "lengthCustomer": order?.lengthPaperCustomer.toDouble() ?? 0,
+    //   "sizeCustomer": order?.paperSizeCustomer.toDouble() ?? 0,
+    //   "quantityCustomer": order?.quantityCustomer ?? 0,
+    //   "totalOutbound": order?.Inventory?.totalQtyOutbound ?? 0,
+    //   "deliveryItemId": detail.deliveryItemId ?? "",
     // });
-    // print('--- CHECKING DATA END ---');
+    // print("--- CHECKING DATA END ---");
 
     return OutboundTempItem(
       orderId: detail.orderId,
@@ -100,17 +100,17 @@ class OutboundTempItem {
   factory OutboundTempItem.fromInventoryModel(InventoryModel inventory) {
     final order = inventory.order;
 
-    // print('--- CHECKING DATA START INVENTORY ---');
+    // print("--- CHECKING DATA START INVENTORY ---");
     // print({
-    //   'orderId': inventory.orderId,
-    //   'lengthManufacture': order?.lengthPaperManufacture.toDouble() ?? 0,
-    //   'sizeManufacture': order?.paperSizeManufacture.toDouble() ?? 0,
-    //   'lengthCustomer': order?.lengthPaperCustomer.toDouble() ?? 0,
-    //   'sizeCustomer': order?.paperSizeCustomer.toDouble() ?? 0,
-    //   'quantityCustomer': order?.quantityCustomer ?? 0,
-    //   'totalOutbound': order?.Inventory?.totalQtyOutbound ?? 0,
+    //   "orderId": inventory.orderId,
+    //   "lengthManufacture": order?.lengthPaperManufacture.toDouble() ?? 0,
+    //   "sizeManufacture": order?.paperSizeManufacture.toDouble() ?? 0,
+    //   "lengthCustomer": order?.lengthPaperCustomer.toDouble() ?? 0,
+    //   "sizeCustomer": order?.paperSizeCustomer.toDouble() ?? 0,
+    //   "quantityCustomer": order?.quantityCustomer ?? 0,
+    //   "totalOutbound": order?.Inventory?.totalQtyOutbound ?? 0,
     // });
-    // print('--- CHECKING DATA END ---');
+    // print("--- CHECKING DATA END ---");
 
     return OutboundTempItem(
       orderId: inventory.orderId,
@@ -141,18 +141,18 @@ class OutboundTempItem {
     final order = item.request?.paper?.order;
     final inventory = order?.Inventory;
 
-    // print('--- CHECKING DATA START DELIVERY ---');
+    // print("--- CHECKING DATA START DELIVERY ---");
     // print({
-    //   'orderId': order?.orderId ?? "",
-    //   'lengthManufacture': order?.lengthPaperManufacture.toDouble() ?? 0,
-    //   'sizeManufacture': order?.paperSizeManufacture.toDouble() ?? 0,
-    //   'lengthCustomer': order?.lengthPaperCustomer.toDouble() ?? 0,
-    //   'sizeCustomer': order?.paperSizeCustomer.toDouble() ?? 0,
-    //   'deliveryItemId': item.deliveryItemId,
-    //   'quantityCustomer': order?.quantityCustomer ?? 0,
-    //   'totalOutbound': order?.Inventory?.totalQtyOutbound ?? 0,
+    //   "orderId": order?.orderId ?? "",
+    //   "lengthManufacture": order?.lengthPaperManufacture.toDouble() ?? 0,
+    //   "sizeManufacture": order?.paperSizeManufacture.toDouble() ?? 0,
+    //   "lengthCustomer": order?.lengthPaperCustomer.toDouble() ?? 0,
+    //   "sizeCustomer": order?.paperSizeCustomer.toDouble() ?? 0,
+    //   "deliveryItemId": item.deliveryItemId,
+    //   "quantityCustomer": order?.quantityCustomer ?? 0,
+    //   "totalOutbound": order?.Inventory?.totalQtyOutbound ?? 0,
     // });
-    // print('--- CHECKING DATA END ---');
+    // print("--- CHECKING DATA END ---");
 
     return OutboundTempItem(
       orderId: order?.orderId ?? "",

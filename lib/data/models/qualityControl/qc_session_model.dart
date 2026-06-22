@@ -1,4 +1,4 @@
-import 'package:dongtam/data/models/qualityControl/qc_sample_result_model.dart';
+import "package:dongtam/data/models/qualityControl/qc_sample_result_model.dart";
 
 class QcSessionModel {
   final int qcSessionId;
@@ -27,16 +27,16 @@ class QcSessionModel {
 
   factory QcSessionModel.fromJson(Map<String, dynamic> json) {
     return QcSessionModel(
-      qcSessionId: json['qcSessionId'] ?? 0,
-      totalSample: json['totalSample'] ?? 0,
-      processType: json['processType'] ?? "",
-      checkedBy: json['checkedBy'] ?? "",
-      status: json['status'] ?? "",
+      qcSessionId: json["qcSessionId"] ?? 0,
+      totalSample: json["totalSample"] ?? 0,
+      processType: json["processType"] ?? "",
+      checkedBy: json["checkedBy"] ?? "",
+      status: json["status"] ?? "",
 
       //FK
-      planningId: json['planningId'] ?? 0,
-      planningBoxId: json['planningBoxId'] ?? 0,
-      samples: json['samples'] != null ? QcSampleResultModel.fromJson(json['samples']) : null,
+      planningId: json["planningId"] ?? 0,
+      planningBoxId: json["planningBoxId"] ?? 0,
+      samples: json["samples"] != null ? QcSampleResultModel.fromJson(json["samples"]) : null,
     );
   }
 

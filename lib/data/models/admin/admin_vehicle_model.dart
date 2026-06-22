@@ -1,4 +1,4 @@
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class AdminVehicleModel {
   int? vehicleId;
@@ -22,12 +22,12 @@ class AdminVehicleModel {
 
   factory AdminVehicleModel.fromJson(Map<String, dynamic> json) {
     return AdminVehicleModel(
-      vehicleId: json['vehicleId'] ?? 0,
-      vehicleName: json['vehicleName'] ?? "",
-      licensePlate: json['licensePlate'] ?? "",
-      maxPayload: json['maxPayload'] ?? 0,
-      volumeCapacity: toDouble(json['volumeCapacity']),
-      vehicleHouse: json['vehicleHouse'] ?? "",
+      vehicleId: json["vehicleId"] ?? 0,
+      vehicleName: json["vehicleName"] ?? "",
+      licensePlate: json["licensePlate"] ?? "",
+      maxPayload: json["maxPayload"] ?? 0,
+      volumeCapacity: toDouble(json["volumeCapacity"]),
+      vehicleHouse: json["vehicleHouse"] ?? "",
     );
   }
 

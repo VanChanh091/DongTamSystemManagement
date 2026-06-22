@@ -1,5 +1,5 @@
-import 'package:dongtam/data/models/employee/employee_company_info.dart';
-import 'package:intl/intl.dart';
+import "package:dongtam/data/models/employee/employee_company_info.dart";
+import "package:intl/intl.dart";
 
 class EmployeeBasicInfo {
   final int employeeId;
@@ -33,30 +33,30 @@ class EmployeeBasicInfo {
 
   factory EmployeeBasicInfo.fromJson(Map<String, dynamic> json) {
     return EmployeeBasicInfo(
-      employeeId: json['employeeId'] ?? 0,
-      fullName: json['fullName'] ?? "",
-      gender: json['gender'] ?? "",
+      employeeId: json["employeeId"] ?? 0,
+      fullName: json["fullName"] ?? "",
+      gender: json["gender"] ?? "",
       birthday:
-          json['birthday'] != null && json['birthday'] != ''
-              ? DateTime.tryParse(json['birthday'])
+          json["birthday"] != null && json["birthday"] != ""
+              ? DateTime.tryParse(json["birthday"])
               : null,
-      birthPlace: json['birthPlace'] ?? "",
-      homeTown: json['homeTown'] ?? "",
-      educationLevel: json['educationLevel'] ?? "",
-      phoneNumber: json['phoneNumber'] ?? "",
-      educationSystem: json['educationSystem'] ?? "",
-      major: json['major'] ?? "",
-      citizenId: json['citizenId'] ?? "",
+      birthPlace: json["birthPlace"] ?? "",
+      homeTown: json["homeTown"] ?? "",
+      educationLevel: json["educationLevel"] ?? "",
+      phoneNumber: json["phoneNumber"] ?? "",
+      educationSystem: json["educationSystem"] ?? "",
+      major: json["major"] ?? "",
+      citizenId: json["citizenId"] ?? "",
       citizenIssuedDate:
-          json['citizenIssuedDate'] != null && json['citizenIssuedDate'] != ''
-              ? DateTime.tryParse(json['citizenIssuedDate'])
+          json["citizenIssuedDate"] != null && json["citizenIssuedDate"] != ""
+              ? DateTime.tryParse(json["citizenIssuedDate"])
               : null,
-      citizenIssuedPlace: json['citizenIssuedPlace'] ?? "",
-      permanentAddress: json['permanentAddress'] ?? "",
-      temporaryAddress: json['temporaryAddress'] ?? "",
-      ethnicity: json['ethnicity'] ?? "",
+      citizenIssuedPlace: json["citizenIssuedPlace"] ?? "",
+      permanentAddress: json["permanentAddress"] ?? "",
+      temporaryAddress: json["temporaryAddress"] ?? "",
+      ethnicity: json["ethnicity"] ?? "",
       companyInfo:
-          json['companyInfo'] != null ? EmployeeCompanyInfo.fromJson(json['companyInfo']) : null,
+          json["companyInfo"] != null ? EmployeeCompanyInfo.fromJson(json["companyInfo"]) : null,
     );
   }
 
@@ -64,7 +64,7 @@ class EmployeeBasicInfo {
     return {
       "fullName": fullName,
       "gender": gender,
-      "birthday": DateFormat('yyyy-MM-dd').format(birthday!),
+      "birthday": DateFormat("yyyy-MM-dd").format(birthday!),
       "birthPlace": birthPlace,
       "homeTown": homeTown,
       "educationLevel": educationLevel,
@@ -72,7 +72,7 @@ class EmployeeBasicInfo {
       "educationSystem": educationSystem,
       "major": major,
       "citizenId": citizenId,
-      "citizenIssuedDate": DateFormat('yyyy-MM-dd').format(citizenIssuedDate!),
+      "citizenIssuedDate": DateFormat("yyyy-MM-dd").format(citizenIssuedDate!),
       "citizenIssuedPlace": citizenIssuedPlace,
       "permanentAddress": permanentAddress,
       "temporaryAddress": temporaryAddress,

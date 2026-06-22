@@ -1,10 +1,10 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/data/models/planning/planning_stages.dart';
-import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
-import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
-import 'package:flutter/material.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/data/models/planning/planning_stages.dart";
+import "package:dongtam/data/models/planning/time_overflow_planning.dart";
+import "package:dongtam/data/models/warehouse/inbound_history_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
+import "package:flutter/material.dart";
 
 class PlanningPaper {
   final int planningId;
@@ -122,15 +122,15 @@ class PlanningPaper {
       }
     }
 
-    return formattedParts.join('/');
+    return formattedParts.join("/");
   }
 
   int get getTotalQtyInbound => inbound?.fold(0, (sum, e) => sum! + e.qtyInbound) ?? 0;
 
   static String formatTimeOfDay({required TimeOfDay timeOfDay}) {
-    final hour = timeOfDay.hour.toString().padLeft(2, '0');
-    final minute = timeOfDay.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
+    final hour = timeOfDay.hour.toString().padLeft(2, "0");
+    final minute = timeOfDay.minute.toString().padLeft(2, "0");
+    return "$hour:$minute";
   }
 
   int get remainRunningPlan {
@@ -143,77 +143,77 @@ class PlanningPaper {
       planningId: json["planningId"],
 
       dayStart:
-          json['dayStart'] != null && json['dayStart'] != ''
-              ? DateTime.tryParse(json['dayStart'])
+          json["dayStart"] != null && json["dayStart"] != ""
+              ? DateTime.tryParse(json["dayStart"])
               : null,
       dayCompleted:
-          json['dayCompleted'] != null && json['dayCompleted'] != ''
-              ? DateTime.tryParse(json['dayCompleted'])
+          json["dayCompleted"] != null && json["dayCompleted"] != ""
+              ? DateTime.tryParse(json["dayCompleted"])
               : null,
       timeRunning:
-          json['timeRunning'] != null && json['timeRunning'] != ''
-              ? parseTimeOfDay(json['timeRunning'])
+          json["timeRunning"] != null && json["timeRunning"] != ""
+              ? parseTimeOfDay(json["timeRunning"])
               : null,
       timeStart:
-          json['timeStart'] != null && json['timeStart'] != ''
-              ? parseTimeOfDay(json['timeStart'])
+          json["timeStart"] != null && json["timeStart"] != ""
+              ? parseTimeOfDay(json["timeStart"])
               : null,
 
-      runningPlan: json['runningPlan'] ?? 0,
-      dayReplace: json['dayReplace'] ?? "",
-      matEReplace: json['matEReplace'] ?? "",
-      matBReplace: json['matBReplace'] ?? "",
-      matCReplace: json['matCReplace'] ?? "",
-      matE2Replace: json['matE2Replace'] ?? "",
-      songEReplace: json['songEReplace'] ?? "",
-      songBReplace: json['songBReplace'] ?? "",
-      songCReplace: json['songCReplace'] ?? "",
-      songE2Replace: json['songE2Replace'] ?? "",
+      runningPlan: json["runningPlan"] ?? 0,
+      dayReplace: json["dayReplace"] ?? "",
+      matEReplace: json["matEReplace"] ?? "",
+      matBReplace: json["matBReplace"] ?? "",
+      matCReplace: json["matCReplace"] ?? "",
+      matE2Replace: json["matE2Replace"] ?? "",
+      songEReplace: json["songEReplace"] ?? "",
+      songBReplace: json["songBReplace"] ?? "",
+      songCReplace: json["songCReplace"] ?? "",
+      songE2Replace: json["songE2Replace"] ?? "",
 
-      lengthPaperPlanning: toDouble(json['lengthPaperPlanning']),
-      sizePaperPLaning: toDouble((json['sizePaperPLaning'])),
+      lengthPaperPlanning: toDouble(json["lengthPaperPlanning"]),
+      sizePaperPLaning: toDouble((json["sizePaperPLaning"])),
 
-      ghepKho: json['ghepKho'] ?? 0,
-      numberChild: json['numberChild'] ?? 0,
-      chooseMachine: json['chooseMachine'] ?? "",
-      totalPrice: toDouble(json['totalPrice']),
+      ghepKho: json["ghepKho"] ?? 0,
+      numberChild: json["numberChild"] ?? 0,
+      chooseMachine: json["chooseMachine"] ?? "",
+      totalPrice: toDouble(json["totalPrice"]),
 
-      bottom: toDouble(json['bottom']),
-      fluteE: toDouble(json['fluteE']),
-      fluteB: toDouble(json['fluteB']),
-      fluteC: toDouble(json['fluteC']),
-      fluteE2: toDouble(json['fluteE2']),
-      knife: toDouble(json['knife']),
+      bottom: toDouble(json["bottom"]),
+      fluteE: toDouble(json["fluteE"]),
+      fluteB: toDouble(json["fluteB"]),
+      fluteC: toDouble(json["fluteC"]),
+      fluteE2: toDouble(json["fluteE2"]),
+      knife: toDouble(json["knife"]),
 
-      totalLoss: toDouble(json['totalLoss']),
-      sortPlanning: json['sortPlanning'] ?? 0,
-      status: json['status'] ?? "",
-      statusRequest: json['statusRequest'] ?? "",
+      totalLoss: toDouble(json["totalLoss"]),
+      sortPlanning: json["sortPlanning"] ?? 0,
+      status: json["status"] ?? "",
+      statusRequest: json["statusRequest"] ?? "",
 
-      qtyProduced: json['qtyProduced'] ?? 0,
-      qtyWasteNorm: toDouble(json['qtyWasteNorm']),
+      qtyProduced: json["qtyProduced"] ?? 0,
+      qtyWasteNorm: toDouble(json["qtyWasteNorm"]),
 
-      shiftManagement: json['shiftManagement'] ?? "",
-      shiftProduction: json['shiftProduction'] ?? "",
-      note: json['note'] ?? "",
+      shiftManagement: json["shiftManagement"] ?? "",
+      shiftProduction: json["shiftProduction"] ?? "",
+      note: json["note"] ?? "",
 
-      hasBox: json['hasBox'] ?? false,
-      hasOverFlow: json['hasOverFlow'] ?? false,
-      deliveryPlanned: json['deliveryPlanned'] ?? "",
+      hasBox: json["hasBox"] ?? false,
+      hasOverFlow: json["hasOverFlow"] ?? false,
+      deliveryPlanned: json["deliveryPlanned"] ?? "",
 
-      orderId: json['orderId'] ?? "",
-      order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
+      orderId: json["orderId"] ?? "",
+      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
       timeOverflowPlanning:
-          json['timeOverFlow'] != null ? TimeOverflowPlanning.fromJson(json['timeOverFlow']) : null,
-      planningBox: json['PlanningBox'] != null ? PlanningBox.fromJson(json['PlanningBox']) : null,
+          json["timeOverFlow"] != null ? TimeOverflowPlanning.fromJson(json["timeOverFlow"]) : null,
+      planningBox: json["PlanningBox"] != null ? PlanningBox.fromJson(json["PlanningBox"]) : null,
       stages:
-          json['stages'] != null
-              ? List<PlanningStage>.from(json['stages'].map((x) => PlanningStage.fromJson(x)))
+          json["stages"] != null
+              ? List<PlanningStage>.from(json["stages"].map((x) => PlanningStage.fromJson(x)))
               : [],
       inbound:
-          json['inbound'] != null
+          json["inbound"] != null
               ? List<InboundHistoryModel>.from(
-                json['inbound'].map((x) => InboundHistoryModel.fromJson(x)),
+                json["inbound"].map((x) => InboundHistoryModel.fromJson(x)),
               )
               : [],
     );
@@ -221,25 +221,25 @@ class PlanningPaper {
 
   Map<String, dynamic> toJson() {
     return {
-      'runningPlan': runningPlan,
-      'dayReplace': dayReplace,
-      'matEReplace': matEReplace,
-      'matBReplace': matBReplace,
-      'matCReplace': matCReplace,
-      'matE2Replace': matE2Replace,
-      'songEReplace': songEReplace,
-      'songBReplace': songBReplace,
-      'songCReplace': songCReplace,
-      'songE2Replace': songE2Replace,
-      'lengthPaperPlanning': lengthPaperPlanning,
-      'sizePaperPLaning': sizePaperPLaning,
-      'ghepKho': ghepKho,
-      'numberChild': numberChild,
-      'chooseMachine': chooseMachine,
-      'hasBox': hasBox,
+      "runningPlan": runningPlan,
+      "dayReplace": dayReplace,
+      "matEReplace": matEReplace,
+      "matBReplace": matBReplace,
+      "matCReplace": matCReplace,
+      "matE2Replace": matE2Replace,
+      "songEReplace": songEReplace,
+      "songBReplace": songBReplace,
+      "songCReplace": songCReplace,
+      "songE2Replace": songE2Replace,
+      "lengthPaperPlanning": lengthPaperPlanning,
+      "sizePaperPLaning": sizePaperPLaning,
+      "ghepKho": ghepKho,
+      "numberChild": numberChild,
+      "chooseMachine": chooseMachine,
+      "hasBox": hasBox,
 
-      'orderId': orderId,
-      'order': order?.toJson(),
+      "orderId": orderId,
+      "order": order?.toJson(),
     };
   }
 }

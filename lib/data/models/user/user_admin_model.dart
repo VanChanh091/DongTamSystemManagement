@@ -18,22 +18,22 @@ class UserAdminModel {
   static String formatSex(String? sex) {
     switch (sex) {
       case "male":
-        return 'Nam';
+        return "Nam";
       case "female":
-        return 'Nữ';
+        return "Nữ";
       default:
-        return '';
+        return "";
     }
   }
 
   static String formatRole({required String role}) {
     switch (role) {
-      case 'admin':
-        return 'Quản trị';
-      case 'manager':
-        return 'Quản lý';
-      case 'user':
-        return 'Người dùng';
+      case "admin":
+        return "Quản trị";
+      case "manager":
+        return "Quản lý";
+      case "user":
+        return "Người dùng";
       default:
         return role;
     }
@@ -41,7 +41,7 @@ class UserAdminModel {
 
   static String formatPermissions(List<String> permissions) {
     final permissionMap = {
-      'manager': "Quản lý",
+      "manager": "Quản lý",
       "sale": "Kinh doanh",
       "plan": "Kế hoạch",
       "HR": "Nhân sự",
@@ -53,38 +53,38 @@ class UserAdminModel {
       "machine2Layer": "Máy 2 Lớp",
       "MachineRollPaper": "Máy Quấn Cuồn",
       "step2Production": "Công Đoạn 2",
-      'QC': "Chất Lượng",
+      "QC": "Chất Lượng",
       "delivery": "Giao Hàng",
       "read": "Chỉ đọc",
     };
 
-    return permissions.map((position) => permissionMap[position] ?? position).join(', ');
+    return permissions.map((position) => permissionMap[position] ?? position).join(", ");
   }
 
   //change JSON from api to object User
   factory UserAdminModel.fromJson(Map<String, dynamic> json) {
     return UserAdminModel(
-      userId: json['userId'],
-      fullName: json['fullName'],
-      email: json['email'],
-      sex: json['sex'] ?? "",
-      phone: json['phone'] ?? "",
-      role: json['role'],
-      avatar: json['avatar'] ?? "",
-      permissions: List<String>.from(json['permissions'] ?? []),
+      userId: json["userId"],
+      fullName: json["fullName"],
+      email: json["email"],
+      sex: json["sex"] ?? "",
+      phone: json["phone"] ?? "",
+      role: json["role"],
+      avatar: json["avatar"] ?? "",
+      permissions: List<String>.from(json["permissions"] ?? []),
     );
   }
 
   //change object User to JSON send to BE
   Map<String, dynamic> toJson() {
     return {
-      'fullName': fullName,
-      'email': email,
-      'sex': sex,
-      'phone': phone,
-      'role': role,
-      'avatar': avatar,
-      'permissions': permissions,
+      "fullName": fullName,
+      "email": email,
+      "sex": sex,
+      "phone": phone,
+      "role": role,
+      "avatar": avatar,
+      "permissions": permissions,
     };
   }
 }

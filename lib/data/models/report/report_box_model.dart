@@ -1,5 +1,5 @@
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class ReportBoxModel {
   final int? reportBoxId;
@@ -30,17 +30,17 @@ class ReportBoxModel {
 
   factory ReportBoxModel.fromJson(Map<String, dynamic> json) {
     return ReportBoxModel(
-      reportBoxId: json['reportBoxId'] ?? 0,
-      dayReport: DateTime.parse(json['dayReport']),
-      qtyProduced: json['qtyProduced'] ?? 0,
-      lackOfQty: json['lackOfQty'] ?? 0,
-      wasteLoss: toDouble(json['wasteLoss']),
-      totalPrice: toDouble(json['totalPrice']),
-      shiftManagement: json['shiftManagement'] ?? "",
-      machine: json['machine'] ?? "",
-      reportedBy: json['reportedBy'] ?? "",
-      planningBoxId: json['planningBoxId'] ?? 0,
-      planningBox: json['PlanningBox'] != null ? PlanningBox.fromJson(json['PlanningBox']) : null,
+      reportBoxId: json["reportBoxId"] ?? 0,
+      dayReport: DateTime.parse(json["dayReport"]),
+      qtyProduced: json["qtyProduced"] ?? 0,
+      lackOfQty: json["lackOfQty"] ?? 0,
+      wasteLoss: toDouble(json["wasteLoss"]),
+      totalPrice: toDouble(json["totalPrice"]),
+      shiftManagement: json["shiftManagement"] ?? "",
+      machine: json["machine"] ?? "",
+      reportedBy: json["reportedBy"] ?? "",
+      planningBoxId: json["planningBoxId"] ?? 0,
+      planningBox: json["PlanningBox"] != null ? PlanningBox.fromJson(json["PlanningBox"]) : null,
     );
   }
 }

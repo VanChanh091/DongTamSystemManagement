@@ -1,4 +1,4 @@
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class AdminWasteNormModel {
   int wasteNormId;
@@ -19,12 +19,12 @@ class AdminWasteNormModel {
 
   factory AdminWasteNormModel.fromJson(Map<String, dynamic> json) {
     return AdminWasteNormModel(
-      wasteNormId: json['wasteNormId'],
-      waveCrest: toDouble(json['waveCrest']),
-      waveCrestSoft: toDouble(json['waveCrestSoft']),
-      lossInProcess: toDouble(json['lossInProcess']),
-      lossInSheetingAndSlitting: toDouble(json['lossInSheetingAndSlitting']),
-      machineName: json['machineName'] ?? '',
+      wasteNormId: json["wasteNormId"],
+      waveCrest: toDouble(json["waveCrest"]),
+      waveCrestSoft: toDouble(json["waveCrestSoft"]),
+      lossInProcess: toDouble(json["lossInProcess"]),
+      lossInSheetingAndSlitting: toDouble(json["lossInSheetingAndSlitting"]),
+      machineName: json["machineName"] ?? "",
     );
   }
 

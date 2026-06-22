@@ -1,9 +1,9 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/box_machine_time.dart';
-import 'package:dongtam/data/models/planning/time_overflow_planning.dart';
-import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
-import 'package:flutter/material.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/box_machine_time.dart";
+import "package:dongtam/data/models/planning/time_overflow_planning.dart";
+import "package:dongtam/data/models/warehouse/inbound_history_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
+import "package:flutter/material.dart";
 
 class PlanningBox {
   final int planningBoxId;
@@ -57,13 +57,13 @@ class PlanningBox {
       }
     }
 
-    return formattedParts.join('/');
+    return formattedParts.join("/");
   }
 
   static String formatTimeOfDay({required TimeOfDay timeOfDay}) {
-    final hour = timeOfDay.hour.toString().padLeft(2, '0');
-    final minute = timeOfDay.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
+    final hour = timeOfDay.hour.toString().padLeft(2, "0");
+    final minute = timeOfDay.minute.toString().padLeft(2, "0");
+    return "$hour:$minute";
   }
 
   //get data of box time machine
@@ -97,45 +97,45 @@ class PlanningBox {
 
   factory PlanningBox.fromJson(Map<String, dynamic> json) {
     return PlanningBox(
-      planningBoxId: json['planningBoxId'],
-      qtyPaper: json['qtyPaper'] ?? 0,
+      planningBoxId: json["planningBoxId"],
+      qtyPaper: json["qtyPaper"] ?? 0,
 
-      day: json['day'] ?? "",
-      matE: json['matE'] ?? "",
-      matB: json['matB'] ?? "",
-      matC: json['matC'] ?? "",
-      matE2: json['matE2'] ?? "",
-      songE: json['songE'] ?? "",
-      songB: json['songB'] ?? "",
-      songC: json['songC'] ?? "",
-      songE2: json['songE2'] ?? "",
-      length: toDouble(json['length']),
-      size: toDouble(json['size']),
-      statusRequest: json['statusRequest'] ?? "",
+      day: json["day"] ?? "",
+      matE: json["matE"] ?? "",
+      matB: json["matB"] ?? "",
+      matC: json["matC"] ?? "",
+      matE2: json["matE2"] ?? "",
+      songE: json["songE"] ?? "",
+      songB: json["songB"] ?? "",
+      songC: json["songC"] ?? "",
+      songE2: json["songE2"] ?? "",
+      length: toDouble(json["length"]),
+      size: toDouble(json["size"]),
+      statusRequest: json["statusRequest"] ?? "",
 
-      orderId: json['orderId'] ?? "",
-      planningId: json['planningId'] ?? 0,
-      order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
+      orderId: json["orderId"] ?? "",
+      planningId: json["planningId"] ?? 0,
+      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
       timeOverflowPlanning:
-          json['timeOverFlow'] != null
+          json["timeOverFlow"] != null
               ? List<TimeOverflowPlanning>.from(
-                json['timeOverFlow'].map((x) => TimeOverflowPlanning.fromJson(x)),
+                json["timeOverFlow"].map((x) => TimeOverflowPlanning.fromJson(x)),
               )
               : [],
       boxTimes:
-          json['boxTimes'] != null
-              ? List<BoxMachineTime>.from(json['boxTimes'].map((x) => BoxMachineTime.fromJson(x)))
+          json["boxTimes"] != null
+              ? List<BoxMachineTime>.from(json["boxTimes"].map((x) => BoxMachineTime.fromJson(x)))
               : [],
       allBoxTimes:
-          json['allBoxTimes'] != null
+          json["allBoxTimes"] != null
               ? List<BoxMachineTime>.from(
-                json['allBoxTimes'].map((x) => BoxMachineTime.fromJson(x)),
+                json["allBoxTimes"].map((x) => BoxMachineTime.fromJson(x)),
               )
               : [],
       inbound:
-          json['inbound'] != null
+          json["inbound"] != null
               ? List<InboundHistoryModel>.from(
-                json['inbound'].map((x) => InboundHistoryModel.fromJson(x)),
+                json["inbound"].map((x) => InboundHistoryModel.fromJson(x)),
               )
               : [],
     );

@@ -1,24 +1,24 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/models/employee/employee_basic_info.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/data/models/scrap/scrap_report_model.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/service/employee_service.dart';
-import 'package:dongtam/service/manufacture_service.dart';
-import 'package:dongtam/service/scrap_report_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/models/employee/employee_basic_info.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/data/models/scrap/scrap_report_model.dart";
+import "package:dongtam/presentation/components/shared/animated_button.dart";
+import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
+import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/service/employee_service.dart";
+import "package:dongtam/service/manufacture_service.dart";
+import "package:dongtam/service/scrap_report_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/symbols.dart";
 
 class ScrapReportDialog extends StatefulWidget {
   final ScrapReportModel? scrapReport;
@@ -41,7 +41,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
   final List<String> itemShiftProduction = ["Ca 1", "Ca 2", "Ca 3"];
 
   late String machine = "Máy 1350";
-  final List<String> itemsMachine = ['Máy 1350', 'Máy 1900', 'Máy 2 Lớp', 'Máy Quấn Cuồn'];
+  final List<String> itemsMachine = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
 
   DateTime? dayCompleted;
   final _dayCompletedController = TextEditingController();
@@ -72,7 +72,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
       String? lastReporter;
 
       if (shiftManagementStr != null && shiftManagementStr.isNotEmpty) {
-        lastReporter = shiftManagementStr.split(',').last.trim();
+        lastReporter = shiftManagementStr.split(",").last.trim();
       }
 
       machine = widget.initialData["machine"] ?? machine;
@@ -81,7 +81,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
       dayCompleted = widget.initialData["dayCompleted"] ?? dayCompleted;
 
       _dayCompletedController.text =
-          dayCompleted != null ? DateFormat('dd/MM/yyyy').format(dayCompleted!) : "";
+          dayCompleted != null ? DateFormat("dd/MM/yyyy").format(dayCompleted!) : "";
     }
   }
 
@@ -100,7 +100,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
     shiftProduction = widget.scrapReport!.shiftProduction;
     shiftManagementSelected = widget.scrapReport!.reportedBy;
     dayCompleted = widget.scrapReport!.dayCompleted;
-    _dayCompletedController.text = DateFormat('dd/MM/yyyy').format(dayCompleted!);
+    _dayCompletedController.text = DateFormat("dd/MM/yyyy").format(dayCompleted!);
   }
 
   void submit() async {
@@ -163,8 +163,8 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
       }
     } on ApiException catch (e) {
       final errorText = switch (e.errorCode) {
-        'EMPLOYEE_NOT_FOUND' => e.message!,
-        _ => 'Có lỗi xảy ra, vui lòng thử lại',
+        "EMPLOYEE_NOT_FOUND" => e.message!,
+        _ => "Có lỗi xảy ra, vui lòng thử lại",
       };
 
       if (mounted) {
@@ -174,7 +174,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
     } catch (e, s) {
       AppLogger.e("Lỗi khi báo cáo sản xuất", error: e, stackTrace: s);
       if (mounted) {
-        showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+        showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
         Navigator.pop(context); // đóng dialog loading
       }
     }
@@ -367,7 +367,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
                                     setState(() {
                                       dayCompleted = pickedDate;
                                       _dayCompletedController.text = DateFormat(
-                                        'dd/MM/yyyy',
+                                        "dd/MM/yyyy",
                                       ).format(pickedDate);
                                     });
                                   }
@@ -434,7 +434,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
                           });
                         } catch (e) {
                           if (context.mounted) {
-                            showSnackBarError(context, 'Lỗi xảy ra không mong muốn');
+                            showSnackBarError(context, "Lỗi xảy ra không mong muốn");
                           }
                         } finally {
                           setState(() {
@@ -509,7 +509,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
                                           buildCell(
                                             paper.dayCompleted is DateTime
                                                 ? DateFormat(
-                                                  'dd/MM/yyyy',
+                                                  "dd/MM/yyyy",
                                                 ).format(paper.dayCompleted as DateTime)
                                                 : "",
                                           ),

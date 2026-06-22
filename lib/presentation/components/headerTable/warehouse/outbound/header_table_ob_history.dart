@@ -6,7 +6,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 const List<Map<String, dynamic>> _headerOutboundHistory = [
   {"key": "index", "title": "STT"},
   {"key": "outboundSlipCode", "title": "Mã Số PXK"},
-  {"key": "dateOutbound", "title": "Ngày Xuất Kho"},
+
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "companyName", "title": "Tên Công Ty"},
   {"key": "totalOutboundQty", "title": "Số Lượng Xuất"},
@@ -23,6 +23,7 @@ const List<Map<String, dynamic>> _headerOutboundHistory = [
 
   //hidden
   {"key": "outboundId", "title": "", "visible": false},
+  {"key": "dateOutbound", "title": "Ngày Xuất Kho", "visible": false},
 ];
 
 List<GridColumn> buildOutboundHistoryColumn({required ThemeController themeController}) {

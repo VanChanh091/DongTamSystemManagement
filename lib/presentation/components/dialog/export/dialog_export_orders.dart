@@ -1,9 +1,9 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:dongtam/service/synthetic_service.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:flutter/material.dart';
+import "package:dongtam/service/synthetic_service.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:flutter/material.dart";
 
 class DialogExportOrders extends StatefulWidget {
   const DialogExportOrders({super.key});
@@ -47,9 +47,9 @@ class _DialogExportOrdersState extends State<DialogExportOrders> {
 
   void submit() async {
     try {
-      if (selectedOption.value == 'termPayment') {
+      if (selectedOption.value == "termPayment") {
         if (selectedRange == null) {
-          showSnackBarError(context, 'Vui lòng chọn khoảng thời gian');
+          showSnackBarError(context, "Vui lòng chọn khoảng thời gian");
           return;
         }
       }
@@ -64,7 +64,7 @@ class _DialogExportOrdersState extends State<DialogExportOrders> {
       if (!mounted) return;
 
       if (file != null) {
-        showSnackBarSuccess(context, 'Xuất dữ liệu thành công');
+        showSnackBarSuccess(context, "Xuất dữ liệu thành công");
       } else {
         showSnackBarError(context, "Xuất file thất bại");
       }
@@ -74,7 +74,7 @@ class _DialogExportOrdersState extends State<DialogExportOrders> {
     } catch (e, s) {
       if (!mounted) return; // check context
       AppLogger.e("Lỗi khi xuất excel", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể xuất dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể xuất dữ liệu");
     }
   }
 
@@ -93,13 +93,13 @@ class _DialogExportOrdersState extends State<DialogExportOrders> {
               // Option 2: Theo thời gian
               RadioListTile<String>(
                 title: const Text("Ngày Nhận Đơn", style: TextStyle(fontSize: 16)),
-                value: 'dayReceive',
+                value: "dayReceive",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
 
               const SizedBox(height: 10),
-              if (value == 'dayReceive') ...[
+              if (value == "dayReceive") ...[
                 Column(
                   children: [
                     SizedBox(

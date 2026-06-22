@@ -1,6 +1,6 @@
-import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/data/models/delivery/delivery_item_model.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class OutboundDetailModel {
   final int outboundDetailId;
@@ -35,19 +35,19 @@ class OutboundDetailModel {
 
   factory OutboundDetailModel.fromJson(Map<String, dynamic> json) {
     return OutboundDetailModel(
-      outboundDetailId: json['outboundDetailId'] ?? 0,
-      outboundQty: json['outboundQty'] ?? 0,
-      price: toDouble(json['price']),
-      totalPriceOutbound: toDouble(json['totalPriceOutbound']),
-      deliveredQty: json['deliveredQty'] ?? 0,
-      isPromotion: json['isPromotion'] ?? false,
+      outboundDetailId: json["outboundDetailId"] ?? 0,
+      outboundQty: json["outboundQty"] ?? 0,
+      price: toDouble(json["price"]),
+      totalPriceOutbound: toDouble(json["totalPriceOutbound"]),
+      deliveredQty: json["deliveredQty"] ?? 0,
+      isPromotion: json["isPromotion"] ?? false,
 
-      orderId: json['orderId'] ?? "",
-      order: json['Order'] != null ? Order.fromJson(json['Order']) : null,
+      orderId: json["orderId"] ?? "",
+      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
 
-      deliveryItemId: json['deliveryItemId'],
+      deliveryItemId: json["deliveryItemId"],
       deliveryItem:
-          json['DeliveryItem'] != null ? DeliveryItemModel.fromJson(json['DeliveryItem']) : null,
+          json["DeliveryItem"] != null ? DeliveryItemModel.fromJson(json["DeliveryItem"]) : null,
     );
   }
 }

@@ -1,10 +1,10 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/service/badge/badge_service.dart';
-import 'package:dongtam/socket/socket_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:get/get.dart';
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/service/badge/badge_service.dart";
+import "package:dongtam/socket/socket_service.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:get/get.dart";
 
 class BadgesController extends GetxController {
   final UserController _userController = Get.find<UserController>();
@@ -83,9 +83,9 @@ class BadgesController extends GetxController {
     if (_userController.hasPermission(permission: "sale")) {
       //register listener
       socketService.on("updateBadgeCount", (data) {
-        if (data['type'] == "REJECTED_ORDER") {
+        if (data["type"] == "REJECTED_ORDER") {
           int oldCount = numberOrderReject.value;
-          numberOrderReject.value = data['count'] ?? 0;
+          numberOrderReject.value = data["count"] ?? 0;
 
           AppLogger.i("✅ Cập nhật Badge thành công: $oldCount -> ${numberOrderReject.value}");
         }
@@ -97,7 +97,7 @@ class BadgesController extends GetxController {
     final List<Future<void>> tasks = [];
 
     // badge cho duyệt đơn
-    if (_userController.hasAnyRole(roles: ['admin', 'manager'])) {
+    if (_userController.hasAnyRole(roles: ["admin", "manager"])) {
       tasks.add(fetchPendingApprovals());
     } else {
       numberPendingApproval.value = 0;

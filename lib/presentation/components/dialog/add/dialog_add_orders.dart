@@ -1,32 +1,32 @@
-import 'dart:async';
-import 'dart:typed_data';
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/upload_process_controller.dart';
-import 'package:dongtam/data/models/customer/customer_model.dart';
-import 'package:dongtam/data/models/order/box_model.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/product/product_model.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_customer.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_product.dart';
-import 'package:dongtam/service/config/upload_cloudinary_service.dart';
-import 'package:dongtam/service/customer_service.dart';
-import 'package:dongtam/service/order_service.dart';
-import 'package:dongtam/service/product_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/helper/auto_complete_field.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/utils/helper/paste_image_order.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
+import "dart:async";
+import "dart:typed_data";
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/upload_process_controller.dart";
+import "package:dongtam/data/models/customer/customer_model.dart";
+import "package:dongtam/data/models/order/box_model.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/product/product_model.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_customer.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_product.dart";
+import "package:dongtam/service/config/upload_cloudinary_service.dart";
+import "package:dongtam/service/customer_service.dart";
+import "package:dongtam/service/order_service.dart";
+import "package:dongtam/service/product_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/helper/auto_complete_field.dart";
+import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
+import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/utils/helper/paste_image_order.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:get/get.dart";
+import "package:google_fonts/google_fonts.dart";
+import "package:intl/intl.dart";
+import "package:flutter/material.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
 
 class OrderDialog extends StatefulWidget {
   final Order? order;
@@ -47,7 +47,7 @@ class _OrderDialogState extends State<OrderDialog> {
   String lastSearchedCustomerId = "";
   String lastSearchedProductId = "";
 
-  final List<String> itemsDvt = ['M2', 'Tấm', 'Tấm Bao Khổ', 'Kg', 'Cái', 'Lần'];
+  final List<String> itemsDvt = ["M2", "Tấm Bao Khổ", "Kg", "Cái", "Cuộn", "Lần"];
   final List<String> itemsDaoXa = ["Tề Gọn", "Tề Biên Đẹp", "Tề Biên Cột", "Quấn Cuồn"];
 
   late String originalOrderId;
@@ -205,7 +205,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
     if (selectedOrder.dateRequestShipping != null) {
       dateShipping = selectedOrder.dateRequestShipping;
-      dateShippingController.text = DateFormat('dd/MM/yyyy').format(dateShipping!);
+      dateShippingController.text = DateFormat("dd/MM/yyyy").format(dateShipping!);
     }
 
     //image
@@ -242,7 +242,7 @@ class _OrderDialogState extends State<OrderDialog> {
     try {
       final result = await CustomerService().getCustomers(noPaging: true);
 
-      allCustomers = result['customers'] as List<Customer>;
+      allCustomers = result["customers"] as List<Customer>;
       AppLogger.i("Fetch thành công tất cả khách hàng vào order");
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
@@ -254,7 +254,7 @@ class _OrderDialogState extends State<OrderDialog> {
     try {
       final result = await ProductService().getProducts(noPaging: true);
 
-      allProducts = result['products'] as List<Product>;
+      allProducts = result["products"] as List<Product>;
       AppLogger.i("Fetch thành công tất cả sản phẩm vào order");
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách sản phẩm", error: e, stackTrace: s);
@@ -277,10 +277,10 @@ class _OrderDialogState extends State<OrderDialog> {
       final prefix = orderIdController.text.toUpperCase();
 
       // determine wave fields
-      final String songEValue = Order.addPrefixIfNeeded(songEController.text, 'E');
-      final String songBValue = Order.addPrefixIfNeeded(songBController.text, 'B');
-      final String songCValue = Order.addPrefixIfNeeded(songCController.text, 'C');
-      final String songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, 'E');
+      final String songEValue = Order.addPrefixIfNeeded(songEController.text, "E");
+      final String songBValue = Order.addPrefixIfNeeded(songBController.text, "B");
+      final String songCValue = Order.addPrefixIfNeeded(songCController.text, "C");
+      final String songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, "E");
 
       final newBox = Box(
         inMatTruoc: int.tryParse(inMatTruocController.trimmed) ?? 0,
@@ -344,7 +344,7 @@ class _OrderDialogState extends State<OrderDialog> {
         chongTham: chongThamPaperChecked.value,
         isBox: isBoxChecked.value,
         box: newBox,
-        status: 'pending',
+        status: "pending",
       );
 
       final bool isAdd = widget.order == null;
@@ -367,7 +367,7 @@ class _OrderDialogState extends State<OrderDialog> {
         stackTrace: s,
       );
 
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }
 
@@ -397,8 +397,8 @@ class _OrderDialogState extends State<OrderDialog> {
             uploadCtrl.updateProgress(totalProgress, "Đang tải ảnh...");
           },
         );
-        finalImageUrl = uploadResult?['imageUrl'];
-        finalPublicId = uploadResult?['publicId'];
+        finalImageUrl = uploadResult?["imageUrl"];
+        finalPublicId = uploadResult?["publicId"];
       } else {
         uploadCtrl.updateProgress(0.8, "Bỏ qua tải ảnh...");
       }
@@ -411,13 +411,13 @@ class _OrderDialogState extends State<OrderDialog> {
       );
 
       final orderJson = order.toJson();
-      orderJson['imageData'] = {'imageUrl': finalImageUrl, 'publicId': finalPublicId};
-      orderJson['isDeleteImage'] = isDeleteImage;
+      orderJson["imageData"] = {"imageUrl": finalImageUrl, "publicId": finalPublicId};
+      orderJson["isDeleteImage"] = isDeleteImage;
 
       String? orderId;
       if (isAdd) {
         final response = await OrderService().addOrders(orderData: orderJson);
-        orderId = response['orderId'];
+        orderId = response["orderId"];
       } else {
         await OrderService().updateOrder(orderId: originalOrderId, orderUpdated: orderJson);
       }
@@ -441,11 +441,11 @@ class _OrderDialogState extends State<OrderDialog> {
 
       setState(() {
         switch (e.errorCode) {
-          case 'PREFIX_CUSTOMER_MISMATCH':
+          case "PREFIX_CUSTOMER_MISMATCH":
             showSnackBarError(context, e.message!);
             break;
           default:
-            showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+            showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại");
         }
       });
 
@@ -595,7 +595,7 @@ class _OrderDialogState extends State<OrderDialog> {
             if (pickedDate != null) {
               setState(() {
                 dateShipping = pickedDate;
-                dateShippingController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+                dateShippingController.text = DateFormat("dd/MM/yyyy").format(pickedDate);
               });
             }
           },
@@ -610,11 +610,11 @@ class _OrderDialogState extends State<OrderDialog> {
           icon: Symbols.badge,
           suggestionsCallback: (pattern) async {
             final result = await CustomerService().getCustomers(
-              field: 'customerId',
+              field: "customerId",
               keyword: pattern,
             );
-            if (result['customers'] != null && result['customers'] is List<Customer>) {
-              return result['customers'] as List<Customer>;
+            if (result["customers"] != null && result["customers"] is List<Customer>) {
+              return result["customers"] as List<Customer>;
             }
 
             return [];
@@ -676,9 +676,9 @@ class _OrderDialogState extends State<OrderDialog> {
           labelText: "Mã Sản Phẩm",
           icon: Symbols.box,
           suggestionsCallback: (pattern) async {
-            final result = await ProductService().getProducts(field: 'productId', keyword: pattern);
-            if (result['products'] != null && result['products'] is List<Product>) {
-              return result['products'] as List<Product>;
+            final result = await ProductService().getProducts(field: "productId", keyword: pattern);
+            if (result["products"] != null && result["products"] is List<Product>) {
+              return result["products"] as List<Product>;
             }
 
             return [];
@@ -836,7 +836,7 @@ class _OrderDialogState extends State<OrderDialog> {
           label: "Giá Tấm Bao Khổ (M2)",
           controller: pricePaperController,
           icon: Symbols.price_change,
-          readOnly: typeDVT != 'Tấm Bao Khổ',
+          readOnly: typeDVT != "Tấm Bao Khổ",
         ),
         "rightKey": "Đơn Vị Tính",
         "rightValue": ValidationHelper.dropdownForTypes(
@@ -933,28 +933,28 @@ class _OrderDialogState extends State<OrderDialog> {
     List<Map<String, dynamic>> buildBoxes(bool isEnabled) {
       return [
         {
-          'left':
+          "left":
               () => ValidationHelper.orderInput(
                 label: "Số Màu In Mặt Trước",
                 controller: inMatTruocController,
                 icon: Symbols.print,
                 enabled: isEnabled,
               ),
-          'middle_1':
+          "middle_1":
               () => ValidationHelper.orderInput(
                 label: "Số Màu In Mặt Sau",
                 controller: inMatSauController,
                 icon: Symbols.print,
                 enabled: isEnabled,
               ),
-          'middle_2':
+          "middle_2":
               () => ValidationHelper.orderInput(
                 label: "Cách Đóng Gói",
                 controller: dongGoiController,
                 icon: Symbols.box,
                 enabled: isEnabled,
               ),
-          'middle_3':
+          "middle_3":
               () => ValidationHelper.orderInput(
                 label: "Mã Khuôn",
                 controller: maKhuonController,
@@ -962,34 +962,34 @@ class _OrderDialogState extends State<OrderDialog> {
                 readOnly: true,
                 enabled: isEnabled,
               ),
-          'right': () => const SizedBox(),
+          "right": () => const SizedBox(),
         },
         {
-          'left':
+          "left":
               () => ValidationHelper.checkboxForBox(
                 label: "Chống Thấm",
                 notifier: chongThamChecked,
                 enabled: isEnabled,
               ),
-          'middle_1':
+          "middle_1":
               () => ValidationHelper.checkboxForBox(
                 label: "Xả",
                 notifier: xaChecked,
                 enabled: isEnabled,
               ),
-          'middle_2':
+          "middle_2":
               () => ValidationHelper.checkboxForBox(
                 label: "Cắt Khe",
                 notifier: catKheChecked,
                 enabled: isEnabled,
               ),
-          'middle_3':
+          "middle_3":
               () => ValidationHelper.checkboxForBox(
                 label: "Dán 1 Mảnh",
                 notifier: dan1ManhChecked,
                 enabled: isEnabled,
               ),
-          'right':
+          "right":
               () => ValidationHelper.checkboxForBox(
                 label: "Dán 2 Mảnh",
                 notifier: dan2ManhChecked,
@@ -997,33 +997,33 @@ class _OrderDialogState extends State<OrderDialog> {
               ),
         },
         {
-          'left':
+          "left":
               () => ValidationHelper.checkboxForBox(
                 label: "Cán Màng",
                 notifier: canMangChecked,
                 enabled: isEnabled,
               ),
-          'middle_1':
+          "middle_1":
               () => ValidationHelper.checkboxForBox(
                 label: "Bế",
                 notifier: beChecked,
                 enabled: isEnabled,
               ),
-          'middle_2':
+          "middle_2":
               () => ValidationHelper.checkboxForBox(
                 label: "Cấn Lằn",
                 notifier: canLanChecked,
                 enabled: isEnabled,
               ),
 
-          'middle_3':
+          "middle_3":
               () => ValidationHelper.checkboxForBox(
                 label: "Đóng Ghim 1 Mảnh",
                 notifier: dongGhim1ManhChecked,
                 enabled: isEnabled,
               ),
 
-          'right':
+          "right":
               () => ValidationHelper.checkboxForBox(
                 label: "Đóng Ghim 2 Mảnh",
                 notifier: dongGhim2ManhChecked,
@@ -1131,19 +1131,19 @@ class _OrderDialogState extends State<OrderDialog> {
                                       boxes.map((row) {
                                         return buildFieldRow(
                                           children: [
-                                            row['left'] is Function ? row['left']() : row['left'],
-                                            row['middle_1'] is Function
-                                                ? row['middle_1']()
-                                                : row['middle_1'],
-                                            row['middle_2'] is Function
-                                                ? row['middle_2']()
-                                                : row['middle_2'],
-                                            row['middle_3'] is Function
-                                                ? row['middle_3']()
-                                                : row['middle_3'],
-                                            row['right'] is Function
-                                                ? row['right']()
-                                                : row['right'],
+                                            row["left"] is Function ? row["left"]() : row["left"],
+                                            row["middle_1"] is Function
+                                                ? row["middle_1"]()
+                                                : row["middle_1"],
+                                            row["middle_2"] is Function
+                                                ? row["middle_2"]()
+                                                : row["middle_2"],
+                                            row["middle_3"] is Function
+                                                ? row["middle_3"]()
+                                                : row["middle_3"],
+                                            row["right"] is Function
+                                                ? row["right"]()
+                                                : row["right"],
                                           ],
                                         );
                                       }).toList(),
@@ -1161,14 +1161,14 @@ class _OrderDialogState extends State<OrderDialog> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       const Text(
-                                        'Hướng dẫn đặc biệt:',
+                                        "Hướng dẫn đặc biệt:",
                                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                       ),
                                       const SizedBox(height: 8),
                                       TextFormField(
                                         controller: instructSpecialController,
                                         decoration: InputDecoration(
-                                          hintText: 'Nhập nội dung...',
+                                          hintText: "Nhập nội dung...",
                                           fillColor: Colors.white,
                                           filled: true,
                                           border: OutlineInputBorder(
@@ -1188,14 +1188,14 @@ class _OrderDialogState extends State<OrderDialog> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       const Text(
-                                        'Ghi Chú:',
+                                        "Ghi Chú:",
                                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                       ),
                                       const SizedBox(height: 8),
                                       TextFormField(
                                         controller: noteController,
                                         decoration: InputDecoration(
-                                          hintText: 'Nhập ghi chú...',
+                                          hintText: "Nhập ghi chú...",
                                           fillColor: Colors.white,
                                           filled: true,
                                           border: OutlineInputBorder(

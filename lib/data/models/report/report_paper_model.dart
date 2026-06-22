@@ -1,5 +1,5 @@
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class ReportPaperModel {
   final int? reportPaperId;
@@ -33,18 +33,18 @@ class ReportPaperModel {
 
   factory ReportPaperModel.fromJson(Map<String, dynamic> json) {
     return ReportPaperModel(
-      reportPaperId: json['reportPaperId'] ?? 0,
-      dayReport: DateTime.parse(json['dayReport']),
-      qtyProduced: json['qtyProduced'] ?? 0,
-      lackOfQty: json['lackOfQty'] ?? 0,
-      qtyWasteNorm: toDouble(json['qtyWasteNorm']),
-      shiftProduction: json['shiftProduction'] ?? "",
-      shiftManagement: json['shiftManagement'] ?? "",
-      reportedBy: json['reportedBy'] ?? "",
-      averageSpeed: toDouble(json['averageSpeed']),
-      planningId: json['planningId'] ?? 0,
+      reportPaperId: json["reportPaperId"] ?? 0,
+      dayReport: DateTime.parse(json["dayReport"]),
+      qtyProduced: json["qtyProduced"] ?? 0,
+      lackOfQty: json["lackOfQty"] ?? 0,
+      qtyWasteNorm: toDouble(json["qtyWasteNorm"]),
+      shiftProduction: json["shiftProduction"] ?? "",
+      shiftManagement: json["shiftManagement"] ?? "",
+      reportedBy: json["reportedBy"] ?? "",
+      averageSpeed: toDouble(json["averageSpeed"]),
+      planningId: json["planningId"] ?? 0,
       planningPaper:
-          json['PlanningPaper'] != null ? PlanningPaper.fromJson(json['PlanningPaper']) : null,
+          json["PlanningPaper"] != null ? PlanningPaper.fromJson(json["PlanningPaper"]) : null,
     );
   }
 }

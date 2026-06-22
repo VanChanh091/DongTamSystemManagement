@@ -320,18 +320,15 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                     ? Row(
                                       children: [
                                         AnimatedButton(
-                                          onPressed:
-                                              selectedOutboundId != null
-                                                  ? () async {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder:
-                                                          (_) => DialogExportOutbound(
-                                                            onLoading: () => loadOutbound(),
-                                                          ),
-                                                    );
-                                                  }
-                                                  : null,
+                                          onPressed: () async {
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (_) => DialogExportOutbound(
+                                                    onLoading: () => loadOutbound(),
+                                                  ),
+                                            );
+                                          },
                                           label: "Xuất Excel",
                                           icon: Symbols.file_download,
                                           backgroundColor: themeController.buttonColor,

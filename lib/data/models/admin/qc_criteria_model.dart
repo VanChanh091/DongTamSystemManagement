@@ -18,11 +18,11 @@ class QcCriteriaModel {
 
   factory QcCriteriaModel.fromJson(Map<String, dynamic> json) {
     return QcCriteriaModel(
-      qcCriteriaId: json['qcCriteriaId'] ?? 0,
-      processType: json['processType'] ?? "",
-      criteriaCode: json['criteriaCode'] ?? "",
-      criteriaName: json['criteriaName'] ?? "",
-      isRequired: json['isRequired'] ?? false,
+      qcCriteriaId: json["qcCriteriaId"] ?? 0,
+      processType: json["processType"] ?? "",
+      criteriaCode: json["criteriaCode"] ?? "",
+      criteriaName: json["criteriaName"] ?? "",
+      isRequired: json["isRequired"] ?? false,
     );
   }
 }

@@ -1,7 +1,7 @@
-import 'package:dongtam/service/report_planning_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:flutter/material.dart';
+import "package:dongtam/service/report_planning_service.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:flutter/material.dart";
 
 class DialogSelectExportExcel extends StatefulWidget {
   final VoidCallback onPlanningIdsOrRangeDate;
@@ -59,18 +59,18 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
       final currentOption = selectedOption.value;
 
       if (currentOption == null) {
-        showSnackBarError(context, 'Vui lòng chọn phương thức xuất báo cáo');
+        showSnackBarError(context, "Vui lòng chọn phương thức xuất báo cáo");
         return;
       }
 
-      if (currentOption == 'dateHasMachine' || currentOption == 'dateNoMachine') {
+      if (currentOption == "dateHasMachine" || currentOption == "dateNoMachine") {
         if (selectedRange == null) {
-          showSnackBarError(context, 'Vui lòng chọn khoảng thời gian');
+          showSnackBarError(context, "Vui lòng chọn khoảng thời gian");
           return;
         }
       }
 
-      final String? machineParam = (currentOption == 'dateHasMachine') ? widget.machine : null;
+      final String? machineParam = (currentOption == "dateHasMachine") ? widget.machine : null;
 
       if (widget.isBox) {
         AppLogger.i(
@@ -106,7 +106,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
     } catch (e, s) {
       if (!mounted) return; // check context
       AppLogger.e("Lỗi khi xuất báo cáo", error: e, stackTrace: s);
-      showSnackBarError(context, 'Lỗi: Không thể lưu dữ liệu');
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
     }
   }
 
@@ -132,7 +132,7 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
               // Option 1: Theo thời gian (has machine)
               RadioListTile<String>(
                 title: const Text("Theo Ngày (Từng Máy)", style: TextStyle(fontSize: 16)),
-                value: 'dateHasMachine',
+                value: "dateHasMachine",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
@@ -140,13 +140,13 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
               // Option 2: Theo thời gian (no machine machine)
               RadioListTile<String>(
                 title: const Text("Theo Ngày (Tất Cả Máy)", style: TextStyle(fontSize: 16)),
-                value: 'dateNoMachine',
+                value: "dateNoMachine",
                 groupValue: value,
                 onChanged: (val) => selectedOption.value = val,
               ),
               const SizedBox(height: 10),
 
-              if (value == 'dateHasMachine' || value == 'dateNoMachine')
+              if (value == "dateHasMachine" || value == "dateNoMachine")
                 Column(
                   children: [
                     SizedBox(
