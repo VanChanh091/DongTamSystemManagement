@@ -324,6 +324,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         "CUSTOMER_MISMATCH" => e.message!,
         "FEE_ORDER_NOT_INCLUDED" => e.message!,
         "INVENTORY_NOT_FOUND" => e.message!,
+        "DELIVERY_ITEM_NOT_FOUND" => e.message!,
         _ => "Có lỗi xảy ra, vui lòng thử lại",
       };
 

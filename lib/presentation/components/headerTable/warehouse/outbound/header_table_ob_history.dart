@@ -20,6 +20,7 @@ const List<Map<String, dynamic>> _headerOutboundHistory = [
   {"key": "remainingAmount", "title": "Còn Lại"},
 
   {"key": "status", "title": "Trạng Thái"},
+  {"key": "outboundBy", "title": "Người Lập Phiếu"},
 
   //hidden
   {"key": "outboundId", "title": "", "visible": false},

@@ -5,13 +5,18 @@ class OutboundHistoryModel {
   final int outboundId;
   final DateTime dateOutbound;
   final String outboundSlipCode;
+
   final double totalPriceOrder;
   final double? totalPriceVAT;
   final double totalPricePayment;
   final int totalOutboundQty;
+
   final DateTime? dueDate;
   final double? paidAmount;
   final double? remainingAmount;
+
+  final String outboundBy;
+
   final String status;
 
   //FK
@@ -21,13 +26,18 @@ class OutboundHistoryModel {
     required this.outboundId,
     required this.dateOutbound,
     required this.outboundSlipCode,
+
     required this.totalPriceOrder,
     this.totalPriceVAT,
     required this.totalPricePayment,
     required this.totalOutboundQty,
+
     this.dueDate,
     this.paidAmount,
     this.remainingAmount,
+
+    required this.outboundBy,
+
     required this.status,
 
     this.detail,
@@ -45,6 +55,7 @@ class OutboundHistoryModel {
       dueDate: json["dueDate"] != null ? DateTime.parse(json["dueDate"]) : null,
       paidAmount: toDouble(json["paidAmount"]),
       remainingAmount: toDouble(json["remainingAmount"]),
+      outboundBy: json["outboundBy"] ?? "",
       status: json["status"] ?? "",
 
       detail:
@@ -53,10 +64,6 @@ class OutboundHistoryModel {
                 json["detail"].map((x) => OutboundDetailModel.fromJson(x)),
               )
               : [],
-      // stages:
-      //     json["stages"] != null
-      //         ? List<PlanningStage>.from(json["stages"].map((x) => PlanningStage.fromJson(x)))
-      //         : [],
     );
   }
 }

@@ -438,6 +438,20 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                               errorMessage: "Có lỗi xảy ra khi thực thi",
                                               onSuccess: () => loadPlanning(),
                                             );
+                                          } else if (value == 'forceComplete') {
+                                            runCompletePlanningFlow(
+                                              context: context,
+                                              selectedIds: selectedPlanningIds,
+                                              onConfirmComplete: (ids) async {
+                                                return await PlanningService()
+                                                    .confirmCompletePlanning(
+                                                      ids: ids,
+                                                      action: 'CONFIRM_COMPLETE',
+                                                      forceComplete: true,
+                                                    );
+                                              },
+                                              onReload: () => loadPlanning(),
+                                            );
                                           } else if (value == 'notify') {
                                             bool confirm = await showConfirmDialog(
                                               context: context,
@@ -583,6 +597,13 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                 child: ListTile(
                                                   leading: Icon(Icons.approval_outlined),
                                                   title: Text('Chấp Nhận Thiếu SL'),
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'forceComplete',
+                                                child: ListTile(
+                                                  leading: Icon(Icons.check_circle_outline),
+                                                  title: Text('Hoàn Thành Ngay'),
                                                 ),
                                               ),
                                               const PopupMenuItem<String>(
@@ -861,13 +882,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         showSnackBarError(context, "Đơn hàng chưa có ngày hoàn thành");
         return;
       }
-    }
-
-    //check status complete
-    final hasCompleted = selectedPlannings.any((p) => p.status == 'complete');
-    if (hasCompleted) {
-      showSnackBarError(context, "Không thể thao tác với đơn đã hoàn thành");
-      return;
     }
 
     bool confirm = await showConfirmDialog(

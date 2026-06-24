@@ -88,12 +88,14 @@ class PlanningService {
     required List<int> ids,
     required String action,
     String? machine,
+    bool forceComplete = false,
     bool isBox = false, //flag FE
   }) async {
     final data = {
       "action": action,
       if (isBox) "planningBoxIds": ids else "planningIds": ids,
       if (machine != null) "machine": machine,
+      "forceComplete": forceComplete,
     };
     final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
 

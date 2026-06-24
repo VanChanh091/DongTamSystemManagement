@@ -190,70 +190,6 @@ Widget _buildRepeatableButton({
   );
 }
 
-Widget confirmCompleteButton({
-  required BuildContext context,
-  required List<String> selectedIds,
-  required Future<bool> Function(List<int> ids) onConfirmComplete,
-  required VoidCallback onReload,
-  required Rx<Color> backgroundColor,
-}) {
-  return AnimatedButton(
-    onPressed: () async {
-      try {
-        if (selectedIds.isEmpty) {
-          showSnackBarError(context, 'Vui lòng chọn kế hoạch cần thao tác');
-          return;
-        }
-
-        final confirm = await showConfirmDialog(
-          context: context,
-          title: "⚠️ Xác nhận",
-          content: "Xác nhận hoàn thành kế hoạch này?",
-          confirmText: "Ok",
-          confirmColor: const Color(0xffEA4346),
-        );
-
-        if (!confirm) return;
-
-        if (!context.mounted) return;
-        showLoadingDialog(context);
-
-        final ids = selectedIds.map((e) => int.tryParse(e.toString())).whereType<int>().toList();
-
-        final success = await onConfirmComplete(ids);
-        if (success) {
-          onReload();
-        }
-
-        if (!context.mounted) return;
-        Navigator.of(context).pop();
-        showSnackBarSuccess(context, "Thao tác thành công");
-      } on ApiException catch (e) {
-        Navigator.of(context).pop();
-
-        final errorText = switch (e.errorCode) {
-          'LACK_QUANTITY' => e.message!,
-          'PLANNING_NOT_REQUESTED' => e.message!,
-          'PLANNING_NO_WASTE' => e.message!,
-          _ => 'Có lỗi xảy ra, vui lòng thử lại',
-        };
-
-        showSnackBarError(context, errorText);
-      } catch (e, s) {
-        if (context.mounted) Navigator.of(context).pop();
-        AppLogger.e("Error in update status planning: $e", stackTrace: s);
-
-        if (context.mounted) {
-          showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
-        }
-      }
-    },
-    label: "Hoàn Thành",
-    icon: Symbols.check,
-    backgroundColor: backgroundColor,
-  );
-}
-
 Widget buildDropdownItems({
   required String value,
   required List<String> items,
@@ -291,4 +227,82 @@ Widget buildDropdownItems({
       ),
     ),
   );
+}
+
+Widget confirmCompleteButton({
+  required BuildContext context,
+  required List<String> selectedIds,
+  required Future<bool> Function(List<int> ids) onConfirmComplete,
+  required VoidCallback onReload,
+  required Rx<Color> backgroundColor,
+}) {
+  return AnimatedButton(
+    onPressed:
+        () => runCompletePlanningFlow(
+          context: context,
+          selectedIds: selectedIds,
+          onConfirmComplete: onConfirmComplete,
+          onReload: onReload,
+        ),
+    label: "Hoàn Thành",
+    icon: Symbols.check,
+    backgroundColor: backgroundColor,
+  );
+}
+
+Future<void> runCompletePlanningFlow({
+  required BuildContext context,
+  required List<String> selectedIds,
+  required Future<bool> Function(List<int> ids) onConfirmComplete,
+  required VoidCallback onReload,
+}) async {
+  try {
+    if (selectedIds.isEmpty) {
+      showSnackBarError(context, 'Vui lòng chọn kế hoạch cần thao tác');
+      return;
+    }
+
+    final confirm = await showConfirmDialog(
+      context: context,
+      title: "⚠️ Xác nhận",
+      content: "Xác nhận hoàn thành kế hoạch này?",
+      confirmText: "Ok",
+      confirmColor: const Color(0xffEA4346),
+    );
+
+    if (!confirm) return;
+
+    if (!context.mounted) return;
+    showLoadingDialog(context);
+
+    final ids = selectedIds.map((e) => int.tryParse(e.toString())).whereType<int>().toList();
+    final success = await onConfirmComplete(ids);
+
+    if (success) {
+      onReload();
+    }
+
+    if (!context.mounted) return;
+    Navigator.of(context).pop(); // Đóng loading dialog
+    showSnackBarSuccess(context, "Thao tác thành công");
+  } on ApiException catch (e) {
+    if (context.mounted) Navigator.of(context).pop(); // Đóng loading dialog
+
+    final errorText = switch (e.errorCode) {
+      'LACK_QUANTITY' => e.message!,
+      'PLANNING_NOT_REQUESTED' => e.message!,
+      'PLANNING_NO_WASTE' => e.message!,
+      'PLANNING_NOT_PRODUCED' => e.message!,
+      _ => 'Có lỗi xảy ra, vui lòng thử lại',
+    };
+
+    showSnackBarError(context, errorText);
+  } catch (e, s) {
+    if (context.mounted) Navigator.of(context).pop(); // Đóng loading dialog
+    AppLogger.e("Error in update status planning: $e", stackTrace: s);
+
+    if (context.mounted) {
+      showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+    }
+  }
 }

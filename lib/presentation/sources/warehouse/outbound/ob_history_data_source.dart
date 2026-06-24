@@ -1,6 +1,7 @@
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -8,6 +9,8 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class ObHistoryDataSource extends DataGridSource {
   List<OutboundHistoryModel> outbounds = [];
   int? selectedOutboundId;
+  Map<String, dynamic> totalPriceByDate = {};
+
   int currentPage;
   int pageSize;
 
@@ -17,6 +20,7 @@ class ObHistoryDataSource extends DataGridSource {
   ObHistoryDataSource({
     required this.outbounds,
     this.selectedOutboundId,
+    required this.totalPriceByDate,
     required this.currentPage,
     required this.pageSize,
   }) {
@@ -25,6 +29,13 @@ class ObHistoryDataSource extends DataGridSource {
   }
 
   List<DataGridCell> buildDbPaperCells(OutboundHistoryModel outbound, int index) {
+    DataGridCell<String> buildDimensionCell(String columnName, double? value) {
+      return DataGridCell<String>(
+        columnName: columnName,
+        value: (value != null && value > 0) ? Order.formatCurrency(value) : '0',
+      );
+    }
+
     final detail =
         outbound.detail != null && outbound.detail!.isNotEmpty ? outbound.detail!.first : null;
 
@@ -42,37 +53,14 @@ class ObHistoryDataSource extends DataGridSource {
       ),
 
       //money
-      DataGridCell<String>(
-        columnName: "totalPriceOrder",
-        value: '${Order.formatCurrency(outbound.totalPriceOrder)} VNĐ',
-      ),
-      DataGridCell<String>(
-        columnName: "totalPriceVAT",
-        value:
-            outbound.totalPriceVAT != null && outbound.totalPriceVAT! > 0
-                ? '${Order.formatCurrency(outbound.totalPriceVAT!)} VNĐ'
-                : "0",
-      ),
-      DataGridCell<String>(
-        columnName: "totalPricePayment",
-        value: '${Order.formatCurrency(outbound.totalPricePayment)} VNĐ',
-      ),
-      DataGridCell<String>(
-        columnName: "paidAmount",
-        value:
-            outbound.paidAmount != null && outbound.paidAmount! > 0
-                ? '${Order.formatCurrency(outbound.paidAmount!)} VNĐ'
-                : "0",
-      ),
-      DataGridCell<String>(
-        columnName: "remainingAmount",
-        value:
-            outbound.remainingAmount != null && outbound.remainingAmount! > 0
-                ? '${Order.formatCurrency(outbound.remainingAmount!)} VNĐ'
-                : "0",
-      ),
+      buildDimensionCell("totalPriceOrder", outbound.totalPriceOrder),
+      buildDimensionCell("totalPriceVAT", outbound.totalPriceVAT),
+      buildDimensionCell("totalPricePayment", outbound.totalPricePayment),
+      buildDimensionCell("paidAmount", outbound.paidAmount),
+      buildDimensionCell("remainingAmount", outbound.remainingAmount),
 
       DataGridCell<String>(columnName: "status", value: outbound.status),
+      DataGridCell<String>(columnName: "outboundBy", value: outbound.outboundBy),
 
       //hidden
       DataGridCell<int>(columnName: "outboundId", value: outbound.outboundId),
@@ -108,6 +96,7 @@ class ObHistoryDataSource extends DataGridSource {
 
     String displayDate = '';
     String itemCount = '';
+    num totalAmount = 0;
 
     if (match != null) {
       final fullDate = match.group(1) ?? '';
@@ -116,6 +105,21 @@ class ObHistoryDataSource extends DataGridSource {
       itemCount = '$count Phiếu';
     }
 
+    try {
+      if (displayDate.isNotEmpty) {
+        // Ép formatter dùng đúng định dạng dd/MM/yyyy của UI cho chắc chắn
+        final parsedDate = DateFormat('dd/MM/yyyy').parse(displayDate.trim());
+        final lookupKey = DateFormat('yyyy-MM-dd').format(parsedDate);
+
+        totalAmount = (totalPriceByDate[lookupKey] as num?) ?? 0;
+      }
+    } catch (e) {
+      AppLogger.e('Lỗi khi parse ngày hoặc truy xuất tổng tiền: $e');
+      totalAmount = 0;
+    }
+
+    final formattedTotal = totalAmount > 0 ? Order.formatCurrency(totalAmount) : '0';
+
     return Container(
       width: double.infinity,
       color: Colors.grey.shade200,
@@ -123,7 +127,7 @@ class ObHistoryDataSource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày xuất kho: $displayDate – $itemCount'
+            ? '📅 Ngày xuất kho: $displayDate – $itemCount – Tổng Tiền: $formattedTotal VNĐ'
             : '📅 Ngày xuất kho: Không xác định',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),

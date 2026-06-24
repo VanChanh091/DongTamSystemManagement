@@ -20,9 +20,9 @@ class ReportPaperDatasource extends DataGridSource {
   ReportPaperDatasource({
     required this.reportPapers,
     required this.selectedReportId,
+    required this.summaryByDate,
     required this.currentPage,
     required this.pageSize,
-    required this.summaryByDate,
   }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: 'dateTimeRp', sortGroupRows: false));
@@ -67,6 +67,7 @@ class ReportPaperDatasource extends DataGridSource {
         value: PlanningPaper.formatTimeOfDay(timeOfDay: planningPaper.timeRunning!),
       ),
       DataGridCell<double>(columnName: "averageSpeed", value: reportPaper.averageSpeed),
+      DataGridCell<String>(columnName: "dvt", value: orderCell.dvt),
 
       DataGridCell<String>(columnName: "HD_special", value: orderCell.instructSpecial ?? ''),
 

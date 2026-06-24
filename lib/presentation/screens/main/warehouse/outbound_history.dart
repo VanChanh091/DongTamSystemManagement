@@ -1,5 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
@@ -446,15 +447,81 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 
+                  final totalPriceByDate = data['totalPriceByDate'] as Map<String, dynamic>;
+                  final grandTotal = data['grandTotal'] as Map<String, dynamic>;
+
                   obHistoryDataSource = ObHistoryDataSource(
                     outbounds: outbounds,
                     selectedOutboundId: selectedOutboundId,
                     currentPage: currentPage,
                     pageSize: pageSize,
+                    totalPriceByDate: totalPriceByDate,
                   );
 
                   return Column(
                     children: [
+                      //grand total price
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0, right: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Tổng tiền hàng
+                            const Text(
+                              "Tiền hàng: ",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            Text(
+                              Order.formatCurrency(grandTotal['totalPriceOrder']),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                                color: Colors.green.shade600,
+                              ),
+                            ),
+
+                            const Text(
+                              " – ",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+
+                            // Tiền VAT
+                            const Text(
+                              "VAT: ",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            Text(
+                              Order.formatCurrency(grandTotal['totalPriceVAT']),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                                color: Colors.amber.shade800,
+                              ),
+                            ),
+
+                            const Text(
+                              " – ",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+
+                            // Tổng thanh toán
+                            const Text(
+                              "Tổng: ",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            Text(
+                              Order.formatCurrency(grandTotal['totalPricePayment']),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                                color: Colors.blue.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                       //table
                       Expanded(
                         child: Column(
@@ -485,7 +552,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                         ],
                                         child: Obx(
                                           () => formatColumn(
-                                            label: 'Số Tiền',
+                                            label: 'Tổng Tiền (VNĐ)',
                                             themeController: themeController,
                                           ),
                                         ),

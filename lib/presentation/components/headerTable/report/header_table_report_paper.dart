@@ -26,6 +26,7 @@ final List<Map<String, dynamic>> _reportPaperColumns = [
 
   {"key": "timeRunningProd", "title": "Thời Gian Chạy"},
   {"key": "averageSpeed", "title": "Hiệu Suất (m/p)"},
+  {"key": "dvt", "title": "DVT"},
 
   {"key": "HD_special", "title": "HD Đặc Biệt"},
 

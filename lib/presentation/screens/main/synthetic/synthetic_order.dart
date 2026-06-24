@@ -406,6 +406,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                           filterType = value!;
                                           selectedOrderIds.clear();
                                           selectedBoxesDetail = [];
+                                          currentPage = 1;
                                           loadOrders();
                                         }),
                                       },
