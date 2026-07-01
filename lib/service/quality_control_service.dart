@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:dongtam/data/models/qualityControl/qc_sample_result_model.dart';
-import 'package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart';
-import 'package:dongtam/data/models/qualityControl/qc_session_model.dart';
+import 'package:dongtam/data/models/qualityControl/qcWaitingCheck/qc_sample_result_model.dart';
+import 'package:dongtam/data/models/qualityControl/qcWaitingCheck/qc_sample_submit_model.dart';
+import 'package:dongtam/data/models/qualityControl/qcWaitingCheck/qc_session_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 

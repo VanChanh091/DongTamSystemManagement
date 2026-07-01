@@ -824,6 +824,7 @@ class _OrderDialogState extends State<OrderDialog> {
           icon: Symbols.price_change,
         ),
       },
+
       {
         "leftKey": "VAT",
         "leftValue": ValidationHelper.orderInput(

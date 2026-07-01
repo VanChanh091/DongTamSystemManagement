@@ -19,10 +19,10 @@ class QcSampleResultModel {
 
   factory QcSampleResultModel.fromJson(Map<String, dynamic> json) {
     return QcSampleResultModel(
-      qcResultId: json["qcResultId"],
-      sampleIndex: json["sampleIndex"],
-      checklist: Map<String, bool>.from(json["checklist"]),
-      hasFail: json["hasFail"],
+      qcResultId: json["qcResultId"] ?? 0,
+      sampleIndex: json["sampleIndex"] ?? 0,
+      checklist: Map<String, bool>.from(json["checklist"] ?? {}),
+      hasFail: json["hasFail"] ?? false,
 
       //FK
       qcSessionId: json["qcSessionId"],

@@ -1,5 +1,5 @@
 import "package:dongtam/data/models/order/order_model.dart";
-import "package:dongtam/data/models/qualityControl/qc_session_model.dart";
+import "package:dongtam/data/models/qualityControl/qcWaitingCheck/qc_session_model.dart";
 
 class InboundHistoryModel {
   final int inboundId;

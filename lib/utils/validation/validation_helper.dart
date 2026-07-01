@@ -303,6 +303,21 @@ class ValidationHelper {
     );
   }
 
+  static Widget qcInspectionInput({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    VoidCallback? onTap,
+  }) {
+    return BaseValidateInput(
+      label: label,
+      controller: controller,
+      icon: icon,
+      onTap: onTap,
+      validator: (value) {},
+    );
+  }
+
   //---------------------HELPER CHECKBOX AND DROPDOWN--------------------------
   static Widget checkboxForBox({
     required String label,

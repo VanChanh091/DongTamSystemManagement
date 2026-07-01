@@ -1,4 +1,4 @@
-import "package:dongtam/data/models/qualityControl/qc_sample_result_model.dart";
+import "package:dongtam/data/models/qualityControl/qcWaitingCheck/qc_sample_result_model.dart";
 
 class QcSessionModel {
   final int qcSessionId;

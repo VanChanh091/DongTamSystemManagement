@@ -1,6 +1,6 @@
 import "package:dongtam/data/controller/badges_controller.dart";
 import "package:dongtam/data/models/admin/qc_criteria_model.dart";
-import "package:dongtam/data/models/qualityControl/qc_sample_submit_model.dart";
+import "package:dongtam/data/models/qualityControl/qcWaitingCheck/qc_sample_submit_model.dart";
 import "package:dongtam/service/admin_service.dart";
 import "package:dongtam/service/quality_control_service.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
