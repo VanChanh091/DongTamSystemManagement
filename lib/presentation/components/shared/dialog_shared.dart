@@ -122,10 +122,10 @@ Future<void> showDeleteConfirmHelper({
   } on ApiException catch (e) {
     switch (e.errorCode) {
       case "CUSTOMER_HAS_ORDERS":
-        showSnackBarError(context, "Không thể xoá khách hàng đã có đơn hàng");
+        showSnackBarError(context, e.message!);
         break;
       case "PRODUCT_HAS_ORDERS":
-        showSnackBarError(context, "Không thể xoá sản phẩm đã có đơn hàng");
+        showSnackBarError(context, e.message!);
         break;
       default:
         showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');

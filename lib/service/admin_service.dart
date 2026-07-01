@@ -288,6 +288,49 @@ class AdminService {
     );
   }
 
+  //========================CRITERIA CHECK===================================
+  Future<List<T>> getAllCriteriaCheck<T>({
+    required bool isPaper,
+    String? machine,
+    required T Function(Map<String, dynamic>) fromJson,
+  }) async {
+    return HelperService().fetchingData<T>(
+      endpoint: "admin/criteria-check",
+      queryParameters: {"isPaper": isPaper.toString(), if (machine != null) "machine": machine},
+      fromJson: fromJson,
+    );
+  }
+
+  Future<bool> createNewCriteriaCheck({
+    required bool isPaper,
+    required Map<String, dynamic> criteriaData,
+  }) async {
+    return HelperService().addItem(
+      endpoint: 'admin/criteria-check',
+      queryParameters: {"isPaper": isPaper.toString()},
+      body: criteriaData,
+    );
+  }
+
+  Future<bool> updateCriteriaCheck({
+    required int criteriaId,
+    required bool isPaper,
+    required Map<String, dynamic> criteriaUpdated,
+  }) async {
+    return HelperService().updateItem(
+      endpoint: 'admin/criteria-check',
+      queryParameters: {"criteriaId": criteriaId, "isPaper": isPaper.toString()},
+      body: criteriaUpdated,
+    );
+  }
+
+  Future<bool> deleteCriteriaCheck({required int criteriaId, required bool isPaper}) async {
+    return HelperService().deleteItem(
+      endpoint: 'admin/criteria-check',
+      queryParameters: {'criteriaId': criteriaId, 'isPaper': isPaper.toString()},
+    );
+  }
+
   //==========================FLUTE RATIO====================================
 
   //get all flute ratio
@@ -335,7 +378,7 @@ class AdminService {
     );
   }
 
-  // add qc criteria
+  //add vehicle
   Future<bool> addVehicle({required Map<String, dynamic> vehicleData}) async {
     return HelperService().addItem(endpoint: 'admin/vehicles', body: vehicleData);
   }

@@ -4,11 +4,13 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
+import 'package:dongtam/presentation/screens/main/QC/inspectionCheck/top_tab_inspection_check.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_criteria.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_vehicle.dart';
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart';
+import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_criteria_check.dart';
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
@@ -111,6 +113,7 @@ class _HomePageState extends State<HomePage> {
       _buildPage(permissions: ['QC'], child: WaitingCheckPaper()),
       _buildPage(permissions: ['QC'], child: WaitingCheckBox()),
       _buildPage(permissions: ['QC'], child: WaitingCheckScrapReport()),
+      _buildPage(permissions: ['QC'], child: TopTabInspectionCheck()),
 
       //outbound
       _buildPage(permissions: ['delivery', 'accountant', 'sale'], child: OutboundHistory()),
@@ -137,6 +140,7 @@ class _HomePageState extends State<HomePage> {
       _buildPage(roles: ['admin'], child: TopTabAdminBox()),
       _buildPage(roles: ['admin', 'manager'], child: AdminVehicle()),
       _buildPage(roles: ['admin'], child: AdminCriteria()),
+      _buildPage(roles: ['admin'], child: TopTabCriteriaCheck()),
       _buildPage(roles: ['admin'], child: AdminMangeUser()),
     ].whereType<Widget>().toList(); // lọc bỏ null
   }

@@ -1,9 +1,11 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
+import 'package:dongtam/presentation/screens/main/QC/inspectionCheck/top_tab_inspection_check.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_criteria.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_vehicle.dart';
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart';
+import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_criteria_check.dart';
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_planning.dart';
@@ -155,6 +157,13 @@ Widget buildWaitingCheckMenu({
         showBadge: true,
         badge: badges.numberScrapWaiting,
       ),
+      SubMenuConfig(
+        icon: Symbols.engineering,
+        label: "Tiến Trình Sản Xuất",
+        pageType: TopTabInspectionCheck,
+        showBadge: true,
+        badge: badges.numberScrapWaiting,
+      ),
     ],
   );
 }
@@ -298,6 +307,7 @@ Widget buildApprovalMenu({
       SubMenuConfig(icon: Icons.gif_box, label: "Máy Sóng và Phế Liệu", pageType: TopTabAdminPaper),
       SubMenuConfig(icon: Icons.gif_box, label: "In Ấn và Phế Liệu", pageType: TopTabAdminBox),
       SubMenuConfig(icon: Icons.rule, label: "Tiêu Chí Sản Xuất", pageType: AdminCriteria),
+      SubMenuConfig(icon: Icons.rule, label: "Tiêu Chí Kiểm Tra", pageType: TopTabCriteriaCheck),
       SubMenuConfig(icon: Symbols.directions_car, label: "Xe Giao Hàng", pageType: AdminVehicle),
       SubMenuConfig(icon: Icons.person, label: "Người Dùng", pageType: AdminMangeUser),
     ],

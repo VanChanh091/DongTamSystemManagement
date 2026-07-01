@@ -1,59 +1,57 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
+import 'package:dongtam/data/models/admin/qcInspection/admin_inspection_box.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/service/admin_service.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class AdminCriteria extends StatefulWidget {
-  const AdminCriteria({super.key});
+class AdminCriteriaBoxCheck extends StatefulWidget {
+  const AdminCriteriaBoxCheck({super.key});
 
   @override
-  State<AdminCriteria> createState() => _AdminVehicleState();
+  State<AdminCriteriaBoxCheck> createState() => _AdminCriteriaBoxCheckState();
 }
 
-class _AdminVehicleState extends State<AdminCriteria> {
-  late Future<List<QcCriteriaModel>> futureCriteria;
+class _AdminCriteriaBoxCheckState extends State<AdminCriteriaBoxCheck> {
+  late Future<List<AdminInspectionBoxModel>> futureCriteria;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
-  List<QcCriteriaModel> updatedCriteria = [];
-  List<QcCriteriaModel> draftCriteria = [];
-  List<QcCriteriaModel> tableData = [];
+  List<AdminInspectionBoxModel> updatedCriteria = [];
+  List<AdminInspectionBoxModel> draftCriteria = [];
+  List<AdminInspectionBoxModel> tableData = [];
   List<int> isSelected = [];
+
   bool selectedAll = false;
-
-  final Map<String, String> typeFieldMap = {"Giấy Tấm": "paper", "Thùng": "box"};
-  String type = "Giấy Tấm";
-
-  String get currentProcessType => typeFieldMap[type]!;
+  String machine = "Máy In";
 
   @override
   void initState() {
     super.initState();
-
     loadCriteria();
   }
 
   void loadCriteria() {
     setState(() {
-      futureCriteria = AdminService().getAllQcCriteria(type: currentProcessType);
+      futureCriteria = AdminService().getAllCriteriaCheck<AdminInspectionBoxModel>(
+        isPaper: false,
+        machine: machine,
+        fromJson: (json) => AdminInspectionBoxModel.fromJson(json),
+      );
     });
 
     isSelected.clear();
     selectedAll = false;
   }
 
-  void changeProcessType(String selectedType) {
-    AppLogger.i("changeProcessType | from=$type -> to=$selectedType");
-
+  void changeMachine(String selectedMachine) {
     setState(() {
-      type = selectedType;
+      machine = selectedMachine;
 
       // reset toàn bộ state phụ thuộc
       tableData.clear();
@@ -79,13 +77,14 @@ class _AdminVehicleState extends State<AdminCriteria> {
               width: double.infinity,
               child: Column(
                 children: [
+                  //title
                   SizedBox(
                     height: 30,
                     width: double.infinity,
                     child: Center(
                       child: Obx(
                         () => Text(
-                          "TIÊU CHÍ ĐÁNH GIÁ GIẤY TẤM/THÙNG",
+                          "TIÊU CHÍ KIỂM TRA CHẤT LƯỢNG LÀM THÙNG",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
@@ -96,6 +95,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
                     ),
                   ),
 
+                  //button
                   SizedBox(
                     height: 60,
                     width: double.infinity,
@@ -104,32 +104,22 @@ class _AdminVehicleState extends State<AdminCriteria> {
                       children: [
                         //left
                         const SizedBox(width: 10),
-                        SizedBox(
-                          width: 130,
-                          child: DropdownButtonFormField<String>(
-                            value: type,
-                            items:
-                                ["Giấy Tấm", "Thùng"].map((String value) {
-                                  return DropdownMenuItem<String>(value: value, child: Text(value));
-                                }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                changeProcessType(value);
-                              }
-                            },
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(color: Colors.grey),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                            ),
-                          ),
+                        buildDropdownItems(
+                          value: machine,
+                          items: const [
+                            'Máy In',
+                            "Máy Bế",
+                            "Máy Xả",
+                            "Máy Dán",
+                            'Máy Cấn Lằn',
+                            "Máy Cắt Khe",
+                            "Máy Cán Màng",
+                            "Máy Đóng Ghim",
+                          ],
+                          onChanged: (value) async {
+                            if (value == null) return;
+                            changeMachine(value);
+                          },
                         ),
 
                         //right
@@ -144,12 +134,12 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                 AnimatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      final newRow = QcCriteriaModel(
-                                        qcCriteriaId: null,
-                                        processType: currentProcessType,
-                                        criteriaCode: '',
-                                        criteriaName: '',
-                                        isRequired: false,
+                                      final newRow = AdminInspectionBoxModel(
+                                        criteriaBoxId: null,
+                                        criteriaBoxCode: "",
+                                        criteriaBoxName: "",
+                                        variance: 0.0,
+                                        machine: machine,
                                         isDraft: true,
                                       );
 
@@ -173,9 +163,9 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                             .where(
                                               (e) =>
                                                   e.isDraft &&
-                                                  e.qcCriteriaId == null &&
-                                                  e.criteriaCode.trim().isNotEmpty &&
-                                                  e.criteriaName.trim().isNotEmpty,
+                                                  e.criteriaBoxId == null &&
+                                                  e.criteriaBoxCode.trim().isNotEmpty &&
+                                                  e.criteriaBoxName.trim().isNotEmpty,
                                             )
                                             .toList();
 
@@ -184,8 +174,8 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                         tableData
                                             .where(
                                               (e) =>
-                                                  e.qcCriteriaId != null &&
-                                                  isSelected.contains(e.qcCriteriaId),
+                                                  e.criteriaBoxId != null &&
+                                                  isSelected.contains(e.criteriaBoxId),
                                             )
                                             .toList();
 
@@ -198,10 +188,10 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                     for (final e in rowsToAdd) {
                                       await AdminService().createNewCriteria(
                                         criteriaData: {
-                                          "processType": currentProcessType,
-                                          "criteriaCode": e.criteriaCode,
-                                          "criteriaName": e.criteriaName,
-                                          "isRequired": e.isRequired,
+                                          "criteriaBoxCode": e.criteriaBoxCode,
+                                          "criteriaBoxName": e.criteriaBoxName,
+                                          "variance": e.variance,
+                                          "machine": e.machine,
                                         },
                                       );
                                     }
@@ -209,12 +199,12 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                     // ================== UPDATE ==================
                                     for (final e in rowsToUpdate) {
                                       await AdminService().updateCriteria(
-                                        qcCriteriaId: e.qcCriteriaId!,
+                                        qcCriteriaId: e.criteriaBoxId!,
                                         criteriaUpdated: {
-                                          "processType": currentProcessType,
-                                          "criteriaCode": e.criteriaCode,
-                                          "criteriaName": e.criteriaName,
-                                          "isRequired": e.isRequired,
+                                          "criteriaBoxCode": e.criteriaBoxCode,
+                                          "criteriaBoxName": e.criteriaBoxName,
+                                          "variance": e.variance,
+                                          "machine": e.machine,
                                         },
                                       );
                                     }
@@ -320,8 +310,9 @@ class _AdminVehicleState extends State<AdminCriteria> {
 
                                                                     for (int id in isSelected) {
                                                                       await AdminService()
-                                                                          .deleteCriteria(
-                                                                            qcCriteriaId: id,
+                                                                          .deleteCriteriaCheck(
+                                                                            criteriaId: id,
+                                                                            isPaper: true,
                                                                           );
                                                                     }
 
@@ -383,7 +374,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: FutureBuilder<List<QcCriteriaModel>>(
+                child: FutureBuilder<List<AdminInspectionBoxModel>>(
                   future: futureCriteria,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -403,12 +394,12 @@ class _AdminVehicleState extends State<AdminCriteria> {
                       tableData =
                           snapshot.data!
                               .map(
-                                (e) => QcCriteriaModel(
-                                  qcCriteriaId: e.qcCriteriaId,
-                                  processType: e.processType,
-                                  criteriaCode: e.criteriaCode,
-                                  criteriaName: e.criteriaName,
-                                  isRequired: e.isRequired,
+                                (e) => AdminInspectionBoxModel(
+                                  criteriaBoxId: e.criteriaBoxId,
+                                  criteriaBoxCode: e.criteriaBoxCode,
+                                  criteriaBoxName: e.criteriaBoxName,
+                                  variance: e.variance,
+                                  machine: e.machine,
                                   isDraft: false,
                                 ),
                               )
@@ -443,7 +434,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                     if (selectedAll) {
                                       isSelected =
                                           tableData
-                                              .map((e) => e.qcCriteriaId)
+                                              .map((e) => e.criteriaBoxId)
                                               .whereType<int>()
                                               .toList();
                                     } else {
@@ -456,15 +447,16 @@ class _AdminVehicleState extends State<AdminCriteria> {
                           ),
                           DataColumn(label: styleText("Mã Tiêu Chí")),
                           DataColumn(label: styleText("Tên Tiêu Chí")),
-                          DataColumn(label: styleText("Bắt Buộc")),
+                          DataColumn(label: styleText("Sai Số Cho Phép")),
+                          DataColumn(label: styleText("Loại Máy")),
                         ],
                         rows: List<DataRow>.generate(tableData.length, (index) {
                           final criteria = tableData[index];
 
                           return DataRow(
-                            key: ValueKey(criteria.qcCriteriaId ?? criteria.hashCode),
+                            key: ValueKey(criteria.criteriaBoxId ?? criteria.hashCode),
                             color:
-                                criteria.qcCriteriaId == null
+                                criteria.criteriaBoxId == null
                                     ? WidgetStateProperty.all(Colors.yellow.withValues(alpha: 0.2))
                                     : null,
                             cells: [
@@ -484,17 +476,17 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                   ),
                                   child: Checkbox(
                                     value:
-                                        criteria.qcCriteriaId != null &&
-                                        isSelected.contains(criteria.qcCriteriaId),
+                                        criteria.criteriaBoxId != null &&
+                                        isSelected.contains(criteria.criteriaBoxId),
                                     onChanged:
-                                        criteria.qcCriteriaId == null
+                                        criteria.criteriaBoxId == null
                                             ? null
                                             : (val) {
                                               setState(() {
                                                 if (val == true) {
-                                                  isSelected.add(criteria.qcCriteriaId!);
+                                                  isSelected.add(criteria.criteriaBoxId!);
                                                 } else {
-                                                  isSelected.remove(criteria.qcCriteriaId);
+                                                  isSelected.remove(criteria.criteriaBoxId);
                                                 }
                                                 selectedAll =
                                                     isSelected.length == snapshot.data!.length;
@@ -505,32 +497,40 @@ class _AdminVehicleState extends State<AdminCriteria> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  text: criteria.criteriaCode.toString(),
+                                  text: criteria.criteriaBoxCode.toString(),
                                   onChanged: (value) {
                                     setState(() {
-                                      criteria.criteriaCode = value;
+                                      criteria.criteriaBoxCode = value;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  text: criteria.criteriaName.toString(),
+                                  text: criteria.criteriaBoxName.toString(),
                                   onChanged: (value) {
                                     setState(() {
-                                      criteria.criteriaName = value;
+                                      criteria.criteriaBoxName = value;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
-                                Checkbox(
-                                  value: criteria.isRequired,
-                                  activeColor: Colors.green,
-                                  checkColor: Colors.white,
-                                  onChanged: (val) {
+                                styleCellAdmin(
+                                  text: criteria.variance.toString(),
+                                  onChanged: (value) {
                                     setState(() {
-                                      criteria.isRequired = val ?? false;
+                                      criteria.variance = double.tryParse(value) ?? 0.0;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: criteria.machine,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      criteria.machine = value;
                                     });
                                   },
                                 ),

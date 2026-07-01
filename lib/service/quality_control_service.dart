@@ -85,7 +85,7 @@ class QualityControlService {
     return HelperService().addItem(endpoint: "qc/submit", body: data);
   }
 
-  //==================SCRAP REPORT====================
+  //==========================SCRAP REPORT=================================
   Future<bool> handleUpdateScrapReport({
     required List<int> scrapIds,
     required String action,
@@ -106,5 +106,54 @@ class QualityControlService {
     };
 
     return HelperService().updateItem(endpoint: "qc/scrap-report", body: data);
+  }
+
+  //==========================INSPECTION=================================
+  Future<List<T>> getManufactureProducing<T>({
+    required String machine,
+    required String isPaper,
+    required T Function(Map<String, dynamic>) fromJson,
+  }) async {
+    return HelperService().fetchingData<T>(
+      endpoint: "qc/inspection/manufacture",
+      queryParameters: {"machine": machine, "isPaper": isPaper},
+      fromJson: (json) => fromJson(json),
+    );
+  }
+
+  Future<Future<Map<String, dynamic>>> getQcInspection<T>({
+    required String isPaper,
+    required int page,
+    required int pageSize,
+    required String machine,
+    required T Function(Map<String, dynamic>) fromJson,
+  }) async {
+    return HelperService().fetchPaginatedData<T>(
+      endpoint: "qc/inspection",
+      queryParameters: {"isPaper": isPaper, "page": page, "pageSize": pageSize, "machine": machine},
+      fromJson: fromJson,
+      dataKey: isPaper == 'paper' ? 'inspectionPapers' : 'inspectionBoxes',
+    );
+  }
+
+  Future<bool> checkingInspection({
+    int? planningId,
+    int? boxtimeId,
+    required String isPaper,
+    required String machine,
+    Map<String, dynamic>? checking,
+    required Map<String, dynamic> errProgress,
+  }) async {
+    return HelperService().updateItem(
+      endpoint: "qc/inspection",
+      queryParameters: {"isPaper": isPaper},
+      body: {
+        "machine": machine,
+        "errProgress": errProgress,
+        if (checking != null) "checking": checking,
+        if (boxtimeId != null) "boxtimeId": boxtimeId,
+        if (planningId != null) "planningId": planningId,
+      },
+    );
   }
 }

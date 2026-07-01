@@ -1,68 +1,48 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/admin/qc_criteria_model.dart';
+import 'package:dongtam/data/models/admin/qcInspection/admin_inspection_paper.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/service/admin_service.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class AdminCriteria extends StatefulWidget {
-  const AdminCriteria({super.key});
+class AdminCriteriaPaperCheck extends StatefulWidget {
+  const AdminCriteriaPaperCheck({super.key});
 
   @override
-  State<AdminCriteria> createState() => _AdminVehicleState();
+  State<AdminCriteriaPaperCheck> createState() => _AdminCriteriaPaperCheckState();
 }
 
-class _AdminVehicleState extends State<AdminCriteria> {
-  late Future<List<QcCriteriaModel>> futureCriteria;
+class _AdminCriteriaPaperCheckState extends State<AdminCriteriaPaperCheck> {
+  late Future<List<AdminInspectionPaperModel>> futureCriteria;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
-  List<QcCriteriaModel> updatedCriteria = [];
-  List<QcCriteriaModel> draftCriteria = [];
-  List<QcCriteriaModel> tableData = [];
+  List<AdminInspectionPaperModel> updatedCriteria = [];
+  List<AdminInspectionPaperModel> draftCriteria = [];
+  List<AdminInspectionPaperModel> tableData = [];
   List<int> isSelected = [];
   bool selectedAll = false;
-
-  final Map<String, String> typeFieldMap = {"Giấy Tấm": "paper", "Thùng": "box"};
-  String type = "Giấy Tấm";
-
-  String get currentProcessType => typeFieldMap[type]!;
 
   @override
   void initState() {
     super.initState();
-
     loadCriteria();
   }
 
   void loadCriteria() {
     setState(() {
-      futureCriteria = AdminService().getAllQcCriteria(type: currentProcessType);
+      futureCriteria = AdminService().getAllCriteriaCheck<AdminInspectionPaperModel>(
+        isPaper: true,
+        fromJson: (json) => AdminInspectionPaperModel.fromJson(json),
+      );
     });
 
     isSelected.clear();
     selectedAll = false;
-  }
-
-  void changeProcessType(String selectedType) {
-    AppLogger.i("changeProcessType | from=$type -> to=$selectedType");
-
-    setState(() {
-      type = selectedType;
-
-      // reset toàn bộ state phụ thuộc
-      tableData.clear();
-      draftCriteria.clear();
-      isSelected.clear();
-      selectedAll = false;
-
-      loadCriteria();
-    });
   }
 
   @override
@@ -85,7 +65,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
                     child: Center(
                       child: Obx(
                         () => Text(
-                          "TIÊU CHÍ ĐÁNH GIÁ GIẤY TẤM/THÙNG",
+                          "TIÊU CHÍ KIỂM TRA CHẤT LƯỢNG GIẤY TẤM",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
@@ -104,33 +84,6 @@ class _AdminVehicleState extends State<AdminCriteria> {
                       children: [
                         //left
                         const SizedBox(width: 10),
-                        SizedBox(
-                          width: 130,
-                          child: DropdownButtonFormField<String>(
-                            value: type,
-                            items:
-                                ["Giấy Tấm", "Thùng"].map((String value) {
-                                  return DropdownMenuItem<String>(value: value, child: Text(value));
-                                }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                changeProcessType(value);
-                              }
-                            },
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(color: Colors.grey),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                            ),
-                          ),
-                        ),
 
                         //right
                         Expanded(
@@ -144,12 +97,12 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                 AnimatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      final newRow = QcCriteriaModel(
-                                        qcCriteriaId: null,
-                                        processType: currentProcessType,
-                                        criteriaCode: '',
-                                        criteriaName: '',
+                                      final newRow = AdminInspectionPaperModel(
+                                        criteriaPaperId: null,
+                                        criteriaPaperCode: '',
+                                        criteriaPaperName: '',
                                         isRequired: false,
+                                        variance: 0.0,
                                         isDraft: true,
                                       );
 
@@ -173,9 +126,9 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                             .where(
                                               (e) =>
                                                   e.isDraft &&
-                                                  e.qcCriteriaId == null &&
-                                                  e.criteriaCode.trim().isNotEmpty &&
-                                                  e.criteriaName.trim().isNotEmpty,
+                                                  e.criteriaPaperId == null &&
+                                                  e.criteriaPaperCode.trim().isNotEmpty &&
+                                                  e.criteriaPaperName.trim().isNotEmpty,
                                             )
                                             .toList();
 
@@ -184,8 +137,8 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                         tableData
                                             .where(
                                               (e) =>
-                                                  e.qcCriteriaId != null &&
-                                                  isSelected.contains(e.qcCriteriaId),
+                                                  e.criteriaPaperId != null &&
+                                                  isSelected.contains(e.criteriaPaperId),
                                             )
                                             .toList();
 
@@ -198,10 +151,10 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                     for (final e in rowsToAdd) {
                                       await AdminService().createNewCriteria(
                                         criteriaData: {
-                                          "processType": currentProcessType,
-                                          "criteriaCode": e.criteriaCode,
-                                          "criteriaName": e.criteriaName,
+                                          "criteriaPaperCode": e.criteriaPaperCode,
+                                          "criteriaPaperName": e.criteriaPaperName,
                                           "isRequired": e.isRequired,
+                                          "variance": e.variance,
                                         },
                                       );
                                     }
@@ -209,12 +162,12 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                     // ================== UPDATE ==================
                                     for (final e in rowsToUpdate) {
                                       await AdminService().updateCriteria(
-                                        qcCriteriaId: e.qcCriteriaId!,
+                                        qcCriteriaId: e.criteriaPaperId!,
                                         criteriaUpdated: {
-                                          "processType": currentProcessType,
-                                          "criteriaCode": e.criteriaCode,
-                                          "criteriaName": e.criteriaName,
+                                          "criteriaPaperCode": e.criteriaPaperCode,
+                                          "criteriaPaperName": e.criteriaPaperName,
                                           "isRequired": e.isRequired,
+                                          "variance": e.variance,
                                         },
                                       );
                                     }
@@ -320,8 +273,9 @@ class _AdminVehicleState extends State<AdminCriteria> {
 
                                                                     for (int id in isSelected) {
                                                                       await AdminService()
-                                                                          .deleteCriteria(
-                                                                            qcCriteriaId: id,
+                                                                          .deleteCriteriaCheck(
+                                                                            criteriaId: id,
+                                                                            isPaper: true,
                                                                           );
                                                                     }
 
@@ -383,7 +337,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: FutureBuilder<List<QcCriteriaModel>>(
+                child: FutureBuilder<List<AdminInspectionPaperModel>>(
                   future: futureCriteria,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -403,11 +357,11 @@ class _AdminVehicleState extends State<AdminCriteria> {
                       tableData =
                           snapshot.data!
                               .map(
-                                (e) => QcCriteriaModel(
-                                  qcCriteriaId: e.qcCriteriaId,
-                                  processType: e.processType,
-                                  criteriaCode: e.criteriaCode,
-                                  criteriaName: e.criteriaName,
+                                (e) => AdminInspectionPaperModel(
+                                  criteriaPaperId: e.criteriaPaperId,
+                                  criteriaPaperCode: e.criteriaPaperCode,
+                                  criteriaPaperName: e.criteriaPaperName,
+                                  variance: e.variance,
                                   isRequired: e.isRequired,
                                   isDraft: false,
                                 ),
@@ -443,7 +397,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                     if (selectedAll) {
                                       isSelected =
                                           tableData
-                                              .map((e) => e.qcCriteriaId)
+                                              .map((e) => e.criteriaPaperId)
                                               .whereType<int>()
                                               .toList();
                                     } else {
@@ -456,15 +410,16 @@ class _AdminVehicleState extends State<AdminCriteria> {
                           ),
                           DataColumn(label: styleText("Mã Tiêu Chí")),
                           DataColumn(label: styleText("Tên Tiêu Chí")),
+                          DataColumn(label: styleText("Sai Số Cho Phép")),
                           DataColumn(label: styleText("Bắt Buộc")),
                         ],
                         rows: List<DataRow>.generate(tableData.length, (index) {
                           final criteria = tableData[index];
 
                           return DataRow(
-                            key: ValueKey(criteria.qcCriteriaId ?? criteria.hashCode),
+                            key: ValueKey(criteria.criteriaPaperId ?? criteria.hashCode),
                             color:
-                                criteria.qcCriteriaId == null
+                                criteria.criteriaPaperId == null
                                     ? WidgetStateProperty.all(Colors.yellow.withValues(alpha: 0.2))
                                     : null,
                             cells: [
@@ -484,17 +439,17 @@ class _AdminVehicleState extends State<AdminCriteria> {
                                   ),
                                   child: Checkbox(
                                     value:
-                                        criteria.qcCriteriaId != null &&
-                                        isSelected.contains(criteria.qcCriteriaId),
+                                        criteria.criteriaPaperId != null &&
+                                        isSelected.contains(criteria.criteriaPaperId),
                                     onChanged:
-                                        criteria.qcCriteriaId == null
+                                        criteria.criteriaPaperId == null
                                             ? null
                                             : (val) {
                                               setState(() {
                                                 if (val == true) {
-                                                  isSelected.add(criteria.qcCriteriaId!);
+                                                  isSelected.add(criteria.criteriaPaperId!);
                                                 } else {
-                                                  isSelected.remove(criteria.qcCriteriaId);
+                                                  isSelected.remove(criteria.criteriaPaperId);
                                                 }
                                                 selectedAll =
                                                     isSelected.length == snapshot.data!.length;
@@ -505,20 +460,30 @@ class _AdminVehicleState extends State<AdminCriteria> {
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  text: criteria.criteriaCode.toString(),
+                                  text: criteria.criteriaPaperCode.toString(),
                                   onChanged: (value) {
                                     setState(() {
-                                      criteria.criteriaCode = value;
+                                      criteria.criteriaPaperCode = value;
                                     });
                                   },
                                 ),
                               ),
                               DataCell(
                                 styleCellAdmin(
-                                  text: criteria.criteriaName.toString(),
+                                  text: criteria.criteriaPaperName.toString(),
                                   onChanged: (value) {
                                     setState(() {
-                                      criteria.criteriaName = value;
+                                      criteria.criteriaPaperName = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                              DataCell(
+                                styleCellAdmin(
+                                  text: criteria.variance.toString(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      criteria.variance = double.tryParse(value) ?? 0;
                                     });
                                   },
                                 ),

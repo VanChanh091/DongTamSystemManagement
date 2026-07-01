@@ -21,7 +21,6 @@ import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -40,7 +39,6 @@ class _PaperProductionState extends State<PaperProduction> {
   late List<GridColumn> columns;
 
   final socketService = SocketService();
-  final formatter = DateFormat('dd/MM/yyyy');
 
   //controller
   final dataGridController = DataGridController();
