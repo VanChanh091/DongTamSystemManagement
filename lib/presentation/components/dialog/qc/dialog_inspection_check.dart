@@ -1,8 +1,14 @@
+import 'package:dongtam/data/models/admin/qcInspection/admin_inspection_box.dart';
 import 'package:dongtam/data/models/admin/qcInspection/admin_inspection_paper.dart';
+import 'package:dongtam/data/models/admin/qcInspection/inspection_ui_model.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
+import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/service/quality_control_service.dart';
+import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
+import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/validation/validation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -10,14 +16,16 @@ import 'package:material_symbols_icons/symbols.dart';
 class DialogInspectionCheck extends StatefulWidget {
   final String? machine;
   final bool isPaper;
-  final int planningId;
+  final int? planningId;
+  final int? planningBoxId;
   final VoidCallback onSubmit;
 
   const DialogInspectionCheck({
     super.key,
     required this.onSubmit,
     required this.isPaper,
-    required this.planningId,
+    this.planningId,
+    this.planningBoxId,
     this.machine,
   });
 
@@ -27,9 +35,9 @@ class DialogInspectionCheck extends StatefulWidget {
 
 class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   final formKey = GlobalKey<FormState>();
-  late Future<List<AdminInspectionPaperModel>> futureCriteria;
+  late Future<List<InspectionUiModel>> futureCriteria;
 
-  List<AdminInspectionPaperModel> criteriaList = [];
+  List<InspectionUiModel> criteriaList = [];
   Map<String, bool?> checkedCriteria = {};
 
   Map<String, num> checking = {};
@@ -46,21 +54,115 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   @override
   void initState() {
     super.initState();
-    futureCriteria = AdminService().getAllCriteriaCheck(
-      isPaper: widget.isPaper,
-      fromJson: (json) => AdminInspectionPaperModel.fromJson(json),
-    );
+    futureCriteria = _fetchCriteriaData();
+  }
+
+  Future<List<InspectionUiModel>> _fetchCriteriaData() async {
+    if (widget.isPaper) {
+      final List<AdminInspectionPaperModel> data = await AdminService().getAllCriteriaCheck(
+        isPaper: true,
+        fromJson: (json) => AdminInspectionPaperModel.fromJson(json),
+      );
+
+      return data
+          .map(
+            (e) => InspectionUiModel(
+              criteriaCode: e.criteriaPaperCode,
+              criteriaName: e.criteriaPaperName,
+              variance: e.variance,
+              isRequired: e.isRequired,
+            ),
+          )
+          .toList();
+    } else {
+      final List<AdminInspectionBoxModel> data = await AdminService().getAllCriteriaCheck(
+        isPaper: false,
+        machine: widget.machine,
+        fromJson: (json) => AdminInspectionBoxModel.fromJson(json),
+      );
+
+      return data
+          .map(
+            (e) => InspectionUiModel(
+              criteriaCode: e.criteriaBoxCode,
+              criteriaName: e.criteriaBoxName,
+              variance: e.variance,
+              isRequired: false,
+              machine: e.machine,
+            ),
+          )
+          .toList();
+    }
   }
 
   // check REQUIRED criteria
   bool get isAllChecked {
     if (criteriaList.isEmpty) return false;
-    return criteriaList
-        .where((e) => e.isRequired == true)
-        .every((e) => checkedCriteria[e.criteriaPaperCode] != null);
+
+    if (widget.isPaper) {
+      return criteriaList
+          .where((e) => e.isRequired == true)
+          .every((e) => checkedCriteria[e.criteriaCode] != null);
+    } else {
+      return criteriaList.every((e) => checkedCriteria[e.criteriaCode] != null);
+    }
   }
 
-  void submit() {}
+  void submit() async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Show loading
+    if (!mounted) return;
+    showLoadingDialog(context);
+    await Future.delayed(const Duration(seconds: 1));
+
+    try {
+      Map<String, bool> errProgressData = {};
+      checkedCriteria.forEach((key, value) {
+        errProgressData[key] = value ?? true; //true là pass, false là fail, null là chưa check
+      });
+
+      Map<String, num> checkingData = {};
+      if (widget.isPaper) {
+        checkingData = {
+          "numberPallet": int.tryParse(numberPalletController.text) ?? 0,
+          "machineSpeed": double.tryParse(machineSpeedController.text) ?? 0.0,
+          "moisture": double.tryParse(moistureController.text) ?? 0.0,
+          "steamPressure": double.tryParse(steamPressureController.text) ?? 0.0,
+          "preheaterTemp": double.tryParse(preheaterTempController.text) ?? 0.0,
+          "fctValue": double.tryParse(fctValueController.text) ?? 0.0,
+          "patValue": double.tryParse(patValueController.text) ?? 0.0,
+        };
+      }
+
+      bool success = await QualityControlService().checkingInspection(
+        isPaper: widget.isPaper ? "paper" : "box",
+        machine: widget.machine ?? "",
+        errProgress: errProgressData,
+        checking: widget.isPaper ? checkingData : null,
+        planningId: widget.isPaper ? widget.planningId : null,
+        planningBoxId: !widget.isPaper ? widget.planningBoxId : null,
+      );
+
+      if (success) {
+        if (!mounted) return;
+        Navigator.pop(context); // đóng dialog loading
+
+        // Thông báo thành công
+        showSnackBarSuccess(context, "Báo cáo thành công");
+        widget.onSubmit();
+
+        if (!mounted) return;
+        Navigator.of(context).pop(); //đóng dialog QC
+      }
+    } catch (e, s) {
+      if (!mounted) return;
+      AppLogger.e("Lỗi khi đánh giá tiến trình sản xuất", error: e, stackTrace: s);
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
+    }
+  }
 
   @override
   void dispose() {
@@ -76,7 +178,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
 
   // ===== CONTENT =====
   Widget buildQcContent() {
-    return FutureBuilder<List<AdminInspectionPaperModel>>(
+    return FutureBuilder<List<InspectionUiModel>>(
       future: futureCriteria,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -96,23 +198,23 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
 
         criteriaList = snapshot.data!;
 
-        // Khởi tạo trạng thái ban đầu (Đồng bộ dùng criteriaPaperCode làm Key)
+        // Khởi tạo trạng thái ban đầu (Đồng bộ dùng criteriaCode làm Key)
         for (var item in criteriaList) {
-          checkedCriteria.putIfAbsent(item.criteriaPaperCode, () => null);
+          checkedCriteria.putIfAbsent(item.criteriaCode, () => null);
         }
 
         // TÁCH DATA THÀNH 2 NỬA DỌC (Trái và Phải)
         int halfLength = (criteriaList.length / 2).ceil();
-        List<AdminInspectionPaperModel> leftList = criteriaList.take(halfLength).toList();
-        List<AdminInspectionPaperModel> rightList = criteriaList.skip(halfLength).toList();
+        List<InspectionUiModel> leftList = criteriaList.take(halfLength).toList();
+        List<InspectionUiModel> rightList = criteriaList.skip(halfLength).toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 16, left: 4),
               child: Text(
-                "Tiêu chí đánh giá lỗi",
+                "Tiêu chí đánh giá lỗi: ${widget.machine}",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
               ),
             ),
@@ -136,10 +238,10 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   }
 
   // Hàm helper để render từng bảng độc lập
-  Widget buildMinimalTable(List<AdminInspectionPaperModel> list) {
+  Widget buildMinimalTable(List<InspectionUiModel> list) {
     // Kiểm tra xem tất cả item trong nửa bảng này đã được tick Chọn hết chưa
     bool isAllSelected =
-        list.isNotEmpty && list.every((item) => checkedCriteria[item.criteriaPaperCode] == true);
+        list.isNotEmpty && list.every((item) => checkedCriteria[item.criteriaCode] == true);
 
     return Table(
       columnWidths: const {
@@ -170,7 +272,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                     setState(() {
                       final newStatus = isAllSelected ? null : true;
                       for (var item in list) {
-                        checkedCriteria[item.criteriaPaperCode] = newStatus;
+                        checkedCriteria[item.criteriaCode] = newStatus;
                       }
                     });
                   },
@@ -213,7 +315,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                 padding: const EdgeInsets.only(right: 12),
                 alignment: Alignment.centerRight,
                 child: const Text(
-                  "SAI SỐ CHO PHÉP",
+                  "SAI SỐ",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.5),
                 ),
               ),
@@ -223,7 +325,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
 
         // CÁC DÒNG TIÊU CHÍ CHI TIẾT
         ...list.map((item) {
-          final currentRes = checkedCriteria[item.criteriaPaperCode];
+          final currentRes = checkedCriteria[item.criteriaCode];
           final isPass = currentRes == true; // Trạng thái dấu Check (✓)
           final isFail = currentRes == false; // Trạng thái dấu X (✕)
 
@@ -247,7 +349,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                         behavior: HitTestBehavior.opaque,
                         onTap: () {
                           setState(() {
-                            checkedCriteria[item.criteriaPaperCode] = isPass ? null : true;
+                            checkedCriteria[item.criteriaCode] = isPass ? null : true;
                           });
                         },
                         child: Padding(
@@ -278,7 +380,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                         behavior: HitTestBehavior.opaque,
                         onTap: () {
                           setState(() {
-                            checkedCriteria[item.criteriaPaperCode] = isFail ? null : false;
+                            checkedCriteria[item.criteriaCode] = isFail ? null : false;
                           });
                         },
                         child: Padding(
@@ -312,7 +414,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                 child: InkWell(
                   onTap: () {
                     setState(() {
-                      checkedCriteria[item.criteriaPaperCode] = isPass ? null : true;
+                      checkedCriteria[item.criteriaCode] = isPass ? null : true;
                     });
                   },
                   child: Container(
@@ -323,7 +425,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       text: TextSpan(
-                        text: item.criteriaPaperName,
+                        text: item.criteriaName,
                         style: TextStyle(
                           fontSize: 16,
                           color:
@@ -338,7 +440,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                 ),
               ),
 
-              // 3. SAI SỐ CHO PHÉP (Fix lỗi Null Safety triệt để bằng cách check kĩ item.variance)
+              // 3. SAI SỐ CHO PHÉP
               TableCell(
                 child: Container(
                   height: 44,
@@ -428,14 +530,14 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      title: const Center(
+      title: Center(
         child: Text(
-          "Kiểm tra chất lượng giấy",
+          "Kiểm tra chất lượng sản xuất ${widget.isPaper ? "giấy tấm" : "thùng"}",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
       content: SizedBox(
-        width: ResponsiveSize.getWidth(context, ResponsiveType.xLarge),
+        width: ResponsiveSize.getWidth(context, ResponsiveType.large),
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Form(
@@ -446,15 +548,17 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                 buildQcContent(),
 
                 //input user
-                buildingCard(
-                  title: "📃 Thông Tin Kiểm Tra",
-                  children: formatKeyValueRows(
-                    rows: inspectionRows,
-                    labelWidth: 120,
-                    columnCount: 4,
-                    centerAlign: true,
-                  ),
-                ),
+                widget.isPaper
+                    ? buildingCard(
+                      title: "📃 Thông Tin Kiểm Tra",
+                      children: formatKeyValueRows(
+                        rows: inspectionRows,
+                        labelWidth: 120,
+                        columnCount: 4,
+                        centerAlign: true,
+                      ),
+                    )
+                    : const SizedBox.shrink(),
               ],
             ),
           ),
@@ -472,6 +576,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
         ),
         ElevatedButton(
           onPressed: isAllChecked ? submit : null,
+          // onPressed: submit,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

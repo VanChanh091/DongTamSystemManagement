@@ -15,6 +15,7 @@ import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_pap
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart';
+import 'package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart';
 import 'package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart';
@@ -30,7 +31,7 @@ import 'package:dongtam/presentation/screens/main/planning/production_queue/prod
 import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart';
 import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
 import 'package:dongtam/presentation/screens/main/product/product.dart';
-import 'package:dongtam/presentation/screens/main/report/report_warehouse/report_inbound_history.dart';
+import 'package:dongtam/presentation/screens/main/report/reportWarehouse/report_inbound_history.dart';
 import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
 import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
@@ -129,6 +130,7 @@ class _HomePageState extends State<HomePage> {
       //reporting hitstory
       TopTabHistoryReport(),
       ReportInboundHistory(),
+      TopTabInspectionReport(),
 
       //synthetic
       SyntheticPlanning(),

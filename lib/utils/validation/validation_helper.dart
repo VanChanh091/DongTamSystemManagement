@@ -314,7 +314,31 @@ class ValidationHelper {
       controller: controller,
       icon: icon,
       onTap: onTap,
-      validator: (value) {},
+      validator: (value) {
+        final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
+
+        final requiredFields = [
+          "Tốc Độ Máy",
+          "Áp Suất Hơi",
+          "Độ Ẩm",
+          "Nhiệt Độ Đầu Sóng",
+          "FCT Nén Ngang",
+          "PAT Bám Keo",
+        ];
+
+        if (requiredFields.contains(label) && cleanValue.isEmpty) {
+          return 'Không được để trống';
+        }
+
+        if (cleanValue.isNotEmpty) {
+          final normalizedValue = cleanValue.replaceAll(',', '.');
+          if (num.tryParse(normalizedValue) == null) {
+            return 'Vui lòng chỉ nhập số';
+          }
+        }
+
+        return null;
+      },
     );
   }
 

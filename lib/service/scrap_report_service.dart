@@ -91,12 +91,12 @@ class ScrapReportService {
   }
 
   // delete scrap report
-  // Future<bool> deleteScrapReport({required int scrapId}) async {
-  //   return HelperService().deleteItem(
-  //     endpoint: "scrapReports",
-  //     queryParameters: {"scrapId": scrapId},
-  //   );
-  // }
+  Future<bool> deleteScrapReport({required int scrapId}) async {
+    return HelperService().deleteItem(
+      endpoint: "scrapReports",
+      queryParameters: {"scrapId": scrapId},
+    );
+  }
 
   //export scrap reports
   Future<File?> exportExcelScrapReports({

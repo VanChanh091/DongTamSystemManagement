@@ -40,7 +40,6 @@ class QcInspectionPaperModel {
   factory QcInspectionPaperModel.fromJson(Map<String, dynamic> json) {
     return QcInspectionPaperModel(
       inspecPaperId: json["inspecPaperId"],
-
       timeInspection:
           json["timeInspection"] != null && json["timeInspection"] != ""
               ? parseTimeOfDay(json["timeInspection"])

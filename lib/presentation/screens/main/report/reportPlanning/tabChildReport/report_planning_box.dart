@@ -34,7 +34,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
 
-  //search
+  String machine = "Máy In";
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Mã Đơn Hàng": "orderId",
@@ -43,8 +43,6 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     "QC Thùng": "QcBox",
     "Trưởng Máy": "shiftManagement",
   };
-
-  String machine = "Máy In";
 
   //text controller
   TextEditingController searchController = TextEditingController();

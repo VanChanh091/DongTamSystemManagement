@@ -121,7 +121,7 @@ class QualityControlService {
     );
   }
 
-  Future<Future<Map<String, dynamic>>> getQcInspection<T>({
+  Future<Map<String, dynamic>> getQcInspection<T>({
     required String isPaper,
     required int page,
     required int pageSize,
@@ -138,20 +138,20 @@ class QualityControlService {
 
   Future<bool> checkingInspection({
     int? planningId,
-    int? boxtimeId,
+    int? planningBoxId,
     required String isPaper,
     required String machine,
-    Map<String, dynamic>? checking,
-    required Map<String, dynamic> errProgress,
+    Map<String, num>? checking,
+    required Map<String, bool> errProgress,
   }) async {
-    return HelperService().updateItem(
+    return HelperService().addItem(
       endpoint: "qc/inspection",
       queryParameters: {"isPaper": isPaper},
       body: {
         "machine": machine,
         "errProgress": errProgress,
         if (checking != null) "checking": checking,
-        if (boxtimeId != null) "boxtimeId": boxtimeId,
+        if (planningBoxId != null) "planningBoxId": planningBoxId,
         if (planningId != null) "planningId": planningId,
       },
     );

@@ -40,17 +40,11 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
 
   //permission
   String machine = "Máy 1350";
-  Map<String, String> permissionToMachineMap = {
-    "machine1350": "Máy 1350",
-    "machine1900": "Máy 1900",
-    "machine2Layer": "Máy 2 Lớp",
-    "MachineRollPaper": "Máy Quấn Cuồn",
-  };
 
   @override
   void initState() {
     super.initState();
-    loadPlanning();
+    loadInspectionPaper();
 
     columns = buildMachinePaperColumns(themeController: themeController, page: "production");
     ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
@@ -60,7 +54,7 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
     });
   }
 
-  void loadPlanning() {
+  void loadInspectionPaper() {
     setState(() {
       futurePlanning = ensureMinLoading(
         QualityControlService().getManufactureProducing(
@@ -74,8 +68,13 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
     });
   }
 
-  Future<void> changeMachine(String newMachine) async {
-    // _initSocket.changeMachine(oldMachine: machine, newMachine: newMachine);
+  void changeMachine(String selectedMachine) {
+    AppLogger.i("changeMachine | from=$machine -> to=$selectedMachine");
+    setState(() {
+      machine = selectedMachine;
+      selectedPlanningIds.clear();
+      loadInspectionPaper();
+    });
   }
 
   @override
@@ -98,7 +97,7 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        "LỊCH SẢN XUẤT GIẤY TẤM",
+                        "DANH SÁCH GIẤY TẤM CHỜ KIỂM TRA",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
@@ -131,43 +130,55 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                                 children: [
                                   //dialog inspection check
                                   AnimatedButton(
-                                    onPressed: () async {
-                                      try {
-                                        final int selectedPlanningId = int.parse(
-                                          selectedPlanningIds.first,
-                                        );
+                                    onPressed:
+                                        selectedPlanningIds.isNotEmpty
+                                            ? () async {
+                                              try {
+                                                final int selectedPlanningId = int.parse(
+                                                  selectedPlanningIds.first,
+                                                );
 
-                                        final selectedPlanning = planningList.firstWhere(
-                                          (p) => p.planningId == selectedPlanningId,
-                                          orElse: () => throw Exception("Không tìm thấy kế hoạch"),
-                                        );
+                                                final selectedPlanning = planningList.firstWhere(
+                                                  (p) => p.planningId == selectedPlanningId,
+                                                  orElse:
+                                                      () =>
+                                                          throw Exception(
+                                                            "Không tìm thấy kế hoạch",
+                                                          ),
+                                                );
 
-                                        showDialog(
-                                          context: context,
-                                          builder:
-                                              (_) => DialogInspectionCheck(
-                                                isPaper: true,
-                                                planningId: selectedPlanning.planningId,
-                                                onSubmit: () {
-                                                  loadPlanning();
-                                                },
-                                              ),
-                                        );
-                                      } catch (e, s) {
-                                        if (selectedPlanningIds.isEmpty) {
-                                          showSnackBarError(
-                                            context,
-                                            "Vui lòng chọn một kế hoạch để kiểm tra",
-                                          );
-                                        } else {
-                                          AppLogger.e("Lỗi khi mở dialog", error: e, stackTrace: s);
-                                          showSnackBarError(
-                                            context,
-                                            "Đã xảy ra lỗi khi mở form kiểm tra.",
-                                          );
-                                        }
-                                      }
-                                    },
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (_) => DialogInspectionCheck(
+                                                        isPaper: true,
+                                                        planningId: selectedPlanning.planningId,
+                                                        machine: machine,
+                                                        onSubmit: () {
+                                                          loadInspectionPaper();
+                                                        },
+                                                      ),
+                                                );
+                                              } catch (e, s) {
+                                                if (selectedPlanningIds.isEmpty) {
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Vui lòng chọn một kế hoạch để kiểm tra",
+                                                  );
+                                                } else {
+                                                  AppLogger.e(
+                                                    "Lỗi khi mở dialog",
+                                                    error: e,
+                                                    stackTrace: s,
+                                                  );
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Đã xảy ra lỗi khi mở form kiểm tra.",
+                                                  );
+                                                }
+                                              }
+                                            }
+                                            : null,
                                     label: "Kiểm Tra",
                                     icon: Icons.check_circle,
                                     backgroundColor: themeController.buttonColor,
@@ -333,7 +344,7 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadPlanning(),
+        onPressed: () => loadInspectionPaper(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),

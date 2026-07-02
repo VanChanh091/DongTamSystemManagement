@@ -3,6 +3,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/scrap/scrap_report_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_scrap_report.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_scrap_report.dart';
+import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/sources/scrap_report_data_source.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/service/scrap_report_service.dart';
@@ -107,38 +108,67 @@ class _ScrapReportPaperState extends State<ScrapReportPaper> {
                               children: [
                                 // update
                                 AnimatedButton(
-                                  onPressed: () async {
-                                    try {
-                                      final data = await futureScrap;
-                                      final scraps = data;
-                                      final selectedScrapReport = scraps.firstWhere(
-                                        (scrap) => selectedScrapIds.contains(scrap.scrapId),
-                                      );
+                                  onPressed:
+                                      selectedScrapIds.isNotEmpty
+                                          ? () async {
+                                            try {
+                                              final data = await futureScrap;
+                                              final scraps = data;
+                                              final selectedScrapReport = scraps.firstWhere(
+                                                (scrap) => selectedScrapIds.contains(scrap.scrapId),
+                                              );
 
-                                      if (!context.mounted) return;
+                                              if (!context.mounted) return;
 
-                                      showDialog(
-                                        barrierDismissible: false,
-                                        context: context,
-                                        builder:
-                                            (_) => ScrapReportDialog(
-                                              scrapReport: selectedScrapReport,
-                                              onSubmit: () => loadScrapReports(),
-                                            ),
-                                      );
-                                    } catch (e, s) {
-                                      AppLogger.e(
-                                        "Lỗi không tìm thấy phiếu xuất kho",
-                                        error: e,
-                                        stackTrace: s,
-                                      );
-                                    }
-                                  },
+                                              showDialog(
+                                                barrierDismissible: false,
+                                                context: context,
+                                                builder:
+                                                    (_) => ScrapReportDialog(
+                                                      scrapReport: selectedScrapReport,
+                                                      onSubmit: () => loadScrapReports(),
+                                                    ),
+                                              );
+                                            } catch (e, s) {
+                                              AppLogger.e(
+                                                "Lỗi không tìm thấy phiếu xuất kho",
+                                                error: e,
+                                                stackTrace: s,
+                                              );
+                                            }
+                                          }
+                                          : null,
                                   label: "Sửa Báo Cáo",
                                   icon: Symbols.construction,
                                   backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 10),
+
+                                //delete customers
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedScrapIds.isNotEmpty
+                                          ? () async {
+                                            await showDeleteConfirmHelper(
+                                              context: context,
+                                              title: "⚠️ Xác nhận xoá",
+                                              content: "Bạn có chắc chắn muốn xoá báo cáo này?",
+                                              onDelete: () async {
+                                                await ScrapReportService().deleteScrapReport(
+                                                  scrapId: selectedScrapIds.first,
+                                                );
+                                              },
+                                              onSuccess: () {
+                                                setState(() => selectedScrapIds.clear());
+                                                loadScrapReports();
+                                              },
+                                            );
+                                          }
+                                          : null,
+                                  label: "Xóa",
+                                  icon: Icons.delete,
+                                  backgroundColor: const Color(0xffEA4346),
+                                ),
                               ],
                             ),
                           ),
