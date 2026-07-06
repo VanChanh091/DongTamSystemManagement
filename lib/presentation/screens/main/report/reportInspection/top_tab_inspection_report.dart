@@ -22,7 +22,7 @@ class _TopTabInspectionReportState extends State<TopTabInspectionReport> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
-              tabs: const [Tab(text: "Giấy Tấm"), Tab(text: "Thùng")],
+              tabs: const [Tab(text: "Giấy Tấm"), Tab(text: "Công Đoạn 2")],
             ),
           ),
           Expanded(

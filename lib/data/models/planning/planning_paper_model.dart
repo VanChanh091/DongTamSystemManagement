@@ -26,7 +26,7 @@ class PlanningPaper {
   final String? shiftProduction, shiftManagement, note;
 
   final String status;
-  final String? statusRequest;
+  final String? statusRequest, statusCheck;
 
   final bool? hasBox;
   final bool? hasOverFlow;
@@ -79,6 +79,7 @@ class PlanningPaper {
     this.sortPlanning,
 
     this.statusRequest,
+    this.statusCheck,
     this.dayCompleted,
     this.qtyProduced,
     this.qtyWasteNorm,
@@ -189,6 +190,7 @@ class PlanningPaper {
       sortPlanning: json["sortPlanning"] ?? 0,
       status: json["status"] ?? "",
       statusRequest: json["statusRequest"] ?? "",
+      statusCheck: json["statusCheck"] ?? "",
 
       qtyProduced: json["qtyProduced"] ?? 0,
       qtyWasteNorm: toDouble(json["qtyWasteNorm"]),

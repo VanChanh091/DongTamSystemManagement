@@ -2,10 +2,12 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_box_model.dart';
 import 'package:dongtam/presentation/components/headerTable/report/header_table_inspection_box.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
+import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/report/inspection_box_data_source.dart';
 import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,7 +23,6 @@ class ReportInspectionBox extends StatefulWidget {
 class _ReportInspectionBoxState extends State<ReportInspectionBox> {
   late Future<Map<String, dynamic>> futureReportBox;
   late InspectionBoxDataSource inspectionBoxDatasource;
-  late List<GridColumn> columns;
 
   //controller
   final dataGridController = DataGridController();
@@ -61,8 +62,12 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
     super.initState();
     loadInspectionBox();
 
-    columns = buildInspectionBoxColumn(themeController: themeController);
-    ColumnWidthTable.loadWidths(tableKey: 'inspectionBox', columns: columns).then((w) {
+    final initialColumns = buildInspectionBoxColumn(
+      themeController: themeController,
+      machine: machine,
+    );
+
+    ColumnWidthTable.loadWidths(tableKey: 'inspectionBox', columns: initialColumns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -115,14 +120,13 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
   //   });
   // }
 
-  // void changeMachine(String selectedMachine) {
-  //   AppLogger.i("changeMachine | from=$machine -> to=$selectedMachine");
-  //   setState(() {
-  //     machine = selectedMachine;
-  //     selectedBoxIds.clear();
-  //     loadInspectionBox();
-  //   });
-  // }
+  void changeMachine(String newMachine) {
+    setState(() {
+      machine = newMachine;
+      selectedBoxIds.clear();
+      loadInspectionBox();
+    });
+  }
 
   @override
   void dispose() {
@@ -200,39 +204,25 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                                 const SizedBox(width: 10),
 
                                 //choose machine
-                                // SizedBox(
-                                //   width: 175,
-                                //   child: DropdownButtonFormField<String>(
-                                //     value: machine,
-                                //     items:
-                                //         ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"].map((
-                                //           String value,
-                                //         ) {
-                                //           return DropdownMenuItem<String>(
-                                //             value: value,
-                                //             child: Text(value),
-                                //           );
-                                //         }).toList(),
-                                //     onChanged: (value) {
-                                //       if (value != null) {
-                                //         changeMachine(value);
-                                //       }
-                                //     },
-                                //     decoration: InputDecoration(
-                                //       filled: true,
-                                //       fillColor: Colors.white,
-                                //       border: OutlineInputBorder(
-                                //         borderRadius: BorderRadius.circular(10),
-                                //         borderSide: const BorderSide(color: Colors.grey),
-                                //       ),
-                                //       contentPadding: const EdgeInsets.symmetric(
-                                //         horizontal: 12,
-                                //         vertical: 8,
-                                //       ),
-                                //     ),
-                                //   ),
-                                // ),
-                                // const SizedBox(width: 10),
+                                buildDropdownItems(
+                                  value: machine,
+                                  items: const [
+                                    'Máy In',
+                                    "Máy Bế",
+                                    "Máy Xả",
+                                    "Máy Dán",
+                                    'Máy Cấn Lằn',
+                                    "Máy Cắt Khe",
+                                    "Máy Cán Màng",
+                                    "Máy Đóng Ghim",
+                                  ],
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      changeMachine(value);
+                                    }
+                                  },
+                                ),
+                                const SizedBox(width: 10),
                               ],
                             ),
                           ),
@@ -276,8 +266,14 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                   inspectionBoxDatasource = InspectionBoxDataSource(
                     inspectionBoxes: inspectionBoxes,
                     selectedBoxIds: selectedBoxIds,
+                    machine: machine,
                     currentPage: currentPage,
                     pageSize: pageSize,
+                  );
+
+                  final dynamicColumns = buildInspectionBoxColumn(
+                    themeController: themeController,
+                    machine: machine,
                   );
 
                   return Column(
@@ -285,6 +281,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                       //table
                       Expanded(
                         child: SfDataGrid(
+                          key: ValueKey(machine), // Thêm key để rebuild khi máy thay đổi
                           controller: dataGridController,
                           source: inspectionBoxDatasource,
                           isScrollbarAlwaysShown: true,
@@ -294,12 +291,63 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                           navigationMode: GridNavigationMode.row,
                           selectionMode: SelectionMode.multiple,
                           headerRowHeight: 35,
-                          rowHeight: 40,
+                          rowHeight: 38,
                           columns: ColumnWidthTable.applySavedWidths(
-                            columns: columns,
+                            columns: dynamicColumns,
                             widths: columnWidths,
                           ),
-                          frozenColumnsCount: 7,
+                          stackedHeaderRows: <StackedHeaderRow>[
+                            StackedHeaderRow(
+                              cells: [
+                                StackedHeaderCell(
+                                  columnNames: [
+                                    "orderId",
+                                    "customerName",
+                                    "productName",
+                                    "structure",
+                                    "sizePaper",
+                                    "lengthPaper",
+                                    "runningPlan",
+                                    "qcBox",
+                                  ],
+                                  child: Obx(
+                                    () => formatColumn(
+                                      label: "Thông Tin Đơn Hàng",
+                                      themeController: themeController,
+                                    ),
+                                  ),
+                                ),
+                                StackedHeaderCell(
+                                  columnNames: [
+                                    "boxDimension",
+                                    "colorCount",
+                                    "colorMatch",
+                                    "colorRegistration",
+                                    "fluteCrushing",
+                                    "glueAdhesion",
+                                    "glueViscosity",
+                                    "imagePosition",
+                                    "jointGap",
+                                    "jointMisalignment",
+                                    "paperSurface",
+                                    "printContent",
+                                    "printSharpness",
+                                    "scoringLine",
+                                    "stitchCount",
+                                    "stitchHolding",
+                                    "stitchPitch",
+                                    "stitchPosition",
+                                    "tabOverlap",
+                                    "trimLineBurr",
+                                  ],
+                                  child: formatColumn(
+                                    label: "Lỗi",
+                                    themeController: themeController,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
 
                           //auto resize
                           allowColumnsResizing: true,
@@ -309,7 +357,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                           onColumnResizeUpdate:
                               (details) => GridResizeHelper.onResizeUpdate(
                                 details: details,
-                                columns: columns,
+                                columns: dynamicColumns,
                                 setState: setState,
                               ),
                           onColumnResizeEnd:

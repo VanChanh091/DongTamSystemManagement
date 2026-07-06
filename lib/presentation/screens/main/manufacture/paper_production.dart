@@ -1,29 +1,30 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_report_production.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_scrap_report.dart';
-import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/planning/handle_request_complete.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/utils/socket/init_socket_manufacture.dart';
-import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
-import 'package:dongtam/service/manufacture_service.dart';
-import 'package:dongtam/socket/socket_service.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_report_production.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_scrap_report.dart";
+import "package:dongtam/presentation/components/dialog/qc/dialog_inspection_check.dart";
+import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/utils/socket/init_socket_manufacture.dart";
+import "package:dongtam/presentation/sources/planning/machine_paper_data_source.dart";
+import "package:dongtam/service/manufacture_service.dart";
+import "package:dongtam/socket/socket_service.dart";
+import "package:dongtam/presentation/components/shared/animated_button.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/helper/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class PaperProduction extends StatefulWidget {
   const PaperProduction({super.key});
@@ -52,9 +53,9 @@ class _PaperProductionState extends State<PaperProduction> {
   //search
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    'Mã Đơn Hàng': "orderId",
-    'Tên Khách Hàng': "customerName",
-    'Khổ Cấp Giấy': "ghepKho",
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
+    "Khổ Cấp Giấy": "ghepKho",
   };
 
   //flag
@@ -73,9 +74,9 @@ class _PaperProductionState extends State<PaperProduction> {
   //filter by machine & runningPlan
   String filterType = "all";
   final Map<String, String> filterOptions = {
-    'all': 'Tất cả',
-    'gtZero': 'Còn SL Chạy',
-    'ltZero': 'Hết SL Chạy',
+    "all": "Tất cả",
+    "gtZero": "Còn SL Chạy",
+    "ltZero": "Hết SL Chạy",
   };
 
   //text controller
@@ -88,7 +89,7 @@ class _PaperProductionState extends State<PaperProduction> {
     _initSocket = InitSocketManufacture(
       context: context,
       socketService: socketService,
-      eventName: "planningPaperUpdated",
+      eventNames: ["planningPaperUpdated", "qc-inspection-paper"],
       onLoadData: loadPlanning,
       onMachineChanged: (newMachine) {
         setState(() {
@@ -99,11 +100,10 @@ class _PaperProductionState extends State<PaperProduction> {
     );
 
     _initSocket.registerSocket(machine);
-
     loadPlanning();
 
     columns = buildMachinePaperColumns(themeController: themeController, page: "production");
-    ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "queuePaper", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -165,7 +165,7 @@ class _PaperProductionState extends State<PaperProduction> {
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
-    if (userController.role.value == 'admin') return true;
+    if (userController.role.value == "admin") return true;
 
     final selectedPlanning = planningList.firstWhere(
       (p) => p.planningId == selectedPlanningIds.first,
@@ -196,7 +196,7 @@ class _PaperProductionState extends State<PaperProduction> {
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
-    if (userController.role.value == 'admin') return true;
+    if (userController.role.value == "admin") return true;
 
     final selectedPlanning = planningList.firstWhere(
       (p) => p.planningId == selectedPlanningIds.first,
@@ -282,15 +282,15 @@ class _PaperProductionState extends State<PaperProduction> {
                                   ? LeftButtonSearch(
                                     selectedType: searchType,
                                     types: const [
-                                      'Tất cả',
-                                      'Mã Đơn Hàng',
-                                      'Tên Khách Hàng',
-                                      'Khổ Cấp Giấy',
+                                      "Tất cả",
+                                      "Mã Đơn Hàng",
+                                      "Tên Khách Hàng",
+                                      "Khổ Cấp Giấy",
                                     ],
                                     onTypeChanged: (value) {
                                       setState(() {
                                         searchType = value;
-                                        isTextFieldEnabled = value != 'Tất cả';
+                                        isTextFieldEnabled = value != "Tất cả";
 
                                         if (searchType == "Tất cả" &&
                                             searchController.text.isNotEmpty) {
@@ -435,7 +435,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                   buildDropdownItems(
                                     value: machine,
                                     items: const [
-                                      'Máy 1350',
+                                      "Máy 1350",
                                       "Máy 1900",
                                       "Máy 2 Lớp",
                                       "Máy Quấn Cuồn",
@@ -452,7 +452,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                   buildDropdownItems(
                                     width: 155,
                                     value: filterType,
-                                    items: const ['all', 'gtZero', 'ltZero'],
+                                    items: const ["all", "gtZero", "ltZero"],
                                     onChanged:
                                         (value) => {
                                           setState(() {
@@ -470,7 +470,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                     icon: const Icon(Icons.more_vert, color: Colors.black),
                                     color: Colors.white,
                                     onSelected: (value) async {
-                                      if (value == 'confirm') {
+                                      if (value == "confirm") {
                                         try {
                                           final int selectedPlanningId = int.parse(
                                             selectedPlanningIds.first,
@@ -497,8 +497,8 @@ class _PaperProductionState extends State<PaperProduction> {
                                           );
                                         } on ApiException catch (e) {
                                           final errorText = switch (e.errorCode) {
-                                            'PLANNING_HAS_COMPLETED' => 'Đơn hàng đã hoàn thành',
-                                            _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                            "PLANNING_HAS_COMPLETED" => "Đơn hàng đã hoàn thành",
+                                            _ => "Có lỗi xảy ra, vui lòng thử lại",
                                           };
 
                                           if (!context.mounted) return;
@@ -512,7 +512,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                           if (!context.mounted) return;
                                           showSnackBarError(context, "Có lỗi khi xác nhận SX: $e");
                                         }
-                                      } else if (value == 'request') {
+                                      } else if (value == "request") {
                                         await handlePlanningTask(
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
@@ -520,11 +520,11 @@ class _PaperProductionState extends State<PaperProduction> {
                                               (ids) =>
                                                   ManufactureService().handlePutManufacturePaper(
                                                     planningId: ids,
-                                                    action: 'REQUEST_COMPLETE',
+                                                    action: "REQUEST_COMPLETE",
                                                   ),
                                           onLoadPlanning: loadPlanning,
                                         );
-                                      } else if (value == 'scrapReport') {
+                                      } else if (value == "scrapReport") {
                                         if (selectedPlanningIds.isEmpty) {
                                           showSnackBarError(
                                             context,
@@ -570,29 +570,48 @@ class _PaperProductionState extends State<PaperProduction> {
                                                 },
                                               ),
                                         );
+                                      } else if (value == "confirmFixErr") {
+                                        await handlePlanningTask(
+                                          context: context,
+                                          selectedPlanningIds: selectedPlanningIds,
+                                          onExecute:
+                                              (ids) =>
+                                                  ManufactureService().handlePutManufacturePaper(
+                                                    planningId: [ids.first],
+                                                    action: "CONFIRM_FIX_ERROR",
+                                                  ),
+                                          onLoadPlanning: loadPlanning,
+                                        );
                                       }
                                     },
                                     itemBuilder:
                                         (BuildContext context) => [
                                           const PopupMenuItem<String>(
-                                            value: 'confirm',
+                                            value: "confirm",
                                             child: ListTile(
                                               leading: Icon(Symbols.done_outline),
-                                              title: Text('Xác Nhận Sản Xuất'),
+                                              title: Text("Xác Nhận Sản Xuất"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'request',
+                                            value: "request",
                                             child: ListTile(
                                               leading: Icon(Symbols.send),
-                                              title: Text('Yêu Cầu Hoàn Thành'),
+                                              title: Text("Yêu Cầu Hoàn Thành"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'scrapReport',
+                                            value: "scrapReport",
                                             child: ListTile(
                                               leading: Icon(Symbols.add),
-                                              title: Text('Báo Cáo Phế Liệu'),
+                                              title: Text("Báo Cáo Phế Liệu"),
+                                            ),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: "confirmFixErr",
+                                            child: ListTile(
+                                              leading: Icon(Symbols.construction),
+                                              title: Text("Xác Nhận Sửa Lỗi"),
                                             ),
                                           ),
                                         ],
@@ -641,7 +660,20 @@ class _PaperProductionState extends State<PaperProduction> {
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
-                    page: 'production',
+                    page: "production",
+                    onRowTap: (PlanningPaper item) {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (_) => DialogInspectionCheck(
+                              isQC: false,
+                              isPaper: true,
+                              planningId: item.planningId,
+                              machine: item.chooseMachine,
+                              onSubmit: () {},
+                            ),
+                      );
+                    },
                   );
 
                   return SfDataGrid(
@@ -664,24 +696,24 @@ class _PaperProductionState extends State<PaperProduction> {
                       StackedHeaderRow(
                         cells: [
                           StackedHeaderCell(
-                            columnNames: ['qtyProduced', 'runningPlanProd'],
+                            columnNames: ["qtyProduced", "runningPlanProd"],
                             child: Obx(
                               () =>
-                                  formatColumn(label: 'Số Lượng', themeController: themeController),
+                                  formatColumn(label: "Số Lượng", themeController: themeController),
                             ),
                           ),
                           StackedHeaderCell(
                             columnNames: [
-                              'bottom',
-                              'fluteE',
-                              'fluteE2',
-                              'fluteB',
-                              'fluteC',
-                              'knife',
-                              'totalLoss',
+                              "bottom",
+                              "fluteE",
+                              "fluteE2",
+                              "fluteB",
+                              "fluteC",
+                              "knife",
+                              "totalLoss",
                             ],
                             child: formatColumn(
-                              label: 'Định Mức Phế Liệu',
+                              label: "Định Mức Phế Liệu",
                               themeController: themeController,
                             ),
                           ),
@@ -703,7 +735,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     onColumnResizeEnd:
                         (details) => GridResizeHelper.onResizeEnd(
                           details: details,
-                          tableKey: 'queuePaper',
+                          tableKey: "queuePaper",
                           columnWidths: columnWidths,
                           setState: setState,
                         ),
@@ -718,10 +750,10 @@ class _PaperProductionState extends State<PaperProduction> {
                             selectedRows
                                 .map((row) {
                                   final cell = row.getCells().firstWhere(
-                                    (c) => c.columnName == 'planningId',
+                                    (c) => c.columnName == "planningId",
                                     orElse:
                                         () =>
-                                            const DataGridCell(columnName: 'planningId', value: ''),
+                                            const DataGridCell(columnName: "planningId", value: ""),
                                   );
                                   return cell.value.toString();
                                 })

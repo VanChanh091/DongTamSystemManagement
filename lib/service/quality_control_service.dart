@@ -109,18 +109,6 @@ class QualityControlService {
   }
 
   //==========================INSPECTION=================================
-  Future<List<T>> getManufactureProducing<T>({
-    required String machine,
-    required String isPaper,
-    required T Function(Map<String, dynamic>) fromJson,
-  }) async {
-    return HelperService().fetchingData<T>(
-      endpoint: "qc/inspection/manufacture",
-      queryParameters: {"machine": machine, "isPaper": isPaper},
-      fromJson: (json) => fromJson(json),
-    );
-  }
-
   Future<Map<String, dynamic>> getQcInspection<T>({
     required String isPaper,
     required int page,
@@ -133,6 +121,25 @@ class QualityControlService {
       queryParameters: {"isPaper": isPaper, "page": page, "pageSize": pageSize, "machine": machine},
       fromJson: fromJson,
       dataKey: isPaper == 'paper' ? 'inspectionPapers' : 'inspectionBoxes',
+    );
+  }
+
+  Future<T?> getQcInspectionErr<T>({
+    required String isPaper,
+    required int planningId,
+    required int planningBoxId,
+    required String machine,
+    required T Function(Map<String, dynamic>) fromJson,
+  }) async {
+    return HelperService().fetchSingleData<T>(
+      endpoint: "qc/inspection/check",
+      queryParameters: {
+        'isPaper': isPaper,
+        "planningId": planningId,
+        "planningBoxId": planningBoxId,
+        "machine": machine,
+      },
+      parser: (json) => fromJson(json as Map<String, dynamic>),
     );
   }
 

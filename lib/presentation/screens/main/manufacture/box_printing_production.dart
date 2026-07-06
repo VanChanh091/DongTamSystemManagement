@@ -1,30 +1,31 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_report_production.dart';
-import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/planning/handle_request_complete.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/utils/socket/init_socket_manufacture.dart';
-import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
-import 'package:dongtam/service/manufacture_service.dart';
-import 'package:dongtam/socket/socket_service.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_report_production.dart";
+import "package:dongtam/presentation/components/dialog/qc/dialog_inspection_check.dart";
+import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/utils/socket/init_socket_manufacture.dart";
+import "package:dongtam/presentation/sources/planning/machine_box_data_source.dart";
+import "package:dongtam/service/manufacture_service.dart";
+import "package:dongtam/socket/socket_service.dart";
+import "package:dongtam/presentation/components/shared/animated_button.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/helper/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class BoxPrintingProduction extends StatefulWidget {
   const BoxPrintingProduction({super.key});
@@ -41,7 +42,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
   String machine = "Máy In";
   final socketService = SocketService();
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   //controller
   final dataGridController = DataGridController();
@@ -56,9 +57,9 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   //search
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    'Mã Đơn Hàng': "orderId",
-    'Tên Khách Hàng': "customerName",
-    'Quy Cách': "QcBox",
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
+    "Quy Cách": "QcBox",
   };
 
   //flag
@@ -75,7 +76,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     _initSocket = InitSocketManufacture(
       context: context,
       socketService: socketService,
-      eventName: "planningBoxUpdated",
+      eventNames: ["planningBoxUpdated", "qc-inspection-box"],
       onLoadData: loadPlanning,
       onMachineChanged: (newMachine) {
         setState(() {
@@ -92,10 +93,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     columns = buildMachineBoxColumns(
       machine: machine,
       themeController: themeController,
-      page: 'production',
+      page: "production",
     );
 
-    ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "queueBox", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -149,7 +150,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     bool isRequest = false,
   }) {
     if (selectedPlanningIds.length != 1) return false;
-    if (userController.role.value == 'admin') return true;
+    if (userController.role.value == "admin") return true;
 
     final int selectedPlanningBoxId = selectedPlanningIds.first;
 
@@ -250,15 +251,15 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                   ? LeftButtonSearch(
                                     selectedType: searchType,
                                     types: const [
-                                      'Tất cả',
-                                      'Mã Đơn Hàng',
-                                      'Tên Khách Hàng',
-                                      'Quy Cách',
+                                      "Tất cả",
+                                      "Mã Đơn Hàng",
+                                      "Tên Khách Hàng",
+                                      "Quy Cách",
                                     ],
                                     onTypeChanged: (value) {
                                       setState(() {
                                         searchType = value;
-                                        isTextFieldEnabled = searchType != 'Tất cả';
+                                        isTextFieldEnabled = searchType != "Tất cả";
 
                                         if (searchType == "Tất cả" &&
                                             searchController.text.isNotEmpty) {
@@ -435,8 +436,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                 );
                                               } on ApiException catch (e) {
                                                 final errorText = switch (e.errorCode) {
-                                                  'PLANNING_COMPLETED' => 'Đơn hàng đã hoàn thành',
-                                                  _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                  "PLANNING_COMPLETED" => "Đơn hàng đã hoàn thành",
+                                                  _ => "Có lỗi xảy ra, vui lòng thử lại",
                                                 };
 
                                                 if (!context.mounted) return;
@@ -460,11 +461,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                   buildDropdownItems(
                                     value: machine,
                                     items: const [
-                                      'Máy In',
+                                      "Máy In",
                                       "Máy Bế",
                                       "Máy Xả",
                                       "Máy Dán",
-                                      'Máy Cấn Lằn',
+                                      "Máy Cấn Lằn",
                                       "Máy Cắt Khe",
                                       "Máy Cán Màng",
                                       "Máy Đóng Ghim",
@@ -482,7 +483,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                     icon: const Icon(Icons.more_vert, color: Colors.black),
                                     color: Colors.white,
                                     onSelected: (value) async {
-                                      if (value == 'sendCheck') {
+                                      if (value == "sendCheck") {
                                         try {
                                           //get planning first
                                           final int selectedPlanningBoxId = int.parse(
@@ -514,11 +515,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                           );
                                         } on ApiException catch (e) {
                                           final errorText = switch (e.errorCode) {
-                                            'PLANNING_ALREADY_REQUESTED' =>
+                                            "PLANNING_ALREADY_REQUESTED" =>
                                               "Đơn này đã yêu cầu kiểm tra rồi",
-                                            'STEP_QUANTITY_EQUAL_ZERO' =>
+                                            "STEP_QUANTITY_EQUAL_ZERO" =>
                                               "Có công đoạn chưa có số lượng, không thể yêu cầu nhập kho.",
-                                            _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                            _ => "Có lỗi xảy ra, vui lòng thử lại",
                                           };
 
                                           if (mounted) {
@@ -528,7 +529,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                           if (!context.mounted) return;
                                           showSnackBarError(context, "Có lỗi khi xác nhận SX: $e");
                                         }
-                                      } else if (value == 'request') {
+                                      } else if (value == "request") {
                                         await handlePlanningTask(
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
@@ -536,7 +537,19 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                               (ids) => ManufactureService().handlePutManufactureBox(
                                                 planningBoxId: ids,
                                                 machine: machine,
-                                                action: 'REQUEST_COMPLETE',
+                                                action: "REQUEST_COMPLETE",
+                                              ),
+                                          onLoadPlanning: loadPlanning,
+                                        );
+                                      } else if (value == "confirmFixErr") {
+                                        await handlePlanningTask(
+                                          context: context,
+                                          selectedPlanningIds: selectedPlanningIds,
+                                          onExecute:
+                                              (ids) => ManufactureService().handlePutManufactureBox(
+                                                planningBoxId: [ids.first],
+                                                machine: machine,
+                                                action: "CONFIRM_FIX_ERROR",
                                               ),
                                           onLoadPlanning: loadPlanning,
                                         );
@@ -545,17 +558,24 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                     itemBuilder:
                                         (BuildContext context) => [
                                           const PopupMenuItem<String>(
-                                            value: 'sendCheck',
+                                            value: "sendCheck",
                                             child: ListTile(
                                               leading: Icon(Symbols.send),
-                                              title: Text('Yêu Cầu Kiểm'),
+                                              title: Text("Yêu Cầu Kiểm"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'request',
+                                            value: "request",
                                             child: ListTile(
                                               leading: Icon(Symbols.send),
-                                              title: Text('Yêu Cầu Hoàn Thành'),
+                                              title: Text("Yêu Cầu Hoàn Thành"),
+                                            ),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: "confirmFixErr",
+                                            child: ListTile(
+                                              leading: Icon(Symbols.construction),
+                                              title: Text("Xác Nhận Sửa Lỗi"),
                                             ),
                                           ),
                                         ],
@@ -603,8 +623,21 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     planning: data,
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
-                    page: 'production',
+                    page: "production",
                     machine: machine,
+                    onRowTap: (PlanningBox item) {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (_) => DialogInspectionCheck(
+                              isQC: false,
+                              isPaper: false,
+                              planningBoxId: item.planningBoxId,
+                              machine: machine,
+                              onSubmit: () {},
+                            ),
+                      );
+                    },
                   );
 
                   return SfDataGrid(
@@ -628,18 +661,18 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                         cells: [
                           StackedHeaderCell(
                             columnNames: [
-                              'qtyPrinted',
-                              'qtyCanLan',
-                              'qtyCanMang',
-                              'qtyXa',
-                              'qtyCatKhe',
-                              'qtyBe',
-                              'qtyDan',
-                              'qtyDongGhim',
+                              "qtyPrinted",
+                              "qtyCanLan",
+                              "qtyCanMang",
+                              "qtyXa",
+                              "qtyCatKhe",
+                              "qtyBe",
+                              "qtyDan",
+                              "qtyDongGhim",
                             ],
                             child: Obx(
                               () => formatColumn(
-                                label: 'Số Lượng Của Các Công Đoạn',
+                                label: "Số Lượng Của Các Công Đoạn",
                                 themeController: themeController,
                               ),
                             ),
@@ -648,26 +681,26 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                             columnNames: ["quantityOrd", "qtyPaper", "needProd"],
                             child: Obx(
                               () =>
-                                  formatColumn(label: 'Số Lượng', themeController: themeController),
+                                  formatColumn(label: "Số Lượng", themeController: themeController),
                             ),
                           ),
                           StackedHeaderCell(
                             columnNames: ["inMatTruoc", "inMatSau"],
                             child: Obx(
-                              () => formatColumn(label: 'In Ấn', themeController: themeController),
+                              () => formatColumn(label: "In Ấn", themeController: themeController),
                             ),
                           ),
                           StackedHeaderCell(
                             columnNames: ["dan_1_Manh", "dan_2_Manh"],
                             child: Obx(
-                              () => formatColumn(label: 'Dán', themeController: themeController),
+                              () => formatColumn(label: "Dán", themeController: themeController),
                             ),
                           ),
                           StackedHeaderCell(
                             columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
                             child: Obx(
                               () => formatColumn(
-                                label: 'Đóng Ghim',
+                                label: "Đóng Ghim",
                                 themeController: themeController,
                               ),
                             ),
@@ -690,7 +723,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     onColumnResizeEnd:
                         (details) => GridResizeHelper.onResizeEnd(
                           details: details,
-                          tableKey: 'queueBox',
+                          tableKey: "queueBox",
                           columnWidths: columnWidths,
                           setState: setState,
                         ),
@@ -706,11 +739,11 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                             selectedRows
                                 .map((row) {
                                   final cell = row.getCells().firstWhere(
-                                    (c) => c.columnName == 'planningBoxId',
+                                    (c) => c.columnName == "planningBoxId",
                                     orElse:
                                         () => const DataGridCell(
-                                          columnName: 'planningBoxId',
-                                          value: '',
+                                          columnName: "planningBoxId",
+                                          value: "",
                                         ),
                                   );
                                   return cell.value.toString();

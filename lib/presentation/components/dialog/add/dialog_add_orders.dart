@@ -320,10 +320,10 @@ class _OrderDialogState extends State<OrderDialog> {
         songC: songCValue,
         songE2: songE2Value,
 
-        lengthPaperCustomer: double.tryParse(lengthCustomerController.trimmed) ?? 0.0,
-        lengthPaperManufacture: double.tryParse(lengthManufactureController.trimmed) ?? 0.0,
-        paperSizeCustomer: double.tryParse(sizeCustomerController.trimmed) ?? 0.0,
-        paperSizeManufacture: double.tryParse(sizeManufactureController.trimmed) ?? 0.0,
+        lengthPaperCustomer: lengthCustomerController.toDoubleRound,
+        lengthPaperManufacture: lengthManufactureController.toDoubleRound,
+        paperSizeCustomer: sizeCustomerController.toDoubleRound,
+        paperSizeManufacture: sizeManufactureController.toDoubleRound,
         quantityCustomer: int.tryParse(quantityCustomerController.trimmed) ?? 0,
         quantityManufacture: int.tryParse(quantityManufactureController.trimmed) ?? 0,
 
@@ -558,7 +558,6 @@ class _OrderDialogState extends State<OrderDialog> {
             }
           },
         ),
-
         "middleKey": "QC Thùng",
         "middleValue": ValidationHelper.orderInput(
           label: "QC Thùng",
@@ -652,7 +651,6 @@ class _OrderDialogState extends State<OrderDialog> {
             }
           },
         ),
-
         "middleKey": "Tên Khách Hàng",
         "middleValue": ValidationHelper.orderInput(
           label: "Tên Khách Hàng",
@@ -718,6 +716,7 @@ class _OrderDialogState extends State<OrderDialog> {
             }
           },
         ),
+
         "middleKey": "Loại Sản Phẩm",
         "middleValue": ValidationHelper.orderInput(
           label: "Loại Sản Phẩm",

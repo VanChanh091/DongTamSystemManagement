@@ -1,7 +1,7 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:get/get.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 final List<Map<String, dynamic>> _machinePaperColumns = [
   // planning
@@ -25,12 +25,12 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   {
     "key": "note",
     "title": "Ghi Chú",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
   {
     "key": "qcBox",
     "title": "QC Thùng",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
 
   {"key": "canLan", "title": "Cấn Lằn"},
@@ -49,7 +49,7 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   {
     "key": "runningPlanProd",
     "title": "Kế Hoạch Chạy",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
   {
     "key": "inboundQty",
@@ -70,42 +70,42 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
   {
     "key": "bottom",
     "title": "Đáy",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
   {
     "key": "fluteE",
     "title": "Sóng E",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
   {
     "key": "fluteE2",
     "title": "Sóng E2",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
   {
     "key": "fluteB",
     "title": "Sóng B",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
   {
     "key": "fluteC",
     "title": "Sóng C",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
   {
     "key": "knife",
     "title": "Dao",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
   {
     "key": "totalLoss",
     "title": "Tổng PL",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
   {
     "key": "qtyWastes",
     "title": "PL Thực Tế",
-    "visiblePages": ["planning", 'production'],
+    "visiblePages": ["planning", "production"],
   },
 
   {"key": "shiftProduct", "title": "Ca SX"},
@@ -124,11 +124,17 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
 
   //statusRequest
   {"key": "statusRequest", "title": "Kiểm Hàng"},
+  {
+    "key": "action",
+    "title": "Kiểm Lỗi",
+    "visiblePages": ["production"],
+  },
 
   // hidden technical fields
   {"key": "status", "title": "", "visible": false},
   {"key": "index", "title": "Index", "visible": false},
   {"key": "planningId", "title": "", "visible": false},
+  {"key": "statusCheck", "title": "", "visible": false},
 ];
 
 List<GridColumn> buildMachinePaperColumns({

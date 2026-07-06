@@ -14,6 +14,7 @@ class MachinePaperDatasource extends DataGridSource {
   UnsavedChangeController? unsavedChange;
   bool showGroup;
   String page;
+  Function(PlanningPaper)? onRowTap;
 
   Map<String, int> orderIdCounts = {};
 
@@ -22,14 +23,13 @@ class MachinePaperDatasource extends DataGridSource {
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  bool hasSortedInitially = false;
-
   MachinePaperDatasource({
     required this.planning,
     required this.selectedPlanningIds,
     required this.showGroup,
     required this.page,
     this.unsavedChange,
+    this.onRowTap,
   }) {
     _calculateOrderIdCounts();
     buildDataGridRows();
@@ -104,6 +104,19 @@ class MachinePaperDatasource extends DataGridSource {
           value: (planning.totalPrice ?? 0) > 0 ? Order.formatCurrency(planning.totalPrice!) : "0",
         ),
       ],
+
+      //waste norm
+      ...buildWasteNormCell(planning),
+
+      //status request
+      DataGridCell<String>(columnName: "statusRequest", value: planning.statusRequest),
+      if (page == "production") ...[DataGridCell<String>(columnName: "action", value: "Hành Động")],
+
+      // hidden technical fields
+      DataGridCell<String>(columnName: "status", value: planning.status),
+      DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
+      DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
+      DataGridCell<String>(columnName: 'statusCheck', value: planning.statusCheck ?? ""),
     ];
   }
 
@@ -141,14 +154,6 @@ class MachinePaperDatasource extends DataGridSource {
                   : null,
         ),
       ],
-
-      //status request
-      DataGridCell<String>(columnName: "statusRequest", value: planning.statusRequest),
-
-      // hidden technical fields
-      DataGridCell<String>(columnName: "status", value: planning.status),
-      DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
-      DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
     ];
   }
 
@@ -172,11 +177,7 @@ class MachinePaperDatasource extends DataGridSource {
   void buildDataGridRows() {
     planningDataGridRows =
         planning
-            .map<DataGridRow>(
-              (planning) => DataGridRow(
-                cells: [...buildPlanningInfoCells(planning), ...buildWasteNormCell(planning)],
-              ),
-            )
+            .map<DataGridRow>((planning) => DataGridRow(cells: buildPlanningInfoCells(planning)))
             .toList();
 
     notifyListeners();
@@ -311,7 +312,6 @@ class MachinePaperDatasource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     // ===== Index row =====
     final int rowIndex = planningDataGridRows.indexOf(row);
-
     final currentPlanning = planning[rowIndex];
 
     final String? currentKho = getKhoAtRow(rowIndex);
@@ -334,11 +334,14 @@ class MachinePaperDatasource extends DataGridSource {
     final isSelected = selectedPlanningIds.contains(planningId);
 
     final sortPlanning = getCellValue<int>(row, 'index', 0);
-    final status = getCellValue<String>(row, 'status', "");
     final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
     final qtyProduced = getCellValue<int>(row, 'qtyProduced', 0);
     final totalLoss = getCellValue<String>(row, 'totalLoss', "0");
     final qtyWastes = getCellValue<String>(row, 'qtyWastes', "0");
+
+    //status
+    final status = getCellValue<String>(row, 'status', "");
+    final statusCheck = getCellValue<String>(row, 'statusCheck', "");
 
     final totalWasteLossVal = double.tryParse(totalLoss.replaceAll(' kg', '')) ?? 0;
     final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(' kg', '')) ?? 0;
@@ -346,12 +349,14 @@ class MachinePaperDatasource extends DataGridSource {
     Color? rowColor;
     if (isSelected) {
       rowColor = Colors.blue.withValues(alpha: 0.3);
-    } else if (sortPlanning > 0 && status == "producing") {
-      rowColor = Colors.orange.withValues(alpha: 0.4);
     } else if (sortPlanning > 0 && status == "requested") {
       rowColor = Colors.teal.withValues(alpha: 0.4);
-    } else if (sortPlanning > 0 && status == "complete") {
+    } else if (sortPlanning > 0 && statusCheck == "failed") {
+      rowColor = Colors.red.withValues(alpha: 0.4);
+    } else if (sortPlanning > 0 && statusCheck == "fixed") {
       rowColor = Colors.green.withValues(alpha: 0.3);
+    } else if (sortPlanning > 0 && status == "producing") {
+      rowColor = Colors.orange.withValues(alpha: 0.4);
     } else if (sortPlanning == 0) {
       rowColor = Colors.amberAccent.withValues(alpha: 0.3);
     }
@@ -403,6 +408,15 @@ class MachinePaperDatasource extends DataGridSource {
             cellColor = Colors.red.withValues(alpha: 0.5);
           } else if (dataCell.columnName == "qtyWastes" && qtyWastesVal > totalWasteLossVal) {
             cellColor = Colors.red.withValues(alpha: 0.5);
+          }
+
+          if (dataCell.columnName == 'action') {
+            return IconButton(
+              icon: const Icon(Icons.fact_check, color: Colors.blueAccent, size: 20),
+              onPressed: () {
+                onRowTap?.call(currentPlanning); //click để mở dialog
+              },
+            );
           }
 
           return formatDataTable(

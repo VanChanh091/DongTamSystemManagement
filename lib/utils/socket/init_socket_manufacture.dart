@@ -7,14 +7,14 @@ import 'package:get/get.dart';
 class InitSocketManufacture {
   final BuildContext context;
   final dynamic socketService;
-  final String eventName;
+  final List<String> eventNames;
   final Function() onLoadData;
   final Function(String) onMachineChanged;
 
   InitSocketManufacture({
     required this.context,
     required this.socketService,
-    required this.eventName,
+    required this.eventNames,
     required this.onLoadData,
     required this.onMachineChanged,
   });
@@ -22,8 +22,10 @@ class InitSocketManufacture {
   Future<void> registerSocket(String machine) async {
     socketService.joinMachineRoom(machine);
 
-    socketService.off(eventName);
-    socketService.on(eventName, (data) => _onSocketUpdated(data));
+    for (final event in eventNames) {
+      socketService.off(event);
+      socketService.on(event, (data) => _onSocketUpdated(data));
+    }
   }
 
   String machineRoomName(String machineName) =>
@@ -40,13 +42,17 @@ class InitSocketManufacture {
     onMachineChanged(newMachine);
 
     // gỡ listener cũ
-    socketService.off(eventName);
+    for (final event in eventNames) {
+      socketService.off(event);
+    }
 
     // join room mới và đăng ký listener
     await socketService.joinMachineRoom(newMachine);
     AppLogger.i("changeMachine: joined newRoom=$newMachine");
 
-    socketService.on(eventName, (data) => _onSocketUpdated(data));
+    for (final event in eventNames) {
+      socketService.on(event, (data) => _onSocketUpdated(data));
+    }
 
     // load data cho máy mới
     onLoadData();
@@ -98,16 +104,14 @@ class InitSocketManufacture {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    isPlan
-                        ? 'Thông báo từ: ${from.isNotEmpty ? from : 'Kế hoạch'}'
-                        : 'Thông báo từ: Sản xuất',
+                    'Thông báo từ: ${from.isNotEmpty ? from : (isPlan ? 'Kế hoạch' : 'Sản xuất')}',
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
             content: SizedBox(
-              width: 400,
+              width: 450,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -142,6 +146,8 @@ class InitSocketManufacture {
   void stop(String lastMachineName) {
     final room = machineRoomName(lastMachineName);
     socketService.leaveRoom(room);
-    socketService.off(eventName);
+    for (final event in eventNames) {
+      socketService.off(event);
+    }
   }
 }

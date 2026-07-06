@@ -1,9 +1,9 @@
+import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
-import 'package:flutter/material.dart';
 
 class QcInspectionPaperModel {
   final int inspecPaperId;
-  final TimeOfDay timeInspection;
+  final DateTime timeInspection;
 
   //user input
   final int? numberPallet;
@@ -14,11 +14,12 @@ class QcInspectionPaperModel {
   final double fctValue;
   final double patValue;
 
-  final Map<String, bool> checklist;
+  final Map<String, bool> checkList;
   final String checkedBy;
 
   //FK
   final int planningId;
+  final PlanningPaper? paper;
 
   QcInspectionPaperModel({
     required this.inspecPaperId,
@@ -30,20 +31,19 @@ class QcInspectionPaperModel {
     required this.preheaterTemp,
     required this.fctValue,
     required this.patValue,
-    required this.checklist,
+    required this.checkList,
     required this.checkedBy,
 
     //FK
     required this.planningId,
+    this.paper,
   });
 
   factory QcInspectionPaperModel.fromJson(Map<String, dynamic> json) {
     return QcInspectionPaperModel(
       inspecPaperId: json["inspecPaperId"],
       timeInspection:
-          json["timeInspection"] != null && json["timeInspection"] != ""
-              ? parseTimeOfDay(json["timeInspection"])
-              : const TimeOfDay(hour: 0, minute: 0),
+          json["timeInspection"] != null ? DateTime.parse(json["timeInspection"]) : DateTime.now(),
       numberPallet: json["numberPallet"] ?? 0,
       machineSpeed: json["machineSpeed"] ?? 0,
       moisture: toDouble(json["lengthPaperPlanning"]),
@@ -51,26 +51,12 @@ class QcInspectionPaperModel {
       preheaterTemp: toDouble(json["preheaterTemp"]),
       fctValue: toDouble(json["fctValue"]),
       patValue: toDouble(json["patValue"]),
-      checklist: Map<String, bool>.from(json["checklist"] ?? {}),
+      checkList: Map<String, bool>.from(json["checkList"] ?? {}),
       checkedBy: json["checkedBy"] ?? "",
 
       //FK
       planningId: json["planningId"],
+      paper: json["PlanningPaper"] != null ? PlanningPaper.fromJson(json["PlanningPaper"]) : null,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      //user input
-      "numberPallet": numberPallet,
-      "machineSpeed": machineSpeed,
-      "moisture": moisture,
-      "steamPressure": steamPressure,
-      "preheaterTemp": preheaterTemp,
-      "fctValue": fctValue,
-      "patValue": patValue,
-      "checklist": checklist,
-      "planningId": planningId,
-    };
   }
 }

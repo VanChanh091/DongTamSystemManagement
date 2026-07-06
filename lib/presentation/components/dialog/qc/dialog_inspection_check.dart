@@ -14,19 +14,21 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class DialogInspectionCheck extends StatefulWidget {
-  final String? machine;
+  final bool isQC;
   final bool isPaper;
+  final String? machine;
   final int? planningId;
   final int? planningBoxId;
   final VoidCallback onSubmit;
 
   const DialogInspectionCheck({
     super.key,
-    required this.onSubmit,
-    required this.isPaper,
+    this.machine,
     this.planningId,
     this.planningBoxId,
-    this.machine,
+    required this.isQC,
+    required this.isPaper,
+    required this.onSubmit,
   });
 
   @override
@@ -43,6 +45,9 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   Map<String, num> checking = {};
   Map<String, bool> errProgress = {};
 
+  Map<String, dynamic>? savedErrorData;
+  bool _isDataFilled = false;
+
   final numberPalletController = TextEditingController();
   final machineSpeedController = TextEditingController();
   final moistureController = TextEditingController();
@@ -58,6 +63,22 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   }
 
   Future<List<InspectionUiModel>> _fetchCriteriaData() async {
+    if (!widget.isQC) {
+      try {
+        savedErrorData = await QualityControlService().getQcInspectionErr<Map<String, dynamic>>(
+          isPaper: widget.isPaper ? "paper" : "box",
+          planningId: widget.planningId ?? 0,
+          planningBoxId: widget.planningBoxId ?? 0,
+          machine: widget.machine ?? "",
+          fromJson: (json) => json,
+        );
+      } catch (e, s) {
+        // Nếu lỗi hoặc không có data cũ, cứ cho qua để tải tiếp danh sách tiêu chí bên dưới
+        AppLogger.e("Lỗi khi lấy dữ liệu lỗi cũ", error: e, stackTrace: s);
+        savedErrorData = null;
+      }
+    }
+
     if (widget.isPaper) {
       final List<AdminInspectionPaperModel> data = await AdminService().getAllCriteriaCheck(
         isPaper: true,
@@ -197,6 +218,23 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
         }
 
         criteriaList = snapshot.data!;
+
+        if (!_isDataFilled) {
+          if (savedErrorData != null) {
+            final savedCheckList = savedErrorData!['checkList'];
+            if (savedCheckList is Map) {
+              savedCheckList.forEach((key, value) {
+                checkedCriteria[key] = value as bool?;
+              });
+            }
+          } else {
+            // Nếu đơn hàng sạch, chưa có lỗi cũ -> Khởi tạo Map trống như ban đầu
+            for (var item in criteriaList) {
+              checkedCriteria.putIfAbsent(item.criteriaCode, () => null);
+            }
+          }
+          _isDataFilled = true; // Khóa lại
+        }
 
         // Khởi tạo trạng thái ban đầu (Đồng bộ dùng criteriaCode làm Key)
         for (var item in criteriaList) {
@@ -532,8 +570,8 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       title: Center(
         child: Text(
-          "Kiểm tra chất lượng sản xuất ${widget.isPaper ? "giấy tấm" : "thùng"}",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          widget.isQC ? "Kiểm tra chất lượng sản xuất" : "Báo cáo lỗi sản xuất",
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
       content: SizedBox(
@@ -542,24 +580,27 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
           scrollDirection: Axis.vertical,
           child: Form(
             key: formKey,
-            child: Column(
-              children: [
-                //criteria list
-                buildQcContent(),
+            child: IgnorePointer(
+              ignoring: !widget.isQC,
+              child: Column(
+                children: [
+                  //criteria list
+                  buildQcContent(),
 
-                //input user
-                widget.isPaper
-                    ? buildingCard(
-                      title: "📃 Thông Tin Kiểm Tra",
-                      children: formatKeyValueRows(
-                        rows: inspectionRows,
-                        labelWidth: 120,
-                        columnCount: 4,
-                        centerAlign: true,
-                      ),
-                    )
-                    : const SizedBox.shrink(),
-              ],
+                  //input user
+                  widget.isPaper && widget.isQC
+                      ? buildingCard(
+                        title: "📃 Thông Tin Kiểm Tra",
+                        children: formatKeyValueRows(
+                          rows: inspectionRows,
+                          labelWidth: 120,
+                          columnCount: 4,
+                          centerAlign: true,
+                        ),
+                      )
+                      : const SizedBox.shrink(),
+                ],
+              ),
             ),
           ),
         ),
@@ -569,24 +610,25 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(
-            "Hủy",
+          child: Text(
+            widget.isQC ? "Hủy" : "Đóng",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
           ),
         ),
-        ElevatedButton(
-          onPressed: isAllChecked ? submit : null,
-          // onPressed: submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        if (widget.isQC)
+          ElevatedButton(
+            onPressed: isAllChecked ? submit : null,
+            // onPressed: submit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text(
+              "Xác Nhận",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
+            ),
           ),
-          child: const Text(
-            "Xác Nhận",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
-          ),
-        ),
       ],
     );
   }

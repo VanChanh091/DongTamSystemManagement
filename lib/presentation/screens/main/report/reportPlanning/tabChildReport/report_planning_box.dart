@@ -3,6 +3,7 @@ import 'package:dongtam/data/models/report/report_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/export/dialog_export_excel_report.dart';
 import 'package:dongtam/presentation/components/headerTable/report/header_table_report_box.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
+import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/report/report_box_data_source.dart';
 import 'package:dongtam/service/report_planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -310,44 +311,23 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                 const SizedBox(width: 10),
 
                                 //choose machine
-                                SizedBox(
-                                  width: 175,
-                                  child: DropdownButtonFormField<String>(
-                                    value: machine,
-                                    items:
-                                        [
-                                          'Máy In',
-                                          "Máy Bế",
-                                          "Máy Xả",
-                                          "Máy Dán",
-                                          'Máy Cấn Lằn',
-                                          "Máy Cắt Khe",
-                                          "Máy Cán Màng",
-                                          "Máy Đóng Ghim",
-                                        ].map((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        changeMachine(value);
-                                      }
-                                    },
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
-                                      ),
-                                    ),
-                                  ),
+                                buildDropdownItems(
+                                  value: machine,
+                                  items: const [
+                                    'Máy In',
+                                    "Máy Bế",
+                                    "Máy Xả",
+                                    "Máy Dán",
+                                    'Máy Cấn Lằn',
+                                    "Máy Cắt Khe",
+                                    "Máy Cán Màng",
+                                    "Máy Đóng Ghim",
+                                  ],
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      changeMachine(value);
+                                    }
+                                  },
                                 ),
                                 const SizedBox(width: 10),
                               ],

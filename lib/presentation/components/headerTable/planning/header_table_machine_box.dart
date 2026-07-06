@@ -59,11 +59,17 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
 
   //isRequestCheck
   {"key": "statusRequest", "title": "Kiểm Hàng"},
+  {
+    "key": "action",
+    "title": "Kiểm Lỗi",
+    "visiblePages": ["production"],
+  },
 
   // hidden technical fields
   {"key": "status", "title": "", "visible": false},
   {"key": "index", "title": "Index", "visible": false},
   {"key": "planningBoxId", "title": "", "visible": false},
+  {"key": "statusCheck", "title": "", "visible": false},
 ];
 
 List<GridColumn> buildMachineBoxColumns({

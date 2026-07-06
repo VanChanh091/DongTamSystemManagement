@@ -6,7 +6,7 @@ import 'package:dongtam/presentation/components/headerTable/planning/header_tabl
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
-import 'package:dongtam/service/quality_control_service.dart';
+import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -38,8 +38,14 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   List<String> selectedPlanningIds = [];
   List<PlanningPaper> planningList = [];
 
-  //permission
+  //filter
   String machine = "Máy 1350";
+  String filterType = "all";
+  final Map<String, String> filterOptions = {
+    "all": "Tất cả",
+    "gtZero": "Còn SL Chạy",
+    "ltZero": "Hết SL Chạy",
+  };
 
   @override
   void initState() {
@@ -57,11 +63,7 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   void loadInspectionPaper() {
     setState(() {
       futurePlanning = ensureMinLoading(
-        QualityControlService().getManufactureProducing(
-          machine: machine,
-          isPaper: "paper",
-          fromJson: (json) => PlanningPaper.fromJson(json),
-        ),
+        ManufactureService().getPlanningPaper(machine: machine, filterType: filterType),
       );
 
       selectedPlanningIds.clear();
@@ -148,9 +150,11 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                                                 );
 
                                                 showDialog(
+                                                  barrierDismissible: false,
                                                   context: context,
                                                   builder:
                                                       (_) => DialogInspectionCheck(
+                                                        isQC: true,
                                                         isPaper: true,
                                                         planningId: selectedPlanning.planningId,
                                                         machine: machine,
@@ -201,6 +205,22 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                                     },
                                   ),
                                   const SizedBox(width: 10),
+
+                                  buildDropdownItems(
+                                    width: 155,
+                                    value: filterType,
+                                    items: const ["all", "gtZero", "ltZero"],
+                                    onChanged:
+                                        (value) => {
+                                          setState(() {
+                                            filterType = value!;
+                                            selectedPlanningIds.clear();
+                                            loadInspectionPaper();
+                                          }),
+                                        },
+                                    itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                                  ),
+                                  const SizedBox(width: 10),
                                 ],
                               ),
                             ),
@@ -245,6 +265,19 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: true,
                     page: 'production',
+                    onRowTap: (PlanningPaper item) {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (_) => DialogInspectionCheck(
+                              isQC: false,
+                              isPaper: true,
+                              planningId: item.planningId,
+                              machine: item.chooseMachine,
+                              onSubmit: () {},
+                            ),
+                      );
+                    },
                   );
 
                   return SfDataGrid(

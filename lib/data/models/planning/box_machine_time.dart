@@ -1,3 +1,4 @@
+import "package:dongtam/data/models/planning/planning_box_model.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:flutter/material.dart";
 
@@ -10,8 +11,11 @@ class BoxMachineTime {
   final String machine;
   final String? shiftManagement;
   final bool isRequestCheck;
-  final String status;
+  final String status, statusCheck;
   final int? sortPlanning;
+
+  final int planningBoxId;
+  final PlanningBox? planningBox;
 
   BoxMachineTime({
     required this.boxTimeId,
@@ -26,7 +30,10 @@ class BoxMachineTime {
     this.shiftManagement,
     required this.isRequestCheck,
     required this.status,
+    required this.statusCheck,
     this.sortPlanning,
+    required this.planningBoxId,
+    this.planningBox,
   });
 
   int get remainRunningPlan {
@@ -65,7 +72,12 @@ class BoxMachineTime {
       shiftManagement: json["shiftManagement"] ?? "",
       isRequestCheck: json["isRequestCheck"] ?? false,
       status: json["status"] ?? "",
+      statusCheck: json["statusCheck"] ?? "",
       sortPlanning: json["sortPlanning"] ?? 0,
+
+      //FK
+      planningBoxId: json["planningBoxId"] ?? 0,
+      planningBox: json["PlanningBox"] != null ? PlanningBox.fromJson(json["PlanningBox"]) : null,
     );
   }
 

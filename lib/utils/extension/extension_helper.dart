@@ -23,4 +23,9 @@ extension StringCleaningExtension on TextEditingController {
 
   /// Lấy text đã được trim và xóa khoảng trắng thừa ở giữa
   String get superClean => text.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+  double get toDoubleRound {
+    final value = double.tryParse(trimmed) ?? 0.0;
+    return (value * 10).round() / 10;
+  }
 }

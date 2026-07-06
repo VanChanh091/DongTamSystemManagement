@@ -15,12 +15,11 @@ class MachineBoxDatasource extends DataGridSource {
   String machine;
   bool showGroup;
   String page;
+  Function(PlanningBox)? onRowTap;
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
-
-  bool hasSortedInitially = false;
 
   MachineBoxDatasource({
     required this.planning,
@@ -29,6 +28,7 @@ class MachineBoxDatasource extends DataGridSource {
     required this.machine,
     required this.page,
     this.unsavedChange,
+    this.onRowTap,
   }) {
     buildDataGridRows();
 
@@ -153,11 +153,13 @@ class MachineBoxDatasource extends DataGridSource {
 
       //isRequestCheck
       DataGridCell<String>(columnName: "statusRequest", value: planning.statusRequest),
+      if (page == "production") ...[DataGridCell<String>(columnName: "action", value: "Hành Động")],
 
       // hidden
       DataGridCell<String>(columnName: "status", value: boxMachineTime?.status),
       DataGridCell<int>(columnName: "index", value: boxMachineTime?.sortPlanning ?? 0),
       DataGridCell<int>(columnName: "planningBoxId", value: planning.planningBoxId),
+      DataGridCell<String>(columnName: "statusCheck", value: boxMachineTime?.statusCheck),
     ];
   }
 
@@ -276,19 +278,6 @@ class MachineBoxDatasource extends DataGridSource {
       displayDate = match.group(1) ?? '';
       final count = match.group(2) ?? '0';
       itemCount = '$count đơn hàng';
-
-      // if (page == 'planning' && displayDate.isNotEmpty) {
-      //   double totalGroupPrice = planning
-      //       .where((p) {
-      //         final bt = p.getBoxMachineTimeByMachine(machine); // Lấy thông tin theo máy hiện tại
-      //         return bt?.dayStart != null && formatter.format(bt!.dayStart!) == displayDate;
-      //       })
-      //       .fold(0, (sum, p) => sum + (p.order?.totalPrice ?? 0));
-
-      //   if (totalGroupPrice > 0) {
-      //     totalPriceStr = ' – Tổng: ${Order.formatCurrency(totalGroupPrice)} VND';
-      //   }
-      // }
     }
 
     return Container(
@@ -318,10 +307,13 @@ class MachineBoxDatasource extends DataGridSource {
 
     // Lấy giá trị các cột cần check
     final sortPlanning = getCellValue<int>(row, 'index', 0);
-    final status = getCellValue<String>(row, 'status', "");
     final dmWasteLoss = getCellValue<String>(row, 'dmWasteLoss', "0");
     final wasteActually = getCellValue<String>(row, 'wasteActually', "0");
     final needProd = getCellValue<int>(row, 'needProd', 0);
+
+    //status
+    final status = getCellValue<String>(row, 'status', "");
+    final statusCheck = getCellValue<String>(row, 'statusCheck', "");
 
     final Map<String, String> machineColumnMap = {
       'qtyPrinted': "Máy In",
@@ -346,14 +338,16 @@ class MachineBoxDatasource extends DataGridSource {
       rowColor = Colors.orange.withValues(alpha: 0.4); //confirm production
     } else if (sortPlanning > 0 && status == "requested") {
       rowColor = Colors.teal.withValues(alpha: 0.4);
-    } else if (sortPlanning > 0 && status == "complete") {
-      rowColor = Colors.green.withValues(alpha: 0.3); //have completed
+    } else if (sortPlanning > 0 && statusCheck == "failed") {
+      rowColor = Colors.red.withValues(alpha: 0.3);
+    } else if (sortPlanning > 0 && statusCheck == "fixed") {
+      rowColor = Colors.green.withValues(alpha: 0.3);
     } else if (sortPlanning == 0) {
       rowColor = Colors.amberAccent.withValues(alpha: 0.3); //no sorting
     }
 
     return DataGridRowAdapter(
-      color: rowColor, // chỉ set khi tô cả hàng
+      color: rowColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
             final cellText = _formatCellValueBool(dataCell);
@@ -399,6 +393,15 @@ class MachineBoxDatasource extends DataGridSource {
               if (qty < needProd) {
                 cellColor = Colors.red.withValues(alpha: 0.5);
               }
+            }
+
+            if (dataCell.columnName == 'action') {
+              return IconButton(
+                icon: const Icon(Icons.fact_check, color: Colors.blueAccent, size: 20),
+                onPressed: () {
+                  onRowTap?.call(currentPlanning); //click để mở dialog
+                },
+              );
             }
 
             return formatDataTable(

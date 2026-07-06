@@ -149,7 +149,8 @@ class HelperService {
       if (data == null) return null;
 
       return parser(data);
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.e("Failed to load data from $endpoint", error: e, stackTrace: s);
       throw Exception('Failed to load data from $endpoint: $e');
     }
   }

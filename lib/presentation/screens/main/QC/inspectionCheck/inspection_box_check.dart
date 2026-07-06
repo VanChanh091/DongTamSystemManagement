@@ -6,7 +6,7 @@ import 'package:dongtam/presentation/components/headerTable/planning/header_tabl
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
-import 'package:dongtam/service/quality_control_service.dart';
+import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -59,13 +59,7 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
 
   void loadPlanning() {
     setState(() {
-      futurePlanning = ensureMinLoading(
-        QualityControlService().getManufactureProducing(
-          machine: machine,
-          isPaper: "box",
-          fromJson: (json) => PlanningBox.fromJson(json),
-        ),
-      );
+      futurePlanning = ensureMinLoading(ManufactureService().getPlanningBox(machine: machine));
 
       selectedPlanningIds.clear();
     });
@@ -151,9 +145,11 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
                                                 );
 
                                                 showDialog(
+                                                  barrierDismissible: false,
                                                   context: context,
                                                   builder:
                                                       (_) => DialogInspectionCheck(
+                                                        isQC: true,
                                                         isPaper: false,
                                                         machine: machine,
                                                         planningBoxId:
@@ -254,6 +250,19 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
                     showGroup: true,
                     page: 'production',
                     machine: machine,
+                    onRowTap: (PlanningBox item) {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (_) => DialogInspectionCheck(
+                              isQC: false,
+                              isPaper: false,
+                              planningBoxId: item.planningBoxId,
+                              machine: machine,
+                              onSubmit: () {},
+                            ),
+                      );
+                    },
                   );
 
                   return SfDataGrid(
