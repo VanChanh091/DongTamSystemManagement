@@ -516,6 +516,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                         await handlePlanningTask(
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
+                                          content: "Xác nhận yêu cầu hoàn thành kế hoạch này?",
                                           onExecute:
                                               (ids) =>
                                                   ManufactureService().handlePutManufacturePaper(
@@ -574,6 +575,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                         await handlePlanningTask(
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
+                                          content: "Xác nhận sửa lỗi kế hoạch này?",
                                           onExecute:
                                               (ids) =>
                                                   ManufactureService().handlePutManufacturePaper(

@@ -4,6 +4,7 @@ import 'package:dongtam/data/models/admin/qcInspection/inspection_ui_model.dart'
 import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
+import 'package:dongtam/presentation/components/shared/resizable_dialog.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -565,44 +566,17 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       },
     ];
 
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    return ResizableDialog(
+      initialWidth: ResponsiveSize.getWidth(context, ResponsiveType.large),
+      minWidth: 900,
+      maxWidth: 1500,
+      minHeight: 600,
+
+      //title
       title: Center(
         child: Text(
           widget.isQC ? "Kiểm tra chất lượng sản xuất" : "Báo cáo lỗi sản xuất",
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-      ),
-      content: SizedBox(
-        width: ResponsiveSize.getWidth(context, ResponsiveType.large),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Form(
-            key: formKey,
-            child: IgnorePointer(
-              ignoring: !widget.isQC,
-              child: Column(
-                children: [
-                  //criteria list
-                  buildQcContent(),
-
-                  //input user
-                  widget.isPaper && widget.isQC
-                      ? buildingCard(
-                        title: "📃 Thông Tin Kiểm Tra",
-                        children: formatKeyValueRows(
-                          rows: inspectionRows,
-                          labelWidth: 120,
-                          columnCount: 4,
-                          centerAlign: true,
-                        ),
-                      )
-                      : const SizedBox.shrink(),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
 
@@ -630,6 +604,35 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
             ),
           ),
       ],
+
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Form(
+          key: formKey,
+          child: IgnorePointer(
+            ignoring: !widget.isQC,
+            child: Column(
+              children: [
+                //criteria list
+                buildQcContent(),
+
+                //input user
+                widget.isPaper && widget.isQC
+                    ? buildingCard(
+                      title: "📃 Thông Tin Kiểm Tra",
+                      children: formatKeyValueRows(
+                        rows: inspectionRows,
+                        labelWidth: 120,
+                        columnCount: 4,
+                        centerAlign: true,
+                      ),
+                    )
+                    : const SizedBox.shrink(),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

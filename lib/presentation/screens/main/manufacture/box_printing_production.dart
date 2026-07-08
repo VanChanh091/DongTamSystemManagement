@@ -533,6 +533,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                         await handlePlanningTask(
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
+                                          content: "Xác nhận yêu cầu hoàn thành kế hoạch này?",
                                           onExecute:
                                               (ids) => ManufactureService().handlePutManufactureBox(
                                                 planningBoxId: ids,
@@ -545,6 +546,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                         await handlePlanningTask(
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
+                                          content: "Xác nhận sửa lỗi kế hoạch này?",
                                           onExecute:
                                               (ids) => ManufactureService().handlePutManufactureBox(
                                                 planningBoxId: [ids.first],

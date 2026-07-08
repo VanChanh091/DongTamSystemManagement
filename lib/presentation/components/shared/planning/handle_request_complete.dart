@@ -9,6 +9,7 @@ Future<void> handlePlanningTask({
   required List selectedPlanningIds,
   required Future<bool> Function(List<int> ids) onExecute,
   required VoidCallback onLoadPlanning,
+  required String content,
 }) async {
   try {
     if (selectedPlanningIds.isEmpty) {
@@ -19,7 +20,7 @@ Future<void> handlePlanningTask({
     final bool confirm = await showConfirmDialog(
       context: context,
       title: "⚠️ Xác nhận",
-      content: "Xác nhận yêu cầu hoàn thành kế hoạch này?",
+      content: content,
       confirmText: "Ok",
       confirmColor: const Color(0xffEA4346),
     );

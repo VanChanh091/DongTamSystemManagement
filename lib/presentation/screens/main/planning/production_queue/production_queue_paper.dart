@@ -911,6 +911,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
           'CANNOT_REJECT_PRODUCED_PLANNING' => e.message!,
           'CANNOT_COMPLETE_WITHOUT_SORT' => e.message!,
           "PLANNING_NOT_REQUESTED" => e.message!,
+          "PLANNING_HAS_OUTBOUND_DETAILS" => e.message!,
           _ => 'Có lỗi xảy ra, vui lòng thử lại',
         };
 

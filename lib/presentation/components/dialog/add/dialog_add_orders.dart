@@ -19,6 +19,7 @@ import "package:dongtam/presentation/components/shared/cardForm/building_card_fo
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
 import "package:dongtam/utils/helper/paste_image_order.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/validation/validation_helper.dart";
@@ -139,11 +140,11 @@ class _OrderDialogState extends State<OrderDialog> {
     super.initState();
 
     if (widget.order != null) {
-      orderInitState();
+      _orderInitState();
     }
 
-    fetchAllCustomers();
-    fetchAllProduct();
+    _fetchAllCustomers();
+    _fetchAllProducts();
     addListenerForField();
 
     if (widget.order == null) {
@@ -152,7 +153,7 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   //init data to update
-  void orderInitState() {
+  void _orderInitState() {
     final order = widget.order!;
 
     originalOrderId = order.orderId;
@@ -238,7 +239,7 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   //fetch all customer for create in dialog
-  Future<void> fetchAllCustomers() async {
+  Future<void> _fetchAllCustomers() async {
     try {
       final result = await CustomerService().getCustomers(noPaging: true);
 
@@ -250,7 +251,7 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   //fetch all product for create in dialog
-  Future<void> fetchAllProduct() async {
+  Future<void> _fetchAllProducts() async {
     try {
       final result = await ProductService().getProducts(noPaging: true);
 
@@ -265,6 +266,22 @@ class _OrderDialogState extends State<OrderDialog> {
     Order.listenerForFieldNeed(lengthCustomerController, lengthManufactureController);
     Order.listenerForFieldNeed(sizeCustomerController, sizeManufactureController);
     Order.listenerForFieldNeed(quantityCustomerController, quantityManufactureController);
+  }
+
+  void _autoSetDvtByProduct(String productType) {
+    setState(() {
+      switch (productType) {
+        case "Phí Khác":
+          typeDVT = "Lần";
+          break;
+        case "Thùng/hộp":
+          typeDVT = "Cái";
+          break;
+        default:
+          typeDVT = "M2";
+          break;
+      }
+    });
   }
 
   void submit() async {
@@ -637,7 +654,7 @@ class _OrderDialogState extends State<OrderDialog> {
                   (_) => CustomerDialog(
                     customer: null,
                     onCustomerAddOrUpdate: () {
-                      fetchAllCustomers();
+                      _fetchAllCustomers();
                     },
                   ),
             );
@@ -693,6 +710,7 @@ class _OrderDialogState extends State<OrderDialog> {
             typeProduct.text = product.typeProduct;
             nameSpController.text = product.productName ?? "";
             maKhuonController.text = product.maKhuon ?? "";
+            _autoSetDvtByProduct(product.typeProduct);
           },
           onPlusTap: () {
             showDialog(
@@ -701,7 +719,7 @@ class _OrderDialogState extends State<OrderDialog> {
                   (_) => ProductDialog(
                     product: null,
                     onProductAddOrUpdate: () {
-                      fetchAllProduct();
+                      _fetchAllProducts();
                     },
                   ),
             );
@@ -1035,203 +1053,13 @@ class _OrderDialogState extends State<OrderDialog> {
 
     return StatefulBuilder(
       builder: (context, state) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          content: SizedBox(
-            width: ResponsiveSize.getWidth(context, ResponsiveType.xLarge),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
+        return ResizableDialog(
+          initialWidth: ResponsiveSize.getWidth(context, ResponsiveType.xLarge),
+          minWidth: 1100,
+          maxWidth: 1500,
+          minHeight: 600,
 
-                    //Order
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "📜 CÔNG ĐOẠN 1",
-                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
-                        const SizedBox(height: 15),
-
-                        buildingCard(
-                          title: "📃 Thông Tin Cơ Bản",
-                          children: formatKeyValueRows(
-                            rows: infoBasicRows,
-                            labelWidth: 150,
-                            centerAlign: true,
-                            columnCount: 3,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-
-                        buildingCard(
-                          title: "📃 Chi Phí",
-                          children: formatKeyValueRows(
-                            rows: costRows,
-                            labelWidth: 150,
-                            centerAlign: true,
-                            columnCount: 3,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-
-                        //structure
-                        buildingCard(
-                          title: "🗜 Kết Cấu Giấy",
-                          children: formatKeyValueRows(
-                            rows: structureRows,
-                            labelWidth: 80,
-                            centerAlign: true,
-                            columnCount: 4,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-
-                    //box
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Stack(
-                          children: [
-                            Text(
-                              "📦 CÔNG ĐOẠN 2",
-                              style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: SizedBox(
-                                width: 150,
-                                child: ValidationHelper.checkboxForBox(
-                                  label: "Làm thùng?",
-                                  notifier: isBoxChecked,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        buildingCard(
-                          title: "Làm Thùng",
-                          children: [
-                            // Render các dòng field
-                            ValueListenableBuilder<bool>(
-                              valueListenable: isBoxChecked,
-                              builder: (context, isEnabled, _) {
-                                final boxes = buildBoxes(isEnabled);
-
-                                return Column(
-                                  children:
-                                      boxes.map((row) {
-                                        return buildFieldRow(
-                                          children: [
-                                            row["left"] is Function ? row["left"]() : row["left"],
-                                            row["middle_1"] is Function
-                                                ? row["middle_1"]()
-                                                : row["middle_1"],
-                                            row["middle_2"] is Function
-                                                ? row["middle_2"]()
-                                                : row["middle_2"],
-                                            row["middle_3"] is Function
-                                                ? row["middle_3"]()
-                                                : row["middle_3"],
-                                            row["right"] is Function
-                                                ? row["right"]()
-                                                : row["right"],
-                                          ],
-                                        );
-                                      }).toList(),
-                                );
-                              },
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Hướng dẫn đặc biệt:",
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      TextFormField(
-                                        controller: instructSpecialController,
-                                        decoration: InputDecoration(
-                                          hintText: "Nhập nội dung...",
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        maxLines: 3,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                const SizedBox(width: 16),
-
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Ghi Chú:",
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      TextFormField(
-                                        controller: noteController,
-                                        decoration: InputDecoration(
-                                          hintText: "Nhập ghi chú...",
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        maxLines: 3,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    //upload image
-                    PasteImageOrder(
-                      initialImage: pickedOrderImage,
-                      initialImageUrl: orderImageUrl,
-                      initialIsDelete: isDeleteImage,
-                      onImageChanged: (bytes, url, isDelete) {
-                        pickedOrderImage = bytes;
-                        orderImageUrl = url;
-                        isDeleteImage = isDelete;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          //btn
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -1257,6 +1085,196 @@ class _OrderDialogState extends State<OrderDialog> {
               ),
             ),
           ],
+
+          //scroll view
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Form(
+              key: formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
+
+                  //paper
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "📜 CÔNG ĐOẠN 1",
+                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                      const SizedBox(height: 15),
+
+                      buildingCard(
+                        title: "📃 Thông Tin Cơ Bản",
+                        children: formatKeyValueRows(
+                          rows: infoBasicRows,
+                          labelWidth: 150,
+                          centerAlign: true,
+                          columnCount: 3,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+
+                      buildingCard(
+                        title: "📃 Chi Phí",
+                        children: formatKeyValueRows(
+                          rows: costRows,
+                          labelWidth: 150,
+                          centerAlign: true,
+                          columnCount: 3,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+
+                      //structure
+                      buildingCard(
+                        title: "🗜 Kết Cấu Giấy",
+                        children: formatKeyValueRows(
+                          rows: structureRows,
+                          labelWidth: 80,
+                          centerAlign: true,
+                          columnCount: 4,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+
+                  //box
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        children: [
+                          Text(
+                            "📦 CÔNG ĐOẠN 2",
+                            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: SizedBox(
+                              width: 150,
+                              child: ValidationHelper.checkboxForBox(
+                                label: "Làm thùng?",
+                                notifier: isBoxChecked,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      buildingCard(
+                        title: "Làm Thùng",
+                        children: [
+                          // Render các dòng field
+                          ValueListenableBuilder<bool>(
+                            valueListenable: isBoxChecked,
+                            builder: (context, isEnabled, _) {
+                              final boxes = buildBoxes(isEnabled);
+
+                              return Column(
+                                children:
+                                    boxes.map((row) {
+                                      return buildFieldRow(
+                                        children: [
+                                          row["left"] is Function ? row["left"]() : row["left"],
+                                          row["middle_1"] is Function
+                                              ? row["middle_1"]()
+                                              : row["middle_1"],
+                                          row["middle_2"] is Function
+                                              ? row["middle_2"]()
+                                              : row["middle_2"],
+                                          row["middle_3"] is Function
+                                              ? row["middle_3"]()
+                                              : row["middle_3"],
+                                          row["right"] is Function ? row["right"]() : row["right"],
+                                        ],
+                                      );
+                                    }).toList(),
+                              );
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Hướng dẫn đặc biệt:",
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextFormField(
+                                      controller: instructSpecialController,
+                                      decoration: InputDecoration(
+                                        hintText: "Nhập nội dung...",
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      maxLines: 3,
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(width: 16),
+
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Ghi Chú:",
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextFormField(
+                                      controller: noteController,
+                                      decoration: InputDecoration(
+                                        hintText: "Nhập ghi chú...",
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      maxLines: 3,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  //upload image
+                  PasteImageOrder(
+                    initialImage: pickedOrderImage,
+                    initialImageUrl: orderImageUrl,
+                    initialIsDelete: isDeleteImage,
+                    onImageChanged: (bytes, url, isDelete) {
+                      pickedOrderImage = bytes;
+                      orderImageUrl = url;
+                      isDeleteImage = isDelete;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

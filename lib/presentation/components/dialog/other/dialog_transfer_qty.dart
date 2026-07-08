@@ -3,6 +3,7 @@ import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/service/order_service.dart";
 import "package:dongtam/service/warehouse_service.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
@@ -268,47 +269,13 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
 
     return StatefulBuilder(
       builder: (context, state) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          content: SizedBox(
-            width: ResponsiveSize.getWidth(context, ResponsiveType.large),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
+        return ResizableDialog(
+          initialWidth: ResponsiveSize.getWidth(context, ResponsiveType.large),
+          minWidth: 750,
+          maxWidth: 1000,
+          minHeight: 500,
 
-                    //specifications inventory source
-                    buildingCard(
-                      title: "📦 Thông Tin Đơn Hàng",
-                      children: formatKeyValueRows(
-                        rows: inventoryInfo,
-                        labelWidth: 145,
-                        columnCount: 2,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    //input qty transfer
-                    buildingCard(
-                      title: "✏️ Thông Tin Chuyển Giao Số Lượng",
-                      children: formatKeyValueRows(
-                        rows: inputRows,
-                        labelWidth: 150,
-                        columnCount: 2,
-                        centerAlign: true,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          //button
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -330,6 +297,41 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
               ),
             ),
           ],
+
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Form(
+              key: formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
+
+                  //specifications inventory source
+                  buildingCard(
+                    title: "📦 Thông Tin Đơn Hàng",
+                    children: formatKeyValueRows(
+                      rows: inventoryInfo,
+                      labelWidth: 145,
+                      columnCount: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  //input qty transfer
+                  buildingCard(
+                    title: "✏️ Thông Tin Chuyển Giao Số Lượng",
+                    children: formatKeyValueRows(
+                      rows: inputRows,
+                      labelWidth: 150,
+                      columnCount: 2,
+                      centerAlign: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

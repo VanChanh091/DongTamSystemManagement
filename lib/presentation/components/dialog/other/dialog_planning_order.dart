@@ -1,6 +1,7 @@
 import "package:dongtam/data/controller/badges_controller.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
@@ -568,70 +569,13 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     return StatefulBuilder(
       builder: (context, state) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          content: SizedBox(
-            width: ResponsiveSize.getWidth(context, ResponsiveType.xLarge),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    //order
-                    buildingCard(
-                      title: "📦 Thông Tin Đơn Hàng",
-                      children: formatKeyValueRows(
-                        rows: orderInfoRows,
-                        labelWidth: 145,
-                        columnCount: 2,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
+        return ResizableDialog(
+          initialWidth: ResponsiveSize.getWidth(context, ResponsiveType.xLarge),
+          minWidth: 1000,
+          maxWidth: 1500,
+          minHeight: 600,
 
-                    // planning
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "⚙️ KẾ HOẠCH SẢN XUẤT",
-                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
-                        const SizedBox(height: 15),
-
-                        // CẤU TRÚC GIẤY
-                        buildingCard(
-                          title: "🧾 CẤU TRÚC GIẤY THAY THẾ",
-                          children: formatKeyValueRows(
-                            rows: structureInfoRows,
-                            labelWidth: 170,
-                            centerAlign: true,
-                            columnCount: 3,
-                          ),
-                        ),
-
-                        // THÔNG SỐ SẢN XUẤT
-                        buildingCard(
-                          title: "📏 THÔNG SỐ SẢN XUẤT",
-                          children: formatKeyValueRows(
-                            rows: manufactureInfoRows,
-                            labelWidth: 170,
-                            centerAlign: true,
-                            columnCount: 3,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          //button
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -675,6 +619,64 @@ class _PLanningDialogState extends State<PLanningDialog> {
               ),
             ),
           ],
+
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Form(
+              key: formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
+                  //order
+                  buildingCard(
+                    title: "📦 Thông Tin Đơn Hàng",
+                    children: formatKeyValueRows(
+                      rows: orderInfoRows,
+                      labelWidth: 145,
+                      columnCount: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // planning
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "⚙️ KẾ HOẠCH SẢN XUẤT",
+                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                      const SizedBox(height: 15),
+
+                      // CẤU TRÚC GIẤY
+                      buildingCard(
+                        title: "🧾 CẤU TRÚC GIẤY THAY THẾ",
+                        children: formatKeyValueRows(
+                          rows: structureInfoRows,
+                          labelWidth: 170,
+                          centerAlign: true,
+                          columnCount: 3,
+                        ),
+                      ),
+
+                      // THÔNG SỐ SẢN XUẤT
+                      buildingCard(
+                        title: "📏 THÔNG SỐ SẢN XUẤT",
+                        children: formatKeyValueRows(
+                          rows: manufactureInfoRows,
+                          labelWidth: 170,
+                          centerAlign: true,
+                          columnCount: 3,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

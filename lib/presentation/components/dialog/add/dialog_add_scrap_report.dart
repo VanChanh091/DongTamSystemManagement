@@ -6,6 +6,7 @@ import "package:dongtam/presentation/components/shared/animated_button.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/service/employee_service.dart";
 import "package:dongtam/service/manufacture_service.dart";
 import "package:dongtam/service/scrap_report_service.dart";
@@ -297,249 +298,21 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
       },
     ];
 
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    return ResizableDialog(
+      initialWidth: ResponsiveSize.getWidth(context, ResponsiveType.xLarge),
+      minWidth: 900,
+      maxWidth: 1500,
+      minHeight: 600,
+
+      //title
       title: Center(
         child: Text(
           isEdit ? "Cập nhật báo cáo phế liệu" : "Thêm báo cáo phế liệu",
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
-      content: SizedBox(
-        width: ResponsiveSize.getWidth(context, ResponsiveType.xLarge),
-        child: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                //show info manufacture
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey.shade200),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: ValidationHelper.scrapReport(
-                                label: "Ngày Sản Xuất",
-                                controller: _dayCompletedController,
-                                icon: Symbols.calendar_month,
-                                readOnly: true,
-                                onTap: () async {
-                                  DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2025),
-                                    lastDate: DateTime(2100),
-                                    builder: (BuildContext context, Widget? child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: const ColorScheme.light(
-                                            primary: Colors.blue,
-                                            onPrimary: Colors.white,
-                                            onSurface: Colors.black,
-                                          ),
-                                          dialogTheme: const DialogThemeData(
-                                            backgroundColor: Colors.white,
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
-                                  if (pickedDate != null) {
-                                    setState(() {
-                                      dayCompleted = pickedDate;
-                                      _dayCompletedController.text = DateFormat(
-                                        "dd/MM/yyyy",
-                                      ).format(pickedDate);
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                            buildLineVertical(),
 
-                            Expanded(
-                              flex: 3,
-                              child: ValidationHelper.dropdownForTypes(
-                                items: itemsMachine,
-                                type: machine,
-                                onChanged: (value) {
-                                  setState(() {
-                                    machine = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                            buildLineVertical(),
-
-                            Expanded(
-                              flex: 2,
-                              child: ValidationHelper.dropdownForTypes(
-                                items: itemShiftProduction,
-                                type: shiftProduction,
-                                onChanged: (value) {
-                                  setState(() {
-                                    shiftProduction = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 15),
-                    AnimatedButton(
-                      onPressed: () async {
-                        if (dayCompleted == null) {
-                          showSnackBarError(
-                            context,
-                            "Vui lòng chọn ngày sản xuất trước khi lọc đơn!",
-                          );
-                          return;
-                        }
-
-                        setState(() {
-                          isLoading = true;
-                        });
-
-                        try {
-                          final result = await ManufactureService().getPlanningPaper(
-                            machine: machine,
-                            dayCompleted: dayCompleted,
-                            shiftProduction: shiftProduction,
-                          );
-
-                          setState(() {
-                            listPlanningPaper = result;
-                          });
-                        } catch (e) {
-                          if (context.mounted) {
-                            showSnackBarError(context, "Lỗi xảy ra không mong muốn");
-                          }
-                        } finally {
-                          setState(() {
-                            isLoading = false;
-                          });
-                        }
-                      },
-                      label: "Lọc đơn",
-                      icon: Icons.search,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15),
-
-                Container(
-                  width: double.infinity,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey.shade300, width: 1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child:
-                      isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: DataTable(
-                                headingRowHeight: 44,
-                                dataRowMinHeight: 42,
-                                columnSpacing: 24,
-                                horizontalMargin: 16,
-                                dividerThickness: 0.6,
-                                headingRowColor: WidgetStateProperty.all(
-                                  Color.fromARGB(255, 250, 235, 148),
-                                ),
-                                border: TableBorder(
-                                  horizontalInside: BorderSide(color: Colors.grey.shade300),
-                                ),
-                                columns: [
-                                  buildHeader("STT", width: 40, isCenter: true),
-                                  buildHeader("Mã Đơn Hàng"),
-                                  buildHeader("Tên Khách Hàng"),
-                                  buildHeader("Quy Cách"),
-                                  buildHeader("Số lượng SX"),
-                                  buildHeader("Ca SX"),
-                                  buildHeader("Trưởng Máy"),
-                                  buildHeader("Ngày Báo Cáo"),
-                                ],
-                                rows:
-                                    listPlanningPaper.asMap().entries.map<DataRow>((entry) {
-                                      final paper = entry.value;
-                                      final order = paper.order;
-
-                                      return DataRow(
-                                        cells: [
-                                          buildCell(
-                                            (entry.key + 1).toString(),
-                                            width: 40,
-                                            isCenter: true,
-                                          ),
-                                          buildCell(paper.orderId),
-                                          buildCell(order?.customer?.customerName ?? ""),
-                                          buildCell(
-                                            "${order?.flute ?? ""} - ${paper.sizePaperPLaning}x${paper.lengthPaperPlanning}",
-                                          ),
-                                          buildCell(paper.qtyProduced.toString()),
-                                          buildCell(paper.shiftProduction ?? ""),
-                                          buildCell(paper.shiftManagement ?? ""),
-                                          buildCell(
-                                            paper.dayCompleted is DateTime
-                                                ? DateFormat(
-                                                  "dd/MM/yyyy",
-                                                ).format(paper.dayCompleted as DateTime)
-                                                : "",
-                                          ),
-                                        ],
-                                      );
-                                    }).toList(),
-                              ),
-                            ),
-                          ),
-                ),
-                const SizedBox(height: 10),
-
-                //input scarp report
-                const SizedBox(height: 10),
-                buildingCard(
-                  title: "Phế Liệu Khác",
-                  children: formatKeyValueRows(
-                    rows: inputQtyScrapRows,
-                    columnCount: 2,
-                    labelWidth: 150,
-                    centerAlign: true,
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ),
-        ),
-      ),
-      actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      //button
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
@@ -561,6 +334,247 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
           ),
         ),
       ],
+
+      child: SingleChildScrollView(
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              //show info manufacture
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: ValidationHelper.scrapReport(
+                              label: "Ngày Sản Xuất",
+                              controller: _dayCompletedController,
+                              icon: Symbols.calendar_month,
+                              readOnly: true,
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2025),
+                                  lastDate: DateTime(2100),
+                                  builder: (BuildContext context, Widget? child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: const ColorScheme.light(
+                                          primary: Colors.blue,
+                                          onPrimary: Colors.white,
+                                          onSurface: Colors.black,
+                                        ),
+                                        dialogTheme: const DialogThemeData(
+                                          backgroundColor: Colors.white,
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                if (pickedDate != null) {
+                                  setState(() {
+                                    dayCompleted = pickedDate;
+                                    _dayCompletedController.text = DateFormat(
+                                      "dd/MM/yyyy",
+                                    ).format(pickedDate);
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                          buildLineVertical(),
+
+                          Expanded(
+                            flex: 3,
+                            child: ValidationHelper.dropdownForTypes(
+                              items: itemsMachine,
+                              type: machine,
+                              onChanged: (value) {
+                                setState(() {
+                                  machine = value!;
+                                });
+                              },
+                            ),
+                          ),
+                          buildLineVertical(),
+
+                          Expanded(
+                            flex: 2,
+                            child: ValidationHelper.dropdownForTypes(
+                              items: itemShiftProduction,
+                              type: shiftProduction,
+                              onChanged: (value) {
+                                setState(() {
+                                  shiftProduction = value!;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 15),
+                  AnimatedButton(
+                    onPressed: () async {
+                      if (dayCompleted == null) {
+                        showSnackBarError(
+                          context,
+                          "Vui lòng chọn ngày sản xuất trước khi lọc đơn!",
+                        );
+                        return;
+                      }
+
+                      setState(() {
+                        isLoading = true;
+                      });
+
+                      try {
+                        final result = await ManufactureService().getPlanningPaper(
+                          machine: machine,
+                          dayCompleted: dayCompleted,
+                          shiftProduction: shiftProduction,
+                        );
+
+                        setState(() {
+                          listPlanningPaper = result;
+                        });
+                      } catch (e) {
+                        if (context.mounted) {
+                          showSnackBarError(context, "Lỗi xảy ra không mong muốn");
+                        }
+                      } finally {
+                        setState(() {
+                          isLoading = false;
+                        });
+                      }
+                    },
+                    label: "Lọc đơn",
+                    icon: Icons.search,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
+
+              Container(
+                width: double.infinity,
+                height: 300,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey.shade300, width: 1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child:
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                                    child: DataTable(
+                                      headingRowHeight: 44,
+                                      dataRowMinHeight: 42,
+                                      columnSpacing: 24,
+                                      horizontalMargin: 16,
+                                      dividerThickness: 0.6,
+                                      headingRowColor: WidgetStateProperty.all(
+                                        Color.fromARGB(255, 250, 235, 148),
+                                      ),
+                                      border: TableBorder(
+                                        horizontalInside: BorderSide(color: Colors.grey.shade300),
+                                      ),
+                                      columns: [
+                                        buildHeader("STT", width: 40, isCenter: true),
+                                        buildHeader("Mã Đơn Hàng"),
+                                        buildHeader("Tên Khách Hàng"),
+                                        buildHeader("Quy Cách"),
+                                        buildHeader("Số lượng SX"),
+                                        buildHeader("Ca SX"),
+                                        buildHeader("Trưởng Máy"),
+                                        buildHeader("Ngày Báo Cáo"),
+                                      ],
+                                      rows:
+                                          listPlanningPaper.asMap().entries.map<DataRow>((entry) {
+                                            final paper = entry.value;
+                                            final order = paper.order;
+
+                                            return DataRow(
+                                              cells: [
+                                                buildCell(
+                                                  (entry.key + 1).toString(),
+                                                  width: 40,
+                                                  isCenter: true,
+                                                ),
+                                                buildCell(paper.orderId),
+                                                buildCell(order?.customer?.customerName ?? ""),
+                                                buildCell(
+                                                  "${order?.flute ?? ""} - ${paper.sizePaperPLaning}x${paper.lengthPaperPlanning}",
+                                                ),
+                                                buildCell(paper.qtyProduced.toString()),
+                                                buildCell(paper.shiftProduction ?? ""),
+                                                buildCell(paper.shiftManagement ?? ""),
+                                                buildCell(
+                                                  paper.dayCompleted is DateTime
+                                                      ? DateFormat(
+                                                        "dd/MM/yyyy",
+                                                      ).format(paper.dayCompleted as DateTime)
+                                                      : "",
+                                                ),
+                                              ],
+                                            );
+                                          }).toList(),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+              ),
+              const SizedBox(height: 10),
+
+              //input scarp report
+              const SizedBox(height: 10),
+              buildingCard(
+                title: "Phế Liệu Khác",
+                children: formatKeyValueRows(
+                  rows: inputQtyScrapRows,
+                  columnCount: 2,
+                  labelWidth: 150,
+                  centerAlign: true,
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

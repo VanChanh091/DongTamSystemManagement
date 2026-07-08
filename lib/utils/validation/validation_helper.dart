@@ -395,22 +395,22 @@ class ValidationHelper {
     Map<String, String>? labels,
   }) {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       value: items.contains(type) ? type : null,
       items:
-          items.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Row(
-                children: [
-                  const SizedBox(width: 10),
-                  Text(
+          items
+              .map(
+                (value) => DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(
                     labels?[value] ?? value,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                ],
-              ),
-            );
-          }).toList(),
+                ),
+              )
+              .toList(),
       onChanged: onChanged,
       decoration: InputDecoration(
         filled: true,

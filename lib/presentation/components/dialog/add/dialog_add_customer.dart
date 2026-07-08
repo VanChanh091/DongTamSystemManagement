@@ -7,6 +7,7 @@ import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
@@ -479,54 +480,17 @@ class _CustomerDialogState extends State<CustomerDialog> {
       },
     ];
 
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    return ResizableDialog(
+      initialWidth: ResponsiveSize.getWidth(context, ResponsiveType.large),
+      minWidth: 1100,
+      maxWidth: 1500,
+      minHeight: 600,
       title: Center(
         child: Text(
           isEdit ? "Cập nhật khách hàng" : "Thêm khách hàng",
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
-      content: SizedBox(
-        width: ResponsiveSize.getWidth(context, ResponsiveType.large),
-        child:
-            isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        //basic info
-                        const SizedBox(height: 10),
-                        buildingCard(
-                          title: "Thông Tin Khách Hàng",
-                          children: formatKeyValueRows(
-                            rows: basicInfoRows,
-                            columnCount: 2,
-                            labelWidth: 150,
-                            centerAlign: true,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-
-                        //other info
-                        buildingCard(
-                          title: "Thông Tin Thanh Toán",
-                          children: formatKeyValueRows(
-                            rows: otherInfoRows,
-                            columnCount: 2,
-                            labelWidth: 150,
-                            centerAlign: true,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-      ),
-      actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actions:
           isLoading
               ? []
@@ -559,6 +523,41 @@ class _CustomerDialogState extends State<CustomerDialog> {
                   ),
                 ),
               ],
+      child:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      //basic info
+                      const SizedBox(height: 10),
+                      buildingCard(
+                        title: "Thông Tin Khách Hàng",
+                        children: formatKeyValueRows(
+                          rows: basicInfoRows,
+                          columnCount: 2,
+                          labelWidth: 150,
+                          centerAlign: true,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      //other info
+                      buildingCard(
+                        title: "Thông Tin Thanh Toán",
+                        children: formatKeyValueRows(
+                          rows: otherInfoRows,
+                          columnCount: 2,
+                          labelWidth: 150,
+                          centerAlign: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
     );
   }
 }

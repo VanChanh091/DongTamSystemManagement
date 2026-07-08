@@ -29,9 +29,7 @@ class _PaginationControlsState extends State<PaginationControls> {
   @override
   void initState() {
     super.initState();
-    _pageController = TextEditingController(
-      text: widget.currentPage.toString(),
-    );
+    _pageController = TextEditingController(text: widget.currentPage.toString());
   }
 
   @override
@@ -50,13 +48,9 @@ class _PaginationControlsState extends State<PaginationControls> {
 
   void _handleJump() {
     final value = int.tryParse(_pageController.text);
-    if (value != null &&
-        value >= 1 &&
-        value <= widget.totalPages &&
-        value != widget.currentPage) {
+    if (value != null && value >= 1 && value <= widget.totalPages && value != widget.currentPage) {
       widget.onJumpToPage(value);
     } else {
-      // Feedback nhỏ nếu nhập sai
       showSnackBarError(context, 'Số trang không hợp lệ');
       _pageController.text = widget.currentPage.toString();
     }
@@ -101,19 +95,14 @@ class _PaginationControlsState extends State<PaginationControls> {
                   decoration: InputDecoration(
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 '/ ${widget.totalPages}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -121,8 +110,7 @@ class _PaginationControlsState extends State<PaginationControls> {
 
           // Nút trang sau
           ElevatedButton(
-            onPressed:
-                widget.currentPage < widget.totalPages ? widget.onNext : null,
+            onPressed: widget.currentPage < widget.totalPages ? widget.onNext : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: themeController.buttonColor.value,
               foregroundColor: Colors.white,

@@ -84,6 +84,7 @@ class SyntheticOrdersDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'unit', value: order.dvt),
       DataGridCell<String>(columnName: 'vat', value: order.vat != null ? '${order.vat}%' : ''),
 
+      buildCurrencyCell("pricePer", order.price),
       buildCurrencyCell("pricePaper", order.pricePaper ?? 0),
       buildCurrencyCell("totalPrice", order.totalPrice ?? 0),
       buildCurrencyCell("totalPriceVAT", order.totalPriceVAT ?? 0),
