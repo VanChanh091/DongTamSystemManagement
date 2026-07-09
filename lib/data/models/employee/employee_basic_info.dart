@@ -1,16 +1,16 @@
 import "package:dongtam/data/models/employee/employee_company_info.dart";
 import "package:intl/intl.dart";
 
-class EmployeeBasicInfo {
+class EmployeeBasicInfoModel {
   final int employeeId;
   final DateTime? birthday, citizenIssuedDate;
   final String? homeTown, educationSystem, major;
   final String fullName, gender, birthPlace, educationLevel, phoneNumber;
   final String citizenId, citizenIssuedPlace, permanentAddress, temporaryAddress, ethnicity;
 
-  final EmployeeCompanyInfo? companyInfo;
+  final EmployeeCompanyInfoModel? companyInfo;
 
-  EmployeeBasicInfo({
+  EmployeeBasicInfoModel({
     required this.employeeId,
     required this.fullName,
     required this.gender,
@@ -31,8 +31,8 @@ class EmployeeBasicInfo {
     this.companyInfo,
   });
 
-  factory EmployeeBasicInfo.fromJson(Map<String, dynamic> json) {
-    return EmployeeBasicInfo(
+  factory EmployeeBasicInfoModel.fromJson(Map<String, dynamic> json) {
+    return EmployeeBasicInfoModel(
       employeeId: json["employeeId"] ?? 0,
       fullName: json["fullName"] ?? "",
       gender: json["gender"] ?? "",
@@ -56,7 +56,9 @@ class EmployeeBasicInfo {
       temporaryAddress: json["temporaryAddress"] ?? "",
       ethnicity: json["ethnicity"] ?? "",
       companyInfo:
-          json["companyInfo"] != null ? EmployeeCompanyInfo.fromJson(json["companyInfo"]) : null,
+          json["companyInfo"] != null
+              ? EmployeeCompanyInfoModel.fromJson(json["companyInfo"])
+              : null,
     );
   }
 

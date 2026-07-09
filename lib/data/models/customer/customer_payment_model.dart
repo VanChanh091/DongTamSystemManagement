@@ -1,7 +1,7 @@
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:intl/intl.dart";
 
-class CustomerPayment {
+class CustomerPaymentModel {
   final int cusPaymentId;
   final double? debtCurrent;
   final double? debtLimit;
@@ -9,7 +9,7 @@ class CustomerPayment {
   final String? paymentType;
   final int closingDate;
 
-  CustomerPayment({
+  CustomerPaymentModel({
     required this.cusPaymentId,
     this.debtCurrent,
     this.debtLimit,
@@ -18,8 +18,8 @@ class CustomerPayment {
     required this.closingDate,
   });
 
-  factory CustomerPayment.fromJson(Map<String, dynamic> json) {
-    return CustomerPayment(
+  factory CustomerPaymentModel.fromJson(Map<String, dynamic> json) {
+    return CustomerPaymentModel(
       cusPaymentId: json["cusPaymentId"] ?? 0,
       debtCurrent: toDouble(json["debtCurrent"]),
       debtLimit: toDouble(json["debtLimit"]),

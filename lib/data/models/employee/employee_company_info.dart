@@ -1,6 +1,6 @@
 import "package:intl/intl.dart";
 
-class EmployeeCompanyInfo {
+class EmployeeCompanyInfoModel {
   final int companyInfoId;
   final String employeeCode;
   final DateTime? joinDate;
@@ -10,7 +10,7 @@ class EmployeeCompanyInfo {
   final String? emergencyContact;
   final String status;
 
-  EmployeeCompanyInfo({
+  EmployeeCompanyInfoModel({
     required this.companyInfoId,
     required this.employeeCode,
     required this.joinDate,
@@ -21,8 +21,8 @@ class EmployeeCompanyInfo {
     required this.status,
   });
 
-  factory EmployeeCompanyInfo.fromJson(Map<String, dynamic> json) {
-    return EmployeeCompanyInfo(
+  factory EmployeeCompanyInfoModel.fromJson(Map<String, dynamic> json) {
+    return EmployeeCompanyInfoModel(
       companyInfoId: json["companyInfoId"] ?? 0,
       employeeCode: json["employeeCode"] ?? "",
       joinDate:

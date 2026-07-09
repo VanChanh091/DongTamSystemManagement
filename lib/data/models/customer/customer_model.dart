@@ -1,7 +1,7 @@
-import "package:dongtam/data/models/customer/customer_payment_model.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
+import "package:dongtam/data/models/customer/customer_payment_model.dart";
 
-class Customer {
+class CustomerModel {
   final String customerId;
   final String customerName;
   final String companyName;
@@ -16,9 +16,9 @@ class Customer {
   final String? rateCustomer;
   final DateTime? createdAt;
 
-  final CustomerPayment? payment;
+  final CustomerPaymentModel? payment;
 
-  Customer({
+  CustomerModel({
     required this.customerId,
     required this.customerName,
     required this.companyName,
@@ -36,8 +36,8 @@ class Customer {
     this.payment,
   });
 
-  factory Customer.fromJson(Map<String, dynamic> json) {
-    return Customer(
+  factory CustomerModel.fromJson(Map<String, dynamic> json) {
+    return CustomerModel(
       customerId: json["customerId"] ?? "CUSTOM",
       customerName: json["customerName"] ?? "",
       companyName: json["companyName"] ?? "",
@@ -54,7 +54,7 @@ class Customer {
           json["createdAt"] != null && json["createdAt"].toString().isNotEmpty
               ? DateTime.tryParse(json["createdAt"].toString())
               : null,
-      payment: json["payment"] != null ? CustomerPayment.fromJson(json["payment"]) : null,
+      payment: json["payment"] != null ? CustomerPaymentModel.fromJson(json["payment"]) : null,
     );
   }
 

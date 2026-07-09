@@ -61,7 +61,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   int? selectedDbPaperId;
-  List<PlanningStage> selectedStages = [];
+  List<PlanningStageModel> selectedStages = [];
 
   int currentPage = 1;
   int pageSize = 35;
@@ -346,7 +346,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                   }
 
                   final data = snapshot.data!;
-                  final dbPlanning = data['dashboard'] as List<PlanningPaper>;
+                  final dbPlanning = data['dashboard'] as List<PlanningPaperModel>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 

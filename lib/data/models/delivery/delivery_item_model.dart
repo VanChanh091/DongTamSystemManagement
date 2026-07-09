@@ -18,7 +18,7 @@ class DeliveryItemModel {
   final int vehicleId;
 
   final DeliveryScheduleModel? deliverySchedule;
-  final DeliveryRequest? request;
+  final DeliveryRequestModel? request;
   final AdminVehicleModel? vehicle;
   final List<OutboundDetailModel>? outboundDetails;
   final DeliveryScheduleModel? DeliverySchedule;
@@ -67,7 +67,7 @@ class DeliveryItemModel {
       vehicle: json["Vehicle"] != null ? AdminVehicleModel.fromJson(json["Vehicle"]) : null,
       request:
           json["DeliveryRequest"] != null
-              ? DeliveryRequest.fromJson(json["DeliveryRequest"])
+              ? DeliveryRequestModel.fromJson(json["DeliveryRequest"])
               : null,
       DeliverySchedule:
           json["DeliveryPlan"] != null

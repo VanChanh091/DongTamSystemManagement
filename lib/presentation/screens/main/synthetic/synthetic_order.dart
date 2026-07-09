@@ -47,7 +47,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   //width column
   Map<String, double> columnWidthOrders = {}; //map header table
   Map<String, double> columnWidthBoxes = {};
-  List<PlanningBox> selectedBoxesDetail = [];
+  List<PlanningBoxModel> selectedBoxesDetail = [];
 
   List<String> selectedOrderIds = [];
 
@@ -449,7 +449,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                   }
 
                   final data = snapshot.data!;
-                  final orders = data["orders"] as List<Order>;
+                  final orders = data["orders"] as List<OrderModel>;
                   final currentPg = data["currentPage"];
                   final totalPgs = data["totalPages"];
 

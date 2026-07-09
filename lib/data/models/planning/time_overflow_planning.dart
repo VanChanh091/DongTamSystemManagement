@@ -1,7 +1,7 @@
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:flutter/material.dart";
 
-class TimeOverflowPlanning {
+class TimeOverflowPlanningModel {
   final DateTime? overflowDayStart;
   final DateTime? overflowDayCompleted;
   final TimeOfDay? overflowTimeRunning;
@@ -11,7 +11,7 @@ class TimeOverflowPlanning {
   final int planningId;
   final int planningBoxId;
 
-  TimeOverflowPlanning({
+  TimeOverflowPlanningModel({
     this.overflowDayStart,
     this.overflowDayCompleted,
     this.overflowTimeRunning,
@@ -21,8 +21,8 @@ class TimeOverflowPlanning {
     required this.planningBoxId,
   });
 
-  factory TimeOverflowPlanning.fromJson(Map<String, dynamic> json) {
-    return TimeOverflowPlanning(
+  factory TimeOverflowPlanningModel.fromJson(Map<String, dynamic> json) {
+    return TimeOverflowPlanningModel(
       overflowDayStart:
           json["overflowDayStart"] != null && json["overflowDayStart"] != ""
               ? DateTime.tryParse(json["overflowDayStart"])

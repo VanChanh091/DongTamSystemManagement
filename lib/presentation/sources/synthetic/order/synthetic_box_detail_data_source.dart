@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class SyntheticBoxDetail extends DataGridSource {
-  List<PlanningBox> boxes;
+  List<PlanningBoxModel> boxes;
   int? selectedBoxId;
 
   late List<DataGridRow> orderDataGridRows;
@@ -18,7 +18,7 @@ class SyntheticBoxDetail extends DataGridSource {
     buildDataCell();
   }
 
-  List<DataGridCell> buildOrderCells(PlanningBox box) {
+  List<DataGridCell> buildOrderCells(PlanningBoxModel box) {
     /// Hàm dùng chung lấy qtyProduced
     int? getQtyProduced(String machineName, {bool zeroIfMissing = false}) {
       // check boxTimes theo machine

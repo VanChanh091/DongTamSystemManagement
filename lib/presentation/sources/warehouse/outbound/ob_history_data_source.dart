@@ -32,7 +32,7 @@ class ObHistoryDataSource extends DataGridSource {
     DataGridCell<String> buildDimensionCell(String columnName, double? value) {
       return DataGridCell<String>(
         columnName: columnName,
-        value: (value != null && value > 0) ? Order.formatCurrency(value) : '0',
+        value: (value != null && value > 0) ? OrderModel.formatCurrency(value) : '0',
       );
     }
 
@@ -118,7 +118,7 @@ class ObHistoryDataSource extends DataGridSource {
       totalAmount = 0;
     }
 
-    final formattedTotal = totalAmount > 0 ? Order.formatCurrency(totalAmount) : '0';
+    final formattedTotal = totalAmount > 0 ? OrderModel.formatCurrency(totalAmount) : '0';
 
     return Container(
       width: double.infinity,

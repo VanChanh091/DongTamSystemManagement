@@ -10,7 +10,7 @@ import "package:dongtam/utils/helper/helper_model.dart";
 import "package:flutter/widgets.dart";
 import "package:intl/intl.dart";
 
-class Order {
+class OrderModel {
   final String orderId;
   final String daoXa, dvt, status;
   final double lengthPaperCustomer, paperSizeCustomer;
@@ -34,16 +34,16 @@ class Order {
 
   //association
   final String customerId, productId;
-  final Customer? customer;
-  final Product? product;
-  final Box? box;
-  final OrderImage? orderImage;
+  final CustomerModel? customer;
+  final ProductModel? product;
+  final BoxModel? box;
+  final OrderImageModel? orderImage;
   final UserUserModel? user;
-  final List<PlanningPaper>? planningPaper;
-  final List<PlanningBox>? planningBox;
+  final List<PlanningPaperModel>? planningPaper;
+  final List<PlanningBoxModel>? planningBox;
   final InventoryModel? Inventory;
 
-  Order({
+  OrderModel({
     required this.orderId,
     required this.dayReceiveOrder,
     required this.customerId,
@@ -148,7 +148,7 @@ class Order {
     return "$prefix/$month/$year/D";
   }
 
-  int getTotalByField(num? Function(PlanningPaper p) selector) {
+  int getTotalByField(num? Function(PlanningPaperModel p) selector) {
     if (planningPaper == null || planningPaper!.isEmpty) return 0;
     return planningPaper!.fold<int>(0, (sum, p) => sum + (selector(p)?.toInt() ?? 0));
   }
@@ -157,9 +157,9 @@ class Order {
   int get totalQtyWasteNorm => getTotalByField((p) => p.qtyWasteNorm);
   int get totalQtyRunningPlan => getTotalByField((p) => p.runningPlan);
 
-  factory Order.fromJson(Map<String, dynamic> json) {
-    return Order(
-      orderId: json["orderId"] ?? "ORDER",
+  factory OrderModel.fromJson(Map<String, dynamic> json) {
+    return OrderModel(
+      orderId: json["orderId"] ?? "OrderModel",
       customerId: json["customerId"] ?? "CUSTOMER",
       productId: json["productId"] ?? "PRODUCT",
       dayReceiveOrder: DateTime.parse(json["dayReceiveOrder"]),
@@ -208,20 +208,22 @@ class Order {
       totalOutbound: json["totalOutbound"] ?? 0,
 
       //association
-      customer: json["Customer"] != null ? Customer.fromJson(json["Customer"]) : null,
-      product: json["Product"] != null ? Product.fromJson(json["Product"]) : null,
-      box: json["box"] != null ? Box.fromJson(json["box"]) : null,
-      orderImage: json["OrderImage"] != null ? OrderImage.fromJson(json["OrderImage"]) : null,
+      customer: json["Customer"] != null ? CustomerModel.fromJson(json["Customer"]) : null,
+      product: json["Product"] != null ? ProductModel.fromJson(json["Product"]) : null,
+      box: json["box"] != null ? BoxModel.fromJson(json["box"]) : null,
+      orderImage: json["OrderImage"] != null ? OrderImageModel.fromJson(json["OrderImage"]) : null,
       user: json["User"] != null ? UserUserModel.fromJson(json["User"]) : null,
       planningPaper:
           json["PlanningPapers"] != null
-              ? List<PlanningPaper>.from(
-                json["PlanningPapers"].map((x) => PlanningPaper.fromJson(x)),
+              ? List<PlanningPaperModel>.from(
+                json["PlanningPapers"].map((x) => PlanningPaperModel.fromJson(x)),
               )
               : [],
       planningBox:
           json["PlanningBoxes"] != null
-              ? List<PlanningBox>.from(json["PlanningBoxes"].map((x) => PlanningBox.fromJson(x)))
+              ? List<PlanningBoxModel>.from(
+                json["PlanningBoxes"].map((x) => PlanningBoxModel.fromJson(x)),
+              )
               : [],
       Inventory: json["Inventory"] != null ? InventoryModel.fromJson(json["Inventory"]) : null,
     );

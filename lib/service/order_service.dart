@@ -13,19 +13,19 @@ class OrderService {
   final Dio dioService = DioClient().dio;
 
   //===============================ORDER AUTOCOMPLETE=====================================
-  Future<List<Order>> getOrderIdRaw({required String orderId}) async {
-    return HelperService().fetchingData<Order>(
+  Future<List<OrderModel>> getOrderIdRaw({required String orderId}) async {
+    return HelperService().fetchingData<OrderModel>(
       endpoint: "order/order-id-raw",
       queryParameters: {'orderId': orderId},
-      fromJson: (json) => Order.fromJson(json),
+      fromJson: (json) => OrderModel.fromJson(json),
     );
   }
 
-  Future<Order?> getOrderDetail({required String orderId}) async {
+  Future<OrderModel?> getOrderDetail({required String orderId}) async {
     return HelperService().fetchSingleData(
       endpoint: "order/order-detail",
       queryParameters: {'orderId': orderId},
-      parser: (json) => Order.fromJson(json as Map<String, dynamic>),
+      parser: (json) => OrderModel.fromJson(json as Map<String, dynamic>),
     );
   }
 
@@ -37,10 +37,10 @@ class OrderService {
     String? keyword,
     bool ownOnly = false,
   }) async {
-    return HelperService().fetchPaginatedData<Order>(
+    return HelperService().fetchPaginatedData<OrderModel>(
       endpoint: "order/accept",
       queryParameters: {'field': field, 'keyword': keyword, 'ownOnly': ownOnly},
-      fromJson: (json) => Order.fromJson(json),
+      fromJson: (json) => OrderModel.fromJson(json),
       dataKey: 'orders',
     );
   }
@@ -48,11 +48,11 @@ class OrderService {
   //===============================PENDING AND REJECT=====================================
 
   //get Order Pending And Reject
-  Future<List<Order>> getOrderPendingAndReject({bool ownOnly = false}) async {
-    return HelperService().fetchingData<Order>(
+  Future<List<OrderModel>> getOrderPendingAndReject({bool ownOnly = false}) async {
+    return HelperService().fetchingData<OrderModel>(
       endpoint: "order/pending-reject",
       queryParameters: {'ownOnly': ownOnly},
-      fromJson: (json) => Order.fromJson(json),
+      fromJson: (json) => OrderModel.fromJson(json),
     );
   }
 

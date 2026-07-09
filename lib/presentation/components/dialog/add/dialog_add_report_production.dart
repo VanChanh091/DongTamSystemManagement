@@ -41,7 +41,7 @@ class DialogReportProduction extends StatefulWidget {
 }
 
 class _DialogReportProductionState extends State<DialogReportProduction> {
-  late Future<List<EmployeeBasicInfo>> futureEmployee;
+  late Future<List<EmployeeBasicInfoModel>> futureEmployee;
   final formKey = GlobalKey<FormState>();
 
   final badgesController = Get.find<BadgesController>();
@@ -358,7 +358,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        FutureBuilder<List<EmployeeBasicInfo>>(
+                        FutureBuilder<List<EmployeeBasicInfoModel>>(
                           future: futureEmployee,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {

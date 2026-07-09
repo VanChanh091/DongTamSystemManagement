@@ -33,7 +33,7 @@ class ScrapReportDialog extends StatefulWidget {
 }
 
 class _ScrapReportDialogState extends State<ScrapReportDialog> {
-  late Future<List<EmployeeBasicInfo>> futureEmployee;
+  late Future<List<EmployeeBasicInfoModel>> futureEmployee;
   final formKey = GlobalKey<FormState>();
 
   final badgesController = Get.find<BadgesController>();
@@ -58,7 +58,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
   final _qtyCoreTubeController = TextEditingController();
   final _qtyOtherController = TextEditingController();
 
-  List<PlanningPaper> listPlanningPaper = [];
+  List<PlanningPaperModel> listPlanningPaper = [];
   bool isLoading = false;
 
   @override
@@ -242,7 +242,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FutureBuilder<List<EmployeeBasicInfo>>(
+                FutureBuilder<List<EmployeeBasicInfoModel>>(
                   future: futureEmployee,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {

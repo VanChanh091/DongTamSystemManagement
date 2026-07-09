@@ -6,7 +6,7 @@ import "package:dongtam/data/models/warehouse/inbound_history_model.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:flutter/material.dart";
 
-class PlanningPaper {
+class PlanningPaperModel {
   final int planningId;
   final DateTime? dayStart, dayCompleted;
   final TimeOfDay? timeRunning, timeStart;
@@ -39,13 +39,13 @@ class PlanningPaper {
 
   //association
   final String orderId;
-  final Order? order;
-  final TimeOverflowPlanning? timeOverflowPlanning;
-  final PlanningBox? planningBox;
-  final List<PlanningStage>? stages;
+  final OrderModel? order;
+  final TimeOverflowPlanningModel? timeOverflowPlanning;
+  final PlanningBoxModel? planningBox;
+  final List<PlanningStageModel>? stages;
   final List<InboundHistoryModel>? inbound;
 
-  PlanningPaper({
+  PlanningPaperModel({
     required this.planningId,
     required this.runningPlan,
 
@@ -139,8 +139,8 @@ class PlanningPaper {
     return remain > 0 ? remain : 0;
   }
 
-  factory PlanningPaper.fromJson(Map<String, dynamic> json) {
-    return PlanningPaper(
+  factory PlanningPaperModel.fromJson(Map<String, dynamic> json) {
+    return PlanningPaperModel(
       planningId: json["planningId"],
 
       dayStart:
@@ -204,13 +204,18 @@ class PlanningPaper {
       deliveryPlanned: json["deliveryPlanned"] ?? "",
 
       orderId: json["orderId"] ?? "",
-      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
+      order: json["Order"] != null ? OrderModel.fromJson(json["Order"]) : null,
       timeOverflowPlanning:
-          json["timeOverFlow"] != null ? TimeOverflowPlanning.fromJson(json["timeOverFlow"]) : null,
-      planningBox: json["PlanningBox"] != null ? PlanningBox.fromJson(json["PlanningBox"]) : null,
+          json["timeOverFlow"] != null
+              ? TimeOverflowPlanningModel.fromJson(json["timeOverFlow"])
+              : null,
+      planningBox:
+          json["PlanningBox"] != null ? PlanningBoxModel.fromJson(json["PlanningBox"]) : null,
       stages:
           json["stages"] != null
-              ? List<PlanningStage>.from(json["stages"].map((x) => PlanningStage.fromJson(x)))
+              ? List<PlanningStageModel>.from(
+                json["stages"].map((x) => PlanningStageModel.fromJson(x)),
+              )
               : [],
       inbound:
           json["inbound"] != null

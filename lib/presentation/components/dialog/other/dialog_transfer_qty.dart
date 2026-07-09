@@ -203,14 +203,14 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
         "leftKey": "Số Lượng Tồn",
         "leftValue": "$qtyInventory ($dvt)",
         "rightKey": "Giá Trị Tồn",
-        "rightValue": "${Order.formatCurrency(valueInventory)} VNĐ",
+        "rightValue": "${OrderModel.formatCurrency(valueInventory)} VNĐ",
       },
     ];
 
     final List<Map<String, dynamic>> inputRows = [
       {
         "leftKey": "Mã Đơn Hàng",
-        "leftValue": AutoCompleteField<Order>(
+        "leftValue": AutoCompleteField<OrderModel>(
           controller: _orderIdReceiveControler,
           labelText: "Mã Đơn Hàng Nhận",
           icon: Symbols.orders,

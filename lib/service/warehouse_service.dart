@@ -19,27 +19,27 @@ class WarehouseService {
   final Dio dioService = DioClient().dio;
 
   //============================WAITTING CHECK QUANTITY================================
-  Future<List<PlanningPaper>> getPaperWaitingChecked({required String isPaper}) async {
-    return HelperService().fetchingData<PlanningPaper>(
+  Future<List<PlanningPaperModel>> getPaperWaitingChecked({required String isPaper}) async {
+    return HelperService().fetchingData<PlanningPaperModel>(
       endpoint: "warehouse/waiting-check",
       queryParameters: {'isPaper': isPaper},
-      fromJson: (json) => PlanningPaper.fromJson(json),
+      fromJson: (json) => PlanningPaperModel.fromJson(json),
     );
   }
 
-  Future<List<PlanningBox>> getBoxWaitingChecked({required String isPaper}) async {
-    return HelperService().fetchingData<PlanningBox>(
+  Future<List<PlanningBoxModel>> getBoxWaitingChecked({required String isPaper}) async {
+    return HelperService().fetchingData<PlanningBoxModel>(
       endpoint: "warehouse/waiting-check",
       queryParameters: {'isPaper': isPaper},
-      fromJson: (json) => PlanningBox.fromJson(json),
+      fromJson: (json) => PlanningBoxModel.fromJson(json),
     );
   }
 
-  Future<List<PlanningStage>> getBoxWaitingCheckedDetail({required int planningBoxId}) async {
+  Future<List<PlanningStageModel>> getBoxWaitingCheckedDetail({required int planningBoxId}) async {
     return HelperService().fetchingData(
       endpoint: 'warehouse/waiting-check',
       queryParameters: {'planningBoxId': planningBoxId},
-      fromJson: (json) => PlanningStage.fromJson(json),
+      fromJson: (json) => PlanningStageModel.fromJson(json),
     );
   }
 
@@ -139,20 +139,26 @@ class WarehouseService {
   }
 
   //auto complete
-  Future<List<Order>> searchOrderIds({required String orderId, String isSearch = "true"}) async {
+  Future<List<OrderModel>> searchOrderIds({
+    required String orderId,
+    String isSearch = "true",
+  }) async {
     return HelperService().fetchingData(
       endpoint: 'warehouse/outbound/get-search',
       queryParameters: {'orderId': orderId, 'isSearch': isSearch},
-      fromJson: (json) => Order.fromJson(json),
+      fromJson: (json) => OrderModel.fromJson(json),
     );
   }
 
   //auto complete
-  Future<Order?> getOrderInboundQty({required String orderId, String isSearch = "false"}) async {
+  Future<OrderModel?> getOrderInboundQty({
+    required String orderId,
+    String isSearch = "false",
+  }) async {
     return HelperService().fetchSingleData(
       endpoint: 'warehouse/outbound/get-search',
       queryParameters: {'orderId': orderId, 'isSearch': isSearch},
-      parser: (json) => Order.fromJson(json as Map<String, dynamic>),
+      parser: (json) => OrderModel.fromJson(json as Map<String, dynamic>),
     );
   }
 

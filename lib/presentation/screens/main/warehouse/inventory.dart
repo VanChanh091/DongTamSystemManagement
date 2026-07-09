@@ -39,7 +39,7 @@ class _InventoryState extends State<Inventory> {
   final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
 
-  List<OutboundTempItem>? initialItems;
+  List<OutboundTempItemModel>? initialItems;
 
   //search
   String searchType = "Tất cả";
@@ -227,7 +227,10 @@ class _InventoryState extends State<Inventory> {
                                                 .toList();
                                         initialItems =
                                             selectedModels
-                                                .map((i) => OutboundTempItem.fromInventoryModel(i))
+                                                .map(
+                                                  (i) =>
+                                                      OutboundTempItemModel.fromInventoryModel(i),
+                                                )
                                                 .toList();
                                       } catch (e) {
                                         if (!context.mounted) return;
@@ -451,7 +454,7 @@ class _InventoryState extends State<Inventory> {
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             Text(
-                              "${Order.formatCurrency(totalValueInventory)} VNĐ",
+                              "${OrderModel.formatCurrency(totalValueInventory)} VNĐ",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,

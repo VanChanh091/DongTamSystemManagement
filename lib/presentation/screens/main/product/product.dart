@@ -5,6 +5,7 @@ import 'package:dongtam/presentation/components/dialog/add/dialog_add_product.da
 import 'package:dongtam/presentation/components/dialog/export/dialog_export_cus_or_prod.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_product.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
+import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/product_data_source.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -29,8 +30,11 @@ class ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   late Future<Map<String, dynamic>> futureProduct;
-  late ProductDataSource productDataSource;
   late List<GridColumn> columns;
+
+  //controller
+  final userController = Get.find<UserController>();
+  final themeController = Get.find<ThemeController>();
 
   //search
   String searchType = "Tất cả";
@@ -39,15 +43,19 @@ class _ProductPageState extends State<ProductPage> {
     "Tên Sản Phẩm": "productName",
   };
 
-  //controller
-  final userController = Get.find<UserController>();
-  final themeController = Get.find<ThemeController>();
+  final _zoomNotifier = ValueNotifier<double>(1.0);
+  final _selectedProductIdNotifier = ValueNotifier<String?>(null);
+  Map<String, double> columnWidths = {}; //map header table
 
-  String? selectedProductId;
-  Map<String, double> columnWidths = {};
+  //datasource and cache
+  List<ProductModel>? _cachedProducts;
+  ProductDataSource? _cachedDatasource;
+
+  //text controller
   TextEditingController searchController = TextEditingController();
 
   //flag
+  late bool isSale;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
@@ -62,8 +70,9 @@ class _ProductPageState extends State<ProductPage> {
     super.initState();
     loadProduct();
 
-    columns = buildProductColumn(themeController: themeController);
+    isSale = userController.hasPermission(permission: "sale");
 
+    columns = buildProductColumn(themeController: themeController);
     ColumnWidthTable.loadWidths(tableKey: 'product', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -87,7 +96,7 @@ class _ProductPageState extends State<ProductPage> {
       ),
     );
 
-    selectedProductId = null;
+    _selectedProductIdNotifier.value = null;
   }
 
   void loadProduct() {
@@ -110,344 +119,423 @@ class _ProductPageState extends State<ProductPage> {
     });
   }
 
+  void _updateZoom(double newZoom) {
+    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+  }
+
   @override
   void dispose() {
     super.dispose();
     searchController.dispose();
+    _zoomNotifier.dispose();
+    _selectedProductIdNotifier.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isSale = userController.hasPermission(permission: "sale");
-
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(5),
-        child: Column(
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
+            ),
+
+        child: Stack(
           children: [
-            //button
-            SizedBox(
-              height: 105,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  //title
-                  SizedBox(
-                    height: 35,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        "DANH SÁCH SẢN PHẨM",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, cachedChild) {
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SizedBox(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                      child: OverflowBox(
+                        minWidth: constraints.maxWidth / zoom,
+                        maxWidth: constraints.maxWidth / zoom,
+                        minHeight: constraints.maxHeight / zoom,
+                        maxHeight: constraints.maxHeight / zoom,
+                        alignment: Alignment.topLeft,
+                        child: Transform.scale(
+                          scale: zoom,
+                          alignment: Alignment.topLeft,
+                          child: cachedChild,
                         ),
                       ),
-                    ),
-                  ),
-
-                  SizedBox(
-                    height: 70,
-                    width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        //left button
-                        Expanded(
-                          flex: 1,
-                          child: LeftButtonSearch(
-                            selectedType: searchType,
-                            types: const ['Tất cả', "Mã Sản Phẩm", "Tên Sản Phẩm"],
-                            onTypeChanged: (value) {
-                              setState(() {
-                                searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
-
-                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                                  searchController.clear();
-                                  currentPage = 1;
-                                  _fetchData();
-                                }
-                              });
-                            },
-                            controller: searchController,
-                            textFieldEnabled: isTextFieldEnabled,
-                            buttonColor: themeController.buttonColor,
-
-                            onSearch: () => searchProduct(),
+                    );
+                  },
+                );
+              },
+              //container contain button and table
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(5),
+                child: Column(
+                  children: [
+                    //button
+                    SizedBox(
+                      height: 105,
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          //title
+                          SizedBox(
+                            height: 35,
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                "DANH SÁCH SẢN PHẨM",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                  color: themeController.currentColor.value,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
 
-                        //right button
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child:
-                                isSale
-                                    ? Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        //export excel
-                                        AnimatedButton(
-                                          onPressed: () async {
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (_) => DialogExportCusOrProd(isProduct: true),
-                                            );
-                                          },
-                                          label: "Xuất Excel",
-                                          icon: Symbols.export_notes,
-                                          backgroundColor: themeController.buttonColor,
-                                        ),
-                                        const SizedBox(width: 10),
+                          //button
+                          SizedBox(
+                            height: 70,
+                            width: double.infinity,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                //left button
+                                Expanded(
+                                  flex: 1,
+                                  child: LeftButtonSearch(
+                                    selectedType: searchType,
+                                    types: const ['Tất cả', "Mã Sản Phẩm", "Tên Sản Phẩm"],
+                                    onTypeChanged: (value) {
+                                      setState(() {
+                                        searchType = value;
+                                        isTextFieldEnabled = value != 'Tất cả';
 
-                                        //add
-                                        AnimatedButton(
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (_) => ProductDialog(
-                                                    product: null,
-                                                    onProductAddOrUpdate: () => loadProduct(),
-                                                  ),
-                                            );
-                                          },
-                                          label: "Thêm mới",
-                                          icon: Icons.add,
-                                          backgroundColor: themeController.buttonColor,
-                                        ),
-                                        const SizedBox(width: 10),
+                                        if (searchType == "Tất cả" &&
+                                            searchController.text.isNotEmpty) {
+                                          searchController.clear();
+                                          currentPage = 1;
+                                          _fetchData();
+                                        }
+                                      });
+                                    },
+                                    controller: searchController,
+                                    textFieldEnabled: isTextFieldEnabled,
+                                    buttonColor: themeController.buttonColor,
+                                    onSearch: () => searchProduct(),
+                                  ),
+                                ),
 
-                                        // update
-                                        AnimatedButton(
-                                          onPressed:
-                                              isSale &&
-                                                      selectedProductId != null &&
-                                                      selectedProductId!.isNotEmpty
-                                                  ? () async {
-                                                    try {
-                                                      final productsData = await futureProduct;
-                                                      final List<Product> productList =
-                                                          (productsData['products'] as List? ?? [])
-                                                              .cast<Product>();
-                                                      final selectedProduct = productList
-                                                          .firstWhere(
-                                                            (product) =>
-                                                                product.productId ==
-                                                                selectedProductId,
-                                                            orElse:
-                                                                () =>
-                                                                    throw Exception(
-                                                                      'Không tìm thấy sản phẩm',
-                                                                    ),
-                                                          );
+                                //right button
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                      horizontal: 10,
+                                    ),
+                                    child:
+                                        isSale
+                                            ? ValueListenableBuilder(
+                                              valueListenable: _selectedProductIdNotifier,
+                                              builder: (context, selectedProductId, _) {
+                                                final bool hasSelection =
+                                                    selectedProductId != null &&
+                                                    selectedProductId.isNotEmpty;
 
-                                                      if (context.mounted) {
+                                                return Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    //export excel
+                                                    AnimatedButton(
+                                                      onPressed: () async {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (_) => DialogExportCusOrProd(
+                                                                isProduct: true,
+                                                              ),
+                                                        );
+                                                      },
+                                                      label: "Xuất Excel",
+                                                      icon: Symbols.export_notes,
+                                                      backgroundColor: themeController.buttonColor,
+                                                    ),
+                                                    const SizedBox(width: 10),
+
+                                                    //add
+                                                    AnimatedButton(
+                                                      onPressed: () {
                                                         showDialog(
                                                           context: context,
                                                           builder:
                                                               (_) => ProductDialog(
-                                                                product: selectedProduct,
+                                                                product: null,
                                                                 onProductAddOrUpdate:
                                                                     () => loadProduct(),
                                                               ),
                                                         );
-                                                      }
-                                                    } catch (e, s) {
-                                                      AppLogger.e(
-                                                        "Error in getProductById: $e",
-                                                        stackTrace: s,
-                                                      );
-
-                                                      if (!context.mounted) return;
-                                                      showSnackBarError(
-                                                        context,
-                                                        'Có lỗi xảy ra, vui lòng thử lại sau',
-                                                      );
-                                                    }
-                                                  }
-                                                  : null,
-                                          label: "Sửa",
-                                          icon: Symbols.construction,
-                                          backgroundColor: themeController.buttonColor,
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        //delete
-                                        AnimatedButton(
-                                          onPressed:
-                                              isSale &&
-                                                      selectedProductId != null &&
-                                                      selectedProductId!.isNotEmpty
-                                                  ? () async {
-                                                    await showDeleteConfirmHelper(
-                                                      context: context,
-                                                      title: "⚠️ Xác nhận xoá",
-                                                      content:
-                                                          "Bạn có chắc chắn muốn xoá sản phẩm này?",
-                                                      onDelete: () async {
-                                                        await ProductService().deleteProduct(
-                                                          productId: selectedProductId!,
-                                                        );
                                                       },
-                                                      onSuccess: () {
-                                                        setState(() => selectedProductId = null);
-                                                        loadProduct();
-                                                      },
-                                                    );
-                                                  }
-                                                  : null,
-                                          label: "Xóa",
-                                          icon: Icons.delete,
-                                          backgroundColor: const Color(0xffEA4346),
-                                        ),
-                                      ],
-                                    )
-                                    : const SizedBox.shrink(),
+                                                      label: "Thêm mới",
+                                                      icon: Icons.add,
+                                                      backgroundColor: themeController.buttonColor,
+                                                    ),
+                                                    const SizedBox(width: 10),
+
+                                                    // update
+                                                    AnimatedButton(
+                                                      onPressed:
+                                                          hasSelection
+                                                              ? () async {
+                                                                try {
+                                                                  final productsData =
+                                                                      await futureProduct;
+                                                                  final List<ProductModel>
+                                                                  productList =
+                                                                      (productsData['products']
+                                                                                  as List? ??
+                                                                              [])
+                                                                          .cast<ProductModel>();
+                                                                  final selectedProduct =
+                                                                      productList.firstWhere(
+                                                                        (product) =>
+                                                                            product.productId ==
+                                                                            selectedProductId,
+                                                                        orElse:
+                                                                            () =>
+                                                                                throw Exception(
+                                                                                  'Không tìm thấy sản phẩm',
+                                                                                ),
+                                                                      );
+
+                                                                  if (context.mounted) {
+                                                                    showDialog(
+                                                                      context: context,
+                                                                      builder:
+                                                                          (_) => ProductDialog(
+                                                                            product:
+                                                                                selectedProduct,
+                                                                            onProductAddOrUpdate:
+                                                                                () => loadProduct(),
+                                                                          ),
+                                                                    );
+                                                                  }
+                                                                } catch (e, s) {
+                                                                  AppLogger.e(
+                                                                    "Error in getProductById: $e",
+                                                                    stackTrace: s,
+                                                                  );
+
+                                                                  if (!context.mounted) return;
+                                                                  showSnackBarError(
+                                                                    context,
+                                                                    'Có lỗi xảy ra, vui lòng thử lại sau',
+                                                                  );
+                                                                }
+                                                              }
+                                                              : null,
+                                                      label: "Sửa",
+                                                      icon: Symbols.construction,
+                                                      backgroundColor: themeController.buttonColor,
+                                                    ),
+                                                    const SizedBox(width: 10),
+
+                                                    //delete
+                                                    AnimatedButton(
+                                                      onPressed:
+                                                          hasSelection
+                                                              ? () async {
+                                                                await showDeleteConfirmHelper(
+                                                                  context: context,
+                                                                  title: "⚠️ Xác nhận xoá",
+                                                                  content:
+                                                                      "Bạn có chắc chắn muốn xoá sản phẩm này?",
+                                                                  onDelete: () async {
+                                                                    await ProductService()
+                                                                        .deleteProduct(
+                                                                          productId:
+                                                                              selectedProductId,
+                                                                        );
+                                                                  },
+                                                                  onSuccess: () {
+                                                                    _selectedProductIdNotifier
+                                                                        .value = null;
+                                                                    loadProduct();
+                                                                  },
+                                                                );
+                                                              }
+                                                              : null,
+                                                      label: "Xóa",
+                                                      icon: Icons.delete,
+                                                      backgroundColor: const Color(0xffEA4346),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            )
+                                            : const SizedBox.shrink(),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+
+                    // table
+                    Expanded(
+                      child: FutureBuilder(
+                        future: futureProduct,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: SizedBox(
+                                height: 400,
+                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+                              ),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text("Lỗi: ${snapshot.error}"));
+                          } else if (!snapshot.hasData || snapshot.data!['products'].isEmpty) {
+                            return const Center(
+                              child: Text(
+                                "Không có khách hàng nào",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                              ),
+                            );
+                          }
+
+                          final data = snapshot.data!;
+                          final products = data['products'] as List<ProductModel>;
+                          final currentPg = data['currentPage'];
+                          final totalPgs = data['totalPages'];
+
+                          if (_cachedProducts != products || _cachedDatasource == null) {
+                            _cachedDatasource = ProductDataSource(
+                              context: context,
+                              products: products,
+                              selectedProductId: _selectedProductIdNotifier.value,
+                              currentPage: currentPage,
+                              pageSize: pageSize,
+                            );
+                          }
+
+                          return Column(
+                            children: [
+                              //table
+                              Expanded(
+                                child: StatefulBuilder(
+                                  builder: (context, localSetState) {
+                                    return SfDataGrid(
+                                      source: _cachedDatasource!,
+                                      isScrollbarAlwaysShown: true,
+                                      columnWidthMode: ColumnWidthMode.fill,
+                                      gridLinesVisibility: GridLinesVisibility.both,
+                                      headerGridLinesVisibility: GridLinesVisibility.both,
+                                      selectionMode: SelectionMode.single,
+                                      headerRowHeight: 45,
+                                      rowHeight: 40,
+                                      columns: ColumnWidthTable.applySavedWidths(
+                                        columns: columns,
+                                        widths: columnWidths,
+                                      ),
+
+                                      //auto resize
+                                      allowColumnsResizing: true,
+                                      columnResizeMode: ColumnResizeMode.onResize,
+
+                                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                      onColumnResizeUpdate:
+                                          (details) => GridResizeHelper.onResizeUpdate(
+                                            details: details,
+                                            columns: columns,
+                                            setState: localSetState,
+                                          ),
+                                      onColumnResizeEnd:
+                                          (details) => GridResizeHelper.onResizeEnd(
+                                            details: details,
+                                            tableKey: 'product',
+                                            columnWidths: columnWidths,
+                                            setState: setState,
+                                          ),
+
+                                      onSelectionChanged: (addedRows, removedRows) {
+                                        if (addedRows.isNotEmpty) {
+                                          final selectedRow = addedRows.first;
+                                          final productId =
+                                              selectedRow
+                                                  .getCells()
+                                                  .firstWhere(
+                                                    (cell) => cell.columnName == 'productId',
+                                                  )
+                                                  .value
+                                                  .toString();
+
+                                          _selectedProductIdNotifier.value = productId;
+                                        } else {
+                                          setState(() {
+                                            _selectedProductIdNotifier.value = null;
+                                          });
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+
+                              // Nút chuyển trang
+                              PaginationControls(
+                                currentPage: currentPg,
+                                totalPages: totalPgs,
+                                onPrevious: () {
+                                  setState(() {
+                                    currentPage--;
+                                    loadProduct();
+                                  });
+                                },
+                                onNext: () {
+                                  setState(() {
+                                    currentPage++;
+                                    loadProduct();
+                                  });
+                                },
+                                onJumpToPage: (page) {
+                                  setState(() {
+                                    currentPage = page;
+                                    loadProduct();
+                                  });
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
-            // table
-            Expanded(
-              child: FutureBuilder(
-                future: futureProduct,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SizedBox(
-                        height: 400,
-                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['products'].isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Không có khách hàng nào",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                    );
-                  }
-
-                  final data = snapshot.data!;
-                  final products = data['products'] as List<Product>;
-                  final currentPg = data['currentPage'];
-                  final totalPgs = data['totalPages'];
-
-                  productDataSource = ProductDataSource(
-                    context: context,
-                    products: products,
-                    selectedProductId: selectedProductId,
-                    currentPage: currentPage,
-                    pageSize: pageSize,
-                  );
-                  return Column(
-                    children: [
-                      //table
-                      Expanded(
-                        child: SfDataGrid(
-                          source: productDataSource,
-                          isScrollbarAlwaysShown: true,
-                          columnWidthMode: ColumnWidthMode.fill,
-                          gridLinesVisibility: GridLinesVisibility.both,
-                          headerGridLinesVisibility: GridLinesVisibility.both,
-                          selectionMode: SelectionMode.single,
-                          headerRowHeight: 45,
-                          rowHeight: 40,
-                          columns: ColumnWidthTable.applySavedWidths(
-                            columns: columns,
-                            widths: columnWidths,
-                          ),
-
-                          //auto resize
-                          allowColumnsResizing: true,
-                          columnResizeMode: ColumnResizeMode.onResize,
-
-                          onColumnResizeStart: GridResizeHelper.onResizeStart,
-                          onColumnResizeUpdate:
-                              (details) => GridResizeHelper.onResizeUpdate(
-                                details: details,
-                                columns: columns,
-                                setState: setState,
-                              ),
-                          onColumnResizeEnd:
-                              (details) => GridResizeHelper.onResizeEnd(
-                                details: details,
-                                tableKey: 'product',
-                                columnWidths: columnWidths,
-                                setState: setState,
-                              ),
-
-                          onSelectionChanged: (addedRows, removedRows) {
-                            if (addedRows.isNotEmpty) {
-                              final selectedRow = addedRows.first;
-                              final productId =
-                                  selectedRow
-                                      .getCells()
-                                      .firstWhere((cell) => cell.columnName == 'productId')
-                                      .value
-                                      .toString();
-
-                              final selectedProduct = products.firstWhere(
-                                (product) => product.productId == productId,
-                              );
-
-                              setState(() {
-                                selectedProductId = selectedProduct.productId;
-                              });
-                            } else {
-                              setState(() {
-                                selectedProductId = null;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-
-                      // Nút chuyển trang
-                      PaginationControls(
-                        currentPage: currentPg,
-                        totalPages: totalPgs,
-                        onPrevious: () {
-                          setState(() {
-                            currentPage--;
-                            loadProduct();
-                          });
-                        },
-                        onNext: () {
-                          setState(() {
-                            currentPage++;
-                            loadProduct();
-                          });
-                        },
-                        onJumpToPage: (page) {
-                          setState(() {
-                            currentPage = page;
-                            loadProduct();
-                          });
-                        },
-                      ),
-                    ],
-                  );
-                },
-              ),
+            //slider zoom
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, _) {
+                return SliderZoom(
+                  zoomLevel: zoom,
+                  buttonColor: themeController.buttonColor.value,
+                  onZoomChanged: _updateZoom,
+                );
+              },
             ),
           ],
         ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadProduct(),
         backgroundColor: themeController.buttonColor.value,

@@ -30,7 +30,7 @@ import "package:flutter/material.dart";
 import "package:material_symbols_icons/material_symbols_icons.dart";
 
 class OrderDialog extends StatefulWidget {
-  final Order? order;
+  final OrderModel? order;
   final void Function(String orderId)? onOrderAddOrUpdate;
 
   const OrderDialog({super.key, this.order, required this.onOrderAddOrUpdate});
@@ -53,8 +53,8 @@ class _OrderDialogState extends State<OrderDialog> {
 
   late String originalOrderId;
 
-  List<Customer> allCustomers = [];
-  List<Product> allProducts = [];
+  List<CustomerModel> allCustomers = [];
+  List<ProductModel> allProducts = [];
 
   double uploadProgress = 0.0;
   bool isUploading = false;
@@ -160,7 +160,7 @@ class _OrderDialogState extends State<OrderDialog> {
     _fillFormWithOrder(order);
   }
 
-  void _fillFormWithOrder(Order selectedOrder) {
+  void _fillFormWithOrder(OrderModel selectedOrder) {
     orderIdController.text = selectedOrder.orderId;
     customerIdController.text = selectedOrder.customerId;
     productIdController.text = selectedOrder.productId;
@@ -243,7 +243,7 @@ class _OrderDialogState extends State<OrderDialog> {
     try {
       final result = await CustomerService().getCustomers(noPaging: true);
 
-      allCustomers = result["customers"] as List<Customer>;
+      allCustomers = result["customers"] as List<CustomerModel>;
       AppLogger.i("Fetch thành công tất cả khách hàng vào order");
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
@@ -255,7 +255,7 @@ class _OrderDialogState extends State<OrderDialog> {
     try {
       final result = await ProductService().getProducts(noPaging: true);
 
-      allProducts = result["products"] as List<Product>;
+      allProducts = result["products"] as List<ProductModel>;
       AppLogger.i("Fetch thành công tất cả sản phẩm vào order");
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách sản phẩm", error: e, stackTrace: s);
@@ -263,9 +263,9 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   void addListenerForField() {
-    Order.listenerForFieldNeed(lengthCustomerController, lengthManufactureController);
-    Order.listenerForFieldNeed(sizeCustomerController, sizeManufactureController);
-    Order.listenerForFieldNeed(quantityCustomerController, quantityManufactureController);
+    OrderModel.listenerForFieldNeed(lengthCustomerController, lengthManufactureController);
+    OrderModel.listenerForFieldNeed(sizeCustomerController, sizeManufactureController);
+    OrderModel.listenerForFieldNeed(quantityCustomerController, quantityManufactureController);
   }
 
   void _autoSetDvtByProduct(String productType) {
@@ -294,12 +294,12 @@ class _OrderDialogState extends State<OrderDialog> {
       final prefix = orderIdController.text.toUpperCase();
 
       // determine wave fields
-      final String songEValue = Order.addPrefixIfNeeded(songEController.text, "E");
-      final String songBValue = Order.addPrefixIfNeeded(songBController.text, "B");
-      final String songCValue = Order.addPrefixIfNeeded(songCController.text, "C");
-      final String songE2Value = Order.addPrefixIfNeeded(songE2Controller.text, "E");
+      final String songEValue = OrderModel.addPrefixIfNeeded(songEController.text, "E");
+      final String songBValue = OrderModel.addPrefixIfNeeded(songBController.text, "B");
+      final String songCValue = OrderModel.addPrefixIfNeeded(songCController.text, "C");
+      final String songE2Value = OrderModel.addPrefixIfNeeded(songE2Controller.text, "E");
 
-      final newBox = Box(
+      final newBox = BoxModel(
         inMatTruoc: int.tryParse(inMatTruocController.trimmed) ?? 0,
         inMatSau: int.tryParse(inMatSauController.trimmed) ?? 0,
         canMang: canMangChecked.value,
@@ -316,8 +316,8 @@ class _OrderDialogState extends State<OrderDialog> {
         maKhuon: maKhuonController.trimmed,
       );
 
-      final newOrder = Order(
-        orderId: Order.generateOrderCode(prefix),
+      final newOrder = OrderModel(
+        orderId: OrderModel.generateOrderCode(prefix),
         orderIdCustomer: orderIdCustomerController.trimmed.toUpperCase(),
         customerId: customerIdController.trimmed.toUpperCase(),
         productId: productIdController.trimmed.toUpperCase(),
@@ -389,7 +389,7 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   Future<bool> _startBackgroundUpload(
-    Order order,
+    OrderModel order,
     Uint8List? imageBytes,
     bool isAdd,
     void Function(String)? callback,
@@ -543,7 +543,7 @@ class _OrderDialogState extends State<OrderDialog> {
     final List<Map<String, dynamic>> infoBasicRows = [
       {
         "leftKey": "Mã Đơn Hàng",
-        "leftValue": AutoCompleteField<Order>(
+        "leftValue": AutoCompleteField<OrderModel>(
           controller: orderIdController,
           labelText: "Mã Đơn Hàng",
           icon: Symbols.orders,
@@ -620,7 +620,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
       {
         "leftKey": "Mã Khách Hàng",
-        "leftValue": AutoCompleteField<Customer>(
+        "leftValue": AutoCompleteField<CustomerModel>(
           controller: customerIdController,
           labelText: "Mã Khách Hàng",
           icon: Symbols.badge,
@@ -629,8 +629,8 @@ class _OrderDialogState extends State<OrderDialog> {
               field: "customerId",
               keyword: pattern,
             );
-            if (result["customers"] != null && result["customers"] is List<Customer>) {
-              return result["customers"] as List<Customer>;
+            if (result["customers"] != null && result["customers"] is List<CustomerModel>) {
+              return result["customers"] as List<CustomerModel>;
             }
 
             return [];
@@ -686,14 +686,14 @@ class _OrderDialogState extends State<OrderDialog> {
 
       {
         "leftKey": "Mã Sản Phẩm",
-        "leftValue": AutoCompleteField<Product>(
+        "leftValue": AutoCompleteField<ProductModel>(
           controller: productIdController,
           labelText: "Mã Sản Phẩm",
           icon: Symbols.box,
           suggestionsCallback: (pattern) async {
             final result = await ProductService().getProducts(field: "productId", keyword: pattern);
-            if (result["products"] != null && result["products"] is List<Product>) {
-              return result["products"] as List<Product>;
+            if (result["products"] != null && result["products"] is List<ProductModel>) {
+              return result["products"] as List<ProductModel>;
             }
 
             return [];

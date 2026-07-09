@@ -34,7 +34,7 @@ class PaperProduction extends StatefulWidget {
 }
 
 class _PaperProductionState extends State<PaperProduction> {
-  late Future<List<PlanningPaper>> futurePlanning;
+  late Future<List<PlanningPaperModel>> futurePlanning;
   late MachinePaperDatasource machinePaperDatasource;
   late InitSocketManufacture _initSocket;
   late List<GridColumn> columns;
@@ -48,7 +48,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
-  List<PlanningPaper> planningList = [];
+  List<PlanningPaperModel> planningList = [];
 
   //search
   String searchType = "Tất cả";
@@ -161,7 +161,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
-    required List<PlanningPaper> planningList,
+    required List<PlanningPaperModel> planningList,
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
@@ -192,7 +192,7 @@ class _PaperProductionState extends State<PaperProduction> {
   //user for edit report
   bool canEditAction({
     required List<int> selectedPlanningIds,
-    required List<PlanningPaper> planningList,
+    required List<PlanningPaperModel> planningList,
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
@@ -655,7 +655,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     );
                   }
 
-                  final data = snapshot.data as List<PlanningPaper>;
+                  final data = snapshot.data as List<PlanningPaperModel>;
                   planningList = data;
 
                   machinePaperDatasource = MachinePaperDatasource(
@@ -663,7 +663,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: showGroup,
                     page: "production",
-                    onRowTap: (PlanningPaper item) {
+                    onRowTap: (PlanningPaperModel item) {
                       showDialog(
                         context: context,
                         builder:

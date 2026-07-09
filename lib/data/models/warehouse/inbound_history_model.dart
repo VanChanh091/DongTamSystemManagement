@@ -9,7 +9,7 @@ class InboundHistoryModel {
 
   //FK
   final String orderId;
-  final Order? order;
+  final OrderModel? order;
 
   final int qcSessionId;
   final QcSessionModel? qcSession;
@@ -35,7 +35,7 @@ class InboundHistoryModel {
       qtyInbound: json["qtyInbound"] ?? 0,
 
       orderId: json["orderId"] ?? "",
-      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
+      order: json["Order"] != null ? OrderModel.fromJson(json["Order"]) : null,
 
       qcSessionId: json["qcSessionId"] ?? 0,
       qcSession: json["QcSession"] != null ? QcSessionModel.fromJson(json["QcSession"]) : null,

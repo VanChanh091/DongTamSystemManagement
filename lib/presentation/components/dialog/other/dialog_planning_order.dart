@@ -19,7 +19,7 @@ import "package:intl/intl.dart";
 import "package:material_symbols_icons/material_symbols_icons.dart";
 
 class PLanningDialog extends StatefulWidget {
-  final Order? order;
+  final OrderModel? order;
   final VoidCallback onPlanningOrder;
 
   const PLanningDialog({super.key, required this.order, required this.onPlanningOrder});
@@ -273,7 +273,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
       }
     }
 
-    final newPlanning = PlanningPaper(
+    final newPlanning = PlanningPaperModel(
       planningId: 0,
       dayStart: DateTime.now(),
       runningPlan: int.tryParse(runningPlanController.trimmed) ?? 0,

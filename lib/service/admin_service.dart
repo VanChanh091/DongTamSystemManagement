@@ -20,11 +20,11 @@ class AdminService {
   //===============================ORDER====================================
 
   //get status order
-  Future<List<Order>> getOrderByPendingStatus() async {
-    return HelperService().fetchingData<Order>(
+  Future<List<OrderModel>> getOrderByPendingStatus() async {
+    return HelperService().fetchingData<OrderModel>(
       endpoint: 'admin/orders',
       queryParameters: const {},
-      fromJson: (json) => Order.fromJson(json),
+      fromJson: (json) => OrderModel.fromJson(json),
     );
   }
 

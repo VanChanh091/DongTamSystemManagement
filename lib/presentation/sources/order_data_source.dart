@@ -11,7 +11,7 @@ class OrderDataSource extends DataGridSource {
   final BuildContext context;
   late List<DataGridRow> orderDataGridRows;
 
-  List<Order> orders;
+  List<OrderModel> orders;
   String? selectedOrderId;
 
   final userController = Get.find<UserController>();
@@ -21,11 +21,11 @@ class OrderDataSource extends DataGridSource {
     buildDataCell();
   }
 
-  List<DataGridCell> buildOrderCells(Order order, int index) {
+  List<DataGridCell> buildOrderCells(OrderModel order, int index) {
     DataGridCell<String> buildCurrencyCell(String columnName, num value, String? unit) {
       return DataGridCell<String>(
         columnName: columnName,
-        value: (value) > 0 ? '${Order.formatCurrency(value)} $unit' : "0",
+        value: (value) > 0 ? '${OrderModel.formatCurrency(value)} $unit' : "0",
       );
     }
 
@@ -59,7 +59,7 @@ class OrderDataSource extends DataGridSource {
 
       DataGridCell<String>(
         columnName: 'volume',
-        value: order.volume! > 0 ? '${Order.formatCurrency(order.volume ?? 0)} m³' : "0",
+        value: order.volume! > 0 ? '${OrderModel.formatCurrency(order.volume ?? 0)} m³' : "0",
       ),
       DataGridCell<int>(columnName: 'child', value: order.numberChild),
       DataGridCell<String>(columnName: 'dvt', value: order.dvt),
@@ -70,7 +70,7 @@ class OrderDataSource extends DataGridSource {
       buildCurrencyCell('discounts', order.discount ?? 0, "VNĐ"),
       DataGridCell<String>(
         columnName: 'profitOrd',
-        value: order.profit > 0 ? '${Order.formatCurrency(order.profit)}%' : "0",
+        value: order.profit > 0 ? '${OrderModel.formatCurrency(order.profit)}%' : "0",
       ),
 
       DataGridCell<String>(columnName: 'vat', value: order.vat! > 0 ? '${order.vat ?? 0}%' : "0"),
@@ -82,7 +82,7 @@ class OrderDataSource extends DataGridSource {
     ];
   }
 
-  List<DataGridCell> buildBoxCells(Order order) {
+  List<DataGridCell> buildBoxCells(OrderModel order) {
     return [
       DataGridCell<int>(columnName: 'inMatTruoc', value: order.box?.inMatTruoc ?? 0),
       DataGridCell<int>(columnName: 'inMatSau', value: order.box?.inMatSau ?? 0),

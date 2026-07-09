@@ -12,7 +12,7 @@ class OutboundDetailModel {
 
   //FK
   final String orderId;
-  final Order? order;
+  final OrderModel? order;
 
   final int? deliveryItemId;
   final DeliveryItemModel? deliveryItem;
@@ -43,7 +43,7 @@ class OutboundDetailModel {
       isPromotion: json["isPromotion"] ?? false,
 
       orderId: json["orderId"] ?? "",
-      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
+      order: json["Order"] != null ? OrderModel.fromJson(json["Order"]) : null,
 
       deliveryItemId: json["deliveryItemId"],
       deliveryItem:

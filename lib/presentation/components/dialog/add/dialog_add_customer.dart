@@ -18,7 +18,7 @@ import "package:intl/intl.dart";
 import "package:material_symbols_icons/symbols.dart";
 
 class CustomerDialog extends StatefulWidget {
-  final Customer? customer;
+  final CustomerModel? customer;
   final VoidCallback onCustomerAddOrUpdate;
 
   const CustomerDialog({super.key, this.customer, required this.onCustomerAddOrUpdate});
@@ -31,7 +31,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
   final formKey = GlobalKey<FormState>();
   final userController = Get.find<UserController>();
 
-  List<Customer> allCustomers = [];
+  List<CustomerModel> allCustomers = [];
   bool isLoading = true;
   String? idServerError;
   String? mstServerError;
@@ -110,7 +110,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
     try {
       final result = await CustomerService().getCustomers(noPaging: true);
 
-      allCustomers = result["customers"] as List<Customer>;
+      allCustomers = result["customers"] as List<CustomerModel>;
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
     } finally {
@@ -200,7 +200,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
       );
 
       // Chuẩn hóa dữ liệu đầu vào
-      final payment = CustomerPayment(
+      final payment = CustomerPaymentModel(
         cusPaymentId: 0,
         debtCurrent: double.tryParse(_debtLimitController.trimmed) ?? 0,
         debtLimit: double.tryParse(_debtLimitController.trimmed) ?? 0,
@@ -209,7 +209,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
         closingDate: int.tryParse(_closingDateController.trimmed) ?? 0,
       );
 
-      final newCustomer = Customer(
+      final newCustomer = CustomerModel(
         customerId: _idController.trimmed.toUpperCase(), //prefix
         customerName: _nameController.superClean,
         companyName: _companyNameController.superClean,

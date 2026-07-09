@@ -15,7 +15,7 @@ class LiquidationInventoryModel {
   final int inventoryId;
   final String orderId;
 
-  final Order? order;
+  final OrderModel? order;
   final InventoryModel? inventory;
 
   LiquidationInventoryModel({
@@ -49,7 +49,7 @@ class LiquidationInventoryModel {
       inventoryId: json["inventoryId"] ?? 0,
 
       inventory: json["Inventory"] != null ? InventoryModel.fromJson(json["Inventory"]) : null,
-      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
+      order: json["Order"] != null ? OrderModel.fromJson(json["Order"]) : null,
     );
   }
 }

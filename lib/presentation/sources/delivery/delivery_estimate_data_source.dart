@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class DeliveryEstimateDataSource extends DataGridSource {
-  List<PlanningPaper> delivery = [];
+  List<PlanningPaperModel> delivery = [];
   List<int> selectedPaperIds = [];
   int currentPage;
   int pageSize;
@@ -25,7 +25,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildDbPaperCells(PlanningPaper paper, int index) {
+  List<DataGridCell> buildDbPaperCells(PlanningPaperModel paper, int index) {
     final order = paper.order;
     final inventory = order?.Inventory;
 
@@ -60,7 +60,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
         columnName: 'volume',
         value:
             order.volume != null && order.volume! > 0
-                ? '${Order.formatCurrency(order.volume ?? 0)} m³'
+                ? '${OrderModel.formatCurrency(order.volume ?? 0)} m³'
                 : "0",
       ),
 

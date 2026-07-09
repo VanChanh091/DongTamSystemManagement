@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class StagesDataSource extends DataGridSource {
-  List<PlanningStage> stages = [];
+  List<PlanningStageModel> stages = [];
 
   late List<DataGridRow> stagesDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -17,7 +17,7 @@ class StagesDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildStagesCells(PlanningStage stage) {
+  List<DataGridCell> buildStagesCells(PlanningStageModel stage) {
     return [
       DataGridCell<String>(columnName: "machine", value: stage.machine),
       DataGridCell<String>(
@@ -39,14 +39,16 @@ class StagesDataSource extends DataGridSource {
         columnName: "timeRunning",
         value:
             stage.timeRunning != null
-                ? PlanningPaper.formatTimeOfDay(timeOfDay: stage.timeRunning!)
+                ? PlanningPaperModel.formatTimeOfDay(timeOfDay: stage.timeRunning!)
                 : '',
       ),
       DataGridCell<String>(
         columnName: "timeRunningOvfl",
         value:
             stage.timeOverflow?.overflowTimeRunning != null
-                ? PlanningPaper.formatTimeOfDay(timeOfDay: stage.timeOverflow!.overflowTimeRunning!)
+                ? PlanningPaperModel.formatTimeOfDay(
+                  timeOfDay: stage.timeOverflow!.overflowTimeRunning!,
+                )
                 : '',
       ),
       DataGridCell<int>(columnName: "runningPlan", value: stage.remainRunningPlan),

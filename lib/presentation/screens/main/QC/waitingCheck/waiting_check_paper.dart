@@ -25,7 +25,7 @@ class WaitingCheckPaper extends StatefulWidget {
 }
 
 class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
-  late Future<List<PlanningPaper>> futurePlanning;
+  late Future<List<PlanningPaperModel>> futurePlanning;
   late WaitingCheckPaperDataSource waitingCheckPaperDS;
   late List<GridColumn> columns;
 
@@ -35,7 +35,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
   final themeController = Get.find<ThemeController>();
 
   Map<String, double> columnWidths = {};
-  List<PlanningPaper> planningList = [];
+  List<PlanningPaperModel> planningList = [];
   List<String> selectedPlanningIds = [];
   bool showGroup = true;
 
@@ -65,7 +65,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
 
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
-    required List<PlanningPaper> planningList,
+    required List<PlanningPaperModel> planningList,
   }) {
     if (selectedPlanningIds.length != 1) return false;
 
@@ -80,7 +80,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
     return true;
   }
 
-  bool canFinalizePlanning({required PlanningPaper planning}) {
+  bool canFinalizePlanning({required PlanningPaperModel planning}) {
     return planning.getTotalQtyInbound > 0;
   }
 
@@ -220,7 +220,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                     );
                   }
 
-                  final data = snapshot.data as List<PlanningPaper>;
+                  final data = snapshot.data as List<PlanningPaperModel>;
                   planningList = data;
 
                   waitingCheckPaperDS = WaitingCheckPaperDataSource(

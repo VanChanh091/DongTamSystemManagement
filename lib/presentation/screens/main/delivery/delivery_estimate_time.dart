@@ -50,11 +50,11 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   //width column
   Map<String, double> columnWidthsPlanning = {};
   Map<String, double> columnWidthsStage = {};
-  List<PlanningStage> selectedStages = [];
+  List<PlanningStageModel> selectedStages = [];
 
   bool selectedAll = false;
   List<int> selectedPaperIds = [];
-  List<PlanningPaper> planningList = [];
+  List<PlanningPaperModel> planningList = [];
 
   //filter
   String allOrders = "false";
@@ -571,7 +571,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
                   final data = snapshot.data!;
 
-                  final dbPlanning = data['plannings'] as List<PlanningPaper>;
+                  final dbPlanning = data['plannings'] as List<PlanningPaperModel>;
                   planningList = dbPlanning;
 
                   final currentPg = data['currentPage'];

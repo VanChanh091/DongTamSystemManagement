@@ -166,7 +166,7 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             Text(
-                              "${Order.formatCurrency(totalValueInventory)} VNĐ",
+                              "${OrderModel.formatCurrency(totalValueInventory)} VNĐ",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,

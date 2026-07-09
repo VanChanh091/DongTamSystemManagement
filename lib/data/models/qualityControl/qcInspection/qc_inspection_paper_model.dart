@@ -19,7 +19,7 @@ class QcInspectionPaperModel {
 
   //FK
   final int planningId;
-  final PlanningPaper? paper;
+  final PlanningPaperModel? paper;
 
   QcInspectionPaperModel({
     required this.inspecPaperId,
@@ -56,7 +56,8 @@ class QcInspectionPaperModel {
 
       //FK
       planningId: json["planningId"],
-      paper: json["PlanningPaper"] != null ? PlanningPaper.fromJson(json["PlanningPaper"]) : null,
+      paper:
+          json["PlanningPaper"] != null ? PlanningPaperModel.fromJson(json["PlanningPaper"]) : null,
     );
   }
 }

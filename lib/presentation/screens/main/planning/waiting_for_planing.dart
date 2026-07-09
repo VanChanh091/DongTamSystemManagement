@@ -31,7 +31,7 @@ class WaitingForPlanning extends StatefulWidget {
 }
 
 class WaitingForPlanningState extends State<WaitingForPlanning> {
-  late Future<List<Order>> futureOrdersAccept;
+  late Future<List<OrderModel>> futureOrdersAccept;
   late PlanningDataSource planningDataSource;
   late List<GridColumn> columns;
   final themeController = Get.find<ThemeController>();
@@ -316,7 +316,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                     );
                   }
 
-                  final List<Order> data = snapshot.data!;
+                  final List<OrderModel> data = snapshot.data!;
 
                   planningDataSource = PlanningDataSource(
                     orders: data,

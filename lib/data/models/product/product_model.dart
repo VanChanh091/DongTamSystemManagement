@@ -1,11 +1,11 @@
-class Product {
+class ProductModel {
   String productId;
   String typeProduct;
   String? productName;
   String? maKhuon;
   String? productImage;
 
-  Product({
+  ProductModel({
     required this.productId,
     required this.typeProduct,
     this.productName,
@@ -13,8 +13,8 @@ class Product {
     this.productImage,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
       productId: json["productId"] ?? "CUSTOM",
       typeProduct: json["typeProduct"] ?? "",
       productName: json["productName"] ?? "",

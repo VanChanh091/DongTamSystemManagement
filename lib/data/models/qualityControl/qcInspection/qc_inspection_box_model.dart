@@ -8,7 +8,7 @@ class QcInspectionBoxModel {
 
   //FK
   final int boxTimeId;
-  final BoxMachineTime? boxTime;
+  final BoxMachineTimeModel? boxTime;
 
   QcInspectionBoxModel({
     required this.inspecBoxId,
@@ -30,7 +30,9 @@ class QcInspectionBoxModel {
       //FK
       boxTimeId: json["boxTimeId"],
       boxTime:
-          json["PlanningBoxTime"] != null ? BoxMachineTime.fromJson(json["PlanningBoxTime"]) : null,
+          json["PlanningBoxTime"] != null
+              ? BoxMachineTimeModel.fromJson(json["PlanningBoxTime"])
+              : null,
     );
   }
 }

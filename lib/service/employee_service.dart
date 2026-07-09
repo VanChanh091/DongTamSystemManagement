@@ -17,7 +17,7 @@ class EmployeeService {
     int? pageSize,
     bool noPaging = false,
   }) async {
-    return HelperService().fetchPaginatedData<EmployeeBasicInfo>(
+    return HelperService().fetchPaginatedData<EmployeeBasicInfoModel>(
       endpoint: "employee",
       queryParameters: {
         'field': field,
@@ -26,16 +26,16 @@ class EmployeeService {
         'pageSize': pageSize,
         'noPaging': noPaging,
       },
-      fromJson: (json) => EmployeeBasicInfo.fromJson(json),
+      fromJson: (json) => EmployeeBasicInfoModel.fromJson(json),
       dataKey: 'employees',
     );
   }
 
-  Future<List<EmployeeBasicInfo>> getEmployeeByPosition() async {
+  Future<List<EmployeeBasicInfoModel>> getEmployeeByPosition() async {
     return HelperService().fetchingData(
       endpoint: 'employee/position',
       queryParameters: const {},
-      fromJson: (json) => EmployeeBasicInfo.fromJson(json),
+      fromJson: (json) => EmployeeBasicInfoModel.fromJson(json),
     );
   }
 

@@ -243,9 +243,10 @@ class _EmployeeState extends State<Employee> {
                                                   ? () async {
                                                     try {
                                                       final employeeData = await futureEmployee;
-                                                      final List<EmployeeBasicInfo> employeeList =
+                                                      final List<EmployeeBasicInfoModel>
+                                                      employeeList =
                                                           (employeeData['employees'] as List? ?? [])
-                                                              .cast<EmployeeBasicInfo>();
+                                                              .cast<EmployeeBasicInfoModel>();
                                                       final selectedEmployees = employeeList
                                                           .firstWhere(
                                                             (employee) =>
@@ -354,7 +355,7 @@ class _EmployeeState extends State<Employee> {
                   }
 
                   final data = snapshot.data!;
-                  final employees = data['employees'] as List<EmployeeBasicInfo>;
+                  final employees = data['employees'] as List<EmployeeBasicInfoModel>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 

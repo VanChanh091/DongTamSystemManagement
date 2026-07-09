@@ -14,7 +14,7 @@ import "package:flutter/material.dart";
 import "package:diacritic/diacritic.dart";
 
 class ProductDialog extends StatefulWidget {
-  final Product? product;
+  final ProductModel? product;
   final VoidCallback onProductAddOrUpdate;
 
   const ProductDialog({super.key, this.product, required this.onProductAddOrUpdate});
@@ -86,7 +86,7 @@ class _ProductDialogState extends State<ProductDialog> {
 
     try {
       // Chuẩn hóa dữ liệu đầu vào
-      final newProduct = Product(
+      final newProduct = ProductModel(
         productId: idController.trimmed.toUpperCase(),
         typeProduct: typeProduct,
         productName: nameProductController.superClean,

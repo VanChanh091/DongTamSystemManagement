@@ -6,7 +6,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:intl/intl.dart';
 
 class PlanningDataSource extends DataGridSource {
-  List<Order> orders;
+  List<OrderModel> orders;
   String? selectedOrderId;
   bool selectedAll = false;
 
@@ -17,7 +17,7 @@ class PlanningDataSource extends DataGridSource {
     buildDataCell();
   }
 
-  List<DataGridCell> buildOrderCells(Order order, int index) {
+  List<DataGridCell> buildOrderCells(OrderModel order, int index) {
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
@@ -41,14 +41,14 @@ class PlanningDataSource extends DataGridSource {
         columnName: 'sizeManu',
         value:
             order.paperSizeManufacture > 0
-                ? '${Order.formatCurrency(order.paperSizeManufacture)} cm'
+                ? '${OrderModel.formatCurrency(order.paperSizeManufacture)} cm'
                 : "0",
       ),
       DataGridCell<String>(
         columnName: 'lengthMf',
         value:
             order.lengthPaperManufacture > 0
-                ? '${Order.formatCurrency(order.lengthPaperManufacture)} cm'
+                ? '${OrderModel.formatCurrency(order.lengthPaperManufacture)} cm'
                 : "0",
       ),
       DataGridCell<int>(columnName: 'qtyManufacture', value: order.quantityManufacture),
@@ -61,13 +61,14 @@ class PlanningDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
       DataGridCell<String>(
         columnName: 'totalPrice',
-        value: order.totalPrice! > 0 ? '${Order.formatCurrency(order.totalPrice ?? 0)} VND' : '0',
+        value:
+            order.totalPrice! > 0 ? '${OrderModel.formatCurrency(order.totalPrice ?? 0)} VND' : '0',
       ),
       DataGridCell<String>(
         columnName: 'totalPriceAfterVAT',
         value:
             order.totalPriceVAT! > 0
-                ? '${Order.formatCurrency(order.totalPriceVAT ?? 0)} VND'
+                ? '${OrderModel.formatCurrency(order.totalPriceVAT ?? 0)} VND'
                 : "0",
       ),
       DataGridCell<bool>(columnName: 'haveMadeBox', value: order.isBox),

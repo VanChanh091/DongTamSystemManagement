@@ -11,7 +11,7 @@ class ReportBoxModel {
   final String reportedBy;
 
   final int planningBoxId;
-  final PlanningBox? planningBox;
+  final PlanningBoxModel? planningBox;
 
   ReportBoxModel({
     this.reportBoxId,
@@ -40,7 +40,8 @@ class ReportBoxModel {
       machine: json["machine"] ?? "",
       reportedBy: json["reportedBy"] ?? "",
       planningBoxId: json["planningBoxId"] ?? 0,
-      planningBox: json["PlanningBox"] != null ? PlanningBox.fromJson(json["PlanningBox"]) : null,
+      planningBox:
+          json["PlanningBox"] != null ? PlanningBoxModel.fromJson(json["PlanningBox"]) : null,
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class EmployeeDataSource extends DataGridSource {
-  List<EmployeeBasicInfo> employee = [];
+  List<EmployeeBasicInfoModel> employee = [];
   int? selectedEmployeeId;
   int currentPage;
   int pageSize;
@@ -22,7 +22,7 @@ class EmployeeDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildEmployeeCells(EmployeeBasicInfo employee, int index) {
+  List<DataGridCell> buildEmployeeCells(EmployeeBasicInfoModel employee, int index) {
     final companyInfo = employee.companyInfo;
 
     return [

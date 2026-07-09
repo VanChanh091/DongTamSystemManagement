@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class SyntheticOrdersDataSource extends DataGridSource {
-  List<Order> orders = [];
+  List<OrderModel> orders = [];
   List<String> selectedOrderIds;
   int currentPage;
   int pageSize;
@@ -37,16 +37,16 @@ class SyntheticOrdersDataSource extends DataGridSource {
     return "Chờ Duyệt";
   }
 
-  List<DataGridCell> buildOrderCells(Order order, int index) {
+  List<DataGridCell> buildOrderCells(OrderModel order, int index) {
     DataGridCell<String> buildDimensionCell(String columnName, double? value) {
       return DataGridCell<String>(
         columnName: columnName,
-        value: (value != null && value > 0) ? '${Order.formatCurrency(value)} cm' : '0',
+        value: (value != null && value > 0) ? '${OrderModel.formatCurrency(value)} cm' : '0',
       );
     }
 
     DataGridCell<String> buildCurrencyCell(String columnName, num value) {
-      return DataGridCell<String>(columnName: columnName, value: Order.formatCurrency(value));
+      return DataGridCell<String>(columnName: columnName, value: OrderModel.formatCurrency(value));
     }
 
     final inventory = order.Inventory;

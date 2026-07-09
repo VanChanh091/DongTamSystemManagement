@@ -45,7 +45,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   final badgesController = Get.find<BadgesController>();
   final formatter = DateFormat('dd/MM/yyyy');
 
-  List<OutboundTempItem>? initialItems;
+  List<OutboundTempItemModel>? initialItems;
 
   Map<String, double> columnWidths = {};
   List<int> selectedDeliveryIds = [];
@@ -267,7 +267,9 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                             selectedItems
                                                 .map(
                                                   (item) =>
-                                                      OutboundTempItem.fromDeliveryItemModel(item),
+                                                      OutboundTempItemModel.fromDeliveryItemModel(
+                                                        item,
+                                                      ),
                                                 )
                                                 .toList();
                                       } catch (e) {

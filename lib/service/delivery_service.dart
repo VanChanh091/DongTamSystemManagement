@@ -25,7 +25,7 @@ class DeliveryService {
     String? field,
     String? keyword,
   }) async {
-    return HelperService().fetchPaginatedData<PlanningPaper>(
+    return HelperService().fetchPaginatedData<PlanningPaperModel>(
       endpoint: "delivery/estimate",
       queryParameters: {
         'page': page,
@@ -36,7 +36,7 @@ class DeliveryService {
         if (field != null && keyword != null) 'field': field,
         if (field != null && keyword != null) 'keyword': keyword,
       },
-      fromJson: (json) => PlanningPaper.fromJson(json),
+      fromJson: (json) => PlanningPaperModel.fromJson(json),
       dataKey: 'plannings',
     );
   }
@@ -65,14 +65,14 @@ class DeliveryService {
   //=========================PLANNING DELIVERY===========================
 
   //get all planning waiting delivery
-  Future<List<DeliveryRequest>> getPlanningRequest({String? field, String? keyword}) async {
-    return HelperService().fetchingData<DeliveryRequest>(
+  Future<List<DeliveryRequestModel>> getPlanningRequest({String? field, String? keyword}) async {
+    return HelperService().fetchingData<DeliveryRequestModel>(
       endpoint: "delivery/planning",
       queryParameters: {
         if (field != null && keyword != null) 'field': field,
         if (field != null && keyword != null) 'keyword': keyword,
       },
-      fromJson: (json) => DeliveryRequest.fromJson(json),
+      fromJson: (json) => DeliveryRequestModel.fromJson(json),
     );
   }
 

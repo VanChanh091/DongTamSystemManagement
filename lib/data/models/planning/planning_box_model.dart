@@ -5,7 +5,7 @@ import "package:dongtam/data/models/warehouse/inbound_history_model.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:flutter/material.dart";
 
-class PlanningBox {
+class PlanningBoxModel {
   final int planningBoxId;
 
   final int qtyPaper;
@@ -16,13 +16,13 @@ class PlanningBox {
 
   final int planningId;
   final String orderId;
-  final Order? order;
-  final List<TimeOverflowPlanning>? timeOverflowPlanning;
-  final List<BoxMachineTime>? boxTimes;
-  final List<BoxMachineTime>? allBoxTimes;
+  final OrderModel? order;
+  final List<TimeOverflowPlanningModel>? timeOverflowPlanning;
+  final List<BoxMachineTimeModel>? boxTimes;
+  final List<BoxMachineTimeModel>? allBoxTimes;
   final List<InboundHistoryModel>? inbound;
 
-  PlanningBox({
+  PlanningBoxModel({
     required this.planningBoxId,
     required this.qtyPaper,
     this.day,
@@ -67,7 +67,10 @@ class PlanningBox {
   }
 
   //get data of box time machine
-  BoxMachineTime? _findByMachine({required List<BoxMachineTime>? list, required String machine}) {
+  BoxMachineTimeModel? _findByMachine({
+    required List<BoxMachineTimeModel>? list,
+    required String machine,
+  }) {
     if (list == null) return null;
     try {
       return list.firstWhere((item) => item.machine == machine);
@@ -77,14 +80,14 @@ class PlanningBox {
   }
 
   //get one box
-  BoxMachineTime? getBoxMachineTimeByMachine(String machine) =>
+  BoxMachineTimeModel? getBoxMachineTimeByMachine(String machine) =>
       _findByMachine(list: boxTimes, machine: machine);
 
   //get all box
-  BoxMachineTime? getAllBoxMachineTime(String machine) =>
+  BoxMachineTimeModel? getAllBoxMachineTime(String machine) =>
       _findByMachine(list: allBoxTimes, machine: machine);
 
-  TimeOverflowPlanning? getTimeOverflow({required String machine}) {
+  TimeOverflowPlanningModel? getTimeOverflow({required String machine}) {
     if (timeOverflowPlanning == null) return null;
     try {
       return timeOverflowPlanning?.firstWhere((item) => item.machine == machine);
@@ -95,8 +98,8 @@ class PlanningBox {
 
   int get getTotalQtyInbound => inbound?.fold(0, (sum, e) => sum! + e.qtyInbound) ?? 0;
 
-  factory PlanningBox.fromJson(Map<String, dynamic> json) {
-    return PlanningBox(
+  factory PlanningBoxModel.fromJson(Map<String, dynamic> json) {
+    return PlanningBoxModel(
       planningBoxId: json["planningBoxId"],
       qtyPaper: json["qtyPaper"] ?? 0,
 
@@ -115,21 +118,23 @@ class PlanningBox {
 
       orderId: json["orderId"] ?? "",
       planningId: json["planningId"] ?? 0,
-      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
+      order: json["Order"] != null ? OrderModel.fromJson(json["Order"]) : null,
       timeOverflowPlanning:
           json["timeOverFlow"] != null
-              ? List<TimeOverflowPlanning>.from(
-                json["timeOverFlow"].map((x) => TimeOverflowPlanning.fromJson(x)),
+              ? List<TimeOverflowPlanningModel>.from(
+                json["timeOverFlow"].map((x) => TimeOverflowPlanningModel.fromJson(x)),
               )
               : [],
       boxTimes:
           json["boxTimes"] != null
-              ? List<BoxMachineTime>.from(json["boxTimes"].map((x) => BoxMachineTime.fromJson(x)))
+              ? List<BoxMachineTimeModel>.from(
+                json["boxTimes"].map((x) => BoxMachineTimeModel.fromJson(x)),
+              )
               : [],
       allBoxTimes:
           json["allBoxTimes"] != null
-              ? List<BoxMachineTime>.from(
-                json["allBoxTimes"].map((x) => BoxMachineTime.fromJson(x)),
+              ? List<BoxMachineTimeModel>.from(
+                json["allBoxTimes"].map((x) => BoxMachineTimeModel.fromJson(x)),
               )
               : [],
       inbound:

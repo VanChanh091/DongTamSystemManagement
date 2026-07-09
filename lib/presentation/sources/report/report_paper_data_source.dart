@@ -64,7 +64,7 @@ class ReportPaperDatasource extends DataGridSource {
 
       DataGridCell<String>(
         columnName: 'timeRunningProd',
-        value: PlanningPaper.formatTimeOfDay(timeOfDay: planningPaper.timeRunning!),
+        value: PlanningPaperModel.formatTimeOfDay(timeOfDay: planningPaper.timeRunning!),
       ),
       DataGridCell<double>(columnName: "averageSpeed", value: reportPaper.averageSpeed),
       DataGridCell<String>(columnName: "dvt", value: orderCell.dvt),

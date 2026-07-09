@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ProductDataSource extends DataGridSource {
-  List<Product> products = [];
+  List<ProductModel> products = [];
   String? selectedProductId;
   int currentPage;
   int pageSize;
@@ -22,7 +22,7 @@ class ProductDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildProductCells(Product product, int index) {
+  List<DataGridCell> buildProductCells(ProductModel product, int index) {
     return [
       DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "productId", value: product.productId),

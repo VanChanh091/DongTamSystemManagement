@@ -42,12 +42,12 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   final unsavedChangeController = Get.find<UnsavedChangeController>();
 
   //width column
-  Map<String, List<DeliveryRequest>> vehicleOrders = {};
-  Map<String, List<DeliveryRequest>> originalVehicleOrders = {};
+  Map<String, List<DeliveryRequestModel>> vehicleOrders = {};
+  Map<String, List<DeliveryRequestModel>> originalVehicleOrders = {};
 
   List<DeliveryTrip> trips = [];
   List<AdminVehicleModel> vehicles = [];
-  List<DeliveryRequest> pendingRequests = [];
+  List<DeliveryRequestModel> pendingRequests = [];
   Set<int> selectedPendingIds = {};
 
   //search
@@ -209,7 +209,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     }
   }
 
-  void _removeRequestFromEverywhere(DeliveryRequest req) {
+  void _removeRequestFromEverywhere(DeliveryRequestModel req) {
     // remove bên trái
     pendingRequests.removeWhere((r) => r.requestId == req.requestId);
 
@@ -593,9 +593,9 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
   //left UI
   Widget _buildPendingOrders() {
-    return DragTarget<List<DeliveryRequest>>(
+    return DragTarget<List<DeliveryRequestModel>>(
       onAcceptWithDetails: (details) {
-        final List<DeliveryRequest> droppedItems = details.data;
+        final List<DeliveryRequestModel> droppedItems = details.data;
 
         setState(() {
           for (var item in droppedItems) {
@@ -680,7 +680,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   }
 
   Widget _requestedCard({
-    required DeliveryRequest req,
+    required DeliveryRequestModel req,
     String? status,
     bool isDragging = false,
     bool isSelected = false,
@@ -842,7 +842,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                       Text(
                         ((inventory?.qtyInventory ?? 0) > 0)
                             ? "SL Tồn: ${inventory!.qtyInventory}"
-                            : "TG Dự Kiến: ${formatter.format(planning!.dayStart!)} - ${PlanningPaper.formatTimeOfDay(timeOfDay: planning.timeRunning!)}",
+                            : "TG Dự Kiến: ${formatter.format(planning!.dayStart!)} - ${PlanningPaperModel.formatTimeOfDay(timeOfDay: planning.timeRunning!)}",
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -996,7 +996,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     final maxVolume = vehicle.volumeCapacity;
     final isOverloaded = currentVolume > maxVolume;
 
-    return DragTarget<List<DeliveryRequest>>(
+    return DragTarget<List<DeliveryRequestModel>>(
       onWillAcceptWithDetails: (details) {
         if (!_isEditable) return false;
 
@@ -1004,7 +1004,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
       },
 
       onAcceptWithDetails: (details) {
-        final List<DeliveryRequest> droppedItems = details.data;
+        final List<DeliveryRequestModel> droppedItems = details.data;
 
         setState(() {
           for (var item in droppedItems) {
@@ -1121,16 +1121,16 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   }
 
   //helper
-  Widget _buildDraggablePaper(DeliveryRequest req, double width, {bool isSelectable = true}) {
+  Widget _buildDraggablePaper(DeliveryRequestModel req, double width, {bool isSelectable = true}) {
     final bool isSelected = isSelectable && selectedPendingIds.contains(req.requestId);
 
     final bool isOutbound = req.hasOutbound == true;
-    final List<DeliveryRequest> itemsToDrag =
+    final List<DeliveryRequestModel> itemsToDrag =
         isSelected
             ? pendingRequests.where((r) => selectedPendingIds.contains(r.requestId)).toList()
             : [req];
 
-    return Draggable<List<DeliveryRequest>>(
+    return Draggable<List<DeliveryRequestModel>>(
       data: itemsToDrag,
       maxSimultaneousDrags: (_isEditable && !isOutbound) ? 1 : 0,
 

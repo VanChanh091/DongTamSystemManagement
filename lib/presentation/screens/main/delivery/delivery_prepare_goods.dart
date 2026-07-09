@@ -44,7 +44,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
   final badgesController = Get.find<BadgesController>();
   final formatter = DateFormat('dd/MM/yyyy');
 
-  List<OutboundTempItem>? initialItems;
+  List<OutboundTempItemModel>? initialItems;
 
   Map<String, double> columnWidths = {};
   List<int> selectedDeliveryIds = [];

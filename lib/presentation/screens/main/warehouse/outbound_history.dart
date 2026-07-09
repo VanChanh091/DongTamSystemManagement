@@ -473,7 +473,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             Text(
-                              Order.formatCurrency(grandTotal['totalPriceOrder']),
+                              OrderModel.formatCurrency(grandTotal['totalPriceOrder']),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 17,
@@ -492,7 +492,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             Text(
-                              Order.formatCurrency(grandTotal['totalPriceVAT']),
+                              OrderModel.formatCurrency(grandTotal['totalPriceVAT']),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 17,
@@ -511,7 +511,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             Text(
-                              Order.formatCurrency(grandTotal['totalPricePayment']),
+                              OrderModel.formatCurrency(grandTotal['totalPricePayment']),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 17,

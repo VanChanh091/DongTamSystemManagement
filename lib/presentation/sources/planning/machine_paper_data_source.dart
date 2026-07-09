@@ -9,12 +9,12 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class MachinePaperDatasource extends DataGridSource {
-  List<PlanningPaper> planning = [];
+  List<PlanningPaperModel> planning = [];
   List<String> selectedPlanningIds = [];
   UnsavedChangeController? unsavedChange;
   bool showGroup;
   String page;
-  Function(PlanningPaper)? onRowTap;
+  Function(PlanningPaperModel)? onRowTap;
 
   Map<String, int> orderIdCounts = {};
 
@@ -40,7 +40,7 @@ class MachinePaperDatasource extends DataGridSource {
   }
 
   // create list cell for planning
-  List<DataGridCell> buildPlanningInfoCells(PlanningPaper planning) {
+  List<DataGridCell> buildPlanningInfoCells(PlanningPaperModel planning) {
     DataGridCell<String> buildCurrencyCell(String columnName, num value) {
       return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? '$value' : "0");
     }
@@ -95,13 +95,16 @@ class MachinePaperDatasource extends DataGridSource {
         columnName: 'timeRunningProd',
         value:
             planning.timeRunning != null
-                ? PlanningPaper.formatTimeOfDay(timeOfDay: planning.timeRunning!)
+                ? PlanningPaperModel.formatTimeOfDay(timeOfDay: planning.timeRunning!)
                 : '',
       ),
       if (page == "planning") ...[
         DataGridCell<String>(
           columnName: 'totalPrice',
-          value: (planning.totalPrice ?? 0) > 0 ? Order.formatCurrency(planning.totalPrice!) : "0",
+          value:
+              (planning.totalPrice ?? 0) > 0
+                  ? OrderModel.formatCurrency(planning.totalPrice!)
+                  : "0",
         ),
       ],
 
@@ -120,7 +123,7 @@ class MachinePaperDatasource extends DataGridSource {
     ];
   }
 
-  List<DataGridCell> buildWasteNormCell(PlanningPaper planning) {
+  List<DataGridCell> buildWasteNormCell(PlanningPaperModel planning) {
     DataGridCell<String> buildWasteCell({required String columnName, required double value}) {
       return DataGridCell<String>(columnName: columnName, value: value != 0 ? '$value' : '0');
     }
@@ -185,7 +188,7 @@ class MachinePaperDatasource extends DataGridSource {
 
   // Di chuyển hàng lên
   void moveRowUp(List<String> idsToMove) {
-    PlanningListHelper.moveRows<PlanningPaper>(
+    PlanningListHelper.moveRows<PlanningPaperModel>(
       list: planning,
       idsToMove: idsToMove,
       getId: (p) => p.planningId.toString(),
@@ -197,7 +200,7 @@ class MachinePaperDatasource extends DataGridSource {
 
   // Di chuyển hàng xuống
   void moveRowDown(List<String> idsToMove) {
-    PlanningListHelper.moveRows<PlanningPaper>(
+    PlanningListHelper.moveRows<PlanningPaperModel>(
       list: planning,
       idsToMove: idsToMove,
       getId: (item) => item.planningId.toString(),
@@ -289,7 +292,7 @@ class MachinePaperDatasource extends DataGridSource {
             .fold(0, (sum, p) => sum + (p.totalPrice ?? 0));
 
         if (totalGroupPrice > 0) {
-          totalPriceStr = ' – Tổng: ${Order.formatCurrency(totalGroupPrice)} VNĐ';
+          totalPriceStr = ' – Tổng: ${OrderModel.formatCurrency(totalGroupPrice)} VNĐ';
         }
       }
     }

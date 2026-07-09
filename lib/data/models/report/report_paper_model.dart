@@ -14,7 +14,7 @@ class ReportPaperModel {
 
   //FK
   final int planningId;
-  final PlanningPaper? planningPaper;
+  final PlanningPaperModel? planningPaper;
 
   ReportPaperModel({
     this.reportPaperId,
@@ -44,7 +44,7 @@ class ReportPaperModel {
       averageSpeed: toDouble(json["averageSpeed"]),
       planningId: json["planningId"] ?? 0,
       planningPaper:
-          json["PlanningPaper"] != null ? PlanningPaper.fromJson(json["PlanningPaper"]) : null,
+          json["PlanningPaper"] != null ? PlanningPaperModel.fromJson(json["PlanningPaper"]) : null,
     );
   }
 }

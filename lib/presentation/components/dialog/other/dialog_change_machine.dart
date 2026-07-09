@@ -7,7 +7,7 @@ import "package:dongtam/utils/validation/validation_helper.dart";
 import "package:flutter/material.dart";
 
 class ChangeMachineDialog extends StatefulWidget {
-  final List<PlanningPaper> planning;
+  final List<PlanningPaperModel> planning;
   final VoidCallback onChangeMachine;
 
   const ChangeMachineDialog({super.key, required this.planning, required this.onChangeMachine});

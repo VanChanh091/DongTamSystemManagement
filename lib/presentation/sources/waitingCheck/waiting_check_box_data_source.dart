@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class WaitingCheckBoxDataSource extends DataGridSource {
-  List<PlanningBox> planning = [];
+  List<PlanningBoxModel> planning = [];
   int? selectedPlanningBoxIds;
 
   late List<DataGridRow> planningDataGridRows;
@@ -18,7 +18,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildPlanningCells(PlanningBox planning) {
+  List<DataGridCell> buildPlanningCells(PlanningBoxModel planning) {
     return [
       //14 items
       DataGridCell<String>(columnName: "orderId", value: planning.orderId),
@@ -56,7 +56,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
     ];
   }
 
-  List<DataGridCell> buildChildBoxCells(PlanningBox planning) {
+  List<DataGridCell> buildChildBoxCells(PlanningBoxModel planning) {
     return [
       DataGridCell<int>(columnName: "inMatTruoc", value: planning.order!.box!.inMatTruoc ?? 0),
       DataGridCell<int>(columnName: "inMatSau", value: planning.order!.box!.inMatSau ?? 0),

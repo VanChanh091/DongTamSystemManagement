@@ -24,7 +24,7 @@ class SyntheticService {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    return HelperService().fetchPaginatedData<Order>(
+    return HelperService().fetchPaginatedData<OrderModel>(
       endpoint: "synthetic/orders",
       queryParameters: {
         'status': status,
@@ -36,16 +36,16 @@ class SyntheticService {
         if (startDate != null) 'startDate': startDate.toIso8601String(),
         if (endDate != null) 'endDate': endDate.toIso8601String(),
       },
-      fromJson: (json) => Order.fromJson(json),
+      fromJson: (json) => OrderModel.fromJson(json),
       dataKey: 'orders',
     );
   }
 
-  Future<PlanningBox?> getSyntheticBoxDetail({required String orderId}) async {
+  Future<PlanningBoxModel?> getSyntheticBoxDetail({required String orderId}) async {
     return HelperService().fetchingSingleListData(
       endpoint: "synthetic/orders",
       queryParameters: {'orderId': orderId},
-      fromJson: (json) => PlanningBox.fromJson(json),
+      fromJson: (json) => PlanningBoxModel.fromJson(json),
     );
   }
 
@@ -95,20 +95,20 @@ class SyntheticService {
     required int pageSize,
     required String status,
   }) async {
-    return HelperService().fetchPaginatedData<PlanningPaper>(
+    return HelperService().fetchPaginatedData<PlanningPaperModel>(
       endpoint: "synthetic/planning",
       queryParameters: {'page': page, 'pageSize': pageSize, 'status': status},
-      fromJson: (json) => PlanningPaper.fromJson(json),
+      fromJson: (json) => PlanningPaperModel.fromJson(json),
       dataKey: 'dashboard',
     );
   }
 
   //get data details
-  Future<List<PlanningStage>> getSyntheticPlanningDetail({required int planningId}) async {
+  Future<List<PlanningStageModel>> getSyntheticPlanningDetail({required int planningId}) async {
     return HelperService().fetchingData(
       endpoint: "synthetic/planning",
       queryParameters: {'planningId': planningId},
-      fromJson: (json) => PlanningStage.fromJson(json),
+      fromJson: (json) => PlanningStageModel.fromJson(json),
     );
   }
 
@@ -119,10 +119,10 @@ class SyntheticService {
     int page = 1,
     int pageSize = 30,
   }) async {
-    return HelperService().fetchPaginatedData<PlanningPaper>(
+    return HelperService().fetchPaginatedData<PlanningPaperModel>(
       endpoint: "synthetic/planning",
       queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
-      fromJson: (json) => PlanningPaper.fromJson(json),
+      fromJson: (json) => PlanningPaperModel.fromJson(json),
       dataKey: 'dashboard',
     );
   }

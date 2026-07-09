@@ -27,7 +27,7 @@ class WaitingCheckBox extends StatefulWidget {
 }
 
 class _WaitingCheckBoxState extends State<WaitingCheckBox> {
-  late Future<List<PlanningBox>> futureBoxWaiting;
+  late Future<List<PlanningBoxModel>> futureBoxWaiting;
   late WaitingCheckBoxDataSource waitingCheckBoxDS;
   late List<GridColumn> columnsBox;
   late List<GridColumn> columnsStages;
@@ -39,8 +39,8 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
   Map<String, double> columnWidthsPlanning = {};
   Map<String, double> columnWidthsStage = {};
 
-  List<PlanningBox> planningList = [];
-  List<PlanningStage> selectedStages = [];
+  List<PlanningBoxModel> planningList = [];
+  List<PlanningStageModel> selectedStages = [];
   int? selectedPlanningBoxIds;
 
   @override
@@ -77,7 +77,7 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
 
   bool canExecuteAction({
     required int? selectedPlanningBoxIds,
-    required List<PlanningBox> planningList,
+    required List<PlanningBoxModel> planningList,
   }) {
     if (selectedPlanningBoxIds == null) return false;
 
@@ -92,7 +92,7 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
     return true;
   }
 
-  bool canFinalizePlanning({required PlanningBox planning}) {
+  bool canFinalizePlanning({required PlanningBoxModel planning}) {
     return planning.getTotalQtyInbound > 0;
   }
 
@@ -117,7 +117,7 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
           planningList: planningList,
         );
 
-    final PlanningBox? selectedPlanning =
+    final PlanningBoxModel? selectedPlanning =
         selectedPlanningBoxIds != null
             ? planningList.firstWhereOrNull((p) => p.planningBoxId == selectedPlanningBoxIds)
             : null;
@@ -229,7 +229,7 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                     );
                   }
 
-                  final List<PlanningBox> data = snapshot.data!;
+                  final List<PlanningBoxModel> data = snapshot.data!;
                   planningList = data;
 
                   waitingCheckBoxDS = WaitingCheckBoxDataSource(

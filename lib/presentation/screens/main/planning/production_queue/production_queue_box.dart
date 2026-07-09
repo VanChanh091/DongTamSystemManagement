@@ -33,7 +33,7 @@ class ProductionQueueBox extends StatefulWidget {
 }
 
 class _ProductionQueueBoxState extends State<ProductionQueueBox> {
-  late Future<List<PlanningBox>> futurePlanning;
+  late Future<List<PlanningBoxModel>> futurePlanning;
   late MachineBoxDatasource machineBoxDatasource;
   late List<GridColumn> columns;
 
@@ -490,7 +490,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     );
                   }
 
-                  final List<PlanningBox> data = snapshot.data!;
+                  final List<PlanningBoxModel> data = snapshot.data!;
 
                   machineBoxDatasource = MachineBoxDatasource(
                     planning: data,
@@ -642,7 +642,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   Future<void> handlePlanningAction({
     required BuildContext context,
     required List<String> selectedPlanningIds,
-    List<PlanningBox>? planningList,
+    List<PlanningBoxModel>? planningList,
     required String status,
     required String machine,
     required String title,

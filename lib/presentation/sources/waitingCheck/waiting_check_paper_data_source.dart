@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class WaitingCheckPaperDataSource extends DataGridSource {
-  List<PlanningPaper> planning = [];
+  List<PlanningPaperModel> planning = [];
   List<String> selectedPlanningIds = [];
   bool showGroup;
 
@@ -28,7 +28,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
   }
 
   // create list cell for planning
-  List<DataGridCell> buildPlanningInfoCells(PlanningPaper planning) {
+  List<DataGridCell> buildPlanningInfoCells(PlanningPaperModel planning) {
     final order = planning.order;
 
     return [
@@ -64,7 +64,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
         columnName: 'timeRunningProd',
         value:
             planning.timeRunning != null
-                ? PlanningPaper.formatTimeOfDay(timeOfDay: planning.timeRunning!)
+                ? PlanningPaperModel.formatTimeOfDay(timeOfDay: planning.timeRunning!)
                 : '',
       ),
 

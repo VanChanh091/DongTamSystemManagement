@@ -32,7 +32,7 @@ class InventoryDataSource extends DataGridSource {
     DataGridCell<String> buildCurrencyCell(String columnName, num value) {
       return DataGridCell<String>(
         columnName: columnName,
-        value: (value) > 0 ? '${Order.formatCurrency(value)} cm' : "0",
+        value: (value) > 0 ? '${OrderModel.formatCurrency(value)} cm' : "0",
       );
     }
 
@@ -59,14 +59,14 @@ class InventoryDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'dvt', value: order?.dvt ?? ""),
       DataGridCell<String>(
         columnName: 'price',
-        value: '${Order.formatCurrency(order?.pricePaper ?? 0)} VNĐ',
+        value: '${OrderModel.formatCurrency(order?.pricePaper ?? 0)} VNĐ',
       ),
       DataGridCell<String>(
         columnName: 'valueInventory',
         value:
             inventory.valueInventory == 0
                 ? "0"
-                : '${Order.formatCurrency(inventory.valueInventory)} VNĐ',
+                : '${OrderModel.formatCurrency(inventory.valueInventory)} VNĐ',
       ),
 
       DataGridCell<String>(columnName: 'fullName', value: order?.user?.fullName ?? ""),

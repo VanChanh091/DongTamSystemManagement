@@ -1,5 +1,7 @@
 import 'package:dongtam/utils/logger/app_logger.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SliderZoom extends StatefulWidget {
   final double zoomLevel;
@@ -125,7 +127,7 @@ class _SliderZoomState extends State<SliderZoom> {
                 child: Container(
                   padding: const EdgeInsets.all(3),
                   decoration: const BoxDecoration(color: Colors.black12, shape: BoxShape.circle),
-                  child: const Icon(Icons.remove, size: 16, color: Colors.black87),
+                  child: const Icon(Icons.remove, size: 17, color: Colors.black87),
                 ),
               ),
 
@@ -158,11 +160,11 @@ class _SliderZoomState extends State<SliderZoom> {
                     () => widget.onZoomChanged(
                       (widget.zoomLevel + 0.1).clamp(widget.min, widget.max),
                     ),
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(24),
                 child: Container(
                   padding: const EdgeInsets.all(3),
                   decoration: const BoxDecoration(color: Colors.black12, shape: BoxShape.circle),
-                  child: const Icon(Icons.add, size: 16, color: Colors.black87),
+                  child: const Icon(Icons.add, size: 17, color: Colors.black87),
                 ),
               ),
             ],
@@ -232,5 +234,27 @@ class _SliderZoomState extends State<SliderZoom> {
         ),
       ),
     );
+  }
+}
+
+void handleScrollZoom({
+  required PointerSignalEvent pointerSignal,
+  required double currentZoom,
+  required ValueChanged<double> onZoomChanged,
+  double step = 0.05,
+}) {
+  if (pointerSignal is PointerScrollEvent) {
+    final keys = HardwareKeyboard.instance.logicalKeysPressed;
+    final isCtrlPressed =
+        keys.contains(LogicalKeyboardKey.controlLeft) ||
+        keys.contains(LogicalKeyboardKey.controlRight);
+
+    if (isCtrlPressed) {
+      if (pointerSignal.scrollDelta.dy > 0) {
+        onZoomChanged(currentZoom - step);
+      } else if (pointerSignal.scrollDelta.dy < 0) {
+        onZoomChanged(currentZoom + step);
+      }
+    }
   }
 }

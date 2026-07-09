@@ -15,7 +15,7 @@ import "package:intl/intl.dart";
 import "package:material_symbols_icons/symbols.dart";
 
 class EmployeeDialog extends StatefulWidget {
-  final EmployeeBasicInfo? employee;
+  final EmployeeBasicInfoModel? employee;
   final VoidCallback onEmployeeAddOrUpdate;
 
   const EmployeeDialog({super.key, this.employee, required this.onEmployeeAddOrUpdate});
@@ -117,7 +117,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
     try {
       // Chuẩn hóa dữ liệu đầu vào
-      final newCompanyInfoEmpl = EmployeeCompanyInfo(
+      final newCompanyInfoEmpl = EmployeeCompanyInfoModel(
         companyInfoId: 0,
         employeeCode: _employeeCodeController.trimmed.toUpperCase(),
         joinDate: joinDate ?? DateTime.now(),
@@ -128,7 +128,7 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
         status: typeStatusWorking,
       );
 
-      final newEmployee = EmployeeBasicInfo(
+      final newEmployee = EmployeeBasicInfoModel(
         employeeId: 0,
         fullName: _fullNameController.superClean,
         gender: typeGender,

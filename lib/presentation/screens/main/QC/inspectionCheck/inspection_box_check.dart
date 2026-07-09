@@ -25,7 +25,7 @@ class InspectionBoxCheck extends StatefulWidget {
 }
 
 class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
-  late Future<List<PlanningBox>> futurePlanning;
+  late Future<List<PlanningBoxModel>> futurePlanning;
   late MachineBoxDatasource machineBoxDatasource;
   late List<GridColumn> columns;
 
@@ -36,7 +36,7 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
 
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
-  List<PlanningBox> planningList = [];
+  List<PlanningBoxModel> planningList = [];
 
   String machine = "Máy In";
 
@@ -241,7 +241,7 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
                     );
                   }
 
-                  final data = snapshot.data as List<PlanningBox>;
+                  final data = snapshot.data as List<PlanningBoxModel>;
                   planningList = data;
 
                   machineBoxDatasource = MachineBoxDatasource(
@@ -250,7 +250,7 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
                     showGroup: true,
                     page: 'production',
                     machine: machine,
-                    onRowTap: (PlanningBox item) {
+                    onRowTap: (PlanningBoxModel item) {
                       showDialog(
                         context: context,
                         builder:

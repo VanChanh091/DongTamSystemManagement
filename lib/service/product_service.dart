@@ -20,7 +20,7 @@ class ProductService {
     int? page,
     int? pageSize,
   }) async {
-    return HelperService().fetchPaginatedData<Product>(
+    return HelperService().fetchPaginatedData<ProductModel>(
       endpoint: "product",
       queryParameters: {
         'field': field,
@@ -29,7 +29,7 @@ class ProductService {
         'page': page,
         'pageSize': pageSize,
       },
-      fromJson: (json) => Product.fromJson(json),
+      fromJson: (json) => ProductModel.fromJson(json),
       dataKey: 'products',
     );
   }

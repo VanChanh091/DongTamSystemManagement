@@ -1,4 +1,4 @@
-class Box {
+class BoxModel {
   final int? boxId;
   final int? inMatTruoc, inMatSau;
   final bool? canMang,
@@ -13,7 +13,7 @@ class Box {
       chongTham;
   final String? dongGoi, maKhuon;
 
-  Box({
+  BoxModel({
     this.boxId,
     this.inMatTruoc,
     this.inMatSau,
@@ -31,8 +31,8 @@ class Box {
     this.maKhuon,
   });
 
-  factory Box.fromJson(Map<String, dynamic> json) {
-    return Box(
+  factory BoxModel.fromJson(Map<String, dynamic> json) {
+    return BoxModel(
       boxId: json["boxId"] ?? 0,
       inMatTruoc: json["inMatTruoc"] ?? 0,
       inMatSau: json["inMatSau"] ?? 0,

@@ -1,4 +1,4 @@
-class OrderImage {
+class OrderImageModel {
   final int imageId;
   final String imageUrl;
   final String publicId;
@@ -6,15 +6,15 @@ class OrderImage {
   //FK
   final String orderId;
 
-  OrderImage({
+  OrderImageModel({
     required this.imageId,
     required this.imageUrl,
     required this.publicId,
     required this.orderId,
   });
 
-  factory OrderImage.fromJson(Map<String, dynamic> json) {
-    return OrderImage(
+  factory OrderImageModel.fromJson(Map<String, dynamic> json) {
+    return OrderImageModel(
       imageId: json["imageId"] ?? 0,
       imageUrl: json["imageUrl"] ?? "",
       publicId: json["publicId"] ?? "",

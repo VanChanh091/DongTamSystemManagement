@@ -13,7 +13,7 @@ class InventoryModel {
 
   //FK
   final String orderId;
-  final Order? order;
+  final OrderModel? order;
 
   final List<InventoryTransfersModel>? invTransfers;
   final LiquidationInventoryModel? liquidation;
@@ -44,7 +44,7 @@ class InventoryModel {
       valueInventory: toDouble(json["valueInventory"]),
 
       orderId: json["orderId"] ?? "",
-      order: json["Order"] != null ? Order.fromJson(json["Order"]) : null,
+      order: json["Order"] != null ? OrderModel.fromJson(json["Order"]) : null,
 
       invTransfers:
           json["invTransfers"] != null

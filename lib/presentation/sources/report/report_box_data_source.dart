@@ -64,7 +64,7 @@ class ReportBoxDatasource extends DataGridSource {
         columnName: "timeRunnings",
         value:
             boxMachineTime?.timeRunning != null
-                ? PlanningBox.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
+                ? PlanningBoxModel.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
                 : '',
       ),
 
@@ -121,7 +121,7 @@ class ReportBoxDatasource extends DataGridSource {
     ];
   }
 
-  List<DataGridCell> buildChildBoxCells(PlanningBox planning, String machine) {
+  List<DataGridCell> buildChildBoxCells(PlanningBoxModel planning, String machine) {
     final boxCell = planning.order!.box;
 
     return [

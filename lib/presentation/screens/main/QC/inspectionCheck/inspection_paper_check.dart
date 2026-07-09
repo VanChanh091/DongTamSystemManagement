@@ -25,7 +25,7 @@ class InspectionPaperCheck extends StatefulWidget {
 }
 
 class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
-  late Future<List<PlanningPaper>> futurePlanning;
+  late Future<List<PlanningPaperModel>> futurePlanning;
   late MachinePaperDatasource machinePaperDatasource;
   late List<GridColumn> columns;
 
@@ -36,7 +36,7 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
 
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
-  List<PlanningPaper> planningList = [];
+  List<PlanningPaperModel> planningList = [];
 
   //filter
   String machine = "Máy 1350";
@@ -257,7 +257,7 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                     );
                   }
 
-                  final data = snapshot.data as List<PlanningPaper>;
+                  final data = snapshot.data as List<PlanningPaperModel>;
                   planningList = data;
 
                   machinePaperDatasource = MachinePaperDatasource(
@@ -265,7 +265,7 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                     selectedPlanningIds: selectedPlanningIds,
                     showGroup: true,
                     page: 'production',
-                    onRowTap: (PlanningPaper item) {
+                    onRowTap: (PlanningPaperModel item) {
                       showDialog(
                         context: context,
                         builder:

@@ -182,7 +182,7 @@ class _PlanningStopState extends State<PlanningStop> {
                   }
 
                   final data = snapshot.data!;
-                  final plannings = data['plannings'] as List<PlanningPaper>;
+                  final plannings = data['plannings'] as List<PlanningPaperModel>;
                   final currentPg = data['currentPage'];
                   final totalPgs = data['totalPages'];
 

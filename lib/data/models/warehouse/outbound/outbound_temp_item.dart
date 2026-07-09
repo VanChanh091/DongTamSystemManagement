@@ -2,7 +2,7 @@ import "package:dongtam/data/models/delivery/delivery_item_model.dart";
 import "package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart";
 import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
 
-class OutboundTempItem {
+class OutboundTempItemModel {
   final String orderId;
   final String customerName;
   final String productName;
@@ -27,7 +27,7 @@ class OutboundTempItem {
 
   final double pricePaper;
 
-  OutboundTempItem({
+  OutboundTempItemModel({
     required this.orderId,
     required this.customerName,
     required this.productName,
@@ -51,7 +51,7 @@ class OutboundTempItem {
     required this.isPromotion,
   });
 
-  factory OutboundTempItem.fromDetailModel(OutboundDetailModel detail) {
+  factory OutboundTempItemModel.fromDetailModel(OutboundDetailModel detail) {
     final order = detail.order;
 
     // print("--- CHECKING DATA START DETAIL ---");
@@ -67,7 +67,7 @@ class OutboundTempItem {
     // });
     // print("--- CHECKING DATA END ---");
 
-    return OutboundTempItem(
+    return OutboundTempItemModel(
       orderId: detail.orderId,
       customerName: order?.customer?.customerName ?? "",
 
@@ -97,7 +97,7 @@ class OutboundTempItem {
     );
   }
 
-  factory OutboundTempItem.fromInventoryModel(InventoryModel inventory) {
+  factory OutboundTempItemModel.fromInventoryModel(InventoryModel inventory) {
     final order = inventory.order;
 
     // print("--- CHECKING DATA START INVENTORY ---");
@@ -112,7 +112,7 @@ class OutboundTempItem {
     // });
     // print("--- CHECKING DATA END ---");
 
-    return OutboundTempItem(
+    return OutboundTempItemModel(
       orderId: inventory.orderId,
 
       customerName: order?.customer?.customerName ?? "",
@@ -137,7 +137,7 @@ class OutboundTempItem {
     );
   }
 
-  factory OutboundTempItem.fromDeliveryItemModel(DeliveryItemModel item) {
+  factory OutboundTempItemModel.fromDeliveryItemModel(DeliveryItemModel item) {
     final order = item.request?.paper?.order;
     final inventory = order?.Inventory;
 
@@ -154,7 +154,7 @@ class OutboundTempItem {
     // });
     // print("--- CHECKING DATA END ---");
 
-    return OutboundTempItem(
+    return OutboundTempItemModel(
       orderId: order?.orderId ?? "",
       customerName: order?.customer?.customerName ?? "",
 

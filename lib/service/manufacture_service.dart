@@ -11,13 +11,13 @@ class ManufactureService {
 
   //===============================MANUFACTURE PAPER====================================
   //get planning paper
-  Future<List<PlanningPaper>> getPlanningPaper({
+  Future<List<PlanningPaperModel>> getPlanningPaper({
     required String machine,
     String? filterType,
     DateTime? dayCompleted,
     String? shiftProduction,
   }) async {
-    return HelperService().fetchingData<PlanningPaper>(
+    return HelperService().fetchingData<PlanningPaperModel>(
       endpoint: "manufacture/paper",
       queryParameters: {
         "machine": machine,
@@ -25,7 +25,7 @@ class ManufactureService {
         if (shiftProduction != null) "shiftProduction": shiftProduction,
         if (dayCompleted != null) "dayCompleted": dayCompleted.toIso8601String(),
       },
-      fromJson: (json) => PlanningPaper.fromJson(json),
+      fromJson: (json) => PlanningPaperModel.fromJson(json),
     );
   }
 
@@ -94,11 +94,11 @@ class ManufactureService {
 
   //===============================MANUFACTURE BOX====================================
   //get planning paper
-  Future<List<PlanningBox>> getPlanningBox({required String machine}) async {
-    return HelperService().fetchingData<PlanningBox>(
+  Future<List<PlanningBoxModel>> getPlanningBox({required String machine}) async {
+    return HelperService().fetchingData<PlanningBoxModel>(
       endpoint: "manufacture/box",
       queryParameters: {"machine": machine},
-      fromJson: (json) => PlanningBox.fromJson(json),
+      fromJson: (json) => PlanningBoxModel.fromJson(json),
     );
   }
 

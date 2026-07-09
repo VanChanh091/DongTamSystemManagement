@@ -6,8 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class CustomerDatasource extends DataGridSource {
-  List<Customer> customer = [];
-  String? selectedCustomerId;
+  List<CustomerModel> customer = [];
+  ValueNotifier<String?> selectedCustomerId;
   int currentPage;
   int pageSize;
 
@@ -18,12 +18,19 @@ class CustomerDatasource extends DataGridSource {
     required this.customer,
     required this.currentPage,
     required this.pageSize,
-    this.selectedCustomerId,
+    required this.selectedCustomerId,
   }) {
     buildDataGridRows();
+    selectedCustomerId.addListener(notifyListeners);
   }
 
-  List<DataGridCell> buildCustomerCells(Customer customer, int index) {
+  @override
+  void dispose() {
+    selectedCustomerId.removeListener(notifyListeners);
+    super.dispose();
+  }
+
+  List<DataGridCell> buildCustomerCells(CustomerModel customer, int index) {
     final payment = customer.payment;
 
     return [
@@ -37,14 +44,14 @@ class CustomerDatasource extends DataGridSource {
         columnName: "debtLimitCustomer",
         value:
             (payment?.debtLimit ?? 0) > 0
-                ? '${Order.formatCurrency(payment?.debtLimit ?? 0)} VNĐ'
+                ? '${OrderModel.formatCurrency(payment?.debtLimit ?? 0)} VNĐ'
                 : "0",
       ),
       DataGridCell<String>(
         columnName: "debtCurrentCustomer",
         value:
             (payment?.debtCurrent ?? 0) > 0
-                ? '${Order.formatCurrency(payment?.debtCurrent ?? 0)} VNĐ'
+                ? '${OrderModel.formatCurrency(payment?.debtCurrent ?? 0)} VNĐ'
                 : "0",
       ),
       DataGridCell<String>(
@@ -63,7 +70,7 @@ class CustomerDatasource extends DataGridSource {
         columnName: "distanceShip",
         value:
             (customer.distance ?? 0) > 0
-                ? '${Order.formatCurrency(customer.distance ?? 0)} Km'
+                ? '${OrderModel.formatCurrency(customer.distance ?? 0)} Km'
                 : "0",
       ),
       DataGridCell<String>(columnName: "CSKH", value: customer.cskh),
@@ -96,7 +103,7 @@ class CustomerDatasource extends DataGridSource {
         row.getCells().firstWhere((cell) => cell.columnName == 'customerId').value.toString();
 
     Color backgroundColor;
-    if (selectedCustomerId == customerId) {
+    if (selectedCustomerId.value == customerId) {
       backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
       backgroundColor = Colors.transparent;

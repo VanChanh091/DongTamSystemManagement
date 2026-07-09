@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class DashboardPaperDataSource extends DataGridSource {
-  List<PlanningPaper> dbPlanning = [];
+  List<PlanningPaperModel> dbPlanning = [];
   int? selectedDbPaperId;
   String page;
   int currentPage;
@@ -25,7 +25,7 @@ class DashboardPaperDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
-  List<DataGridCell> buildDbPaperCells(PlanningPaper paper, int index) {
+  List<DataGridCell> buildDbPaperCells(PlanningPaperModel paper, int index) {
     final order = paper.order;
 
     DataGridCell<String> buildGridCell(String columnName, DateTime? value) {
@@ -81,14 +81,14 @@ class DashboardPaperDataSource extends DataGridSource {
         columnName: 'timeRunningProd',
         value:
             paper.timeRunning != null
-                ? PlanningPaper.formatTimeOfDay(timeOfDay: paper.timeRunning!)
+                ? PlanningPaperModel.formatTimeOfDay(timeOfDay: paper.timeRunning!)
                 : '',
       ),
       DataGridCell<String>(
         columnName: 'timeRunningOvfl',
         value:
             paper.timeOverflowPlanning?.overflowTimeRunning != null
-                ? PlanningPaper.formatTimeOfDay(
+                ? PlanningPaperModel.formatTimeOfDay(
                   timeOfDay: paper.timeOverflowPlanning!.overflowTimeRunning!,
                 )
                 : '',
@@ -107,7 +107,7 @@ class DashboardPaperDataSource extends DataGridSource {
     ];
   }
 
-  List<DataGridCell> buildWasteAndManufactureCells(PlanningPaper paper) {
+  List<DataGridCell> buildWasteAndManufactureCells(PlanningPaperModel paper) {
     DataGridCell<String> buildWasteCell({required String columnName, required double value}) {
       return DataGridCell<String>(columnName: columnName, value: value != 0 ? '$value kg' : '0');
     }

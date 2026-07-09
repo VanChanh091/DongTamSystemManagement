@@ -9,13 +9,13 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class MachineBoxDatasource extends DataGridSource {
-  List<PlanningBox> planning = [];
+  List<PlanningBoxModel> planning = [];
   List<String> selectedPlanningIds = [];
   UnsavedChangeController? unsavedChange;
   String machine;
   bool showGroup;
   String page;
-  Function(PlanningBox)? onRowTap;
+  Function(PlanningBoxModel)? onRowTap;
 
   late List<DataGridRow> planningDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
@@ -37,7 +37,7 @@ class MachineBoxDatasource extends DataGridSource {
     }
   }
 
-  List<DataGridCell> buildPlanningCells(PlanningBox planning, String machine) {
+  List<DataGridCell> buildPlanningCells(PlanningBoxModel planning, String machine) {
     DataGridCell<String> buildCurrencyCell(String columnName, num value) {
       return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? '$value' : "0");
     }
@@ -79,13 +79,13 @@ class MachineBoxDatasource extends DataGridSource {
         columnName: "timeRunning",
         value:
             boxMachineTime?.timeRunning != null
-                ? PlanningBox.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
+                ? PlanningBoxModel.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
                 : '',
       ),
     ];
   }
 
-  List<DataGridCell> buildBoxCells(PlanningBox planning, String machine) {
+  List<DataGridCell> buildBoxCells(PlanningBoxModel planning, String machine) {
     final boxMachineTime = planning.getBoxMachineTimeByMachine(machine);
 
     /// Hàm dùng chung lấy qtyProduced
@@ -146,7 +146,7 @@ class MachineBoxDatasource extends DataGridSource {
           columnName: 'totalPrice',
           value:
               (planning.order?.totalPrice ?? 0) > 0
-                  ? '${Order.formatCurrency(planning.order?.totalPrice ?? 0)} VND'
+                  ? '${OrderModel.formatCurrency(planning.order?.totalPrice ?? 0)} VND'
                   : "0",
         ),
       ],
@@ -163,7 +163,7 @@ class MachineBoxDatasource extends DataGridSource {
     ];
   }
 
-  List<DataGridCell> buildChildBoxCells(PlanningBox planning, String machine) {
+  List<DataGridCell> buildChildBoxCells(PlanningBoxModel planning, String machine) {
     return [
       DataGridCell<int>(
         columnName: "inMatTruoc",
@@ -213,7 +213,7 @@ class MachineBoxDatasource extends DataGridSource {
 
   // Di chuyển hàng lên
   void moveRowUp(List<String> idsToMove) {
-    PlanningListHelper.moveRows<PlanningBox>(
+    PlanningListHelper.moveRows<PlanningBoxModel>(
       list: planning,
       idsToMove: idsToMove,
       getId: (p) => p.planningBoxId.toString(),
@@ -225,7 +225,7 @@ class MachineBoxDatasource extends DataGridSource {
 
   // Di chuyển hàng xuống
   void moveRowDown(List<String> idsToMove) {
-    PlanningListHelper.moveRows<PlanningBox>(
+    PlanningListHelper.moveRows<PlanningBoxModel>(
       list: planning,
       idsToMove: idsToMove,
       getId: (item) => item.planningBoxId.toString(),

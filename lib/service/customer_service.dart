@@ -19,7 +19,7 @@ class CustomerService {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    return HelperService().fetchPaginatedData<Customer>(
+    return HelperService().fetchPaginatedData<CustomerModel>(
       endpoint: "customer",
       queryParameters: {
         'noPaging': noPaging,
@@ -30,7 +30,7 @@ class CustomerService {
         if (startDate != null) 'startDate': startDate.toIso8601String(),
         if (endDate != null) 'endDate': endDate.toIso8601String(),
       },
-      fromJson: (json) => Customer.fromJson(json),
+      fromJson: (json) => CustomerModel.fromJson(json),
       dataKey: 'customers',
     );
   }

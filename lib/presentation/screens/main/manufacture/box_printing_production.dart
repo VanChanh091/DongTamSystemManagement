@@ -35,7 +35,7 @@ class BoxPrintingProduction extends StatefulWidget {
 }
 
 class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
-  late Future<List<PlanningBox>> futurePlanning;
+  late Future<List<PlanningBoxModel>> futurePlanning;
   late MachineBoxDatasource machineBoxDatasource;
   late InitSocketManufacture _initSocket;
   late List<GridColumn> columns;
@@ -52,7 +52,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
   Map<String, double> columnWidths = {};
   List<String> selectedPlanningIds = [];
-  List<PlanningBox> planningList = [];
+  List<PlanningBoxModel> planningList = [];
 
   //search
   String searchType = "Tất cả";
@@ -146,7 +146,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
 
   bool canExecuteAction({
     required List<int> selectedPlanningIds,
-    required List<PlanningBox> planningList,
+    required List<PlanningBoxModel> planningList,
     bool isRequest = false,
   }) {
     if (selectedPlanningIds.length != 1) return false;
@@ -618,7 +618,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     );
                   }
 
-                  final List<PlanningBox> data = snapshot.data!;
+                  final List<PlanningBoxModel> data = snapshot.data!;
                   planningList = data;
 
                   machineBoxDatasource = MachineBoxDatasource(
@@ -627,7 +627,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                     showGroup: showGroup,
                     page: "production",
                     machine: machine,
-                    onRowTap: (PlanningBox item) {
+                    onRowTap: (PlanningBoxModel item) {
                       showDialog(
                         context: context,
                         builder:

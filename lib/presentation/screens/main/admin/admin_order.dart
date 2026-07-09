@@ -21,7 +21,7 @@ class AdminOrder extends StatefulWidget {
 
 class _ManageOrderState extends State<AdminOrder> {
   List<dynamic> orders = [];
-  Order? selectedOrder;
+  OrderModel? selectedOrder;
   bool isLoading = false;
 
   final badgesController = Get.find<BadgesController>();
@@ -242,7 +242,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                                       crossAxisAlignment: CrossAxisAlignment.end,
                                                       children: [
                                                         Text(
-                                                          'Tổng: ${Order.formatCurrency(ordersPending.totalPrice)} đ',
+                                                          'Tổng: ${OrderModel.formatCurrency(ordersPending.totalPrice)} đ',
                                                           style: GoogleFonts.inter(
                                                             color: Colors.blue.shade600,
                                                             fontSize: 13,
@@ -550,31 +550,39 @@ class _ManageOrderState extends State<AdminOrder> {
         secondValue: order.chongTham ? '✅' : '',
       ),
       _infoRow('🔧 Kết cấu:', '${order.formatterStructureOrder} - ${order.flute}'),
-      _infoRow('✂️ Dài Tính Tiền:', Order.formatCurrency(order.lengthPaperCustomer), unit: "cm"),
+      _infoRow(
+        '✂️ Dài Tính Tiền:',
+        OrderModel.formatCurrency(order.lengthPaperCustomer),
+        unit: "cm",
+      ),
       _infoRow(
         '✂️ Dài (Sản Xuất) :',
-        Order.formatCurrency(order.lengthPaperManufacture),
+        OrderModel.formatCurrency(order.lengthPaperManufacture),
         unit: "cm",
       ),
       _infoRow('📝 HD đặc biệt:', order.instructSpecial!),
 
       //right
-      _infoRow('📏 Khổ Tính Tiền:', Order.formatCurrency(order.paperSizeCustomer), unit: "cm"),
-      _infoRow('📏 Khổ (Sản Xuất):', Order.formatCurrency(order.paperSizeManufacture), unit: "cm"),
+      _infoRow('📏 Khổ Tính Tiền:', OrderModel.formatCurrency(order.paperSizeCustomer), unit: "cm"),
+      _infoRow(
+        '📏 Khổ (Sản Xuất):',
+        OrderModel.formatCurrency(order.paperSizeManufacture),
+        unit: "cm",
+      ),
       _infoRow('📐 Đơn vị tính:', order.dvt),
       _infoRow('🔢 Số lượng (Khách Hàng):', order.quantityCustomer.toString(), unit: ""),
       _infoRow('🔢 Số lượng (Sản Xuất):', order.quantityManufacture.toString(), unit: ""),
-      _infoRow('📜 Số con:', Order.formatCurrency(order.numberChild), unit: "Con"),
-      _infoRow('🌍 Diện tích:', Order.formatCurrency(order.acreage ?? 0), unit: 'm²'),
+      _infoRow('📜 Số con:', OrderModel.formatCurrency(order.numberChild), unit: "Con"),
+      _infoRow('🌍 Diện tích:', OrderModel.formatCurrency(order.acreage ?? 0), unit: 'm²'),
       if (!order.isBox)
         _infoRow(
           '💲 Giá:',
-          Order.formatCurrency(order.price),
+          OrderModel.formatCurrency(order.price),
           unit: 'VNĐ/${order.dvt == "Kg" ? "Kg" : "m²"}',
         ),
       _infoRow(
         '💵 Đơn Giá:',
-        Order.formatCurrency(order.pricePaper ?? 0),
+        OrderModel.formatCurrency(order.pricePaper ?? 0),
         unit:
             "VNĐ/${order.isBox
                 ? "Cái"
@@ -582,12 +590,12 @@ class _ManageOrderState extends State<AdminOrder> {
                 ? "Kg"
                 : "Tấm"}",
       ),
-      _infoRow('💵 Chiết khấu:', Order.formatCurrency(order.discount ?? 0), unit: "VNĐ"),
-      _infoRow('💵 Lợi nhuận:', Order.formatCurrency(order.profit), unit: "VNĐ"),
+      _infoRow('💵 Chiết khấu:', OrderModel.formatCurrency(order.discount ?? 0), unit: "VNĐ"),
+      _infoRow('💵 Lợi nhuận:', OrderModel.formatCurrency(order.profit), unit: "VNĐ"),
       _infoRow('💡 VAT:', order.vat.toString(), unit: "%"),
       _infoRow(
         '💰 Tổng tiền (VAT):',
-        'Trước ${Order.formatCurrency(order.totalPrice ?? 0)} - Sau ${Order.formatCurrency(order.totalPriceVAT ?? 0)}',
+        'Trước ${OrderModel.formatCurrency(order.totalPrice ?? 0)} - Sau ${OrderModel.formatCurrency(order.totalPriceVAT ?? 0)}',
         unit: "VNĐ",
       ),
       _infoRow('📝 Ghi Chú:', order.note ?? ""),

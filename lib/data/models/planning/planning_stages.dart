@@ -2,7 +2,7 @@ import "package:dongtam/data/models/planning/time_overflow_planning.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:flutter/material.dart";
 
-class PlanningStage {
+class PlanningStageModel {
   final int planningBoxId;
   final DateTime? dayStart;
   final DateTime? dayCompleted;
@@ -15,9 +15,9 @@ class PlanningStage {
   final String? shiftManagement;
   final bool? isRequest;
 
-  final TimeOverflowPlanning? timeOverflow;
+  final TimeOverflowPlanningModel? timeOverflow;
 
-  PlanningStage({
+  PlanningStageModel({
     required this.planningBoxId,
     required this.machine,
     this.dayStart,
@@ -38,8 +38,8 @@ class PlanningStage {
     return remain > 0 ? remain : 0;
   }
 
-  factory PlanningStage.fromJson(Map<String, dynamic> json) {
-    return PlanningStage(
+  factory PlanningStageModel.fromJson(Map<String, dynamic> json) {
+    return PlanningStageModel(
       planningBoxId: json["planningBoxId"],
       dayStart:
           json["dayStart"] != null && json["dayStart"] != ""
@@ -61,7 +61,9 @@ class PlanningStage {
       shiftManagement: json["shiftManagement"] ?? "",
       isRequest: json["isRequest"] ?? false,
       timeOverflow:
-          json["timeOverFlow"] != null ? TimeOverflowPlanning.fromJson(json["timeOverFlow"]) : null,
+          json["timeOverFlow"] != null
+              ? TimeOverflowPlanningModel.fromJson(json["timeOverFlow"])
+              : null,
     );
   }
 }

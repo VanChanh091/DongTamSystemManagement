@@ -46,7 +46,9 @@ class PlanningService {
       }
 
       return planningData.map<T>((json) {
-        return isBox ? PlanningBox.fromJson(json) as T : PlanningPaper.fromJson(json) as T;
+        return isBox
+            ? PlanningBoxModel.fromJson(json) as T
+            : PlanningPaperModel.fromJson(json) as T;
       }).toList();
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {
@@ -195,15 +197,19 @@ class PlanningService {
   //===============================PLANNING ORDER====================================
 
   //get status order
-  Future<List<Order>> getOrderAccept({required String type, String? field, String? keyword}) async {
-    return HelperService().fetchingData<Order>(
+  Future<List<OrderModel>> getOrderAccept({
+    required String type,
+    String? field,
+    String? keyword,
+  }) async {
+    return HelperService().fetchingData<OrderModel>(
       endpoint: "planning/planning-orders",
       queryParameters: {
         "type": type,
         if (field != null) "field": field,
         if (keyword != null) "keyword": keyword,
       },
-      fromJson: (json) => Order.fromJson(json),
+      fromJson: (json) => OrderModel.fromJson(json),
     );
   }
 
@@ -229,10 +235,10 @@ class PlanningService {
   //===============================PLANNING STOP====================================
 
   Future<Map<String, dynamic>> getPlanningStop({int? page, int? pageSize}) async {
-    return HelperService().fetchPaginatedData<PlanningPaper>(
+    return HelperService().fetchPaginatedData<PlanningPaperModel>(
       endpoint: "planning/planning-stops",
       queryParameters: {'page': page, 'pageSize': pageSize},
-      fromJson: (json) => PlanningPaper.fromJson(json),
+      fromJson: (json) => PlanningPaperModel.fromJson(json),
       dataKey: 'plannings',
       totalKey: 'totalPlannings',
     );

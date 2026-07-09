@@ -36,7 +36,7 @@ class ProductionQueuePaper extends StatefulWidget {
 }
 
 class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
-  late Future<List<PlanningPaper>> futurePlanning;
+  late Future<List<PlanningPaperModel>> futurePlanning;
   late MachinePaperDatasource machinePaperDatasource;
   late List<GridColumn> columns;
 
@@ -661,7 +661,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
                                   Text(
-                                    "${Order.formatCurrency(displayTotalPrice)} VNĐ",
+                                    "${OrderModel.formatCurrency(displayTotalPrice)} VNĐ",
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
@@ -723,7 +723,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                     );
                   }
 
-                  final List<PlanningPaper> data = snapshot.data!;
+                  final List<PlanningPaperModel> data = snapshot.data!;
 
                   machinePaperDatasource = MachinePaperDatasource(
                     planning: data,
@@ -856,7 +856,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     required String successMessage,
     required String errorMessage,
     required VoidCallback onSuccess,
-    List<PlanningPaper>? planningList,
+    List<PlanningPaperModel>? planningList,
   }) async {
     if (selectedPlanningIds.isEmpty) {
       showSnackBarError(context, "Chưa chọn kế hoạch cần thực hiện");

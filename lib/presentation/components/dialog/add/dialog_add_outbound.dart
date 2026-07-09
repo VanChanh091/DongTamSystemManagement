@@ -24,7 +24,7 @@ import "package:material_symbols_icons/material_symbols_icons.dart";
 class OutBoundDialog extends StatefulWidget {
   final OutboundHistoryModel? outbound;
   final VoidCallback onOutboundHistory;
-  final List<OutboundTempItem>? initialItems;
+  final List<OutboundTempItemModel>? initialItems;
 
   const OutBoundDialog({
     super.key,
@@ -48,7 +48,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
   List<dynamic> availableDeliveries = [];
   dynamic selectedDelivery;
 
-  final List<OutboundTempItem> tempItems = [];
+  final List<OutboundTempItemModel> tempItems = [];
 
   final orderIdController = TextEditingController();
   final oubDetailIdController = TextEditingController();
@@ -117,7 +117,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         outboundId: outboundUpdate.outboundId,
       );
 
-      final items = result.map((e) => OutboundTempItem.fromDetailModel(e)).toList();
+      final items = result.map((e) => OutboundTempItemModel.fromDetailModel(e)).toList();
 
       if (!mounted) return;
       setState(() {
@@ -185,7 +185,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     // print("qtyCustomer: ${quantityCustomerController.text}");
     // print("totalOutbound: ${totalOutboundController.text}");
 
-    final newOutboundItem = OutboundTempItem(
+    final newOutboundItem = OutboundTempItemModel(
       deliveryItemId: itemId,
       outboundDetailId: outboundDetailId,
       orderId: orderIdController.text,
@@ -218,7 +218,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     });
   }
 
-  void fillFormFromTempItem(OutboundTempItem temp) {
+  void fillFormFromTempItem(OutboundTempItemModel temp) {
     isPromotionChecked.value = temp.isPromotion;
     isDeliveryChecked.value = temp.deliveryItemId != null;
     currentDeliveryItemId = temp.deliveryItemId;
@@ -383,7 +383,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
     final List<Map<String, dynamic>> infoOrderRows = [
       {
         "leftKey": "Mã Đơn Hàng",
-        "leftValue": AutoCompleteField<Order>(
+        "leftValue": AutoCompleteField<OrderModel>(
           controller: orderIdController,
           labelText: "",
           icon: Symbols.orders,
@@ -960,8 +960,8 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                                           ),
                                           buildCell(e.QC_box ?? ""),
                                           buildCell(e.dvt),
-                                          buildCell(Order.formatCurrency(e.qtyOutbound)),
-                                          buildCell(Order.formatCurrency(e.pricePaper)),
+                                          buildCell(OrderModel.formatCurrency(e.qtyOutbound)),
+                                          buildCell(OrderModel.formatCurrency(e.pricePaper)),
                                           DataCell(
                                             Container(
                                               padding: const EdgeInsets.symmetric(

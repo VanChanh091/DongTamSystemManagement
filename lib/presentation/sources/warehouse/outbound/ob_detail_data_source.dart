@@ -47,14 +47,17 @@ class ObDetailDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
       DataGridCell<int>(columnName: "deliveredQty", value: detail.deliveredQty),
       DataGridCell<int>(columnName: "outboundQty", value: detail.outboundQty),
-      DataGridCell<String>(columnName: "price", value: '${Order.formatCurrency(detail.price)} VNĐ'),
+      DataGridCell<String>(
+        columnName: "price",
+        value: '${OrderModel.formatCurrency(detail.price)} VNĐ',
+      ),
       DataGridCell<String>(
         columnName: "discount",
-        value: '${Order.formatCurrency(order.discount ?? 0)} VNĐ',
+        value: '${OrderModel.formatCurrency(order.discount ?? 0)} VNĐ',
       ),
       DataGridCell<String>(
         columnName: "totalPriceOutbound",
-        value: '${Order.formatCurrency(detail.totalPriceOutbound)} VNĐ',
+        value: '${OrderModel.formatCurrency(detail.totalPriceOutbound)} VNĐ',
       ),
       DataGridCell<String>(
         columnName: "type",
