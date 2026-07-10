@@ -127,6 +127,86 @@ final List<Map<String, dynamic>> inspectionBoxColumns = [
     "visibleFields": ["Máy In", "Máy Bế", "Máy Cắt Khe"],
   },
 
+  //máy xả & máy cấn lằn
+  {
+    "key": "wrongWidth",
+    "title": "Sai Khổ",
+    "dataKey": "WRONG_WIDTH",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "wrongLength",
+    "title": "Sai Chiều Dài",
+    "dataKey": "WRONG_LENGTH",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "wrongScoringSpec",
+    "title": "Sai QC Cấn Lằn",
+    "dataKey": "WRONG_SCORING_SPEC",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "poorScoring",
+    "title": "Cấn Lằn Không Đạt",
+    "dataKey": "POOR_SCORING",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "dirtyLiner",
+    "title": "Mặt/lưng giấy không sạch",
+    "dataKey": "DIRTY_LINER",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "skewedFlute",
+    "title": "Xéo Sóng",
+    "dataKey": "SKEWED_FLUTE",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "wrongStructure",
+    "title": "Sai Kết Cấu",
+    "dataKey": "WRONG_STRUCTURE",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "waveHeight",
+    "title": "Độ Cao Sóng",
+    "dataKey": "WAVEHEIGHT",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "poorTrim",
+    "title": "Dao Tề Không Sạch",
+    "dataKey": "POOR_TRIM",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "trimScrap",
+    "title": "Rác Ba Dớ",
+    "dataKey": "TRIM_SCRAP",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "poorBundling",
+    "title": "Cột Không Đạt",
+    "dataKey": "POOR_BUNDLING",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "totalWidthErr",
+    "title": "Tổng Sai Khổ",
+    "dataKey": "TOTAL_WIDTH_ERR",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+  {
+    "key": "wrongProductInfo",
+    "title": "Thông Tin Sản Phẩm",
+    "dataKey": "WRONG_PRODUCT_INFO",
+    "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
+  },
+
   {"key": "checkedBy", "title": "Người Kiểm"},
 
   // --- CÁC CỘT ẨN ---

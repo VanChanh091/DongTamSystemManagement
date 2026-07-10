@@ -109,85 +109,83 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
       content: ValueListenableBuilder<String?>(
         valueListenable: selectedOption,
         builder: (context, value, _) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Option 1: Tất cả báo cáo
-              RadioListTile<String>(
-                title: const Text("Tất cả", style: TextStyle(fontSize: 16)),
-                value: "all",
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
+          return RadioGroup<String>(
+            groupValue: value,
+            onChanged: (val) {
+              if (val != null) selectedOption.value = val;
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Option 1: Tất cả báo cáo
+                RadioListTile<String>(
+                  title: const Text("Tất cả", style: TextStyle(fontSize: 16)),
+                  value: "all",
+                ),
 
-              // Option 2: Theo thời gian
-              !widget.isProduct
-                  ? RadioListTile<String>(
+                // Option 2: Theo thời gian
+                if (!widget.isProduct)
+                  RadioListTile<String>(
                     title: const Text("Hạn Thanh Toán", style: TextStyle(fontSize: 16)),
                     value: "termPayment",
-                    groupValue: value,
-                    onChanged: (val) => selectedOption.value = val,
-                  )
-                  : const SizedBox.shrink(),
+                  ),
 
-              // Option 3: Theo loại sp
-              widget.isProduct
-                  ? RadioListTile<String>(
+                // Option 3: Theo loại sp
+                if (widget.isProduct)
+                  RadioListTile<String>(
                     title: const Text("Loại Sản Phẩm", style: TextStyle(fontSize: 16)),
                     value: "typeProduct",
-                    groupValue: value,
-                    onChanged: (val) => selectedOption.value = val,
-                  )
-                  : const SizedBox.shrink(),
+                  ),
 
-              const SizedBox(height: 10),
-              if (value == "termPayment") ...[
-                Column(
-                  children: [
-                    SizedBox(
-                      width: 250,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          side: BorderSide(color: Colors.blue.shade400, width: 1.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () => pickDateRange(context),
-                        icon: Icon(Icons.date_range, color: Colors.blue.shade400),
-                        label: Text(
-                          selectedRange == null
-                              ? "Chọn khoảng thời gian"
-                              : "${selectedRange!.start.day}/${selectedRange!.start.month}/${selectedRange!.start.year} - "
-                                  "${selectedRange!.end.day}/${selectedRange!.end.month}/${selectedRange!.end.year}",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blue.shade700,
+                const SizedBox(height: 10),
+                if (value == "termPayment") ...[
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        height: 50,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            side: BorderSide(color: Colors.blue.shade400, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () => pickDateRange(context),
+                          icon: Icon(Icons.date_range, color: Colors.blue.shade400),
+                          label: Text(
+                            selectedRange == null
+                                ? "Chọn khoảng thời gian"
+                                : "${selectedRange!.start.day}/${selectedRange!.start.month}/${selectedRange!.start.year} - "
+                                    "${selectedRange!.end.day}/${selectedRange!.end.month}/${selectedRange!.end.year}",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.blue.shade700,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    if (selectedRange == null)
-                      const Text(
-                        "Chưa chọn khoảng thời gian",
-                        style: TextStyle(color: Colors.red, fontSize: 13),
-                      ),
-                  ],
-                ),
-              ] else if (value == "typeProduct") ...[
-                ValidationHelper.dropdownForTypes(
-                  items: itemsTypeProduct,
-                  type: typeProduct,
-                  onChanged: (value) {
-                    setState(() {
-                      typeProduct = value!;
-                    });
-                  },
-                ),
+                      const SizedBox(height: 5),
+                      if (selectedRange == null)
+                        const Text(
+                          "Chưa chọn khoảng thời gian",
+                          style: TextStyle(color: Colors.red, fontSize: 13),
+                        ),
+                    ],
+                  ),
+                ] else if (value == "typeProduct") ...[
+                  ValidationHelper.dropdownForTypes(
+                    items: itemsTypeProduct,
+                    type: typeProduct,
+                    onChanged: (value) {
+                      setState(() {
+                        typeProduct = value!;
+                      });
+                    },
+                  ),
+                ],
               ],
-            ],
+            ),
           );
         },
       ),

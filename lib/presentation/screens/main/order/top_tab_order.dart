@@ -22,10 +22,11 @@ class _TopTabOrderState extends State<TopTabOrder> {
         children: [
           Container(
             color: Colors.white,
-            child: const TabBar(
+            child: TabBar(
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: [Tab(text: "Trạng Thái Đơn Hàng"), Tab(text: "Chờ Duyệt/Từ Chối")],
             ),
           ),

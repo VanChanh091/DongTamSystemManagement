@@ -156,14 +156,10 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                       RadioListTile<String>(
                         title: const Text("Vai trò", style: TextStyle(fontSize: 16)),
                         value: "role",
-                        groupValue: value,
-                        onChanged: (val) => selectedOption.value = val,
                       ),
                       RadioListTile<String>(
                         title: const Text("Quyền truy cập", style: TextStyle(fontSize: 16)),
                         value: "permission",
-                        groupValue: value,
-                        onChanged: (val) => selectedOption.value = val,
                       ),
                     ],
                   );
@@ -270,7 +266,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     Map<String, String>? labelMap,
   }) {
     return DropdownButtonFormField<String>(
-      value: items.contains(type) ? type : null,
+      initialValue: items.contains(type) ? type : null,
       items:
           items.map((String value) {
             return DropdownMenuItem<String>(

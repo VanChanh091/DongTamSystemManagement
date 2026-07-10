@@ -52,14 +52,7 @@ class ProductDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final productId =
-        row.getCells().firstWhere((cell) => cell.columnName == 'productId').value.toString();
-
-    Color backgroundColor =
-        selectedProductId == productId ? Colors.blue.withValues(alpha: 0.3) : Colors.transparent;
-
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
             Alignment alignment =

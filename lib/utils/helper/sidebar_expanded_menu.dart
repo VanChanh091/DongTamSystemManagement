@@ -35,33 +35,36 @@ class SidebarExpandedMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final defaultLeading = Icon(icon, color: isParentSelected ? _activeColor : Colors.white);
 
-    return Column(
-      children: [
-        isSidebarOpen
-            ? ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              leading: leading ?? defaultLeading,
-              title: Text(
-                title,
-                style: TextStyle(
-                  color: isParentSelected ? _activeColor : Colors.white,
-                  fontSize: 18,
-                  fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
+    return Material(
+      color: Colors.transparent,
+      child: Column(
+        children: [
+          isSidebarOpen
+              ? ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                leading: leading ?? defaultLeading,
+                title: Text(
+                  title,
+                  style: TextStyle(
+                    color: isParentSelected ? _activeColor : Colors.white,
+                    fontSize: 18,
+                    fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
                 ),
+                trailing: Icon(
+                  isExpanded ? Icons.expand_less : Icons.expand_more,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                onTap: onToggle,
+              )
+              : Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Center(child: leading ?? defaultLeading),
               ),
-              trailing: Icon(
-                isExpanded ? Icons.expand_less : Icons.expand_more,
-                color: Colors.white,
-                size: 20,
-              ),
-              onTap: onToggle,
-            )
-            : Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Center(child: leading ?? defaultLeading),
-            ),
-        if (isSidebarOpen && isExpanded) ...children,
-      ],
+          if (isSidebarOpen && isExpanded) ...children,
+        ],
+      ),
     );
   }
 }

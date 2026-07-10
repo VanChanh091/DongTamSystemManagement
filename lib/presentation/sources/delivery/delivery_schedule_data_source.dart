@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
 import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';

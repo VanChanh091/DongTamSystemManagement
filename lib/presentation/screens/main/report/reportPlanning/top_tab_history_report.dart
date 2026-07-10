@@ -22,6 +22,7 @@ class _TopTabHistoryReportState extends State<TopTabHistoryReport> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: const [Tab(text: "Báo Cáo Giấy Tấm"), Tab(text: "Báo Cáo SX Thùng")],
             ),
           ),

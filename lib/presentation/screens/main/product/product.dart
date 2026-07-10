@@ -19,6 +19,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ProductPage extends StatefulWidget {
@@ -431,58 +432,63 @@ class _ProductPageState extends State<ProductPage> {
                               Expanded(
                                 child: StatefulBuilder(
                                   builder: (context, localSetState) {
-                                    return SfDataGrid(
-                                      source: _cachedDatasource!,
-                                      isScrollbarAlwaysShown: true,
-                                      columnWidthMode: ColumnWidthMode.fill,
-                                      gridLinesVisibility: GridLinesVisibility.both,
-                                      headerGridLinesVisibility: GridLinesVisibility.both,
-                                      selectionMode: SelectionMode.single,
-                                      headerRowHeight: 45,
-                                      rowHeight: 40,
-                                      columns: ColumnWidthTable.applySavedWidths(
-                                        columns: columns,
-                                        widths: columnWidths,
+                                    return SfDataGridTheme(
+                                      data: SfDataGridThemeData(
+                                        selectionColor: Colors.blue.withValues(alpha: 0.3),
                                       ),
+                                      child: SfDataGrid(
+                                        source: _cachedDatasource!,
+                                        isScrollbarAlwaysShown: true,
+                                        columnWidthMode: ColumnWidthMode.fill,
+                                        gridLinesVisibility: GridLinesVisibility.both,
+                                        headerGridLinesVisibility: GridLinesVisibility.both,
+                                        selectionMode: SelectionMode.single,
+                                        headerRowHeight: 45,
+                                        rowHeight: 40,
+                                        columns: ColumnWidthTable.applySavedWidths(
+                                          columns: columns,
+                                          widths: columnWidths,
+                                        ),
 
-                                      //auto resize
-                                      allowColumnsResizing: true,
-                                      columnResizeMode: ColumnResizeMode.onResize,
+                                        //auto resize
+                                        allowColumnsResizing: true,
+                                        columnResizeMode: ColumnResizeMode.onResize,
 
-                                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                      onColumnResizeUpdate:
-                                          (details) => GridResizeHelper.onResizeUpdate(
-                                            details: details,
-                                            columns: columns,
-                                            setState: localSetState,
-                                          ),
-                                      onColumnResizeEnd:
-                                          (details) => GridResizeHelper.onResizeEnd(
-                                            details: details,
-                                            tableKey: 'product',
-                                            columnWidths: columnWidths,
-                                            setState: setState,
-                                          ),
+                                        onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                        onColumnResizeUpdate:
+                                            (details) => GridResizeHelper.onResizeUpdate(
+                                              details: details,
+                                              columns: columns,
+                                              setState: localSetState,
+                                            ),
+                                        onColumnResizeEnd:
+                                            (details) => GridResizeHelper.onResizeEnd(
+                                              details: details,
+                                              tableKey: 'product',
+                                              columnWidths: columnWidths,
+                                              setState: setState,
+                                            ),
 
-                                      onSelectionChanged: (addedRows, removedRows) {
-                                        if (addedRows.isNotEmpty) {
-                                          final selectedRow = addedRows.first;
-                                          final productId =
-                                              selectedRow
-                                                  .getCells()
-                                                  .firstWhere(
-                                                    (cell) => cell.columnName == 'productId',
-                                                  )
-                                                  .value
-                                                  .toString();
+                                        onSelectionChanged: (addedRows, removedRows) {
+                                          if (addedRows.isNotEmpty) {
+                                            final selectedRow = addedRows.first;
+                                            final productId =
+                                                selectedRow
+                                                    .getCells()
+                                                    .firstWhere(
+                                                      (cell) => cell.columnName == 'productId',
+                                                    )
+                                                    .value
+                                                    .toString();
 
-                                          _selectedProductIdNotifier.value = productId;
-                                        } else {
-                                          setState(() {
-                                            _selectedProductIdNotifier.value = null;
-                                          });
-                                        }
-                                      },
+                                            _selectedProductIdNotifier.value = productId;
+                                          } else {
+                                            setState(() {
+                                              _selectedProductIdNotifier.value = null;
+                                            });
+                                          }
+                                        },
+                                      ),
                                     );
                                   },
                                 ),

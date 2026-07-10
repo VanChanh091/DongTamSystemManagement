@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import "package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_box_model.dart";
 import "package:dongtam/presentation/components/headerTable/report/header_table_inspection_box.dart";
 import "package:dongtam/utils/helper/style_table.dart";

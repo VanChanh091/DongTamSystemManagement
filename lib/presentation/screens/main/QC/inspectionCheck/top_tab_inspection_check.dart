@@ -22,6 +22,7 @@ class _TopTabInspectionCheckState extends State<TopTabInspectionCheck> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: const [Tab(text: "Kiểm Tra Giấy Tấm"), Tab(text: "Kiểm Tra Làm Thùng")],
             ),
           ),

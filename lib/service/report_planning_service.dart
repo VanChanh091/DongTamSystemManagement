@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/report/report_box_model.dart';

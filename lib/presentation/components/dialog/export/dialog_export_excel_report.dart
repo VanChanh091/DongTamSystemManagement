@@ -126,62 +126,64 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
       content: ValueListenableBuilder<String?>(
         valueListenable: selectedOption,
         builder: (context, value, _) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Option 1: Theo thời gian (has machine)
-              RadioListTile<String>(
-                title: const Text("Theo Ngày (Từng Máy)", style: TextStyle(fontSize: 16)),
-                value: "dateHasMachine",
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
+          return RadioGroup(
+            groupValue: value,
+            onChanged: (val) {
+              if (val != null) selectedOption.value = val;
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Option 1: Theo thời gian (has machine)
+                RadioListTile<String>(
+                  title: const Text("Theo Ngày (Từng Máy)", style: TextStyle(fontSize: 16)),
+                  value: "dateHasMachine",
+                ),
 
-              // Option 2: Theo thời gian (no machine machine)
-              RadioListTile<String>(
-                title: const Text("Theo Ngày (Tất Cả Máy)", style: TextStyle(fontSize: 16)),
-                value: "dateNoMachine",
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
-              const SizedBox(height: 10),
+                // Option 2: Theo thời gian (no machine machine)
+                RadioListTile<String>(
+                  title: const Text("Theo Ngày (Tất Cả Máy)", style: TextStyle(fontSize: 16)),
+                  value: "dateNoMachine",
+                ),
+                const SizedBox(height: 10),
 
-              if (value == "dateHasMachine" || value == "dateNoMachine")
-                Column(
-                  children: [
-                    SizedBox(
-                      width: 250,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          side: BorderSide(color: Colors.blue.shade400, width: 1.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () => pickDateRange(context),
-                        icon: Icon(Icons.date_range, color: Colors.blue.shade400),
-                        label: Text(
-                          selectedRange == null
-                              ? "Chọn khoảng thời gian"
-                              : "${selectedRange!.start.day}/${selectedRange!.start.month}/${selectedRange!.start.year} - "
-                                  "${selectedRange!.end.day}/${selectedRange!.end.month}/${selectedRange!.end.year}",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blue.shade700,
+                if (value == "dateHasMachine" || value == "dateNoMachine")
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        height: 50,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            side: BorderSide(color: Colors.blue.shade400, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () => pickDateRange(context),
+                          icon: Icon(Icons.date_range, color: Colors.blue.shade400),
+                          label: Text(
+                            selectedRange == null
+                                ? "Chọn khoảng thời gian"
+                                : "${selectedRange!.start.day}/${selectedRange!.start.month}/${selectedRange!.start.year} - "
+                                    "${selectedRange!.end.day}/${selectedRange!.end.month}/${selectedRange!.end.year}",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.blue.shade700,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    if (selectedRange == null)
-                      const Text(
-                        "Chưa chọn khoảng thời gian",
-                        style: TextStyle(color: Colors.red, fontSize: 13),
-                      ),
-                  ],
-                ),
-            ],
+                      const SizedBox(height: 5),
+                      if (selectedRange == null)
+                        const Text(
+                          "Chưa chọn khoảng thời gian",
+                          style: TextStyle(color: Colors.red, fontSize: 13),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
           );
         },
       ),

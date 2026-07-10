@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:diacritic/diacritic.dart';
 import 'package:dongtam/presentation/components/shared/base_validate_input.dart';
@@ -208,7 +210,7 @@ class ValidationHelper {
         if (value != null) {
           // xoá khoảng trắng 2 đầu + dấu xuống dòng
           cleanValue = value.trim().replaceAll(RegExp(r'[\r\n]+'), ' ');
-          controller.text = value;
+          controller.text = cleanValue;
         }
 
         final requiredFields = [
@@ -353,35 +355,38 @@ class ValidationHelper {
     return ValueListenableBuilder<bool>(
       valueListenable: notifier,
       builder: (context, checked, _) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            checkboxTheme: CheckboxThemeData(
-              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return Colors.red; // nền trắng khi chọn
-                }
-                return Colors.white; // nền trắng khi không chọn
-              }),
-              checkColor: WidgetStateProperty.all<Color>(Colors.white),
-              side: const BorderSide(color: Colors.black, width: 1),
+        return Material(
+          color: Colors.transparent,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              checkboxTheme: CheckboxThemeData(
+                fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Colors.red; // nền trắng khi chọn
+                  }
+                  return Colors.white; // nền trắng khi không chọn
+                }),
+                checkColor: WidgetStateProperty.all<Color>(Colors.white),
+                side: const BorderSide(color: Colors.black, width: 1),
+              ),
             ),
-          ),
-          child: CheckboxListTile(
-            title: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            value: checked,
-            onChanged:
-                enabled
-                    ? (bool? value) {
-                      notifier.value = value ?? false;
+            child: CheckboxListTile(
+              title: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              value: checked,
+              onChanged:
+                  enabled
+                      ? (bool? value) {
+                        notifier.value = value ?? false;
 
-                      if (onChanged != null) {
-                        onChanged(value);
+                        if (onChanged != null) {
+                          onChanged(value);
+                        }
                       }
-                    }
-                    : null,
-            controlAffinity: controlAffinity,
-            tileColor: Colors.transparent,
-            contentPadding: EdgeInsets.zero,
+                      : null,
+              controlAffinity: controlAffinity,
+              tileColor: Colors.transparent,
+              contentPadding: EdgeInsets.zero,
+            ),
           ),
         );
       },
@@ -396,7 +401,7 @@ class ValidationHelper {
   }) {
     return DropdownButtonFormField<String>(
       isExpanded: true,
-      value: items.contains(type) ? type : null,
+      initialValue: items.contains(type) ? type : null,
       items:
           items
               .map(

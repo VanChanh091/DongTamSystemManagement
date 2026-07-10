@@ -1,5 +1,6 @@
-import "dart:async";
+// ignore_for_file: deprecated_member_use
 
+import "dart:async";
 import "package:dongtam/data/controller/badges_controller.dart";
 import "package:dongtam/data/models/employee/employee_basic_info.dart";
 import "package:dongtam/service/employee_service.dart";

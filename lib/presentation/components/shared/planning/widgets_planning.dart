@@ -201,7 +201,7 @@ Widget buildDropdownItems({
     width: width,
     child: DropdownButtonFormField<String>(
       isExpanded: true,
-      value: value,
+      initialValue: value,
       items:
           items
               .map(

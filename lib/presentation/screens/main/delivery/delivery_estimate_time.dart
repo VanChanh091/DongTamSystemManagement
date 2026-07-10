@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:dongtam/data/controller/badges_controller.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';

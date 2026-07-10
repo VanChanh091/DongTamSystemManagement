@@ -251,61 +251,65 @@ class _DialogExportInventoryState extends State<DialogExportInventory> {
       content: ValueListenableBuilder<String?>(
         valueListenable: selectedOption,
         builder: (context, value, _) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Option 1: Theo Tất Cả
-              // RadioListTile<String>(
-              //   title: const Text("Tồn Hiện Tại", style: TextStyle(fontSize: 16)),
-              //   value: 'all',
-              //   groupValue: value,
-              //   onChanged: (val) => selectedOption.value = val,
-              // ),
-              // Option 2: Theo ngày nhập kho
-              RadioListTile<String>(
-                title: const Text("Chốt Tồn Kho", style: TextStyle(fontSize: 16)),
-                value: 'closingDate',
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
+          return RadioGroup(
+            groupValue: value,
+            onChanged: (val) {
+              if (val != null) selectedOption.value = val;
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Option 1: Theo Tất Cả
+                // RadioListTile<String>(
+                //   title: const Text("Tồn Hiện Tại", style: TextStyle(fontSize: 16)),
+                //   value: 'all',
+                //   groupValue: value,
+                //   onChanged: (val) => selectedOption.value = val,
+                // ),
+                // Option 2: Theo ngày nhập kho
+                RadioListTile<String>(
+                  title: const Text("Chốt Tồn Kho", style: TextStyle(fontSize: 16)),
+                  value: 'closingDate',
+                ),
 
-              const SizedBox(height: 10),
-              if (value == 'closingDate') ...[
-                Column(
-                  children: [
-                    SizedBox(
-                      width: 250,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          side: BorderSide(color: Colors.blue.shade400, width: 1.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () => pickDateTime(context),
-                        icon: Icon(Icons.date_range, color: Colors.blue.shade400),
-                        label: Text(
-                          selectedDate == null
-                              ? "Chọn ngày"
-                              : DateFormat('dd/MM/yyyy HH:mm').format(selectedDate!),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blue.shade700,
+                const SizedBox(height: 10),
+                if (value == 'closingDate') ...[
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        height: 50,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            side: BorderSide(color: Colors.blue.shade400, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () => pickDateTime(context),
+                          icon: Icon(Icons.date_range, color: Colors.blue.shade400),
+                          label: Text(
+                            selectedDate == null
+                                ? "Chọn ngày"
+                                : DateFormat('dd/MM/yyyy HH:mm').format(selectedDate!),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.blue.shade700,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    if (selectedDate == null)
-                      const Text(
-                        "Chưa chọn ngày chốt tồn kho",
-                        style: TextStyle(color: Colors.red, fontSize: 13),
-                      ),
-                  ],
-                ),
+                      const SizedBox(height: 5),
+                      if (selectedDate == null)
+                        const Text(
+                          "Chưa chọn ngày chốt tồn kho",
+                          style: TextStyle(color: Colors.red, fontSize: 13),
+                        ),
+                    ],
+                  ),
+                ],
               ],
-            ],
+            ),
           );
         },
       ),

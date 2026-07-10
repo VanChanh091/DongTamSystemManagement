@@ -182,33 +182,37 @@ class _HomePageState extends State<HomePage> {
         duration: const Duration(milliseconds: 200),
         width: _isSidebarOpen ? _sidebarOpenWidth : _sidebarCollapsedWidth,
         decoration: _sidebarDecoration(themeController.currentColor.value),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      if (_isSidebarOpen)
-                        _buildLogoSection()
-                      else
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8, bottom: 6),
-                          child: Image.asset('assets/images/logoDT.png', width: 40, height: 40),
-                        ),
-                      const SizedBox(height: 16),
 
-                      Expanded(child: _buildMenuList(pages)),
-                      const Divider(color: Colors.white70),
-                      _buildLogoutSection(),
-                    ],
+        child: Material(
+          color: Colors.transparent,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        if (_isSidebarOpen)
+                          _buildLogoSection()
+                        else
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8, bottom: 6),
+                            child: Image.asset('assets/images/logoDT.png', width: 40, height: 40),
+                          ),
+                        const SizedBox(height: 16),
+
+                        Expanded(child: _buildMenuList(pages)),
+                        const Divider(color: Colors.white70),
+                        _buildLogoutSection(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -360,29 +364,32 @@ class _HomePageState extends State<HomePage> {
           }
 
           return _isSidebarOpen
-              ? ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: leadingWidget,
-                title: Text(
-                  title,
-                  style: TextStyle(
-                    color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
-                    fontSize: 18,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ? Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  leading: leadingWidget,
+                  title: Text(
+                    title,
+                    style: TextStyle(
+                      color: isSelected ? const Color.fromARGB(255, 252, 220, 41) : Colors.white,
+                      fontSize: 18,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
-                ),
-                tileColor: isSelected ? Colors.white.withValues(alpha: 0.7) : Colors.transparent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                onTap: () async {
-                  if (onTap != null) {
-                    onTap();
-                  } else {
-                    bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);
-                    if (canNavigate) {
-                      sidebarController.changePage(index: index);
+                  tileColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  onTap: () async {
+                    if (onTap != null) {
+                      onTap();
+                    } else {
+                      bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);
+                      if (canNavigate) {
+                        sidebarController.changePage(index: index);
+                      }
                     }
-                  }
-                },
+                  },
+                ),
               )
               : Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -390,12 +397,16 @@ class _HomePageState extends State<HomePage> {
               );
         })
         : _isSidebarOpen
-        ? ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-          leading: Icon(icon, color: Colors.white),
-          title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 18)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          onTap: onTap,
+        // BỌC MATERIAL TẠI ĐÂY
+        ? Material(
+          color: Colors.transparent,
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            leading: Icon(icon, color: Colors.white),
+            title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 18)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            onTap: onTap,
+          ),
         )
         : Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -437,11 +448,14 @@ class _HomePageState extends State<HomePage> {
   //logout
   Widget _buildLogoutSection() {
     return _isSidebarOpen
-        ? ListTile(
-          leading: const Icon(Icons.logout, color: Colors.white),
-          title: const Text("Đăng xuất", style: TextStyle(color: Colors.white, fontSize: 18)),
-          onTap: () => {logout(), badgesController.stopTimer()},
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        ? Material(
+          color: Colors.transparent,
+          child: ListTile(
+            leading: const Icon(Icons.logout, color: Colors.white),
+            title: const Text("Đăng xuất", style: TextStyle(color: Colors.white, fontSize: 18)),
+            onTap: () => {logout(), badgesController.stopTimer()},
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
         )
         : const Padding(
           padding: EdgeInsets.symmetric(vertical: 12),

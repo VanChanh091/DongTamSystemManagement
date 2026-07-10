@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/order/order_model.dart';

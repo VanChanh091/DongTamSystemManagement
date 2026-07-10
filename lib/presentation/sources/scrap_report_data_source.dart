@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:dongtam/data/models/scrap/scrap_report_model.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/style_table.dart';

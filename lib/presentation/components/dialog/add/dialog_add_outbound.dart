@@ -393,11 +393,14 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           },
           displayStringForItem: (order) => order.orderId,
           itemBuilder: (context, order) {
-            return ListTile(
-              title: Text(
-                "${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}",
+            return Material(
+              color: Colors.transparent,
+              child: ListTile(
+                title: Text(
+                  "${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}",
+                ),
+                subtitle: Text(order.customer?.customerName ?? ""),
               ),
-              subtitle: Text(order.customer?.customerName ?? ""),
             );
           },
           onSelected: (order) async {
@@ -537,11 +540,14 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
                     ? formatter.format(items.DeliverySchedule!.deliveryDate!)
                     : "";
 
-            return ListTile(
-              title: Text(
-                "${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}",
+            return Material(
+              color: Colors.transparent,
+              child: ListTile(
+                title: Text(
+                  "${order.orderId} - ${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}",
+                ),
+                subtitle: Text("${order.customer?.customerName ?? ""} - $deliveryDate"),
               ),
-              subtitle: Text("${order.customer?.customerName ?? ""} - $deliveryDate"),
             );
           },
           onSelected: (items) async {

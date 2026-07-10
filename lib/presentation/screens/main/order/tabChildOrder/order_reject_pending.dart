@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class OrderRejectAndPending extends StatefulWidget {
@@ -163,6 +164,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                 const Expanded(flex: 1, child: SizedBox()),
 
                                 Expanded(
+                                  flex: 1,
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 8,
@@ -175,7 +177,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                             selectedOrderId != null && selectedOrderId.isNotEmpty;
 
                                         return Row(
-                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
                                             //see all/see only
                                             isManager
@@ -350,83 +352,88 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
                           return StatefulBuilder(
                             builder: (context, localSetState) {
-                              return SfDataGrid(
-                                controller: _dataGridController,
-                                source: _cachedDatasource!,
-                                isScrollbarAlwaysShown: true,
-                                selectionMode: SelectionMode.single,
-                                columnWidthMode: ColumnWidthMode.auto,
-                                headerRowHeight: 30,
-                                rowHeight: 40,
-                                columns: ColumnWidthTable.applySavedWidths(
-                                  columns: columns,
-                                  widths: columnWidths,
+                              return SfDataGridTheme(
+                                data: SfDataGridThemeData(
+                                  selectionColor: Colors.blue.withValues(alpha: 0.3),
                                 ),
-                                stackedHeaderRows: <StackedHeaderRow>[
-                                  StackedHeaderRow(
-                                    cells: [
-                                      StackedHeaderCell(
-                                        columnNames: [
-                                          'inMatTruoc',
-                                          'inMatSau',
-                                          'canMang',
-                                          'canLanBox',
-                                          'xa',
-                                          'catKhe',
-                                          'be',
-                                          'dan_1_Manh',
-                                          'dan_2_Manh',
-                                          'dongGhimMotManh',
-                                          'dongGhimHaiManh',
-                                          'chongTham',
-                                          'dongGoi',
-                                          'maKhuon',
-                                        ],
-                                        child: Obx(
-                                          () => formatColumn(
-                                            label: 'Công Đoạn 2',
-                                            themeController: themeController,
+                                child: SfDataGrid(
+                                  controller: _dataGridController,
+                                  source: _cachedDatasource!,
+                                  isScrollbarAlwaysShown: true,
+                                  selectionMode: SelectionMode.single,
+                                  columnWidthMode: ColumnWidthMode.auto,
+                                  headerRowHeight: 30,
+                                  rowHeight: 40,
+                                  columns: ColumnWidthTable.applySavedWidths(
+                                    columns: columns,
+                                    widths: columnWidths,
+                                  ),
+                                  stackedHeaderRows: <StackedHeaderRow>[
+                                    StackedHeaderRow(
+                                      cells: [
+                                        StackedHeaderCell(
+                                          columnNames: [
+                                            'inMatTruoc',
+                                            'inMatSau',
+                                            'canMang',
+                                            'canLanBox',
+                                            'xa',
+                                            'catKhe',
+                                            'be',
+                                            'dan_1_Manh',
+                                            'dan_2_Manh',
+                                            'dongGhimMotManh',
+                                            'dongGhimHaiManh',
+                                            'chongTham',
+                                            'dongGoi',
+                                            'maKhuon',
+                                          ],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: 'Công Đoạn 2',
+                                              themeController: themeController,
+                                            ),
                                           ),
                                         ),
+                                      ],
+                                    ),
+                                  ],
+
+                                  //auto resize
+                                  allowColumnsResizing: true,
+                                  columnResizeMode: ColumnResizeMode.onResize,
+
+                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                  onColumnResizeUpdate:
+                                      (details) => GridResizeHelper.onResizeUpdate(
+                                        details: details,
+                                        columns: columns,
+                                        setState: localSetState,
                                       ),
-                                    ],
-                                  ),
-                                ],
+                                  onColumnResizeEnd:
+                                      (details) => GridResizeHelper.onResizeEnd(
+                                        details: details,
+                                        tableKey: 'order',
+                                        columnWidths: columnWidths,
+                                        setState: setState,
+                                      ),
 
-                                //auto resize
-                                allowColumnsResizing: true,
-                                columnResizeMode: ColumnResizeMode.onResize,
+                                  onSelectionChanged: (addedRows, removedRows) {
+                                    if (addedRows.isNotEmpty) {
+                                      final selectedRow = addedRows.first;
+                                      final orderId =
+                                          selectedRow
+                                              .getCells()
+                                              .firstWhere((cell) => cell.columnName == 'orderId')
+                                              .value
+                                              .toString();
 
-                                onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                onColumnResizeUpdate:
-                                    (details) => GridResizeHelper.onResizeUpdate(
-                                      details: details,
-                                      columns: columns,
-                                      setState: localSetState,
-                                    ),
-                                onColumnResizeEnd:
-                                    (details) => GridResizeHelper.onResizeEnd(
-                                      details: details,
-                                      tableKey: 'order',
-                                      columnWidths: columnWidths,
-                                      setState: setState,
-                                    ),
-
-                                onSelectionChanged: (addedRows, removedRows) {
-                                  if (addedRows.isNotEmpty) {
-                                    final selectedRow = addedRows.first;
-                                    final orderId =
-                                        selectedRow
-                                            .getCells()
-                                            .firstWhere((cell) => cell.columnName == 'orderId')
-                                            .value
-                                            .toString();
-
-                                    _selectedOrderIdNotifier.value = orderId;
-                                  } else {
-                                    _selectedOrderIdNotifier.value = null;
-                                  }
-                                },
+                                      _selectedOrderIdNotifier.value = orderId;
+                                    } else {
+                                      _selectedOrderIdNotifier.value = null;
+                                    }
+                                  },
+                                ),
                               );
                             },
                           );

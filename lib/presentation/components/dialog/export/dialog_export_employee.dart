@@ -99,84 +99,84 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
       content: ValueListenableBuilder<String?>(
         valueListenable: selectedOption,
         builder: (context, value, _) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<String>(
-                title: const Text("Tất cả", style: TextStyle(fontSize: 17)),
-                value: "all",
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
-
-              RadioListTile<String>(
-                title: const Text("Tình Trạng", style: TextStyle(fontSize: 17)),
-                value: "status",
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
-              const SizedBox(height: 5),
-
-              if (value == "status") ...[
-                TextFormField(
-                  controller: statusController,
-                  style: const TextStyle(fontSize: 15),
-                  decoration: InputDecoration(
-                    labelText: "Nhập tình trạng",
-                    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    fillColor: Colors.white,
-                    filled: true,
-                  ),
+          return RadioGroup(
+            groupValue: value,
+            onChanged: (val) {
+              if (val != null) selectedOption.value = val;
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RadioListTile<String>(
+                  title: const Text("Tất cả", style: TextStyle(fontSize: 17)),
+                  value: "all",
                 ),
-              ],
 
-              RadioListTile<String>(
-                title: const Text("Ngày vào làm", style: TextStyle(fontSize: 17)),
-                value: "joinDate",
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
-              const SizedBox(height: 5),
+                RadioListTile<String>(
+                  title: const Text("Tình Trạng", style: TextStyle(fontSize: 17)),
+                  value: "status",
+                ),
+                const SizedBox(height: 5),
 
-              if (value == "joinDate") ...[
-                Column(
-                  children: [
-                    SizedBox(
-                      width: 250,
-                      height: 40,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          side: BorderSide(color: Colors.blue.shade400, width: 1.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () => pickedDate(context),
-                        icon: Icon(Icons.date_range, color: Colors.blue.shade400),
-                        label: Text(
-                          selectedDate == null
-                              ? "Chọn ngày"
-                              : DateFormat("dd/MM/yyyy").format(selectedDate!),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blue.shade700,
+                if (value == "status") ...[
+                  TextFormField(
+                    controller: statusController,
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration(
+                      labelText: "Nhập tình trạng",
+                      labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      fillColor: Colors.white,
+                      filled: true,
+                    ),
+                  ),
+                ],
+
+                RadioListTile<String>(
+                  title: const Text("Ngày vào làm", style: TextStyle(fontSize: 17)),
+                  value: "joinDate",
+                ),
+                const SizedBox(height: 5),
+
+                if (value == "joinDate") ...[
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        height: 40,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            side: BorderSide(color: Colors.blue.shade400, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () => pickedDate(context),
+                          icon: Icon(Icons.date_range, color: Colors.blue.shade400),
+                          label: Text(
+                            selectedDate == null
+                                ? "Chọn ngày"
+                                : DateFormat("dd/MM/yyyy").format(selectedDate!),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.blue.shade700,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    if (selectedDate == null)
-                      const Text(
-                        "Chưa chọn thời gian",
-                        style: TextStyle(color: Colors.red, fontSize: 13),
-                      ),
-                  ],
-                ),
+                      const SizedBox(height: 5),
+                      if (selectedDate == null)
+                        const Text(
+                          "Chưa chọn thời gian",
+                          style: TextStyle(color: Colors.red, fontSize: 13),
+                        ),
+                    ],
+                  ),
+                ],
               ],
-            ],
+            ),
           );
         },
       ),

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import "package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_paper_model.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:flutter/material.dart";

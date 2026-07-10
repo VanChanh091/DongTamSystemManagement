@@ -22,6 +22,7 @@ class _TopTabInspectionReportState extends State<TopTabInspectionReport> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: const [Tab(text: "Giấy Tấm"), Tab(text: "Công Đoạn 2")],
             ),
           ),

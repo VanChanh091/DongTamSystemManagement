@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
 import 'package:flutter/material.dart';

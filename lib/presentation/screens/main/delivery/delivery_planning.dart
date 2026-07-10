@@ -1086,7 +1086,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                     return ReorderableListView.builder(
                       shrinkWrap: true,
                       itemCount: orders.length,
-                      onReorder: (oldIndex, newIndex) {
+                      onReorderItem: (oldIndex, newIndex) {
                         setState(() {
                           if (newIndex > oldIndex) newIndex -= 1;
                           final item = orders.removeAt(oldIndex);

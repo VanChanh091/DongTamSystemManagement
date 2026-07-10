@@ -276,7 +276,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                                 SizedBox(
                                   width: 180,
                                   child: DropdownButtonFormField<String>(
-                                    value: status,
+                                    initialValue: status,
                                     items:
                                         [
                                           "Hoàn Thành",

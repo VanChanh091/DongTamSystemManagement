@@ -22,6 +22,7 @@ class _TopTabAdminState extends State<TopTabAdminBox> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: const [Tab(text: "Thời Gian Làm Thùng"), Tab(text: "Định Mức PL Thùng")],
             ),
           ),

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
@@ -220,9 +222,12 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
           },
           displayStringForItem: (order) => order.orderId,
           itemBuilder: (context, order) {
-            return ListTile(
-              title: Text(order.orderId),
-              subtitle: Text(order.customer?.customerName ?? ""),
+            return Material(
+              color: Colors.transparent,
+              child: ListTile(
+                title: Text(order.orderId),
+                subtitle: Text(order.customer?.customerName ?? ""),
+              ),
             );
           },
           onSelected: (order) async {

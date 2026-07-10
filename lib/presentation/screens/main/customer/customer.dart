@@ -20,6 +20,7 @@ import 'package:dongtam/data/models/customer/customer_model.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class CustomerPage extends StatefulWidget {
@@ -526,54 +527,59 @@ class _CustomerPageState extends State<CustomerPage> {
                               Expanded(
                                 child: StatefulBuilder(
                                   builder: (context, localSetState) {
-                                    return SfDataGrid(
-                                      source: _cachedDatasource!,
-                                      isScrollbarAlwaysShown: true,
-                                      columnWidthMode: ColumnWidthMode.auto,
-                                      selectionMode: SelectionMode.single,
-                                      headerRowHeight: 45,
-                                      rowHeight: 40,
-                                      columns: ColumnWidthTable.applySavedWidths(
-                                        columns: columns,
-                                        widths: columnWidths,
+                                    return SfDataGridTheme(
+                                      data: SfDataGridThemeData(
+                                        selectionColor: Colors.blue.withValues(alpha: 0.3),
                                       ),
+                                      child: SfDataGrid(
+                                        source: _cachedDatasource!,
+                                        isScrollbarAlwaysShown: true,
+                                        columnWidthMode: ColumnWidthMode.auto,
+                                        selectionMode: SelectionMode.single,
+                                        headerRowHeight: 45,
+                                        rowHeight: 40,
+                                        columns: ColumnWidthTable.applySavedWidths(
+                                          columns: columns,
+                                          widths: columnWidths,
+                                        ),
 
-                                      //auto resize
-                                      allowColumnsResizing: true,
-                                      columnResizeMode: ColumnResizeMode.onResize,
+                                        //auto resize
+                                        allowColumnsResizing: true,
+                                        columnResizeMode: ColumnResizeMode.onResize,
 
-                                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                      onColumnResizeUpdate:
-                                          (details) => GridResizeHelper.onResizeUpdate(
-                                            details: details,
-                                            columns: columns,
-                                            setState: localSetState,
-                                          ),
-                                      onColumnResizeEnd:
-                                          (details) => GridResizeHelper.onResizeEnd(
-                                            details: details,
-                                            tableKey: 'customer',
-                                            columnWidths: columnWidths,
-                                            setState: setState,
-                                          ),
+                                        onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                        onColumnResizeUpdate:
+                                            (details) => GridResizeHelper.onResizeUpdate(
+                                              details: details,
+                                              columns: columns,
+                                              setState: localSetState,
+                                            ),
+                                        onColumnResizeEnd:
+                                            (details) => GridResizeHelper.onResizeEnd(
+                                              details: details,
+                                              tableKey: 'customer',
+                                              columnWidths: columnWidths,
+                                              setState: setState,
+                                            ),
 
-                                      onSelectionChanged: (addedRows, removedRows) {
-                                        if (addedRows.isNotEmpty) {
-                                          final selectedRow = addedRows.first;
-                                          final customerId =
-                                              selectedRow
-                                                  .getCells()
-                                                  .firstWhere(
-                                                    (cell) => cell.columnName == 'customerId',
-                                                  )
-                                                  .value
-                                                  .toString();
+                                        onSelectionChanged: (addedRows, removedRows) {
+                                          if (addedRows.isNotEmpty) {
+                                            final selectedRow = addedRows.first;
+                                            final customerId =
+                                                selectedRow
+                                                    .getCells()
+                                                    .firstWhere(
+                                                      (cell) => cell.columnName == 'customerId',
+                                                    )
+                                                    .value
+                                                    .toString();
 
-                                          _selectedCustomerIdNotifier.value = customerId;
-                                        } else {
-                                          _selectedCustomerIdNotifier.value = null;
-                                        }
-                                      },
+                                            _selectedCustomerIdNotifier.value = customerId;
+                                          } else {
+                                            _selectedCustomerIdNotifier.value = null;
+                                          }
+                                        },
+                                      ),
                                     );
                                   },
                                 ),

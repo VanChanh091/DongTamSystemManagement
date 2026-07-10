@@ -82,7 +82,7 @@ class LeftButtonSearch extends StatelessWidget {
                 width: dropdownWidth,
                 child: DropdownButtonFormField<String>(
                   isExpanded: true,
-                  value: selectedType,
+                  initialValue: selectedType,
                   items:
                       types
                           .map(

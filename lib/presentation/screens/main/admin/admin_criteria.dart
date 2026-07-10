@@ -107,7 +107,7 @@ class _AdminVehicleState extends State<AdminCriteria> {
                         SizedBox(
                           width: 130,
                           child: DropdownButtonFormField<String>(
-                            value: type,
+                            initialValue: type,
                             items:
                                 ["Giấy Tấm", "Thùng"].map((String value) {
                                   return DropdownMenuItem<String>(value: value, child: Text(value));

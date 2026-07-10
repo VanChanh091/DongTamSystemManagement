@@ -95,91 +95,90 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
       content: ValueListenableBuilder<String?>(
         valueListenable: selectedOption,
         builder: (context, value, _) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // RadioListTile<String>(
-              //   title: const Text("Tất cả", style: TextStyle(fontSize: 16)),
-              //   value: "all",
-              //   groupValue: value,
-              //   onChanged: (val) => selectedOption.value = val,
-              // ),
-              const SizedBox(height: 5),
-              RadioListTile<String>(
-                title: const Text("Tên Nhân Viên", style: TextStyle(fontSize: 16)),
-                value: "username",
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
-              const SizedBox(height: 5),
-              if (value == "username") ...[
-                textInputExport(controller: usernameController, label: "Nhập tên nhân viên"),
-              ],
+          return RadioGroup(
+            groupValue: value,
+            onChanged: (val) {
+              if (val != null) selectedOption.value = val;
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // RadioListTile<String>(
+                //   title: const Text("Tất cả", style: TextStyle(fontSize: 16)),
+                //   value: "all",
+                // ),
+                RadioListTile<String>(
+                  title: const Text("Tên Nhân Viên", style: TextStyle(fontSize: 16)),
+                  value: "username",
+                ),
+                const SizedBox(height: 5),
+                if (value == "username") ...[
+                  textInputExport(controller: usernameController, label: "Nhập tên nhân viên"),
+                ],
 
-              const SizedBox(height: 5),
-              RadioListTile<String>(
-                title: const Text("Ngày Sản Xuất", style: TextStyle(fontSize: 16)),
-                value: "dayStart",
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
-              const SizedBox(height: 5),
-              if (value == "dayStart") ...[
-                Column(
-                  children: [
-                    SizedBox(
-                      width: 240,
-                      height: 40,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          side: BorderSide(color: Colors.blue.shade400, width: 1.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () => pickedDate(context),
-                        icon: Icon(Icons.date_range, color: Colors.blue.shade400),
-                        label: Text(
-                          selectedDayStart == null
-                              ? "Chọn ngày"
-                              : DateFormat("dd/MM/yyyy").format(selectedDayStart!),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blue.shade700,
+                const SizedBox(height: 5),
+                RadioListTile<String>(
+                  title: const Text("Ngày Sản Xuất", style: TextStyle(fontSize: 16)),
+                  value: "dayStart",
+                ),
+                const SizedBox(height: 5),
+
+                if (value == "dayStart") ...[
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: 240,
+                        height: 40,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            side: BorderSide(color: Colors.blue.shade400, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () => pickedDate(context),
+                          icon: Icon(Icons.date_range, color: Colors.blue.shade400),
+                          label: Text(
+                            selectedDayStart == null
+                                ? "Chọn ngày"
+                                : DateFormat("dd/MM/yyyy").format(selectedDayStart!),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.blue.shade700,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    if (selectedDayStart == null)
-                      const Text(
-                        "Chưa chọn thời gian",
-                        style: TextStyle(color: Colors.red, fontSize: 13),
-                      ),
-                  ],
-                ),
-              ],
+                      const SizedBox(height: 5),
+                      if (selectedDayStart == null)
+                        const Text(
+                          "Chưa chọn thời gian",
+                          style: TextStyle(color: Colors.red, fontSize: 13),
+                        ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 5),
 
-              const SizedBox(height: 5),
-              RadioListTile<String>(
-                title: const Text("Loại Máy", style: TextStyle(fontSize: 16)),
-                value: "machine",
-                groupValue: value,
-                onChanged: (val) => selectedOption.value = val,
-              ),
-              const SizedBox(height: 5),
-              if (value == "machine") ...[
-                ValidationHelper.dropdownForTypes(
-                  items: itemsMachine,
-                  type: machine,
-                  onChanged: (value) {
-                    setState(() {
-                      machine = value!;
-                    });
-                  },
+                RadioListTile<String>(
+                  title: const Text("Loại Máy", style: TextStyle(fontSize: 16)),
+                  value: "machine",
                 ),
+                const SizedBox(height: 5),
+
+                if (value == "machine") ...[
+                  ValidationHelper.dropdownForTypes(
+                    items: itemsMachine,
+                    type: machine,
+                    onChanged: (value) {
+                      setState(() {
+                        machine = value!;
+                      });
+                    },
+                  ),
+                ],
               ],
-            ],
+            ),
           );
         },
       ),

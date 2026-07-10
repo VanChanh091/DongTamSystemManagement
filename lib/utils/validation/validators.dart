@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 class ValidationAuth {
   static String? validateFullName(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -29,10 +31,7 @@ class ValidationAuth {
     return null;
   }
 
-  static String? validateConfirmPassword(
-    String? password,
-    String? confirmPassword,
-  ) {
+  static String? validateConfirmPassword(String? password, String? confirmPassword) {
     if (confirmPassword == null || confirmPassword.trim().isEmpty) {
       return "Xác nhận mật khẩu không được để trống";
     }

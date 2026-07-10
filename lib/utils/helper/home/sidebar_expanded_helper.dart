@@ -97,7 +97,7 @@ Widget buildSubMenuItem({
 }) {
   if (index == -1) return const SizedBox.shrink();
 
-  final sidebarController = Get.find<SidebarController>(); //change page
+  final sidebarController = Get.find<SidebarController>();
   final unsavedChangeController = Get.find<UnsavedChangeController>();
 
   return Obx(() {
@@ -116,10 +116,7 @@ Widget buildSubMenuItem({
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
-      tileColor:
-          isSelected
-              ? Colors.white.withValues(alpha: 0.7)
-              : const Color.fromARGB(255, 252, 220, 41),
+      tileColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       onTap: () async {
         bool canNavigate = await UnsavedChangeDialog(unsavedChangeController);

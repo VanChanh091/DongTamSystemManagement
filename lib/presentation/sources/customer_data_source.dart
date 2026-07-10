@@ -99,16 +99,6 @@ class CustomerDatasource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final customerId =
-        row.getCells().firstWhere((cell) => cell.columnName == 'customerId').value.toString();
-
-    Color backgroundColor;
-    if (selectedCustomerId.value == customerId) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
-    } else {
-      backgroundColor = Colors.transparent;
-    }
-
     String getStatusVi(String type) {
       switch (type) {
         case "daily":
@@ -121,7 +111,6 @@ class CustomerDatasource extends DataGridSource {
     }
 
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
             String displayValue = dataCell.value?.toString() ?? "";

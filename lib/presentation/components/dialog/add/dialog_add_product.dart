@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import "dart:typed_data";
 import "package:dongtam/data/models/product/product_model.dart";
 import "package:dongtam/service/product_service.dart";

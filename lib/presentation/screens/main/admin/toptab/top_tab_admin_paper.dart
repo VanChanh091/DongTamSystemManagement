@@ -24,6 +24,7 @@ class _TopTabAdminPaperState extends State<TopTabAdminPaper> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: const [
                 Tab(text: "Thời Gian Máy Sóng"),
                 Tab(text: "Định Mức PL Giấy"),

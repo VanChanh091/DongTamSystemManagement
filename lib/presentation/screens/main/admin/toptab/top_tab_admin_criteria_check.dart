@@ -22,6 +22,7 @@ class _TopTabCriteriaCheckState extends State<TopTabCriteriaCheck> {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: const [Tab(text: "Giấy Tấm"), Tab(text: "Làm Thùng")],
             ),
           ),

@@ -570,7 +570,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       initialWidth: ResponsiveSize.getWidth(context, ResponsiveType.large),
       minWidth: 900,
       maxWidth: 1500,
-      minHeight: 600,
+      minHeight: 410,
 
       //title
       title: Center(

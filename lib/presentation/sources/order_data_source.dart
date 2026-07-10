@@ -180,9 +180,8 @@ class OrderDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final orderId = getCellValue<String>(row, 'orderId', '');
-
     //get value cell
+    final orderId = getCellValue<String>(row, 'orderId', '');
     final statusCell = getCellValue<String>(row, 'status', "");
     final status = statusCell.toString().toLowerCase();
 
