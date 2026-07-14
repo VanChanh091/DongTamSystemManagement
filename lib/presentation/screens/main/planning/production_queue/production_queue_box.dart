@@ -4,6 +4,7 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart';
 import 'package:dongtam/presentation/components/shared/planning/save_planning.dart';
+import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
 import 'package:dongtam/presentation/components/shared/animated_button.dart';
@@ -20,9 +21,11 @@ import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ProductionQueueBox extends StatefulWidget {
@@ -34,9 +37,9 @@ class ProductionQueueBox extends StatefulWidget {
 
 class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   late Future<List<PlanningBoxModel>> futurePlanning;
-  late MachineBoxDatasource machineBoxDatasource;
   late List<GridColumn> columns;
 
+  //controllers
   final formatter = DateFormat('dd/MM/yyyy');
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
@@ -44,25 +47,33 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   final unsavedChangeController = Get.find<UnsavedChangeController>();
 
   //search
+  String machine = "Máy In";
+  String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     'Mã Đơn Hàng': "orderId",
     'Tên KH': "customerName",
     'Quy Cách': "QcBox",
   };
-  String searchType = "Tất cả";
-  String machine = "Máy In";
 
   Map<String, double> columnWidths = {};
-  List<String> selectedPlanningBoxIds = [];
+  final _zoomNotifier = ValueNotifier<double>(1.0);
+  final _selectedPlanningBoxIdsNotifier = ValueNotifier<List<String>>([]);
+  final _isSavingNotifier = ValueNotifier<bool>(false);
+
+  //datasource and cache
+  List<PlanningBoxModel>? _cachedBoxes;
+  MachineBoxDatasource? _cachedDatasource;
 
   //date
   DateTime? dayStart = DateTime.now();
   DateTime selectedDate = DateTime.now();
 
   //flag
-  bool isTextFieldEnabled = false;
   bool isLoading = false;
   bool showGroup = true;
+  bool isTextFieldEnabled = false;
+  bool _cachedShowGroup = false;
+  bool _isSelectionChange = false;
 
   //text controler
   TextEditingController searchController = TextEditingController();
@@ -73,19 +84,13 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   @override
   void initState() {
     super.initState();
-
-    if (userController.hasPermission(permission: "plan")) {
-      loadPlanning();
-    } else {
-      futurePlanning = Future.error("NO_PERMISSION");
-    }
+    loadPlanning();
 
     columns = buildMachineBoxColumns(
       machine: machine,
       themeController: themeController,
       page: 'planning',
     );
-
     ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -101,7 +106,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     totalTimeWorkingController.text = "16";
   }
 
-  void loadPlanning() {
+  void loadPlanning({bool clearSelection = false}) {
     setState(() {
       final String selectedField = searchFieldMap[searchType] ?? "";
 
@@ -124,6 +129,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         );
       }
     });
+
+    if (clearSelection) {
+      _selectedPlanningBoxIdsNotifier.value = [];
+    }
+    dataGridController.selectedRows = [];
   }
 
   void searchPlanning() {
@@ -159,9 +169,30 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     AppLogger.i("changeMachineBox | from=$machine -> to=$selectedMachine");
     setState(() {
       machine = selectedMachine;
-      selectedPlanningBoxIds.clear();
-      loadPlanning();
+      _selectedPlanningBoxIdsNotifier.value = [];
+      loadPlanning(clearSelection: true);
     });
+  }
+
+  void _updateSelectedIdsFromRows(List<DataGridRow> rows) {
+    final newIds =
+        rows
+            .map((row) {
+              final cell = row.getCells().firstWhere(
+                (c) => c.columnName == 'planningBoxId',
+                orElse: () => const DataGridCell(columnName: 'planningBoxId', value: ''),
+              );
+              return cell.value.toString();
+            })
+            .where((id) => id.isNotEmpty)
+            .toList();
+
+    _selectedPlanningBoxIdsNotifier.value = newIds;
+    _cachedDatasource!.selectedPlanningIds = newIds;
+  }
+
+  void _updateZoom(double newZoom) {
+    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
   }
 
   @override
@@ -171,459 +202,637 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     dayStartController.dispose();
     timeStartController.dispose();
     totalTimeWorkingController.dispose();
+    _zoomNotifier.dispose();
+    _isSavingNotifier.dispose();
+    _selectedPlanningBoxIdsNotifier.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(5),
-        child: Column(
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
+            ),
+        child: Stack(
           children: [
-            //button
-            SizedBox(
-              height: 140,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  //title
-                  SizedBox(
-                    height: 35,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        "KẾ HOẠCH SẢN XUẤT THÙNG",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, cachedChild) {
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SizedBox(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                      child: OverflowBox(
+                        minWidth: constraints.maxWidth / zoom,
+                        maxWidth: constraints.maxWidth / zoom,
+                        minHeight: constraints.maxHeight / zoom,
+                        maxHeight: constraints.maxHeight / zoom,
+                        alignment: Alignment.topLeft,
+                        child: Transform.scale(
+                          scale: zoom,
+                          alignment: Alignment.topLeft,
+                          child: cachedChild,
                         ),
                       ),
-                    ),
-                  ),
-
-                  //button
-                  SizedBox(
-                    height: 105,
-                    width: double.infinity,
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            //left button
-                            Expanded(
-                              flex: 1,
-                              child: LeftButtonSearch(
-                                selectedType: searchType,
-                                types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Quy Cách'],
-                                onTypeChanged: (value) {
-                                  setState(() {
-                                    searchType = value;
-                                    isTextFieldEnabled = searchType != 'Tất cả';
-
-                                    if (searchType == "Tất cả" &&
-                                        searchController.text.isNotEmpty) {
-                                      searchController.clear();
-                                      loadPlanning();
-                                    }
-                                  });
-                                },
-                                controller: searchController,
-                                textFieldEnabled: isTextFieldEnabled,
-                                buttonColor: themeController.buttonColor,
-
-                                onSearch: () {
-                                  unsavedChangeController.runSafe(() {
-                                    searchPlanning();
-                                  });
-                                },
-                              ),
-                            ),
-
-                            //right button
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  reverse: true,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      // nút lên xuống
-                                      rowMoveButtons(
-                                        enabled: selectedPlanningBoxIds.isNotEmpty,
-                                        onMoveUp: () {
-                                          setState(() {
-                                            machineBoxDatasource.moveRowUp(selectedPlanningBoxIds);
-                                          });
-                                        },
-                                        onMoveDown: () {
-                                          setState(() {
-                                            machineBoxDatasource.moveRowDown(
-                                              selectedPlanningBoxIds,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      // save
-                                      SavePlanning(
-                                        isLoading: isLoading,
-                                        dayStartController: dayStartController,
-                                        timeStartController: timeStartController,
-                                        totalTimeWorkingController: totalTimeWorkingController,
-                                        getRows: () => machineBoxDatasource.rows,
-                                        idColumn: 'planningBoxId',
-                                        isBox: true,
-                                        backgroundColor: themeController.buttonColor,
-                                        machine: machine,
-                                        onSuccess: () {
-                                          loadPlanning();
-                                          unsavedChangeController.resetUnsavedChanges();
-                                        },
-                                        onStartLoading: () => setState(() => isLoading = true),
-                                        onEndLoading: () => setState(() => isLoading = false),
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //group/unGroup
-                                      AnimatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            showGroup = !showGroup;
-                                          });
-                                        },
-                                        label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
-                                        icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
-                                        backgroundColor: themeController.buttonColor,
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //confirm complete
-                                      confirmCompleteButton(
-                                        context: context,
-                                        selectedIds: selectedPlanningBoxIds,
-                                        onConfirmComplete: (ids) async {
-                                          return await PlanningService().confirmCompletePlanning(
-                                            ids: ids,
-                                            machine: machine,
-                                            isBox: true,
-                                            action: 'CONFIRM_COMPLETE',
-                                          );
-                                        },
-                                        backgroundColor: themeController.buttonColor,
-                                        onReload: () => loadPlanning(),
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //change machine
-                                      buildDropdownItems(
-                                        value: machine,
-                                        items: const [
-                                          'Máy In',
-                                          "Máy Bế",
-                                          "Máy Xả",
-                                          "Máy Dán",
-                                          'Máy Cấn Lằn',
-                                          "Máy Cắt Khe",
-                                          "Máy Cán Màng",
-                                          "Máy Đóng Ghim",
-                                        ],
-                                        onChanged: (value) async {
-                                          if (value == null) return;
-
-                                          bool canChange = await UnsavedChangeDialog(
-                                            unsavedChangeController,
-                                          );
-
-                                          if (canChange) {
-                                            changeMachine(value);
-                                          } else {
-                                            setState(() {}); // reset dropdown về máy cũ
-                                          }
-                                        },
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //popup menu
-                                      PopupMenuButton<String>(
-                                        icon: const Icon(Icons.more_vert, color: Colors.black),
-                                        color: Colors.white,
-                                        onSelected: (value) async {
-                                          if (value == 'acceptLack') {
-                                            await handlePlanningAction(
-                                              context: context,
-                                              selectedPlanningIds: selectedPlanningBoxIds,
-                                              planningList: machineBoxDatasource.planning,
-                                              machine: machine,
-                                              status: "complete",
-                                              title: "Xác nhận thiếu số lượng",
-                                              message: "Bạn có chắc muốn chấp nhận thiếu không?",
-                                              successMessage: "Thực thi thành công",
-                                              errorMessage: "Có lỗi xảy ra khi thực thi",
-                                              onSuccess: () => loadPlanning(),
-                                            );
-                                          }
-                                          if (value == 'notify') {
-                                            if (!context.mounted) return;
-
-                                            bool confirm = await showConfirmDialog(
-                                              context: context,
-                                              title: "Xác Nhận Lịch Sản Xuất",
-                                              content: "Bạn có muốn gửi lịch sản xuất này không?",
-                                              confirmText: "Xác nhận",
-                                              confirmColor: const Color(0xffEA4346),
-                                            );
-
-                                            if (confirm) {
-                                              try {
-                                                final success = await PlanningService()
-                                                    .notifyUpdatePlanning(
-                                                      machine: machine,
-                                                      isPaper: false,
-                                                    );
-
-                                                if (!context.mounted) return;
-                                                if (success) {
-                                                  showSnackBarSuccess(
-                                                    context,
-                                                    "Gửi lịch sản xuất thành công",
-                                                  );
-                                                }
-                                              } catch (e) {
-                                                if (!context.mounted) return;
-                                                showSnackBarError(
-                                                  context,
-                                                  "Lỗi khi gửi lịch sản xuất",
-                                                );
-                                              }
-                                            }
-                                          }
-                                        },
-                                        itemBuilder:
-                                            (BuildContext context) => [
-                                              const PopupMenuItem<String>(
-                                                value: 'acceptLack',
-                                                child: ListTile(
-                                                  leading: Icon(Icons.approval_outlined),
-                                                  title: Text('Chấp Nhận Thiếu SL'),
-                                                ),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: 'notify',
-                                                child: ListTile(
-                                                  leading: Icon(Symbols.send),
-                                                  title: Text('Xác Nhận Kế Hoạch SX'),
-                                                ),
-                                              ),
-                                            ],
-                                      ),
-                                      const SizedBox(width: 10),
-                                    ],
-                                  ),
+                    );
+                  },
+                );
+              },
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(5),
+                child: Column(
+                  children: [
+                    //button
+                    SizedBox(
+                      height: 140,
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          //title
+                          SizedBox(
+                            height: 35,
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                "KẾ HOẠCH SẢN XUẤT THÙNG",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                  color: themeController.currentColor.value,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-
-                        //set day and time for time running
-                        const SizedBox(height: 5),
-                        timeAndDayPlanning(
-                          context: context,
-                          dayStartController: dayStartController,
-                          timeStartController: timeStartController,
-                          totalTimeWorkingController: totalTimeWorkingController,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // table
-            Expanded(
-              child: FutureBuilder(
-                future: futurePlanning,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SizedBox(
-                        height: 400,
-                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                      return const Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
-                            SizedBox(width: 8),
-                            Text(
-                              "Bạn không có quyền xem chức năng này",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 26,
-                                color: Colors.redAccent,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                    return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Không có đơn hàng nào",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                    );
-                  }
-
-                  final List<PlanningBoxModel> data = snapshot.data!;
-
-                  machineBoxDatasource = MachineBoxDatasource(
-                    planning: data,
-                    selectedPlanningIds: selectedPlanningBoxIds,
-                    unsavedChange: unsavedChangeController,
-                    machine: machine,
-                    page: 'planning',
-                    showGroup: showGroup,
-                  );
-
-                  return SfDataGrid(
-                    controller: dataGridController,
-                    source: machineBoxDatasource,
-                    allowExpandCollapseGroup: true, // Bật grouping
-                    autoExpandGroups: true,
-                    isScrollbarAlwaysShown: true,
-                    columnWidthMode: ColumnWidthMode.auto,
-                    navigationMode: GridNavigationMode.row,
-                    selectionMode: SelectionMode.multiple,
-                    headerRowHeight: 35,
-                    rowHeight: 40,
-                    columns: ColumnWidthTable.applySavedWidths(
-                      columns: columns,
-                      widths: columnWidths,
-                    ),
-                    frozenColumnsCount: 7,
-                    stackedHeaderRows: <StackedHeaderRow>[
-                      StackedHeaderRow(
-                        cells: [
-                          StackedHeaderCell(
-                            columnNames: [
-                              'qtyPrinted',
-                              'qtyCanLan',
-                              'qtyCanMang',
-                              'qtyXa',
-                              'qtyCatKhe',
-                              'qtyBe',
-                              'qtyDan',
-                              'qtyDongGhim',
-                            ],
-                            child: Obx(
-                              () => formatColumn(
-                                label: 'Số Lượng Của Các Công Đoạn',
-                                themeController: themeController,
-                              ),
-                            ),
                           ),
-                          StackedHeaderCell(
-                            columnNames: ["quantityOrd", "qtyPaper", "needProd"],
-                            child: Obx(
-                              () =>
-                                  formatColumn(label: 'Số Lượng', themeController: themeController),
-                            ),
-                          ),
-                          StackedHeaderCell(
-                            columnNames: ["inMatTruoc", "inMatSau"],
-                            child: Obx(
-                              () => formatColumn(label: 'In Ấn', themeController: themeController),
-                            ),
-                          ),
-                          StackedHeaderCell(
-                            columnNames: ["dan_1_Manh", "dan_2_Manh"],
-                            child: Obx(
-                              () => formatColumn(label: 'Dán', themeController: themeController),
-                            ),
-                          ),
-                          StackedHeaderCell(
-                            columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
-                            child: Obx(
-                              () => formatColumn(
-                                label: 'Đóng Ghim',
-                                themeController: themeController,
-                              ),
+
+                          //button
+                          SizedBox(
+                            height: 105,
+                            width: double.infinity,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    //left button
+                                    Expanded(
+                                      flex: 1,
+                                      child: LeftButtonSearch(
+                                        selectedType: searchType,
+                                        types: const [
+                                          'Tất cả',
+                                          'Mã Đơn Hàng',
+                                          'Tên KH',
+                                          'Quy Cách',
+                                        ],
+                                        onTypeChanged: (value) {
+                                          setState(() {
+                                            searchType = value;
+                                            isTextFieldEnabled = searchType != 'Tất cả';
+
+                                            if (searchType == "Tất cả" &&
+                                                searchController.text.isNotEmpty) {
+                                              searchController.clear();
+                                              loadPlanning();
+                                            }
+                                          });
+                                        },
+                                        controller: searchController,
+                                        textFieldEnabled: isTextFieldEnabled,
+                                        buttonColor: themeController.buttonColor,
+
+                                        onSearch: () {
+                                          unsavedChangeController.runSafe(() {
+                                            searchPlanning();
+                                          });
+                                        },
+                                      ),
+                                    ),
+
+                                    //right button
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8,
+                                          horizontal: 10,
+                                        ),
+                                        child: ValueListenableBuilder(
+                                          valueListenable: _selectedPlanningBoxIdsNotifier,
+                                          builder: (context, selectedPlanningBoxIds, _) {
+                                            final bool hasSelection =
+                                                selectedPlanningBoxIds.isNotEmpty;
+
+                                            return SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              reverse: true,
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  // nút lên xuống
+                                                  rowMoveButtons(
+                                                    enabled: hasSelection,
+                                                    onMoveUp: () {
+                                                      _cachedDatasource!.moveRowUp(
+                                                        selectedPlanningBoxIds,
+                                                      );
+                                                    },
+                                                    onMoveDown: () {
+                                                      _cachedDatasource!.moveRowDown(
+                                                        selectedPlanningBoxIds,
+                                                      );
+                                                    },
+                                                  ),
+                                                  const SizedBox(width: 10),
+
+                                                  // save
+                                                  ValueListenableBuilder(
+                                                    valueListenable: _isSavingNotifier,
+                                                    builder: (context, isSaving, _) {
+                                                      return SavePlanning(
+                                                        isLoading: isLoading,
+                                                        dayStartController: dayStartController,
+                                                        timeStartController: timeStartController,
+                                                        totalTimeWorkingController:
+                                                            totalTimeWorkingController,
+                                                        getRows: () => _cachedDatasource!.rows,
+                                                        idColumn: 'planningBoxId',
+                                                        isBox: true,
+                                                        backgroundColor:
+                                                            themeController.buttonColor,
+                                                        machine: machine,
+                                                        onSuccess: () {
+                                                          loadPlanning(clearSelection: true);
+                                                          unsavedChangeController
+                                                              .resetUnsavedChanges();
+                                                        },
+                                                        onStartLoading:
+                                                            () => _isSavingNotifier.value = true,
+                                                        onEndLoading:
+                                                            () => _isSavingNotifier.value = false,
+                                                      );
+                                                    },
+                                                  ),
+                                                  const SizedBox(width: 10),
+
+                                                  //group/unGroup
+                                                  AnimatedButton(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        showGroup = !showGroup;
+                                                      });
+                                                    },
+                                                    label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                                    icon:
+                                                        showGroup
+                                                            ? Symbols.ungroup
+                                                            : Symbols.ad_group,
+                                                    backgroundColor: themeController.buttonColor,
+                                                  ),
+                                                  const SizedBox(width: 10),
+
+                                                  //confirm complete
+                                                  confirmCompleteButton(
+                                                    context: context,
+                                                    selectedIds: selectedPlanningBoxIds,
+                                                    onConfirmComplete: (ids) async {
+                                                      return await PlanningService()
+                                                          .confirmCompletePlanning(
+                                                            ids: ids,
+                                                            machine: machine,
+                                                            isBox: true,
+                                                            action: 'CONFIRM_COMPLETE',
+                                                          );
+                                                    },
+                                                    backgroundColor: themeController.buttonColor,
+                                                    onReload:
+                                                        () => loadPlanning(clearSelection: true),
+                                                  ),
+                                                  const SizedBox(width: 10),
+
+                                                  //change machine
+                                                  buildDropdownItems(
+                                                    value: machine,
+                                                    items: const [
+                                                      'Máy In',
+                                                      "Máy Bế",
+                                                      "Máy Xả",
+                                                      "Máy Dán",
+                                                      'Máy Cấn Lằn',
+                                                      "Máy Cắt Khe",
+                                                      "Máy Cán Màng",
+                                                      "Máy Đóng Ghim",
+                                                    ],
+                                                    onChanged: (value) async {
+                                                      if (value == null) return;
+
+                                                      bool canChange = await UnsavedChangeDialog(
+                                                        unsavedChangeController,
+                                                      );
+
+                                                      if (canChange) {
+                                                        changeMachine(value);
+                                                      } else {
+                                                        setState(() {}); // reset dropdown về máy cũ
+                                                      }
+                                                    },
+                                                  ),
+                                                  const SizedBox(width: 10),
+
+                                                  //popup menu
+                                                  PopupMenuButton<String>(
+                                                    icon: const Icon(
+                                                      Icons.more_vert,
+                                                      color: Colors.black,
+                                                    ),
+                                                    color: Colors.white,
+                                                    onSelected: (value) async {
+                                                      if (value == 'acceptLack') {
+                                                        await handlePlanningAction(
+                                                          context: context,
+                                                          selectedPlanningIds:
+                                                              selectedPlanningBoxIds,
+                                                          planningList: _cachedDatasource!.planning,
+                                                          machine: machine,
+                                                          status: "complete",
+                                                          title: "Xác nhận thiếu số lượng",
+                                                          message:
+                                                              "Bạn có chắc muốn chấp nhận thiếu không?",
+                                                          successMessage: "Thực thi thành công",
+                                                          errorMessage:
+                                                              "Có lỗi xảy ra khi thực thi",
+                                                          onSuccess:
+                                                              () => loadPlanning(
+                                                                clearSelection: true,
+                                                              ),
+                                                        );
+                                                      }
+                                                      if (value == 'notify') {
+                                                        if (!context.mounted) return;
+
+                                                        bool confirm = await showConfirmDialog(
+                                                          context: context,
+                                                          title: "Xác Nhận Lịch Sản Xuất",
+                                                          content:
+                                                              "Bạn có muốn gửi lịch sản xuất này không?",
+                                                          confirmText: "Xác nhận",
+                                                          confirmColor: const Color(0xffEA4346),
+                                                        );
+
+                                                        if (confirm) {
+                                                          try {
+                                                            final success = await PlanningService()
+                                                                .notifyUpdatePlanning(
+                                                                  machine: machine,
+                                                                  isPaper: false,
+                                                                );
+
+                                                            if (!context.mounted) return;
+                                                            if (success) {
+                                                              showSnackBarSuccess(
+                                                                context,
+                                                                "Gửi lịch sản xuất thành công",
+                                                              );
+                                                            }
+                                                          } catch (e) {
+                                                            if (!context.mounted) return;
+                                                            showSnackBarError(
+                                                              context,
+                                                              "Lỗi khi gửi lịch sản xuất",
+                                                            );
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    itemBuilder:
+                                                        (BuildContext context) => [
+                                                          const PopupMenuItem<String>(
+                                                            value: 'acceptLack',
+                                                            child: ListTile(
+                                                              leading: Icon(
+                                                                Icons.approval_outlined,
+                                                              ),
+                                                              title: Text('Chấp Nhận Thiếu SL'),
+                                                            ),
+                                                          ),
+                                                          const PopupMenuItem<String>(
+                                                            value: 'notify',
+                                                            child: ListTile(
+                                                              leading: Icon(Symbols.send),
+                                                              title: Text('Xác Nhận Kế Hoạch SX'),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                //set day and time for time running
+                                const SizedBox(height: 5),
+                                timeAndDayPlanning(
+                                  context: context,
+                                  dayStartController: dayStartController,
+                                  timeStartController: timeStartController,
+                                  totalTimeWorkingController: totalTimeWorkingController,
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ],
+                    ),
 
-                    //auto resize
-                    allowColumnsResizing: true,
-                    columnResizeMode: ColumnResizeMode.onResize,
+                    // table
+                    Expanded(
+                      child: FutureBuilder(
+                        future: futurePlanning,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: SizedBox(
+                                height: 400,
+                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+                              ),
+                            );
+                          } else if (snapshot.hasError) {
+                            if (snapshot.error.toString().contains("NO_PERMISSION")) {
+                              return const Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      "Bạn không có quyền xem chức năng này",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 26,
+                                        color: Colors.redAccent,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            return Center(child: Text("Lỗi: ${snapshot.error}"));
+                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                "Không có đơn hàng nào",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                              ),
+                            );
+                          }
 
-                    onColumnResizeStart: GridResizeHelper.onResizeStart,
-                    onColumnResizeUpdate:
-                        (details) => GridResizeHelper.onResizeUpdate(
-                          details: details,
-                          columns: columns,
-                          setState: setState,
-                        ),
-                    onColumnResizeEnd:
-                        (details) => GridResizeHelper.onResizeEnd(
-                          details: details,
-                          tableKey: 'queueBox',
-                          columnWidths: columnWidths,
-                          setState: setState,
-                        ),
+                          final List<PlanningBoxModel> data = snapshot.data!;
 
-                    onSelectionChanged: (addedRows, removedRows) {
-                      if (addedRows.isEmpty && removedRows.isEmpty) return;
+                          if (_cachedBoxes == null ||
+                              _cachedBoxes != data ||
+                              _cachedShowGroup != showGroup) {
+                            _cachedBoxes = data;
+                            _cachedShowGroup = showGroup;
+                            _cachedDatasource = MachineBoxDatasource(
+                              planning: data,
+                              selectedPlanningIds: _selectedPlanningBoxIdsNotifier.value,
+                              unsavedChange: unsavedChangeController,
+                              machine: machine,
+                              page: 'planning',
+                              showGroup: showGroup,
+                            );
+                          }
 
-                      setState(() {
-                        // Lấy selection thật sự từ controller
-                        final selectedRows = dataGridController.selectedRows;
-
-                        selectedPlanningBoxIds =
-                            selectedRows
-                                .map((row) {
-                                  final cell = row.getCells().firstWhere(
-                                    (c) => c.columnName == 'planningBoxId',
-                                    orElse:
-                                        () => const DataGridCell(
-                                          columnName: 'planningBoxId',
-                                          value: '',
+                          return StatefulBuilder(
+                            builder: (context, localSetState) {
+                              return SfDataGridTheme(
+                                data: SfDataGridThemeData(
+                                  selectionColor: Colors.blue.withValues(alpha: 0.3),
+                                  currentCellStyle: const DataGridCurrentCellStyle(
+                                    borderColor: Colors.transparent,
+                                    borderWidth: 0,
+                                  ),
+                                ),
+                                child: SfDataGrid(
+                                  controller: dataGridController,
+                                  source: _cachedDatasource!,
+                                  allowExpandCollapseGroup: true, // Bật grouping
+                                  autoExpandGroups: true,
+                                  isScrollbarAlwaysShown: true,
+                                  columnWidthMode: ColumnWidthMode.auto,
+                                  selectionMode: SelectionMode.multiple,
+                                  headerRowHeight: 35,
+                                  rowHeight: 40,
+                                  columns: ColumnWidthTable.applySavedWidths(
+                                    columns: columns,
+                                    widths: columnWidths,
+                                  ),
+                                  frozenColumnsCount: 7,
+                                  stackedHeaderRows: <StackedHeaderRow>[
+                                    StackedHeaderRow(
+                                      cells: [
+                                        StackedHeaderCell(
+                                          columnNames: [
+                                            'qtyPrinted',
+                                            'qtyCanLan',
+                                            'qtyCanMang',
+                                            'qtyXa',
+                                            'qtyCatKhe',
+                                            'qtyBe',
+                                            'qtyDan',
+                                            'qtyDongGhim',
+                                          ],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: 'Số Lượng Của Các Công Đoạn',
+                                              themeController: themeController,
+                                            ),
+                                          ),
                                         ),
-                                  );
-                                  return cell.value.toString();
-                                })
-                                .where((id) => id.isNotEmpty)
-                                .toList();
+                                        StackedHeaderCell(
+                                          columnNames: ["quantityOrd", "qtyPaper", "needProd"],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: 'Số Lượng',
+                                              themeController: themeController,
+                                            ),
+                                          ),
+                                        ),
+                                        StackedHeaderCell(
+                                          columnNames: ["inMatTruoc", "inMatSau"],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: 'In Ấn',
+                                              themeController: themeController,
+                                            ),
+                                          ),
+                                        ),
+                                        StackedHeaderCell(
+                                          columnNames: ["dan_1_Manh", "dan_2_Manh"],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: 'Dán',
+                                              themeController: themeController,
+                                            ),
+                                          ),
+                                        ),
+                                        StackedHeaderCell(
+                                          columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: 'Đóng Ghim',
+                                              themeController: themeController,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
 
-                        // cập nhật cho datasource
-                        machineBoxDatasource.selectedPlanningIds = selectedPlanningBoxIds;
-                        machineBoxDatasource.notifyListeners();
-                      });
-                    },
-                  );
-                },
+                                  //auto resize
+                                  allowColumnsResizing: true,
+                                  columnResizeMode: ColumnResizeMode.onResize,
+
+                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                  onColumnResizeUpdate:
+                                      (details) => GridResizeHelper.onResizeUpdate(
+                                        details: details,
+                                        columns: columns,
+                                        setState: localSetState,
+                                      ),
+                                  onColumnResizeEnd:
+                                      (details) => GridResizeHelper.onResizeEnd(
+                                        details: details,
+                                        tableKey: 'queueBox',
+                                        columnWidths: columnWidths,
+                                        setState: setState,
+                                      ),
+
+                                  onSelectionChanging: (addedRows, removedRows) {
+                                    if (_isSelectionChange) return true;
+
+                                    final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                                    final isShiftPressed =
+                                        keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                                        keys.contains(LogicalKeyboardKey.shiftRight);
+
+                                    // Nếu đè phím Shift và trước đó đã có dòng được chọn
+                                    if (isShiftPressed &&
+                                        dataGridController.selectedRows.isNotEmpty &&
+                                        addedRows.isNotEmpty) {
+                                      final lastSelected = dataGridController.selectedRows.last;
+                                      final newlyClicked = addedRows.last;
+
+                                      // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
+                                      final allRows = _cachedDatasource!.rows;
+                                      final startIdx = allRows.indexOf(lastSelected);
+                                      final endIdx = allRows.indexOf(newlyClicked);
+
+                                      if (startIdx != -1 && endIdx != -1) {
+                                        final min = startIdx < endIdx ? startIdx : endIdx;
+                                        final max = startIdx > endIdx ? startIdx : endIdx;
+
+                                        // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
+                                        final List<DataGridRow> rangeSelection = [];
+                                        for (int i = min; i <= max; i++) {
+                                          rangeSelection.add(allRows[i]);
+                                        }
+
+                                        // Ép controller chọn dải dòng
+                                        _isSelectionChange = true;
+                                        dataGridController.selectedRows = List.from(rangeSelection);
+                                        _isSelectionChange = false;
+
+                                        // Cập nhật ID đơn hàng
+                                        Future.microtask(() {
+                                          _isSelectionChange = true;
+                                          dataGridController.selectedRows = List.from(
+                                            rangeSelection,
+                                          );
+                                          _isSelectionChange = false;
+
+                                          _updateSelectedIdsFromRows(rangeSelection);
+                                        });
+                                        return false;
+                                      }
+                                    }
+                                    return true;
+                                  },
+
+                                  onSelectionChanged: (addedRows, removedRows) {
+                                    if (_isSelectionChange) return;
+                                    if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                                    // bắt sự kiện từ bàn phím
+                                    final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                                    final isCtrlPressed =
+                                        keys.contains(LogicalKeyboardKey.controlLeft) ||
+                                        keys.contains(LogicalKeyboardKey.controlRight);
+                                    final isShiftPressed =
+                                        keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                                        keys.contains(LogicalKeyboardKey.shiftRight);
+
+                                    if (!isCtrlPressed && !isShiftPressed) {
+                                      if (addedRows.isNotEmpty) {
+                                        // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
+                                        final latestRow = addedRows.last;
+
+                                        _isSelectionChange = true;
+                                        dataGridController.selectedRows = [latestRow];
+                                        _isSelectionChange = false;
+                                      } else if (removedRows.isNotEmpty &&
+                                          dataGridController.selectedRows.isNotEmpty) {
+                                        //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
+                                        final clickedRow = removedRows.first;
+
+                                        _isSelectionChange = true;
+                                        dataGridController.selectedRows = [clickedRow];
+                                        _isSelectionChange = false;
+                                      }
+                                    }
+
+                                    _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ),
+
+            //slider zoom
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, _) {
+                return SliderZoom(
+                  zoomLevel: zoom,
+                  onZoomChanged: _updateZoom,
+                  initialMargin: Offset(73, 125),
+                  buttonColor: themeController.buttonColor.value,
+                );
+              },
             ),
           ],
         ),
       ),
+
       floatingActionButton: Obx(
         () => FloatingActionButton(
           onPressed:

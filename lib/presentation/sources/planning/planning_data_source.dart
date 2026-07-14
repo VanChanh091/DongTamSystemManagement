@@ -1,5 +1,4 @@
 import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -105,15 +104,7 @@ class PlanningDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final orderId = getCellValue<String>(row, 'orderId', '');
-
-    Color backgroundColor = Colors.transparent;
-    if (selectedOrderId == orderId) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
-    }
-
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
             final cellText = formatCellValueBool(dataCell);

@@ -46,7 +46,7 @@ class QcInspectionPaperModel {
           json["timeInspection"] != null ? DateTime.parse(json["timeInspection"]) : DateTime.now(),
       numberPallet: json["numberPallet"] ?? 0,
       machineSpeed: json["machineSpeed"] ?? 0,
-      moisture: toDouble(json["lengthPaperPlanning"]),
+      moisture: toDouble(json["moisture"]),
       steamPressure: toDouble(json["steamPressure"]),
       preheaterTemp: toDouble(json["preheaterTemp"]),
       fctValue: toDouble(json["fctValue"]),

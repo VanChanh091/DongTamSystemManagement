@@ -5,6 +5,7 @@ import 'package:dongtam/presentation/components/dialog/add/dialog_add_employee.d
 import 'package:dongtam/presentation/components/dialog/export/dialog_export_employee.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_employee.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
+import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/employee_data_source.dart';
 import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -18,6 +19,7 @@ import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart'
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class Employee extends StatefulWidget {
@@ -29,7 +31,6 @@ class Employee extends StatefulWidget {
 
 class _EmployeeState extends State<Employee> {
   late Future<Map<String, dynamic>> futureEmployee;
-  late EmployeeDataSource employeeDataSource;
   late List<GridColumn> columns;
 
   //controller
@@ -45,11 +46,19 @@ class _EmployeeState extends State<Employee> {
     "Tình Trạng": "status",
   };
 
-  int? selectedEmployeeId;
+  final _zoomNotifier = ValueNotifier<double>(1.0);
+  final _selectedEmployeeIdNotifier = ValueNotifier<int?>(null);
   Map<String, double> columnWidths = {}; //map header table
+
+  //datasource and cache
+  List<EmployeeBasicInfoModel>? _cachedEmployees;
+  late EmployeeDataSource _cachedDatasource;
+
+  //text controller
   TextEditingController searchController = TextEditingController();
 
   //flag
+  late bool isHR;
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
@@ -64,8 +73,9 @@ class _EmployeeState extends State<Employee> {
     super.initState();
     loadEmployee();
 
-    columns = buildEmployeeColumn(themeController: themeController);
+    isHR = userController.hasPermission(permission: "HR");
 
+    columns = buildEmployeeColumn(themeController: themeController);
     ColumnWidthTable.loadWidths(tableKey: 'employee', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -89,7 +99,7 @@ class _EmployeeState extends State<Employee> {
       ),
     );
 
-    selectedEmployeeId = null;
+    _selectedEmployeeIdNotifier.value = null;
   }
 
   void loadEmployee() {
@@ -112,351 +122,433 @@ class _EmployeeState extends State<Employee> {
     });
   }
 
+  void _updateZoom(double newZoom) {
+    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+  }
+
   @override
   void dispose() {
     super.dispose();
     searchController.dispose();
+    _zoomNotifier.dispose();
+    _selectedEmployeeIdNotifier.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isSale = userController.hasPermission(permission: "HR");
-
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(5),
-        child: Column(
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
+            ),
+        //container contain button and table
+        child: Stack(
           children: [
-            //button
-            SizedBox(
-              height: 105,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  //title
-                  SizedBox(
-                    height: 35,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        "DANH SÁCH NHÂN VIÊN",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, cachedChild) {
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SizedBox(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                      child: OverflowBox(
+                        minWidth: constraints.maxWidth / zoom,
+                        maxWidth: constraints.maxWidth / zoom,
+                        minHeight: constraints.maxHeight / zoom,
+                        maxHeight: constraints.maxHeight / zoom,
+                        alignment: Alignment.topLeft,
+                        child: Transform.scale(
+                          scale: zoom,
+                          alignment: Alignment.topLeft,
+                          child: cachedChild,
                         ),
                       ),
-                    ),
-                  ),
-
-                  //button
-                  SizedBox(
-                    height: 70,
-                    width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        //left button
-                        Expanded(
-                          flex: 1,
-                          child: LeftButtonSearch(
-                            selectedType: searchType,
-                            types: const [
-                              'Tất cả',
-                              "Tên Nhân Viên",
-                              "Số Điện Thoại",
-                              "Mã Nhân Viên",
-                              "Tình Trạng",
-                            ],
-                            onTypeChanged: (value) {
-                              setState(() {
-                                searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
-
-                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                                  searchController.clear();
-                                  currentPage = 1;
-                                  _fetchData();
-                                }
-                              });
-                            },
-                            controller: searchController,
-                            textFieldEnabled: isTextFieldEnabled,
-                            buttonColor: themeController.buttonColor,
-
-                            onSearch: () => searchEmployee(),
+                    );
+                  },
+                );
+              },
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(5),
+                child: Column(
+                  children: [
+                    //button
+                    SizedBox(
+                      height: 105,
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          //title
+                          SizedBox(
+                            height: 35,
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                "DANH SÁCH NHÂN VIÊN",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                  color: themeController.currentColor.value,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
 
-                        //right button
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child:
-                                isSale
-                                    ? Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        //export excel
-                                        AnimatedButton(
-                                          onPressed: () async {
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (_) => DialogExportEmployee(
-                                                    onEmployee: () => loadEmployee(),
-                                                  ),
-                                            );
-                                          },
-                                          label: "Xuất Excel",
-                                          icon: Symbols.export_notes,
-                                          backgroundColor: themeController.buttonColor,
-                                        ),
-                                        const SizedBox(width: 10),
+                          //button
+                          SizedBox(
+                            height: 70,
+                            width: double.infinity,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                //left button
+                                Expanded(
+                                  flex: 1,
+                                  child: LeftButtonSearch(
+                                    selectedType: searchType,
+                                    types: const [
+                                      'Tất cả',
+                                      "Tên Nhân Viên",
+                                      "Số Điện Thoại",
+                                      "Mã Nhân Viên",
+                                      "Tình Trạng",
+                                    ],
+                                    onTypeChanged: (value) {
+                                      setState(() {
+                                        searchType = value;
+                                        isTextFieldEnabled = value != 'Tất cả';
 
-                                        //add
-                                        AnimatedButton(
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (_) => EmployeeDialog(
-                                                    employee: null,
-                                                    onEmployeeAddOrUpdate: () => loadEmployee(),
-                                                  ),
-                                            );
-                                          },
-                                          label: "Thêm mới",
-                                          icon: Icons.add,
-                                          backgroundColor: themeController.buttonColor,
-                                        ),
-                                        const SizedBox(width: 10),
+                                        if (searchType == "Tất cả" &&
+                                            searchController.text.isNotEmpty) {
+                                          searchController.clear();
+                                          currentPage = 1;
+                                          _fetchData();
+                                        }
+                                      });
+                                    },
+                                    controller: searchController,
+                                    textFieldEnabled: isTextFieldEnabled,
+                                    buttonColor: themeController.buttonColor,
 
-                                        // update
-                                        AnimatedButton(
-                                          onPressed:
-                                              isSale &&
-                                                      selectedEmployeeId != null &&
-                                                      selectedEmployeeId! > 0
-                                                  ? () async {
-                                                    try {
-                                                      final employeeData = await futureEmployee;
-                                                      final List<EmployeeBasicInfoModel>
-                                                      employeeList =
-                                                          (employeeData['employees'] as List? ?? [])
-                                                              .cast<EmployeeBasicInfoModel>();
-                                                      final selectedEmployees = employeeList
-                                                          .firstWhere(
-                                                            (employee) =>
-                                                                employee.employeeId ==
-                                                                selectedEmployeeId,
-                                                            orElse:
-                                                                () =>
-                                                                    throw Exception(
-                                                                      "Không tìm thấy nhân viên",
-                                                                    ),
-                                                          );
+                                    onSearch: () => searchEmployee(),
+                                  ),
+                                ),
 
-                                                      if (!context.mounted) {
-                                                        return;
-                                                      }
+                                //right button
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                      horizontal: 10,
+                                    ),
+                                    child:
+                                        isHR
+                                            ? ValueListenableBuilder(
+                                              valueListenable: _selectedEmployeeIdNotifier,
+                                              builder: (context, selectedEmployeeId, _) {
+                                                final bool hasSelection =
+                                                    selectedEmployeeId != null;
 
-                                                      showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (_) => EmployeeDialog(
-                                                              employee: selectedEmployees,
-                                                              onEmployeeAddOrUpdate:
-                                                                  () => loadEmployee(),
-                                                            ),
-                                                      );
-                                                    } catch (e, s) {
-                                                      AppLogger.e(
-                                                        "Error in getEmployees: $e",
-                                                        stackTrace: s,
-                                                      );
-                                                      showSnackBarError(
-                                                        context,
-                                                        'Có lỗi xảy ra, vui lòng thử lại sau',
-                                                      );
-                                                    }
-                                                  }
-                                                  : null,
-                                          label: "Sửa",
-                                          icon: Symbols.construction,
-                                          backgroundColor: themeController.buttonColor,
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        //delete employee
-                                        AnimatedButton(
-                                          onPressed:
-                                              isSale &&
-                                                      selectedEmployeeId != null &&
-                                                      selectedEmployeeId! > 0
-                                                  ? () async {
-                                                    await showDeleteConfirmHelper(
-                                                      context: context,
-                                                      title: "⚠️ Xác nhận xoá",
-                                                      content:
-                                                          "Bạn có chắc chắn muốn xoá nhân viên này?",
-                                                      onDelete: () async {
-                                                        await EmployeeService().deleteEmployee(
-                                                          employeeId: selectedEmployeeId!,
+                                                return Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    //export excel
+                                                    AnimatedButton(
+                                                      onPressed: () async {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (_) => DialogExportEmployee(
+                                                                onEmployee: () => loadEmployee(),
+                                                              ),
                                                         );
                                                       },
-                                                      onSuccess: () {
-                                                        setState(() => selectedEmployeeId = null);
-                                                        loadEmployee();
+                                                      label: "Xuất Excel",
+                                                      icon: Symbols.export_notes,
+                                                      backgroundColor: themeController.buttonColor,
+                                                    ),
+                                                    const SizedBox(width: 10),
+
+                                                    //add
+                                                    AnimatedButton(
+                                                      onPressed: () {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (_) => EmployeeDialog(
+                                                                employee: null,
+                                                                onEmployeeAddOrUpdate:
+                                                                    () => loadEmployee(),
+                                                              ),
+                                                        );
                                                       },
-                                                    );
-                                                  }
-                                                  : null,
-                                          label: "Xóa",
-                                          icon: Icons.delete,
-                                          backgroundColor: const Color(0xffEA4346),
-                                        ),
-                                      ],
-                                    )
-                                    : const SizedBox.shrink(),
+                                                      label: "Thêm mới",
+                                                      icon: Icons.add,
+                                                      backgroundColor: themeController.buttonColor,
+                                                    ),
+                                                    const SizedBox(width: 10),
+
+                                                    // update
+                                                    AnimatedButton(
+                                                      onPressed:
+                                                          hasSelection
+                                                              ? () async {
+                                                                try {
+                                                                  final employeeData =
+                                                                      await futureEmployee;
+                                                                  final List<EmployeeBasicInfoModel>
+                                                                  employeeList =
+                                                                      (employeeData['employees']
+                                                                                  as List? ??
+                                                                              [])
+                                                                          .cast<
+                                                                            EmployeeBasicInfoModel
+                                                                          >();
+                                                                  final selectedEmployees =
+                                                                      employeeList.firstWhere(
+                                                                        (employee) =>
+                                                                            employee.employeeId ==
+                                                                            selectedEmployeeId,
+                                                                        orElse:
+                                                                            () =>
+                                                                                throw Exception(
+                                                                                  "Không tìm thấy nhân viên",
+                                                                                ),
+                                                                      );
+
+                                                                  if (!context.mounted) {
+                                                                    return;
+                                                                  }
+
+                                                                  showDialog(
+                                                                    context: context,
+                                                                    builder:
+                                                                        (_) => EmployeeDialog(
+                                                                          employee:
+                                                                              selectedEmployees,
+                                                                          onEmployeeAddOrUpdate:
+                                                                              () => loadEmployee(),
+                                                                        ),
+                                                                  );
+                                                                } catch (e, s) {
+                                                                  AppLogger.e(
+                                                                    "Error in getEmployees: $e",
+                                                                    stackTrace: s,
+                                                                  );
+                                                                  showSnackBarError(
+                                                                    context,
+                                                                    'Có lỗi xảy ra, vui lòng thử lại sau',
+                                                                  );
+                                                                }
+                                                              }
+                                                              : null,
+                                                      label: "Sửa",
+                                                      icon: Symbols.construction,
+                                                      backgroundColor: themeController.buttonColor,
+                                                    ),
+                                                    const SizedBox(width: 10),
+
+                                                    //delete employee
+                                                    AnimatedButton(
+                                                      onPressed:
+                                                          hasSelection
+                                                              ? () async {
+                                                                await showDeleteConfirmHelper(
+                                                                  context: context,
+                                                                  title: "⚠️ Xác nhận xoá",
+                                                                  content:
+                                                                      "Bạn có chắc chắn muốn xoá nhân viên này?",
+                                                                  onDelete: () async {
+                                                                    await EmployeeService()
+                                                                        .deleteEmployee(
+                                                                          employeeId:
+                                                                              selectedEmployeeId!,
+                                                                        );
+                                                                  },
+                                                                  onSuccess: () {
+                                                                    setState(
+                                                                      () =>
+                                                                          selectedEmployeeId = null,
+                                                                    );
+                                                                    loadEmployee();
+                                                                  },
+                                                                );
+                                                              }
+                                                              : null,
+                                                      label: "Xóa",
+                                                      icon: Icons.delete,
+                                                      backgroundColor: const Color(0xffEA4346),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            )
+                                            : const SizedBox.shrink(),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+
+                    // table
+                    Expanded(
+                      child: FutureBuilder(
+                        future: futureEmployee,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: SizedBox(
+                                height: 400,
+                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+                              ),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text("Lỗi: ${snapshot.error}"));
+                          } else if (!snapshot.hasData || snapshot.data!['employees'].isEmpty) {
+                            return const Center(
+                              child: Text(
+                                "Không có nhân viên nào",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                              ),
+                            );
+                          }
+
+                          final data = snapshot.data!;
+                          final employees = data['employees'] as List<EmployeeBasicInfoModel>;
+                          final currentPg = data['currentPage'];
+                          final totalPgs = data['totalPages'];
+
+                          if (_cachedEmployees == null || _cachedEmployees != employees) {
+                            _cachedEmployees = employees;
+                            _cachedDatasource = EmployeeDataSource(
+                              employee: employees,
+                              selectedEmployeeId: _selectedEmployeeIdNotifier.value,
+                              currentPage: currentPage,
+                              pageSize: pageSize,
+                            );
+                          }
+
+                          return Column(
+                            children: [
+                              //table
+                              Expanded(
+                                child: StatefulBuilder(
+                                  builder: (context, localSetState) {
+                                    return SfDataGridTheme(
+                                      data: SfDataGridThemeData(
+                                        selectionColor: Colors.blue.withValues(alpha: 0.3),
+                                      ),
+                                      child: SfDataGrid(
+                                        source: _cachedDatasource,
+                                        isScrollbarAlwaysShown: true,
+                                        columnWidthMode: ColumnWidthMode.auto,
+                                        selectionMode: SelectionMode.single,
+                                        headerRowHeight: 45,
+                                        rowHeight: 40,
+                                        columns: ColumnWidthTable.applySavedWidths(
+                                          columns: columns,
+                                          widths: columnWidths,
+                                        ),
+
+                                        //auto resize
+                                        allowColumnsResizing: true,
+                                        columnResizeMode: ColumnResizeMode.onResize,
+
+                                        onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                        onColumnResizeUpdate:
+                                            (details) => GridResizeHelper.onResizeUpdate(
+                                              details: details,
+                                              columns: columns,
+                                              setState: localSetState,
+                                            ),
+                                        onColumnResizeEnd:
+                                            (details) => GridResizeHelper.onResizeEnd(
+                                              details: details,
+                                              tableKey: 'employee',
+                                              columnWidths: columnWidths,
+                                              setState: setState,
+                                            ),
+
+                                        onSelectionChanged: (addedRows, removedRows) {
+                                          if (addedRows.isNotEmpty) {
+                                            final selectedRow = addedRows.first;
+                                            final employeeId =
+                                                selectedRow
+                                                    .getCells()
+                                                    .firstWhere(
+                                                      (cell) => cell.columnName == 'employeeId',
+                                                    )
+                                                    .value;
+
+                                            _selectedEmployeeIdNotifier.value = employeeId;
+                                          } else {
+                                            _selectedEmployeeIdNotifier.value = null;
+                                          }
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+
+                              // Nút chuyển trang
+                              PaginationControls(
+                                currentPage: currentPg,
+                                totalPages: totalPgs,
+                                onPrevious: () {
+                                  setState(() {
+                                    currentPage--;
+                                    loadEmployee();
+                                  });
+                                },
+                                onNext: () {
+                                  setState(() {
+                                    currentPage++;
+                                    loadEmployee();
+                                  });
+                                },
+                                onJumpToPage: (page) {
+                                  setState(() {
+                                    currentPage = page;
+                                    loadEmployee();
+                                  });
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
-            // table
-            Expanded(
-              child: FutureBuilder(
-                future: futureEmployee,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SizedBox(
-                        height: 400,
-                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['employees'].isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Không có nhân viên nào",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                    );
-                  }
-
-                  final data = snapshot.data!;
-                  final employees = data['employees'] as List<EmployeeBasicInfoModel>;
-                  final currentPg = data['currentPage'];
-                  final totalPgs = data['totalPages'];
-
-                  employeeDataSource = EmployeeDataSource(
-                    employee: employees,
-                    selectedEmployeeId: selectedEmployeeId,
-                    currentPage: currentPage,
-                    pageSize: pageSize,
-                  );
-
-                  return Column(
-                    children: [
-                      //table
-                      Expanded(
-                        child: SfDataGrid(
-                          source: employeeDataSource,
-                          isScrollbarAlwaysShown: true,
-                          columnWidthMode: ColumnWidthMode.auto,
-                          selectionMode: SelectionMode.single,
-                          headerRowHeight: 45,
-                          rowHeight: 40,
-                          columns: ColumnWidthTable.applySavedWidths(
-                            columns: columns,
-                            widths: columnWidths,
-                          ),
-
-                          //auto resize
-                          allowColumnsResizing: true,
-                          columnResizeMode: ColumnResizeMode.onResize,
-
-                          onColumnResizeStart: GridResizeHelper.onResizeStart,
-                          onColumnResizeUpdate:
-                              (details) => GridResizeHelper.onResizeUpdate(
-                                details: details,
-                                columns: columns,
-                                setState: setState,
-                              ),
-                          onColumnResizeEnd:
-                              (details) => GridResizeHelper.onResizeEnd(
-                                details: details,
-                                tableKey: 'employee',
-                                columnWidths: columnWidths,
-                                setState: setState,
-                              ),
-
-                          onSelectionChanged: (addedRows, removedRows) {
-                            if (addedRows.isNotEmpty) {
-                              final selectedRow = addedRows.first;
-                              final employeeId =
-                                  selectedRow
-                                      .getCells()
-                                      .firstWhere((cell) => cell.columnName == 'employeeId')
-                                      .value;
-
-                              final selectedEmployee = employees.firstWhere(
-                                (e) => e.employeeId == employeeId,
-                              );
-
-                              setState(() {
-                                selectedEmployeeId = selectedEmployee.employeeId;
-                              });
-                            } else {
-                              setState(() {
-                                selectedEmployeeId = null;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-
-                      // Nút chuyển trang
-                      PaginationControls(
-                        currentPage: currentPg,
-                        totalPages: totalPgs,
-                        onPrevious: () {
-                          setState(() {
-                            currentPage--;
-                            loadEmployee();
-                          });
-                        },
-                        onNext: () {
-                          setState(() {
-                            currentPage++;
-                            loadEmployee();
-                          });
-                        },
-                        onJumpToPage: (page) {
-                          setState(() {
-                            currentPage = page;
-                            loadEmployee();
-                          });
-                        },
-                      ),
-                    ],
-                  );
-                },
-              ),
+            //slider zoom
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, _) {
+                return SliderZoom(
+                  zoomLevel: zoom,
+                  onZoomChanged: _updateZoom,
+                  initialMargin: Offset(142, 56),
+                  buttonColor: themeController.buttonColor.value,
+                );
+              },
             ),
           ],
         ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadEmployee(),
         backgroundColor: themeController.buttonColor.value,

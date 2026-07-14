@@ -23,9 +23,9 @@ import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_
 import 'package:dongtam/presentation/screens/main/report/reportWarehouse/report_inbound_history.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart';
-import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_box.dart';
-import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_paper.dart';
-import 'package:dongtam/presentation/screens/main/waitingCheck/waiting_check_scrap_report.dart';
+import 'package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_box.dart';
+import 'package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart';
+import 'package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/inventory.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart';
 import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dart';

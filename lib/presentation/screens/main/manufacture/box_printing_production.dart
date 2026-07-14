@@ -8,6 +8,7 @@ import "package:dongtam/presentation/components/headerTable/planning/header_tabl
 import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/utils/socket/init_socket_manufacture.dart";
 import "package:dongtam/presentation/sources/planning/machine_box_data_source.dart";
@@ -22,9 +23,10 @@ import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
-import "package:intl/intl.dart";
+import "package:flutter/services.dart";
 import "package:get/get.dart";
 import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class BoxPrintingProduction extends StatefulWidget {
@@ -36,25 +38,18 @@ class BoxPrintingProduction extends StatefulWidget {
 
 class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   late Future<List<PlanningBoxModel>> futurePlanning;
-  late MachineBoxDatasource machineBoxDatasource;
   late InitSocketManufacture _initSocket;
   late List<GridColumn> columns;
 
-  String machine = "Máy In";
+  //controllers and socket
   final socketService = SocketService();
-  final formatter = DateFormat("dd/MM/yyyy");
-
-  //controller
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
 
-  Map<String, double> columnWidths = {};
-  List<String> selectedPlanningIds = [];
-  List<PlanningBoxModel> planningList = [];
-
   //search
+  String machine = "Máy In";
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Mã Đơn Hàng": "orderId",
@@ -62,9 +57,21 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     "Quy Cách": "QcBox",
   };
 
+  Map<String, double> columnWidths = {};
+  List<PlanningBoxModel> planningList = [];
+
+  //notifiters
+  final _zoomNotifier = ValueNotifier<double>(1.0);
+  final _selectedPlanningBoxIdsNotifier = ValueNotifier<List<String>>([]);
+
+  //datasource and cache
+  List<PlanningBoxModel>? _cachedBoxes;
+  MachineBoxDatasource? _cachedDatasource;
+
   //flag
-  bool isTextFieldEnabled = false;
   bool showGroup = true;
+  bool isTextFieldEnabled = false;
+  bool _isSelectionChange = false;
 
   //text controller
   TextEditingController searchController = TextEditingController();
@@ -81,7 +88,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
       onMachineChanged: (newMachine) {
         setState(() {
           machine = newMachine;
-          selectedPlanningIds.clear();
+          _selectedPlanningBoxIdsNotifier.value = [];
         });
       },
     );
@@ -121,7 +128,8 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
           : ManufactureService().getPlanningBox(machine: machine),
     );
 
-    selectedPlanningIds.clear();
+    _selectedPlanningBoxIdsNotifier.value = [];
+    dataGridController.selectedRows = [];
   }
 
   void loadPlanning() {
@@ -179,11 +187,34 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     }
   }
 
+  void _updateSelectedIdsFromRows(List<DataGridRow> rows) {
+    final newIds =
+        rows
+            .map((row) {
+              final cell = row.getCells().firstWhere(
+                (c) => c.columnName == 'planningBoxId',
+                orElse: () => const DataGridCell(columnName: 'planningBoxId', value: ''),
+              );
+              return cell.value.toString();
+            })
+            .where((id) => id.isNotEmpty)
+            .toList();
+
+    _selectedPlanningBoxIdsNotifier.value = newIds;
+    _cachedDatasource!.selectedPlanningIds = newIds;
+  }
+
+  void _updateZoom(double newZoom) {
+    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+  }
+
   @override
   void dispose() {
     super.dispose();
     searchController.dispose();
     _initSocket.stop(machine);
+    _zoomNotifier.dispose();
+    _selectedPlanningBoxIdsNotifier.dispose();
   }
 
   @override
@@ -191,580 +222,773 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
     //production check
     bool permissionCheck = userController.hasPermission(permission: "step2Production");
 
-    final bool isProduction =
-        permissionCheck &&
-        canExecuteAction(
-          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
-          planningList: planningList,
-        );
-
-    final bool canRequestCheck =
-        permissionCheck &&
-        canExecuteAction(
-          selectedPlanningIds: selectedPlanningIds.map(int.parse).toList(),
-          planningList: planningList,
-          isRequest: true,
-        );
-
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(5),
-        child: Column(
-          children: [
-            //button
-            SizedBox(
-              height: 105,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  //title
-                  SizedBox(
-                    height: 35,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        "LỊCH SẢN XUẤT THÙNG",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  //button menu
-                  SizedBox(
-                    height: 70,
-                    width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        //left button
-                        Expanded(
-                          flex: 1,
-                          child:
-                              (userController.role.value == "admin" ||
-                                      userController.role.value == "manager" ||
-                                      !permissionCheck)
-                                  ? LeftButtonSearch(
-                                    selectedType: searchType,
-                                    types: const [
-                                      "Tất cả",
-                                      "Mã Đơn Hàng",
-                                      "Tên Khách Hàng",
-                                      "Quy Cách",
-                                    ],
-                                    onTypeChanged: (value) {
-                                      setState(() {
-                                        searchType = value;
-                                        isTextFieldEnabled = searchType != "Tất cả";
-
-                                        if (searchType == "Tất cả" &&
-                                            searchController.text.isNotEmpty) {
-                                          searchController.clear();
-                                          _fetchData();
-                                        }
-                                      });
-                                    },
-                                    controller: searchController,
-                                    textFieldEnabled: isTextFieldEnabled,
-                                    buttonColor: themeController.buttonColor,
-
-                                    onSearch: () => searchPlanning(),
-                                  )
-                                  : const SizedBox.shrink(),
-                        ),
-
-                        //right button
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              reverse: true,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  //report production
-                                  AnimatedButton(
-                                    onPressed:
-                                        isProduction
-                                            ? () async {
-                                              try {
-                                                final int selectedPlanningBoxId = int.parse(
-                                                  selectedPlanningIds.first,
-                                                );
-
-                                                final selectedPlanning = planningList.firstWhere(
-                                                  (p) => p.planningBoxId == selectedPlanningBoxId,
-                                                  orElse:
-                                                      () =>
-                                                          throw Exception(
-                                                            "Không tìm thấy kế hoạch",
-                                                          ),
-                                                );
-
-                                                showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (_) => DialogReportProduction(
-                                                        planningId: selectedPlanning.planningBoxId,
-                                                        qtyPaper: selectedPlanning.qtyPaper,
-                                                        onReport: () => loadPlanning(),
-                                                        machine: machine,
-                                                        isPaper: false,
-                                                      ),
-                                                );
-                                              } catch (e, s) {
-                                                if (!context.mounted) return;
-                                                AppLogger.e(
-                                                  "Lỗi khi mở dialog",
-                                                  error: e,
-                                                  stackTrace: s,
-                                                );
-
-                                                showSnackBarError(
-                                                  context,
-                                                  "Đã xảy ra lỗi khi mở báo cáo.",
-                                                );
-                                              }
-                                            }
-                                            : null,
-                                    label: "Báo Cáo",
-                                    icon: Icons.assignment,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 10),
-
-                                  //edit qty report
-                                  AnimatedButton(
-                                    onPressed:
-                                        canRequestCheck
-                                            ? () async {
-                                              try {
-                                                final int selectedPlanningBoxId = int.parse(
-                                                  selectedPlanningIds.first,
-                                                );
-
-                                                final selectedPlanning = planningList.firstWhere(
-                                                  (p) => p.planningBoxId == selectedPlanningBoxId,
-                                                  orElse:
-                                                      () =>
-                                                          throw Exception(
-                                                            "Không tìm thấy kế hoạch",
-                                                          ),
-                                                );
-
-                                                final boxTimes = selectedPlanning.boxTimes?.first;
-
-                                                final existingData = {
-                                                  "qty": boxTimes!.qtyProduced ?? 0,
-                                                  "waste": boxTimes.wasteBox ?? 0,
-                                                  "manager": boxTimes.shiftManagement,
-                                                };
-
-                                                // print("Existing data for report: $existingData");
-
-                                                showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (_) => DialogReportProduction(
-                                                        planningId: selectedPlanning.planningBoxId,
-                                                        initialData: existingData,
-                                                        qtyPaper: selectedPlanning.qtyPaper,
-                                                        onReport: () => loadPlanning(),
-                                                        machine: machine,
-                                                        isPaper: false,
-                                                      ),
-                                                );
-                                              } catch (e, s) {
-                                                AppLogger.e(
-                                                  "Lỗi khi mở dialog",
-                                                  error: e,
-                                                  stackTrace: s,
-                                                );
-
-                                                showSnackBarError(
-                                                  context,
-                                                  "Đã xảy ra lỗi khi mở báo cáo.",
-                                                );
-                                              }
-                                            }
-                                            : null,
-                                    label: "Sửa Báo Cáo",
-                                    icon: Symbols.construction,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 10),
-
-                                  //confirm production
-                                  AnimatedButton(
-                                    onPressed:
-                                        isProduction
-                                            ? () async {
-                                              try {
-                                                //get planning first
-                                                final int selectedPlanningBoxId = int.parse(
-                                                  selectedPlanningIds.first,
-                                                );
-
-                                                // find planning by planningId
-                                                final selectedPlanning = planningList.firstWhere(
-                                                  (p) => p.planningBoxId == selectedPlanningBoxId,
-                                                  orElse:
-                                                      () =>
-                                                          throw Exception(
-                                                            "Không tìm thấy kế hoạch",
-                                                          ),
-                                                );
-
-                                                await ManufactureService().handlePutManufactureBox(
-                                                  planningBoxId: [selectedPlanning.planningBoxId],
-                                                  machine: machine,
-                                                  action: "CONFIRM_PRODUCING",
-                                                );
-
-                                                loadPlanning();
-
-                                                if (!context.mounted) return;
-                                                showSnackBarSuccess(
-                                                  context,
-                                                  "Xác nhận sản xuất thành công",
-                                                );
-                                              } on ApiException catch (e) {
-                                                final errorText = switch (e.errorCode) {
-                                                  "PLANNING_COMPLETED" => "Đơn hàng đã hoàn thành",
-                                                  _ => "Có lỗi xảy ra, vui lòng thử lại",
-                                                };
-
-                                                if (!context.mounted) return;
-                                                showSnackBarError(context, errorText);
-                                              } catch (e) {
-                                                if (!context.mounted) return;
-                                                showSnackBarError(
-                                                  context,
-                                                  "Có lỗi khi xác nhận SX: $e",
-                                                );
-                                              }
-                                            }
-                                            : null,
-                                    label: "Xác Nhận SX",
-                                    icon: Symbols.done_outline,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 10),
-
-                                  //choose machine
-                                  buildDropdownItems(
-                                    value: machine,
-                                    items: const [
-                                      "Máy In",
-                                      "Máy Bế",
-                                      "Máy Xả",
-                                      "Máy Dán",
-                                      "Máy Cấn Lằn",
-                                      "Máy Cắt Khe",
-                                      "Máy Cán Màng",
-                                      "Máy Đóng Ghim",
-                                    ],
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        changeMachine(value);
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(width: 10),
-
-                                  //popupmenu
-                                  PopupMenuButton(
-                                    icon: const Icon(Icons.more_vert, color: Colors.black),
-                                    color: Colors.white,
-                                    onSelected: (value) async {
-                                      if (value == "sendCheck") {
-                                        try {
-                                          //get planning first
-                                          final int selectedPlanningBoxId = int.parse(
-                                            selectedPlanningIds.first,
-                                          );
-
-                                          // find planning by planningId
-                                          final selectedPlanning = planningList.firstWhere(
-                                            (p) => p.planningBoxId == selectedPlanningBoxId,
-                                            orElse:
-                                                () => throw Exception("Không tìm thấy kế hoạch"),
-                                          );
-
-                                          await ManufactureService().handlePutManufactureBox(
-                                            planningBoxId: [selectedPlanning.planningBoxId],
-                                            machine: machine,
-                                            action: "REQUEST_STOCK_CHECK",
-                                          );
-
-                                          //cập nhật badge
-                                          badgesController.fetchBoxWaitingCheck();
-
-                                          loadPlanning();
-
-                                          if (!context.mounted) return;
-                                          showSnackBarSuccess(
-                                            context,
-                                            "Gửi yêu cầu kiểm tra thành công",
-                                          );
-                                        } on ApiException catch (e) {
-                                          final errorText = switch (e.errorCode) {
-                                            "PLANNING_ALREADY_REQUESTED" =>
-                                              "Đơn này đã yêu cầu kiểm tra rồi",
-                                            "STEP_QUANTITY_EQUAL_ZERO" =>
-                                              "Có công đoạn chưa có số lượng, không thể yêu cầu nhập kho.",
-                                            _ => "Có lỗi xảy ra, vui lòng thử lại",
-                                          };
-
-                                          if (mounted) {
-                                            showSnackBarError(context, errorText);
-                                          }
-                                        } catch (e) {
-                                          if (!context.mounted) return;
-                                          showSnackBarError(context, "Có lỗi khi xác nhận SX: $e");
-                                        }
-                                      } else if (value == "request") {
-                                        await handlePlanningTask(
-                                          context: context,
-                                          selectedPlanningIds: selectedPlanningIds,
-                                          content: "Xác nhận yêu cầu hoàn thành kế hoạch này?",
-                                          onExecute:
-                                              (ids) => ManufactureService().handlePutManufactureBox(
-                                                planningBoxId: ids,
-                                                machine: machine,
-                                                action: "REQUEST_COMPLETE",
-                                              ),
-                                          onLoadPlanning: loadPlanning,
-                                        );
-                                      } else if (value == "confirmFixErr") {
-                                        await handlePlanningTask(
-                                          context: context,
-                                          selectedPlanningIds: selectedPlanningIds,
-                                          content: "Xác nhận sửa lỗi kế hoạch này?",
-                                          onExecute:
-                                              (ids) => ManufactureService().handlePutManufactureBox(
-                                                planningBoxId: [ids.first],
-                                                machine: machine,
-                                                action: "CONFIRM_FIX_ERROR",
-                                              ),
-                                          onLoadPlanning: loadPlanning,
-                                        );
-                                      }
-                                    },
-                                    itemBuilder:
-                                        (BuildContext context) => [
-                                          const PopupMenuItem<String>(
-                                            value: "sendCheck",
-                                            child: ListTile(
-                                              leading: Icon(Symbols.send),
-                                              title: Text("Yêu Cầu Kiểm"),
-                                            ),
-                                          ),
-                                          const PopupMenuItem<String>(
-                                            value: "request",
-                                            child: ListTile(
-                                              leading: Icon(Symbols.send),
-                                              title: Text("Yêu Cầu Hoàn Thành"),
-                                            ),
-                                          ),
-                                          const PopupMenuItem<String>(
-                                            value: "confirmFixErr",
-                                            child: ListTile(
-                                              leading: Icon(Symbols.construction),
-                                              title: Text("Xác Nhận Sửa Lỗi"),
-                                            ),
-                                          ),
-                                        ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
             ),
-
-            // table
-            Expanded(
-              child: FutureBuilder(
-                future: futurePlanning,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SizedBox(
-                        height: 400,
-                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+        child: Stack(
+          children: [
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, cachedChild) {
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SizedBox(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                      child: OverflowBox(
+                        minWidth: constraints.maxWidth / zoom,
+                        maxWidth: constraints.maxWidth / zoom,
+                        minHeight: constraints.maxHeight / zoom,
+                        maxHeight: constraints.maxHeight / zoom,
+                        alignment: Alignment.topLeft,
+                        child: Transform.scale(
+                          scale: zoom,
+                          alignment: Alignment.topLeft,
+                          child: cachedChild,
+                        ),
                       ),
                     );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Không có đơn hàng nào",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                    );
-                  }
-
-                  final List<PlanningBoxModel> data = snapshot.data!;
-                  planningList = data;
-
-                  machineBoxDatasource = MachineBoxDatasource(
-                    planning: data,
-                    selectedPlanningIds: selectedPlanningIds,
-                    showGroup: showGroup,
-                    page: "production",
-                    machine: machine,
-                    onRowTap: (PlanningBoxModel item) {
-                      showDialog(
-                        context: context,
-                        builder:
-                            (_) => DialogInspectionCheck(
-                              isQC: false,
-                              isPaper: false,
-                              planningBoxId: item.planningBoxId,
-                              machine: machine,
-                              onSubmit: () {},
-                            ),
-                      );
-                    },
-                  );
-
-                  return SfDataGrid(
-                    controller: dataGridController,
-                    source: machineBoxDatasource,
-                    allowExpandCollapseGroup: true, // Bật grouping
-                    autoExpandGroups: true,
-                    isScrollbarAlwaysShown: true,
-                    columnWidthMode: ColumnWidthMode.auto,
-                    navigationMode: GridNavigationMode.row,
-                    selectionMode: SelectionMode.multiple,
-                    headerRowHeight: 35,
-                    rowHeight: 40,
-                    columns: ColumnWidthTable.applySavedWidths(
-                      columns: columns,
-                      widths: columnWidths,
-                    ),
-                    frozenColumnsCount: 6,
-                    stackedHeaderRows: <StackedHeaderRow>[
-                      StackedHeaderRow(
-                        cells: [
-                          StackedHeaderCell(
-                            columnNames: [
-                              "qtyPrinted",
-                              "qtyCanLan",
-                              "qtyCanMang",
-                              "qtyXa",
-                              "qtyCatKhe",
-                              "qtyBe",
-                              "qtyDan",
-                              "qtyDongGhim",
-                            ],
-                            child: Obx(
-                              () => formatColumn(
-                                label: "Số Lượng Của Các Công Đoạn",
-                                themeController: themeController,
+                  },
+                );
+              },
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(5),
+                child: Column(
+                  children: [
+                    //button
+                    SizedBox(
+                      height: 105,
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          //title
+                          SizedBox(
+                            height: 35,
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                "LỊCH SẢN XUẤT THÙNG",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                  color: themeController.currentColor.value,
+                                ),
                               ),
                             ),
                           ),
-                          StackedHeaderCell(
-                            columnNames: ["quantityOrd", "qtyPaper", "needProd"],
-                            child: Obx(
-                              () =>
-                                  formatColumn(label: "Số Lượng", themeController: themeController),
-                            ),
-                          ),
-                          StackedHeaderCell(
-                            columnNames: ["inMatTruoc", "inMatSau"],
-                            child: Obx(
-                              () => formatColumn(label: "In Ấn", themeController: themeController),
-                            ),
-                          ),
-                          StackedHeaderCell(
-                            columnNames: ["dan_1_Manh", "dan_2_Manh"],
-                            child: Obx(
-                              () => formatColumn(label: "Dán", themeController: themeController),
-                            ),
-                          ),
-                          StackedHeaderCell(
-                            columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
-                            child: Obx(
-                              () => formatColumn(
-                                label: "Đóng Ghim",
-                                themeController: themeController,
-                              ),
+
+                          //button menu
+                          SizedBox(
+                            height: 70,
+                            width: double.infinity,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                //left button
+                                Expanded(
+                                  flex: 1,
+                                  child:
+                                      (userController.role.value == "admin" ||
+                                              userController.role.value == "manager" ||
+                                              !permissionCheck)
+                                          ? LeftButtonSearch(
+                                            selectedType: searchType,
+                                            types: const [
+                                              "Tất cả",
+                                              "Mã Đơn Hàng",
+                                              "Tên Khách Hàng",
+                                              "Quy Cách",
+                                            ],
+                                            onTypeChanged: (value) {
+                                              setState(() {
+                                                searchType = value;
+                                                isTextFieldEnabled = searchType != "Tất cả";
+
+                                                if (searchType == "Tất cả" &&
+                                                    searchController.text.isNotEmpty) {
+                                                  searchController.clear();
+                                                  _fetchData();
+                                                }
+                                              });
+                                            },
+                                            controller: searchController,
+                                            textFieldEnabled: isTextFieldEnabled,
+                                            buttonColor: themeController.buttonColor,
+
+                                            onSearch: () => searchPlanning(),
+                                          )
+                                          : const SizedBox.shrink(),
+                                ),
+
+                                //right button
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                      horizontal: 10,
+                                    ),
+                                    child: ValueListenableBuilder(
+                                      valueListenable: _selectedPlanningBoxIdsNotifier,
+                                      builder: (context, selectedPlanningBoxIds, _) {
+                                        final bool isProduction =
+                                            permissionCheck &&
+                                            canExecuteAction(
+                                              selectedPlanningIds:
+                                                  _selectedPlanningBoxIdsNotifier.value
+                                                      .map(int.parse)
+                                                      .toList(),
+                                              planningList: planningList,
+                                            );
+
+                                        final bool canRequestCheck =
+                                            permissionCheck &&
+                                            canExecuteAction(
+                                              selectedPlanningIds:
+                                                  _selectedPlanningBoxIdsNotifier.value
+                                                      .map(int.parse)
+                                                      .toList(),
+                                              planningList: planningList,
+                                              isRequest: true,
+                                            );
+
+                                        return SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          reverse: true,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              //report production
+                                              AnimatedButton(
+                                                onPressed:
+                                                    isProduction
+                                                        ? () async {
+                                                          try {
+                                                            final int selectedPlanningBoxId =
+                                                                int.parse(
+                                                                  selectedPlanningBoxIds.first,
+                                                                );
+
+                                                            final selectedPlanning = planningList
+                                                                .firstWhere(
+                                                                  (p) =>
+                                                                      p.planningBoxId ==
+                                                                      selectedPlanningBoxId,
+                                                                  orElse:
+                                                                      () =>
+                                                                          throw Exception(
+                                                                            "Không tìm thấy kế hoạch",
+                                                                          ),
+                                                                );
+
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (_) => DialogReportProduction(
+                                                                    planningId:
+                                                                        selectedPlanning
+                                                                            .planningBoxId,
+                                                                    qtyPaper:
+                                                                        selectedPlanning.qtyPaper,
+                                                                    onReport: () => loadPlanning(),
+                                                                    machine: machine,
+                                                                    isPaper: false,
+                                                                  ),
+                                                            );
+                                                          } catch (e, s) {
+                                                            if (!context.mounted) return;
+                                                            AppLogger.e(
+                                                              "Lỗi khi mở dialog",
+                                                              error: e,
+                                                              stackTrace: s,
+                                                            );
+
+                                                            showSnackBarError(
+                                                              context,
+                                                              "Đã xảy ra lỗi khi mở báo cáo.",
+                                                            );
+                                                          }
+                                                        }
+                                                        : null,
+                                                label: "Báo Cáo",
+                                                icon: Icons.assignment,
+                                                backgroundColor: themeController.buttonColor,
+                                              ),
+                                              const SizedBox(width: 10),
+
+                                              //edit qty report
+                                              AnimatedButton(
+                                                onPressed:
+                                                    canRequestCheck
+                                                        ? () async {
+                                                          try {
+                                                            final int selectedPlanningBoxId =
+                                                                int.parse(
+                                                                  selectedPlanningBoxIds.first,
+                                                                );
+
+                                                            final selectedPlanning = planningList
+                                                                .firstWhere(
+                                                                  (p) =>
+                                                                      p.planningBoxId ==
+                                                                      selectedPlanningBoxId,
+                                                                  orElse:
+                                                                      () =>
+                                                                          throw Exception(
+                                                                            "Không tìm thấy kế hoạch",
+                                                                          ),
+                                                                );
+
+                                                            final boxTimes =
+                                                                selectedPlanning.boxTimes?.first;
+
+                                                            final existingData = {
+                                                              "qty": boxTimes!.qtyProduced ?? 0,
+                                                              "waste": boxTimes.wasteBox ?? 0,
+                                                              "manager": boxTimes.shiftManagement,
+                                                            };
+
+                                                            // print("Existing data for report: $existingData");
+
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (_) => DialogReportProduction(
+                                                                    planningId:
+                                                                        selectedPlanning
+                                                                            .planningBoxId,
+                                                                    initialData: existingData,
+                                                                    qtyPaper:
+                                                                        selectedPlanning.qtyPaper,
+                                                                    onReport: () => loadPlanning(),
+                                                                    machine: machine,
+                                                                    isPaper: false,
+                                                                  ),
+                                                            );
+                                                          } catch (e, s) {
+                                                            AppLogger.e(
+                                                              "Lỗi khi mở dialog",
+                                                              error: e,
+                                                              stackTrace: s,
+                                                            );
+
+                                                            showSnackBarError(
+                                                              context,
+                                                              "Đã xảy ra lỗi khi mở báo cáo.",
+                                                            );
+                                                          }
+                                                        }
+                                                        : null,
+                                                label: "Sửa Báo Cáo",
+                                                icon: Symbols.construction,
+                                                backgroundColor: themeController.buttonColor,
+                                              ),
+                                              const SizedBox(width: 10),
+
+                                              //confirm production
+                                              AnimatedButton(
+                                                onPressed:
+                                                    isProduction
+                                                        ? () async {
+                                                          try {
+                                                            //get planning first
+                                                            final int selectedPlanningBoxId =
+                                                                int.parse(
+                                                                  selectedPlanningBoxIds.first,
+                                                                );
+
+                                                            // find planning by planningId
+                                                            final selectedPlanning = planningList
+                                                                .firstWhere(
+                                                                  (p) =>
+                                                                      p.planningBoxId ==
+                                                                      selectedPlanningBoxId,
+                                                                  orElse:
+                                                                      () =>
+                                                                          throw Exception(
+                                                                            "Không tìm thấy kế hoạch",
+                                                                          ),
+                                                                );
+
+                                                            await ManufactureService()
+                                                                .handlePutManufactureBox(
+                                                                  planningBoxId: [
+                                                                    selectedPlanning.planningBoxId,
+                                                                  ],
+                                                                  machine: machine,
+                                                                  action: "CONFIRM_PRODUCING",
+                                                                );
+
+                                                            loadPlanning();
+
+                                                            if (!context.mounted) return;
+                                                            showSnackBarSuccess(
+                                                              context,
+                                                              "Xác nhận sản xuất thành công",
+                                                            );
+                                                          } on ApiException catch (e) {
+                                                            final errorText = switch (e.errorCode) {
+                                                              "PLANNING_COMPLETED" =>
+                                                                "Đơn hàng đã hoàn thành",
+                                                              _ =>
+                                                                "Có lỗi xảy ra, vui lòng thử lại",
+                                                            };
+
+                                                            if (!context.mounted) return;
+                                                            showSnackBarError(context, errorText);
+                                                          } catch (e) {
+                                                            if (!context.mounted) return;
+                                                            showSnackBarError(
+                                                              context,
+                                                              "Có lỗi khi xác nhận SX: $e",
+                                                            );
+                                                          }
+                                                        }
+                                                        : null,
+                                                label: "Xác Nhận SX",
+                                                icon: Symbols.done_outline,
+                                                backgroundColor: themeController.buttonColor,
+                                              ),
+                                              const SizedBox(width: 10),
+
+                                              //choose machine
+                                              buildDropdownItems(
+                                                value: machine,
+                                                items: const [
+                                                  "Máy In",
+                                                  "Máy Bế",
+                                                  "Máy Xả",
+                                                  "Máy Dán",
+                                                  "Máy Cấn Lằn",
+                                                  "Máy Cắt Khe",
+                                                  "Máy Cán Màng",
+                                                  "Máy Đóng Ghim",
+                                                ],
+                                                onChanged: (value) {
+                                                  if (value != null) {
+                                                    changeMachine(value);
+                                                  }
+                                                },
+                                              ),
+                                              const SizedBox(width: 10),
+
+                                              //popupmenu
+                                              PopupMenuButton(
+                                                icon: const Icon(
+                                                  Icons.more_vert,
+                                                  color: Colors.black,
+                                                ),
+                                                color: Colors.white,
+                                                onSelected: (value) async {
+                                                  if (value == "sendCheck") {
+                                                    try {
+                                                      //get planning first
+                                                      final int selectedPlanningBoxId = int.parse(
+                                                        selectedPlanningBoxIds.first,
+                                                      );
+
+                                                      // find planning by planningId
+                                                      final selectedPlanning = planningList
+                                                          .firstWhere(
+                                                            (p) =>
+                                                                p.planningBoxId ==
+                                                                selectedPlanningBoxId,
+                                                            orElse:
+                                                                () =>
+                                                                    throw Exception(
+                                                                      "Không tìm thấy kế hoạch",
+                                                                    ),
+                                                          );
+
+                                                      await ManufactureService()
+                                                          .handlePutManufactureBox(
+                                                            planningBoxId: [
+                                                              selectedPlanning.planningBoxId,
+                                                            ],
+                                                            machine: machine,
+                                                            action: "REQUEST_STOCK_CHECK",
+                                                          );
+
+                                                      //cập nhật badge
+                                                      badgesController.fetchBoxWaitingCheck();
+
+                                                      loadPlanning();
+
+                                                      if (!context.mounted) return;
+                                                      showSnackBarSuccess(
+                                                        context,
+                                                        "Gửi yêu cầu kiểm tra thành công",
+                                                      );
+                                                    } on ApiException catch (e) {
+                                                      final errorText = switch (e.errorCode) {
+                                                        "PLANNING_ALREADY_REQUESTED" =>
+                                                          "Đơn này đã yêu cầu kiểm tra rồi",
+                                                        "STEP_QUANTITY_EQUAL_ZERO" =>
+                                                          "Có công đoạn chưa có số lượng, không thể yêu cầu nhập kho.",
+                                                        _ => "Có lỗi xảy ra, vui lòng thử lại",
+                                                      };
+
+                                                      if (mounted) {
+                                                        showSnackBarError(context, errorText);
+                                                      }
+                                                    } catch (e) {
+                                                      if (!context.mounted) return;
+                                                      showSnackBarError(
+                                                        context,
+                                                        "Có lỗi khi xác nhận SX: $e",
+                                                      );
+                                                    }
+                                                  } else if (value == "request") {
+                                                    await handlePlanningTask(
+                                                      context: context,
+                                                      selectedPlanningIds:
+                                                          selectedPlanningBoxIds
+                                                              .map(int.parse)
+                                                              .toList(),
+                                                      content:
+                                                          "Xác nhận yêu cầu hoàn thành kế hoạch này?",
+                                                      onExecute:
+                                                          (ids) => ManufactureService()
+                                                              .handlePutManufactureBox(
+                                                                planningBoxId: ids,
+                                                                machine: machine,
+                                                                action: "REQUEST_COMPLETE",
+                                                              ),
+                                                      onLoadPlanning: loadPlanning,
+                                                    );
+                                                  } else if (value == "confirmFixErr") {
+                                                    await handlePlanningTask(
+                                                      context: context,
+                                                      selectedPlanningIds:
+                                                          selectedPlanningBoxIds
+                                                              .map(int.parse)
+                                                              .toList(),
+                                                      content: "Xác nhận sửa lỗi kế hoạch này?",
+                                                      onExecute:
+                                                          (ids) => ManufactureService()
+                                                              .handlePutManufactureBox(
+                                                                planningBoxId: [ids.first],
+                                                                machine: machine,
+                                                                action: "CONFIRM_FIX_ERROR",
+                                                              ),
+                                                      onLoadPlanning: loadPlanning,
+                                                    );
+                                                  }
+                                                },
+                                                itemBuilder:
+                                                    (BuildContext context) => [
+                                                      const PopupMenuItem<String>(
+                                                        value: "sendCheck",
+                                                        child: ListTile(
+                                                          leading: Icon(Symbols.send),
+                                                          title: Text("Yêu Cầu Kiểm"),
+                                                        ),
+                                                      ),
+                                                      const PopupMenuItem<String>(
+                                                        value: "request",
+                                                        child: ListTile(
+                                                          leading: Icon(Symbols.send),
+                                                          title: Text("Yêu Cầu Hoàn Thành"),
+                                                        ),
+                                                      ),
+                                                      const PopupMenuItem<String>(
+                                                        value: "confirmFixErr",
+                                                        child: ListTile(
+                                                          leading: Icon(Symbols.construction),
+                                                          title: Text("Xác Nhận Sửa Lỗi"),
+                                                        ),
+                                                      ),
+                                                    ],
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ],
+                    ),
 
-                    //auto resize
-                    allowColumnsResizing: true,
-                    columnResizeMode: ColumnResizeMode.onResize,
+                    // table
+                    Expanded(
+                      child: FutureBuilder(
+                        future: futurePlanning,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: SizedBox(
+                                height: 400,
+                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+                              ),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text("Lỗi: ${snapshot.error}"));
+                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                "Không có đơn hàng nào",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                              ),
+                            );
+                          }
 
-                    onColumnResizeStart: GridResizeHelper.onResizeStart,
-                    onColumnResizeUpdate:
-                        (details) => GridResizeHelper.onResizeUpdate(
-                          details: details,
-                          columns: columns,
-                          setState: setState,
-                        ),
-                    onColumnResizeEnd:
-                        (details) => GridResizeHelper.onResizeEnd(
-                          details: details,
-                          tableKey: "queueBox",
-                          columnWidths: columnWidths,
-                          setState: setState,
-                        ),
+                          final List<PlanningBoxModel> data = snapshot.data!;
+                          planningList = data;
 
-                    onSelectionChanged: (addedRows, removedRows) {
-                      if (addedRows.isEmpty && removedRows.isEmpty) return;
+                          if (_cachedBoxes == null || _cachedBoxes != data) {
+                            _cachedBoxes = data;
+                            _cachedDatasource = MachineBoxDatasource(
+                              planning: data,
+                              selectedPlanningIds: _selectedPlanningBoxIdsNotifier.value,
+                              showGroup: showGroup,
+                              page: "production",
+                              machine: machine,
+                              onRowTap: (PlanningBoxModel item) {
+                                showDialog(
+                                  context: context,
+                                  builder:
+                                      (_) => DialogInspectionCheck(
+                                        isQC: false,
+                                        isPaper: false,
+                                        planningBoxId: item.planningBoxId,
+                                        machine: machine,
+                                        onSubmit: () {},
+                                      ),
+                                );
+                              },
+                            );
+                          }
 
-                      setState(() {
-                        // Lấy selection thật sự từ controller
-                        final selectedRows = dataGridController.selectedRows;
-
-                        selectedPlanningIds =
-                            selectedRows
-                                .map((row) {
-                                  final cell = row.getCells().firstWhere(
-                                    (c) => c.columnName == "planningBoxId",
-                                    orElse:
-                                        () => const DataGridCell(
-                                          columnName: "planningBoxId",
-                                          value: "",
+                          return StatefulBuilder(
+                            builder: (context, localSetState) {
+                              return SfDataGridTheme(
+                                data: SfDataGridThemeData(
+                                  selectionColor: Colors.blue.withValues(alpha: 0.3),
+                                  currentCellStyle: const DataGridCurrentCellStyle(
+                                    borderColor: Colors.transparent,
+                                    borderWidth: 0,
+                                  ),
+                                ),
+                                child: SfDataGrid(
+                                  controller: dataGridController,
+                                  source: _cachedDatasource!,
+                                  allowExpandCollapseGroup: true, // Bật grouping
+                                  autoExpandGroups: true,
+                                  isScrollbarAlwaysShown: true,
+                                  columnWidthMode: ColumnWidthMode.auto,
+                                  selectionMode: SelectionMode.multiple,
+                                  headerRowHeight: 35,
+                                  rowHeight: 40,
+                                  columns: ColumnWidthTable.applySavedWidths(
+                                    columns: columns,
+                                    widths: columnWidths,
+                                  ),
+                                  frozenColumnsCount: 6,
+                                  stackedHeaderRows: <StackedHeaderRow>[
+                                    StackedHeaderRow(
+                                      cells: [
+                                        StackedHeaderCell(
+                                          columnNames: [
+                                            "qtyPrinted",
+                                            "qtyCanLan",
+                                            "qtyCanMang",
+                                            "qtyXa",
+                                            "qtyCatKhe",
+                                            "qtyBe",
+                                            "qtyDan",
+                                            "qtyDongGhim",
+                                          ],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: "Số Lượng Của Các Công Đoạn",
+                                              themeController: themeController,
+                                            ),
+                                          ),
                                         ),
-                                  );
-                                  return cell.value.toString();
-                                })
-                                .where((id) => id.isNotEmpty)
-                                .toList();
+                                        StackedHeaderCell(
+                                          columnNames: ["quantityOrd", "qtyPaper", "needProd"],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: "Số Lượng",
+                                              themeController: themeController,
+                                            ),
+                                          ),
+                                        ),
+                                        StackedHeaderCell(
+                                          columnNames: ["inMatTruoc", "inMatSau"],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: "In Ấn",
+                                              themeController: themeController,
+                                            ),
+                                          ),
+                                        ),
+                                        StackedHeaderCell(
+                                          columnNames: ["dan_1_Manh", "dan_2_Manh"],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: "Dán",
+                                              themeController: themeController,
+                                            ),
+                                          ),
+                                        ),
+                                        StackedHeaderCell(
+                                          columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: "Đóng Ghim",
+                                              themeController: themeController,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
 
-                        // cập nhật cho datasource
-                        machineBoxDatasource.selectedPlanningIds = selectedPlanningIds;
-                        machineBoxDatasource.notifyListeners();
-                      });
-                    },
-                  );
-                },
+                                  //auto resize
+                                  allowColumnsResizing: true,
+                                  columnResizeMode: ColumnResizeMode.onResize,
+
+                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                  onColumnResizeUpdate:
+                                      (details) => GridResizeHelper.onResizeUpdate(
+                                        details: details,
+                                        columns: columns,
+                                        setState: localSetState,
+                                      ),
+                                  onColumnResizeEnd:
+                                      (details) => GridResizeHelper.onResizeEnd(
+                                        details: details,
+                                        tableKey: "queueBox",
+                                        columnWidths: columnWidths,
+                                        setState: setState,
+                                      ),
+
+                                  onSelectionChanging: (addedRows, removedRows) {
+                                    if (_isSelectionChange) return true;
+
+                                    final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                                    final isShiftPressed =
+                                        keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                                        keys.contains(LogicalKeyboardKey.shiftRight);
+
+                                    // Nếu đè phím Shift và trước đó đã có dòng được chọn
+                                    if (isShiftPressed &&
+                                        dataGridController.selectedRows.isNotEmpty &&
+                                        addedRows.isNotEmpty) {
+                                      final lastSelected = dataGridController.selectedRows.last;
+                                      final newlyClicked = addedRows.last;
+
+                                      // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
+                                      final allRows = _cachedDatasource!.rows;
+                                      final startIdx = allRows.indexOf(lastSelected);
+                                      final endIdx = allRows.indexOf(newlyClicked);
+
+                                      if (startIdx != -1 && endIdx != -1) {
+                                        final min = startIdx < endIdx ? startIdx : endIdx;
+                                        final max = startIdx > endIdx ? startIdx : endIdx;
+
+                                        // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
+                                        final List<DataGridRow> rangeSelection = [];
+                                        for (int i = min; i <= max; i++) {
+                                          rangeSelection.add(allRows[i]);
+                                        }
+
+                                        // Ép controller chọn dải dòng
+                                        _isSelectionChange = true;
+                                        dataGridController.selectedRows = List.from(rangeSelection);
+                                        _isSelectionChange = false;
+
+                                        // Cập nhật ID đơn hàng
+                                        Future.microtask(() {
+                                          _isSelectionChange = true;
+                                          dataGridController.selectedRows = List.from(
+                                            rangeSelection,
+                                          );
+                                          _isSelectionChange = false;
+
+                                          _updateSelectedIdsFromRows(rangeSelection);
+                                        });
+                                        return false;
+                                      }
+                                    }
+                                    return true;
+                                  },
+
+                                  onSelectionChanged: (addedRows, removedRows) {
+                                    if (_isSelectionChange) return;
+                                    if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                                    // bắt sự kiện từ bàn phím
+                                    final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                                    final isCtrlPressed =
+                                        keys.contains(LogicalKeyboardKey.controlLeft) ||
+                                        keys.contains(LogicalKeyboardKey.controlRight);
+                                    final isShiftPressed =
+                                        keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                                        keys.contains(LogicalKeyboardKey.shiftRight);
+
+                                    if (!isCtrlPressed && !isShiftPressed) {
+                                      if (addedRows.isNotEmpty) {
+                                        // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
+                                        final latestRow = addedRows.last;
+
+                                        _isSelectionChange = true;
+                                        dataGridController.selectedRows = [latestRow];
+                                        _isSelectionChange = false;
+                                      } else if (removedRows.isNotEmpty &&
+                                          dataGridController.selectedRows.isNotEmpty) {
+                                        //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
+                                        final clickedRow = removedRows.first;
+
+                                        _isSelectionChange = true;
+                                        dataGridController.selectedRows = [clickedRow];
+                                        _isSelectionChange = false;
+                                      }
+                                    }
+
+                                    _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ),
+
+            //slider zoom
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, _) {
+                return SliderZoom(
+                  zoomLevel: zoom,
+                  onZoomChanged: _updateZoom,
+                  initialMargin: Offset(73, 125),
+                  buttonColor: themeController.buttonColor.value,
+                );
+              },
             ),
           ],
         ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadPlanning(),
         backgroundColor: themeController.buttonColor.value,

@@ -115,150 +115,160 @@ class _ManageOrderState extends State<AdminOrder> {
                                         data: Theme.of(
                                           context,
                                         ).copyWith(dividerColor: Colors.transparent),
-                                        child: ExpansionTile(
-                                          tilePadding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 6,
-                                          ),
-                                          collapsedBackgroundColor: Colors.transparent,
-                                          backgroundColor: Colors.transparent,
-                                          childrenPadding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 6,
-                                          ),
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: ExpansionTile(
+                                            tilePadding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 6,
+                                            ),
+                                            collapsedBackgroundColor: Colors.transparent,
+                                            backgroundColor: Colors.transparent,
+                                            childrenPadding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 6,
+                                            ),
 
-                                          // Header
-                                          title: Builder(
-                                            builder: (context) {
-                                              final customerNames = ordersInGroup
-                                                  .map(
-                                                    (c) => c.customer?.customerName ?? "Không rõ",
-                                                  )
-                                                  .toSet()
-                                                  .join(", ");
+                                            // Header
+                                            title: Builder(
+                                              builder: (context) {
+                                                final customerNames = ordersInGroup
+                                                    .map(
+                                                      (c) => c.customer?.customerName ?? "Không rõ",
+                                                    )
+                                                    .toSet()
+                                                    .join(", ");
 
-                                              return Row(
-                                                children: [
-                                                  const Icon(
-                                                    Icons.receipt_outlined,
-                                                    color: Colors.blueGrey,
-                                                    size: 20,
-                                                  ),
-                                                  const SizedBox(width: 6),
-                                                  Expanded(
-                                                    child: Text(
-                                                      "Đơn $prefix • $customerNames • ${ordersInGroup.length} đơn",
-                                                      style: GoogleFonts.inter(
-                                                        fontWeight: FontWeight.w600,
-                                                        fontSize: 16,
-                                                        color: Colors.blueGrey.shade800,
-                                                      ),
-                                                      overflow: TextOverflow.ellipsis,
-                                                      maxLines: 1,
+                                                return Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.receipt_outlined,
+                                                      color: Colors.blueGrey,
+                                                      size: 20,
                                                     ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          ),
-                                          trailing: const Icon(
-                                            Icons.keyboard_arrow_down,
-                                            color: Colors.grey,
-                                          ),
+                                                    const SizedBox(width: 6),
+                                                    Expanded(
+                                                      child: Text(
+                                                        "Đơn $prefix • $customerNames • ${ordersInGroup.length} đơn",
+                                                        style: GoogleFonts.inter(
+                                                          fontWeight: FontWeight.w600,
+                                                          fontSize: 16,
+                                                          color: Colors.blueGrey.shade800,
+                                                        ),
+                                                        overflow: TextOverflow.ellipsis,
+                                                        maxLines: 1,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ),
+                                            trailing: const Icon(
+                                              Icons.keyboard_arrow_down,
+                                              color: Colors.grey,
+                                            ),
 
-                                          // Children (list các order)
-                                          children:
-                                              ordersInGroup.map((ordersPending) {
-                                                final isSelected = selectedOrder == ordersPending;
+                                            // Children (list các order)
+                                            children:
+                                                ordersInGroup.map((ordersPending) {
+                                                  final isSelected = selectedOrder == ordersPending;
 
-                                                return AnimatedContainer(
-                                                  duration: const Duration(milliseconds: 300),
-                                                  margin: const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 6,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        isSelected
-                                                            ? Colors.blue.shade50
-                                                            : Colors.white,
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    border: Border.all(
+                                                  return AnimatedContainer(
+                                                    duration: const Duration(milliseconds: 300),
+                                                    margin: const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 6,
+                                                    ),
+                                                    decoration: BoxDecoration(
                                                       color:
                                                           isSelected
-                                                              ? Colors.blue.shade400
-                                                              : Colors.grey.shade300,
-                                                      width: isSelected ? 1.5 : 1,
-                                                    ),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.black.withValues(alpha: 0.08),
-                                                        blurRadius: 10,
-                                                        spreadRadius: 1,
-                                                        offset: const Offset(0, 4),
+                                                              ? Colors.blue.shade50
+                                                              : Colors.white,
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      border: Border.all(
+                                                        color:
+                                                            isSelected
+                                                                ? Colors.blue.shade400
+                                                                : Colors.grey.shade300,
+                                                        width: isSelected ? 1.5 : 1,
                                                       ),
-                                                    ],
-                                                  ),
-                                                  child: ListTile(
-                                                    contentPadding: const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 10,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withValues(
+                                                            alpha: 0.08,
+                                                          ),
+                                                          blurRadius: 10,
+                                                          spreadRadius: 1,
+                                                          offset: const Offset(0, 4),
+                                                        ),
+                                                      ],
                                                     ),
-                                                    title: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        Flexible(
+                                                    child: Material(
+                                                      color: Colors.transparent,
+                                                      child: ListTile(
+                                                        contentPadding: const EdgeInsets.symmetric(
+                                                          horizontal: 16,
+                                                          vertical: 10,
+                                                        ),
+                                                        title: Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            Flexible(
+                                                              child: Text(
+                                                                "Mã đơn: ${ordersPending.orderId}",
+                                                                style: GoogleFonts.inter(
+                                                                  fontWeight: FontWeight.w600,
+                                                                  fontSize: 14,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(width: 4),
+
+                                                            Icon(
+                                                              ordersPending.isBox
+                                                                  ? Symbols.package_2
+                                                                  : Symbols.article,
+                                                              size: 18,
+                                                              color: Colors.orange,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        subtitle: Padding(
+                                                          padding: const EdgeInsets.only(top: 4.0),
                                                           child: Text(
-                                                            "Mã đơn: ${ordersPending.orderId}",
+                                                            'Sản phẩm: ${ordersPending.product.productName}',
                                                             style: GoogleFonts.inter(
-                                                              fontWeight: FontWeight.w600,
-                                                              fontSize: 14,
+                                                              color: Colors.grey.shade700,
+                                                              fontSize: 13,
                                                             ),
                                                           ),
                                                         ),
-                                                        const SizedBox(width: 4),
-
-                                                        Icon(
-                                                          ordersPending.isBox
-                                                              ? Symbols.package_2
-                                                              : Symbols.article,
-                                                          size: 18,
-                                                          color: Colors.orange,
+                                                        trailing: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment.center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment.end,
+                                                          children: [
+                                                            Text(
+                                                              'Tổng: ${OrderModel.formatCurrency(ordersPending.totalPrice)} đ',
+                                                              style: GoogleFonts.inter(
+                                                                color: Colors.blue.shade600,
+                                                                fontSize: 13,
+                                                                fontWeight: FontWeight.bold,
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                      ],
-                                                    ),
-                                                    subtitle: Padding(
-                                                      padding: const EdgeInsets.only(top: 4.0),
-                                                      child: Text(
-                                                        'Sản phẩm: ${ordersPending.product.productName}',
-                                                        style: GoogleFonts.inter(
-                                                          color: Colors.grey.shade700,
-                                                          fontSize: 13,
-                                                        ),
+                                                        selected: isSelected,
+                                                        onTap:
+                                                            () => setState(
+                                                              () => selectedOrder = ordersPending,
+                                                            ),
                                                       ),
                                                     ),
-                                                    trailing: Column(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                                      children: [
-                                                        Text(
-                                                          'Tổng: ${OrderModel.formatCurrency(ordersPending.totalPrice)} đ',
-                                                          style: GoogleFonts.inter(
-                                                            color: Colors.blue.shade600,
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    selected: isSelected,
-                                                    onTap:
-                                                        () => setState(
-                                                          () => selectedOrder = ordersPending,
-                                                        ),
-                                                  ),
-                                                );
-                                              }).toList(),
+                                                  );
+                                                }).toList(),
+                                          ),
                                         ),
                                       ),
                                     );
@@ -458,6 +468,7 @@ class _ManageOrderState extends State<AdminOrder> {
           },
         ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await _loadOrders();
@@ -513,7 +524,7 @@ class _ManageOrderState extends State<AdminOrder> {
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w500,
                         fontSize: 16,
-                        color: valueColor ?? Colors.black87,
+                        color: Colors.black87,
                       ),
                     ),
                   ],
@@ -538,9 +549,9 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('📅 Ngày nhận:', formatter.format(order.dayReceiveOrder)),
       _infoRow('🚚 Ngày giao:', formatter.format(order.dateRequestShipping!)),
       _infoRow('👤 Tên khách hàng:', order.customer!.customerName),
-      _infoRow('🏢 Tên công ty:', order.customer!.companyName),
+      _infoRow('🏢 Tên công ty:', order.customer!.companyName, valueColor: Colors.redAccent),
       _infoRow('📦 Loại sản phẩm:', order.product!.typeProduct),
-      _infoRow('🛒 Tên sản phẩm:', order.product!.productName ?? ""),
+      _infoRow('🛒 Tên sản phẩm:', order.product!.productName ?? "", valueColor: Colors.redAccent),
       _infoRow('📦 Quy cách thùng:', order.QC_box.toString()),
       _infoRow('🔢 Cấn lằn:', order.canLan.toString()),
       _infoRow(
@@ -548,8 +559,13 @@ class _ManageOrderState extends State<AdminOrder> {
         order.daoXa.toString(),
         secondLabel: 'Chống thấm:',
         secondValue: order.chongTham ? '✅' : '',
+        valueColor: Colors.redAccent,
       ),
-      _infoRow('🔧 Kết cấu:', '${order.formatterStructureOrder} - ${order.flute}'),
+      _infoRow(
+        '🔧 Kết cấu:',
+        '${order.formatterStructureOrder} - ${order.flute}',
+        valueColor: Colors.redAccent,
+      ),
       _infoRow(
         '✂️ Dài Tính Tiền:',
         OrderModel.formatCurrency(order.lengthPaperCustomer),
@@ -569,7 +585,7 @@ class _ManageOrderState extends State<AdminOrder> {
         OrderModel.formatCurrency(order.paperSizeManufacture),
         unit: "cm",
       ),
-      _infoRow('📐 Đơn vị tính:', order.dvt),
+      _infoRow('📐 Đơn vị tính:', order.dvt, valueColor: Colors.redAccent),
       _infoRow('🔢 Số lượng (Khách Hàng):', order.quantityCustomer.toString(), unit: ""),
       _infoRow('🔢 Số lượng (Sản Xuất):', order.quantityManufacture.toString(), unit: ""),
       _infoRow('📜 Số con:', OrderModel.formatCurrency(order.numberChild), unit: "Con"),
@@ -579,6 +595,7 @@ class _ManageOrderState extends State<AdminOrder> {
           '💲 Giá:',
           OrderModel.formatCurrency(order.price),
           unit: 'VNĐ/${order.dvt == "Kg" ? "Kg" : "m²"}',
+          valueColor: Colors.redAccent,
         ),
       _infoRow(
         '💵 Đơn Giá:',

@@ -34,7 +34,7 @@ class _CustomerPageState extends State<CustomerPage> {
   late Future<Map<String, dynamic>> futureCustomer;
   late List<GridColumn> columns;
 
-  //controller
+  //controllers
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
@@ -48,9 +48,9 @@ class _CustomerPageState extends State<CustomerPage> {
     "Ngày Tạo": "createdAt",
   };
 
+  Map<String, double> columnWidths = {}; //map header table
   final _zoomNotifier = ValueNotifier<double>(1.0);
   final _selectedCustomerIdNotifier = ValueNotifier<String?>(null);
-  Map<String, double> columnWidths = {}; //map header table
 
   //datasource and cache
   List<CustomerModel>? _cachedCustomers;
@@ -179,6 +179,7 @@ class _CustomerPageState extends State<CustomerPage> {
                   },
                 );
               },
+
               //container contain button and table
               child: Container(
                 color: Colors.white,
@@ -515,7 +516,7 @@ class _CustomerPageState extends State<CustomerPage> {
                             _cachedCustomers = customers;
                             _cachedDatasource = CustomerDatasource(
                               customer: customers,
-                              selectedCustomerId: _selectedCustomerIdNotifier,
+                              selectedCustomerId: _selectedCustomerIdNotifier.value,
                               currentPage: currentPage,
                               pageSize: pageSize,
                             );
@@ -624,8 +625,9 @@ class _CustomerPageState extends State<CustomerPage> {
               builder: (context, zoom, _) {
                 return SliderZoom(
                   zoomLevel: zoom,
-                  buttonColor: themeController.buttonColor.value,
                   onZoomChanged: _updateZoom,
+                  initialMargin: Offset(142, 56),
+                  buttonColor: themeController.buttonColor.value,
                 );
               },
             ),

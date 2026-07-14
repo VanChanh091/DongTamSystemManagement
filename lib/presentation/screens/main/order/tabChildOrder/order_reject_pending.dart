@@ -40,9 +40,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
 
+  Map<String, double> columnWidths = {};
   final _zoomNotifier = ValueNotifier<double>(1.0);
   final _selectedOrderIdNotifier = ValueNotifier<String?>(null);
-  Map<String, double> columnWidths = {};
 
   //datasource and cache
   List<OrderModel>? _cachedOrders;
@@ -343,6 +343,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                           final List<OrderModel> data = snapshot.data!;
 
                           if (_cachedOrders == null || _cachedOrders != data) {
+                            _cachedOrders = data;
                             _cachedDatasource = OrderDataSource(
                               context: context,
                               orders: data,
@@ -363,7 +364,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                   selectionMode: SelectionMode.single,
                                   columnWidthMode: ColumnWidthMode.auto,
                                   headerRowHeight: 30,
-                                  rowHeight: 40,
+                                  rowHeight: 38,
                                   columns: ColumnWidthTable.applySavedWidths(
                                     columns: columns,
                                     widths: columnWidths,
@@ -451,9 +452,9 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
               builder: (context, zoom, _) {
                 return SliderZoom(
                   zoomLevel: zoom,
-                  buttonColor: themeController.buttonColor.value,
                   onZoomChanged: _updateZoom,
-                  initialOffset: const Offset(1780, 845),
+                  initialMargin: Offset(73, 173),
+                  buttonColor: themeController.buttonColor.value,
                 );
               },
             ),

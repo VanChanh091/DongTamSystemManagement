@@ -21,7 +21,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.32.5" # Dùng action flutter-action để cài đặt Flutter vào máy ảo.
+          flutter-version: "3.44.5" # Dùng action flutter-action để cài đặt Flutter vào máy ảo.
 
       - name: Install dependencies
         run: flutter pub get # Cài các package trong pubspec.yaml

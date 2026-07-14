@@ -7,7 +7,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class CustomerDatasource extends DataGridSource {
   List<CustomerModel> customer = [];
-  ValueNotifier<String?> selectedCustomerId;
+  String? selectedCustomerId;
   int currentPage;
   int pageSize;
 
@@ -21,13 +21,6 @@ class CustomerDatasource extends DataGridSource {
     required this.selectedCustomerId,
   }) {
     buildDataGridRows();
-    selectedCustomerId.addListener(notifyListeners);
-  }
-
-  @override
-  void dispose() {
-    selectedCustomerId.removeListener(notifyListeners);
-    super.dispose();
   }
 
   List<DataGridCell> buildCustomerCells(CustomerModel customer, int index) {

@@ -84,17 +84,7 @@ class EmployeeDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final employeeId = row.getCells().firstWhere((cell) => cell.columnName == 'employeeId').value;
-
-    Color backgroundColor;
-    if (selectedEmployeeId == employeeId) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
-    } else {
-      backgroundColor = Colors.transparent;
-    }
-
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
             Alignment alignment;

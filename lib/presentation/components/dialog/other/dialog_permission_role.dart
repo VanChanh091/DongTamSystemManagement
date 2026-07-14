@@ -18,8 +18,6 @@ class DialogPermissionRole extends StatefulWidget {
 }
 
 class _DialogPermissionRoleState extends State<DialogPermissionRole> {
-  final formKey = GlobalKey<FormState>();
-
   final List<String> roles = ["admin", "manager", "user"];
   final Map<String, String> roleLabels = {
     "admin": "Quản trị viên",
@@ -60,10 +58,10 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "read": "Chỉ đọc",
   };
 
-  late int originalUserId;
   bool success = false;
-  late List<String> chosenPermissions;
+  late int originalUserId;
   late String chosenRole;
+  late List<String> chosenPermissions;
 
   ValueNotifier<String?> selectedOption = ValueNotifier<String?>(null);
   Map<String, ValueNotifier<bool>> permissionCheckStates = {};
@@ -82,13 +80,8 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
   }
 
   void handleSave() async {
-    if (!formKey.currentState!.validate()) {
-      return;
-    }
-
     try {
       if (selectedOption.value == "role") {
-        AppLogger.d("Cập nhật ROLE: $chosenRole cho user: $originalUserId");
         success = await AdminService().updateInfoUser(userId: originalUserId, newRole: chosenRole);
       } else if (selectedOption.value == "permission") {
         List<String> updatedPermissions =
@@ -97,7 +90,6 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
                 .map((entry) => entry.key)
                 .toList();
 
-        AppLogger.d("Cập nhật PERMISSIONS: $updatedPermissions cho user: $originalUserId");
         success = await AdminService().updateInfoUser(
           userId: originalUserId,
           permissions: updatedPermissions,
@@ -140,101 +132,97 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text("Cập nhật Role / Permissions"),
-      content: SingleChildScrollView(
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Radio group
-              ValueListenableBuilder<String?>(
-                valueListenable: selectedOption,
-                builder: (context, value, _) {
-                  return Column(
-                    children: [
-                      RadioListTile<String>(
-                        title: const Text("Vai trò", style: TextStyle(fontSize: 16)),
-                        value: "role",
-                      ),
-                      RadioListTile<String>(
-                        title: const Text("Quyền truy cập", style: TextStyle(fontSize: 16)),
-                        value: "permission",
-                      ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 15),
-
-              // Dropdown role
-              ValueListenableBuilder<String?>(
-                valueListenable: selectedOption,
-                builder: (context, value, _) {
-                  return value == "role"
-                      ? dropdownForTypes(
-                        roles,
-                        chosenRole,
-                        (val) => setState(() => chosenRole = val!),
-                        labelMap: roleLabels,
-                      )
-                      : const SizedBox.shrink();
-                },
-              ),
-
-              // Checkbox list permission
-              SizedBox(
-                height: 300,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: ValueListenableBuilder<String?>(
-                    valueListenable: selectedOption,
-                    builder: (context, value, _) {
-                      return value == "permission"
-                          ? Column(
-                            children:
-                                permissions.map((perm) {
-                                  return ValueListenableBuilder<bool>(
-                                    valueListenable: permissionCheckStates[perm]!,
-                                    builder: (context, checked, _) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          checkboxTheme: CheckboxThemeData(
-                                            fillColor: WidgetStateProperty.resolveWith<Color>((
-                                              states,
-                                            ) {
-                                              if (states.contains(WidgetState.selected)) {
-                                                return Colors.red;
-                                              }
-                                              return Colors.white;
-                                            }),
-                                            checkColor: WidgetStateProperty.all<Color>(
-                                              Colors.white,
-                                            ),
-                                            side: const BorderSide(color: Colors.black, width: 1),
-                                          ),
-                                        ),
-                                        child: CheckboxListTile(
-                                          title: Text(permissionsLabels[perm] ?? perm),
-                                          value: checked,
-                                          onChanged: (val) {
-                                            permissionCheckStates[perm]!.value = val ?? false;
-                                          },
-                                          controlAffinity: ListTileControlAffinity.leading,
-                                        ),
-                                      );
-                                    },
-                                  );
-                                }).toList(),
-                          )
-                          : const SizedBox.shrink();
-                    },
+      title: const Text("Cập nhật vai trò/quyền hạn"),
+      content: ValueListenableBuilder<String?>(
+        valueListenable: selectedOption,
+        builder: (context, value, _) {
+          return RadioGroup(
+            groupValue: value,
+            onChanged: (val) {
+              if (val != null) selectedOption.value = val;
+            },
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                children: [
+                  RadioListTile<String>(
+                    title: const Text("Vai trò", style: TextStyle(fontSize: 16)),
+                    value: "role",
                   ),
-                ),
+                  const SizedBox(height: 10),
+                  if (value == 'role') ...[
+                    dropdownForTypes(
+                      roles,
+                      chosenRole,
+                      (val) => setState(() => chosenRole = val!),
+                      labelMap: roleLabels,
+                    ),
+                  ],
+
+                  RadioListTile<String>(
+                    title: const Text("Quyền truy cập", style: TextStyle(fontSize: 16)),
+                    value: "permission",
+                  ),
+                  const SizedBox(height: 10),
+                  if (value == 'permission') ...[
+                    SizedBox(
+                      height: 300,
+                      child: ValueListenableBuilder<String?>(
+                        valueListenable: selectedOption,
+                        builder: (context, value, _) {
+                          return value == "permission"
+                              ? SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: Column(
+                                  children:
+                                      permissions.map((perm) {
+                                        return ValueListenableBuilder<bool>(
+                                          valueListenable: permissionCheckStates[perm]!,
+                                          builder: (context, checked, _) {
+                                            return Theme(
+                                              data: Theme.of(context).copyWith(
+                                                checkboxTheme: CheckboxThemeData(
+                                                  fillColor: WidgetStateProperty.resolveWith<Color>(
+                                                    (states) {
+                                                      if (states.contains(WidgetState.selected)) {
+                                                        return Colors.red;
+                                                      }
+                                                      return Colors.white;
+                                                    },
+                                                  ),
+                                                  checkColor: WidgetStateProperty.all<Color>(
+                                                    Colors.white,
+                                                  ),
+                                                  side: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: CheckboxListTile(
+                                                title: Text(permissionsLabels[perm] ?? perm),
+                                                value: checked,
+                                                onChanged: (val) {
+                                                  permissionCheckStates[perm]!.value = val ?? false;
+                                                },
+                                                controlAffinity: ListTileControlAffinity.leading,
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      }).toList(),
+                                ),
+                              )
+                              : const SizedBox.shrink();
+                        },
+                      ),
+                    ),
+                  ],
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actionsAlignment: MainAxisAlignment.spaceBetween,

@@ -9,7 +9,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportPaperDatasource extends DataGridSource {
   List<ReportPaperModel> reportPapers = [];
-  List<int> selectedReportId;
+  int? selectedReportId;
   Map<String, dynamic> summaryByDate = {};
 
   int currentPage;
@@ -214,7 +214,7 @@ class ReportPaperDatasource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final reportPaperId =
         row.getCells().firstWhere((cell) => cell.columnName == 'reportPaperId').value;
-    final isSelected = selectedReportId.contains(reportPaperId);
+    final isSelected = selectedReportId == reportPaperId;
 
     Color backgroundColor;
     if (isSelected == true) {

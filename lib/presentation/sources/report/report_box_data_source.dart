@@ -9,7 +9,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ReportBoxDatasource extends DataGridSource {
   List<ReportBoxModel> reportPapers = [];
-  List<int>? selectedReportId;
+  int? selectedReportId;
   String machine;
   int currentPage;
   int pageSize;
@@ -216,7 +216,7 @@ class ReportBoxDatasource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final reportPaperId =
         row.getCells().firstWhere((cell) => cell.columnName == 'reportBoxId').value;
-    final isSelected = selectedReportId?.contains(reportPaperId);
+    final isSelected = selectedReportId == reportPaperId;
 
     final Map<String, String> machineColumnMap = {
       'qtyPrinted': "Máy In",

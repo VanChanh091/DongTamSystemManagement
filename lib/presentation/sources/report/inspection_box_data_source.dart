@@ -9,7 +9,7 @@ import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class InspectionBoxDataSource extends DataGridSource {
   List<QcInspectionBoxModel> inspectionBoxes = [];
-  List<int> selectedBoxIds;
+  int? selectedBoxIds;
   String machine;
   int currentPage;
   int pageSize;
@@ -149,7 +149,7 @@ class InspectionBoxDataSource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final inspecBoxId = row.getCells().firstWhere((cell) => cell.columnName == "inspecBoxId").value;
-    final isSelected = selectedBoxIds.contains(inspecBoxId);
+    final isSelected = selectedBoxIds == inspecBoxId;
 
     Color backgroundColor;
     if (isSelected == true) {

@@ -22,13 +22,17 @@ class AdminMangeUser extends StatefulWidget {
 
 class _AdminMangeUserState extends State<AdminMangeUser> {
   late Future<List<UserAdminModel>> futureUserAdmin;
+
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+
   TextEditingController searchController = TextEditingController();
+
+  String searchType = "Tất cả";
   List<int> selectedUserIds = [];
+
   bool selectedAll = false;
   bool isTextFieldEnabled = false;
-  String searchType = "Tất cả";
 
   @override
   void initState() {
@@ -150,58 +154,47 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                       children: [
                                         //permission/role
                                         AnimatedButton(
-                                          onPressed: () async {
-                                            if (selectedUserIds.isEmpty) {
-                                              showSnackBarError(
-                                                context,
-                                                "Chưa chọn người dùng cần phân quyền/vai trò",
-                                              );
-                                              return;
-                                            }
+                                          onPressed:
+                                              selectedUserIds.isNotEmpty
+                                                  ? () async {
+                                                    if (selectedUserIds.length > 1) {
+                                                      showSnackBarError(
+                                                        context,
+                                                        "Chỉ được cập nhật mỗi lần 1 user",
+                                                      );
+                                                      return;
+                                                    }
 
-                                            if (selectedUserIds.length > 1) {
-                                              showSnackBarError(
-                                                context,
-                                                "Chỉ được cập nhật mỗi lần 1 user",
-                                              );
-                                              return;
-                                            }
+                                                    final users = await futureUserAdmin;
 
-                                            final users = await futureUserAdmin;
+                                                    final selectedUser = users.firstWhere(
+                                                      (u) => selectedUserIds.contains(u.userId),
+                                                      orElse: () {
+                                                        AppLogger.e(
+                                                          'Selected user not found after loading list.',
+                                                        );
+                                                        return users.first;
+                                                      },
+                                                    );
 
-                                            if (!mounted) {
-                                              // Dùng AppLogger để ghi lại rằng widget đã bị hủy
-                                              AppLogger.w(
-                                                'Widget AdminMangeUser disposed before user data loaded.',
-                                              );
-                                              return;
-                                            }
-                                            final selectedUser = users.firstWhere(
-                                              (u) => selectedUserIds.contains(u.userId),
-                                              orElse: () {
-                                                AppLogger.e(
-                                                  'Selected user not found after loading list.',
-                                                );
-                                                return users.first;
-                                              },
-                                            );
-
-                                            if (!context.mounted) return;
-
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (_) => DialogPermissionRole(
-                                                    userAdmin: selectedUser,
-                                                    onPermissionOrRole: () {
-                                                      setState(() {
-                                                        futureUserAdmin =
-                                                            AdminService().getUsersAdmin();
-                                                      });
-                                                    },
-                                                  ),
-                                            );
-                                          },
+                                                    if (context.mounted) {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder:
+                                                            (_) => DialogPermissionRole(
+                                                              userAdmin: selectedUser,
+                                                              onPermissionOrRole: () {
+                                                                setState(() {
+                                                                  futureUserAdmin =
+                                                                      AdminService()
+                                                                          .getUsersAdmin();
+                                                                });
+                                                              },
+                                                            ),
+                                                      );
+                                                    }
+                                                  }
+                                                  : null,
                                           label: "Phân Quyền/Vai Trò",
                                           icon: Symbols.graph_5,
                                           backgroundColor: themeController.buttonColor,
@@ -210,53 +203,48 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
 
                                         //reset password
                                         AnimatedButton(
-                                          onPressed: () async {
-                                            if (selectedUserIds.isEmpty) {
-                                              if (!mounted) return;
-                                              showSnackBarError(
-                                                context,
-                                                "Chưa chọn người dùng cần đặt lại mật khẩu",
-                                              );
-                                              return;
-                                            }
+                                          onPressed:
+                                              selectedUserIds.isNotEmpty
+                                                  ? () async {
+                                                    bool confirm = await showConfirmDialog(
+                                                      context: context,
+                                                      title: "Xác nhận đặt lại",
+                                                      content:
+                                                          "Bạn có muốn mặt lại mật khẩu cho ${selectedUserIds.length} người dùng?",
+                                                      confirmText: "Xác nhận",
+                                                    );
 
-                                            bool confirm = await showConfirmDialog(
-                                              context: context,
-                                              title: "Xác nhận đặt lại",
-                                              content:
-                                                  "Bạn có muốn mặt lại mật khẩu cho ${selectedUserIds.length} người dùng?",
-                                              confirmText: "Xác nhận",
-                                            );
+                                                    if (confirm) {
+                                                      try {
+                                                        await Future.delayed(
+                                                          const Duration(milliseconds: 500),
+                                                        );
 
-                                            if (confirm) {
-                                              try {
-                                                await Future.delayed(
-                                                  const Duration(milliseconds: 500),
-                                                );
+                                                        await AdminService().updateInfoUser(
+                                                          userIds: selectedUserIds,
+                                                          newPassword: "baobidongtam2025",
+                                                        );
 
-                                                await AdminService().updateInfoUser(
-                                                  userIds: selectedUserIds,
-                                                  newPassword: "baobidongtam2025",
-                                                );
+                                                        if (!context.mounted) return;
 
-                                                if (!context.mounted) return;
+                                                        showSnackBarSuccess(
+                                                          context,
+                                                          "Đặt lại mật khẩu thành công. Mật khẩu mặc định là baobidongtam2025",
+                                                        );
 
-                                                showSnackBarSuccess(
-                                                  context,
-                                                  "Đặt lại mật khẩu thành công. Mật khẩu mặc định là baobidongtam2025",
-                                                );
-
-                                                setState(() {
-                                                  futureUserAdmin = AdminService().getUsersAdmin();
-                                                  selectedUserIds.clear();
-                                                  selectedAll = false;
-                                                });
-                                              } catch (e) {
-                                                if (!context.mounted) return;
-                                                showSnackBarError(context, "Lỗi: $e");
-                                              }
-                                            }
-                                          },
+                                                        setState(() {
+                                                          futureUserAdmin =
+                                                              AdminService().getUsersAdmin();
+                                                          selectedUserIds.clear();
+                                                          selectedAll = false;
+                                                        });
+                                                      } catch (e) {
+                                                        if (!context.mounted) return;
+                                                        showSnackBarError(context, "Lỗi: $e");
+                                                      }
+                                                    }
+                                                  }
+                                                  : null,
                                           label: "Đặt lại mật khẩu",
                                           icon: Symbols.lock_reset,
                                           backgroundColor: themeController.buttonColor,

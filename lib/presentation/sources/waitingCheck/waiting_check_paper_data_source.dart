@@ -35,7 +35,6 @@ class WaitingCheckPaperDataSource extends DataGridSource {
 
     return [
       DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
-
       DataGridCell<String>(columnName: 'customerName', value: order?.customer?.customerName ?? ''),
 
       DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
@@ -83,6 +82,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "status", value: planning.status),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
       DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
+      DataGridCell<String>(columnName: 'statusCheck', value: planning.statusCheck),
     ];
   }
 

@@ -1,4 +1,3 @@
-import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +9,7 @@ class SliderZoom extends StatefulWidget {
   final double min;
   final double max;
   final int divisions;
-  final Offset initialOffset;
+  final Offset initialMargin;
 
   const SliderZoom({
     super.key,
@@ -20,7 +19,7 @@ class SliderZoom extends StatefulWidget {
     this.min = 0.5, // 50%
     this.max = 1.5, // 150%
     this.divisions = 10,
-    this.initialOffset = const Offset(1713, 961),
+    required this.initialMargin,
   });
 
   @override
@@ -36,7 +35,7 @@ class _SliderZoomState extends State<SliderZoom> {
   @override
   void initState() {
     super.initState();
-    _position = widget.initialOffset;
+    _position = Offset.zero;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -71,6 +70,18 @@ class _SliderZoomState extends State<SliderZoom> {
     const double collapsedWidth = 65.0;
     const double expandedWidth = 240.0;
     const double sizeDifference = expandedWidth - collapsedWidth;
+
+    // AppLogger.i(
+    //   'SliderZoom: Screen Size -> Width: ${screenSize.width}, Height: ${screenSize.height}',
+    // );
+
+    if (_isFirstFrame) {
+      _position = Offset(
+        screenSize.width - (collapsedWidth + widget.initialMargin.dx),
+        screenSize.height - widget.initialMargin.dy,
+      );
+    }
+    _position = _clampPosition(_position, screenSize.width, screenSize.height, sizeDifference);
 
     final bool isOnRightHalf = _position.dx > (screenSize.width / 2);
     final double currentWidth = _isExpanded ? expandedWidth : collapsedWidth;
@@ -201,9 +212,9 @@ class _SliderZoomState extends State<SliderZoom> {
             },
             onPanEnd: (_) {
               setState(() => _isDragging = false);
-              AppLogger.i(
-                "SliderZoom đã dừng tại -> X: ${_position.dx.toStringAsFixed(1)}, Y: ${_position.dy.toStringAsFixed(1)}",
-              );
+              // AppLogger.i(
+              //   "SliderZoom đã dừng tại -> X: ${_position.dx.toStringAsFixed(1)}, Y: ${_position.dy.toStringAsFixed(1)}",
+              // );
             },
             child: Container(
               clipBehavior: Clip.antiAlias,
@@ -237,6 +248,7 @@ class _SliderZoomState extends State<SliderZoom> {
   }
 }
 
+//helper
 void handleScrollZoom({
   required PointerSignalEvent pointerSignal,
   required double currentZoom,

@@ -417,6 +417,7 @@ class _ProductPageState extends State<ProductPage> {
                           final totalPgs = data['totalPages'];
 
                           if (_cachedProducts != products || _cachedDatasource == null) {
+                            _cachedProducts = products;
                             _cachedDatasource = ProductDataSource(
                               context: context,
                               products: products,
@@ -533,8 +534,9 @@ class _ProductPageState extends State<ProductPage> {
               builder: (context, zoom, _) {
                 return SliderZoom(
                   zoomLevel: zoom,
-                  buttonColor: themeController.buttonColor.value,
                   onZoomChanged: _updateZoom,
+                  initialMargin: Offset(142, 56),
+                  buttonColor: themeController.buttonColor.value,
                 );
               },
             ),

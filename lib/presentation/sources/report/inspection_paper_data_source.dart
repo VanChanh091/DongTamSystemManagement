@@ -8,7 +8,7 @@ import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class InspectionPaperDataSource extends DataGridSource {
   List<QcInspectionPaperModel> inspectionPapers = [];
-  List<int> selectedPaperIds;
+  int? selectedPaperIds;
   int currentPage;
   int pageSize;
 
@@ -183,7 +183,7 @@ class InspectionPaperDataSource extends DataGridSource {
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final inspecPaperId =
         row.getCells().firstWhere((cell) => cell.columnName == "inspecPaperId").value;
-    final isSelected = selectedPaperIds.contains(inspecPaperId);
+    final isSelected = selectedPaperIds == inspecPaperId;
 
     Color backgroundColor;
     if (isSelected == true) {

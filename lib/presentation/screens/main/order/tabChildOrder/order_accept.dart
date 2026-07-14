@@ -283,6 +283,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                           final orders = data['orders'] as List<OrderModel>;
 
                           if (_cachedOrders == null || _cachedOrders != orders) {
+                            _cachedOrders = orders;
                             _cachedDatasource = OrderDataSource(
                               context: context,
                               orders: orders,
@@ -305,8 +306,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                                         isScrollbarAlwaysShown: true,
                                         selectionMode: SelectionMode.single,
                                         columnWidthMode: ColumnWidthMode.auto,
-                                        headerRowHeight: 40,
-                                        rowHeight: 40,
+                                        headerRowHeight: 30,
+                                        rowHeight: 38,
                                         columns: ColumnWidthTable.applySavedWidths(
                                           columns: columns,
                                           widths: columnWidths,
@@ -399,9 +400,9 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
               builder: (context, zoom, _) {
                 return SliderZoom(
                   zoomLevel: zoom,
-                  buttonColor: themeController.buttonColor.value,
                   onZoomChanged: _updateZoom,
-                  initialOffset: const Offset(1780, 845),
+                  initialMargin: Offset(73, 173),
+                  buttonColor: themeController.buttonColor.value,
                 );
               },
             ),

@@ -165,6 +165,15 @@ class MachinePaperDatasource extends DataGridSource {
   @override
   List<DataGridRow> get rows => planningDataGridRows;
 
+  void buildDataGridRows() {
+    planningDataGridRows =
+        planning
+            .map<DataGridRow>((planning) => DataGridRow(cells: buildPlanningInfoCells(planning)))
+            .toList();
+
+    notifyListeners();
+  }
+
   void _calculateOrderIdCounts() {
     orderIdCounts.clear();
     for (var p in planning) {
@@ -179,15 +188,6 @@ class MachinePaperDatasource extends DataGridSource {
     return match != null ? int.parse(match.group(0)!) : 0;
   }
 
-  void buildDataGridRows() {
-    planningDataGridRows =
-        planning
-            .map<DataGridRow>((planning) => DataGridRow(cells: buildPlanningInfoCells(planning)))
-            .toList();
-
-    notifyListeners();
-  }
-
   // Di chuyển hàng lên
   void moveRowUp(List<String> idsToMove) {
     PlanningListHelper.moveRows<PlanningPaperModel>(
@@ -198,6 +198,7 @@ class MachinePaperDatasource extends DataGridSource {
       onUpdate: buildDataGridRows,
       unsavedChangeController: unsavedChange,
     );
+    notifyListeners();
   }
 
   // Di chuyển hàng xuống
@@ -210,6 +211,7 @@ class MachinePaperDatasource extends DataGridSource {
       unsavedChangeController: unsavedChange,
       onUpdate: buildDataGridRows,
     );
+    notifyListeners();
   }
 
   String _formatCellValueBool(DataGridCell dataCell) {
