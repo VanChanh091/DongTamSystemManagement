@@ -164,13 +164,13 @@ class PlanningService {
   }
 
   // Export Paper
-  Future<File?> exportPlanningExcel(String machine) async {
+  Future<File?> exportPlanningExcel({required String machine, required bool isAll}) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.post(
         "/api/planning/export",
-        queryParameters: {"machine": machine},
+        data: {"machine": machine, "isAll": isAll},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
           responseType: ResponseType.bytes,
@@ -182,7 +182,7 @@ class PlanningService {
 
         return await HelperService().saveExcelFile(
           bytes: response.data as List<int>,
-          fileNamePrefix: "KHSX_${safeMachine.toLowerCase()}",
+          fileNamePrefix: "KHSX_${isAll ? "all" : "partial"}_${safeMachine.toLowerCase()}",
         );
       } else {
         AppLogger.w("Export failed with statusCode: ${response.statusCode}");

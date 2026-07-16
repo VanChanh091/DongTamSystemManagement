@@ -42,6 +42,10 @@ class DeliveryScheduleDataSource extends DataGridSource {
       //order
       DataGridCell<String>(columnName: "orderId", value: order!.orderId),
       DataGridCell<String>(columnName: "orderIdCus", value: order.orderIdCustomer ?? ""),
+
+      if (page == 'prepare')
+        DataGridCell<String>(columnName: "licensePlate", value: item.licensePlate ?? ""),
+
       DataGridCell<String>(columnName: "status", value: item.status),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "productName", value: product?.productName ?? ""),

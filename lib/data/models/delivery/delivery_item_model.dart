@@ -11,6 +11,7 @@ class DeliveryItemModel {
   final DateTime? dayRequested;
   final DateTime? dayCompleted;
   final String status;
+  final String? licensePlate;
 
   //FK
   final int deliveryId;
@@ -31,6 +32,7 @@ class DeliveryItemModel {
     this.recipient,
     this.dayRequested,
     this.dayCompleted,
+    this.licensePlate,
 
     //FK
     required this.deliveryId,
@@ -54,6 +56,7 @@ class DeliveryItemModel {
       recipient: json["recipient"] ?? "",
       dayRequested: json["dayRequested"] != null ? DateTime.parse(json["dayRequested"]) : null,
       dayCompleted: json["dayCompleted"] != null ? DateTime.parse(json["dayCompleted"]) : null,
+      licensePlate: json["licensePlate"] ?? "",
       status: json["status"] ?? "",
 
       //FK

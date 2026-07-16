@@ -60,6 +60,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final qcBoxController = TextEditingController();
   final daoXaOrderController = TextEditingController();
   final instructSpecialController = TextEditingController();
+  final noteController = TextEditingController();
 
   //planning
   late String chooseMachine = "Máy 1350";
@@ -127,6 +128,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     songController.text = order.flute.toString();
     qcBoxController.text = order.QC_box.toString();
     instructSpecialController.text = order.instructSpecial.toString();
+    noteController.text = order.note.toString();
     daoXaOrderController.text = order.daoXa.toString();
     lengthOrderController.text = order.lengthPaperManufacture.toStringAsFixed(1);
     sizeOrderController.text = order.paperSizeManufacture.toStringAsFixed(1);
@@ -359,6 +361,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     quantityOrderController.dispose();
     canLanController.dispose();
     dvtController.dispose();
+    noteController.dispose();
 
     //planning
     ghepKhoController.dispose();
@@ -424,7 +427,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
         "rightKey": "Dao Xả",
         "rightValue": daoXaOrderController.text,
       },
-      {"leftKey": "HD Đặc Biệt", "leftValue": instructSpecialController.text},
+      {
+        "leftKey": "HD Đặc Biệt",
+        "leftValue": instructSpecialController.text,
+        "rightKey": "Ghi Chú",
+        "rightValue": noteController.text,
+      },
     ];
 
     final List<Map<String, dynamic>> structureInfoRows = [

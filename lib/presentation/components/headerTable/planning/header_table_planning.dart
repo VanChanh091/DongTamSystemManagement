@@ -24,6 +24,7 @@ final List<Map<String, dynamic>> _planningColumns = [
   {"key": "quantityProduced", "title": "Đã SX"},
   {"key": "dvt", "title": "ĐVT"},
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
+  {"key": "note", "title": "Ghi Chú"},
   {"key": "totalPrice", "title": "Tổng Tiền"},
   {"key": "totalPriceAfterVAT", "title": "Tổng Tiền VAT"},
   {"key": "haveMadeBox", "title": "Làm Thùng?"},

@@ -4,13 +4,14 @@ import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/presentation/components/dialog/export/dialog_export_planning.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_change_machine.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/planning/save_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
 import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
@@ -655,33 +656,14 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                                           },
                                                         );
                                                       } else if (value == 'export') {
-                                                        bool confirm = await showConfirmDialog(
+                                                        await showDialog(
                                                           context: context,
-                                                          title: "Xác Nhận Xuất Excel",
-                                                          content:
-                                                              "Bạn có muốn xuất excel kế hoạch sản xuất này không?",
-                                                          confirmText: "Xác nhận",
-                                                          confirmColor: const Color(0xffEA4346),
+                                                          builder:
+                                                              (_) => DialogExportPlanning(
+                                                                machine: machine,
+                                                                onSubmit: () => loadPlanning(),
+                                                              ),
                                                         );
-
-                                                        if (confirm) {
-                                                          final file = await PlanningService()
-                                                              .exportPlanningExcel(machine);
-
-                                                          if (context.mounted) {
-                                                            if (file != null) {
-                                                              showSnackBarSuccess(
-                                                                context,
-                                                                "Xuất excel thành công",
-                                                              );
-                                                            } else {
-                                                              showSnackBarError(
-                                                                context,
-                                                                "Xuất excel thất bại",
-                                                              );
-                                                            }
-                                                          }
-                                                        }
                                                       }
                                                     },
                                                     itemBuilder:

@@ -2,7 +2,7 @@ import "package:dongtam/data/models/delivery/delivery_item_model.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart";
 import "package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart";
-import "package:dongtam/presentation/components/shared/animated_button.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/service/delivery_service.dart";
 import "package:dongtam/service/warehouse_service.dart";

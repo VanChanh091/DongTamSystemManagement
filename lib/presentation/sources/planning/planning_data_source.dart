@@ -58,6 +58,7 @@ class PlanningDataSource extends DataGridSource {
       DataGridCell<int>(columnName: 'quantityProduced', value: order.totalQtyProduced),
       DataGridCell<String>(columnName: 'dvt', value: order.dvt),
       DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
+      DataGridCell<String>(columnName: 'note', value: order.note ?? ""),
       DataGridCell<String>(
         columnName: 'totalPrice',
         value:

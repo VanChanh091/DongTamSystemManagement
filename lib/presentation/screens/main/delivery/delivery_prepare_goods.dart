@@ -8,7 +8,7 @@ import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/sources/delivery/delivery_schedule_data_source.dart';
 import 'package:dongtam/service/delivery_service.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
@@ -76,7 +76,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
 
     loadDeliveryPrepareGoods();
 
-    columns = buildDeliveryScheduleColumn(themeController: themeController);
+    columns = buildDeliveryScheduleColumn(themeController: themeController, page: 'prepare');
 
     ColumnWidthTable.loadWidths(tableKey: 'DeliveryPrepareGoods', columns: columns).then((w) {
       setState(() {

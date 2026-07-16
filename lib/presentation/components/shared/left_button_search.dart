@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

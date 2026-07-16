@@ -2,7 +2,7 @@ import "package:dongtam/data/controller/badges_controller.dart";
 import "package:dongtam/data/models/employee/employee_basic_info.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/data/models/scrap/scrap_report_model.dart";
-import "package:dongtam/presentation/components/shared/animated_button.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";

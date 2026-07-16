@@ -197,14 +197,16 @@ class DeliveryService {
     required List<int> deliveryItemIds,
     required bool isRequest,
     String? empCode,
+    String? lisencePlate,
   }) async {
     return HelperService().updateItem(
       endpoint: "delivery/prepare",
       queryParameters: const {},
       body: {
-        "deliveryItemIds": deliveryItemIds,
         "isRequest": isRequest,
+        "deliveryItemIds": deliveryItemIds,
         if (empCode != null) "empCode": empCode,
+        if (lisencePlate != null) "lisencePlate": lisencePlate,
       },
     );
   }

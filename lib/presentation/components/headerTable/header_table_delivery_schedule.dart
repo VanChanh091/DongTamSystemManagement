@@ -7,6 +7,11 @@ const List<Map<String, dynamic>> _headerDeliverySchedule = [
   //order
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "orderIdCus", "title": "Mã PO"},
+  {
+    "key": "licensePlate",
+    "title": "Biển Số Xe",
+    "visiblePages": ["prepare"],
+  },
   {"key": "status", "title": "Trạng Thái"},
   {"key": "customerName", "title": "Khách Hàng"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
@@ -36,13 +41,17 @@ const List<Map<String, dynamic>> _headerDeliverySchedule = [
   {"key": "sequence", "title": "Tài", "visible": false},
 ];
 
-List<GridColumn> buildDeliveryScheduleColumn({required ThemeController themeController}) {
+List<GridColumn> buildDeliveryScheduleColumn({
+  required ThemeController themeController,
+  required String page,
+}) {
   return [
     for (var item in _headerDeliverySchedule)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+      if (!item.containsKey("visiblePages") || (item["visiblePages"] as List).contains(page))
+        GridColumn(
+          columnName: item["key"]!,
+          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
+          visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+        ),
   ];
 }

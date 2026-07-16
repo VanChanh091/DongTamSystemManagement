@@ -5,7 +5,7 @@ import 'package:dongtam/presentation/components/dialog/add/dialog_add_scrap_repo
 import 'package:dongtam/presentation/components/headerTable/header_table_scrap_report.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/sources/scrap_report_data_source.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/service/scrap_report_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';

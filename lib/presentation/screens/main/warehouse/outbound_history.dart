@@ -7,7 +7,7 @@ import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.d
 import 'package:dongtam/presentation/components/dialog/export/dialog_export_outbound.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_detail.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_history.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/warehouse/outbound/ob_detail_data_source.dart';

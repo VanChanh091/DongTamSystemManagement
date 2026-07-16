@@ -3,6 +3,7 @@
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
+import 'package:dongtam/presentation/components/shared/animation/pulsing_row_animation.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/planning_helper.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -317,6 +318,8 @@ class MachineBoxDatasource extends DataGridSource {
     final status = getCellValue<String>(row, 'status', "");
     final statusCheck = getCellValue<String>(row, 'statusCheck', "");
 
+    final bool isFailed = statusCheck == "failed";
+
     final Map<String, String> machineColumnMap = {
       'qtyPrinted': "Máy In",
       'qtyCanLan': "Máy Cấn Lằn",
@@ -340,8 +343,6 @@ class MachineBoxDatasource extends DataGridSource {
       rowColor = Colors.orange.withValues(alpha: 0.4); //confirm production
     } else if (sortPlanning > 0 && status == "requested") {
       rowColor = Colors.teal.withValues(alpha: 0.4);
-    } else if (sortPlanning > 0 && statusCheck == "failed") {
-      rowColor = Colors.red.withValues(alpha: 0.3);
     } else if (sortPlanning > 0 && statusCheck == "fixed") {
       rowColor = Colors.green.withValues(alpha: 0.3);
     } else if (sortPlanning == 0) {
@@ -351,7 +352,8 @@ class MachineBoxDatasource extends DataGridSource {
     return DataGridRowAdapter(
       color: rowColor,
       cells:
-          row.getCells().map<Widget>((dataCell) {
+          row.getCells().asMap().entries.map<Widget>((entry) {
+            final DataGridCell dataCell = entry.value;
             final cellText = _formatCellValueBool(dataCell);
             Alignment alignment;
             if (dataCell.value is num) {
@@ -406,12 +408,14 @@ class MachineBoxDatasource extends DataGridSource {
               );
             }
 
-            return formatDataTable(
+            final cellWidget = formatDataTable(
               label: _formatCellValueBool(dataCell),
               alignment: alignment,
               cellColor: cellColor,
               textStyle: customTextStyle,
             );
+
+            return PulsingRowAnimation(isFailed: isFailed, child: cellWidget);
           }).toList(),
     );
   }

@@ -7,7 +7,7 @@ import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/data/models/planning/planning_stages.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_delivery_estimate.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
@@ -382,6 +382,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                                                           labelText2: "Ghi chú",
                                                                           controller2:
                                                                               noteController,
+
                                                                           onConfirm: () async {
                                                                             try {
                                                                               final success = await DeliveryService()

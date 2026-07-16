@@ -3,6 +3,7 @@
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/presentation/components/shared/animation/pulsing_row_animation.dart';
 import 'package:dongtam/utils/helper/build_color_row.dart';
 import 'package:dongtam/utils/helper/planning_helper.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -350,6 +351,8 @@ class MachinePaperDatasource extends DataGridSource {
     final status = getCellValue<String>(row, 'status', "");
     final statusCheck = getCellValue<String>(row, 'statusCheck', "");
 
+    final bool isFailed = statusCheck == "failed";
+
     final totalWasteLossVal = double.tryParse(totalLoss.replaceAll(' kg', '')) ?? 0;
     final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(' kg', '')) ?? 0;
 
@@ -358,9 +361,11 @@ class MachinePaperDatasource extends DataGridSource {
       rowColor = Colors.blue.withValues(alpha: 0.3);
     } else if (sortPlanning > 0 && status == "requested") {
       rowColor = Colors.teal.withValues(alpha: 0.4);
-    } else if (sortPlanning > 0 && statusCheck == "failed") {
-      rowColor = Colors.red.withValues(alpha: 0.4);
-    } else if (sortPlanning > 0 && statusCheck == "fixed") {
+    }
+    // else if (sortPlanning > 0 && statusCheck == "failed") {
+    //   rowColor = Colors.red.withValues(alpha: 0.4);
+    // }
+    else if (sortPlanning > 0 && statusCheck == "fixed") {
       rowColor = Colors.green.withValues(alpha: 0.3);
     } else if (sortPlanning > 0 && status == "producing") {
       rowColor = Colors.orange.withValues(alpha: 0.4);
@@ -426,13 +431,15 @@ class MachinePaperDatasource extends DataGridSource {
             );
           }
 
-          return formatDataTable(
-            label: cellText,
+          final finalFormattedCellWidget = formatDataTable(
+            label: _formatCellValueBool(dataCell),
             alignment: alignment,
             cellColor: cellColor,
             textStyle: customTextStyle,
             leading: buildCellLeading(dataCell, isKhoTransition, transitionColor, isDuplicateOrder),
           );
+
+          return PulsingRowAnimation(isFailed: isFailed, child: finalFormattedCellWidget);
         }).toList();
 
     return DataGridRowAdapter(color: rowColor, cells: widgets);

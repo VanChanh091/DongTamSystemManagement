@@ -10,7 +10,7 @@ import 'package:dongtam/presentation/components/shared/planning/widgets_planning
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/delivery/delivery_schedule_data_source.dart';
 import 'package:dongtam/service/delivery_service.dart';
-import 'package:dongtam/presentation/components/shared/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/socket/socket_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -72,7 +72,8 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   bool _isSelectionChange = false;
 
   //text controller
-  TextEditingController dayStartController = TextEditingController();
+  final dayStartController = TextEditingController();
+  final lisencePlateController = TextEditingController();
 
   @override
   void initState() {
@@ -99,7 +100,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
     isPlan = userController.hasAnyPermission(permission: ["plan"]);
     isDelivery = userController.hasAnyPermission(permission: ["delivery", "plan"]);
 
-    columns = buildDeliveryScheduleColumn(themeController: themeController);
+    columns = buildDeliveryScheduleColumn(themeController: themeController, page: 'schedule');
     ColumnWidthTable.loadWidths(tableKey: 'deliverySchedule', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -150,6 +151,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
     super.dispose();
     _initSocket.stop();
     dayStartController.dispose();
+    lisencePlateController.dispose();
     _zoomNotifier.dispose();
     _selectedDeliveryIdsNotifier.dispose();
   }
@@ -401,25 +403,30 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                               onPressed:
                                                   isActionable && hasSelection
                                                       ? () async {
-                                                        bool confirm = await showConfirmDialog(
+                                                        lisencePlateController.clear();
+
+                                                        await showInputQtyDialog(
                                                           context: context,
                                                           title: "Yêu cầu chuẩn bị hàng",
-                                                          content:
-                                                              "Bạn có muốn gửi yêu cầu chuẩn bị hàng cho ${selectedDeliveryIds.length} đơn này?",
-                                                          confirmText: "Xác Nhận",
-                                                        );
+                                                          labelText: "Nhập vào biển số xe",
+                                                          controller: lisencePlateController,
+                                                          onConfirm: () async {
+                                                            showSnackBarSuccess(
+                                                              context,
+                                                              "Đã gửi yêu cầu chuẩn bị hàng",
+                                                            );
 
-                                                        if (confirm) {
-                                                          try {
                                                             final success = await DeliveryService()
                                                                 .requestOrPreparedGoods(
+                                                                  isRequest: true,
                                                                   deliveryItemIds:
                                                                       selectedDeliveryIds,
-                                                                  isRequest: true,
+                                                                  lisencePlate:
+                                                                      lisencePlateController.text,
                                                                 );
 
-                                                            if (context.mounted) {
-                                                              if (success) {
+                                                            if (success) {
+                                                              if (context.mounted) {
                                                                 showSnackBarSuccess(
                                                                   context,
                                                                   "Đã gửi yêu cầu chuẩn bị hàng",
@@ -430,33 +437,12 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
                                                                 badgesController
                                                                     .fetchPrepareGoods();
-
                                                                 loadDeliverySchedule();
                                                               }
                                                             }
-                                                          } on ApiException catch (e) {
-                                                            if (!context.mounted) return;
-
-                                                            if (e.errorCode ==
-                                                                'ALREADY_REQUESTED') {
-                                                              showSnackBarError(
-                                                                context,
-                                                                "Đơn này đã được yêu cầu rồi",
-                                                              );
-                                                            } else {
-                                                              showSnackBarError(
-                                                                context,
-                                                                "Gửi yêu cầu chuẩn bị hàng thất bại",
-                                                              );
-                                                            }
-                                                          } catch (e) {
-                                                            if (!context.mounted) return;
-                                                            showSnackBarError(
-                                                              context,
-                                                              "Gửi yêu cầu chuẩn bị hàng thất bại",
-                                                            );
-                                                          }
-                                                        }
+                                                            return true;
+                                                          },
+                                                        );
                                                       }
                                                       : null,
                                               label: "YC Xuất Hàng",
