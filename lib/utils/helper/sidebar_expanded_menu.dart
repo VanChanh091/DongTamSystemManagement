@@ -8,13 +8,13 @@ class SidebarExpandedMenu extends StatelessWidget {
   final bool isParentSelected;
   final String title;
 
-  /// icon default khi không có badge/custom leading
+  // icon default khi không có badge/custom leading
   final IconData icon;
 
-  /// Nếu muốn leading có badge (Obx/Badge.count/Badge chấm đỏ) thì truyền widget vào đây
+  // Nếu muốn leading có badge thì truyền widget vào đây
   final Widget? leading;
 
-  /// list submenu items (đã build sẵn)
+  // list submenu items
   final List<Widget> children;
 
   const SidebarExpandedMenu({
@@ -47,7 +47,7 @@ class SidebarExpandedMenu extends StatelessWidget {
                   title,
                   style: TextStyle(
                     color: isParentSelected ? _activeColor : Colors.white,
-                    fontSize: 18,
+                    fontSize: 17,
                     fontWeight: isParentSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),

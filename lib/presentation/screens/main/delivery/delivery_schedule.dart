@@ -40,6 +40,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   late InitSocketDeliverySchedule _initSocket;
   late List<GridColumn> columns;
 
+  //controlers
   final socketService = SocketService();
   final formatter = DateFormat('dd/MM/yyyy');
   final dataGridController = DataGridController();
@@ -47,14 +48,12 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
 
-  List<OutboundTempItemModel>? initialItems;
-
   Map<String, double> columnWidths = {};
+  List<OutboundTempItemModel>? initialItems;
 
   //notifiers
   final _zoomNotifier = ValueNotifier<double>(1.0);
   final _selectedDeliveryIdsNotifier = ValueNotifier<List<int>>([]);
-  // List<int> selectedDeliveryIds = [];
 
   //datasource and cache
   List<DeliveryScheduleModel>? _cachedDelivery;
@@ -776,6 +775,19 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                   ],
                 ),
               ),
+            ),
+
+            //slider zoom
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, _) {
+                return SliderZoom(
+                  zoomLevel: zoom,
+                  onZoomChanged: _updateZoom,
+                  initialMargin: Offset(73, 125),
+                  buttonColor: themeController.buttonColor.value,
+                );
+              },
             ),
           ],
         ),

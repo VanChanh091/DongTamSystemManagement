@@ -594,18 +594,13 @@ class _ManageOrderState extends State<AdminOrder> {
         _infoRow(
           '💲 Giá:',
           OrderModel.formatCurrency(order.price),
-          unit: 'VNĐ/${order.dvt == "Kg" ? "Kg" : "m²"}',
+          unit: 'VNĐ/${order.dvt == "M2" ? "m²" : order.dvt}',
           valueColor: Colors.redAccent,
         ),
       _infoRow(
         '💵 Đơn Giá:',
         OrderModel.formatCurrency(order.pricePaper ?? 0),
-        unit:
-            "VNĐ/${order.isBox
-                ? "Cái"
-                : order.dvt == "Kg"
-                ? "Kg"
-                : "Tấm"}",
+        unit: "VNĐ/${order.dvt == "M2" ? "Tấm" : order.dvt}",
       ),
       _infoRow('💵 Chiết khấu:', OrderModel.formatCurrency(order.discount ?? 0), unit: "VNĐ"),
       _infoRow('💵 Lợi nhuận:', OrderModel.formatCurrency(order.profit), unit: "VNĐ"),
