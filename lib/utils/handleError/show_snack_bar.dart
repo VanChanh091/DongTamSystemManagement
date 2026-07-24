@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -90,4 +91,59 @@ void _showOverlay(BuildContext? context, String message, Color backgroundColor, 
       overlayEntry.remove();
     }
   });
+}
+
+//show notification banner
+void showNotificationBanner({required String title, required String message, VoidCallback? onTap}) {
+  Get.snackbar(
+    '',
+    '',
+    snackPosition: SnackPosition.TOP,
+    duration: const Duration(seconds: 3),
+    animationDuration: const Duration(milliseconds: 300),
+
+    maxWidth: 500,
+    borderRadius: 12,
+    margin: const EdgeInsets.only(top: 10),
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+
+    backgroundColor: const Color(0xFFEFF6FF), // Xanh dương pastel sáng nhẹ
+    borderColor: const Color(0xFFBFDBFE), // Đường viền xanh tươi tinh tế
+    borderWidth: 1,
+    boxShadows: [
+      BoxShadow(
+        color: const Color(0xFF1E40AF).withValues(alpha: 0.12),
+        blurRadius: 16,
+        offset: const Offset(0, 4),
+      ),
+    ],
+
+    icon: Padding(
+      padding: const EdgeInsets.only(left: 10, right: 8),
+      child: Container(
+        width: 40,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: const BoxDecoration(color: Color(0xFF2563EB), shape: BoxShape.circle),
+        child: const Icon(Icons.notifications_active_rounded, color: Colors.white, size: 18),
+      ),
+    ),
+
+    titleText: Text(
+      title,
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E3A8A)),
+    ),
+
+    messageText: Text(
+      message,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: 13, color: Color(0xFF2563EB), height: 1.2),
+    ),
+
+    onTap: (_) {
+      if (Get.isSnackbarOpen) Get.closeCurrentSnackbar();
+      if (onTap != null) onTap();
+    },
+  );
 }

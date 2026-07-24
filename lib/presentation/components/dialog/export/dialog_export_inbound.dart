@@ -79,6 +79,12 @@ class _DialogExportInboundState extends State<DialogExportInbound> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    selectedOption.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,

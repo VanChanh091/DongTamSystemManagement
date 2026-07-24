@@ -1,6 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
+import 'package:dongtam/presentation/components/dialog/notification/dialog_order_notification.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
@@ -247,7 +248,51 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                                 ),
 
                                 //right button
-                                Expanded(flex: 1, child: const SizedBox()),
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                      horizontal: 10,
+                                    ),
+                                    child: ValueListenableBuilder(
+                                      valueListenable: _selectedOrderIdNotifier,
+                                      builder: (context, selectedOrderId, _) {
+                                        final bool hasSelection =
+                                            selectedOrderId != null && selectedOrderId.isNotEmpty;
+
+                                        return Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            //send request
+                                            AnimatedButton(
+                                              onPressed:
+                                                  hasSelection
+                                                      ? () {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (_) => DialogOrderNotification(
+                                                                orderId: selectedOrderId,
+                                                                onLoading:
+                                                                    () => loadOrders(
+                                                                      ownOnly: isSeenOrder,
+                                                                    ),
+                                                              ),
+                                                        );
+                                                      }
+                                                      : null,
+                                              label: "Gửi Yêu Cầu",
+                                              icon: Icons.send,
+                                              backgroundColor: themeController.buttonColor,
+                                            ),
+                                            const SizedBox(width: 10),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),

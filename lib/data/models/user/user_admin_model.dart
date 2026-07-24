@@ -1,7 +1,8 @@
 class UserAdminModel {
   final int userId;
   final String fullName, email, role;
-  final String? sex, phone, avatar;
+  final String? sex, phone;
+  final String department;
   final List<String> permissions;
 
   UserAdminModel({
@@ -9,9 +10,9 @@ class UserAdminModel {
     required this.fullName,
     required this.email,
     required this.role,
+    required this.department,
     this.sex,
     this.phone,
-    this.avatar,
     required this.permissions,
   });
 
@@ -36,6 +37,29 @@ class UserAdminModel {
         return "Người dùng";
       default:
         return role;
+    }
+  }
+
+  static String formatDepartment({required String department}) {
+    switch (department) {
+      case "Operation":
+        return "Nghiệp Vụ";
+      case "HR":
+        return "Nhân sự";
+      case "Accountant":
+        return "Kế toán";
+      case "Sale":
+        return "Kinh doanh";
+      case "Production":
+        return "Sản xuất";
+      case "QC":
+        return "Chất Lượng";
+      case "Delivery":
+        return "Kho Vận";
+      case "Marketing":
+        return "Marketing";
+      default:
+        return "Chưa xác định";
     }
   }
 
@@ -69,8 +93,8 @@ class UserAdminModel {
       email: json["email"],
       sex: json["sex"] ?? "",
       phone: json["phone"] ?? "",
+      department: json["department"] ?? "",
       role: json["role"],
-      avatar: json["avatar"] ?? "",
       permissions: List<String>.from(json["permissions"] ?? []),
     );
   }
@@ -83,7 +107,6 @@ class UserAdminModel {
       "sex": sex,
       "phone": phone,
       "role": role,
-      "avatar": avatar,
       "permissions": permissions,
     };
   }

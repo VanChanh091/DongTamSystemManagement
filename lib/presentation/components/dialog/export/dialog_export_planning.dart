@@ -69,11 +69,11 @@ class _DialogExportPlanningState extends State<DialogExportPlanning> {
               children: [
                 RadioListTile<String>(
                   title: const Text("Lịch Sản Xuất (Rút Gọn)", style: TextStyle(fontSize: 16)),
-                  value: "all",
+                  value: "partial",
                 ),
                 RadioListTile<String>(
                   title: const Text("Lịch Sản Xuất (Đầy Đủ)", style: TextStyle(fontSize: 16)),
-                  value: "partial",
+                  value: "all",
                 ),
                 const SizedBox(height: 10),
               ],

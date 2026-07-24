@@ -542,7 +542,6 @@ Future<void> handleBackOrder({
     },
     onSuccess: () {
       badgesController.fetchOrderPendingPlanning();
-      badgesController.fetchOrderReject();
 
       if (onSuccess != null) {
         onSuccess();

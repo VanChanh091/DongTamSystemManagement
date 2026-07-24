@@ -47,6 +47,7 @@ class _MyAppLauncherState extends State<MyAppLauncher> {
     await secureStorage.deleteToken();
     await secureStorage.deleteUserId();
     await secureStorage.deleteRole();
+    await secureStorage.deleteDepartment();
     await secureStorage.deletePermission();
 
     String? token = await secureStorage.getToken();

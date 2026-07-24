@@ -2,7 +2,6 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/user/user_admin_model.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_permission_role.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
@@ -28,6 +27,7 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
 
   TextEditingController searchController = TextEditingController();
 
+  String deptType = "Sale";
   String searchType = "Tất cả";
   List<int> selectedUserIds = [];
 
@@ -37,40 +37,15 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
   @override
   void initState() {
     super.initState();
-
-    if (userController.hasAnyRole(roles: ["admin"])) {
-      futureUserAdmin = AdminService().getUsersAdmin();
-    } else {
-      futureUserAdmin = Future.error("NO_PERMISSION");
-    }
+    loadUsers();
   }
 
-  void searchUser() {
-    String keyword = searchController.text.trim().toLowerCase();
-
-    if (isTextFieldEnabled && keyword.isEmpty) return;
-
-    if (searchType == "Tất cả") {
-      setState(() {
-        futureUserAdmin = AdminService().getUsersAdmin();
-      });
-    } else if (searchType == "Theo Tên") {
-      setState(() {
-        futureUserAdmin = AdminService().getUsersAdmin(name: keyword);
-      });
-    } else if (searchType == "Theo SDT") {
-      setState(() {
-        futureUserAdmin = AdminService().getUsersAdmin(phone: keyword);
-      });
-    } else if (searchType == "Theo Quyền") {
-      List<String> permissions =
-          keyword.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-
-      if (permissions.isEmpty) return;
-      setState(() {
-        futureUserAdmin = AdminService().getUsersAdmin(permissions: permissions);
-      });
-    }
+  void loadUsers() {
+    setState(() {
+      futureUserAdmin = AdminService().getUsersAdmin();
+      selectedUserIds.clear();
+      selectedAll = false;
+    });
   }
 
   @override
@@ -81,8 +56,6 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
-
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -115,296 +88,242 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                   SizedBox(
                     height: 70,
                     width: double.infinity,
-                    child:
-                        isAccept
-                            ? Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //left button
+                        Expanded(flex: 1, child: const SizedBox()),
+
+                        //right button
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                //left button
-                                Expanded(
-                                  flex: 1,
-                                  child: LeftButtonSearch(
-                                    selectedType: searchType,
-                                    types: const ['Tất cả', "Theo Tên", "Theo SDT", "Theo Quyền"],
-                                    onTypeChanged: (value) {
-                                      setState(() {
-                                        searchType = value;
-                                        isTextFieldEnabled = value != 'Tất cả';
-                                        searchController.clear();
-                                      });
-                                    },
-                                    controller: searchController,
-                                    textFieldEnabled: isTextFieldEnabled,
-                                    buttonColor: themeController.buttonColor,
+                                //permission/role
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedUserIds.isNotEmpty
+                                          ? () async {
+                                            if (selectedUserIds.length > 1) {
+                                              showSnackBarError(
+                                                context,
+                                                "Chỉ được cập nhật mỗi lần 1 user",
+                                              );
+                                              return;
+                                            }
 
-                                    onSearch: () => searchUser(),
-                                  ),
+                                            final users = await futureUserAdmin;
+
+                                            final selectedUser = users.firstWhere(
+                                              (u) => selectedUserIds.contains(u.userId),
+                                              orElse: () {
+                                                AppLogger.e(
+                                                  'Selected user not found after loading list.',
+                                                );
+                                                return users.first;
+                                              },
+                                            );
+
+                                            if (context.mounted) {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => DialogPermissionRole(
+                                                      userAdmin: selectedUser,
+                                                      onPermissionOrRole: () => loadUsers(),
+                                                    ),
+                                              );
+                                            }
+                                          }
+                                          : null,
+                                  label: "Phân Quyền/Vai Trò",
+                                  icon: Symbols.graph_5,
+                                  backgroundColor: themeController.buttonColor,
                                 ),
+                                const SizedBox(width: 10),
 
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        //permission/role
-                                        AnimatedButton(
-                                          onPressed:
-                                              selectedUserIds.isNotEmpty
-                                                  ? () async {
-                                                    if (selectedUserIds.length > 1) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        "Chỉ được cập nhật mỗi lần 1 user",
-                                                      );
-                                                      return;
-                                                    }
+                                //reset password
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedUserIds.isNotEmpty
+                                          ? () async {
+                                            bool confirm = await showConfirmDialog(
+                                              context: context,
+                                              title: "Xác nhận đặt lại",
+                                              content:
+                                                  "Bạn có muốn mặt lại mật khẩu cho ${selectedUserIds.length} người dùng?",
+                                              confirmText: "Xác nhận",
+                                            );
 
-                                                    final users = await futureUserAdmin;
+                                            if (confirm) {
+                                              try {
+                                                await Future.delayed(
+                                                  const Duration(milliseconds: 500),
+                                                );
 
-                                                    final selectedUser = users.firstWhere(
-                                                      (u) => selectedUserIds.contains(u.userId),
-                                                      orElse: () {
-                                                        AppLogger.e(
-                                                          'Selected user not found after loading list.',
-                                                        );
-                                                        return users.first;
-                                                      },
-                                                    );
+                                                await AdminService().updateInfoUser(
+                                                  userIds: selectedUserIds,
+                                                  newPassword: "baobidongtam2025",
+                                                );
 
-                                                    if (context.mounted) {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (_) => DialogPermissionRole(
-                                                              userAdmin: selectedUser,
-                                                              onPermissionOrRole: () {
-                                                                setState(() {
-                                                                  futureUserAdmin =
-                                                                      AdminService()
-                                                                          .getUsersAdmin();
-                                                                });
-                                                              },
+                                                if (!context.mounted) return;
+
+                                                showSnackBarSuccess(
+                                                  context,
+                                                  "Đặt lại mật khẩu thành công. Mật khẩu mặc định là baobidongtam2025",
+                                                );
+
+                                                loadUsers();
+                                              } catch (e) {
+                                                if (!context.mounted) return;
+                                                showSnackBarError(context, "Lỗi: $e");
+                                              }
+                                            }
+                                          }
+                                          : null,
+                                  label: "Đặt lại mật khẩu",
+                                  icon: Symbols.lock_reset,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
+                                //delete user
+                                AnimatedButton(
+                                  onPressed:
+                                      selectedUserIds.isNotEmpty
+                                          ? () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                bool isDeleting = false;
+
+                                                return StatefulBuilder(
+                                                  builder: (context, setStateDialog) {
+                                                    return AlertDialog(
+                                                      backgroundColor: Colors.white,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(16),
+                                                      ),
+                                                      title: const Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.warning_amber_rounded,
+                                                            color: Colors.red,
+                                                            size: 30,
+                                                          ),
+                                                          SizedBox(width: 8),
+                                                          Text(
+                                                            "Xác nhận xoá",
+                                                            style: TextStyle(
+                                                              fontWeight: FontWeight.bold,
                                                             ),
-                                                      );
-                                                    }
-                                                  }
-                                                  : null,
-                                          label: "Phân Quyền/Vai Trò",
-                                          icon: Symbols.graph_5,
-                                          backgroundColor: themeController.buttonColor,
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        //reset password
-                                        AnimatedButton(
-                                          onPressed:
-                                              selectedUserIds.isNotEmpty
-                                                  ? () async {
-                                                    bool confirm = await showConfirmDialog(
-                                                      context: context,
-                                                      title: "Xác nhận đặt lại",
+                                                          ),
+                                                        ],
+                                                      ),
                                                       content:
-                                                          "Bạn có muốn mặt lại mật khẩu cho ${selectedUserIds.length} người dùng?",
-                                                      confirmText: "Xác nhận",
-                                                    );
-
-                                                    if (confirm) {
-                                                      try {
-                                                        await Future.delayed(
-                                                          const Duration(milliseconds: 500),
-                                                        );
-
-                                                        await AdminService().updateInfoUser(
-                                                          userIds: selectedUserIds,
-                                                          newPassword: "baobidongtam2025",
-                                                        );
-
-                                                        if (!context.mounted) return;
-
-                                                        showSnackBarSuccess(
-                                                          context,
-                                                          "Đặt lại mật khẩu thành công. Mật khẩu mặc định là baobidongtam2025",
-                                                        );
-
-                                                        setState(() {
-                                                          futureUserAdmin =
-                                                              AdminService().getUsersAdmin();
-                                                          selectedUserIds.clear();
-                                                          selectedAll = false;
-                                                        });
-                                                      } catch (e) {
-                                                        if (!context.mounted) return;
-                                                        showSnackBarError(context, "Lỗi: $e");
-                                                      }
-                                                    }
-                                                  }
-                                                  : null,
-                                          label: "Đặt lại mật khẩu",
-                                          icon: Symbols.lock_reset,
-                                          backgroundColor: themeController.buttonColor,
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        //delete user
-                                        AnimatedButton(
-                                          onPressed:
-                                              selectedUserIds.isNotEmpty
-                                                  ? () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) {
-                                                        bool isDeleting = false;
-
-                                                        return StatefulBuilder(
-                                                          builder: (context, setStateDialog) {
-                                                            return AlertDialog(
-                                                              backgroundColor: Colors.white,
-                                                              shape: RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.circular(
-                                                                  16,
+                                                          isDeleting
+                                                              ? Row(
+                                                                children: const [
+                                                                  CircularProgressIndicator(
+                                                                    strokeWidth: 2,
+                                                                  ),
+                                                                  SizedBox(width: 12),
+                                                                  Text("Đang xoá..."),
+                                                                ],
+                                                              )
+                                                              : Text(
+                                                                'Bạn có chắc chắn muốn xoá ${selectedUserIds.length} người dùng này?',
+                                                                style: const TextStyle(
+                                                                  fontSize: 16,
                                                                 ),
                                                               ),
-                                                              title: const Row(
-                                                                children: [
-                                                                  Icon(
-                                                                    Icons.warning_amber_rounded,
-                                                                    color: Colors.red,
-                                                                    size: 30,
-                                                                  ),
-                                                                  SizedBox(width: 8),
-                                                                  Text(
-                                                                    "Xác nhận xoá",
+                                                      actions:
+                                                          isDeleting
+                                                              ? []
+                                                              : [
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () => Navigator.pop(context),
+                                                                  child: const Text(
+                                                                    "Huỷ",
                                                                     style: TextStyle(
+                                                                      fontSize: 16,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: Colors.black54,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                ElevatedButton(
+                                                                  style: ElevatedButton.styleFrom(
+                                                                    backgroundColor: const Color(
+                                                                      0xffEA4346,
+                                                                    ),
+                                                                    foregroundColor: Colors.white,
+                                                                    shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(8),
+                                                                    ),
+                                                                  ),
+                                                                  onPressed: () async {
+                                                                    setStateDialog(() {
+                                                                      isDeleting = true;
+                                                                    });
+
+                                                                    for (int id
+                                                                        in selectedUserIds) {
+                                                                      await AdminService()
+                                                                          .deleteUser(userId: id);
+                                                                    }
+
+                                                                    await Future.delayed(
+                                                                      const Duration(
+                                                                        milliseconds: 500,
+                                                                      ),
+                                                                    );
+
+                                                                    if (!context.mounted) {
+                                                                      return;
+                                                                    }
+
+                                                                    loadUsers();
+                                                                    Navigator.pop(context);
+
+                                                                    // Optional: Show success toast
+                                                                    showSnackBarSuccess(
+                                                                      context,
+                                                                      'Xoá thành công',
+                                                                    );
+                                                                  },
+                                                                  child: const Text(
+                                                                    "Xoá",
+                                                                    style: TextStyle(
+                                                                      fontSize: 16,
                                                                       fontWeight: FontWeight.bold,
                                                                     ),
                                                                   ),
-                                                                ],
-                                                              ),
-                                                              content:
-                                                                  isDeleting
-                                                                      ? Row(
-                                                                        children: const [
-                                                                          CircularProgressIndicator(
-                                                                            strokeWidth: 2,
-                                                                          ),
-                                                                          SizedBox(width: 12),
-                                                                          Text("Đang xoá..."),
-                                                                        ],
-                                                                      )
-                                                                      : Text(
-                                                                        'Bạn có chắc chắn muốn xoá ${selectedUserIds.length} người dùng này?',
-                                                                        style: const TextStyle(
-                                                                          fontSize: 16,
-                                                                        ),
-                                                                      ),
-                                                              actions:
-                                                                  isDeleting
-                                                                      ? []
-                                                                      : [
-                                                                        TextButton(
-                                                                          onPressed:
-                                                                              () => Navigator.pop(
-                                                                                context,
-                                                                              ),
-                                                                          child: const Text(
-                                                                            "Huỷ",
-                                                                            style: TextStyle(
-                                                                              fontSize: 16,
-                                                                              fontWeight:
-                                                                                  FontWeight.bold,
-                                                                              color: Colors.black54,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        ElevatedButton(
-                                                                          style: ElevatedButton.styleFrom(
-                                                                            backgroundColor:
-                                                                                const Color(
-                                                                                  0xffEA4346,
-                                                                                ),
-                                                                            foregroundColor:
-                                                                                Colors.white,
-                                                                            shape: RoundedRectangleBorder(
-                                                                              borderRadius:
-                                                                                  BorderRadius.circular(
-                                                                                    8,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                          onPressed: () async {
-                                                                            setStateDialog(() {
-                                                                              isDeleting = true;
-                                                                            });
-
-                                                                            for (int id
-                                                                                in selectedUserIds) {
-                                                                              await AdminService()
-                                                                                  .deleteUser(
-                                                                                    userId: id,
-                                                                                  );
-                                                                            }
-
-                                                                            await Future.delayed(
-                                                                              const Duration(
-                                                                                milliseconds: 500,
-                                                                              ),
-                                                                            );
-
-                                                                            if (!context.mounted) {
-                                                                              return;
-                                                                            }
-
-                                                                            setState(() {
-                                                                              selectedUserIds
-                                                                                  .clear();
-                                                                              futureUserAdmin =
-                                                                                  AdminService()
-                                                                                      .getUsersAdmin();
-                                                                            });
-
-                                                                            Navigator.pop(context);
-
-                                                                            // Optional: Show success toast
-                                                                            showSnackBarSuccess(
-                                                                              context,
-                                                                              'Xoá thành công',
-                                                                            );
-                                                                          },
-                                                                          child: const Text(
-                                                                            "Xoá",
-                                                                            style: TextStyle(
-                                                                              fontSize: 16,
-                                                                              fontWeight:
-                                                                                  FontWeight.bold,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                            );
-                                                          },
-                                                        );
-                                                      },
+                                                                ),
+                                                              ],
                                                     );
-                                                  }
-                                                  : null,
-                                          label: "Xoá",
-                                          icon: Icons.delete,
-                                          backgroundColor: Color(0xffEA4346),
-                                        ),
-                                        const SizedBox(width: 10),
-                                      ],
-                                    ),
-                                  ),
+                                                  },
+                                                );
+                                              },
+                                            );
+                                          }
+                                          : null,
+                                  label: "Xoá",
+                                  icon: Icons.delete,
+                                  backgroundColor: Color(0xffEA4346),
                                 ),
+                                const SizedBox(width: 10),
                               ],
-                            )
-                            : const SizedBox.shrink(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -494,11 +413,9 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                 ),
                                 DataColumn(label: styleText("Họ Tên")),
                                 DataColumn(label: styleText("Email")),
-                                DataColumn(label: styleText("Giới Tính")),
-                                DataColumn(label: styleText("Số Điện Thoại")),
                                 DataColumn(label: styleText("Vai Trò")),
+                                DataColumn(label: styleText("Phòng Ban")),
                                 DataColumn(label: styleText("Quyền Truy Cập")),
-                                DataColumn(label: styleText("Hình Ảnh")),
                               ],
                               rows: List<DataRow>.generate(data.length, (index) {
                                 final user = data[index];
@@ -540,86 +457,19 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
                                     DataCell(styleCell(label: user.fullName)),
                                     DataCell(styleCell(label: user.email)),
                                     DataCell(
-                                      styleCell(label: UserAdminModel.formatSex(user.sex ?? "")),
-                                    ),
-                                    DataCell(styleCell(label: user.phone ?? "")),
-                                    DataCell(
                                       styleCell(label: UserAdminModel.formatRole(role: user.role)),
+                                    ),
+                                    DataCell(
+                                      styleCell(
+                                        label: UserAdminModel.formatDepartment(
+                                          department: user.department,
+                                        ),
+                                      ),
                                     ),
                                     DataCell(
                                       styleCell(
                                         label: UserAdminModel.formatPermissions(user.permissions),
                                       ),
-                                    ),
-                                    DataCell(
-                                      user.avatar != null && user.avatar!.isNotEmpty
-                                          ? TextButton(
-                                            onPressed: () {
-                                              // print(
-                                              //   'Attempting to show image from URL: ${user.avatar}',
-                                              // );
-                                              showDialog(
-                                                context: context,
-                                                barrierDismissible: true,
-                                                builder: (_) {
-                                                  return GestureDetector(
-                                                    onTap: () => Navigator.of(context).pop(),
-                                                    child: Scaffold(
-                                                      backgroundColor: Colors.black54,
-                                                      body: Center(
-                                                        child: GestureDetector(
-                                                          onTap:
-                                                              () {}, // Ngăn không cho nhấn vào ảnh đóng dialog
-                                                          child: ClipRRect(
-                                                            borderRadius: BorderRadius.circular(12),
-                                                            child: SizedBox(
-                                                              width: 600,
-                                                              height: 600,
-                                                              child: Image.network(
-                                                                user.avatar!,
-                                                                fit: BoxFit.contain,
-                                                                errorBuilder: (
-                                                                  context,
-                                                                  error,
-                                                                  stackTrace,
-                                                                ) {
-                                                                  AppLogger.e(
-                                                                    "Lỗi khi tải hình ảnh",
-                                                                    error: error,
-                                                                    stackTrace: stackTrace,
-                                                                  );
-                                                                  return Container(
-                                                                    width: 300,
-                                                                    height: 300,
-                                                                    color: Colors.grey.shade300,
-                                                                    alignment: Alignment.center,
-                                                                    child: const Text(
-                                                                      "Lỗi ảnh",
-                                                                      style: TextStyle(
-                                                                        color: Colors.black,
-                                                                      ),
-                                                                    ),
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            child: const Text(
-                                              'Xem ảnh',
-                                              style: TextStyle(
-                                                color: Colors.blue,
-                                                decoration: TextDecoration.underline,
-                                              ),
-                                            ),
-                                          )
-                                          : const Text('Không có ảnh'),
                                     ),
                                   ],
                                 );
@@ -651,18 +501,11 @@ class _AdminMangeUserState extends State<AdminMangeUser> {
           ],
         ),
       ),
-      floatingActionButton:
-          isAccept
-              ? FloatingActionButton(
-                onPressed: () async {
-                  setState(() {
-                    futureUserAdmin = AdminService().getUsersAdmin();
-                  });
-                },
-                backgroundColor: themeController.buttonColor.value,
-                child: const Icon(Icons.refresh, color: Colors.white),
-              )
-              : null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => loadUsers(),
+        backgroundColor: themeController.buttonColor.value,
+        child: const Icon(Icons.refresh, color: Colors.white),
+      ),
     );
   }
 }

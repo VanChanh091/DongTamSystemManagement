@@ -7,6 +7,7 @@ import "package:flutter/material.dart";
 class DialogPermissionRole extends StatefulWidget {
   final UserAdminModel userAdmin;
   final VoidCallback onPermissionOrRole;
+
   const DialogPermissionRole({
     super.key,
     required this.userAdmin,
@@ -18,30 +19,24 @@ class DialogPermissionRole extends StatefulWidget {
 }
 
 class _DialogPermissionRoleState extends State<DialogPermissionRole> {
-  final List<String> roles = ["admin", "manager", "user"];
-  final Map<String, String> roleLabels = {
+  Map<String, String> rolesMap = {
     "admin": "Quản trị viên",
     "manager": "Quản lý",
     "user": "Người dùng",
   };
 
-  final List<String> permissions = [
-    "sale",
-    "plan",
-    "HR",
-    "production",
-    "machine1350",
-    "machine1900",
-    "machine2Layer",
-    "MachineRollPaper",
-    "step2Production",
-    "QC",
-    "accountant",
-    "design",
-    "delivery",
-    "read",
-  ];
-  final Map<String, String> permissionsLabels = {
+  Map<String, String> departmentsMap = {
+    "Operation": "Nghiệp Vụ",
+    "HR": "Nhân sự",
+    "Accountant": "Kế toán",
+    "Sale": "Kinh doanh",
+    "Production": "Sản xuất",
+    "QC": "Chất Lượng",
+    "Delivery": "Kho Vận",
+    "Marketing": "Marketing",
+  };
+
+  Map<String, String> permissionsMap = {
     "sale": "Kinh doanh",
     "plan": "Kế hoạch",
     "HR": "Nhân sự",
@@ -49,7 +44,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "machine1350": "Máy 1350",
     "machine1900": "Máy 1900",
     "machine2Layer": "Máy 2 Lớp",
-    "MachineRollPaper": "Máy Quấn Cuồn",
+    "MachineRollPaper": "Máy Quấn Cuộn",
     "step2Production": "Công Đoạn 2",
     "QC": "Chất Lượng",
     "accountant": "Kế toán",
@@ -58,73 +53,63 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     "read": "Chỉ đọc",
   };
 
-  bool success = false;
   late int originalUserId;
   late String chosenRole;
-  late List<String> chosenPermissions;
+  late String chosenDepartment;
 
-  ValueNotifier<String?> selectedOption = ValueNotifier<String?>(null);
-  Map<String, ValueNotifier<bool>> permissionCheckStates = {};
+  final ValueNotifier<String?> selectedOption = ValueNotifier<String?>("role");
+  late Set<String> chosenPermissions;
 
   @override
   void initState() {
     super.initState();
     originalUserId = widget.userAdmin.userId;
-    chosenPermissions = List.from(widget.userAdmin.permissions);
     chosenRole = widget.userAdmin.role;
-
-    // Khởi tạo trạng thái checkbox cho từng quyền
-    for (final p in permissions) {
-      permissionCheckStates[p] = ValueNotifier<bool>(chosenPermissions.contains(p));
-    }
-  }
-
-  void handleSave() async {
-    try {
-      if (selectedOption.value == "role") {
-        success = await AdminService().updateInfoUser(userId: originalUserId, newRole: chosenRole);
-      } else if (selectedOption.value == "permission") {
-        List<String> updatedPermissions =
-            permissionCheckStates.entries
-                .where((entry) => entry.value.value)
-                .map((entry) => entry.key)
-                .toList();
-
-        success = await AdminService().updateInfoUser(
-          userId: originalUserId,
-          permissions: updatedPermissions,
-        );
-      }
-
-      if (success) {
-        if (!mounted) return;
-        showSnackBarSuccess(context, "Cập nhật thành công!");
-        await Future.delayed(Duration(milliseconds: 500));
-      } else {
-        AppLogger.d("Cập nhật thất bại cho userId=$originalUserId (API trả về false)");
-      }
-
-      if (!mounted) return;
-      widget.onPermissionOrRole();
-      Navigator.of(context).pop();
-    } catch (e, s) {
-      if (!mounted) return;
-      AppLogger.e(
-        "Lỗi khi lưu role/permission cho userId=$originalUserId",
-        error: e,
-        stackTrace: s,
-      );
-      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
-    }
+    chosenDepartment = widget.userAdmin.department;
+    chosenPermissions = Set.from(widget.userAdmin.permissions);
   }
 
   @override
   void dispose() {
-    for (final notifier in permissionCheckStates.values) {
-      notifier.dispose();
-    }
-    selectedOption.dispose();
     super.dispose();
+    selectedOption.dispose();
+  }
+
+  Future<void> submit() async {
+    try {
+      bool success = false;
+      final option = selectedOption.value;
+
+      if (option == "role") {
+        success = await AdminService().updateInfoUser(userId: originalUserId, newRole: chosenRole);
+      } else if (option == "department") {
+        success = await AdminService().updateInfoUser(
+          userId: originalUserId,
+          newDepartment: chosenDepartment,
+        );
+      } else if (option == "permission") {
+        success = await AdminService().updateInfoUser(
+          userId: originalUserId,
+          permissions: chosenPermissions.toList(),
+        );
+      }
+
+      if (success) {
+        if (mounted) {
+          showSnackBarSuccess(context, "Cập nhật thành công!");
+          await Future.delayed(const Duration(milliseconds: 500));
+
+          if (mounted) {
+            widget.onPermissionOrRole();
+            Navigator.of(context).pop();
+          }
+        }
+      }
+    } catch (e, s) {
+      if (!mounted) return;
+      AppLogger.e("Lỗi khi lưu thông tin người dùng", error: e, stackTrace: s);
+      showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
+    }
   }
 
   @override
@@ -132,97 +117,81 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text("Cập nhật vai trò/quyền hạn"),
-      content: ValueListenableBuilder<String?>(
-        valueListenable: selectedOption,
-        builder: (context, value, _) {
-          return RadioGroup(
-            groupValue: value,
-            onChanged: (val) {
-              if (val != null) selectedOption.value = val;
-            },
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Column(
-                children: [
-                  RadioListTile<String>(
-                    title: const Text("Vai trò", style: TextStyle(fontSize: 16)),
-                    value: "role",
-                  ),
-                  const SizedBox(height: 10),
-                  if (value == 'role') ...[
-                    dropdownForTypes(
-                      roles,
-                      chosenRole,
-                      (val) => setState(() => chosenRole = val!),
-                      labelMap: roleLabels,
+      title: const Text("Cập nhật thông tin người dùng"),
+      content: SizedBox(
+        width: 360,
+        child: ValueListenableBuilder<String?>(
+          valueListenable: selectedOption,
+          builder: (context, value, _) {
+            return RadioGroup<String>(
+              groupValue: value,
+              onChanged: (val) {
+                if (val != null) selectedOption.value = val;
+              },
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 1. Option Vai trò
+                    RadioListTile<String>(
+                      title: const Text("Vai trò", style: TextStyle(fontSize: 16)),
+                      value: "role",
                     ),
-                  ],
-
-                  RadioListTile<String>(
-                    title: const Text("Quyền truy cập", style: TextStyle(fontSize: 16)),
-                    value: "permission",
-                  ),
-                  const SizedBox(height: 10),
-                  if (value == 'permission') ...[
-                    SizedBox(
-                      height: 300,
-                      child: ValueListenableBuilder<String?>(
-                        valueListenable: selectedOption,
-                        builder: (context, value, _) {
-                          return value == "permission"
-                              ? SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: Column(
-                                  children:
-                                      permissions.map((perm) {
-                                        return ValueListenableBuilder<bool>(
-                                          valueListenable: permissionCheckStates[perm]!,
-                                          builder: (context, checked, _) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                checkboxTheme: CheckboxThemeData(
-                                                  fillColor: WidgetStateProperty.resolveWith<Color>(
-                                                    (states) {
-                                                      if (states.contains(WidgetState.selected)) {
-                                                        return Colors.red;
-                                                      }
-                                                      return Colors.white;
-                                                    },
-                                                  ),
-                                                  checkColor: WidgetStateProperty.all<Color>(
-                                                    Colors.white,
-                                                  ),
-                                                  side: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: CheckboxListTile(
-                                                title: Text(permissionsLabels[perm] ?? perm),
-                                                value: checked,
-                                                onChanged: (val) {
-                                                  permissionCheckStates[perm]!.value = val ?? false;
-                                                },
-                                                controlAffinity: ListTileControlAffinity.leading,
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      }).toList(),
-                                ),
-                              )
-                              : const SizedBox.shrink();
-                        },
+                    if (value == 'role') ...[
+                      _buildDropdown(
+                        optionsMap: rolesMap,
+                        selectedValue: chosenRole,
+                        onChanged: (val) => setState(() => chosenRole = val!),
                       ),
+                      const SizedBox(height: 10),
+                    ],
+
+                    // 2. Option Phòng ban
+                    RadioListTile<String>(
+                      title: const Text("Phòng ban", style: TextStyle(fontSize: 16)),
+                      value: "department",
                     ),
+                    if (value == 'department') ...[
+                      _buildDropdown(
+                        optionsMap: departmentsMap,
+                        selectedValue: chosenDepartment,
+                        onChanged: (val) => setState(() => chosenDepartment = val!),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+
+                    // 3. Option Quyền truy cập
+                    RadioListTile<String>(
+                      title: const Text("Quyền truy cập", style: TextStyle(fontSize: 16)),
+                      value: "permission",
+                    ),
+                    if (value == 'permission') ...[
+                      // Đã bỏ ListView/SizedBox thừa, render trực tiếp danh sách Checkbox
+                      ...permissionsMap.entries.map((entry) {
+                        final isChecked = chosenPermissions.contains(entry.key);
+                        return CheckboxListTile(
+                          activeColor: Colors.red,
+                          title: Text(entry.value),
+                          value: isChecked,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (val) {
+                            setState(() {
+                              if (val == true) {
+                                chosenPermissions.add(entry.key);
+                              } else {
+                                chosenPermissions.remove(entry.key);
+                              }
+                            });
+                          },
+                        );
+                      }),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actionsAlignment: MainAxisAlignment.spaceBetween,
@@ -235,7 +204,7 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
           ),
         ),
         ElevatedButton(
-          onPressed: handleSave,
+          onPressed: submit,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xffEA4346),
             foregroundColor: Colors.white,
@@ -247,43 +216,39 @@ class _DialogPermissionRoleState extends State<DialogPermissionRole> {
     );
   }
 
-  Widget dropdownForTypes(
-    List<String> items,
-    String type,
-    ValueChanged<String?> onChanged, {
-    Map<String, String>? labelMap,
+  Widget _buildDropdown({
+    required Map<String, String> optionsMap,
+    required String selectedValue,
+    required ValueChanged<String?> onChanged,
   }) {
-    return DropdownButtonFormField<String>(
-      initialValue: items.contains(type) ? type : null,
-      items:
-          items.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Row(
-                children: [
-                  const SizedBox(width: 10),
-                  Text(
-                    labelMap?[value] ?? value, //show vn
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.grey),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: DropdownButtonFormField<String>(
+        initialValue: optionsMap.containsKey(selectedValue) ? selectedValue : null,
+        items:
+            optionsMap.entries.map((entry) {
+              return DropdownMenuItem<String>(
+                value: entry.key,
+                child: Text(
+                  entry.value,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+              );
+            }).toList(),
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.grey),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+        dropdownColor: Colors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
-      icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-      style: const TextStyle(fontSize: 16, color: Colors.black),
-      dropdownColor: Colors.white,
-      borderRadius: BorderRadius.circular(12),
     );
   }
 }

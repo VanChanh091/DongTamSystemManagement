@@ -1,11 +1,11 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:dio/dio.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/dio_client.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:file_picker/file_picker.dart';
+import "package:dio/dio.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/dio_client.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/secure_storage_service.dart";
+import "package:file_picker/file_picker.dart";
 
 class HelperService {
   final Dio dioService = DioClient().dio;
@@ -14,8 +14,8 @@ class HelperService {
     if (e.response != null) {
       throw ApiException(
         status: e.response?.statusCode,
-        message: e.response?.data?['message'] ?? defaultMessage,
-        errorCode: e.response?.data?['errorCode'],
+        message: e.response?.data?["message"] ?? defaultMessage,
+        errorCode: e.response?.data?["errorCode"],
       );
     } else {
       throw Exception("Network Error: ${e.message}");
@@ -34,22 +34,22 @@ class HelperService {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/$endpoint',
+        "/api/$endpoint",
         queryParameters: queryParameters,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
       final data = response.data;
-      final rawList = data['data'] as List;
+      final rawList = data["data"] as List;
 
       final items = rawList.map((json) => fromJson(json as Map<String, dynamic>)).toList();
 
       final result = <String, dynamic>{
         dataKey: items,
-        'totalPages': data['totalPages'] ?? 1,
-        'currentPage': data['currentPage'] ?? 1,
+        "totalPages": data["totalPages"] ?? 1,
+        "currentPage": data["currentPage"] ?? 1,
       };
 
       // Tự động map tất cả các key trả về từ API (những key như tổng tiền, extra value, v.v)
@@ -66,7 +66,7 @@ class HelperService {
       return result;
     } catch (e, s) {
       AppLogger.e("Failed to load data from $endpoint\nError: $e\nStackTrace: $s");
-      throw Exception('Failed to load data from $endpoint: $e');
+      throw Exception("Failed to load data from $endpoint: $e");
     }
   }
 
@@ -80,20 +80,20 @@ class HelperService {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/$endpoint',
+        "/api/$endpoint",
         queryParameters: queryParameters,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
-      final data = response.data['data'] as List;
+      final data = response.data["data"] as List;
 
       return data.map((json) => fromJson(json as Map<String, dynamic>)).toList();
     } catch (e, s) {
       AppLogger.e("Failed to load data from $endpoint\nError: $e\nStackTrace: $s");
 
-      throw Exception('Failed to load data from $endpoint: $e');
+      throw Exception("Failed to load data from $endpoint: $e");
     }
   }
 
@@ -107,14 +107,14 @@ class HelperService {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/$endpoint',
+        "/api/$endpoint",
         queryParameters: queryParameters,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
-      final data = response.data['data'];
+      final data = response.data["data"];
       if (data == null) return null;
 
       if (data is Map<String, dynamic>) {
@@ -124,7 +124,7 @@ class HelperService {
       return null;
     } catch (e) {
       AppLogger.e("Failed to load data from $endpoint\nError: $e");
-      throw Exception('Failed to load data from $endpoint: $e');
+      throw Exception("Failed to load data from $endpoint: $e");
     }
   }
 
@@ -138,20 +138,20 @@ class HelperService {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.get(
-        '/api/$endpoint',
+        "/api/$endpoint",
         queryParameters: queryParameters,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
-      final data = response.data['data'];
+      final data = response.data["data"];
       if (data == null) return null;
 
       return parser(data);
     } catch (e, s) {
       AppLogger.e("Failed to load data from $endpoint", error: e, stackTrace: s);
-      throw Exception('Failed to load data from $endpoint: $e');
+      throw Exception("Failed to load data from $endpoint: $e");
     }
   }
 
@@ -169,7 +169,7 @@ class HelperService {
         queryParameters: queryParameters,
         data: body,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
@@ -179,7 +179,7 @@ class HelperService {
       return false;
     } catch (e, s) {
       AppLogger.e("Failed to add item", error: e, stackTrace: s);
-      throw Exception('Failed to add item: $e');
+      throw Exception("Failed to add item: $e");
     }
   }
 
@@ -197,7 +197,7 @@ class HelperService {
         queryParameters: queryParameters,
         data: body,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
@@ -207,7 +207,7 @@ class HelperService {
       return false;
     } catch (e, s) {
       AppLogger.e("Failed to update item", error: e, stackTrace: s);
-      throw Exception('Failed to update item: $e');
+      throw Exception("Failed to update item: $e");
     }
   }
 
@@ -219,14 +219,14 @@ class HelperService {
     try {
       final token = await SecureStorageService().getToken();
       if (token == null) {
-        throw Exception('Token not found');
+        throw Exception("Token not found");
       }
 
       await dioService.delete(
-        '/api/$endpoint',
+        "/api/$endpoint",
         queryParameters: queryParameters,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
       return true;
@@ -235,7 +235,7 @@ class HelperService {
       return false;
     } catch (e, s) {
       AppLogger.e("Failed to delete item", error: e, stackTrace: s);
-      throw Exception('Failed to delete item: $e');
+      throw Exception("Failed to delete item: $e");
     }
   }
 
@@ -252,7 +252,7 @@ class HelperService {
 
       // Tạo file name
       final now = dateTime ?? DateTime.now();
-      final fileName = "${fileNamePrefix}_${now.toIso8601String().split('T')[0]}.xlsx";
+      final fileName = "${fileNamePrefix}_${now.toIso8601String().split("T")[0]}.xlsx";
       final file = File("$dirPath/$fileName");
 
       // Ghi dữ liệu

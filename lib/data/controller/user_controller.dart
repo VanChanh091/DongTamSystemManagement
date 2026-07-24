@@ -8,12 +8,14 @@ class UserController extends GetxController {
 
   RxInt userId = 0.obs;
   RxString role = "".obs;
+  RxString department = "".obs;
   RxList<String> permissions = <String>[].obs;
 
   Future<void> loadUserData() async {
     try {
       String? storedUserId = await storage.getUserId();
       String? storedRole = await storage.getRole();
+      String? storedDepartment = await storage.getDepartment();
       String? storedPermissions = await storage.getPermission();
 
       if (storedUserId != null) {
@@ -22,6 +24,10 @@ class UserController extends GetxController {
 
       if (storedRole != null) {
         role.value = storedRole;
+      }
+
+      if (storedDepartment != null) {
+        department.value = storedDepartment;
       }
 
       if (storedPermissions != null) {
@@ -56,6 +62,7 @@ class UserController extends GetxController {
   void clearUser() {
     userId.value = 0;
     role.value = "";
+    department.value = "";
     permissions.clear();
   }
 }

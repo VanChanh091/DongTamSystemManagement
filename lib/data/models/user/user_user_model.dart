@@ -1,6 +1,7 @@
 class UserUserModel {
   final String? fullName, email, password, role;
-  final String? sex, phone, avatar;
+  final String? sex, phone;
+  final String department;
   final List<String> permissions;
 
   UserUserModel({
@@ -8,9 +9,9 @@ class UserUserModel {
     required this.email,
     required this.password,
     required this.role,
+    required this.department,
     this.sex,
     this.phone,
-    this.avatar,
     required this.permissions,
   });
 
@@ -22,7 +23,7 @@ class UserUserModel {
       password: json["password"] ?? "",
       sex: json["sex"] ?? "",
       phone: json["phone"] ?? "",
-      avatar: json["avatar"] ?? "",
+      department: json["department"] ?? "",
       role: json["role"],
       permissions: List<String>.from(json["permissions"] ?? []),
     );
@@ -37,7 +38,6 @@ class UserUserModel {
       "sex": sex,
       "phone": phone,
       "role": role,
-      "avatar": avatar,
       "permissions": permissions,
     };
   }

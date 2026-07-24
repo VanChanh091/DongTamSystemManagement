@@ -31,11 +31,6 @@ class BadgeService {
     return countForBadge("count-pending");
   }
 
-  //order reject
-  Future<int> countOrderRejected() async {
-    return countForBadge("count-rejected");
-  }
-
   //order pending planning
   Future<int> countOrderPendingPlanning() async {
     return countForBadge("count-pending-planning");

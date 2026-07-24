@@ -440,11 +440,6 @@ class _OrderDialogState extends State<OrderDialog> {
       await Future.delayed(const Duration(milliseconds: 800));
 
       uploadCtrl.complete(isAdd ? "Tạo đơn hàng thành công" : "Cập nhật đơn hàng thành công");
-
-      // Fetch badge
-      badgesController.fetchPendingApprovals();
-      if (badgesController.numberOrderReject > 0) badgesController.fetchOrderReject();
-
       callback?.call(orderId ?? order.orderId);
 
       return true;

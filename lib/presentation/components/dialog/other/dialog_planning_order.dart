@@ -362,6 +362,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
     canLanController.dispose();
     dvtController.dispose();
     noteController.dispose();
+    isBoxChecked.dispose();
 
     //planning
     ghepKhoController.dispose();

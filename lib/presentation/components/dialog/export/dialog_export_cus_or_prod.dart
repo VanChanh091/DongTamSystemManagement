@@ -101,6 +101,12 @@ class _DialogExportCusOrProdState extends State<DialogExportCusOrProd> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    selectedOption.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,

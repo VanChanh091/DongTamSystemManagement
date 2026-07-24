@@ -58,18 +58,10 @@ class AdminService {
   //===============================USER====================================
 
   // get all and search
-  Future<List<UserAdminModel>> getUsersAdmin({
-    String? name,
-    String? phone,
-    List<String>? permissions,
-  }) async {
+  Future<List<UserAdminModel>> getUsersAdmin() async {
     return HelperService().fetchingData<UserAdminModel>(
       endpoint: "admin/users",
-      queryParameters: {
-        if (name != null) "name": name,
-        if (phone != null) "phone": phone,
-        if (permissions != null && permissions.isNotEmpty) "permissions": permissions,
-      },
+      queryParameters: const {},
       fromJson: (json) => UserAdminModel.fromJson(json),
     );
   }
@@ -81,6 +73,7 @@ class AdminService {
     List<String>? permissions,
     List<int>? userIds,
     String? newPassword,
+    String? newDepartment,
   }) async {
     return HelperService().updateItem(
       endpoint: 'admin/users',
@@ -92,6 +85,7 @@ class AdminService {
         if (permissions != null && permissions.isNotEmpty) "permissions": permissions,
         if (userIds != null && userIds.isNotEmpty) "userIds": userIds,
         if (newPassword != null && newPassword.isNotEmpty) "newPassword": newPassword,
+        if (newDepartment != null && newDepartment.isNotEmpty) "newDepartment": newDepartment,
       },
     );
   }

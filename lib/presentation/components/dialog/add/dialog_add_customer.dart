@@ -247,7 +247,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
         Navigator.pop(context); // đóng dialog loading
 
         // Thông báo thành công
-        if (!mounted) return;
         showSnackBarSuccess(context, isAdd ? "Thêm thành công" : "Cập nhật thành công");
 
         widget.onCustomerAddOrUpdate();

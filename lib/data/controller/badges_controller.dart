@@ -1,5 +1,5 @@
 import "dart:async";
-
+import "package:dongtam/data/controller/notification_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/service/badge/badge_service.dart";
 import "package:dongtam/socket/socket_service.dart";
@@ -15,9 +15,6 @@ class BadgesController extends GetxController {
 
   //order pending planning
   RxInt numberOrderPendingPlanning = 0.obs;
-
-  //order reject
-  RxInt numberOrderReject = 0.obs;
 
   //planning stop
   RxInt numberPlanningStop = 0.obs;
@@ -50,8 +47,6 @@ class BadgesController extends GetxController {
     // Hủy timer cũ nếu đang chạy để tránh tạo nhiều timer chồng chéo
     stopTimer();
 
-    AppLogger.i("⏳ Started badge refresh timer: 30 minutes");
-
     _refreshTimer = Timer.periodic(const Duration(minutes: 30), (timer) {
       AppLogger.i("🔄 Auto-refreshing all badges...");
       refreshAllBadges();
@@ -75,21 +70,11 @@ class BadgesController extends GetxController {
 
     //init socket
     final socketService = SocketService();
-    await socketService.connectSocket();
+    await socketService.connectSocket(); // Đợi tạo socket xong
 
-    //join room
-    socketService.joinUserRoom(userId);
-
-    if (_userController.hasPermission(permission: "sale")) {
-      //register listener
-      socketService.on("updateBadgeCount", (data) {
-        if (data["type"] == "REJECTED_ORDER") {
-          int oldCount = numberOrderReject.value;
-          numberOrderReject.value = data["count"] ?? 0;
-
-          AppLogger.i("✅ Cập nhật Badge thành công: $oldCount -> ${numberOrderReject.value}");
-        }
-      });
+    if (Get.isRegistered<NotificationController>()) {
+      final notifController = Get.find<NotificationController>();
+      await notifController.reInitialize();
     }
   }
 
@@ -137,17 +122,9 @@ class BadgesController extends GetxController {
       numberPrepareGoods.value = 0;
     }
 
-    // badge cho đơn bị từ chối
-    if (_userController.hasPermission(permission: "sale")) {
-      tasks.add(fetchOrderReject());
-    } else {
-      numberOrderReject.value = 0;
-    }
-
     if (tasks.isNotEmpty) {
       try {
         await Future.wait(tasks);
-        AppLogger.i("✅ Success: All badge counts synchronized successfully.");
       } catch (e) {
         AppLogger.e("❌ Malfunction: Failed to execute collective badge refresh.", error: e);
       }
@@ -214,14 +191,6 @@ class BadgesController extends GetxController {
     );
   }
 
-  // Hàm gọi API để lấy đơn bị từ chối
-  Future<void> fetchOrderReject() async {
-    await fetchBadgeCount(
-      badgeCount: numberOrderReject,
-      fetcher: () => BadgeService().countOrderRejected(),
-    );
-  }
-
   //hàm api để lấy đơn chờ giao hàng
   Future<void> fetchDeliveryRequest() async {
     await fetchBadgeCount(
@@ -244,7 +213,6 @@ class BadgesController extends GetxController {
     numberPlanningStop.value = 0;
     numberPaperWaiting.value = 0;
     numberBoxWaiting.value = 0;
-    numberOrderReject.value = 0;
     numberDeliveryRequest.value = 0;
     numberPrepareGoods.value = 0;
     numberScrapWaiting.value = 0;

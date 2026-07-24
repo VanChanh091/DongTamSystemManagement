@@ -36,7 +36,7 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
 
   final formKey = GlobalKey<FormState>();
   final badgesController = Get.find<BadgesController>();
-  final TextEditingController qtyController = TextEditingController();
+  final qtyController = TextEditingController();
 
   List<QcCriteriaModel> criteriaList = [];
   Map<int, Map<String, bool>> samples = {};

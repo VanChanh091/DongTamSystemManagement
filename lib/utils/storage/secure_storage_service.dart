@@ -34,6 +34,19 @@ class SecureStorageService {
     await _storage.delete(key: "user_role");
   }
 
+  //============================DEPARTMENT=================================
+  Future<void> saveDepartment(String department) async {
+    await _storage.write(key: "user_department", value: department);
+  }
+
+  Future<String?> getDepartment() async {
+    return await _storage.read(key: "user_department");
+  }
+
+  Future<void> deleteDepartment() async {
+    await _storage.delete(key: "user_department");
+  }
+
   //============================PERMISSION=================================
   Future<void> savePermission(String token) async {
     await _storage.write(key: "user_permission", value: token);

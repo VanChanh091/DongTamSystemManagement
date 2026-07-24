@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/controller/badges_controller.dart';
+import 'package:dongtam/data/controller/notification_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -66,6 +67,7 @@ class AuthService {
         final user = response.data['user'] as Map<String, dynamic>;
         int userId = user['userId'];
         String role = user['role'];
+        String department = user['department'];
         List<String> permissions = List<String>.from(user['permissions']);
 
         //bắt buộc phải cho token chạy trước để lưu token vào storage
@@ -73,12 +75,14 @@ class AuthService {
         await Future.wait([
           secureStorage.saveUserId(userId),
           secureStorage.saveRole(role),
+          secureStorage.saveDepartment(department),
           secureStorage.savePermission(jsonEncode(permissions)),
         ]);
 
         // Cập nhật UserController với dữ liệu mới
         final userController = Get.find<UserController>();
         userController.userId.value = userId;
+        userController.department.value = department;
         userController.permissions.value = permissions;
 
         //set role sau cùng để tránh trigger các logic phụ thuộc vào role trước khi permissions được cập nhật
@@ -86,10 +90,13 @@ class AuthService {
 
         // Khởi tạo socket sau khi đăng nhập thành công
         // permanent: giữ socket sống suốt vòng đời app
+        Get.put(NotificationController(), permanent: true);
         final badgesController = Get.put(BadgesController(), permanent: true);
         badgesController.initializeAfterLogin(userId);
 
-        AppLogger.i("Login successful --> userId: $userId, role: $role, permission: $permissions");
+        AppLogger.i(
+          "Login successful --> userId: $userId, role: $role, department: $department, permission: $permissions",
+        );
 
         return true;
       } else {

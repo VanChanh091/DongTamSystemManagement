@@ -12,7 +12,7 @@ import 'package:http_parser/http_parser.dart';
 class OrderService {
   final Dio dioService = DioClient().dio;
 
-  //===============================ORDER AUTOCOMPLETE=====================================
+  //=============================== ORDER AUTOCOMPLETE =====================================
   Future<List<OrderModel>> getOrderIdRaw({required String orderId}) async {
     return HelperService().fetchingData<OrderModel>(
       endpoint: "order/order-id-raw",
@@ -29,7 +29,7 @@ class OrderService {
     );
   }
 
-  //===============================ACCEPT AND PLANNING====================================
+  //=============================== ORDER ====================================
 
   //get Order Accept And Planning and search
   Future<Map<String, dynamic>> getOrderAcceptted({
@@ -44,8 +44,6 @@ class OrderService {
       dataKey: 'orders',
     );
   }
-
-  //===============================PENDING AND REJECT=====================================
 
   //get Order Pending And Reject
   Future<List<OrderModel>> getOrderPendingAndReject({bool ownOnly = false}) async {
