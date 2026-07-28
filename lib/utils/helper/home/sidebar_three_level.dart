@@ -217,8 +217,8 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                         );
                         final groupBadge = child.getBadgeValue();
 
-                        const double groupIconSize = 22.5;
-                        const double groupFontSize = 15.5;
+                        const double groupIconSize = 21.0;
+                        const double groupFontSize = 16.0;
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,18 +350,16 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
     final int itemIndex = leaf.getIndex(pages);
     final int badgeValue = leaf.getBadgeValue();
 
-    double finalIconSize = 24.0;
-    double finalFontSize = 17.0;
+    double finalIconSize = 23.0;
+    double finalFontSize = 17.5;
 
     if (level == 2) {
-      finalIconSize = 22.5;
-      finalFontSize = 16.0;
+      finalIconSize = 21;
+      finalFontSize = 16;
     } else if (level == 3) {
-      finalIconSize = 20.5;
-      finalFontSize = 15.5;
+      finalIconSize = 19;
+      finalFontSize = 15;
     }
-
-    final FontWeight finalFontWeight = isActive ? FontWeight.bold : FontWeight.normal;
 
     Widget leadingWidget =
         badgeValue > 0
@@ -450,7 +448,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                       style: TextStyle(
                         color: isActive ? _activeColor : Colors.white,
                         fontSize: finalFontSize,
-                        fontWeight: finalFontWeight,
+                        fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   ),

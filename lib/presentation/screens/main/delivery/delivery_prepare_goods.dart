@@ -66,6 +66,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
   //text controller
   TextEditingController dayStartController = TextEditingController();
   TextEditingController employeeCodeController = TextEditingController();
+  TextEditingController licensePlateController = TextEditingController();
 
   @override
   void initState() {
@@ -265,6 +266,97 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                             ),
                                             const SizedBox(width: 15),
 
+                                            //change license plate
+                                            AnimatedButton(
+                                              onPressed:
+                                                  selectedDeliveryIds.length == 1
+                                                      ? () async {
+                                                        licensePlateController.clear();
+
+                                                        await showInputQtyDialog(
+                                                          context: context,
+                                                          title: "Nhập biển số cần thay đổi",
+                                                          labelText: "Biển Số",
+                                                          controller: licensePlateController,
+                                                          onConfirm: () async {
+                                                            try {
+                                                              final success =
+                                                                  await DeliveryService()
+                                                                      .handleUpdatePreparedGoods(
+                                                                        action:
+                                                                            "CHANGE_LICENSE_PLATE",
+                                                                        deliveryItemIds: [
+                                                                          selectedDeliveryIds.first,
+                                                                        ],
+                                                                        lisencePlate:
+                                                                            licensePlateController
+                                                                                .text,
+                                                                      );
+
+                                                              if (context.mounted) {
+                                                                showLoadingDialog(context);
+                                                                await Future.delayed(
+                                                                  const Duration(seconds: 1),
+                                                                );
+                                                              }
+
+                                                              if (success) {
+                                                                if (context.mounted) {
+                                                                  showSnackBarSuccess(
+                                                                    context,
+                                                                    "Đã thay đổi biển số thành công",
+                                                                  );
+                                                                }
+
+                                                                badgesController
+                                                                    .fetchPrepareGoods();
+
+                                                                loadDeliveryPrepareGoods();
+
+                                                                if (context.mounted) {
+                                                                  Navigator.pop(context);
+                                                                }
+
+                                                                return true;
+                                                              }
+                                                              return false;
+                                                            } on ApiException catch (e) {
+                                                              final errorText = switch (e
+                                                                  .errorCode) {
+                                                                'ITEM_NOT_FOUND' => e.message!,
+                                                                _ =>
+                                                                  'Có lỗi xảy ra, vui lòng thử lại',
+                                                              };
+
+                                                              if (context.mounted) {
+                                                                showSnackBarError(
+                                                                  context,
+                                                                  errorText,
+                                                                );
+                                                              }
+                                                              return false;
+                                                            } catch (e) {
+                                                              if (context.mounted) {
+                                                                showSnackBarError(
+                                                                  context,
+                                                                  "Thay đổi biển số thất bại",
+                                                                );
+                                                              }
+                                                              return false;
+                                                            }
+                                                          },
+                                                        );
+                                                      }
+                                                      : null,
+                                              label: "Sửa Biển Số",
+                                              icon: Symbols.edit,
+                                              backgroundColor:
+                                                  selectedDeliveryIds.length == 1
+                                                      ? themeController.buttonColor
+                                                      : Colors.grey,
+                                            ),
+                                            const SizedBox(width: 10),
+
                                             //complete
                                             isDelivery
                                                 ? AnimatedButton(
@@ -281,17 +373,16 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                                               controller: employeeCodeController,
                                                               onConfirm: () async {
                                                                 try {
-                                                                  final success =
-                                                                      await DeliveryService()
-                                                                          .requestOrPreparedGoods(
-                                                                            deliveryItemIds: [
-                                                                              selectedDeliveryIds
-                                                                                  .first,
-                                                                            ],
-                                                                            isRequest: false,
-                                                                            empCode:
-                                                                                'DTGH-${employeeCodeController.trimmed}',
-                                                                          );
+                                                                  final success = await DeliveryService()
+                                                                      .handleUpdatePreparedGoods(
+                                                                        action: "REQUEST",
+                                                                        deliveryItemIds: [
+                                                                          selectedDeliveryIds.first,
+                                                                        ],
+                                                                        isRequest: false,
+                                                                        empCode:
+                                                                            'DTGH-${employeeCodeController.trimmed}',
+                                                                      );
 
                                                                   if (success) {
                                                                     if (context.mounted) {

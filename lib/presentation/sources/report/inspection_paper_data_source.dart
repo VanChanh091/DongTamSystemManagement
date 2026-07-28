@@ -51,7 +51,7 @@ class InspectionPaperDataSource extends DataGridSource {
         value: formatterDayTime.format(inspecPaper.timeInspection),
       ),
       DataGridCell<int>(columnName: "numberPallet", value: inspecPaper.numberPallet),
-      DataGridCell<int>(columnName: "machineSpeed", value: inspecPaper.machineSpeed),
+      DataGridCell<double>(columnName: "machineSpeed", value: inspecPaper.machineSpeed),
       DataGridCell<double>(columnName: "moisture", value: inspecPaper.moisture),
       DataGridCell<double>(columnName: "steamPressure", value: inspecPaper.steamPressure),
       DataGridCell<double>(columnName: "preheaterTemp", value: inspecPaper.preheaterTemp),

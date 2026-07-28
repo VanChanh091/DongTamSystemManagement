@@ -1088,7 +1088,6 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                       itemCount: orders.length,
                       onReorderItem: (oldIndex, newIndex) {
                         setState(() {
-                          if (newIndex > oldIndex) newIndex -= 1;
                           final item = orders.removeAt(oldIndex);
                           orders.insert(newIndex, item);
 

@@ -215,11 +215,6 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           label: "Báo Cáo Phế Liệu",
           pageType: ScrapReportPaper,
         ),
-        LeafMenuConfig(
-          icon: Icons.article,
-          label: "Lịch Sử Sản Xuất",
-          pageType: TopTabHistoryReport,
-        ),
       ],
     ),
 

@@ -1,32 +1,32 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/delivery/delivery_item_model.dart';
-import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_delivery_schedule.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/delivery/delivery_schedule_data_source.dart';
-import 'package:dongtam/service/delivery_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/socket/socket_service.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/socket/init_socket_delivery_schedule.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/delivery/delivery_item_model.dart";
+import "package:dongtam/data/models/delivery/delivery_schedule_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart";
+import "package:dongtam/presentation/components/headerTable/header_table_delivery_schedule.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/delivery/delivery_schedule_data_source.dart";
+import "package:dongtam/service/delivery_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/socket/socket_service.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/helper/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/socket/init_socket_delivery_schedule.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class DeliverySchedule extends StatefulWidget {
   const DeliverySchedule({super.key});
@@ -42,7 +42,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
   //controlers
   final socketService = SocketService();
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -80,8 +80,8 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
     final now = DateTime.now();
     dayStartController.text =
-        "${now.day.toString().padLeft(2, '0')}/"
-        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.day.toString().padLeft(2, "0")}/"
+        "${now.month.toString().padLeft(2, "0")}/"
         "${now.year}";
 
     _initSocket = InitSocketDeliverySchedule(
@@ -95,12 +95,12 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
     loadDeliverySchedule();
 
     // check role and permission
-    isAdmin = userController.hasAnyRole(roles: ['admin']);
+    isAdmin = userController.hasAnyRole(roles: ["admin"]);
     isPlan = userController.hasAnyPermission(permission: ["plan"]);
     isDelivery = userController.hasAnyPermission(permission: ["delivery", "plan"]);
 
-    columns = buildDeliveryScheduleColumn(themeController: themeController, page: 'schedule');
-    ColumnWidthTable.loadWidths(tableKey: 'deliverySchedule', columns: columns).then((w) {
+    columns = buildDeliveryScheduleColumn(themeController: themeController, page: "schedule");
+    ColumnWidthTable.loadWidths(tableKey: "deliverySchedule", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -125,14 +125,14 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   void _updateSelectedIdsFromRows(List<DataGridRow> rows) {
     final newIds =
         rows.map((row) {
-          return row.getCells().firstWhere((cell) => cell.columnName == 'deliveryItemId').value
+          return row.getCells().firstWhere((cell) => cell.columnName == "deliveryItemId").value
               as int;
         }).toList();
 
     // Lấy status của dòng được chọn (chỉ khi chọn đúng 1 dòng)
     if (rows.length == 1) {
       selectedStatus =
-          rows.first.getCells().firstWhere((cell) => cell.columnName == 'status').value as String?;
+          rows.first.getCells().firstWhere((cell) => cell.columnName == "status").value as String?;
     } else {
       selectedStatus = null;
     }
@@ -158,7 +158,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   @override
   Widget build(BuildContext context) {
     final bool isActionable =
-        isDelivery && selectedStatus != 'completed' && (selectedStatus != 'cancelled' || isAdmin);
+        isDelivery && selectedStatus != "completed" && (selectedStatus != "cancelled" || isAdmin);
 
     return Scaffold(
       body: Listener(
@@ -279,7 +279,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                                 if (selected != null) {
                                                   setState(() {
                                                     dayStartController.text = DateFormat(
-                                                      'dd/MM/yyyy',
+                                                      "dd/MM/yyyy",
                                                     ).format(selected);
 
                                                     selectedDeliveryIds.clear();
@@ -416,7 +416,8 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                                             );
 
                                                             final success = await DeliveryService()
-                                                                .requestOrPreparedGoods(
+                                                                .handleUpdatePreparedGoods(
+                                                                  action: "REQUEST",
                                                                   isRequest: true,
                                                                   deliveryItemIds:
                                                                       selectedDeliveryIds,
@@ -462,7 +463,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                                           showGroup = !showGroup;
                                                         });
                                                       },
-                                                      label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                                      label: showGroup ? "Tắt nhóm" : "Bật nhóm",
                                                       icon:
                                                           showGroup
                                                               ? Symbols.ungroup
@@ -609,7 +610,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                               delivery: data,
                               selectedDeliveryId: _selectedDeliveryIdsNotifier.value,
                               showGroup: showGroup,
-                              page: 'schedule',
+                              page: "schedule",
                             );
                           }
 
@@ -650,7 +651,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                           ],
                                           child: Obx(
                                             () => formatColumn(
-                                              label: 'Số Lượng',
+                                              label: "Số Lượng",
                                               themeController: themeController,
                                             ),
                                           ),
@@ -673,7 +674,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                                   onColumnResizeEnd:
                                       (details) => GridResizeHelper.onResizeEnd(
                                         details: details,
-                                        tableKey: 'deliverySchedule',
+                                        tableKey: "deliverySchedule",
                                         columnWidths: columnWidths,
                                         setState: setState,
                                       ),

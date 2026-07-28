@@ -1,11 +1,13 @@
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_paper_model.dart";
+import "package:dongtam/presentation/components/dialog/qc/dialog_summary_inspec_err.dart";
 import "package:dongtam/presentation/components/headerTable/report/header_table_inspection_paper.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/sources/report/inspection_paper_data_source.dart";
-import "package:dongtam/service/quality_control_service.dart";
+import "package:dongtam/service/report_service.dart";
 import "package:dongtam/utils/helper/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
@@ -30,6 +32,8 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   final themeController = Get.find<ThemeController>();
 
   String machine = "Máy 1350";
+  final List<String> machineList = ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
+
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Mã Đơn Hàng": "orderId",
@@ -77,15 +81,8 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   }
 
   void _fetchData() {
-    // final String keyword = searchController.text.trim().toLowerCase();
-    // final String selectedField = searchFieldMap[searchType] ?? "";
-
-    // Điều kiện để xác định có thực hiện search hay load mặc định
-    // final bool shouldSearch = isSearching && searchType != "Tất cả";
-    // final bool isDateSearch = searchType == "Ngày Báo Cáo";
-
     futureReportPaper = ensureMinLoading(
-      QualityControlService().getQcInspection(
+      ReportService().getReportQcInspection(
         isPaper: "paper",
         page: currentPage,
         pageSize: pageSize,
@@ -100,36 +97,6 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   void loadInspectionPaper() {
     setState(() => _fetchData());
   }
-
-  // void searchReportPaper() {
-  //   String keyword = searchController.text.trim().toLowerCase();
-  //   final bool isDateSearch = searchType == "Ngày Báo Cáo";
-
-  //   if (isDateSearch) {
-  //     if (startDate == null || endDate == null) {
-  //       AppLogger.w("searchOrders => chưa chọn khoảng thời gian");
-  //       return;
-  //     }
-  //   } else if (isTextFieldEnabled && keyword.isEmpty) {
-  //     AppLogger.w("searchReportPaper => searchType=$searchType nhưng keyword rỗng");
-  //     return;
-  //   }
-
-  //   setState(() {
-  //     currentPage = 1;
-  //     isSearching = (searchType != "Tất cả");
-  //     _fetchData();
-  //   });
-  // }
-
-  // void changeMachine(String selectedMachine) {
-  //   AppLogger.i("changeMachine | from=$machine -> to=$selectedMachine");
-  //   setState(() {
-  //     machine = selectedMachine;
-  //     selectedPaperIds.clear();
-  //     loadInspectionPaper();
-  //   });
-  // }
 
   void changeMachine(String selectedMachine) {
     setState(() {
@@ -188,6 +155,7 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
                   },
                 );
               },
+
               child: Container(
                 color: Colors.white,
                 padding: const EdgeInsets.all(5),
@@ -241,15 +209,29 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
                                         return Row(
                                           mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
+                                            AnimatedButton(
+                                              onPressed: () async {
+                                                showDialog(
+                                                  // barrierDismissible: false,
+                                                  context: context,
+                                                  builder:
+                                                      (_) => DialogSummaryInspecErr(
+                                                        type: InspectionType.paper,
+                                                        machine: machine,
+                                                        machineList: machineList,
+                                                      ),
+                                                );
+                                              },
+                                              label: "Tổng lỗi",
+                                              icon: Icons.summarize,
+                                              backgroundColor: themeController.buttonColor,
+                                            ),
+                                            const SizedBox(width: 10),
+
                                             //choose machine
                                             buildDropdownItems(
                                               value: machine,
-                                              items: const [
-                                                'Máy 1350',
-                                                "Máy 1900",
-                                                "Máy 2 Lớp",
-                                                "Máy Quấn Cuồn",
-                                              ],
+                                              items: machineList,
                                               onChanged: (value) {
                                                 if (value != null) {
                                                   changeMachine(value);

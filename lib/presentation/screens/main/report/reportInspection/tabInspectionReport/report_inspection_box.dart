@@ -1,11 +1,13 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_box_model.dart';
+import 'package:dongtam/presentation/components/dialog/qc/dialog_summary_inspec_err.dart';
 import 'package:dongtam/presentation/components/headerTable/report/header_table_inspection_box.dart';
+import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/report/inspection_box_data_source.dart';
-import 'package:dongtam/service/quality_control_service.dart';
+import 'package:dongtam/service/report_service.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
@@ -29,6 +31,17 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
   final themeController = Get.find<ThemeController>();
 
   String machine = "Máy In";
+  final List<String> machineList = [
+    'Máy In',
+    "Máy Bế",
+    "Máy Xả",
+    "Máy Dán",
+    'Máy Cấn Lằn',
+    "Máy Cắt Khe",
+    "Máy Cán Màng",
+    "Máy Đóng Ghim",
+  ];
+
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Mã Đơn Hàng": "orderId",
@@ -88,7 +101,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
     // final bool isDateSearch = searchType == "Ngày Báo Cáo";
 
     futureReportBox = ensureMinLoading(
-      QualityControlService().getQcInspection(
+      ReportService().getReportQcInspection(
         isPaper: 'box',
         page: currentPage,
         pageSize: pageSize,
@@ -235,19 +248,29 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                                         return Row(
                                           mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
+                                            AnimatedButton(
+                                              onPressed: () async {
+                                                showDialog(
+                                                  // barrierDismissible: false,
+                                                  context: context,
+                                                  builder:
+                                                      (_) => DialogSummaryInspecErr(
+                                                        type: InspectionType.box,
+                                                        machine: machine,
+                                                        machineList: machineList,
+                                                      ),
+                                                );
+                                              },
+                                              label: "Tổng lỗi",
+                                              icon: Icons.summarize,
+                                              backgroundColor: themeController.buttonColor,
+                                            ),
+                                            const SizedBox(width: 10),
+
                                             //choose machine
                                             buildDropdownItems(
                                               value: machine,
-                                              items: const [
-                                                'Máy In',
-                                                "Máy Bế",
-                                                "Máy Xả",
-                                                "Máy Dán",
-                                                'Máy Cấn Lằn',
-                                                "Máy Cắt Khe",
-                                                "Máy Cán Màng",
-                                                "Máy Đóng Ghim",
-                                              ],
+                                              items: machineList,
                                               onChanged: (value) {
                                                 if (value != null) {
                                                   changeMachine(value);

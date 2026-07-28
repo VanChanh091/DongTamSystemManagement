@@ -1,19 +1,21 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:io';
-import 'package:dio/dio.dart';
-import 'package:dongtam/data/models/report/report_box_model.dart';
-import 'package:dongtam/data/models/report/report_paper_model.dart';
-import 'package:dongtam/utils/handleError/dio_client.dart';
-import 'package:dongtam/utils/helper/helper_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:diacritic/diacritic.dart';
+import "dart:io";
+import "package:dio/dio.dart";
+import "package:dongtam/data/models/qualityControl/qcInspection/qc_error_summary_model.dart";
+import "package:dongtam/data/models/report/report_box_model.dart";
+import "package:dongtam/data/models/report/report_paper_model.dart";
+import "package:dongtam/utils/handleError/dio_client.dart";
+import "package:dongtam/utils/helper/helper_service.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/secure_storage_service.dart";
+import "package:diacritic/diacritic.dart";
+import "package:intl/intl.dart";
 
-class ReportPlanningService {
+class ReportService {
   final Dio dioService = DioClient().dio;
 
-  //============================REPORT PAPER=================================
+  //============================PAPER & BOX================================
   // get all and search
   Future<Map<String, dynamic>> getReportPapers({
     required String machine,
@@ -27,20 +29,19 @@ class ReportPlanningService {
     return HelperService().fetchPaginatedData<ReportPaperModel>(
       endpoint: "report/paper",
       queryParameters: {
-        'page': page,
-        'pageSize': pageSize,
-        'machine': machine,
-        if (field != null) 'field': field,
-        if (keyword != null) 'keyword': keyword,
-        if (startDate != null) 'startDate': startDate.toIso8601String(),
-        if (endDate != null) 'endDate': endDate.toIso8601String(),
+        "page": page,
+        "pageSize": pageSize,
+        "machine": machine,
+        if (field != null) "field": field,
+        if (keyword != null) "keyword": keyword,
+        if (startDate != null) "startDate": startDate.toIso8601String(),
+        if (endDate != null) "endDate": endDate.toIso8601String(),
       },
       fromJson: (json) => ReportPaperModel.fromJson(json),
-      dataKey: 'reportPapers',
+      dataKey: "reportPapers",
     );
   }
 
-  //============================REPORT BOX=================================
   // get all and search
   Future<Map<String, dynamic>> getReportBoxes({
     required String machine,
@@ -54,21 +55,56 @@ class ReportPlanningService {
     return HelperService().fetchPaginatedData<ReportBoxModel>(
       endpoint: "report/box",
       queryParameters: {
-        'machine': machine,
-        'page': page,
-        'pageSize': pageSize,
-        if (field != null) 'field': field,
-        if (keyword != null) 'keyword': keyword,
-        if (startDate != null) 'startDate': startDate.toIso8601String(),
-        if (endDate != null) 'endDate': endDate.toIso8601String(),
+        "machine": machine,
+        "page": page,
+        "pageSize": pageSize,
+        if (field != null) "field": field,
+        if (keyword != null) "keyword": keyword,
+        if (startDate != null) "startDate": startDate.toIso8601String(),
+        if (endDate != null) "endDate": endDate.toIso8601String(),
       },
       fromJson: (json) => ReportBoxModel.fromJson(json),
-      dataKey: 'reportBoxes',
+      dataKey: "reportBoxes",
+    );
+  }
+
+  //============================INSPECTION=================================
+  Future<Map<String, dynamic>> getReportQcInspection<T>({
+    required String isPaper,
+    required int page,
+    required int pageSize,
+    required String machine,
+    required T Function(Map<String, dynamic>) fromJson,
+  }) async {
+    return HelperService().fetchPaginatedData<T>(
+      endpoint: "report/inspection",
+      queryParameters: {"isPaper": isPaper, "page": page, "pageSize": pageSize, "machine": machine},
+      fromJson: fromJson,
+      dataKey: isPaper == "paper" ? "inspectionPapers" : "inspectionBoxes",
+    );
+  }
+
+  Future<List<QcErrorSummaryModel>> getReportQcInspectionSummary({
+    required String isPaper,
+    required String machine,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final queryParameters = {
+      "isPaper": isPaper,
+      "machine": machine,
+      "startDate": DateFormat('yyyy-MM-dd').format(startDate),
+      "endDate": DateFormat('yyyy-MM-dd').format(endDate),
+    };
+
+    return HelperService().fetchingData(
+      endpoint: "report/inspection/summary",
+      queryParameters: queryParameters,
+      fromJson: (json) => QcErrorSummaryModel.fromJson(json),
     );
   }
 
   //============================EXPORT EXCEL=================================
-
   // Export Paper
   Future<File?> exportExcelReportPaper({DateTime? fromDate, DateTime? toDate, String? machine}) {
     return _exportExcelBase(
@@ -120,7 +156,7 @@ class ReportPlanningService {
         endpoint,
         data: body,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
           responseType: ResponseType.bytes,
         ),
       );
@@ -147,10 +183,10 @@ class ReportPlanningService {
     var result = removeDiacritics(input);
 
     // thay khoảng trắng bằng "_"
-    result = result.replaceAll(RegExp(r'\s+'), '_');
+    result = result.replaceAll(RegExp(r"\s+"), "_");
 
     // loại bỏ ký tự đặc biệt ngoài a-zA-Z0-9_
-    result = result.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '');
+    result = result.replaceAll(RegExp(r"[^a-zA-Z0-9_]"), "");
 
     return result;
   }

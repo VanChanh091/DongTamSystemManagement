@@ -109,21 +109,6 @@ class QualityControlService {
   }
 
   //==========================INSPECTION=================================
-  Future<Map<String, dynamic>> getQcInspection<T>({
-    required String isPaper,
-    required int page,
-    required int pageSize,
-    required String machine,
-    required T Function(Map<String, dynamic>) fromJson,
-  }) async {
-    return HelperService().fetchPaginatedData<T>(
-      endpoint: "qc/inspection",
-      queryParameters: {"isPaper": isPaper, "page": page, "pageSize": pageSize, "machine": machine},
-      fromJson: fromJson,
-      dataKey: isPaper == 'paper' ? 'inspectionPapers' : 'inspectionBoxes',
-    );
-  }
-
   Future<T?> getQcInspectionErr<T>({
     required String isPaper,
     required int planningId,

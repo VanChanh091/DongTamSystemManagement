@@ -7,7 +7,7 @@ class QcInspectionPaperModel {
 
   //user input
   final int? numberPallet;
-  final int machineSpeed;
+  final double machineSpeed;
   final double moisture;
   final double steamPressure;
   final double preheaterTemp;
@@ -45,7 +45,7 @@ class QcInspectionPaperModel {
       timeInspection:
           json["timeInspection"] != null ? DateTime.parse(json["timeInspection"]) : DateTime.now(),
       numberPallet: json["numberPallet"] ?? 0,
-      machineSpeed: json["machineSpeed"] ?? 0,
+      machineSpeed: toDouble(json["machineSpeed"]),
       moisture: toDouble(json["moisture"]),
       steamPressure: toDouble(json["steamPressure"]),
       preheaterTemp: toDouble(json["preheaterTemp"]),

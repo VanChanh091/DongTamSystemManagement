@@ -1,4 +1,4 @@
-import "package:dongtam/service/report_planning_service.dart";
+import "package:dongtam/service/report_service.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:flutter/material.dart";
@@ -370,13 +370,13 @@ class _DialogSelectExportExcelState extends State<DialogSelectExportExcel> {
       final String? machineParam = (currentOption == "dateHasMachine") ? widget.machine : null;
 
       if (widget.isBox) {
-        await ReportPlanningService().exportExcelReportBox(
+        await ReportService().exportExcelReportBox(
           fromDate: startDateTime,
           toDate: endDateTime,
           machine: machineParam,
         );
       } else {
-        await ReportPlanningService().exportExcelReportPaper(
+        await ReportService().exportExcelReportPaper(
           fromDate: startDateTime,
           toDate: endDateTime,
           machine: machineParam,

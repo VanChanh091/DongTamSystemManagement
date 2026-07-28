@@ -1,58 +1,58 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/notification_controller.dart';
-import 'package:dongtam/data/controller/sidebar_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/unsaved_change_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/presentation/screens/auth/login.dart';
-import 'package:dongtam/presentation/screens/main/QC/inspectionCheck/top_tab_inspection_check.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_criteria.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_vehicle.dart';
-import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart';
-import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_criteria_check.dart';
-import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
-import 'package:dongtam/presentation/screens/main/customer/customer.dart';
-import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
-import 'package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart';
-import 'package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart';
-import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart';
-import 'package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart';
-import 'package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart';
-import 'package:dongtam/presentation/screens/main/delivery/delivery_prepare_goods.dart';
-import 'package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart';
-import 'package:dongtam/presentation/screens/main/delivery/delivery_planning.dart';
-import 'package:dongtam/presentation/screens/main/employee/employee.dart';
-import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
-import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
-import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
-import 'package:dongtam/presentation/screens/main/planning/planning_stop.dart';
-import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_box.dart';
-import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart';
-import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
-import 'package:dongtam/presentation/screens/main/product/product.dart';
-import 'package:dongtam/presentation/screens/main/report/reportWarehouse/report_inbound_history.dart';
-import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart';
-import 'package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_box.dart';
-import 'package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart';
-import 'package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart';
-import 'package:dongtam/presentation/screens/main/warehouse/inventory.dart';
-import 'package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart';
-import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dart';
-import 'package:dongtam/service/auth_service.dart';
-import 'package:dongtam/socket/socket_service.dart';
-import 'package:dongtam/utils/color/theme_picker_color.dart';
-import 'package:dongtam/utils/helper/home/leaf_menu_config.dart';
-import 'package:dongtam/utils/helper/home/sidebar_config.dart';
-import 'package:dongtam/utils/helper/home/sidebar_three_level.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:page_transition/page_transition.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/notification_controller.dart";
+import "package:dongtam/data/controller/sidebar_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/unsaved_change_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/presentation/screens/auth/login.dart";
+import "package:dongtam/presentation/screens/main/QC/inspectionCheck/top_tab_inspection_check.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_criteria.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_order.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_mange_user.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_vehicle.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_criteria_check.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart";
+import "package:dongtam/presentation/screens/main/customer/customer.dart";
+import "package:dongtam/presentation/screens/main/dashboard/dashboard.dart";
+import "package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart";
+import "package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart";
+import "package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart";
+import "package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_prepare_goods.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_planning.dart";
+import "package:dongtam/presentation/screens/main/employee/employee.dart";
+import "package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart";
+import "package:dongtam/presentation/screens/main/manufacture/paper_production.dart";
+import "package:dongtam/presentation/screens/main/order/top_tab_order.dart";
+import "package:dongtam/presentation/screens/main/planning/planning_stop.dart";
+import "package:dongtam/presentation/screens/main/planning/production_queue/production_queue_box.dart";
+import "package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart";
+import "package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart";
+import "package:dongtam/presentation/screens/main/product/product.dart";
+import "package:dongtam/presentation/screens/main/report/reportWarehouse/report_inbound_history.dart";
+import "package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart";
+import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_box.dart";
+import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart";
+import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart";
+import "package:dongtam/presentation/screens/main/warehouse/inventory.dart";
+import "package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart";
+import "package:dongtam/presentation/screens/main/warehouse/outbound_history.dart";
+import "package:dongtam/service/auth_service.dart";
+import "package:dongtam/socket/socket_service.dart";
+import "package:dongtam/utils/color/theme_picker_color.dart";
+import "package:dongtam/utils/helper/home/leaf_menu_config.dart";
+import "package:dongtam/utils/helper/home/sidebar_config.dart";
+import "package:dongtam/utils/helper/home/sidebar_three_level.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/storage/secure_storage_service.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:google_fonts/google_fonts.dart";
+import "package:page_transition/page_transition.dart";
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -90,18 +90,18 @@ class _HomePageState extends State<HomePage> {
       //dashboard
       DashboardPage(),
 
-      _buildPage(permissions: ['sale'], child: TopTabOrder()),
-      CustomerPage(),
-      ProductPage(),
+      _buildPage(permissions: ["sale"], child: TopTabOrder()),
+      _buildPage(permissions: ["sale"], child: CustomerPage()),
+      _buildPage(permissions: ["sale"], child: ProductPage()),
 
       //Employee
-      _buildPage(permissions: ['HR'], child: Employee()),
+      _buildPage(permissions: ["HR"], child: Employee()),
 
       // planning
-      _buildPage(permissions: ['plan'], child: WaitingForPlanning()),
-      _buildPage(permissions: ['plan'], child: ProductionQueuePaper()),
-      _buildPage(permissions: ['plan'], child: ProductionQueueBox()),
-      _buildPage(permissions: ['plan'], child: PlanningStop()),
+      _buildPage(permissions: ["plan"], child: WaitingForPlanning()),
+      _buildPage(permissions: ["plan"], child: ProductionQueuePaper()),
+      _buildPage(permissions: ["plan"], child: ProductionQueueBox()),
+      _buildPage(permissions: ["plan"], child: PlanningStop()),
 
       // manufacture
       PaperProduction(),
@@ -112,21 +112,21 @@ class _HomePageState extends State<HomePage> {
       ),
 
       //waiting check
-      _buildPage(permissions: ['QC'], child: WaitingCheckPaper()),
-      _buildPage(permissions: ['QC'], child: WaitingCheckBox()),
-      _buildPage(permissions: ['QC'], child: WaitingCheckScrapReport()),
-      _buildPage(permissions: ['QC'], child: TopTabInspectionCheck()),
+      _buildPage(permissions: ["QC"], child: WaitingCheckPaper()),
+      _buildPage(permissions: ["QC"], child: WaitingCheckBox()),
+      _buildPage(permissions: ["QC"], child: WaitingCheckScrapReport()),
+      _buildPage(permissions: ["QC"], child: TopTabInspectionCheck()),
 
       //outbound
-      _buildPage(permissions: ['delivery', 'accountant', 'sale'], child: OutboundHistory()),
+      _buildPage(permissions: ["delivery", "accountant", "sale"], child: OutboundHistory()),
       Inventory(),
       LiquidationInventory(),
 
       //delivery
-      _buildPage(permissions: ['plan', 'sale'], child: DeliveryEstimateTime()),
+      _buildPage(permissions: ["plan", "sale"], child: DeliveryEstimateTime()),
       DeliveryPlanning(),
       DeliverySchedule(),
-      _buildPage(permissions: ['delivery', 'accountant'], child: DeliveryPrepareGoods()),
+      _buildPage(permissions: ["delivery", "accountant"], child: DeliveryPrepareGoods()),
 
       //reporting hitstory
       TopTabHistoryReport(),
@@ -135,16 +135,16 @@ class _HomePageState extends State<HomePage> {
 
       //synthetic
       SyntheticPlanning(),
-      _buildPage(permissions: ['sale', 'accountant', 'plan'], child: SyntheticOrder()),
+      _buildPage(permissions: ["sale", "accountant", "plan"], child: SyntheticOrder()),
 
       // admin
-      _buildPage(roles: ['admin', 'manager'], child: AdminOrder()),
-      _buildPage(roles: ['admin'], child: TopTabAdminPaper()),
-      _buildPage(roles: ['admin'], child: TopTabAdminBox()),
-      _buildPage(roles: ['admin', 'manager'], child: AdminVehicle()),
-      _buildPage(roles: ['admin'], child: AdminCriteria()),
-      _buildPage(roles: ['admin'], child: TopTabCriteriaCheck()),
-      _buildPage(roles: ['admin'], child: AdminMangeUser()),
+      _buildPage(roles: ["admin", "manager"], child: AdminOrder()),
+      _buildPage(roles: ["admin"], child: TopTabAdminPaper()),
+      _buildPage(roles: ["admin"], child: TopTabAdminBox()),
+      _buildPage(roles: ["admin", "manager"], child: AdminVehicle()),
+      _buildPage(roles: ["admin"], child: AdminCriteria()),
+      _buildPage(roles: ["admin"], child: TopTabCriteriaCheck()),
+      _buildPage(roles: ["admin"], child: AdminMangeUser()),
     ].whereType<Widget>().toList(); // lọc bỏ null
   }
 
@@ -195,7 +195,7 @@ class _HomePageState extends State<HomePage> {
               else
                 Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 6),
-                  child: Image.asset('assets/images/logoDT.png', width: 40, height: 40),
+                  child: Image.asset("assets/images/logoDT.png", width: 40, height: 40),
                 ),
               const SizedBox(height: 16),
 
@@ -243,10 +243,10 @@ class _HomePageState extends State<HomePage> {
     return Center(
       child: Column(
         children: [
-          Image.asset('assets/images/logoDT.png', width: 150, height: 150),
+          Image.asset("assets/images/logoDT.png", width: 150, height: 150),
           const SizedBox(height: 5),
           Text(
-            'Bao Bì Đồng Tâm',
+            "Bao Bì Đồng Tâm",
             style: GoogleFonts.inter(
               color: Colors.white,
               fontSize: 22,
@@ -284,7 +284,7 @@ class _HomePageState extends State<HomePage> {
       await authService.logout();
       sidebarController.reset();
 
-      socketService.off('updateBadgeCount');
+      socketService.off("updateBadgeCount");
       socketService.disconnect();
 
       if (Get.isRegistered<BadgesController>()) {
@@ -300,7 +300,7 @@ class _HomePageState extends State<HomePage> {
       badgesController.clearAllBadge();
 
       if (!mounted) return;
-      showSnackBarSuccess(context, 'Đăng xuất thành công');
+      showSnackBarSuccess(context, "Đăng xuất thành công");
 
       Navigator.pushAndRemoveUntil(
         context,
@@ -334,7 +334,7 @@ class _HomePageState extends State<HomePage> {
                   Widget page;
                   if (index < 0 || index >= pages.length) {
                     page = Center(
-                      key: const ValueKey('not_found'),
+                      key: const ValueKey("not_found"),
                       child: const Text("Trang không tồn tại"),
                     );
                   } else {

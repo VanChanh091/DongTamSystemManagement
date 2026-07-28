@@ -20,6 +20,22 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
   DateTime? selectedDate;
   ValueNotifier<String?> selectedOption = ValueNotifier<String?>(null);
 
+  String? optionError;
+  String? reasonError;
+  bool dateError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    reasonController.addListener(() {
+      if (reasonError != null && reasonController.text.trim().isNotEmpty) {
+        setState(() {
+          reasonError = null;
+        });
+      }
+    });
+  }
+
   void pickDate(BuildContext context) async {
     final DateTime? result = await showDatePicker(
       context: context,
@@ -29,12 +45,12 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xffEA4346),
+            colorScheme: ColorScheme.light(
+              primary: Colors.blue,
               onPrimary: Colors.white,
-              onSurface: Colors.black87,
+              onSurface: Colors.black,
             ),
-            dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+            dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
           ),
           child: child!,
         );
@@ -44,28 +60,53 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
     if (result != null) {
       setState(() {
         selectedDate = result;
+        dateError = false;
       });
     }
   }
 
   void submit() async {
+    final option = selectedOption.value;
+    bool isValid = true;
+
+    setState(() {
+      optionError = null;
+      reasonError = null;
+      dateError = false;
+    });
+
+    if (option == null) {
+      optionError = "Vui lòng chọn loại yêu cầu";
+      isValid = false;
+    }
+
+    if (option == "changeDate" && selectedDate == null) {
+      dateError = true;
+      isValid = false;
+    }
+
+    if (reasonController.text.trim().isEmpty) {
+      reasonError = "Vui lòng nhập lý do";
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setState(() {});
+      return;
+    }
+
     // Show loading
     showLoadingDialog(context);
     await Future.delayed(const Duration(seconds: 1));
 
     try {
-      if (selectedOption.value == "changeDate") {
-        if (selectedDate == null) {
-          if (!mounted) return;
-          showSnackBarError(context, "Vui lòng chọn ngày giao hàng mới");
-          return;
-        }
-      }
+      final isChangeDate = option == "changeDate";
+      final requestType = isChangeDate ? "ORDER_CHANGE_DATE" : "ORDER_CANCEL";
 
       final bool success = await NotificationService().requestChangeInfoOrder(
         receiverId: 13,
         orderId: widget.orderId,
-        requestType: "ORDER_CHANGE_DATE",
+        requestType: requestType,
         newDeliveryDate: selectedDate,
         reason: reasonController.text,
       );
@@ -75,13 +116,18 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
         Navigator.pop(context); // đóng dialog loading
 
         // Thông báo thành công
-        showSnackBarSuccess(context, "Xuất dữ liệu thành công");
+        showSnackBarSuccess(
+          context,
+          isChangeDate ? "Đã gửi yêu cầu đổi ngày thành công" : "Đã gửi yêu cầu hủy đơn thành công",
+        );
 
-        if (!mounted) return; // check context
-        Navigator.of(context).pop();
+        if (!mounted) return;
+        Navigator.of(context).pop(); // Đóng dialog chính
       }
     } catch (e, s) {
-      if (!mounted) return; // check context
+      if (!mounted) return;
+      Navigator.pop(context); // đóng dialog loading
+
       AppLogger.e("Lỗi khi xử lý yêu cầu", error: e, stackTrace: s);
       showSnackBarError(context, "Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử lại sau.");
     }
@@ -89,9 +135,9 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
 
   @override
   void dispose() {
+    super.dispose();
     selectedOption.dispose();
     reasonController.dispose();
-    super.dispose();
   }
 
   @override
@@ -112,7 +158,12 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
             return RadioGroup<String>(
               groupValue: value,
               onChanged: (val) {
-                if (val != null) selectedOption.value = val;
+                if (val != null) {
+                  selectedOption.value = val;
+                  setState(() {
+                    optionError = null;
+                  });
+                }
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -123,7 +174,7 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
                     subtitle: "Chọn mốc thời gian nhận hàng mới",
                     icon: Icons.calendar_today_rounded,
                     value: "changeDate",
-                    groupValue: value,
+                    isSelected: value == "changeDate",
                     onTap: () => selectedOption.value = "changeDate",
                     expandedContent: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,13 +227,18 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
                           ),
                         ),
 
-                        if (selectedDate == null) ...[
+                        // Thông báo lỗi chưa chọn ngày
+                        if (dateError) ...[
                           const SizedBox(height: 6),
                           const Padding(
                             padding: EdgeInsets.only(left: 4),
                             child: Row(
                               children: [
-                                Icon(Icons.info_outline_rounded, size: 13, color: Colors.redAccent),
+                                Icon(
+                                  Icons.error_outline_rounded,
+                                  size: 14,
+                                  color: Colors.redAccent,
+                                ),
                                 SizedBox(width: 4),
                                 Text(
                                   "Vui lòng chọn ngày giao hàng",
@@ -195,40 +251,52 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
 
                         //text input
                         const SizedBox(height: 12),
-                        TextField(
-                          controller: reasonController,
-                          maxLines: 3,
-                          style: const TextStyle(fontSize: 14, color: Colors.black87),
-                          decoration: InputDecoration(
-                            hintText: "Nhập lý do thay đổi ngày",
-                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.all(12),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.grey.shade300),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.grey.shade300),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xffEA4346), width: 1.2),
-                            ),
-                          ),
-                        ),
+                        _buildReasonTextField(hintText: "Nhập lý do thay đổi ngày..."),
                         const SizedBox(height: 10),
                       ],
                     ),
                   ),
+
+                  const SizedBox(height: 12),
+                  _buildOptionCard(
+                    context: context,
+                    title: "Hủy đơn hàng",
+                    subtitle: "Gửi yêu cầu hủy toàn bộ đơn hàng này",
+                    icon: Icons.cancel_outlined,
+                    value: "orderCancel",
+                    isSelected: value == "orderCancel",
+                    onTap: () => selectedOption.value = "orderCancel",
+                    expandedContent: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 12),
+                        _buildReasonTextField(hintText: "Nhập lý do bạn muốn hủy đơn..."),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+
+                  if (optionError != null) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Text(
+                        optionError!,
+                        style: const TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             );
           },
         ),
       ),
+
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
@@ -256,18 +324,45 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
     );
   }
 
+  // Widget ô nhập lý do chung
+  Widget _buildReasonTextField({required String hintText}) {
+    return TextField(
+      controller: reasonController,
+      maxLines: 3,
+      style: const TextStyle(fontSize: 14, color: Colors.black87),
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+        errorText: reasonError,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.all(12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color.fromARGB(255, 80, 162, 230), width: 1.2),
+        ),
+      ),
+    );
+  }
+
   Widget _buildOptionCard({
     required BuildContext context,
     required String title,
     required String subtitle,
     required IconData icon,
     required String value,
-    required String? groupValue,
+    required bool isSelected, // Đổi sang truyền boolean để gọn hơn
     required VoidCallback onTap,
     Widget? expandedContent,
   }) {
-    final isSelected = groupValue == value;
-
     return Container(
       decoration: BoxDecoration(
         color: isSelected ? Colors.grey.shade50 : Colors.white,
@@ -286,7 +381,6 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
             children: [
               Row(
                 children: [
-                  // Icon biểu tượng phía trước
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -300,8 +394,6 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
                     ),
                   ),
                   const SizedBox(width: 12),
-
-                  // Tiêu đề & Subtitle
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,18 +412,13 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
                     ),
                   ),
 
-                  // Nút Radio dùng tông đỏ chuẩn App
                   Radio<String>(
                     value: value,
-                    groupValue: groupValue,
                     activeColor: const Color(0xffEA4346),
-                    onChanged: (_) => onTap(),
                     visualDensity: VisualDensity.compact,
                   ),
                 ],
               ),
-
-              // Nội dung đính kèm khi chọn (DatePicker / TextField)
               if (isSelected && expandedContent != null) expandedContent,
             ],
           ),

@@ -6,7 +6,7 @@ import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/report/report_paper_data_source.dart';
-import 'package:dongtam/service/report_planning_service.dart';
+import 'package:dongtam/service/report_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
@@ -91,7 +91,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
     final bool isDateSearch = searchType == "Ngày Báo Cáo";
 
     futureReportPaper = ensureMinLoading(
-      ReportPlanningService().getReportPapers(
+      ReportService().getReportPapers(
         page: currentPage,
         pageSize: pageSize,
         machine: machine,

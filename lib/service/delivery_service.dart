@@ -193,9 +193,10 @@ class DeliveryService {
     );
   }
 
-  Future<bool> requestOrPreparedGoods({
+  Future<bool> handleUpdatePreparedGoods({
+    required String action,
     required List<int> deliveryItemIds,
-    required bool isRequest,
+    bool? isRequest,
     String? empCode,
     String? lisencePlate,
   }) async {
@@ -203,8 +204,9 @@ class DeliveryService {
       endpoint: "delivery/prepare",
       queryParameters: const {},
       body: {
-        "isRequest": isRequest,
+        "action": action,
         "deliveryItemIds": deliveryItemIds,
+        if (isRequest != null) "isRequest": isRequest,
         if (empCode != null) "empCode": empCode,
         if (lisencePlate != null) "lisencePlate": lisencePlate,
       },

@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/service/report_planning_service.dart';
+import 'package:dongtam/service/report_service.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -178,7 +178,7 @@ class PlanningService {
       );
 
       if (response.statusCode == 200) {
-        final safeMachine = ReportPlanningService.makeSafeFileName(input: machine);
+        final safeMachine = ReportService.makeSafeFileName(input: machine);
 
         return await HelperService().saveExcelFile(
           bytes: response.data as List<int>,
