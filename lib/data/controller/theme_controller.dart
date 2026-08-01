@@ -12,9 +12,11 @@ class ThemeController extends GetxController {
   //default color
   static const Color defaultThemeColor = Color(0xffcfa381);
   static const Color defaultButtonColor = Color(0xff78D761);
+  static const Color defaultBackgroundColor = Color(0xFFF5F5F7);
 
   final Rx<Color> currentColor = defaultThemeColor.obs;
   final Rx<Color> buttonColor = defaultButtonColor.obs;
+  final Rx<Color> backgroundColor = defaultBackgroundColor.obs;
   final RxBool isThemeCustomized = false.obs;
 
   @override
@@ -44,9 +46,7 @@ class ThemeController extends GetxController {
     isThemeCustomized.value = true;
 
     await _storage.write(key: _keyThemeColor, value: newColor.toARGB32().toRadixString(16));
-
     await _storage.write(key: _keyButtonColor, value: newColor.toARGB32().toRadixString(16));
-
     await _storage.write(key: _keyIsThemeCustomized, value: "true");
   }
 

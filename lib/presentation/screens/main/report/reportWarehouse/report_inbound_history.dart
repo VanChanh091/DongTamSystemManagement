@@ -137,337 +137,315 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
     final bool isAccountant = userController.hasPermission(permission: "accountant");
 
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(5),
-        child: Column(
-          children: [
-            //button
-            SizedBox(
-              height: 105,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  //title
-                  SizedBox(
-                    height: 35,
-                    width: double.infinity,
-                    child: Center(
-                      child: Obx(
-                        () => Text(
-                          "LỊCH SỬ NHẬP KHO",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                            color: themeController.currentColor.value,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // title & buttons
+          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar(isAccountant)),
 
-                  //button
-                  SizedBox(
-                    height: 70,
-                    width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        //left button
-                        Expanded(
-                          flex: 1,
-                          child: LeftButtonSearch(
-                            selectedType: searchType,
-                            types: const [
-                              'Tất cả',
-                              "Mã Đơn Hàng",
-                              "Tên Khách Hàng",
-                              "Ngày Nhập Kho",
-                              "Người Kiểm",
-                            ],
-                            onTypeChanged: (value) {
-                              setState(() {
-                                searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
-
-                                startDate = null;
-                                endDate = null;
-
-                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                                  searchController.clear();
-                                  currentPage = 1;
-                                  _fetchData();
-                                }
-                              });
-                            },
-                            controller: searchController,
-                            textFieldEnabled: isTextFieldEnabled,
-                            buttonColor: themeController.buttonColor,
-                            onSearch: () => searchReportInbound(),
-                            customInputBuilder: (inputWidth) {
-                              if (searchType != "Ngày Nhập Kho") return null;
-
-                              return SizedBox(
-                                width: inputWidth,
-                                height: 50,
-                                child: InkWell(
-                                  onTap: () async {
-                                    final now = DateTime.now();
-                                    final size = MediaQuery.of(context).size;
-
-                                    final DateTimeRange? picked = await showDateRangePicker(
-                                      context: context,
-                                      firstDate: DateTime(2025),
-                                      lastDate: DateTime(2100),
-                                      initialDateRange:
-                                          (startDate != null && endDate != null)
-                                              ? DateTimeRange(start: startDate!, end: endDate!)
-                                              : DateTimeRange(
-                                                start: now.subtract(const Duration(days: 7)),
-                                                end: now,
-                                              ),
-                                      builder: (context, child) {
-                                        return Center(
-                                          child: ConstrainedBox(
-                                            constraints: BoxConstraints(
-                                              maxWidth: size.width * 0.3,
-                                              maxHeight: size.height * 0.8,
-                                            ),
-                                            child: Material(
-                                              borderRadius: BorderRadius.circular(16),
-                                              clipBehavior: Clip.antiAlias,
-                                              child: child!,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    );
-
-                                    if (picked != null) {
-                                      final displayStart = DateFormat(
-                                        'dd/MM/yyyy',
-                                      ).format(picked.start);
-                                      final displayEnd = DateFormat(
-                                        'dd/MM/yyyy',
-                                      ).format(picked.end);
-
-                                      setState(() {
-                                        startDate = picked.start;
-                                        endDate = picked.end;
-                                        searchController.text = '$displayStart - $displayEnd';
-                                      });
-                                    }
-                                  },
-                                  child: IgnorePointer(
-                                    child: TextField(
-                                      controller: searchController,
-                                      decoration: InputDecoration(
-                                        hintText: 'Chọn ngày...',
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        suffixIcon: const Icon(Icons.calendar_today),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-
-                        //right button
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                //export excel
-                                isAccountant
-                                    ? AnimatedButton(
-                                      onPressed: () async {
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) => DialogExportInbound(),
-                                        );
-                                      },
-                                      label: "Xuất Excel",
-                                      icon: Symbols.export_notes,
-                                      backgroundColor: themeController.buttonColor,
-                                    )
-                                    : const SizedBox.shrink(),
-                                const SizedBox(width: 10),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+          //table & pagination
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: _buildTableSection(),
             ),
-
-            //table
-            Expanded(
-              child: FutureBuilder(
-                future: futureReportInbound,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SizedBox(
-                        height: 400,
-                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['inbounds'].isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Không có báo cáo nào",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                    );
-                  }
-
-                  final data = snapshot.data!;
-                  final reportInbounds = data['inbounds'] as List<InboundHistoryModel>;
-                  final currentPg = data['currentPage'];
-                  final totalPgs = data['totalPages'];
-
-                  reportInboundDataSource = ReportInboundDataSource(
-                    reportInbounds: reportInbounds,
-                    selectedInboundId: selectedInboundId,
-                    currentPage: currentPage,
-                    pageSize: pageSize,
-                  );
-
-                  return Column(
-                    children: [
-                      //table
-                      Expanded(
-                        child: SfDataGrid(
-                          controller: dataGridController,
-                          source: reportInboundDataSource,
-                          isScrollbarAlwaysShown: true,
-                          allowExpandCollapseGroup: true, // Bật grouping
-                          autoExpandGroups: true,
-                          columnWidthMode: ColumnWidthMode.auto,
-                          navigationMode: GridNavigationMode.row,
-                          selectionMode: SelectionMode.multiple,
-                          headerRowHeight: 35,
-                          rowHeight: 40,
-                          columns: ColumnWidthTable.applySavedWidths(
-                            columns: columns,
-                            widths: columnWidths,
-                          ),
-                          stackedHeaderRows: <StackedHeaderRow>[
-                            StackedHeaderRow(
-                              cells: [
-                                StackedHeaderCell(
-                                  columnNames: ['quantityOrd', 'qtyPaper', 'qtyInbound'],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: 'Số Lượng',
-                                      themeController: themeController,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-
-                          //auto resize
-                          allowColumnsResizing: true,
-                          columnResizeMode: ColumnResizeMode.onResize,
-
-                          onColumnResizeStart: GridResizeHelper.onResizeStart,
-                          onColumnResizeUpdate:
-                              (details) => GridResizeHelper.onResizeUpdate(
-                                details: details,
-                                columns: columns,
-                                setState: setState,
-                              ),
-                          onColumnResizeEnd:
-                              (details) => GridResizeHelper.onResizeEnd(
-                                details: details,
-                                tableKey: 'reportInbound',
-                                columnWidths: columnWidths,
-                                setState: setState,
-                              ),
-
-                          onSelectionChanged: (addedRows, removedRows) {
-                            if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                            setState(() {
-                              final selectedRows = dataGridController.selectedRows;
-
-                              selectedInboundId =
-                                  selectedRows
-                                      .map((row) {
-                                        final cell = row.getCells().firstWhere(
-                                          (c) => c.columnName == 'inboundId',
-                                          orElse:
-                                              () => const DataGridCell(
-                                                columnName: 'inboundId',
-                                                value: '',
-                                              ),
-                                        );
-
-                                        return int.tryParse(cell.value.toString());
-                                      })
-                                      .where((id) => id != null)
-                                      .cast<int>()
-                                      .toList();
-
-                              reportInboundDataSource.selectedInboundId = selectedInboundId;
-                              reportInboundDataSource.notifyListeners();
-                            });
-                          },
-                        ),
-                      ),
-
-                      // Nút chuyển trang
-                      PaginationControls(
-                        currentPage: currentPg,
-                        totalPages: totalPgs,
-                        onPrevious: () {
-                          setState(() {
-                            currentPage--;
-                            loadReportInbound();
-                          });
-                        },
-                        onNext: () {
-                          setState(() {
-                            currentPage++;
-                            loadReportInbound();
-                          });
-                        },
-                        onJumpToPage: (page) {
-                          setState(() {
-                            currentPage = page;
-                            loadReportInbound();
-                          });
-                        },
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadReportInbound(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar(bool isAccountant) {
+    return Column(
+      children: [
+        //title
+        Text(
+          "LỊCH SỬ NHẬP KHO",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Row(
+          children: [
+            //left button
+            Expanded(
+              flex: 2,
+              child: LeftButtonSearch(
+                selectedType: searchType,
+                types: const [
+                  'Tất cả',
+                  "Mã Đơn Hàng",
+                  "Tên Khách Hàng",
+                  "Ngày Nhập Kho",
+                  "Người Kiểm",
+                ],
+                onTypeChanged: (value) {
+                  setState(() {
+                    searchType = value;
+                    isTextFieldEnabled = value != 'Tất cả';
+
+                    startDate = null;
+                    endDate = null;
+
+                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                      searchController.clear();
+                      currentPage = 1;
+                      _fetchData();
+                    }
+                  });
+                },
+                controller: searchController,
+                textFieldEnabled: isTextFieldEnabled,
+                buttonColor: themeController.buttonColor,
+                onSearch: () => searchReportInbound(),
+                customInputBuilder: (inputWidth) {
+                  if (searchType != "Ngày Nhập Kho") return null;
+
+                  return SizedBox(
+                    width: inputWidth,
+                    height: 50,
+                    child: InkWell(
+                      onTap: () async {
+                        final now = DateTime.now();
+                        final size = MediaQuery.of(context).size;
+
+                        final DateTimeRange? picked = await showDateRangePicker(
+                          context: context,
+                          firstDate: DateTime(2025),
+                          lastDate: DateTime(2100),
+                          initialDateRange:
+                              (startDate != null && endDate != null)
+                                  ? DateTimeRange(start: startDate!, end: endDate!)
+                                  : DateTimeRange(
+                                    start: now.subtract(const Duration(days: 7)),
+                                    end: now,
+                                  ),
+                          builder: (context, child) {
+                            return Center(
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: size.width * 0.3,
+                                  maxHeight: size.height * 0.8,
+                                ),
+                                child: Material(
+                                  borderRadius: BorderRadius.circular(16),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: child!,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+
+                        if (picked != null) {
+                          final displayStart = DateFormat('dd/MM/yyyy').format(picked.start);
+                          final displayEnd = DateFormat('dd/MM/yyyy').format(picked.end);
+
+                          setState(() {
+                            startDate = picked.start;
+                            endDate = picked.end;
+                            searchController.text = '$displayStart - $displayEnd';
+                          });
+                        }
+                      },
+                      child: IgnorePointer(
+                        child: TextField(
+                          controller: searchController,
+                          decoration: InputDecoration(
+                            hintText: 'Chọn ngày...',
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            suffixIcon: const Icon(Icons.calendar_today),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            //right button
+            Expanded(
+              flex: 3,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  //export excel
+                  isAccountant
+                      ? AnimatedButton(
+                        onPressed: () async {
+                          showDialog(context: context, builder: (_) => DialogExportInbound());
+                        },
+                        label: "Xuất Excel",
+                        icon: Symbols.export_notes,
+                        backgroundColor: themeController.buttonColor,
+                      )
+                      : const SizedBox.shrink(),
+                  const SizedBox(width: 8),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureReportInbound,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!['inbounds'].isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn hàng nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final reportInbounds = data['inbounds'] as List<InboundHistoryModel>;
+        final currentPg = data['currentPage'];
+        final totalPgs = data['totalPages'];
+
+        reportInboundDataSource = ReportInboundDataSource(
+          reportInbounds: reportInbounds,
+          selectedInboundId: selectedInboundId,
+          currentPage: currentPage,
+          pageSize: pageSize,
+        );
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: SfDataGrid(
+                controller: dataGridController,
+                source: reportInboundDataSource,
+                isScrollbarAlwaysShown: true,
+                allowExpandCollapseGroup: true, // Bật grouping
+                autoExpandGroups: true,
+                columnWidthMode: ColumnWidthMode.auto,
+                navigationMode: GridNavigationMode.row,
+                selectionMode: SelectionMode.multiple,
+                headerRowHeight: 35,
+                rowHeight: 40,
+                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
+                stackedHeaderRows: <StackedHeaderRow>[
+                  StackedHeaderRow(
+                    cells: [
+                      StackedHeaderCell(
+                        columnNames: ['quantityOrd', 'qtyPaper', 'qtyInbound'],
+                        child: Obx(
+                          () => formatColumn(label: 'Số Lượng', themeController: themeController),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                //auto resize
+                allowColumnsResizing: true,
+                columnResizeMode: ColumnResizeMode.onResize,
+
+                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                onColumnResizeUpdate:
+                    (details) => GridResizeHelper.onResizeUpdate(
+                      details: details,
+                      columns: columns,
+                      setState: setState,
+                    ),
+                onColumnResizeEnd:
+                    (details) => GridResizeHelper.onResizeEnd(
+                      details: details,
+                      tableKey: 'reportInbound',
+                      columnWidths: columnWidths,
+                      setState: setState,
+                    ),
+
+                onSelectionChanged: (addedRows, removedRows) {
+                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                  setState(() {
+                    final selectedRows = dataGridController.selectedRows;
+
+                    selectedInboundId =
+                        selectedRows
+                            .map((row) {
+                              final cell = row.getCells().firstWhere(
+                                (c) => c.columnName == 'inboundId',
+                                orElse:
+                                    () => const DataGridCell(columnName: 'inboundId', value: ''),
+                              );
+
+                              return int.tryParse(cell.value.toString());
+                            })
+                            .where((id) => id != null)
+                            .cast<int>()
+                            .toList();
+
+                    reportInboundDataSource.selectedInboundId = selectedInboundId;
+                    reportInboundDataSource.notifyListeners();
+                  });
+                },
+              ),
+            ),
+
+            // Nút chuyển trang
+            PaginationControls(
+              currentPage: currentPg,
+              totalPages: totalPgs,
+              onPrevious: () {
+                setState(() {
+                  currentPage--;
+                  loadReportInbound();
+                });
+              },
+              onNext: () {
+                setState(() {
+                  currentPage++;
+                  loadReportInbound();
+                });
+              },
+              onJumpToPage: (page) {
+                setState(() {
+                  currentPage = page;
+                  loadReportInbound();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

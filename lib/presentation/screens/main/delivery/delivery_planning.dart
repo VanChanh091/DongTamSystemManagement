@@ -231,347 +231,338 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     final bool isPlan = userController.hasPermission(permission: "plan");
 
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            //button
-            SizedBox(
-              height: 70,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      //left button
-                      Expanded(
-                        flex: 1,
-                        child: LeftButtonSearch(
-                          selectedType: searchType,
-                          types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng"],
-                          onTypeChanged: (value) {
-                            setState(() {
-                              searchType = value;
-                              isTextFieldEnabled = value != 'Tất cả';
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
+      body: Column(
+        children: [
+          const SizedBox(height: 20),
+          //button
+          SizedBox(
+            height: 70,
+            width: double.infinity,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    //left button
+                    Expanded(
+                      flex: 1,
+                      child: LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng"],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = value != 'Tất cả';
 
-                              if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                                searchController.clear();
-                                _fetchData();
-                              }
-                            });
-                          },
-                          controller: searchController,
-                          textFieldEnabled: isTextFieldEnabled,
-                          buttonColor: themeController.buttonColor,
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              _fetchData();
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
 
-                          onSearch: () => _fetchData(),
-                        ),
+                        onSearch: () => _fetchData(),
                       ),
+                    ),
 
-                      //right button
-                      Expanded(
-                        flex: 1,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              // Ngày giao
-                              buildLabelAndUnderlineInput(
-                                label: "Ngày giao:",
-                                controller: dayStartController,
-                                width: 120,
-                                readOnly: true,
-                                onTap: () async {
-                                  final selected = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2026),
-                                    lastDate: DateTime(2100),
-                                    builder: (BuildContext context, Widget? child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: Colors.blue,
-                                            onPrimary: Colors.white,
-                                            onSurface: Colors.black,
-                                          ),
-                                          dialogTheme: DialogThemeData(
-                                            backgroundColor: Colors.white12,
-                                          ),
+                    //right button
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // Ngày giao
+                            buildLabelAndUnderlineInput(
+                              label: "Ngày giao:",
+                              controller: dayStartController,
+                              width: 120,
+                              readOnly: true,
+                              onTap: () async {
+                                final selected = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2026),
+                                  lastDate: DateTime(2100),
+                                  builder: (BuildContext context, Widget? child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: ColorScheme.light(
+                                          primary: Colors.blue,
+                                          onPrimary: Colors.white,
+                                          onSurface: Colors.black,
                                         ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
+                                        dialogTheme: DialogThemeData(
+                                          backgroundColor: Colors.white12,
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
+                                );
 
-                                  if (selected != null) {
-                                    setState(() {
-                                      dayStartController.text = DateFormat(
-                                        'dd/MM/yyyy',
-                                      ).format(selected);
-                                      vehicleOrders.clear();
-                                    });
+                                if (selected != null) {
+                                  setState(() {
+                                    dayStartController.text = DateFormat(
+                                      'dd/MM/yyyy',
+                                    ).format(selected);
+                                    vehicleOrders.clear();
+                                  });
 
-                                    unsavedChangeController.runSafe(() async {
-                                      await loadPlannedOrders();
-                                    });
-                                  }
-                                },
-                              ),
-                              const SizedBox(width: 15),
+                                  unsavedChangeController.runSafe(() async {
+                                    await loadPlannedOrders();
+                                  });
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 15),
 
-                              isPlan
-                                  ? Row(
-                                    children: [
-                                      //save
-                                      AnimatedButton(
-                                        label: _isSaving ? 'Đang lưu...' : 'Lưu',
-                                        icon: _isSaving ? null : Symbols.save,
-                                        backgroundColor:
-                                            (!_isEditable || _isSaving)
-                                                ? Colors.grey
-                                                : themeController.buttonColor,
-                                        onPressed:
-                                            (!_isEditable || _isSaving)
-                                                ? null
-                                                : () async {
-                                                  //check overload
-                                                  // List<String> overloadedList = [];
+                            isPlan
+                                ? Row(
+                                  children: [
+                                    //save
+                                    AnimatedButton(
+                                      label: _isSaving ? 'Đang lưu...' : 'Lưu',
+                                      icon: _isSaving ? null : Symbols.save,
+                                      backgroundColor:
+                                          (!_isEditable || _isSaving)
+                                              ? Colors.grey
+                                              : themeController.buttonColor,
+                                      onPressed:
+                                          (!_isEditable || _isSaving)
+                                              ? null
+                                              : () async {
+                                                //check overload
+                                                // List<String> overloadedList = [];
 
-                                                  // for (var vehicle in vehicles) {
-                                                  //   for (String seq in ["1", "2", "3", "Xe Ngoài"]) {
-                                                  //     final key = buildVehicleKey(seq, vehicle.vehicleId!);
-                                                  //     final ordersInVehicle = vehicleOrders[key] ?? [];
+                                                // for (var vehicle in vehicles) {
+                                                //   for (String seq in ["1", "2", "3", "Xe Ngoài"]) {
+                                                //     final key = buildVehicleKey(seq, vehicle.vehicleId!);
+                                                //     final ordersInVehicle = vehicleOrders[key] ?? [];
 
-                                                  //     if (ordersInVehicle.isNotEmpty) {
-                                                  //       double currentVol = _calculateTotalVolume(key);
-                                                  //       double maxVol = vehicle.volumeCapacity;
+                                                //     if (ordersInVehicle.isNotEmpty) {
+                                                //       double currentVol = _calculateTotalVolume(key);
+                                                //       double maxVol = vehicle.volumeCapacity;
 
-                                                  //       if (currentVol > maxVol) {
-                                                  //         overloadedList.add(
-                                                  //           "${vehicle.vehicleName} (Tài: $seq)",
-                                                  //         );
-                                                  //       }
-                                                  //     }
-                                                  //   }
-                                                  // }
+                                                //       if (currentVol > maxVol) {
+                                                //         overloadedList.add(
+                                                //           "${vehicle.vehicleName} (Tài: $seq)",
+                                                //         );
+                                                //       }
+                                                //     }
+                                                //   }
+                                                // }
 
-                                                  // if (overloadedList.isNotEmpty) {
-                                                  //   String errorMsg = overloadedList.join(", ");
+                                                // if (overloadedList.isNotEmpty) {
+                                                //   String errorMsg = overloadedList.join(", ");
 
-                                                  //   showSnackBarError(
-                                                  //     context,
-                                                  //     "Các xe sau đang quá tải: $errorMsg",
-                                                  //   );
-                                                  //   return;
-                                                  // }
+                                                //   showSnackBarError(
+                                                //     context,
+                                                //     "Các xe sau đang quá tải: $errorMsg",
+                                                //   );
+                                                //   return;
+                                                // }
 
-                                                  setState(() => _isSaving = true);
+                                                setState(() => _isSaving = true);
 
-                                                  try {
-                                                    // Kiểm tra xem đã có đơn hàng nào được xếp vào xe chưa
-                                                    if (vehicleOrders.values.every(
-                                                      (list) => list.isEmpty,
-                                                    )) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        "Vui lòng xếp ít nhất một đơn hàng vào xe",
-                                                      );
-                                                      return;
+                                                try {
+                                                  // Kiểm tra xem đã có đơn hàng nào được xếp vào xe chưa
+                                                  if (vehicleOrders.values.every(
+                                                    (list) => list.isEmpty,
+                                                  )) {
+                                                    showSnackBarError(
+                                                      context,
+                                                      "Vui lòng xếp ít nhất một đơn hàng vào xe",
+                                                    );
+                                                    return;
+                                                  }
+
+                                                  List<Map<String, dynamic>> items = [];
+
+                                                  vehicleOrders.forEach((key, requests) {
+                                                    // Key có định dạng: "tripSeq_vehicleId" (ví dụ: "1_3")
+                                                    final parts = key.split('_');
+                                                    final seq = parts[0];
+                                                    final int vehicleId = int.parse(parts[1]);
+
+                                                    for (int i = 0; i < requests.length; i++) {
+                                                      var req = requests[i];
+                                                      items.add({
+                                                        "requestId": req.requestId,
+                                                        "vehicleId": vehicleId,
+                                                        "sequence": seq,
+                                                        "idxOrder": i + 1,
+                                                      });
                                                     }
+                                                  });
 
-                                                    List<Map<String, dynamic>> items = [];
+                                                  final dayStart = DateFormat(
+                                                    'dd/MM/yyyy',
+                                                  ).parse(dayStartController.text);
 
-                                                    vehicleOrders.forEach((key, requests) {
-                                                      // Key có định dạng: "tripSeq_vehicleId" (ví dụ: "1_3")
-                                                      final parts = key.split('_');
-                                                      final seq = parts[0];
-                                                      final int vehicleId = int.parse(parts[1]);
+                                                  bool success = await DeliveryService()
+                                                      .createDeliveryPlan(
+                                                        deliveryDate: dayStart,
+                                                        items: items,
+                                                      );
 
-                                                      for (int i = 0; i < requests.length; i++) {
-                                                        var req = requests[i];
-                                                        items.add({
-                                                          "requestId": req.requestId,
-                                                          "vehicleId": vehicleId,
-                                                          "sequence": seq,
-                                                          "idxOrder": i + 1,
-                                                        });
-                                                      }
-                                                    });
+                                                  if (success) {
+                                                    if (!context.mounted) return;
+                                                    showSnackBarSuccess(
+                                                      context,
+                                                      "Lưu kế hoạch giao hàng thành công",
+                                                    );
 
-                                                    final dayStart = DateFormat(
-                                                      'dd/MM/yyyy',
-                                                    ).parse(dayStartController.text);
+                                                    await Future.wait([
+                                                      getPlanningRequest(),
+                                                      loadPlannedOrders(),
+                                                    ]);
 
+                                                    // Cập nhật số lượng badge
+                                                    badgesController.fetchDeliveryRequest();
+                                                  }
+
+                                                  unsavedChangeController.resetUnsavedChanges();
+                                                  await Future.delayed(const Duration(seconds: 1));
+                                                } on ApiException catch (e) {
+                                                  final errorText = switch (e.errorCode) {
+                                                    'HAS_DELIVERY_ITEM_OUTBOUND' => e.message!,
+                                                    _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                  };
+
+                                                  if (context.mounted) {
+                                                    showSnackBarError(context, errorText);
+                                                  }
+                                                } catch (e) {
+                                                  if (!context.mounted) return;
+                                                  showSnackBarError(context, "Có lỗi xảy ra");
+                                                } finally {
+                                                  setState(() => _isSaving = false);
+                                                }
+                                              },
+                                    ),
+                                    const SizedBox(width: 10),
+
+                                    //confirm delivery
+                                    AnimatedButton(
+                                      onPressed:
+                                          !_isEditable
+                                              ? null
+                                              : () async {
+                                                try {
+                                                  bool confirm = await showConfirmDialog(
+                                                    context: context,
+                                                    title: "Xác Nhận Lịch Giao Hàng",
+                                                    content:
+                                                        'Bạn có muốn triển khai lịch giao hàng này không?',
+                                                    confirmText: "Xác nhận",
+                                                  );
+
+                                                  if (confirm) {
+                                                    await DeliveryService()
+                                                        .confirmForDeliveryPlanning(
+                                                          deliveryDate: DateFormat(
+                                                            'dd/MM/yyyy',
+                                                          ).parse(dayStartController.text),
+                                                        );
+                                                    unsavedChangeController.resetUnsavedChanges();
+
+                                                    if (!context.mounted) return;
+                                                    showSnackBarSuccess(
+                                                      context,
+                                                      "Triển khai lịch giao hàng thành công",
+                                                    );
+                                                  }
+                                                } catch (e) {
+                                                  if (!context.mounted) return;
+                                                  showSnackBarError(context, "Lỗi không xác định");
+                                                }
+                                              },
+                                      label: 'Triển Khai',
+                                      icon: Symbols.confirmation_number,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 10),
+
+                                    //back request
+                                    AnimatedButton(
+                                      onPressed:
+                                          !_isEditable || selectedPendingIds.isEmpty
+                                              ? null
+                                              : () async {
+                                                try {
+                                                  bool confirm = await showConfirmDialog(
+                                                    context: context,
+                                                    title: "Xác Nhận Hủy Yêu Cầu",
+                                                    content:
+                                                        'Bạn có muốn hủy ${selectedPendingIds.length} yêu cầu giao hàng này không?',
+                                                    confirmText: "Xác nhận",
+                                                  );
+
+                                                  if (confirm) {
                                                     bool success = await DeliveryService()
-                                                        .createDeliveryPlan(
-                                                          deliveryDate: dayStart,
-                                                          items: items,
+                                                        .backDeliveryRequest(
+                                                          requestIds: selectedPendingIds.toList(),
                                                         );
 
                                                     if (success) {
                                                       if (!context.mounted) return;
                                                       showSnackBarSuccess(
                                                         context,
-                                                        "Lưu kế hoạch giao hàng thành công",
+                                                        "Hủy yêu cầu thành công",
                                                       );
 
-                                                      await Future.wait([
-                                                        getPlanningRequest(),
-                                                        loadPlannedOrders(),
-                                                      ]);
+                                                      setState(() {
+                                                        selectedPendingIds.clear();
+                                                      });
 
-                                                      // Cập nhật số lượng badge
-                                                      badgesController.fetchDeliveryRequest();
+                                                      _initializeData();
                                                     }
-
-                                                    unsavedChangeController.resetUnsavedChanges();
-                                                    await Future.delayed(
-                                                      const Duration(seconds: 1),
-                                                    );
-                                                  } on ApiException catch (e) {
-                                                    final errorText = switch (e.errorCode) {
-                                                      'HAS_DELIVERY_ITEM_OUTBOUND' => e.message!,
-                                                      _ => 'Có lỗi xảy ra, vui lòng thử lại',
-                                                    };
-
-                                                    if (context.mounted) {
-                                                      showSnackBarError(context, errorText);
-                                                    }
-                                                  } catch (e) {
-                                                    if (!context.mounted) return;
-                                                    showSnackBarError(context, "Có lỗi xảy ra");
-                                                  } finally {
-                                                    setState(() => _isSaving = false);
                                                   }
-                                                },
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //confirm delivery
-                                      AnimatedButton(
-                                        onPressed:
-                                            !_isEditable
-                                                ? null
-                                                : () async {
-                                                  try {
-                                                    bool confirm = await showConfirmDialog(
-                                                      context: context,
-                                                      title: "Xác Nhận Lịch Giao Hàng",
-                                                      content:
-                                                          'Bạn có muốn triển khai lịch giao hàng này không?',
-                                                      confirmText: "Xác nhận",
-                                                    );
-
-                                                    if (confirm) {
-                                                      await DeliveryService()
-                                                          .confirmForDeliveryPlanning(
-                                                            deliveryDate: DateFormat(
-                                                              'dd/MM/yyyy',
-                                                            ).parse(dayStartController.text),
-                                                          );
-                                                      unsavedChangeController.resetUnsavedChanges();
-
-                                                      if (!context.mounted) return;
-                                                      showSnackBarSuccess(
-                                                        context,
-                                                        "Triển khai lịch giao hàng thành công",
-                                                      );
-                                                    }
-                                                  } catch (e) {
-                                                    if (!context.mounted) return;
-                                                    showSnackBarError(
-                                                      context,
-                                                      "Lỗi không xác định",
-                                                    );
-                                                  }
-                                                },
-                                        label: 'Triển Khai',
-                                        icon: Symbols.confirmation_number,
-                                        backgroundColor: themeController.buttonColor,
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      //back request
-                                      AnimatedButton(
-                                        onPressed:
-                                            !_isEditable || selectedPendingIds.isEmpty
-                                                ? null
-                                                : () async {
-                                                  try {
-                                                    bool confirm = await showConfirmDialog(
-                                                      context: context,
-                                                      title: "Xác Nhận Hủy Yêu Cầu",
-                                                      content:
-                                                          'Bạn có muốn hủy ${selectedPendingIds.length} yêu cầu giao hàng này không?',
-                                                      confirmText: "Xác nhận",
-                                                    );
-
-                                                    if (confirm) {
-                                                      bool success = await DeliveryService()
-                                                          .backDeliveryRequest(
-                                                            requestIds: selectedPendingIds.toList(),
-                                                          );
-
-                                                      if (success) {
-                                                        if (!context.mounted) return;
-                                                        showSnackBarSuccess(
-                                                          context,
-                                                          "Hủy yêu cầu thành công",
-                                                        );
-
-                                                        setState(() {
-                                                          selectedPendingIds.clear();
-                                                        });
-
-                                                        _initializeData();
-                                                      }
-                                                    }
-                                                  } catch (e) {
-                                                    if (!context.mounted) return;
-                                                    showSnackBarError(
-                                                      context,
-                                                      "Lỗi không xác định",
-                                                    );
-                                                  }
-                                                },
-                                        label: 'Hủy Yêu Cầu',
-                                        icon: Symbols.delete,
-                                        backgroundColor: const Color(0xffEA4346),
-                                      ),
-                                      const SizedBox(width: 10),
-                                    ],
-                                  )
-                                  : const SizedBox.shrink(),
-                            ],
-                          ),
+                                                } catch (e) {
+                                                  if (!context.mounted) return;
+                                                  showSnackBarError(context, "Lỗi không xác định");
+                                                }
+                                              },
+                                      label: 'Hủy Yêu Cầu',
+                                      icon: Symbols.delete,
+                                      backgroundColor: const Color(0xffEA4346),
+                                    ),
+                                    const SizedBox(width: 10),
+                                  ],
+                                )
+                                : const SizedBox.shrink(),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          //UI
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Expanded(flex: 4, child: _buildPendingOrders()),
+                  const SizedBox(width: 10),
+                  Expanded(flex: 6, child: _buildTrips()),
                 ],
               ),
             ),
-
-            //UI
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(7),
-                child: Row(
-                  children: [
-                    Expanded(flex: 4, child: _buildPendingOrders()),
-                    const SizedBox(width: 12),
-                    Expanded(flex: 6, child: _buildTrips()),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           unsavedChangeController.runSafe(() async {
@@ -616,6 +607,9 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.grey.shade300),
+            boxShadow: const [
+              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 3)),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -729,7 +723,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                 ? [
                   BoxShadow(
                     color: Colors.blue.withValues(alpha: 0.3),
-                    blurRadius: 8,
+                    blurRadius: 6,
                     spreadRadius: 1,
                   ),
                 ]
@@ -885,6 +879,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade300),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 3))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

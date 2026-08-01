@@ -171,6 +171,7 @@ class _InventoryState extends State<Inventory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -204,578 +205,24 @@ class _InventoryState extends State<Inventory> {
                   },
                 );
               },
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //button
-                    SizedBox(
-                      height: 105,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 35,
-                            width: double.infinity,
-                            child: Center(
-                              child: Text(
-                                "TỒN KHO THÀNH PHẨM",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                  color: themeController.currentColor.value,
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          //button
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //left button
-                                Expanded(
-                                  flex: 1,
-                                  child: LeftButtonSearch(
-                                    selectedType: searchType,
-                                    types: const [
-                                      'Tất cả',
-                                      "Mã Đơn Hàng",
-                                      "Tên Khách Hàng",
-                                      "Tên Nhân Viên",
-                                    ],
-                                    onTypeChanged: (value) {
-                                      setState(() {
-                                        searchType = value;
-                                        isTextFieldEnabled = searchType != 'Tất cả';
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                                        if (searchType == "Tất cả" &&
-                                            searchController.text.isNotEmpty) {
-                                          searchController.clear();
-                                          currentPage = 1;
-                                          _fetchData();
-                                        }
-                                      });
-                                    },
-                                    controller: searchController,
-                                    textFieldEnabled: isTextFieldEnabled,
-                                    buttonColor: themeController.buttonColor,
-
-                                    onSearch: () => searchInventory(),
-                                  ),
-                                ),
-
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedInventoryIdsNotifier,
-                                      builder: (context, selectedInventoryId, _) {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            //outbound
-                                            AnimatedButton(
-                                              onPressed: () async {
-                                                if (!context.mounted) return;
-
-                                                if (selectedInventoryId.isNotEmpty) {
-                                                  try {
-                                                    final data = await futureInventory;
-                                                    final inventoryList =
-                                                        data['inventories'] as List<InventoryModel>;
-                                                    final selectedModels =
-                                                        inventoryList
-                                                            .where(
-                                                              (i) => selectedInventoryId.contains(
-                                                                i.inventoryId,
-                                                              ),
-                                                            )
-                                                            .toList();
-                                                    initialItems =
-                                                        selectedModels
-                                                            .map(
-                                                              (i) =>
-                                                                  OutboundTempItemModel.fromInventoryModel(
-                                                                    i,
-                                                                  ),
-                                                            )
-                                                            .toList();
-                                                  } catch (e) {
-                                                    if (!context.mounted) return;
-                                                    showSnackBarError(
-                                                      context,
-                                                      "Lấy dữ liệu xuất kho thất bại",
-                                                    );
-                                                    return;
-                                                  }
-                                                }
-
-                                                if (!context.mounted) return;
-                                                showDialog(
-                                                  context: context,
-                                                  barrierDismissible: false,
-                                                  builder:
-                                                      (_) => OutBoundDialog(
-                                                        outbound: null,
-                                                        onOutboundHistory: () {
-                                                          loadInventory();
-                                                        },
-                                                        initialItems: initialItems,
-                                                      ),
-                                                );
-                                              },
-                                              label: "Xuất Kho",
-                                              icon: Symbols.input,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            //transfer qty to other order
-                                            AnimatedButton(
-                                              onPressed:
-                                                  selectedInventoryId.length == 1
-                                                      ? () async {
-                                                        final inventory = await futureInventory;
-                                                        final selectedInv = inventory['inventories']
-                                                            .firstWhere(
-                                                              (i) =>
-                                                                  i.inventoryId ==
-                                                                  selectedInventoryId.first,
-                                                            );
-
-                                                        if (context.mounted) {
-                                                          showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (_) => DialogTransferQty(
-                                                                  inventory: selectedInv,
-                                                                  onLoad: () => loadInventory(),
-                                                                ),
-                                                          );
-                                                        }
-                                                      }
-                                                      : null,
-                                              label: "Chuyển SL",
-                                              icon: Symbols.input,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            //filter
-                                            buildDropdownItems(
-                                              width: 140,
-                                              value: filterType,
-                                              items: const ['gtZero', 'ltZero'],
-                                              onChanged:
-                                                  (value) => {
-                                                    setState(() {
-                                                      filterType = value!;
-                                                      selectedInventoryId.clear();
-                                                      loadInventory();
-                                                    }),
-                                                  },
-                                              itemLabelBuilder:
-                                                  (value) => filterOptions[value] ?? value,
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            //popup menu
-                                            PopupMenuButton<String>(
-                                              icon: const Icon(
-                                                Icons.more_vert,
-                                                color: Colors.black,
-                                              ),
-                                              color: Colors.white,
-                                              onSelected: (value) async {
-                                                if (value == 'liquidation') {
-                                                  await showInputQtyDialog(
-                                                    context: context,
-                                                    title: "Thanh Lý Tồn Kho",
-                                                    onConfirm: (inputQty, inputReason) async {
-                                                      try {
-                                                        final success = await WarehouseService()
-                                                            .transferQtyToOrderOrQilidation(
-                                                              action: 'TRANSFER_TO_LIQUIDATION',
-                                                              inventoryId:
-                                                                  selectedInventoryId.first,
-                                                              qtyTransfer: inputQty,
-                                                              reason: inputReason,
-                                                            );
-
-                                                        if (success) {
-                                                          if (context.mounted) {
-                                                            showSnackBarSuccess(
-                                                              context,
-                                                              "Xác nhận thanh lý tồn kho thành công",
-                                                            );
-                                                          }
-
-                                                          if (context.mounted) {
-                                                            // Show loading
-                                                            showLoadingDialog(context);
-                                                            await Future.delayed(
-                                                              const Duration(seconds: 1),
-                                                            );
-
-                                                            if (!context.mounted) return false;
-                                                            Navigator.pop(context); // Hide loading
-                                                          }
-
-                                                          loadInventory();
-                                                          return true;
-                                                        }
-                                                        return false;
-                                                      } on ApiException catch (e) {
-                                                        final errorText = switch (e.errorCode) {
-                                                          "INSUFFICIENT_QUANTITY" =>
-                                                            'Không đủ số lượng trong tồn kho để chuyển giao',
-                                                          _ => 'Có lỗi xảy ra, vui lòng thử lại',
-                                                        };
-
-                                                        if (!context.mounted) return false;
-
-                                                        showSnackBarError(context, errorText);
-                                                        return false;
-                                                      } catch (e) {
-                                                        if (context.mounted) {
-                                                          showSnackBarError(
-                                                            context,
-                                                            "Thanh lý tồn kho thất bại",
-                                                          );
-                                                        }
-                                                        return false;
-                                                      }
-                                                    },
-                                                  );
-                                                } else if (value == 'export') {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (_) => DialogExportInventory(),
-                                                  );
-                                                }
-                                              },
-                                              itemBuilder:
-                                                  (BuildContext context) => [
-                                                    const PopupMenuItem<String>(
-                                                      value: 'liquidation',
-                                                      child: ListTile(
-                                                        leading: Icon(Symbols.output),
-                                                        title: Text('Thanh Lý Tồn'),
-                                                      ),
-                                                    ),
-                                                    const PopupMenuItem<String>(
-                                                      value: 'export',
-                                                      child: ListTile(
-                                                        leading: Icon(Symbols.download),
-                                                        title: Text('Xuất Excel'),
-                                                      ),
-                                                    ),
-                                                  ],
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    //table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futureInventory,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData || snapshot.data!['inventories'].isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có báo cáo nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final data = snapshot.data!;
-                          final inventory = data['inventories'] as List<InventoryModel>;
-                          final currentPg = data['currentPage'];
-                          final totalPgs = data['totalPages'];
-
-                          final double totalValueInventory =
-                              double.tryParse(data['totalValueInventory']?.toString() ?? '0') ??
-                              0.0;
-
-                          if (_cachedInventory == null || _cachedInventory != inventory) {
-                            _cachedInventory = inventory;
-                            _cachedDatasource = InventoryDataSource(
-                              inventory: inventory,
-                              selectedInventoryId: _selectedInventoryIdsNotifier.value,
-                              currentPage: currentPage,
-                              pageSize: pageSize,
-                            );
-                          }
-
-                          return Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0, right: 10.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      "Tổng Giá Trị Tồn: ",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                    ),
-                                    Text(
-                                      "${OrderModel.formatCurrency(totalValueInventory)} VNĐ",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: Colors.green.shade500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              //table
-                              Expanded(
-                                child: StatefulBuilder(
-                                  builder: (context, localSetState) {
-                                    return SfDataGridTheme(
-                                      data: SfDataGridThemeData(
-                                        selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                        currentCellStyle: const DataGridCurrentCellStyle(
-                                          borderColor: Colors.transparent,
-                                          borderWidth: 0,
-                                        ),
-                                      ),
-                                      child: SfDataGrid(
-                                        controller: dataGridController,
-                                        source: _cachedDatasource!,
-                                        isScrollbarAlwaysShown: true,
-                                        allowExpandCollapseGroup: true, // Bật grouping
-                                        autoExpandGroups: true,
-                                        columnWidthMode: ColumnWidthMode.auto,
-                                        selectionMode: SelectionMode.multiple,
-                                        headerRowHeight: 30,
-                                        rowHeight: 40,
-                                        columns: ColumnWidthTable.applySavedWidths(
-                                          columns: columns,
-                                          widths: columnWidths,
-                                        ),
-                                        stackedHeaderRows: <StackedHeaderRow>[
-                                          StackedHeaderRow(
-                                            cells: [
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  'quantityOrd',
-                                                  'runningPlanProd',
-                                                  'qtyProduced',
-                                                ],
-                                                child: Obx(
-                                                  () => formatColumn(
-                                                    label: 'Số Lượng',
-                                                    themeController: themeController,
-                                                  ),
-                                                ),
-                                              ),
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  "totalQtyInbound",
-                                                  "totalQtyOutbound",
-                                                  "qtyTransfer",
-                                                  "qtyInventory",
-                                                ],
-                                                child: Obx(
-                                                  () => formatColumn(
-                                                    label: 'Số Lượng',
-                                                    themeController: themeController,
-                                                  ),
-                                                ),
-                                              ),
-                                              StackedHeaderCell(
-                                                columnNames: ["totalPrice", "totalPriceVAT"],
-                                                child: Obx(
-                                                  () => formatColumn(
-                                                    label: 'Tổng Tiền',
-                                                    themeController: themeController,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-
-                                        //auto resize
-                                        allowColumnsResizing: true,
-                                        columnResizeMode: ColumnResizeMode.onResize,
-
-                                        onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                        onColumnResizeUpdate:
-                                            (details) => GridResizeHelper.onResizeUpdate(
-                                              details: details,
-                                              columns: columns,
-                                              setState: localSetState,
-                                            ),
-                                        onColumnResizeEnd:
-                                            (details) => GridResizeHelper.onResizeEnd(
-                                              details: details,
-                                              tableKey: 'inventory',
-                                              columnWidths: columnWidths,
-                                              setState: setState,
-                                            ),
-
-                                        onSelectionChanging: (addedRows, removedRows) {
-                                          if (_isSelectionChange) return true;
-
-                                          final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                                          final isShiftPressed =
-                                              keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                                              keys.contains(LogicalKeyboardKey.shiftRight);
-
-                                          // Nếu đè phím Shift và trước đó đã có dòng được chọn
-                                          if (isShiftPressed &&
-                                              dataGridController.selectedRows.isNotEmpty &&
-                                              addedRows.isNotEmpty) {
-                                            final lastSelected =
-                                                dataGridController.selectedRows.last;
-                                            final newlyClicked = addedRows.last;
-
-                                            // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
-                                            final allRows = _cachedDatasource!.rows;
-                                            final startIdx = allRows.indexOf(lastSelected);
-                                            final endIdx = allRows.indexOf(newlyClicked);
-
-                                            if (startIdx != -1 && endIdx != -1) {
-                                              final min = startIdx < endIdx ? startIdx : endIdx;
-                                              final max = startIdx > endIdx ? startIdx : endIdx;
-
-                                              // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
-                                              final List<DataGridRow> rangeSelection = [];
-                                              for (int i = min; i <= max; i++) {
-                                                rangeSelection.add(allRows[i]);
-                                              }
-
-                                              // Ép controller chọn dải dòng
-                                              _isSelectionChange = true;
-                                              dataGridController.selectedRows = List.from(
-                                                rangeSelection,
-                                              );
-                                              _isSelectionChange = false;
-
-                                              // Cập nhật ID đơn hàng
-                                              Future.microtask(() {
-                                                _isSelectionChange = true;
-                                                dataGridController.selectedRows = List.from(
-                                                  rangeSelection,
-                                                );
-                                                _isSelectionChange = false;
-
-                                                _updateSelectedIdsFromRows(rangeSelection);
-                                              });
-                                              return false;
-                                            }
-                                          }
-                                          return true;
-                                        },
-
-                                        onSelectionChanged: (addedRows, removedRows) {
-                                          if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                                          // bắt sự kiện từ bàn phím
-                                          final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                                          final isCtrlPressed =
-                                              keys.contains(LogicalKeyboardKey.controlLeft) ||
-                                              keys.contains(LogicalKeyboardKey.controlRight);
-                                          final isShiftPressed =
-                                              keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                                              keys.contains(LogicalKeyboardKey.shiftRight);
-
-                                          if (!isCtrlPressed && !isShiftPressed) {
-                                            if (addedRows.isNotEmpty) {
-                                              // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
-                                              final latestRow = addedRows.last;
-
-                                              _isSelectionChange = true;
-                                              dataGridController.selectedRows = [latestRow];
-
-                                              _isSelectionChange = false;
-                                            } else if (removedRows.isNotEmpty &&
-                                                dataGridController.selectedRows.isNotEmpty) {
-                                              //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
-                                              final clickedRow = removedRows.first;
-                                              _isSelectionChange = true;
-                                              dataGridController.selectedRows = [clickedRow];
-                                              _isSelectionChange = false;
-                                            }
-                                          }
-
-                                          _updateSelectedIdsFromRows(
-                                            dataGridController.selectedRows,
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-
-                              // Nút chuyển trang
-                              PaginationControls(
-                                currentPage: currentPg,
-                                totalPages: totalPgs,
-                                onPrevious: () {
-                                  setState(() {
-                                    currentPage--;
-                                    loadInventory();
-                                  });
-                                },
-                                onNext: () {
-                                  setState(() {
-                                    currentPage++;
-                                    loadInventory();
-                                  });
-                                },
-                                onJumpToPage: (page) {
-                                  setState(() {
-                                    currentPage = page;
-                                    loadInventory();
-                                  });
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -786,7 +233,8 @@ class _InventoryState extends State<Inventory> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 125),
+                  // initialMargin: Offset(73, 125),
+                  initialMargin: Offset(73, 152),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -800,6 +248,527 @@ class _InventoryState extends State<Inventory> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "TỒN KHO THÀNH PHẨM",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Column(
+          children: [
+            Row(
+              children: [
+                //left button
+                Expanded(
+                  flex: 2,
+                  child: LeftButtonSearch(
+                    selectedType: searchType,
+                    types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng", "Tên Nhân Viên"],
+                    onTypeChanged: (value) {
+                      setState(() {
+                        searchType = value;
+                        isTextFieldEnabled = searchType != 'Tất cả';
+
+                        if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                          searchController.clear();
+                          currentPage = 1;
+                          _fetchData();
+                        }
+                      });
+                    },
+                    controller: searchController,
+                    textFieldEnabled: isTextFieldEnabled,
+                    buttonColor: themeController.buttonColor,
+
+                    onSearch: () => searchInventory(),
+                  ),
+                ),
+
+                //right button
+                Expanded(
+                  flex: 3,
+                  child: ValueListenableBuilder(
+                    valueListenable: _selectedInventoryIdsNotifier,
+                    builder: (context, selectedInventoryId, _) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          //outbound
+                          AnimatedButton(
+                            onPressed: () async {
+                              if (!context.mounted) return;
+
+                              if (selectedInventoryId.isNotEmpty) {
+                                try {
+                                  final data = await futureInventory;
+                                  final inventoryList = data['inventories'] as List<InventoryModel>;
+                                  final selectedModels =
+                                      inventoryList
+                                          .where((i) => selectedInventoryId.contains(i.inventoryId))
+                                          .toList();
+                                  initialItems =
+                                      selectedModels
+                                          .map((i) => OutboundTempItemModel.fromInventoryModel(i))
+                                          .toList();
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  showSnackBarError(context, "Lấy dữ liệu xuất kho thất bại");
+                                  return;
+                                }
+                              }
+
+                              if (!context.mounted) return;
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder:
+                                    (_) => OutBoundDialog(
+                                      outbound: null,
+                                      onOutboundHistory: () {
+                                        loadInventory();
+                                      },
+                                      initialItems: initialItems,
+                                    ),
+                              );
+                            },
+                            label: "Xuất Kho",
+                            icon: Symbols.input,
+                            backgroundColor: themeController.buttonColor,
+                          ),
+                          const SizedBox(width: 8),
+
+                          //transfer qty to other order
+                          AnimatedButton(
+                            onPressed:
+                                selectedInventoryId.length == 1
+                                    ? () async {
+                                      final inventory = await futureInventory;
+                                      final selectedInv = inventory['inventories'].firstWhere(
+                                        (i) => i.inventoryId == selectedInventoryId.first,
+                                      );
+
+                                      if (context.mounted) {
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (_) => DialogTransferQty(
+                                                inventory: selectedInv,
+                                                onLoad: () => loadInventory(),
+                                              ),
+                                        );
+                                      }
+                                    }
+                                    : null,
+                            label: "Chuyển SL",
+                            icon: Symbols.input,
+                            backgroundColor: themeController.buttonColor,
+                          ),
+                          const SizedBox(width: 8),
+
+                          //filter
+                          buildDropdownItems(
+                            width: 140,
+                            value: filterType,
+                            items: const ['gtZero', 'ltZero'],
+                            onChanged:
+                                (value) => {
+                                  setState(() {
+                                    filterType = value!;
+                                    selectedInventoryId.clear();
+                                    loadInventory();
+                                  }),
+                                },
+                            itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                          ),
+                          const SizedBox(width: 8),
+
+                          //popup menu
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert, color: Colors.black),
+                            color: Colors.white,
+                            onSelected: (value) async {
+                              if (value == 'liquidation') {
+                                await showInputQtyDialog(
+                                  context: context,
+                                  title: "Thanh Lý Tồn Kho",
+                                  onConfirm: (inputQty, inputReason) async {
+                                    try {
+                                      final success = await WarehouseService()
+                                          .transferQtyToOrderOrQilidation(
+                                            action: 'TRANSFER_TO_LIQUIDATION',
+                                            inventoryId: selectedInventoryId.first,
+                                            qtyTransfer: inputQty,
+                                            reason: inputReason,
+                                          );
+
+                                      if (success) {
+                                        if (context.mounted) {
+                                          showSnackBarSuccess(
+                                            context,
+                                            "Xác nhận thanh lý tồn kho thành công",
+                                          );
+                                        }
+
+                                        if (context.mounted) {
+                                          // Show loading
+                                          showLoadingDialog(context);
+                                          await Future.delayed(const Duration(seconds: 1));
+
+                                          if (!context.mounted) return false;
+                                          Navigator.pop(context); // Hide loading
+                                        }
+
+                                        loadInventory();
+                                        return true;
+                                      }
+                                      return false;
+                                    } on ApiException catch (e) {
+                                      final errorText = switch (e.errorCode) {
+                                        "INSUFFICIENT_QUANTITY" =>
+                                          'Không đủ số lượng trong tồn kho để chuyển giao',
+                                        _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                      };
+
+                                      if (!context.mounted) return false;
+
+                                      showSnackBarError(context, errorText);
+                                      return false;
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        showSnackBarError(context, "Thanh lý tồn kho thất bại");
+                                      }
+                                      return false;
+                                    }
+                                  },
+                                );
+                              } else if (value == 'export') {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => DialogExportInventory(),
+                                );
+                              }
+                            },
+                            itemBuilder:
+                                (BuildContext context) => [
+                                  const PopupMenuItem<String>(
+                                    value: 'liquidation',
+                                    child: ListTile(
+                                      leading: Icon(Symbols.output),
+                                      title: Text('Thanh Lý Tồn'),
+                                    ),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'export',
+                                    child: ListTile(
+                                      leading: Icon(Symbols.download),
+                                      title: Text('Xuất Excel'),
+                                    ),
+                                  ),
+                                ],
+                          ),
+                          const SizedBox(width: 5),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+
+            //total price
+            Padding(
+              padding: const EdgeInsets.only(right: 7),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Text(
+                    "Tổng Giá Trị Tồn: ",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  FutureBuilder(
+                    future: futureInventory,
+                    builder: (context, snapshot) {
+                      final double totalValue =
+                          snapshot.hasData
+                              ? (double.tryParse(
+                                    snapshot.data!['totalValueInventory']?.toString() ?? '0',
+                                  ) ??
+                                  0.0)
+                              : 0.0;
+
+                      return Text(
+                        "${OrderModel.formatCurrency(totalValue)} VNĐ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.green.shade500,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureInventory,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!['inventories'].isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn tồn kho nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final inventory = data['inventories'] as List<InventoryModel>;
+        final currentPg = data['currentPage'];
+        final totalPgs = data['totalPages'];
+
+        if (_cachedInventory == null || _cachedInventory != inventory) {
+          _cachedInventory = inventory;
+          _cachedDatasource = InventoryDataSource(
+            inventory: inventory,
+            selectedInventoryId: _selectedInventoryIdsNotifier.value,
+            currentPage: currentPage,
+            pageSize: pageSize,
+          );
+        }
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: StatefulBuilder(
+                builder: (context, localSetState) {
+                  return SfDataGridTheme(
+                    data: SfDataGridThemeData(
+                      selectionColor: Colors.blue.withValues(alpha: 0.3),
+                      currentCellStyle: const DataGridCurrentCellStyle(
+                        borderColor: Colors.transparent,
+                        borderWidth: 0,
+                      ),
+                    ),
+                    child: SfDataGrid(
+                      controller: dataGridController,
+                      source: _cachedDatasource!,
+                      isScrollbarAlwaysShown: true,
+                      allowExpandCollapseGroup: true, // Bật grouping
+                      autoExpandGroups: true,
+                      columnWidthMode: ColumnWidthMode.auto,
+                      selectionMode: SelectionMode.multiple,
+                      headerRowHeight: 30,
+                      rowHeight: 40,
+                      columns: ColumnWidthTable.applySavedWidths(
+                        columns: columns,
+                        widths: columnWidths,
+                      ),
+                      stackedHeaderRows: <StackedHeaderRow>[
+                        StackedHeaderRow(
+                          cells: [
+                            StackedHeaderCell(
+                              columnNames: ['quantityOrd', 'runningPlanProd', 'qtyProduced'],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: 'Số Lượng',
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                            StackedHeaderCell(
+                              columnNames: [
+                                "totalQtyInbound",
+                                "totalQtyOutbound",
+                                "qtyTransfer",
+                                "qtyInventory",
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: 'Số Lượng',
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                            StackedHeaderCell(
+                              columnNames: ["totalPrice", "totalPriceVAT"],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: 'Tổng Tiền',
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      //auto resize
+                      allowColumnsResizing: true,
+                      columnResizeMode: ColumnResizeMode.onResize,
+
+                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                      onColumnResizeUpdate:
+                          (details) => GridResizeHelper.onResizeUpdate(
+                            details: details,
+                            columns: columns,
+                            setState: localSetState,
+                          ),
+                      onColumnResizeEnd:
+                          (details) => GridResizeHelper.onResizeEnd(
+                            details: details,
+                            tableKey: 'inventory',
+                            columnWidths: columnWidths,
+                            setState: setState,
+                          ),
+
+                      onSelectionChanging: (addedRows, removedRows) {
+                        if (_isSelectionChange) return true;
+
+                        final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                        final isShiftPressed =
+                            keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                            keys.contains(LogicalKeyboardKey.shiftRight);
+
+                        // Nếu đè phím Shift và trước đó đã có dòng được chọn
+                        if (isShiftPressed &&
+                            dataGridController.selectedRows.isNotEmpty &&
+                            addedRows.isNotEmpty) {
+                          final lastSelected = dataGridController.selectedRows.last;
+                          final newlyClicked = addedRows.last;
+
+                          // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
+                          final allRows = _cachedDatasource!.rows;
+                          final startIdx = allRows.indexOf(lastSelected);
+                          final endIdx = allRows.indexOf(newlyClicked);
+
+                          if (startIdx != -1 && endIdx != -1) {
+                            final min = startIdx < endIdx ? startIdx : endIdx;
+                            final max = startIdx > endIdx ? startIdx : endIdx;
+
+                            // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
+                            final List<DataGridRow> rangeSelection = [];
+                            for (int i = min; i <= max; i++) {
+                              rangeSelection.add(allRows[i]);
+                            }
+
+                            // Ép controller chọn dải dòng
+                            _isSelectionChange = true;
+                            dataGridController.selectedRows = List.from(rangeSelection);
+                            _isSelectionChange = false;
+
+                            // Cập nhật ID đơn hàng
+                            Future.microtask(() {
+                              _isSelectionChange = true;
+                              dataGridController.selectedRows = List.from(rangeSelection);
+                              _isSelectionChange = false;
+
+                              _updateSelectedIdsFromRows(rangeSelection);
+                            });
+                            return false;
+                          }
+                        }
+                        return true;
+                      },
+
+                      onSelectionChanged: (addedRows, removedRows) {
+                        if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                        // bắt sự kiện từ bàn phím
+                        final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                        final isCtrlPressed =
+                            keys.contains(LogicalKeyboardKey.controlLeft) ||
+                            keys.contains(LogicalKeyboardKey.controlRight);
+                        final isShiftPressed =
+                            keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                            keys.contains(LogicalKeyboardKey.shiftRight);
+
+                        if (!isCtrlPressed && !isShiftPressed) {
+                          if (addedRows.isNotEmpty) {
+                            // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
+                            final latestRow = addedRows.last;
+
+                            _isSelectionChange = true;
+                            dataGridController.selectedRows = [latestRow];
+
+                            _isSelectionChange = false;
+                          } else if (removedRows.isNotEmpty &&
+                              dataGridController.selectedRows.isNotEmpty) {
+                            //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
+                            final clickedRow = removedRows.first;
+                            _isSelectionChange = true;
+                            dataGridController.selectedRows = [clickedRow];
+                            _isSelectionChange = false;
+                          }
+                        }
+
+                        _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Nút chuyển trang
+            PaginationControls(
+              currentPage: currentPg,
+              totalPages: totalPgs,
+              onPrevious: () {
+                setState(() {
+                  currentPage--;
+                  loadInventory();
+                });
+              },
+              onNext: () {
+                setState(() {
+                  currentPage++;
+                  loadInventory();
+                });
+              },
+              onJumpToPage: (page) {
+                setState(() {
+                  currentPage = page;
+                  loadInventory();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

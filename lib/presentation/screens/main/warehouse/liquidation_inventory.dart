@@ -77,223 +77,233 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(5),
-        child: Column(
-          children: [
-            //button
-            SizedBox(
-              height: 105,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  //title
-                  SizedBox(
-                    height: 35,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        "TỒN KHO THANH LÝ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
-                        ),
-                      ),
-                    ),
-                  ),
+      backgroundColor: themeController.backgroundColor.value,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // title & buttons
+          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                  //button
-                  SizedBox(
-                    height: 70,
-                    width: double.infinity,
-                    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: []),
-                  ),
-                ],
+          //table & pagination
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: _buildTableSection(),
             ),
-
-            //table
-            Expanded(
-              child: FutureBuilder(
-                future: futureLiquidation,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SizedBox(
-                        height: 400,
-                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['liquidations'].isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Không có báo cáo nào",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                    );
-                  }
-
-                  final data = snapshot.data!;
-                  final liquidations = data['liquidations'] as List<LiquidationInventoryModel>;
-
-                  final currentPg = data['currentPage'];
-                  final totalPgs = data['totalPages'];
-
-                  final double totalValueInventory =
-                      double.tryParse(data['totalValueInventory']?.toString() ?? '0') ?? 0.0;
-
-                  liquidationDataSource = LiquidationInvDataSource(
-                    liquidations: liquidations,
-                    selectedLiquidationId: selectedLiquidationId,
-                    currentPage: currentPage,
-                    pageSize: pageSize,
-                  );
-
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0, right: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Tổng Giá Trị Tồn: ",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            Text(
-                              "${OrderModel.formatCurrency(totalValueInventory)} VNĐ",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Colors.green.shade500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      //table
-                      Expanded(
-                        child: SfDataGrid(
-                          controller: dataGridController,
-                          source: liquidationDataSource,
-                          isScrollbarAlwaysShown: true,
-                          allowExpandCollapseGroup: true, // Bật grouping
-                          autoExpandGroups: true,
-                          columnWidthMode: ColumnWidthMode.fill,
-                          navigationMode: GridNavigationMode.row,
-                          selectionMode: SelectionMode.multiple,
-                          headerRowHeight: 30,
-                          rowHeight: 40,
-                          columns: ColumnWidthTable.applySavedWidths(
-                            columns: columns,
-                            widths: columnWidths,
-                          ),
-                          stackedHeaderRows: <StackedHeaderRow>[
-                            StackedHeaderRow(
-                              cells: [
-                                StackedHeaderCell(
-                                  columnNames: ["qtyTransferred", "qtySold", "qtyRemaining"],
-                                  child: formatColumn(
-                                    label: 'Số Lượng',
-                                    themeController: themeController,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-
-                          //auto resize
-                          allowColumnsResizing: true,
-                          columnResizeMode: ColumnResizeMode.onResize,
-
-                          onColumnResizeStart: GridResizeHelper.onResizeStart,
-                          onColumnResizeUpdate:
-                              (details) => GridResizeHelper.onResizeUpdate(
-                                details: details,
-                                columns: columns,
-                                setState: setState,
-                              ),
-                          onColumnResizeEnd:
-                              (details) => GridResizeHelper.onResizeEnd(
-                                details: details,
-                                tableKey: 'liquidation',
-                                columnWidths: columnWidths,
-                                setState: setState,
-                              ),
-
-                          onSelectionChanged: (addedRows, removedRows) {
-                            if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                            setState(() {
-                              final selectedRows = dataGridController.selectedRows;
-
-                              selectedLiquidationId =
-                                  selectedRows
-                                      .map((row) {
-                                        final cell = row.getCells().firstWhere(
-                                          (c) => c.columnName == 'liquidationId',
-                                          orElse:
-                                              () => const DataGridCell(
-                                                columnName: 'liquidationId',
-                                                value: '',
-                                              ),
-                                        );
-
-                                        return int.tryParse(cell.value.toString());
-                                      })
-                                      .where((id) => id != null)
-                                      .cast<int>()
-                                      .toList();
-
-                              liquidationDataSource.selectedLiquidationId = selectedLiquidationId;
-                              liquidationDataSource.notifyListeners();
-                            });
-                          },
-                        ),
-                      ),
-
-                      // Nút chuyển trang
-                      PaginationControls(
-                        currentPage: currentPg,
-                        totalPages: totalPgs,
-                        onPrevious: () {
-                          setState(() {
-                            currentPage--;
-                            loadInventory();
-                          });
-                        },
-                        onNext: () {
-                          setState(() {
-                            currentPage++;
-                            loadInventory();
-                          });
-                        },
-                        onJumpToPage: (page) {
-                          setState(() {
-                            currentPage = page;
-                            loadInventory();
-                          });
-                        },
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadInventory(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "TỒN KHO THANH LÝ",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Column(
+          children: [
+            Row(children: []),
+            const SizedBox(height: 10),
+
+            //total price
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    "Tổng Giá Trị: ",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  FutureBuilder(
+                    future: futureLiquidation,
+                    builder: (context, snapshot) {
+                      final double totalValue =
+                          snapshot.hasData
+                              ? (double.tryParse(
+                                    snapshot.data!['totalValueInventory']?.toString() ?? '0',
+                                  ) ??
+                                  0.0)
+                              : 0.0;
+
+                      return Text(
+                        "${OrderModel.formatCurrency(totalValue)} VNĐ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.green.shade500,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureLiquidation,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!['liquidations'].isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn thanh lý nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final liquidations = data['liquidations'] as List<LiquidationInventoryModel>;
+
+        final currentPg = data['currentPage'];
+        final totalPgs = data['totalPages'];
+
+        liquidationDataSource = LiquidationInvDataSource(
+          liquidations: liquidations,
+          selectedLiquidationId: selectedLiquidationId,
+          currentPage: currentPage,
+          pageSize: pageSize,
+        );
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: SfDataGrid(
+                controller: dataGridController,
+                source: liquidationDataSource,
+                isScrollbarAlwaysShown: true,
+                allowExpandCollapseGroup: true, // Bật grouping
+                autoExpandGroups: true,
+                columnWidthMode: ColumnWidthMode.fill,
+                navigationMode: GridNavigationMode.row,
+                selectionMode: SelectionMode.multiple,
+                headerRowHeight: 30,
+                rowHeight: 40,
+                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
+                stackedHeaderRows: <StackedHeaderRow>[
+                  StackedHeaderRow(
+                    cells: [
+                      StackedHeaderCell(
+                        columnNames: ["qtyTransferred", "qtySold", "qtyRemaining"],
+                        child: formatColumn(label: 'Số Lượng', themeController: themeController),
+                      ),
+                    ],
+                  ),
+                ],
+
+                //auto resize
+                allowColumnsResizing: true,
+                columnResizeMode: ColumnResizeMode.onResize,
+
+                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                onColumnResizeUpdate:
+                    (details) => GridResizeHelper.onResizeUpdate(
+                      details: details,
+                      columns: columns,
+                      setState: setState,
+                    ),
+                onColumnResizeEnd:
+                    (details) => GridResizeHelper.onResizeEnd(
+                      details: details,
+                      tableKey: 'liquidation',
+                      columnWidths: columnWidths,
+                      setState: setState,
+                    ),
+
+                onSelectionChanged: (addedRows, removedRows) {
+                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                  setState(() {
+                    final selectedRows = dataGridController.selectedRows;
+
+                    selectedLiquidationId =
+                        selectedRows
+                            .map((row) {
+                              final cell = row.getCells().firstWhere(
+                                (c) => c.columnName == 'liquidationId',
+                                orElse:
+                                    () =>
+                                        const DataGridCell(columnName: 'liquidationId', value: ''),
+                              );
+
+                              return int.tryParse(cell.value.toString());
+                            })
+                            .where((id) => id != null)
+                            .cast<int>()
+                            .toList();
+
+                    liquidationDataSource.selectedLiquidationId = selectedLiquidationId;
+                    liquidationDataSource.notifyListeners();
+                  });
+                },
+              ),
+            ),
+
+            // Nút chuyển trang
+            PaginationControls(
+              currentPage: currentPg,
+              totalPages: totalPgs,
+              onPrevious: () {
+                setState(() {
+                  currentPage--;
+                  loadInventory();
+                });
+              },
+              onNext: () {
+                setState(() {
+                  currentPage++;
+                  loadInventory();
+                });
+              },
+              onJumpToPage: (page) {
+                setState(() {
+                  currentPage = page;
+                  loadInventory();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

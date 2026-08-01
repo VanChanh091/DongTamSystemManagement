@@ -90,6 +90,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -124,325 +125,24 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                   },
                 );
               },
-              //container contain button and table
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //button
-                    SizedBox(
-                      height: 100,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 30,
-                            width: double.infinity,
-                            child: Center(
-                              child: Obx(
-                                () => Text(
-                                  "ĐƠN HÀNG CHỜ DUYỆT/BỊ TỪ CHỐI",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 22,
-                                    color: themeController.currentColor.value,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          //button menu
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Expanded(flex: 1, child: SizedBox()),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedOrderIdNotifier,
-                                      builder: (context, selectedOrderId, _) {
-                                        final bool hasSelection =
-                                            selectedOrderId != null && selectedOrderId.isNotEmpty;
-
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            //see all/see only
-                                            isManager
-                                                ? SizedBox(
-                                                  width: 150,
-                                                  child: AnimatedButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        isSeenOrder = !isSeenOrder;
-                                                      });
-
-                                                      loadOrders(ownOnly: isSeenOrder);
-                                                    },
-                                                    label:
-                                                        isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
-                                                    icon: null,
-                                                    backgroundColor: themeController.buttonColor,
-                                                  ),
-                                                )
-                                                : const SizedBox.shrink(),
-                                            const SizedBox(width: 10),
-
-                                            //add
-                                            AnimatedButton(
-                                              onPressed: () {
-                                                showDialog(
-                                                  context: context,
-                                                  barrierDismissible: false,
-                                                  builder:
-                                                      (_) => OrderDialog(
-                                                        order: null,
-                                                        onOrderAddOrUpdate: (String newOrderId) {
-                                                          loadOrders(ownOnly: isSeenOrder);
-                                                          WidgetsBinding.instance
-                                                              .addPostFrameCallback((_) {
-                                                                Future.delayed(
-                                                                  const Duration(milliseconds: 300),
-                                                                  () {
-                                                                    _scrollToOrder(newOrderId);
-                                                                  },
-                                                                );
-                                                              });
-                                                        },
-                                                      ),
-                                                );
-                                              },
-                                              label: "Thêm mới",
-                                              icon: Icons.add,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            //update
-                                            AnimatedButton(
-                                              onPressed:
-                                                  hasSelection
-                                                      ? () async {
-                                                        try {
-                                                          final orders = await futureOrdersPending;
-                                                          final selectedOrder = orders.firstWhere(
-                                                            (order) =>
-                                                                order.orderId == selectedOrderId,
-                                                          );
-
-                                                          if (!context.mounted) return;
-
-                                                          showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (_) => OrderDialog(
-                                                                  order: selectedOrder,
-                                                                  onOrderAddOrUpdate:
-                                                                      (String? newOrderId) =>
-                                                                          loadOrders(
-                                                                            ownOnly: isSeenOrder,
-                                                                          ),
-                                                                ),
-                                                          );
-                                                        } catch (e, s) {
-                                                          AppLogger.e(
-                                                            "Lỗi không tìm thấy đơn hàng",
-                                                            error: e,
-                                                            stackTrace: s,
-                                                          );
-                                                          showSnackBarError(
-                                                            context,
-                                                            'Có lỗi xảy ra, vui lòng thử lại sau',
-                                                          );
-                                                        }
-                                                      }
-                                                      : null,
-                                              label: "Sửa",
-                                              icon: Symbols.construction,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            //delete
-                                            AnimatedButton(
-                                              onPressed:
-                                                  hasSelection
-                                                      ? () async {
-                                                        await showDeleteConfirmHelper(
-                                                          context: context,
-                                                          title: "⚠️ Xác nhận xoá",
-                                                          content:
-                                                              "Bạn có chắc chắn muốn xoá đơn hàng này?",
-                                                          onDelete: () async {
-                                                            await OrderService().deleteOrder(
-                                                              orderId: selectedOrderId!,
-                                                            );
-                                                          },
-                                                          onSuccess: () {
-                                                            setState(() => selectedOrderId = null);
-                                                            badgesController
-                                                                .fetchPendingApprovals();
-                                                            loadOrders(ownOnly: isSeenOrder);
-                                                          },
-                                                        );
-                                                      }
-                                                      : null,
-                                              label: "Xóa",
-                                              icon: Icons.delete,
-                                              backgroundColor: const Color(0xffEA4346),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    // table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futureOrdersPending,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có đơn hàng nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final List<OrderModel> data = snapshot.data!;
-
-                          if (_cachedOrders == null || _cachedOrders != data) {
-                            _cachedOrders = data;
-                            _cachedDatasource = OrderDataSource(
-                              context: context,
-                              orders: data,
-                              selectedOrderId: _selectedOrderIdNotifier.value,
-                            );
-                          }
-
-                          return StatefulBuilder(
-                            builder: (context, localSetState) {
-                              return SfDataGridTheme(
-                                data: SfDataGridThemeData(
-                                  selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                ),
-                                child: SfDataGrid(
-                                  controller: _dataGridController,
-                                  source: _cachedDatasource!,
-                                  isScrollbarAlwaysShown: true,
-                                  selectionMode: SelectionMode.single,
-                                  columnWidthMode: ColumnWidthMode.auto,
-                                  headerRowHeight: 30,
-                                  rowHeight: 38,
-                                  columns: ColumnWidthTable.applySavedWidths(
-                                    columns: columns,
-                                    widths: columnWidths,
-                                  ),
-                                  stackedHeaderRows: <StackedHeaderRow>[
-                                    StackedHeaderRow(
-                                      cells: [
-                                        StackedHeaderCell(
-                                          columnNames: [
-                                            'inMatTruoc',
-                                            'inMatSau',
-                                            'canMang',
-                                            'canLanBox',
-                                            'xa',
-                                            'catKhe',
-                                            'be',
-                                            'dan_1_Manh',
-                                            'dan_2_Manh',
-                                            'dongGhimMotManh',
-                                            'dongGhimHaiManh',
-                                            'chongTham',
-                                            'dongGoi',
-                                            'maKhuon',
-                                          ],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: 'Công Đoạn 2',
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-
-                                  //auto resize
-                                  allowColumnsResizing: true,
-                                  columnResizeMode: ColumnResizeMode.onResize,
-
-                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                  onColumnResizeUpdate:
-                                      (details) => GridResizeHelper.onResizeUpdate(
-                                        details: details,
-                                        columns: columns,
-                                        setState: localSetState,
-                                      ),
-                                  onColumnResizeEnd:
-                                      (details) => GridResizeHelper.onResizeEnd(
-                                        details: details,
-                                        tableKey: 'order',
-                                        columnWidths: columnWidths,
-                                        setState: setState,
-                                      ),
-
-                                  onSelectionChanged: (addedRows, removedRows) {
-                                    if (addedRows.isNotEmpty) {
-                                      final selectedRow = addedRows.first;
-                                      final orderId =
-                                          selectedRow
-                                              .getCells()
-                                              .firstWhere((cell) => cell.columnName == 'orderId')
-                                              .value
-                                              .toString();
-
-                                      _selectedOrderIdNotifier.value = orderId;
-                                    } else {
-                                      _selectedOrderIdNotifier.value = null;
-                                    }
-                                  },
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -453,7 +153,8 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 173),
+                  // initialMargin: Offset(73, 173),
+                  initialMargin: Offset(73, 200),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -470,6 +171,274 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
         ),
       ),
     );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "ĐƠN HÀNG CHỜ DUYỆT/BỊ TỪ CHỐI",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button menu
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Expanded(flex: 1, child: SizedBox()),
+
+            Expanded(
+              flex: 1,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                child: ValueListenableBuilder(
+                  valueListenable: _selectedOrderIdNotifier,
+                  builder: (context, selectedOrderId, _) {
+                    final bool hasSelection = selectedOrderId != null && selectedOrderId.isNotEmpty;
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        //see all/see only
+                        isManager
+                            ? SizedBox(
+                              width: 150,
+                              child: AnimatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isSeenOrder = !isSeenOrder;
+                                  });
+
+                                  loadOrders(ownOnly: isSeenOrder);
+                                },
+                                label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
+                                icon: null,
+                                backgroundColor: themeController.buttonColor,
+                              ),
+                            )
+                            : const SizedBox.shrink(),
+                        const SizedBox(width: 10),
+
+                        //add
+                        AnimatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder:
+                                  (_) => OrderDialog(
+                                    order: null,
+                                    onOrderAddOrUpdate: (String newOrderId) {
+                                      loadOrders(ownOnly: isSeenOrder);
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        Future.delayed(const Duration(milliseconds: 300), () {
+                                          _scrollToOrder(newOrderId);
+                                        });
+                                      });
+                                    },
+                                  ),
+                            );
+                          },
+                          label: "Thêm mới",
+                          icon: Icons.add,
+                          backgroundColor: themeController.buttonColor,
+                        ),
+                        const SizedBox(width: 10),
+
+                        //update
+                        AnimatedButton(
+                          onPressed: hasSelection ? () => _handleEditOrder(selectedOrderId!) : null,
+                          label: "Sửa",
+                          icon: Symbols.construction,
+                          backgroundColor: themeController.buttonColor,
+                        ),
+                        const SizedBox(width: 10),
+
+                        //delete
+                        AnimatedButton(
+                          onPressed:
+                              hasSelection
+                                  ? () async {
+                                    await showDeleteConfirmHelper(
+                                      context: context,
+                                      title: "⚠️ Xác nhận xoá",
+                                      content: "Bạn có chắc chắn muốn xoá đơn hàng này?",
+                                      onDelete: () async {
+                                        await OrderService().deleteOrder(orderId: selectedOrderId!);
+                                      },
+                                      onSuccess: () {
+                                        setState(() => selectedOrderId = null);
+                                        badgesController.fetchPendingApprovals();
+                                        loadOrders(ownOnly: isSeenOrder);
+                                      },
+                                    );
+                                  }
+                                  : null,
+                          label: "Xóa",
+                          icon: Icons.delete,
+                          backgroundColor: const Color(0xffEA4346),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureOrdersPending,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn hàng nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final List<OrderModel> data = snapshot.data!;
+
+        if (_cachedOrders == null || _cachedOrders != data) {
+          _cachedOrders = data;
+          _cachedDatasource = OrderDataSource(
+            context: context,
+            orders: data,
+            selectedOrderId: _selectedOrderIdNotifier.value,
+          );
+        }
+
+        return StatefulBuilder(
+          builder: (context, localSetState) {
+            return SfDataGridTheme(
+              data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+              child: SfDataGrid(
+                controller: _dataGridController,
+                source: _cachedDatasource!,
+                isScrollbarAlwaysShown: true,
+                selectionMode: SelectionMode.single,
+                columnWidthMode: ColumnWidthMode.auto,
+                headerRowHeight: 30,
+                rowHeight: 38,
+                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
+                stackedHeaderRows: <StackedHeaderRow>[
+                  StackedHeaderRow(
+                    cells: [
+                      StackedHeaderCell(
+                        columnNames: [
+                          'inMatTruoc',
+                          'inMatSau',
+                          'canMang',
+                          'canLanBox',
+                          'xa',
+                          'catKhe',
+                          'be',
+                          'dan_1_Manh',
+                          'dan_2_Manh',
+                          'dongGhimMotManh',
+                          'dongGhimHaiManh',
+                          'chongTham',
+                          'dongGoi',
+                          'maKhuon',
+                        ],
+                        child: Obx(
+                          () =>
+                              formatColumn(label: 'Công Đoạn 2', themeController: themeController),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                //auto resize
+                allowColumnsResizing: true,
+                columnResizeMode: ColumnResizeMode.onResize,
+
+                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                onColumnResizeUpdate:
+                    (details) => GridResizeHelper.onResizeUpdate(
+                      details: details,
+                      columns: columns,
+                      setState: localSetState,
+                    ),
+                onColumnResizeEnd:
+                    (details) => GridResizeHelper.onResizeEnd(
+                      details: details,
+                      tableKey: 'order',
+                      columnWidths: columnWidths,
+                      setState: setState,
+                    ),
+
+                onSelectionChanged: (addedRows, removedRows) {
+                  if (addedRows.isNotEmpty) {
+                    final selectedRow = addedRows.first;
+                    final orderId =
+                        selectedRow
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'orderId')
+                            .value
+                            .toString();
+
+                    _selectedOrderIdNotifier.value = orderId;
+                  } else {
+                    _selectedOrderIdNotifier.value = null;
+                  }
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ==================== ACTION HANDLERS ====================
+  Future<void> _handleEditOrder(String orderId) async {
+    try {
+      final orders = await futureOrdersPending;
+      final selectedOrder = orders.firstWhere((order) => order.orderId == orderId);
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder:
+              (_) => OrderDialog(
+                order: selectedOrder,
+                onOrderAddOrUpdate: (String? newOrderId) => loadOrders(ownOnly: isSeenOrder),
+              ),
+        );
+      }
+    } catch (e, s) {
+      AppLogger.e("Lỗi không tìm thấy đơn hàng", error: e, stackTrace: s);
+      if (mounted) {
+        showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại sau');
+      }
+    }
   }
 
   void _scrollToOrder(String newOrderId) {

@@ -122,6 +122,7 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -156,310 +157,23 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
                 );
               },
 
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //button
-                    SizedBox(
-                      height: 105,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 35,
-                            width: double.infinity,
-                            child: Center(
-                              child: Obx(
-                                () => Text(
-                                  "LỊCH SỬ KIỂM TRA CHẤT LƯỢNG GIẤY TẤM",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 22,
-                                    color: themeController.currentColor.value,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                          //button
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //left button
-                                const SizedBox(),
-
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedPaperIdsNotifier,
-                                      builder: (context, selectedReportId, _) {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            AnimatedButton(
-                                              onPressed: () async {
-                                                showDialog(
-                                                  // barrierDismissible: false,
-                                                  context: context,
-                                                  builder:
-                                                      (_) => DialogSummaryInspecErr(
-                                                        type: InspectionType.paper,
-                                                        machine: machine,
-                                                        machineList: machineList,
-                                                      ),
-                                                );
-                                              },
-                                              label: "Tổng lỗi",
-                                              icon: Icons.summarize,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            //choose machine
-                                            buildDropdownItems(
-                                              value: machine,
-                                              items: machineList,
-                                              onChanged: (value) {
-                                                if (value != null) {
-                                                  changeMachine(value);
-                                                }
-                                              },
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    //table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futureReportPaper,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!["inspectionPapers"].isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có báo cáo nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final data = snapshot.data!;
-                          final inspectionPapers =
-                              data["inspectionPapers"] as List<QcInspectionPaperModel>;
-                          final currentPg = data["currentPage"];
-                          final totalPgs = data["totalPages"];
-
-                          if (_cachedInspecPapers != inspectionPapers ||
-                              _cachedDatasource == null) {
-                            _cachedInspecPapers = inspectionPapers;
-                            _cachedDatasource = InspectionPaperDataSource(
-                              inspectionPapers: inspectionPapers,
-                              selectedPaperIds: _selectedPaperIdsNotifier.value,
-                              currentPage: currentPage,
-                              pageSize: pageSize,
-                            );
-                          }
-
-                          return Column(
-                            children: [
-                              //table
-                              Expanded(
-                                child: StatefulBuilder(
-                                  builder: (context, localSetState) {
-                                    return SfDataGridTheme(
-                                      data: SfDataGridThemeData(
-                                        selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                      ),
-                                      child: SfDataGrid(
-                                        source: _cachedDatasource!,
-                                        isScrollbarAlwaysShown: true,
-                                        allowExpandCollapseGroup: true, // Bật grouping
-                                        autoExpandGroups: true,
-                                        columnWidthMode: ColumnWidthMode.auto,
-                                        selectionMode: SelectionMode.single,
-                                        headerRowHeight: 35,
-                                        rowHeight: 38,
-                                        columns: ColumnWidthTable.applySavedWidths(
-                                          columns: columns,
-                                          widths: columnWidths,
-                                        ),
-                                        stackedHeaderRows: <StackedHeaderRow>[
-                                          StackedHeaderRow(
-                                            cells: [
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  "orderId",
-                                                  "customerName",
-                                                  "productName",
-                                                  "structure",
-                                                  "flute",
-                                                  "sizePaper",
-                                                  "lengthPaper",
-                                                  "runningPlan",
-                                                ],
-                                                child: Obx(
-                                                  () => formatColumn(
-                                                    label: "Thông Tin Đơn Hàng",
-                                                    themeController: themeController,
-                                                  ),
-                                                ),
-                                              ),
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  "timeInspection",
-                                                  "numberPallet",
-                                                  "machineSpeed",
-                                                  "moisture",
-                                                  "steamPressure",
-                                                  "preheaterTemp",
-                                                  "fctValue",
-                                                  "patValue",
-                                                ],
-                                                child: Obx(
-                                                  () => formatColumn(
-                                                    label: "Thông Tin Kiểm Tra",
-                                                    themeController: themeController,
-                                                  ),
-                                                ),
-                                              ),
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  "blishter",
-                                                  "wrongWidth",
-                                                  "wrongLength",
-                                                  "wrongScoringSpec",
-                                                  "poorScoring",
-                                                  "drityLiner",
-                                                  "losseLiner",
-                                                  "earDefect",
-                                                  "skewedFlute",
-                                                  "warppage",
-                                                  "wrongStructure",
-                                                  "waveHeight",
-                                                  "poorTrim",
-                                                  "misalignment",
-                                                  "glueDripping",
-                                                  "trimScrap",
-                                                  "poorBundling",
-                                                  "totalWidthErr",
-                                                  "wrongProductInfo",
-                                                ],
-                                                child: formatColumn(
-                                                  label: "Lỗi",
-                                                  themeController: themeController,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-
-                                        //auto resize
-                                        allowColumnsResizing: true,
-                                        columnResizeMode: ColumnResizeMode.onResize,
-
-                                        onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                        onColumnResizeUpdate:
-                                            (details) => GridResizeHelper.onResizeUpdate(
-                                              details: details,
-                                              columns: columns,
-                                              setState: localSetState,
-                                            ),
-                                        onColumnResizeEnd:
-                                            (details) => GridResizeHelper.onResizeEnd(
-                                              details: details,
-                                              tableKey: "inspectionPaper",
-                                              columnWidths: columnWidths,
-                                              setState: setState,
-                                            ),
-
-                                        onSelectionChanged: (addedRows, removedRows) {
-                                          if (addedRows.isNotEmpty) {
-                                            final selectedRow = addedRows.first;
-                                            final selectedInspecPaperId =
-                                                selectedRow
-                                                        .getCells()
-                                                        .firstWhere(
-                                                          (cell) =>
-                                                              cell.columnName == 'inspecPaperId',
-                                                        )
-                                                        .value
-                                                    as int?;
-
-                                            _selectedPaperIdsNotifier.value = selectedInspecPaperId;
-                                          } else {
-                                            _selectedPaperIdsNotifier.value = null;
-                                          }
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-
-                              // Nút chuyển trang
-                              PaginationControls(
-                                currentPage: currentPg,
-                                totalPages: totalPgs,
-                                onPrevious: () {
-                                  setState(() {
-                                    currentPage--;
-                                    loadInspectionPaper();
-                                  });
-                                },
-                                onNext: () {
-                                  setState(() {
-                                    currentPage++;
-                                    loadInspectionPaper();
-                                  });
-                                },
-                                onJumpToPage: (page) {
-                                  setState(() {
-                                    currentPage = page;
-                                    loadInspectionPaper();
-                                  });
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -470,7 +184,8 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 173),
+                  // initialMargin: Offset(73, 173),
+                  initialMargin: Offset(73, 200),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -484,6 +199,273 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "LỊCH SỬ KIỂM TRA CHẤT LƯỢNG GIẤY TẤM",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Row(
+          children: [
+            //left button
+            Expanded(flex: 2, child: const SizedBox()),
+
+            //right button
+            Expanded(
+              flex: 3,
+              child: ValueListenableBuilder(
+                valueListenable: _selectedPaperIdsNotifier,
+                builder: (context, selectedReportId, _) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      AnimatedButton(
+                        onPressed: () async {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (_) => DialogSummaryInspecErr(
+                                  type: InspectionType.paper,
+                                  machine: machine,
+                                  machineList: machineList,
+                                ),
+                          );
+                        },
+                        label: "Tổng lỗi",
+                        icon: Icons.summarize,
+                        backgroundColor: themeController.buttonColor,
+                      ),
+                      const SizedBox(width: 8),
+
+                      //choose machine
+                      buildDropdownItems(
+                        value: machine,
+                        items: machineList,
+                        onChanged: (value) {
+                          if (value != null) {
+                            changeMachine(value);
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureReportPaper,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!["inspectionPapers"].isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có báo cáo nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final inspectionPapers = data["inspectionPapers"] as List<QcInspectionPaperModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
+
+        if (_cachedInspecPapers != inspectionPapers || _cachedDatasource == null) {
+          _cachedInspecPapers = inspectionPapers;
+          _cachedDatasource = InspectionPaperDataSource(
+            inspectionPapers: inspectionPapers,
+            selectedPaperIds: _selectedPaperIdsNotifier.value,
+            currentPage: currentPage,
+            pageSize: pageSize,
+          );
+        }
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: StatefulBuilder(
+                builder: (context, localSetState) {
+                  return SfDataGridTheme(
+                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                    child: SfDataGrid(
+                      source: _cachedDatasource!,
+                      isScrollbarAlwaysShown: true,
+                      allowExpandCollapseGroup: true, // Bật grouping
+                      autoExpandGroups: true,
+                      columnWidthMode: ColumnWidthMode.auto,
+                      selectionMode: SelectionMode.single,
+                      headerRowHeight: 35,
+                      rowHeight: 38,
+                      columns: ColumnWidthTable.applySavedWidths(
+                        columns: columns,
+                        widths: columnWidths,
+                      ),
+                      stackedHeaderRows: <StackedHeaderRow>[
+                        StackedHeaderRow(
+                          cells: [
+                            StackedHeaderCell(
+                              columnNames: [
+                                "orderId",
+                                "customerName",
+                                "productName",
+                                "structure",
+                                "flute",
+                                "sizePaper",
+                                "lengthPaper",
+                                "runningPlan",
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: "Thông Tin Đơn Hàng",
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                            StackedHeaderCell(
+                              columnNames: [
+                                "timeInspection",
+                                "numberPallet",
+                                "machineSpeed",
+                                "moisture",
+                                "steamPressure",
+                                "preheaterTemp",
+                                "fctValue",
+                                "patValue",
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: "Thông Tin Kiểm Tra",
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                            StackedHeaderCell(
+                              columnNames: [
+                                "blishter",
+                                "wrongWidth",
+                                "wrongLength",
+                                "wrongScoringSpec",
+                                "poorScoring",
+                                "drityLiner",
+                                "losseLiner",
+                                "earDefect",
+                                "skewedFlute",
+                                "warppage",
+                                "wrongStructure",
+                                "waveHeight",
+                                "poorTrim",
+                                "misalignment",
+                                "glueDripping",
+                                "trimScrap",
+                                "poorBundling",
+                                "totalWidthErr",
+                                "wrongProductInfo",
+                              ],
+                              child: formatColumn(label: "Lỗi", themeController: themeController),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      //auto resize
+                      allowColumnsResizing: true,
+                      columnResizeMode: ColumnResizeMode.onResize,
+
+                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                      onColumnResizeUpdate:
+                          (details) => GridResizeHelper.onResizeUpdate(
+                            details: details,
+                            columns: columns,
+                            setState: localSetState,
+                          ),
+                      onColumnResizeEnd:
+                          (details) => GridResizeHelper.onResizeEnd(
+                            details: details,
+                            tableKey: "inspectionPaper",
+                            columnWidths: columnWidths,
+                            setState: setState,
+                          ),
+
+                      onSelectionChanged: (addedRows, removedRows) {
+                        if (addedRows.isNotEmpty) {
+                          final selectedRow = addedRows.first;
+                          final selectedInspecPaperId =
+                              selectedRow
+                                      .getCells()
+                                      .firstWhere((cell) => cell.columnName == 'inspecPaperId')
+                                      .value
+                                  as int?;
+
+                          _selectedPaperIdsNotifier.value = selectedInspecPaperId;
+                        } else {
+                          _selectedPaperIdsNotifier.value = null;
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Nút chuyển trang
+            PaginationControls(
+              currentPage: currentPg,
+              totalPages: totalPgs,
+              onPrevious: () {
+                setState(() {
+                  currentPage--;
+                  loadInspectionPaper();
+                });
+              },
+              onNext: () {
+                setState(() {
+                  currentPage++;
+                  loadInspectionPaper();
+                });
+              },
+              onJumpToPage: (page) {
+                setState(() {
+                  currentPage = page;
+                  loadInspectionPaper();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

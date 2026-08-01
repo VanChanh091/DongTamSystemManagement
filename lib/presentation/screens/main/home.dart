@@ -43,6 +43,7 @@ import "package:dongtam/presentation/screens/main/warehouse/outbound_history.dar
 import "package:dongtam/service/auth_service.dart";
 import "package:dongtam/socket/socket_service.dart";
 import "package:dongtam/utils/color/theme_picker_color.dart";
+import "package:dongtam/utils/helper/custom_title_bar.dart";
 import "package:dongtam/utils/helper/home/leaf_menu_config.dart";
 import "package:dongtam/utils/helper/home/sidebar_config.dart";
 import "package:dongtam/utils/helper/home/sidebar_three_level.dart";
@@ -62,30 +63,35 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late final List<Widget> _pages;
   late final List<SidebarItem> _cachedMenuConfigs;
+
   final AuthService authService = AuthService();
   final socketService = SocketService();
 
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
-  final sidebarController = Get.put(SidebarController());
   final notiController = Get.find<NotificationController>();
+
+  final sidebarController = Get.put(SidebarController());
   final unsavedChangeController = Get.put(UnsavedChangeController());
 
   bool _isSidebarOpen = false;
 
   static const double _sidebarOpenWidth = 310;
-  static const double _sidebarCollapsedWidth = 60;
+  static const double _sidebarCollapsedWidth = 65;
 
   @override
   void initState() {
     super.initState();
+
+    _pages = _initPages();
     _cachedMenuConfigs = getSidebarConfigs(badgesController, () => showThemeColorDialog(context));
   }
 
   // build danh sách pages dựa vào quyền/role
-  List<Widget> getPages() {
+  List<Widget> _initPages() {
     return [
       //dashboard
       DashboardPage(),
@@ -168,21 +174,19 @@ class _HomePageState extends State<HomePage> {
 
   //sidebar
   Widget buildSidebar() {
-    final pages = getPages();
+    final pages = _pages;
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-
       onTap: () {
         if (!_isSidebarOpen) {
           setState(() => _isSidebarOpen = true);
         }
       },
-
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: _isSidebarOpen ? _sidebarOpenWidth : _sidebarCollapsedWidth,
-        decoration: _sidebarDecoration(themeController.currentColor.value),
+        decoration: BoxDecoration(color: themeController.currentColor.value), //theme sidebar
 
         child: Material(
           color: Colors.transparent,
@@ -224,17 +228,6 @@ class _HomePageState extends State<HomePage> {
       },
       pages: pages,
       menuConfigs: _cachedMenuConfigs,
-    );
-  }
-
-  BoxDecoration _sidebarDecoration(Color color) {
-    return BoxDecoration(
-      borderRadius: const BorderRadius.only(
-        topRight: Radius.circular(12),
-        bottomRight: Radius.circular(12),
-      ),
-      color: color,
-      boxShadow: const [BoxShadow(color: Colors.black26, offset: Offset(3, 0), blurRadius: 10)],
     );
   }
 
@@ -319,63 +312,80 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
+      backgroundColor: themeController.currentColor.value, //theme title bar
+      body: Column(
         children: [
-          Row(
-            children: [
-              buildSidebar(),
+          const CustomTitleBar(),
 
-              Expanded(
-                child: Obx(() {
-                  final pages = getPages();
-                  final index = sidebarController.selectedIndex.value;
+          Expanded(
+            child: Stack(
+              children: [
+                Row(
+                  children: [
+                    buildSidebar(),
 
-                  Widget page;
-                  if (index < 0 || index >= pages.length) {
-                    page = Center(
-                      key: const ValueKey("not_found"),
-                      child: const Text("Trang không tồn tại"),
-                    );
-                  } else {
-                    page = Container(key: ValueKey(index), child: pages[index]);
-                  }
+                    Expanded(
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(12)),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Obx(() {
+                          final pages = _pages;
+                          final index = sidebarController.selectedIndex.value;
 
-                  return AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    transitionBuilder: (child, animation) {
-                      final offsetAnimation = Tween<Offset>(
-                        begin: const Offset(0.05, 0),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut));
+                          Widget page;
+                          if (index < 0 || index >= pages.length) {
+                            page = Center(
+                              key: const ValueKey("not_found"),
+                              child: const Text("Trang không tồn tại"),
+                            );
+                          } else {
+                            page = Container(key: ValueKey(index), child: pages[index]);
+                          }
 
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(position: offsetAnimation, child: child),
-                      );
-                    },
-                    child: page,
-                  );
-                }),
-              ),
-            ],
-          ),
+                          return AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 400),
+                            transitionBuilder: (child, animation) {
+                              final offsetAnimation = Tween<Offset>(
+                                begin: const Offset(0.05, 0),
+                                end: Offset.zero,
+                              ).animate(
+                                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+                              );
 
-          // OVERLAY: Bắt click ngoài sidebar để tự đóng
-          if (_isSidebarOpen)
-            Positioned(
-              left: _sidebarOpenWidth,
-              top: 0,
-              right: 0,
-              bottom: 0,
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  setState(() => _isSidebarOpen = false);
-                },
-                child: const SizedBox.expand(),
-              ),
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SlideTransition(position: offsetAnimation, child: child),
+                              );
+                            },
+                            child: page,
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // OVERLAY: Bắt click ngoài sidebar để tự đóng
+                if (_isSidebarOpen)
+                  Positioned(
+                    left: _sidebarOpenWidth,
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        setState(() => _isSidebarOpen = false);
+                      },
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
     );

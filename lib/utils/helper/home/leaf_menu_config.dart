@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
 /// Lớp cơ sở cho các item hiển thị trực tiếp ở thanh Sidebar chính (Dashboard, Phòng ban, Đổi màu...)
 abstract class SidebarItem {}
@@ -22,21 +22,22 @@ class LeafMenuConfig extends SidebarItem {
     this.badge,
   });
 
-  int getIndex(List<Widget> pages) {
+  int getIndex(Map<Type, int> pageTypeMap) {
     if (pageType == null) return -1;
-    return pages.indexWhere((w) => w.runtimeType == pageType);
+    return pageTypeMap[pageType] ?? -1;
   }
 
-  bool isActive(int selectedIndex, List<Widget> pages) {
-    final idx = getIndex(pages);
+  bool isActive(int selectedIndex, Map<Type, int> pageTypeMap) {
+    final idx = getIndex(pageTypeMap);
     return idx != -1 && selectedIndex == idx;
   }
 
   int getBadgeValue() => (showBadge && badge != null) ? badge!.value : 0;
 
-  bool isVisible(List<Widget> pages) {
+  // Kiểm tra hiển thị
+  bool isVisible(Map<Type, int> pageTypeMap) {
     if (pageType == null) return true; // Các nút chức năng hệ thống luôn hiện
-    return getIndex(pages) != -1; // Ẩn nếu User không có quyền vào trang này
+    return pageTypeMap.containsKey(pageType); // Ẩn nếu User không có quyền vào trang này
   }
 }
 
@@ -48,17 +49,17 @@ class GroupMenuConfig {
 
   GroupMenuConfig({required this.icon, required this.label, required this.items});
 
-  bool isActive(int selectedIndex, List<Widget> pages) {
-    return items.any((leaf) => leaf.isActive(selectedIndex, pages));
+  bool isActive(int selectedIndex, Map<Type, int> pageTypeMap) {
+    return items.any((leaf) => leaf.isActive(selectedIndex, pageTypeMap));
   }
 
   int getBadgeValue() {
     return items.fold(0, (sum, leaf) => sum + leaf.getBadgeValue());
   }
 
-  bool isVisible(List<Widget> pages) {
+  bool isVisible(Map<Type, int> pageTypeMap) {
     // Chỉ hiển thị Group nếu có ít nhất một chức năng con bên trong được phép truy cập
-    return items.any((leaf) => leaf.isVisible(pages));
+    return items.any((leaf) => leaf.isVisible(pageTypeMap));
   }
 }
 
@@ -72,10 +73,10 @@ class DepartmentMenuConfig extends SidebarItem {
 
   DepartmentMenuConfig({required this.icon, required this.label, required this.children});
 
-  bool isActive(int selectedIndex, List<Widget> pages) {
+  bool isActive(int selectedIndex, Map<Type, int> pageTypeMap) {
     return children.any((child) {
-      if (child is GroupMenuConfig) return child.isActive(selectedIndex, pages);
-      if (child is LeafMenuConfig) return child.isActive(selectedIndex, pages);
+      if (child is GroupMenuConfig) return child.isActive(selectedIndex, pageTypeMap);
+      if (child is LeafMenuConfig) return child.isActive(selectedIndex, pageTypeMap);
       return false;
     });
   }
@@ -88,11 +89,11 @@ class DepartmentMenuConfig extends SidebarItem {
     });
   }
 
-  bool isVisible(List<Widget> pages) {
+  bool isVisible(Map<Type, int> pageTypeMap) {
     // Chỉ hiển thị Phòng Ban nếu có ít nhất một menu con bên trong khả dụng
     return children.any((child) {
-      if (child is GroupMenuConfig) return child.isVisible(pages);
-      if (child is LeafMenuConfig) return child.isVisible(pages);
+      if (child is GroupMenuConfig) return child.isVisible(pageTypeMap);
+      if (child is LeafMenuConfig) return child.isVisible(pageTypeMap);
       return false;
     });
   }

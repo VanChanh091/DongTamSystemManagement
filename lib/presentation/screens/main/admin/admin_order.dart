@@ -69,7 +69,8 @@ class _ManageOrderState extends State<AdminOrder> {
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
+          color: themeController.backgroundColor.value,
           gradient: LinearGradient(
             colors: [Color(0xFFF1F5F9), Colors.white],
             begin: Alignment.topLeft,

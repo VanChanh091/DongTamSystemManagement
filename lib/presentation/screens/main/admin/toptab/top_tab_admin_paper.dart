@@ -1,8 +1,10 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/screens/main/admin/admin_flute_ratio.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_machine_time_paper.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_waste_norm.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/paper/admin_wave_crest.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class TopTabAdminPaper extends StatefulWidget {
   const TopTabAdminPaper({super.key});
@@ -12,6 +14,8 @@ class TopTabAdminPaper extends StatefulWidget {
 }
 
 class _TopTabAdminPaperState extends State<TopTabAdminPaper> {
+  final themeController = Get.find<ThemeController>();
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -19,7 +23,7 @@ class _TopTabAdminPaperState extends State<TopTabAdminPaper> {
       child: Column(
         children: [
           Container(
-            color: Colors.white,
+            color: themeController.backgroundColor.value,
             child: TabBar(
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,

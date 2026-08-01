@@ -138,6 +138,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -171,498 +172,24 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                   },
                 );
               },
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //title & button
-                    SizedBox(
-                      height: 105,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 45,
-                            width: double.infinity,
-                            child: Center(
-                              child: Text(
-                                "LỆNH XUẤT HÀNG",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                  color: themeController.currentColor.value,
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          //button
-                          SizedBox(
-                            height: 60,
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //left button
-                                const SizedBox(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedDeliveryIdsNotifier,
-                                      builder: (context, selectedDeliveryIds, _) {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            // Ngày giao
-                                            buildLabelAndUnderlineInput(
-                                              label: "Ngày giao:",
-                                              controller: dayStartController,
-                                              width: 120,
-                                              readOnly: true,
-                                              onTap: () async {
-                                                final selected = await showDatePicker(
-                                                  context: context,
-                                                  initialDate: DateTime.now(),
-                                                  firstDate: DateTime(2026),
-                                                  lastDate: DateTime(2100),
-                                                  builder: (BuildContext context, Widget? child) {
-                                                    return Theme(
-                                                      data: Theme.of(context).copyWith(
-                                                        colorScheme: ColorScheme.light(
-                                                          primary: Colors.blue,
-                                                          onPrimary: Colors.white,
-                                                          onSurface: Colors.black,
-                                                        ),
-                                                        dialogTheme: DialogThemeData(
-                                                          backgroundColor: Colors.white12,
-                                                        ),
-                                                      ),
-                                                      child: child!,
-                                                    );
-                                                  },
-                                                );
-
-                                                if (selected != null) {
-                                                  setState(() {
-                                                    dayStartController.text = DateFormat(
-                                                      'dd/MM/yyyy',
-                                                    ).format(selected);
-
-                                                    selectedDeliveryIds.clear();
-                                                  });
-
-                                                  loadDeliveryPrepareGoods();
-                                                }
-                                              },
-                                            ),
-                                            const SizedBox(width: 15),
-
-                                            //change license plate
-                                            AnimatedButton(
-                                              onPressed:
-                                                  selectedDeliveryIds.length == 1
-                                                      ? () async {
-                                                        licensePlateController.clear();
-
-                                                        await showInputQtyDialog(
-                                                          context: context,
-                                                          title: "Nhập biển số cần thay đổi",
-                                                          labelText: "Biển Số",
-                                                          controller: licensePlateController,
-                                                          onConfirm: () async {
-                                                            try {
-                                                              final success =
-                                                                  await DeliveryService()
-                                                                      .handleUpdatePreparedGoods(
-                                                                        action:
-                                                                            "CHANGE_LICENSE_PLATE",
-                                                                        deliveryItemIds: [
-                                                                          selectedDeliveryIds.first,
-                                                                        ],
-                                                                        lisencePlate:
-                                                                            licensePlateController
-                                                                                .text,
-                                                                      );
-
-                                                              if (context.mounted) {
-                                                                showLoadingDialog(context);
-                                                                await Future.delayed(
-                                                                  const Duration(seconds: 1),
-                                                                );
-                                                              }
-
-                                                              if (success) {
-                                                                if (context.mounted) {
-                                                                  showSnackBarSuccess(
-                                                                    context,
-                                                                    "Đã thay đổi biển số thành công",
-                                                                  );
-                                                                }
-
-                                                                badgesController
-                                                                    .fetchPrepareGoods();
-
-                                                                loadDeliveryPrepareGoods();
-
-                                                                if (context.mounted) {
-                                                                  Navigator.pop(context);
-                                                                }
-
-                                                                return true;
-                                                              }
-                                                              return false;
-                                                            } on ApiException catch (e) {
-                                                              final errorText = switch (e
-                                                                  .errorCode) {
-                                                                'ITEM_NOT_FOUND' => e.message!,
-                                                                _ =>
-                                                                  'Có lỗi xảy ra, vui lòng thử lại',
-                                                              };
-
-                                                              if (context.mounted) {
-                                                                showSnackBarError(
-                                                                  context,
-                                                                  errorText,
-                                                                );
-                                                              }
-                                                              return false;
-                                                            } catch (e) {
-                                                              if (context.mounted) {
-                                                                showSnackBarError(
-                                                                  context,
-                                                                  "Thay đổi biển số thất bại",
-                                                                );
-                                                              }
-                                                              return false;
-                                                            }
-                                                          },
-                                                        );
-                                                      }
-                                                      : null,
-                                              label: "Sửa Biển Số",
-                                              icon: Symbols.edit,
-                                              backgroundColor:
-                                                  selectedDeliveryIds.length == 1
-                                                      ? themeController.buttonColor
-                                                      : Colors.grey,
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            //complete
-                                            isDelivery
-                                                ? AnimatedButton(
-                                                  onPressed:
-                                                      selectedDeliveryIds.length == 1
-                                                          ? () async {
-                                                            employeeCodeController.clear();
-
-                                                            await showInputQtyDialog(
-                                                              context: context,
-                                                              title: "Xác nhận hoàn tất",
-                                                              labelText: "Nhập mã nhân viên",
-                                                              prefixText: "DTGH-",
-                                                              controller: employeeCodeController,
-                                                              onConfirm: () async {
-                                                                try {
-                                                                  final success = await DeliveryService()
-                                                                      .handleUpdatePreparedGoods(
-                                                                        action: "REQUEST",
-                                                                        deliveryItemIds: [
-                                                                          selectedDeliveryIds.first,
-                                                                        ],
-                                                                        isRequest: false,
-                                                                        empCode:
-                                                                            'DTGH-${employeeCodeController.trimmed}',
-                                                                      );
-
-                                                                  if (success) {
-                                                                    if (context.mounted) {
-                                                                      showSnackBarSuccess(
-                                                                        context,
-                                                                        "Đã hoàn thành chuẩn bị hàng",
-                                                                      );
-                                                                    }
-
-                                                                    badgesController
-                                                                        .fetchPrepareGoods();
-
-                                                                    loadDeliveryPrepareGoods();
-                                                                    return true;
-                                                                  }
-                                                                  return false;
-                                                                } on ApiException catch (e) {
-                                                                  final errorText = switch (e
-                                                                      .errorCode) {
-                                                                    'EMPLOYEE_NOT_FOUND' =>
-                                                                      e.message!,
-                                                                    _ =>
-                                                                      'Có lỗi xảy ra, vui lòng thử lại',
-                                                                  };
-
-                                                                  if (context.mounted) {
-                                                                    showSnackBarError(
-                                                                      context,
-                                                                      errorText,
-                                                                    );
-                                                                  }
-                                                                  return false;
-                                                                } catch (e) {
-                                                                  if (context.mounted) {
-                                                                    showSnackBarError(
-                                                                      context,
-                                                                      "Chuẩn bị hàng thất bại",
-                                                                    );
-                                                                  }
-                                                                  return false;
-                                                                }
-                                                              },
-                                                            );
-                                                          }
-                                                          : null,
-                                                  label: "Hoàn Tất",
-                                                  icon: Symbols.check,
-                                                  backgroundColor:
-                                                      selectedDeliveryIds.length == 1
-                                                          ? themeController.buttonColor
-                                                          : Colors.grey,
-                                                )
-                                                : const SizedBox.shrink(),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    // table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futureDelivery,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                              return const Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      "Bạn không có quyền xem chức năng này",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 26,
-                                        color: Colors.redAccent,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có đơn hàng nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final List<DeliveryScheduleModel> data = snapshot.data!;
-
-                          currentDeliveryId ??= data.first.deliveryId;
-
-                          if (_cachedDelivery == null || _cachedDelivery != data) {
-                            _cachedDelivery = data;
-                            _cachedDatasource = DeliveryScheduleDataSource(
-                              delivery: data,
-                              selectedDeliveryId: _selectedDeliveryIdsNotifier.value,
-                              showGroup: true,
-                              page: 'prepare',
-                            );
-                          }
-
-                          return StatefulBuilder(
-                            builder: (context, localSetState) {
-                              return SfDataGridTheme(
-                                data: SfDataGridThemeData(
-                                  selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                  currentCellStyle: const DataGridCurrentCellStyle(
-                                    borderColor: Colors.transparent,
-                                    borderWidth: 0,
-                                  ),
-                                ),
-                                child: SfDataGrid(
-                                  controller: dataGridController,
-                                  source: _cachedDatasource!,
-                                  allowExpandCollapseGroup: true, // Bật grouping
-                                  autoExpandGroups: true,
-                                  isScrollbarAlwaysShown: true,
-                                  columnWidthMode: ColumnWidthMode.auto,
-                                  navigationMode: GridNavigationMode.row,
-                                  selectionMode: SelectionMode.multiple,
-                                  headerRowHeight: 30,
-                                  rowHeight: 37,
-                                  columns: ColumnWidthTable.applySavedWidths(
-                                    columns: columns,
-                                    widths: columnWidths,
-                                  ),
-                                  stackedHeaderRows: <StackedHeaderRow>[
-                                    StackedHeaderRow(
-                                      cells: [
-                                        StackedHeaderCell(
-                                          columnNames: ["qtyRegistered", "qtyOutbound"],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: 'Số Lượng',
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-
-                                  //auto resize
-                                  allowColumnsResizing: true,
-                                  columnResizeMode: ColumnResizeMode.onResize,
-
-                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                  onColumnResizeUpdate:
-                                      (details) => GridResizeHelper.onResizeUpdate(
-                                        details: details,
-                                        columns: columns,
-                                        setState: localSetState,
-                                      ),
-                                  onColumnResizeEnd:
-                                      (details) => GridResizeHelper.onResizeEnd(
-                                        details: details,
-                                        tableKey: 'DeliveryPrepareGoods',
-                                        columnWidths: columnWidths,
-                                        setState: setState,
-                                      ),
-
-                                  onSelectionChanging: (addedRows, removedRows) {
-                                    if (_isSelectionChange) return true;
-
-                                    final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                                    final isShiftPressed =
-                                        keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                                        keys.contains(LogicalKeyboardKey.shiftRight);
-
-                                    // Nếu đè phím Shift và trước đó đã có dòng được chọn
-                                    if (isShiftPressed &&
-                                        dataGridController.selectedRows.isNotEmpty &&
-                                        addedRows.isNotEmpty) {
-                                      final lastSelected = dataGridController.selectedRows.last;
-                                      final newlyClicked = addedRows.last;
-
-                                      // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
-                                      final allRows = _cachedDatasource!.rows;
-                                      final startIdx = allRows.indexOf(lastSelected);
-                                      final endIdx = allRows.indexOf(newlyClicked);
-
-                                      if (startIdx != -1 && endIdx != -1) {
-                                        final min = startIdx < endIdx ? startIdx : endIdx;
-                                        final max = startIdx > endIdx ? startIdx : endIdx;
-
-                                        // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
-                                        final List<DataGridRow> rangeSelection = [];
-                                        for (int i = min; i <= max; i++) {
-                                          rangeSelection.add(allRows[i]);
-                                        }
-
-                                        // Ép controller chọn dải dòng
-                                        _isSelectionChange = true;
-                                        dataGridController.selectedRows = List.from(rangeSelection);
-                                        _isSelectionChange = false;
-
-                                        // Cập nhật ID đơn hàng
-                                        Future.microtask(() {
-                                          _isSelectionChange = true;
-                                          dataGridController.selectedRows = List.from(
-                                            rangeSelection,
-                                          );
-                                          _isSelectionChange = false;
-
-                                          _updateSelectedIdsFromRows(rangeSelection);
-                                        });
-                                        return false;
-                                      }
-                                    }
-                                    return true;
-                                  },
-
-                                  onSelectionChanged: (addedRows, removedRows) {
-                                    if (_isSelectionChange) return;
-                                    if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                                    // bắt sự kiện từ bàn phím
-                                    final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                                    final isCtrlPressed =
-                                        keys.contains(LogicalKeyboardKey.controlLeft) ||
-                                        keys.contains(LogicalKeyboardKey.controlRight);
-                                    final isShiftPressed =
-                                        keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                                        keys.contains(LogicalKeyboardKey.shiftRight);
-
-                                    if (!isCtrlPressed && !isShiftPressed) {
-                                      if (addedRows.isNotEmpty) {
-                                        // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
-                                        final latestRow = addedRows.last;
-
-                                        _isSelectionChange = true;
-                                        dataGridController.selectedRows = [latestRow];
-
-                                        _isSelectionChange = false;
-                                      } else if (removedRows.isNotEmpty &&
-                                          dataGridController.selectedRows.isNotEmpty) {
-                                        //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
-                                        final clickedRow = removedRows.first;
-                                        _isSelectionChange = true;
-                                        dataGridController.selectedRows = [clickedRow];
-                                        _isSelectionChange = false;
-                                      }
-                                    }
-
-                                    if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                                    _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                                  },
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -673,7 +200,8 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 125),
+                  // initialMargin: Offset(73, 125),
+                  initialMargin: Offset(73, 152),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -689,6 +217,431 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
           child: const Icon(Icons.refresh, color: Colors.white),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "LỆNH XUẤT HÀNG",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Row(
+          children: [
+            //left button
+            const SizedBox(),
+
+            //right button
+            Expanded(
+              flex: 1,
+              child: ValueListenableBuilder(
+                valueListenable: _selectedDeliveryIdsNotifier,
+                builder: (context, selectedDeliveryIds, _) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // Ngày giao
+                      buildLabelAndUnderlineInput(
+                        label: "Ngày giao:",
+                        controller: dayStartController,
+                        width: 120,
+                        readOnly: true,
+                        onTap: () async {
+                          final selected = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2026),
+                            lastDate: DateTime(2100),
+                            builder: (BuildContext context, Widget? child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: ColorScheme.light(
+                                    primary: Colors.blue,
+                                    onPrimary: Colors.white,
+                                    onSurface: Colors.black,
+                                  ),
+                                  dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
+                                ),
+                                child: child!,
+                              );
+                            },
+                          );
+
+                          if (selected != null) {
+                            setState(() {
+                              dayStartController.text = DateFormat('dd/MM/yyyy').format(selected);
+
+                              selectedDeliveryIds.clear();
+                            });
+
+                            loadDeliveryPrepareGoods();
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 12),
+
+                      //change license plate
+                      AnimatedButton(
+                        onPressed:
+                            selectedDeliveryIds.length == 1
+                                ? () async {
+                                  licensePlateController.clear();
+                                  await showInputQtyDialog(
+                                    context: context,
+                                    title: "Nhập biển số cần thay đổi",
+                                    labelText: "Biển Số",
+                                    controller: licensePlateController,
+                                    onConfirm: () async {
+                                      try {
+                                        final success = await DeliveryService()
+                                            .handleUpdatePreparedGoods(
+                                              action: "CHANGE_LICENSE_PLATE",
+                                              deliveryItemIds: [selectedDeliveryIds.first],
+                                              lisencePlate: licensePlateController.text,
+                                            );
+
+                                        if (context.mounted) {
+                                          showLoadingDialog(context);
+                                          await Future.delayed(const Duration(seconds: 1));
+                                        }
+
+                                        if (success) {
+                                          if (context.mounted) {
+                                            showSnackBarSuccess(
+                                              context,
+                                              "Đã thay đổi biển số thành công",
+                                            );
+                                          }
+
+                                          badgesController.fetchPrepareGoods();
+
+                                          loadDeliveryPrepareGoods();
+
+                                          if (context.mounted) {
+                                            Navigator.pop(context);
+                                          }
+
+                                          return true;
+                                        }
+                                        return false;
+                                      } on ApiException catch (e) {
+                                        final errorText = switch (e.errorCode) {
+                                          'ITEM_NOT_FOUND' => e.message!,
+                                          _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                        };
+
+                                        if (context.mounted) {
+                                          showSnackBarError(context, errorText);
+                                        }
+                                        return false;
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          showSnackBarError(context, "Thay đổi biển số thất bại");
+                                        }
+                                        return false;
+                                      }
+                                    },
+                                  );
+                                }
+                                : null,
+                        label: "Sửa Biển Số",
+                        icon: Symbols.edit,
+                        backgroundColor:
+                            selectedDeliveryIds.length == 1
+                                ? themeController.buttonColor
+                                : Colors.grey,
+                      ),
+                      const SizedBox(width: 8),
+
+                      //complete
+                      isDelivery
+                          ? AnimatedButton(
+                            onPressed:
+                                selectedDeliveryIds.length == 1
+                                    ? () async {
+                                      employeeCodeController.clear();
+                                      await showInputQtyDialog(
+                                        context: context,
+                                        title: "Xác nhận hoàn tất",
+                                        labelText: "Nhập mã nhân viên",
+                                        prefixText: "DTGH-",
+                                        controller: employeeCodeController,
+                                        onConfirm: () async {
+                                          try {
+                                            final success = await DeliveryService()
+                                                .handleUpdatePreparedGoods(
+                                                  action: "REQUEST",
+                                                  deliveryItemIds: [selectedDeliveryIds.first],
+                                                  isRequest: false,
+                                                  empCode: 'DTGH-${employeeCodeController.trimmed}',
+                                                );
+
+                                            if (success) {
+                                              if (context.mounted) {
+                                                showSnackBarSuccess(
+                                                  context,
+                                                  "Đã hoàn thành chuẩn bị hàng",
+                                                );
+                                              }
+
+                                              badgesController.fetchPrepareGoods();
+
+                                              loadDeliveryPrepareGoods();
+                                              return true;
+                                            }
+                                            return false;
+                                          } on ApiException catch (e) {
+                                            final errorText = switch (e.errorCode) {
+                                              'EMPLOYEE_NOT_FOUND' => e.message!,
+                                              _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                            };
+
+                                            if (context.mounted) {
+                                              showSnackBarError(context, errorText);
+                                            }
+                                            return false;
+                                          } catch (e) {
+                                            if (context.mounted) {
+                                              showSnackBarError(context, "Chuẩn bị hàng thất bại");
+                                            }
+                                            return false;
+                                          }
+                                        },
+                                      );
+                                    }
+                                    : null,
+                            label: "Hoàn Tất",
+                            icon: Symbols.check,
+                            backgroundColor:
+                                selectedDeliveryIds.length == 1
+                                    ? themeController.buttonColor
+                                    : Colors.grey,
+                          )
+                          : const SizedBox.shrink(),
+                      const SizedBox(width: 5),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureDelivery,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          if (snapshot.error.toString().contains("NO_PERMISSION")) {
+            return const Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
+                  SizedBox(width: 8),
+                  Text(
+                    "Bạn không có quyền xem chức năng này",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 26,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn hàng nào được yêu cầu",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final List<DeliveryScheduleModel> data = snapshot.data!;
+
+        currentDeliveryId ??= data.first.deliveryId;
+
+        if (_cachedDelivery == null || _cachedDelivery != data) {
+          _cachedDelivery = data;
+          _cachedDatasource = DeliveryScheduleDataSource(
+            delivery: data,
+            selectedDeliveryId: _selectedDeliveryIdsNotifier.value,
+            showGroup: true,
+            page: 'prepare',
+          );
+        }
+
+        return StatefulBuilder(
+          builder: (context, localSetState) {
+            return SfDataGridTheme(
+              data: SfDataGridThemeData(
+                selectionColor: Colors.blue.withValues(alpha: 0.3),
+                currentCellStyle: const DataGridCurrentCellStyle(
+                  borderColor: Colors.transparent,
+                  borderWidth: 0,
+                ),
+              ),
+              child: SfDataGrid(
+                controller: dataGridController,
+                source: _cachedDatasource!,
+                allowExpandCollapseGroup: true, // Bật grouping
+                autoExpandGroups: true,
+                isScrollbarAlwaysShown: true,
+                columnWidthMode: ColumnWidthMode.auto,
+                navigationMode: GridNavigationMode.row,
+                selectionMode: SelectionMode.multiple,
+                headerRowHeight: 30,
+                rowHeight: 37,
+                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
+                stackedHeaderRows: <StackedHeaderRow>[
+                  StackedHeaderRow(
+                    cells: [
+                      StackedHeaderCell(
+                        columnNames: ["qtyRegistered", "qtyOutbound"],
+                        child: Obx(
+                          () => formatColumn(label: 'Số Lượng', themeController: themeController),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                //auto resize
+                allowColumnsResizing: true,
+                columnResizeMode: ColumnResizeMode.onResize,
+
+                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                onColumnResizeUpdate:
+                    (details) => GridResizeHelper.onResizeUpdate(
+                      details: details,
+                      columns: columns,
+                      setState: localSetState,
+                    ),
+                onColumnResizeEnd:
+                    (details) => GridResizeHelper.onResizeEnd(
+                      details: details,
+                      tableKey: 'DeliveryPrepareGoods',
+                      columnWidths: columnWidths,
+                      setState: setState,
+                    ),
+
+                onSelectionChanging: (addedRows, removedRows) {
+                  if (_isSelectionChange) return true;
+
+                  final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                  final isShiftPressed =
+                      keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                      keys.contains(LogicalKeyboardKey.shiftRight);
+
+                  // Nếu đè phím Shift và trước đó đã có dòng được chọn
+                  if (isShiftPressed &&
+                      dataGridController.selectedRows.isNotEmpty &&
+                      addedRows.isNotEmpty) {
+                    final lastSelected = dataGridController.selectedRows.last;
+                    final newlyClicked = addedRows.last;
+
+                    // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
+                    final allRows = _cachedDatasource!.rows;
+                    final startIdx = allRows.indexOf(lastSelected);
+                    final endIdx = allRows.indexOf(newlyClicked);
+
+                    if (startIdx != -1 && endIdx != -1) {
+                      final min = startIdx < endIdx ? startIdx : endIdx;
+                      final max = startIdx > endIdx ? startIdx : endIdx;
+
+                      // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
+                      final List<DataGridRow> rangeSelection = [];
+                      for (int i = min; i <= max; i++) {
+                        rangeSelection.add(allRows[i]);
+                      }
+
+                      // Ép controller chọn dải dòng
+                      _isSelectionChange = true;
+                      dataGridController.selectedRows = List.from(rangeSelection);
+                      _isSelectionChange = false;
+
+                      // Cập nhật ID đơn hàng
+                      Future.microtask(() {
+                        _isSelectionChange = true;
+                        dataGridController.selectedRows = List.from(rangeSelection);
+                        _isSelectionChange = false;
+
+                        _updateSelectedIdsFromRows(rangeSelection);
+                      });
+                      return false;
+                    }
+                  }
+                  return true;
+                },
+
+                onSelectionChanged: (addedRows, removedRows) {
+                  if (_isSelectionChange) return;
+                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                  // bắt sự kiện từ bàn phím
+                  final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                  final isCtrlPressed =
+                      keys.contains(LogicalKeyboardKey.controlLeft) ||
+                      keys.contains(LogicalKeyboardKey.controlRight);
+                  final isShiftPressed =
+                      keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                      keys.contains(LogicalKeyboardKey.shiftRight);
+
+                  if (!isCtrlPressed && !isShiftPressed) {
+                    if (addedRows.isNotEmpty) {
+                      // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
+                      final latestRow = addedRows.last;
+
+                      _isSelectionChange = true;
+                      dataGridController.selectedRows = [latestRow];
+
+                      _isSelectionChange = false;
+                    } else if (removedRows.isNotEmpty &&
+                        dataGridController.selectedRows.isNotEmpty) {
+                      //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
+                      final clickedRow = removedRows.first;
+                      _isSelectionChange = true;
+                      dataGridController.selectedRows = [clickedRow];
+                      _isSelectionChange = false;
+                    }
+                  }
+
+                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                },
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

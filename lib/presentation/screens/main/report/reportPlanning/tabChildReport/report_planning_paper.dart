@@ -155,6 +155,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -188,391 +189,24 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                   },
                 );
               },
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //button
-                    SizedBox(
-                      height: 105,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 35,
-                            width: double.infinity,
-                            child: Center(
-                              child: Obx(
-                                () => Text(
-                                  "LỊCH SỬ BÁO CÁO GIẤY TẤM",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 22,
-                                    color: themeController.currentColor.value,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          //button
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //left button
-                                Expanded(
-                                  flex: 1,
-                                  child: LeftButtonSearch(
-                                    selectedType: searchType,
-                                    types: const [
-                                      'Tất cả',
-                                      "Mã Đơn Hàng",
-                                      "Tên Khách Hàng",
-                                      "Ngày Báo Cáo",
-                                      "Trưởng Máy",
-                                    ],
-                                    onTypeChanged: (value) {
-                                      setState(() {
-                                        searchType = value;
-                                        isTextFieldEnabled = value != 'Tất cả';
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                                        if (searchType == "Tất cả" &&
-                                            searchController.text.isNotEmpty) {
-                                          searchController.clear();
-                                          currentPage = 1;
-                                          _fetchData();
-                                        }
-                                      });
-                                    },
-                                    controller: searchController,
-                                    textFieldEnabled: isTextFieldEnabled,
-                                    buttonColor: themeController.buttonColor,
-                                    onSearch: () => searchReportPaper(),
-                                    customInputBuilder: (inputWidth) {
-                                      if (searchType != 'Ngày Báo Cáo') return null;
-
-                                      return SizedBox(
-                                        width: inputWidth,
-                                        height: 50,
-                                        child: InkWell(
-                                          onTap: () async {
-                                            final now = DateTime.now();
-                                            final size = MediaQuery.of(context).size;
-
-                                            final DateTimeRange? picked = await showDateRangePicker(
-                                              context: context,
-                                              firstDate: DateTime(2025),
-                                              lastDate: DateTime(2100),
-                                              initialDateRange:
-                                                  (startDate != null && endDate != null)
-                                                      ? DateTimeRange(
-                                                        start: startDate!,
-                                                        end: endDate!,
-                                                      )
-                                                      : DateTimeRange(
-                                                        start: now.subtract(
-                                                          const Duration(days: 7),
-                                                        ),
-                                                        end: now,
-                                                      ),
-                                              builder: (context, child) {
-                                                return Center(
-                                                  child: ConstrainedBox(
-                                                    constraints: BoxConstraints(
-                                                      maxWidth: size.width * 0.3,
-                                                      maxHeight: size.height * 0.8,
-                                                    ),
-                                                    child: Material(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                      clipBehavior: Clip.antiAlias,
-                                                      child: child!,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            );
-
-                                            if (picked != null) {
-                                              final displayStart = DateFormat(
-                                                'dd/MM/yyyy',
-                                              ).format(picked.start);
-                                              final displayEnd = DateFormat(
-                                                'dd/MM/yyyy',
-                                              ).format(picked.end);
-
-                                              setState(() {
-                                                startDate = picked.start;
-                                                endDate = picked.end;
-                                                searchController.text =
-                                                    '$displayStart - $displayEnd';
-                                              });
-                                            }
-                                          },
-                                          child: IgnorePointer(
-                                            child: TextField(
-                                              controller: searchController,
-                                              decoration: InputDecoration(
-                                                hintText: 'Chọn ngày...',
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                suffixIcon: const Icon(Icons.calendar_today),
-                                                contentPadding: const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedReportIdNotifier,
-                                      builder: (context, selectedReportId, _) {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            //export excel
-                                            AnimatedButton(
-                                              onPressed: () async {
-                                                showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (_) => DialogSelectExportExcel(
-                                                        onPlanningIdsOrRangeDate:
-                                                            () => loadReportPaper(),
-                                                        machine: machine,
-                                                      ),
-                                                );
-                                              },
-                                              label: "Xuất Excel",
-                                              icon: Symbols.export_notes,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            //choose machine
-                                            buildDropdownItems(
-                                              value: machine,
-                                              items: const [
-                                                'Máy 1350',
-                                                "Máy 1900",
-                                                "Máy 2 Lớp",
-                                                "Máy Quấn Cuồn",
-                                              ],
-                                              onChanged: (value) {
-                                                if (value != null) {
-                                                  changeMachine(value);
-                                                }
-                                              },
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    //table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futureReportPaper,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData || snapshot.data!['reportPapers'].isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có báo cáo nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final data = snapshot.data!;
-                          final reportPapers = data['reportPapers'] as List<ReportPaperModel>;
-                          final currentPg = data['currentPage'];
-                          final totalPgs = data['totalPages'];
-                          final summaryByDate = data['summaryByDate'] as Map<String, dynamic>;
-
-                          if (_cachedReportPapers != reportPapers || _cachedDatasource == null) {
-                            _cachedReportPapers = reportPapers;
-                            _cachedDatasource = ReportPaperDatasource(
-                              reportPapers: reportPapers,
-                              selectedReportId: _selectedReportIdNotifier.value,
-                              currentPage: currentPage,
-                              pageSize: pageSize,
-                              summaryByDate: summaryByDate,
-                            );
-                          }
-
-                          // reportPaperDatasource.notifyListeners();
-
-                          return Column(
-                            children: [
-                              //table
-                              Expanded(
-                                child: StatefulBuilder(
-                                  builder: (context, localSetState) {
-                                    return SfDataGridTheme(
-                                      data: SfDataGridThemeData(
-                                        selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                      ),
-                                      child: SfDataGrid(
-                                        source: _cachedDatasource!,
-                                        isScrollbarAlwaysShown: true,
-                                        allowExpandCollapseGroup: true, // Bật grouping
-                                        autoExpandGroups: true,
-                                        columnWidthMode: ColumnWidthMode.auto,
-                                        selectionMode: SelectionMode.single,
-                                        headerRowHeight: 35,
-                                        rowHeight: 40,
-                                        columns: ColumnWidthTable.applySavedWidths(
-                                          columns: columns,
-                                          widths: columnWidths,
-                                        ),
-                                        frozenColumnsCount: 7,
-                                        stackedHeaderRows: <StackedHeaderRow>[
-                                          StackedHeaderRow(
-                                            cells: [
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  'quantityOrd',
-                                                  'runningPlanProd',
-                                                  'qtyReported',
-                                                  "lackOfQty",
-                                                ],
-                                                child: Obx(
-                                                  () => formatColumn(
-                                                    label: 'Số Lượng',
-                                                    themeController: themeController,
-                                                  ),
-                                                ),
-                                              ),
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  'bottom',
-                                                  'fluteE',
-                                                  'fluteB',
-                                                  'fluteC',
-                                                  'knife',
-                                                  'totalLoss',
-                                                ],
-                                                child: Obx(
-                                                  () => formatColumn(
-                                                    label: 'Định Mức Phế Liệu (Kg)',
-                                                    themeController: themeController,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-
-                                        //auto resize
-                                        allowColumnsResizing: true,
-                                        columnResizeMode: ColumnResizeMode.onResize,
-
-                                        onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                        onColumnResizeUpdate:
-                                            (details) => GridResizeHelper.onResizeUpdate(
-                                              details: details,
-                                              columns: columns,
-                                              setState: localSetState,
-                                            ),
-                                        onColumnResizeEnd:
-                                            (details) => GridResizeHelper.onResizeEnd(
-                                              details: details,
-                                              tableKey: 'reportPaper',
-                                              columnWidths: columnWidths,
-                                              setState: setState,
-                                            ),
-
-                                        onSelectionChanged: (addedRows, removedRows) {
-                                          if (addedRows.isNotEmpty) {
-                                            final selectedRow = addedRows.first;
-                                            final selectedReportId =
-                                                selectedRow
-                                                        .getCells()
-                                                        .firstWhere(
-                                                          (cell) =>
-                                                              cell.columnName == 'reportPaperId',
-                                                        )
-                                                        .value
-                                                    as int?;
-
-                                            _selectedReportIdNotifier.value = selectedReportId;
-                                          } else {
-                                            _selectedReportIdNotifier.value = null;
-                                          }
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-
-                              // Nút chuyển trang
-                              PaginationControls(
-                                currentPage: currentPg,
-                                totalPages: totalPgs,
-                                onPrevious: () {
-                                  setState(() {
-                                    currentPage--;
-                                    loadReportPaper();
-                                  });
-                                },
-                                onNext: () {
-                                  setState(() {
-                                    currentPage++;
-                                    loadReportPaper();
-                                  });
-                                },
-                                onJumpToPage: (page) {
-                                  setState(() {
-                                    currentPage = page;
-                                    loadReportPaper();
-                                  });
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -583,7 +217,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 173),
+                  // initialMargin: Offset(73, 173),
+                  initialMargin: Offset(73, 200),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -597,6 +232,340 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "LỊCH SỬ BÁO CÁO GIẤY TẤM",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Row(
+          children: [
+            //left button
+            Expanded(
+              flex: 2,
+              child: LeftButtonSearch(
+                selectedType: searchType,
+                types: const [
+                  'Tất cả',
+                  "Mã Đơn Hàng",
+                  "Tên Khách Hàng",
+                  "Ngày Báo Cáo",
+                  "Trưởng Máy",
+                ],
+                onTypeChanged: (value) {
+                  setState(() {
+                    searchType = value;
+                    isTextFieldEnabled = value != 'Tất cả';
+
+                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                      searchController.clear();
+                      currentPage = 1;
+                      _fetchData();
+                    }
+                  });
+                },
+                controller: searchController,
+                textFieldEnabled: isTextFieldEnabled,
+                buttonColor: themeController.buttonColor,
+                onSearch: () => searchReportPaper(),
+                customInputBuilder: (inputWidth) {
+                  if (searchType != 'Ngày Báo Cáo') return null;
+
+                  return SizedBox(
+                    width: inputWidth,
+                    height: 50,
+                    child: InkWell(
+                      onTap: () async {
+                        final now = DateTime.now();
+                        final size = MediaQuery.of(context).size;
+
+                        final DateTimeRange? picked = await showDateRangePicker(
+                          context: context,
+                          firstDate: DateTime(2025),
+                          lastDate: DateTime(2100),
+                          initialDateRange:
+                              (startDate != null && endDate != null)
+                                  ? DateTimeRange(start: startDate!, end: endDate!)
+                                  : DateTimeRange(
+                                    start: now.subtract(const Duration(days: 7)),
+                                    end: now,
+                                  ),
+                          builder: (context, child) {
+                            return Center(
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: size.width * 0.3,
+                                  maxHeight: size.height * 0.8,
+                                ),
+                                child: Material(
+                                  borderRadius: BorderRadius.circular(16),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: child!,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+
+                        if (picked != null) {
+                          final displayStart = DateFormat('dd/MM/yyyy').format(picked.start);
+                          final displayEnd = DateFormat('dd/MM/yyyy').format(picked.end);
+
+                          setState(() {
+                            startDate = picked.start;
+                            endDate = picked.end;
+                            searchController.text = '$displayStart - $displayEnd';
+                          });
+                        }
+                      },
+                      child: IgnorePointer(
+                        child: TextField(
+                          controller: searchController,
+                          decoration: InputDecoration(
+                            hintText: 'Chọn ngày...',
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            suffixIcon: const Icon(Icons.calendar_today),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            //right button
+            Expanded(
+              flex: 3,
+              child: ValueListenableBuilder(
+                valueListenable: _selectedReportIdNotifier,
+                builder: (context, selectedReportId, _) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      //export excel
+                      AnimatedButton(
+                        onPressed: () async {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (_) => DialogSelectExportExcel(
+                                  onPlanningIdsOrRangeDate: () => loadReportPaper(),
+                                  machine: machine,
+                                ),
+                          );
+                        },
+                        label: "Xuất Excel",
+                        icon: Symbols.export_notes,
+                        backgroundColor: themeController.buttonColor,
+                      ),
+                      const SizedBox(width: 8),
+
+                      //choose machine
+                      buildDropdownItems(
+                        value: machine,
+                        items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
+                        onChanged: (value) {
+                          if (value != null) {
+                            changeMachine(value);
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureReportPaper,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!['reportPapers'].isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có báo cáo nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final reportPapers = data['reportPapers'] as List<ReportPaperModel>;
+        final currentPg = data['currentPage'];
+        final totalPgs = data['totalPages'];
+        final summaryByDate = data['summaryByDate'] as Map<String, dynamic>;
+
+        if (_cachedReportPapers != reportPapers || _cachedDatasource == null) {
+          _cachedReportPapers = reportPapers;
+          _cachedDatasource = ReportPaperDatasource(
+            reportPapers: reportPapers,
+            selectedReportId: _selectedReportIdNotifier.value,
+            currentPage: currentPage,
+            pageSize: pageSize,
+            summaryByDate: summaryByDate,
+          );
+        }
+
+        // reportPaperDatasource.notifyListeners();
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: StatefulBuilder(
+                builder: (context, localSetState) {
+                  return SfDataGridTheme(
+                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                    child: SfDataGrid(
+                      source: _cachedDatasource!,
+                      isScrollbarAlwaysShown: true,
+                      allowExpandCollapseGroup: true, // Bật grouping
+                      autoExpandGroups: true,
+                      columnWidthMode: ColumnWidthMode.auto,
+                      selectionMode: SelectionMode.single,
+                      headerRowHeight: 35,
+                      rowHeight: 40,
+                      columns: ColumnWidthTable.applySavedWidths(
+                        columns: columns,
+                        widths: columnWidths,
+                      ),
+                      frozenColumnsCount: 7,
+                      stackedHeaderRows: <StackedHeaderRow>[
+                        StackedHeaderRow(
+                          cells: [
+                            StackedHeaderCell(
+                              columnNames: [
+                                'quantityOrd',
+                                'runningPlanProd',
+                                'qtyReported',
+                                "lackOfQty",
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: 'Số Lượng',
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                            StackedHeaderCell(
+                              columnNames: [
+                                'bottom',
+                                'fluteE',
+                                'fluteB',
+                                'fluteC',
+                                'knife',
+                                'totalLoss',
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: 'Định Mức Phế Liệu (Kg)',
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      //auto resize
+                      allowColumnsResizing: true,
+                      columnResizeMode: ColumnResizeMode.onResize,
+
+                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                      onColumnResizeUpdate:
+                          (details) => GridResizeHelper.onResizeUpdate(
+                            details: details,
+                            columns: columns,
+                            setState: localSetState,
+                          ),
+                      onColumnResizeEnd:
+                          (details) => GridResizeHelper.onResizeEnd(
+                            details: details,
+                            tableKey: 'reportPaper',
+                            columnWidths: columnWidths,
+                            setState: setState,
+                          ),
+
+                      onSelectionChanged: (addedRows, removedRows) {
+                        if (addedRows.isNotEmpty) {
+                          final selectedRow = addedRows.first;
+                          final selectedReportId =
+                              selectedRow
+                                      .getCells()
+                                      .firstWhere((cell) => cell.columnName == 'reportPaperId')
+                                      .value
+                                  as int?;
+
+                          _selectedReportIdNotifier.value = selectedReportId;
+                        } else {
+                          _selectedReportIdNotifier.value = null;
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Nút chuyển trang
+            PaginationControls(
+              currentPage: currentPg,
+              totalPages: totalPgs,
+              onPrevious: () {
+                setState(() {
+                  currentPage--;
+                  loadReportPaper();
+                });
+              },
+              onNext: () {
+                setState(() {
+                  currentPage++;
+                  loadReportPaper();
+                });
+              },
+              onJumpToPage: (page) {
+                setState(() {
+                  currentPage = page;
+                  loadReportPaper();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

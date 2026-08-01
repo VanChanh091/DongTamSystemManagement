@@ -61,244 +61,238 @@ class _ScrapReportPaperState extends State<ScrapReportPaper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(5),
-        child: Column(
-          children: [
-            //button
-            SizedBox(
-              height: 105,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  //title
-                  SizedBox(
-                    height: 35,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        "BÁO CÁO PHẾ LIỆU",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
-                        ),
-                      ),
-                    ),
-                  ),
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // title & buttons
+          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                  //button
-                  SizedBox(
-                    height: 70,
-                    width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        //left button
-                        const SizedBox(),
-
-                        //right button
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                // update
-                                AnimatedButton(
-                                  onPressed:
-                                      selectedScrapIds.isNotEmpty
-                                          ? () async {
-                                            try {
-                                              final data = await futureScrap;
-                                              final scraps = data;
-                                              final selectedScrapReport = scraps.firstWhere(
-                                                (scrap) => selectedScrapIds.contains(scrap.scrapId),
-                                              );
-
-                                              if (!context.mounted) return;
-
-                                              showDialog(
-                                                barrierDismissible: false,
-                                                context: context,
-                                                builder:
-                                                    (_) => ScrapReportDialog(
-                                                      scrapReport: selectedScrapReport,
-                                                      onSubmit: () => loadScrapReports(),
-                                                    ),
-                                              );
-                                            } catch (e, s) {
-                                              AppLogger.e(
-                                                "Lỗi không tìm thấy phiếu xuất kho",
-                                                error: e,
-                                                stackTrace: s,
-                                              );
-                                            }
-                                          }
-                                          : null,
-                                  label: "Sửa Báo Cáo",
-                                  icon: Symbols.construction,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
-                                const SizedBox(width: 10),
-
-                                //delete customers
-                                AnimatedButton(
-                                  onPressed:
-                                      selectedScrapIds.isNotEmpty
-                                          ? () async {
-                                            await showDeleteConfirmHelper(
-                                              context: context,
-                                              title: "⚠️ Xác nhận xoá",
-                                              content: "Bạn có chắc chắn muốn xoá báo cáo này?",
-                                              onDelete: () async {
-                                                await ScrapReportService().deleteScrapReport(
-                                                  scrapId: selectedScrapIds.first,
-                                                );
-                                              },
-                                              onSuccess: () {
-                                                setState(() => selectedScrapIds.clear());
-                                                loadScrapReports();
-                                              },
-                                            );
-                                          }
-                                          : null,
-                                  label: "Xóa",
-                                  icon: Icons.delete,
-                                  backgroundColor: const Color(0xffEA4346),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+          //table & pagination
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: _buildTableSection(),
             ),
-
-            // table
-            Expanded(
-              child: FutureBuilder(
-                future: futureScrap,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SizedBox(
-                        height: 400,
-                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Không có báo cáo thanh lý nào",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                    );
-                  }
-
-                  final data = snapshot.data!;
-                  final scrapReports = data;
-
-                  scrapReportDatasource = ScrapReportDataSource(
-                    scrapReports: scrapReports,
-                    selectedScrapIds: selectedScrapIds,
-                    currentPage: 1,
-                    pageSize: 35,
-                  );
-
-                  return SfDataGrid(
-                    controller: dataGridController,
-                    source: scrapReportDatasource,
-                    isScrollbarAlwaysShown: true,
-                    columnWidthMode: ColumnWidthMode.auto,
-                    selectionMode: SelectionMode.single,
-                    headerRowHeight: 35,
-                    rowHeight: 40,
-                    columns: ColumnWidthTable.applySavedWidths(
-                      columns: columns,
-                      widths: columnWidths,
-                    ),
-                    stackedHeaderRows: <StackedHeaderRow>[
-                      StackedHeaderRow(
-                        cells: [
-                          StackedHeaderCell(
-                            columnNames: [
-                              "qtyForklift",
-                              "qtyInventory",
-                              "qtyCoreTube",
-                              "qtyProduction",
-                              "qtyOther",
-                            ],
-                            child: Obx(
-                              () => formatColumn(
-                                label: "Số Lượng Phế Liệu (Kg)",
-                                themeController: themeController,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-
-                    //auto resize
-                    allowColumnsResizing: true,
-                    columnResizeMode: ColumnResizeMode.onResize,
-
-                    onColumnResizeStart: GridResizeHelper.onResizeStart,
-                    onColumnResizeUpdate:
-                        (details) => GridResizeHelper.onResizeUpdate(
-                          details: details,
-                          columns: columns,
-                          setState: setState,
-                        ),
-                    onColumnResizeEnd:
-                        (details) => GridResizeHelper.onResizeEnd(
-                          details: details,
-                          tableKey: 'scrapReport',
-                          columnWidths: columnWidths,
-                          setState: setState,
-                        ),
-
-                    onSelectionChanged: (addedRows, removedRows) async {
-                      if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                      setState(() {
-                        // Lấy selection thật sự từ controller
-                        final selectedRows = dataGridController.selectedRows;
-
-                        selectedScrapIds =
-                            selectedRows.map((row) {
-                              final cell = row.getCells().firstWhere(
-                                (c) => c.columnName == 'scrapId',
-                              );
-                              return cell.value as int;
-                            }).toList();
-
-                        // cập nhật cho datasource
-                        scrapReportDatasource.selectedScrapIds = selectedScrapIds;
-                        scrapReportDatasource.notifyListeners();
-                      });
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadScrapReports(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "BÁO CÁO PHẾ LIỆU",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Row(
+          children: [
+            //left button
+            Expanded(flex: 2, child: const SizedBox()),
+
+            //right button
+            Expanded(
+              flex: 3,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // update
+                  AnimatedButton(
+                    onPressed:
+                        selectedScrapIds.isNotEmpty
+                            ? () async {
+                              try {
+                                final data = await futureScrap;
+                                final scraps = data;
+                                final selectedScrapReport = scraps.firstWhere(
+                                  (scrap) => selectedScrapIds.contains(scrap.scrapId),
+                                );
+
+                                if (mounted) {
+                                  showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder:
+                                        (_) => ScrapReportDialog(
+                                          scrapReport: selectedScrapReport,
+                                          onSubmit: () => loadScrapReports(),
+                                        ),
+                                  );
+                                }
+                              } catch (e, s) {
+                                AppLogger.e(
+                                  "Lỗi không tìm thấy phiếu xuất kho",
+                                  error: e,
+                                  stackTrace: s,
+                                );
+                              }
+                            }
+                            : null,
+                    label: "Sửa Báo Cáo",
+                    icon: Symbols.construction,
+                    backgroundColor: themeController.buttonColor,
+                  ),
+                  const SizedBox(width: 8),
+
+                  //delete customers
+                  AnimatedButton(
+                    onPressed:
+                        selectedScrapIds.isNotEmpty
+                            ? () async {
+                              await showDeleteConfirmHelper(
+                                context: context,
+                                title: "⚠️ Xác nhận xoá",
+                                content: "Bạn có chắc chắn muốn xoá báo cáo này?",
+                                onDelete: () async {
+                                  await ScrapReportService().deleteScrapReport(
+                                    scrapId: selectedScrapIds.first,
+                                  );
+                                },
+                                onSuccess: () {
+                                  setState(() => selectedScrapIds.clear());
+                                  loadScrapReports();
+                                },
+                              );
+                            }
+                            : null,
+                    label: "Xóa",
+                    icon: Icons.delete,
+                    backgroundColor: const Color(0xffEA4346),
+                  ),
+                  const SizedBox(width: 5),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureScrap,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có báo cáo phế liệu nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final scrapReports = data;
+
+        scrapReportDatasource = ScrapReportDataSource(
+          scrapReports: scrapReports,
+          selectedScrapIds: selectedScrapIds,
+          currentPage: 1,
+          pageSize: 35,
+        );
+
+        return SfDataGrid(
+          controller: dataGridController,
+          source: scrapReportDatasource,
+          isScrollbarAlwaysShown: true,
+          columnWidthMode: ColumnWidthMode.auto,
+          selectionMode: SelectionMode.single,
+          headerRowHeight: 35,
+          rowHeight: 40,
+          columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
+          stackedHeaderRows: <StackedHeaderRow>[
+            StackedHeaderRow(
+              cells: [
+                StackedHeaderCell(
+                  columnNames: [
+                    "qtyForklift",
+                    "qtyInventory",
+                    "qtyCoreTube",
+                    "qtyProduction",
+                    "qtyOther",
+                  ],
+                  child: Obx(
+                    () => formatColumn(
+                      label: "Số Lượng Phế Liệu (Kg)",
+                      themeController: themeController,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          //auto resize
+          allowColumnsResizing: true,
+          columnResizeMode: ColumnResizeMode.onResize,
+
+          onColumnResizeStart: GridResizeHelper.onResizeStart,
+          onColumnResizeUpdate:
+              (details) => GridResizeHelper.onResizeUpdate(
+                details: details,
+                columns: columns,
+                setState: setState,
+              ),
+          onColumnResizeEnd:
+              (details) => GridResizeHelper.onResizeEnd(
+                details: details,
+                tableKey: 'scrapReport',
+                columnWidths: columnWidths,
+                setState: setState,
+              ),
+
+          onSelectionChanged: (addedRows, removedRows) async {
+            if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+            setState(() {
+              // Lấy selection thật sự từ controller
+              final selectedRows = dataGridController.selectedRows;
+
+              selectedScrapIds =
+                  selectedRows.map((row) {
+                    final cell = row.getCells().firstWhere((c) => c.columnName == 'scrapId');
+                    return cell.value as int;
+                  }).toList();
+
+              // cập nhật cho datasource
+              scrapReportDatasource.selectedScrapIds = selectedScrapIds;
+              scrapReportDatasource.notifyListeners();
+            });
+          },
+        );
+      },
     );
   }
 }

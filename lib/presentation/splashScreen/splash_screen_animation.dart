@@ -2,14 +2,14 @@ import 'package:dongtam/presentation/splashScreen/my_app_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 
-class SplashScreenDT extends StatefulWidget {
-  const SplashScreenDT({super.key});
+class SplashScreenAnimation extends StatefulWidget {
+  const SplashScreenAnimation({super.key});
 
   @override
-  State<SplashScreenDT> createState() => _SplashScreenDTState();
+  State<SplashScreenAnimation> createState() => _SplashScreenAnimationState();
 }
 
-class _SplashScreenDTState extends State<SplashScreenDT>
+class _SplashScreenAnimationState extends State<SplashScreenAnimation>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -32,10 +32,7 @@ class _SplashScreenDTState extends State<SplashScreenDT>
       duration: const Duration(milliseconds: 1500),
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_fadeController);
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
 
     _fadeController.forward();
 
@@ -49,21 +46,17 @@ class _SplashScreenDTState extends State<SplashScreenDT>
     });
 
     // Logo scale + position
-    _logoController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    );
+    _logoController = AnimationController(vsync: this, duration: const Duration(milliseconds: 700));
 
-    _scaleAnimation = Tween<double>(begin: 1.5, end: 1.1).animate(
-      CurvedAnimation(parent: _logoController, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.5,
+      end: 1.1,
+    ).animate(CurvedAnimation(parent: _logoController, curve: Curves.easeInOut));
 
     _positionAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(0, -0.2),
-    ).animate(
-      CurvedAnimation(parent: _logoController, curve: Curves.easeInOut),
-    );
+    ).animate(CurvedAnimation(parent: _logoController, curve: Curves.easeInOut));
 
     // Khi logo xong thì chạy text
     _logoController.addStatusListener((status) {
@@ -73,10 +66,7 @@ class _SplashScreenDTState extends State<SplashScreenDT>
     });
 
     // Controller cho text
-    _textController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
+    _textController = AnimationController(vsync: this, duration: const Duration(seconds: 2));
   }
 
   void _startTypingEffect() {
@@ -95,15 +85,8 @@ class _SplashScreenDTState extends State<SplashScreenDT>
             Navigator.of(context).pushReplacement(
               PageRouteBuilder(
                 transitionDuration: const Duration(milliseconds: 800),
-                pageBuilder:
-                    (context, animation, secondaryAnimation) =>
-                        const MyAppLauncher(),
-                transitionsBuilder: (
-                  context,
-                  animation,
-                  secondaryAnimation,
-                  child,
-                ) {
+                pageBuilder: (context, animation, secondaryAnimation) => const MyAppLauncher(),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
                   final curvedAnimation = CurvedAnimation(
                     parent: animation,
                     curve: Curves.easeInOut,
@@ -111,10 +94,7 @@ class _SplashScreenDTState extends State<SplashScreenDT>
                   return FadeTransition(
                     opacity: curvedAnimation,
                     child: ScaleTransition(
-                      scale: Tween<double>(
-                        begin: 0.9,
-                        end: 1.0,
-                      ).animate(curvedAnimation),
+                      scale: Tween<double>(begin: 0.9, end: 1.0).animate(curvedAnimation),
                       child: child,
                     ),
                   );
@@ -127,18 +107,12 @@ class _SplashScreenDTState extends State<SplashScreenDT>
     });
   }
 
-  TextStyle textColor({
-    double fontSize = 55,
-    Color color = const Color(0xFFFFD700),
-    // Color color = const Color.fromARGB(255, 248, 192, 149),
-  }) {
+  TextStyle textColor({double fontSize = 55, Color color = const Color(0xFFFFD700)}) {
     return GoogleFonts.playfairDisplay(
       fontSize: fontSize,
       color: color,
       fontWeight: FontWeight.w900,
-      shadows: [
-        Shadow(blurRadius: 3, color: Colors.black87, offset: Offset(2, 2)),
-      ],
+      shadows: [Shadow(blurRadius: 3, color: Colors.black87, offset: Offset(2, 2))],
     );
   }
 
@@ -173,9 +147,7 @@ class _SplashScreenDTState extends State<SplashScreenDT>
                         height: 200,
                         child: FittedBox(
                           fit: BoxFit.cover,
-                          child: Image.asset(
-                            "assets/images/logoSplashScreen.png",
-                          ),
+                          child: Image.asset("assets/images/logoSplashScreen.png"),
                         ),
                       ),
                     ),
@@ -192,25 +164,16 @@ class _SplashScreenDTState extends State<SplashScreenDT>
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: displayedText.substring(
-                              0,
-                              displayedText.length.clamp(0, 4),
-                            ),
+                            text: displayedText.substring(0, displayedText.length.clamp(0, 4)),
                             style: textColor(),
                           ),
                           if (displayedText.length > 4)
                             TextSpan(
-                              text: displayedText.substring(
-                                4,
-                                displayedText.length.clamp(0, 7),
-                              ),
+                              text: displayedText.substring(4, displayedText.length.clamp(0, 7)),
                               style: textColor(),
                             ),
                           if (displayedText.length > 7)
-                            TextSpan(
-                              text: displayedText.substring(7),
-                              style: textColor(),
-                            ),
+                            TextSpan(text: displayedText.substring(7), style: textColor()),
                         ],
                       ),
                     ),
@@ -243,16 +206,8 @@ class NeonText extends StatelessWidget {
         letterSpacing: 2,
         foreground: Paint()..shader = linearGradient,
         shadows: const [
-          Shadow(
-            blurRadius: 20,
-            color: Colors.cyanAccent,
-            offset: Offset(0, 0),
-          ),
-          Shadow(
-            blurRadius: 40,
-            color: Colors.blueAccent,
-            offset: Offset(0, 0),
-          ),
+          Shadow(blurRadius: 20, color: Colors.cyanAccent, offset: Offset(0, 0)),
+          Shadow(blurRadius: 40, color: Colors.blueAccent, offset: Offset(0, 0)),
         ],
       ),
     );

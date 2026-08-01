@@ -131,6 +131,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -165,277 +166,24 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                   },
                 );
               },
-              //container contain button and table
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //button
-                    SizedBox(
-                      height: 100,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 30,
-                            width: double.infinity,
-                            child: Center(
-                              child: Obx(
-                                () => Text(
-                                  "ĐƠN HÀNG ĐÃ DUYỆT/CHỜ LÊN KẾ HOẠCH",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 22,
-                                    color: themeController.currentColor.value,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          //button
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child: Row(
-                              children: [
-                                //left button
-                                Expanded(
-                                  flex: 1,
-                                  child: LeftButtonSearch(
-                                    selectedType: searchType,
-                                    types: const [
-                                      'Tất cả',
-                                      "Mã Đơn Hàng",
-                                      "Tên Khách Hàng",
-                                      "Tên Sản Phẩm",
-                                      "QC Thùng",
-                                    ],
-                                    onTypeChanged: (value) {
-                                      setState(() {
-                                        searchType = value;
-                                        isTextFieldEnabled = value != 'Tất cả';
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                                        if (searchType == "Tất cả" &&
-                                            searchController.text.isNotEmpty) {
-                                          searchController.clear();
-                                          loadOrders();
-                                        }
-                                      });
-                                    },
-                                    controller: searchController,
-                                    textFieldEnabled: isTextFieldEnabled,
-                                    buttonColor: themeController.buttonColor,
-                                    onSearch: () => searchOrders(),
-                                    extraWidgets: [
-                                      isManager
-                                          ? AnimatedButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                isSeenOrder = !isSeenOrder;
-                                              });
-                                              loadOrders(ownOnly: isSeenOrder);
-                                            },
-                                            label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
-                                            icon: null,
-                                            backgroundColor: themeController.buttonColor,
-                                          )
-                                          : const SizedBox.shrink(),
-                                    ],
-                                  ),
-                                ),
-
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedOrderIdNotifier,
-                                      builder: (context, selectedOrderId, _) {
-                                        final bool hasSelection =
-                                            selectedOrderId != null && selectedOrderId.isNotEmpty;
-
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            //send request
-                                            AnimatedButton(
-                                              onPressed:
-                                                  hasSelection
-                                                      ? () {
-                                                        showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (_) => DialogOrderNotification(
-                                                                orderId: selectedOrderId,
-                                                                onLoading:
-                                                                    () => loadOrders(
-                                                                      ownOnly: isSeenOrder,
-                                                                    ),
-                                                              ),
-                                                        );
-                                                      }
-                                                      : null,
-                                              label: "Gửi Yêu Cầu",
-                                              icon: Icons.send,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    // table
-                    Expanded(
-                      child: FutureBuilder<Map<String, dynamic>>(
-                        future: futureOrdersAccept,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData || snapshot.data!['orders'].isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có đơn hàng nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final data = snapshot.data!;
-                          final orders = data['orders'] as List<OrderModel>;
-
-                          if (_cachedOrders == null || _cachedOrders != orders) {
-                            _cachedOrders = orders;
-                            _cachedDatasource = OrderDataSource(
-                              context: context,
-                              orders: orders,
-                              selectedOrderId: _selectedOrderIdNotifier.value,
-                            );
-                          }
-
-                          return Column(
-                            children: [
-                              //table
-                              Expanded(
-                                child: StatefulBuilder(
-                                  builder: (context, localSetState) {
-                                    return SfDataGridTheme(
-                                      data: SfDataGridThemeData(
-                                        selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                      ),
-                                      child: SfDataGrid(
-                                        source: _cachedDatasource!,
-                                        isScrollbarAlwaysShown: true,
-                                        selectionMode: SelectionMode.single,
-                                        columnWidthMode: ColumnWidthMode.auto,
-                                        headerRowHeight: 30,
-                                        rowHeight: 38,
-                                        columns: ColumnWidthTable.applySavedWidths(
-                                          columns: columns,
-                                          widths: columnWidths,
-                                        ),
-                                        stackedHeaderRows: <StackedHeaderRow>[
-                                          StackedHeaderRow(
-                                            cells: [
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  'inMatTruoc',
-                                                  'inMatSau',
-                                                  'canMang',
-                                                  'canLanBox',
-                                                  'xa',
-                                                  'catKhe',
-                                                  'be',
-                                                  'dan_1_Manh',
-                                                  'dan_2_Manh',
-                                                  'dongGhimMotManh',
-                                                  'dongGhimHaiManh',
-                                                  'chongTham',
-                                                  'dongGoi',
-                                                  'maKhuon',
-                                                ],
-                                                child: Obx(
-                                                  () => formatColumn(
-                                                    label: 'Công Đoạn 2',
-                                                    themeController: themeController,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-
-                                        //auto resize
-                                        allowColumnsResizing: true,
-                                        columnResizeMode: ColumnResizeMode.onResize,
-
-                                        onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                        onColumnResizeUpdate:
-                                            (details) => GridResizeHelper.onResizeUpdate(
-                                              details: details,
-                                              columns: columns,
-                                              setState: localSetState,
-                                            ),
-                                        onColumnResizeEnd:
-                                            (details) => GridResizeHelper.onResizeEnd(
-                                              details: details,
-                                              tableKey: 'order',
-                                              columnWidths: columnWidths,
-                                              setState: setState,
-                                            ),
-
-                                        onSelectionChanged: (addedRows, removedRows) {
-                                          if (addedRows.isNotEmpty) {
-                                            final selectedRow = addedRows.first;
-                                            final orderId =
-                                                selectedRow
-                                                    .getCells()
-                                                    .firstWhere(
-                                                      (cell) => cell.columnName == 'orderId',
-                                                    )
-                                                    .value
-                                                    .toString();
-
-                                            _selectedOrderIdNotifier.value = orderId;
-                                          } else {
-                                            _selectedOrderIdNotifier.value = null;
-                                          }
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -446,7 +194,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 173),
+                  // initialMargin: Offset(73, 173),
+                  initialMargin: Offset(73, 200),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -462,6 +211,242 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
           child: const Icon(Icons.refresh, color: Colors.white),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "ĐƠN HÀNG ĐÃ DUYỆT/CHỜ LÊN KẾ HOẠCH",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        Row(
+          children: [
+            //left button
+            Expanded(
+              flex: 3,
+              child: LeftButtonSearch(
+                selectedType: searchType,
+                types: const [
+                  'Tất cả',
+                  "Mã Đơn Hàng",
+                  "Tên Khách Hàng",
+                  "Tên Sản Phẩm",
+                  "QC Thùng",
+                ],
+                onTypeChanged: (value) {
+                  setState(() {
+                    searchType = value;
+                    isTextFieldEnabled = value != 'Tất cả';
+
+                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                      searchController.clear();
+                      loadOrders();
+                    }
+                  });
+                },
+                controller: searchController,
+                textFieldEnabled: isTextFieldEnabled,
+                buttonColor: themeController.buttonColor,
+                onSearch: () => searchOrders(),
+                extraWidgets: [
+                  isManager
+                      ? AnimatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isSeenOrder = !isSeenOrder;
+                          });
+                          loadOrders(ownOnly: isSeenOrder);
+                        },
+                        label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
+                        icon: null,
+                        backgroundColor: themeController.buttonColor,
+                      )
+                      : const SizedBox.shrink(),
+                ],
+              ),
+            ),
+
+            //right button
+            Expanded(
+              flex: 2,
+              child: ValueListenableBuilder(
+                valueListenable: _selectedOrderIdNotifier,
+                builder: (context, selectedOrderId, _) {
+                  final bool hasSelection = selectedOrderId != null && selectedOrderId.isNotEmpty;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      //send request
+                      AnimatedButton(
+                        onPressed:
+                            hasSelection
+                                ? () {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (_) => DialogOrderNotification(
+                                          orderId: selectedOrderId,
+                                          onLoading: () => loadOrders(ownOnly: isSeenOrder),
+                                        ),
+                                  );
+                                }
+                                : null,
+                        label: "Gửi Yêu Cầu",
+                        icon: Icons.send,
+                        backgroundColor: themeController.buttonColor,
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureOrdersAccept,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!['orders'].isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn hàng nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final orders = data['orders'] as List<OrderModel>;
+
+        if (_cachedOrders == null || _cachedOrders != orders) {
+          _cachedOrders = orders;
+          _cachedDatasource = OrderDataSource(
+            context: context,
+            orders: orders,
+            selectedOrderId: _selectedOrderIdNotifier.value,
+          );
+        }
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: StatefulBuilder(
+                builder: (context, localSetState) {
+                  return SfDataGridTheme(
+                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                    child: SfDataGrid(
+                      source: _cachedDatasource!,
+                      isScrollbarAlwaysShown: true,
+                      selectionMode: SelectionMode.single,
+                      columnWidthMode: ColumnWidthMode.auto,
+                      headerRowHeight: 30,
+                      rowHeight: 38,
+                      columns: ColumnWidthTable.applySavedWidths(
+                        columns: columns,
+                        widths: columnWidths,
+                      ),
+                      stackedHeaderRows: <StackedHeaderRow>[
+                        StackedHeaderRow(
+                          cells: [
+                            StackedHeaderCell(
+                              columnNames: [
+                                'inMatTruoc',
+                                'inMatSau',
+                                'canMang',
+                                'canLanBox',
+                                'xa',
+                                'catKhe',
+                                'be',
+                                'dan_1_Manh',
+                                'dan_2_Manh',
+                                'dongGhimMotManh',
+                                'dongGhimHaiManh',
+                                'chongTham',
+                                'dongGoi',
+                                'maKhuon',
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: 'Công Đoạn 2',
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      //auto resize
+                      allowColumnsResizing: true,
+                      columnResizeMode: ColumnResizeMode.onResize,
+
+                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                      onColumnResizeUpdate:
+                          (details) => GridResizeHelper.onResizeUpdate(
+                            details: details,
+                            columns: columns,
+                            setState: localSetState,
+                          ),
+                      onColumnResizeEnd:
+                          (details) => GridResizeHelper.onResizeEnd(
+                            details: details,
+                            tableKey: 'order',
+                            columnWidths: columnWidths,
+                            setState: setState,
+                          ),
+
+                      onSelectionChanged: (addedRows, removedRows) {
+                        if (addedRows.isNotEmpty) {
+                          final selectedRow = addedRows.first;
+                          final orderId =
+                              selectedRow
+                                  .getCells()
+                                  .firstWhere((cell) => cell.columnName == 'orderId')
+                                  .value
+                                  .toString();
+
+                          _selectedOrderIdNotifier.value = orderId;
+                        } else {
+                          _selectedOrderIdNotifier.value = null;
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -1,6 +1,8 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_machine_time_box.dart';
 import 'package:dongtam/presentation/screens/main/admin/tabChildAdmin/box/admin_waste_box.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class TopTabAdminBox extends StatefulWidget {
   const TopTabAdminBox({super.key});
@@ -10,6 +12,8 @@ class TopTabAdminBox extends StatefulWidget {
 }
 
 class _TopTabAdminState extends State<TopTabAdminBox> {
+  final themeController = Get.find<ThemeController>();
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -17,7 +21,7 @@ class _TopTabAdminState extends State<TopTabAdminBox> {
       child: Column(
         children: [
           Container(
-            color: Colors.white,
+            color: themeController.backgroundColor.value,
             child: TabBar(
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,

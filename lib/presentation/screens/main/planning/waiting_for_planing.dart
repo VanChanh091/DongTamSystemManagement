@@ -137,6 +137,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -170,312 +171,24 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                   },
                 );
               },
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //button
-                    SizedBox(
-                      height: 105,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 35,
-                            width: double.infinity,
-                            child: Center(
-                              child: Text(
-                                "ĐƠN HÀNG CHỜ LÊN KẾ HOẠCH",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                  color: themeController.currentColor.value,
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          //button
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child:
-                                isPlan
-                                    ? Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        //left button
-                                        Expanded(
-                                          flex: 1,
-                                          child: LeftButtonSearch(
-                                            selectedType: searchType,
-                                            types: const [
-                                              'Tất cả',
-                                              "Mã Đơn Hàng",
-                                              "Tên Khách Hàng",
-                                              "Theo Quy Cách",
-                                            ],
-                                            onTypeChanged: (value) {
-                                              setState(() {
-                                                searchType = value;
-                                                isTextFieldEnabled = searchType != 'Tất cả';
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                                                if (searchType == "Tất cả" &&
-                                                    searchController.text.isNotEmpty) {
-                                                  searchController.clear();
-                                                  loadOrders();
-                                                }
-                                              });
-                                            },
-                                            controller: searchController,
-                                            textFieldEnabled: isTextFieldEnabled,
-                                            buttonColor: themeController.buttonColor,
-
-                                            onSearch: () => searchOrders(),
-                                          ),
-                                        ),
-
-                                        //right button
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 8,
-                                            horizontal: 10,
-                                          ),
-                                          child: ValueListenableBuilder(
-                                            valueListenable: _selectedOrderIdNotifier,
-                                            builder: (context, selectedOrderId, _) {
-                                              final bool hasSelection =
-                                                  selectedOrderId != null &&
-                                                  selectedOrderId.isNotEmpty;
-
-                                              return Row(
-                                                children: [
-                                                  //planning order
-                                                  AnimatedButton(
-                                                    onPressed:
-                                                        hasSelection
-                                                            ? () async {
-                                                              try {
-                                                                final order =
-                                                                    await futureOrdersAccept;
-                                                                final selectedOrder = order
-                                                                    .firstWhere(
-                                                                      (order) =>
-                                                                          order.orderId ==
-                                                                          selectedOrderId,
-                                                                    );
-
-                                                                if (context.mounted) {
-                                                                  showDialog(
-                                                                    barrierDismissible: false,
-                                                                    context: context,
-                                                                    builder:
-                                                                        (_) => PLanningDialog(
-                                                                          order: selectedOrder,
-                                                                          onPlanningOrder:
-                                                                              () => loadOrders(),
-                                                                        ),
-                                                                  );
-                                                                }
-                                                              } catch (e, s) {
-                                                                AppLogger.e(
-                                                                  "Lỗi không tìm thấy đơn hàng",
-                                                                  error: e,
-                                                                  stackTrace: s,
-                                                                );
-                                                              }
-                                                            }
-                                                            : null,
-                                                    label: "Lên kế hoạch",
-                                                    icon: Icons.add,
-                                                    backgroundColor: themeController.buttonColor,
-                                                  ),
-                                                  const SizedBox(width: 10),
-
-                                                  //back order
-                                                  AnimatedButton(
-                                                    onPressed:
-                                                        hasSelection
-                                                            ? () async {
-                                                              await handleBackOrder(
-                                                                context: context,
-                                                                orderId: selectedOrderId!,
-                                                                badgesController: badgesController,
-                                                                onSuccess: () {
-                                                                  setState(
-                                                                    () => selectedOrderId = null,
-                                                                  );
-                                                                  loadOrders();
-                                                                },
-                                                              );
-                                                            }
-                                                            : null,
-                                                    label: "Hoàn Đơn",
-                                                    icon: Symbols.keyboard_return,
-                                                    backgroundColor: const Color(0xffEA4346),
-                                                  ),
-                                                  const SizedBox(width: 10),
-
-                                                  //filter
-                                                  buildDropdownItems(
-                                                    value: type,
-                                                    items: const [
-                                                      'unplanned',
-                                                      'partial',
-                                                      'planned',
-                                                    ],
-                                                    onChanged: (value) => changeFilter(value!),
-                                                    itemLabelBuilder:
-                                                        (value) => filterOptions[value] ?? value,
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                    : const SizedBox.shrink(),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    // table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futureOrdersAccept,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            if (snapshot.error.toString().contains("NO_PERMISSION")) {
-                              return const Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      "Bạn không có quyền xem chức năng này",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 26,
-                                        color: Colors.redAccent,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có đơn hàng nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final List<OrderModel> data = snapshot.data!;
-
-                          if (_cachedPapers == null || _cachedPapers != data) {
-                            _cachedPapers = data;
-                            _cachedDatasource = PlanningDataSource(
-                              orders: data,
-                              selectedOrderId: _selectedOrderIdNotifier.value,
-                            );
-                          }
-
-                          return StatefulBuilder(
-                            builder: (context, localSetState) {
-                              return SfDataGridTheme(
-                                data: SfDataGridThemeData(
-                                  selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                ),
-                                child: SfDataGrid(
-                                  source: _cachedDatasource!,
-                                  isScrollbarAlwaysShown: true,
-                                  columnWidthMode: ColumnWidthMode.auto,
-                                  selectionMode: SelectionMode.single,
-                                  headerRowHeight: 35,
-                                  rowHeight: 40,
-                                  columns: ColumnWidthTable.applySavedWidths(
-                                    columns: columns,
-                                    widths: columnWidths,
-                                  ),
-                                  stackedHeaderRows: <StackedHeaderRow>[
-                                    StackedHeaderRow(
-                                      cells: [
-                                        StackedHeaderCell(
-                                          columnNames: [
-                                            "qtyManufacture",
-                                            "runningPlan",
-                                            "quantityProduced",
-                                          ],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: 'Số Lượng',
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-
-                                  //auto resize
-                                  allowColumnsResizing: true,
-                                  columnResizeMode: ColumnResizeMode.onResize,
-
-                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                  onColumnResizeUpdate:
-                                      (details) => GridResizeHelper.onResizeUpdate(
-                                        details: details,
-                                        columns: columns,
-                                        setState: localSetState,
-                                      ),
-                                  onColumnResizeEnd:
-                                      (details) => GridResizeHelper.onResizeEnd(
-                                        details: details,
-                                        tableKey: 'waitingPlanning',
-                                        columnWidths: columnWidths,
-                                        setState: setState,
-                                      ),
-
-                                  onSelectionChanged: (addedRows, removedRows) {
-                                    if (addedRows.isNotEmpty) {
-                                      final selectedRow = addedRows.first;
-                                      final orderId =
-                                          selectedRow
-                                              .getCells()
-                                              .firstWhere((cell) => cell.columnName == 'orderId')
-                                              .value
-                                              .toString();
-
-                                      _selectedOrderIdNotifier.value = orderId;
-                                    } else {
-                                      _selectedOrderIdNotifier.value = null;
-                                    }
-                                  },
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -486,7 +199,8 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 125),
+                  // initialMargin: Offset(73, 125),
+                  initialMargin: Offset(73, 152),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -495,14 +209,265 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
         ),
       ),
 
-      floatingActionButton:
-          isPlan
-              ? FloatingActionButton(
-                onPressed: () => loadOrders(),
-                backgroundColor: themeController.buttonColor.value,
-                child: const Icon(Icons.refresh, color: Colors.white),
-              )
-              : null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => loadOrders(),
+        backgroundColor: themeController.buttonColor.value,
+        child: const Icon(Icons.refresh, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "ĐƠN HÀNG CHỜ LÊN KẾ HOẠCH",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        if (isPlan)
+          Row(
+            children: [
+              //left button
+              Expanded(
+                flex: 2,
+                child: LeftButtonSearch(
+                  selectedType: searchType,
+                  types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng", "Theo Quy Cách"],
+                  onTypeChanged: (value) {
+                    setState(() {
+                      searchType = value;
+                      isTextFieldEnabled = searchType != 'Tất cả';
+
+                      if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                        searchController.clear();
+                        loadOrders();
+                      }
+                    });
+                  },
+                  controller: searchController,
+                  textFieldEnabled: isTextFieldEnabled,
+                  buttonColor: themeController.buttonColor,
+
+                  onSearch: () => searchOrders(),
+                ),
+              ),
+
+              //right button
+              Expanded(
+                flex: 3,
+                child: ValueListenableBuilder(
+                  valueListenable: _selectedOrderIdNotifier,
+                  builder: (context, selectedOrderId, _) {
+                    final bool hasSelection = selectedOrderId != null && selectedOrderId.isNotEmpty;
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        //planning order
+                        AnimatedButton(
+                          onPressed:
+                              hasSelection
+                                  ? () async {
+                                    try {
+                                      final order = await futureOrdersAccept;
+                                      final selectedOrder = order.firstWhere(
+                                        (order) => order.orderId == selectedOrderId,
+                                      );
+
+                                      if (context.mounted) {
+                                        showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder:
+                                              (_) => PLanningDialog(
+                                                order: selectedOrder,
+                                                onPlanningOrder: () => loadOrders(),
+                                              ),
+                                        );
+                                      }
+                                    } catch (e, s) {
+                                      AppLogger.e(
+                                        "Lỗi không tìm thấy đơn hàng",
+                                        error: e,
+                                        stackTrace: s,
+                                      );
+                                    }
+                                  }
+                                  : null,
+                          label: "Lên kế hoạch",
+                          icon: Icons.add,
+                          backgroundColor: themeController.buttonColor,
+                        ),
+                        const SizedBox(width: 8),
+
+                        //back order
+                        AnimatedButton(
+                          onPressed:
+                              hasSelection
+                                  ? () async {
+                                    await handleBackOrder(
+                                      context: context,
+                                      orderId: selectedOrderId!,
+                                      badgesController: badgesController,
+                                      onSuccess: () {
+                                        setState(() => selectedOrderId = null);
+                                        loadOrders();
+                                      },
+                                    );
+                                  }
+                                  : null,
+                          label: "Hoàn Đơn",
+                          icon: Symbols.keyboard_return,
+                          backgroundColor: const Color(0xffEA4346),
+                        ),
+                        const SizedBox(width: 8),
+
+                        //filter
+                        buildDropdownItems(
+                          value: type,
+                          items: const ['unplanned', 'partial', 'planned'],
+                          onChanged: (value) => changeFilter(value!),
+                          itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                        ),
+                        const SizedBox(width: 5),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureOrdersAccept,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          if (snapshot.error.toString().contains("NO_PERMISSION")) {
+            return const Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.lock_outline, color: Colors.redAccent, size: 35),
+                  SizedBox(width: 8),
+                  Text(
+                    "Bạn không có quyền xem chức năng này",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 26,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn hàng nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final List<OrderModel> data = snapshot.data!;
+
+        if (_cachedPapers == null || _cachedPapers != data) {
+          _cachedPapers = data;
+          _cachedDatasource = PlanningDataSource(
+            orders: data,
+            selectedOrderId: _selectedOrderIdNotifier.value,
+          );
+        }
+
+        return StatefulBuilder(
+          builder: (context, localSetState) {
+            return SfDataGridTheme(
+              data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+              child: SfDataGrid(
+                source: _cachedDatasource!,
+                isScrollbarAlwaysShown: true,
+                columnWidthMode: ColumnWidthMode.auto,
+                selectionMode: SelectionMode.single,
+                headerRowHeight: 35,
+                rowHeight: 40,
+                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
+                stackedHeaderRows: <StackedHeaderRow>[
+                  StackedHeaderRow(
+                    cells: [
+                      StackedHeaderCell(
+                        columnNames: ["qtyManufacture", "runningPlan", "quantityProduced"],
+                        child: Obx(
+                          () => formatColumn(label: 'Số Lượng', themeController: themeController),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                //auto resize
+                allowColumnsResizing: true,
+                columnResizeMode: ColumnResizeMode.onResize,
+
+                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                onColumnResizeUpdate:
+                    (details) => GridResizeHelper.onResizeUpdate(
+                      details: details,
+                      columns: columns,
+                      setState: localSetState,
+                    ),
+                onColumnResizeEnd:
+                    (details) => GridResizeHelper.onResizeEnd(
+                      details: details,
+                      tableKey: 'waitingPlanning',
+                      columnWidths: columnWidths,
+                      setState: setState,
+                    ),
+
+                onSelectionChanged: (addedRows, removedRows) {
+                  if (addedRows.isNotEmpty) {
+                    final selectedRow = addedRows.first;
+                    final orderId =
+                        selectedRow
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'orderId')
+                            .value
+                            .toString();
+
+                    _selectedOrderIdNotifier.value = orderId;
+                  } else {
+                    _selectedOrderIdNotifier.value = null;
+                  }
+                },
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

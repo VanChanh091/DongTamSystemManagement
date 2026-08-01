@@ -1,4 +1,5 @@
 import 'package:dongtam/data/controller/badges_controller.dart';
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/screens/main/order/tabChildOrder/order_accept.dart';
 import 'package:dongtam/presentation/screens/main/order/tabChildOrder/order_reject_pending.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class TopTabOrder extends StatefulWidget {
 
 class _TopTabOrderState extends State<TopTabOrder> {
   final badges = Get.find<BadgesController>();
+  final themeController = Get.find<ThemeController>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class _TopTabOrderState extends State<TopTabOrder> {
       child: Column(
         children: [
           Container(
-            color: Colors.white,
+            color: themeController.backgroundColor.value,
             child: TabBar(
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,

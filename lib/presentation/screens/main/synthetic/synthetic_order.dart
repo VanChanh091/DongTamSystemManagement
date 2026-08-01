@@ -216,6 +216,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -249,591 +250,24 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                   },
                 );
               },
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //button
-                    SizedBox(
-                      height: 105,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 35,
-                            width: double.infinity,
-                            child: Center(
-                              child: Text(
-                                "TỔNG HỢP ĐƠN HÀNG",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                  color: themeController.currentColor.value,
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          //button
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //left button
-                                Expanded(
-                                  flex: 1,
-                                  child: LeftButtonSearch(
-                                    selectedType: searchType,
-                                    types: const [
-                                      "Tất cả",
-                                      "Mã Đơn Hàng",
-                                      "Tên Khách Hàng",
-                                      "Ngày Nhận Đơn",
-                                      "Nhân Viên",
-                                    ],
-                                    onTypeChanged: (value) {
-                                      setState(() {
-                                        searchType = value;
-                                        isTextFieldEnabled = value != "Tất cả";
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                                        startDate = null;
-                                        endDate = null;
-
-                                        if (searchType == "Tất cả" &&
-                                            searchController.text.isNotEmpty) {
-                                          searchController.clear();
-                                          currentPage = 1;
-                                          _fetchData();
-                                        }
-                                      });
-                                    },
-                                    controller: searchController,
-                                    textFieldEnabled: isTextFieldEnabled,
-                                    buttonColor: themeController.buttonColor,
-                                    onSearch: () => searchOrders(),
-                                    customInputBuilder: (inputWidth) {
-                                      if (searchType != "Ngày Nhận Đơn") return null;
-
-                                      return SizedBox(
-                                        width: inputWidth,
-                                        height: 50,
-                                        child: InkWell(
-                                          onTap: () async {
-                                            final now = DateTime.now();
-                                            final size = MediaQuery.of(context).size;
-
-                                            final DateTimeRange? picked = await showDateRangePicker(
-                                              context: context,
-                                              firstDate: DateTime(2025),
-                                              lastDate: DateTime(2100),
-                                              initialDateRange:
-                                                  (startDate != null && endDate != null)
-                                                      ? DateTimeRange(
-                                                        start: startDate!,
-                                                        end: endDate!,
-                                                      )
-                                                      : DateTimeRange(
-                                                        start: now.subtract(
-                                                          const Duration(days: 7),
-                                                        ),
-                                                        end: now,
-                                                      ),
-                                              builder: (context, child) {
-                                                return Center(
-                                                  child: ConstrainedBox(
-                                                    constraints: BoxConstraints(
-                                                      maxWidth: size.width * 0.3,
-                                                      maxHeight: size.height * 0.8,
-                                                    ),
-                                                    child: Material(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                      clipBehavior: Clip.antiAlias,
-                                                      child: child!,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            );
-
-                                            if (picked != null) {
-                                              final displayStart = DateFormat(
-                                                "dd/MM/yyyy",
-                                              ).format(picked.start);
-                                              final displayEnd = DateFormat(
-                                                "dd/MM/yyyy",
-                                              ).format(picked.end);
-
-                                              setState(() {
-                                                startDate = picked.start;
-                                                endDate = picked.end;
-                                                searchController.text =
-                                                    "$displayStart - $displayEnd";
-                                              });
-                                            }
-                                          },
-                                          child: IgnorePointer(
-                                            child: TextField(
-                                              controller: searchController,
-                                              decoration: InputDecoration(
-                                                hintText: "Chọn khoảng thời gian...",
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                suffixIcon: const Icon(Icons.date_range),
-                                                contentPadding: const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedOrderIdsNotifier,
-                                      builder: (context, selectedOrderIds, _) {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            //export excel
-                                            isAccountant
-                                                ? AnimatedButton(
-                                                  onPressed: () async {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (_) => DialogExportOrders(),
-                                                    );
-                                                  },
-                                                  label: "Xuất Excel",
-                                                  icon: Symbols.export_notes,
-                                                  backgroundColor: themeController.buttonColor,
-                                                )
-                                                : const SizedBox.shrink(),
-                                            const SizedBox(width: 10),
-
-                                            //complete order
-                                            isPlan
-                                                ? AnimatedButton(
-                                                  onPressed:
-                                                      selectedOrderIds.isEmpty
-                                                          ? null
-                                                          : () async {
-                                                            try {
-                                                              final bool
-                                                              confirm = await showConfirmDialog(
-                                                                context: context,
-                                                                title:
-                                                                    "Xác nhận hoàn thành đơn hàng",
-                                                                content:
-                                                                    "Bạn có chắc chắn muốn hoàn thành đơn hàng này?",
-                                                                confirmText: "Xác nhận",
-                                                              );
-
-                                                              if (confirm) {
-                                                                final success =
-                                                                    await SyntheticService()
-                                                                        .completeOrders(
-                                                                          orderIds:
-                                                                              selectedOrderIds,
-                                                                        );
-
-                                                                if (success) {
-                                                                  if (context.mounted) {
-                                                                    showSnackBarSuccess(
-                                                                      context,
-                                                                      "Đơn hàng đã được hoàn thành thành công.",
-                                                                    );
-
-                                                                    setState(() {
-                                                                      selectedOrderIds.clear();
-                                                                      loadOrders();
-                                                                    });
-                                                                  }
-                                                                }
-                                                                return true;
-                                                              }
-                                                              return false;
-                                                            } on ApiException catch (e) {
-                                                              final errorText = switch (e
-                                                                  .errorCode) {
-                                                                "EMPLOYEE_NOT_FOUND" => e.message!,
-                                                                "INVALID_ORDER_STATUS" =>
-                                                                  e.message!,
-                                                                "ZERO_QTY_PRODUCED" => e.message!,
-                                                                _ =>
-                                                                  'Có lỗi xảy ra, vui lòng thử lại',
-                                                              };
-
-                                                              if (context.mounted) {
-                                                                showSnackBarError(
-                                                                  context,
-                                                                  errorText,
-                                                                );
-                                                              }
-                                                              return false;
-                                                            } catch (e) {
-                                                              if (context.mounted) {
-                                                                showSnackBarError(
-                                                                  context,
-                                                                  "Hoàn thành đơn hàng thất bại",
-                                                                );
-                                                              }
-                                                              return false;
-                                                            }
-                                                          },
-                                                  label: "Hoàn Thành",
-                                                  icon: Symbols.export_notes,
-                                                  backgroundColor: themeController.buttonColor,
-                                                )
-                                                : const SizedBox.shrink(),
-                                            const SizedBox(width: 10),
-
-                                            //filter
-                                            buildDropdownItems(
-                                              value: filterType,
-                                              items: const [
-                                                "all",
-                                                "accept",
-                                                "planning",
-                                                "completed",
-                                              ],
-                                              width: 180,
-                                              onChanged:
-                                                  (value) => {
-                                                    setState(() {
-                                                      filterType = value!;
-                                                      selectedOrderIds.clear();
-                                                      selectedBoxesDetail = [];
-                                                      currentPage = 1;
-                                                      loadOrders();
-                                                    }),
-                                                  },
-                                              itemLabelBuilder:
-                                                  (value) => filterOptions[value] ?? value,
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    // table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futureOrders,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData || snapshot.data!["orders"].isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có đơn hàng nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final data = snapshot.data!;
-                          final orders = data["orders"] as List<OrderModel>;
-                          final currentPg = data["currentPage"];
-                          final totalPgs = data["totalPages"];
-
-                          if (_cachedOrders == null || _cachedOrders != orders) {
-                            _cachedOrders = orders;
-                            _cachedDatasource = SyntheticOrdersDataSource(
-                              orders: orders,
-                              selectedOrderIds: _selectedOrderIdsNotifier.value,
-                              currentPage: currentPg,
-                              pageSize: pageSize,
-                            );
-                          }
-
-                          return Column(
-                            children: [
-                              //table
-                              Expanded(
-                                child: StatefulBuilder(
-                                  builder: (context, localSetState) {
-                                    return SfDataGridTheme(
-                                      data: SfDataGridThemeData(
-                                        selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                        currentCellStyle: const DataGridCurrentCellStyle(
-                                          borderColor: Colors.transparent,
-                                          borderWidth: 0,
-                                        ),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Expanded(
-                                            flex: 2,
-                                            child: SfDataGrid(
-                                              controller: dataGridController,
-                                              source: _cachedDatasource!,
-                                              isScrollbarAlwaysShown: true,
-                                              columnWidthMode: ColumnWidthMode.auto,
-                                              selectionMode: SelectionMode.multiple,
-                                              headerRowHeight: 35,
-                                              rowHeight: 40,
-                                              columns: ColumnWidthTable.applySavedWidths(
-                                                columns: columnsOrders,
-                                                widths: columnWidthOrders,
-                                              ),
-                                              stackedHeaderRows: <StackedHeaderRow>[
-                                                StackedHeaderRow(
-                                                  cells: [
-                                                    StackedHeaderCell(
-                                                      columnNames: [
-                                                        "sizeCust",
-                                                        "lengthCust",
-                                                        "sizeManu",
-                                                        "lengthManu",
-                                                      ],
-                                                      child: Obx(
-                                                        () => formatColumn(
-                                                          label: "Quy Cách",
-                                                          themeController: themeController,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    StackedHeaderCell(
-                                                      columnNames: [
-                                                        "quantityCustomer",
-                                                        "qtyOutbound",
-                                                        "qtyInventory",
-                                                        "qtyVariance",
-                                                        "qtyWasteNorm",
-                                                      ],
-                                                      child: Obx(
-                                                        () => formatColumn(
-                                                          label: "Số Lượng",
-                                                          themeController: themeController,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-
-                                              //auto resize
-                                              allowColumnsResizing: true,
-                                              columnResizeMode: ColumnResizeMode.onResize,
-
-                                              onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                              onColumnResizeUpdate:
-                                                  (details) => GridResizeHelper.onResizeUpdate(
-                                                    details: details,
-                                                    columns: columnsOrders,
-                                                    setState: localSetState,
-                                                  ),
-                                              onColumnResizeEnd:
-                                                  (details) => GridResizeHelper.onResizeEnd(
-                                                    details: details,
-                                                    tableKey: "syntheticOrders",
-                                                    columnWidths: columnWidthOrders,
-                                                    setState: setState,
-                                                  ),
-
-                                              onSelectionChanging: (addedRows, removedRows) {
-                                                if (_isSelectionChange) return true;
-
-                                                // Kiểm tra trạng thái bấm phím từ bàn phím
-                                                final keys =
-                                                    HardwareKeyboard.instance.logicalKeysPressed;
-                                                final isShiftPressed =
-                                                    keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                                                    keys.contains(LogicalKeyboardKey.shiftRight);
-                                                final isCtrlPressed =
-                                                    keys.contains(LogicalKeyboardKey.controlLeft) ||
-                                                    keys.contains(LogicalKeyboardKey.controlRight);
-
-                                                // TH 1: Click bình thường (Không nhấn Shift & Ctrl)
-                                                if (!isShiftPressed && !isCtrlPressed) {
-                                                  if (addedRows.isNotEmpty) {
-                                                    final latestRow = addedRows.last;
-
-                                                    _isSelectionChange = true;
-                                                    dataGridController.selectedRows = [latestRow];
-                                                    _isSelectionChange = false;
-
-                                                    _updateSelectedIdsFromRows(
-                                                      dataGridController.selectedRows,
-                                                    );
-                                                    return false;
-                                                  } else if (removedRows.isNotEmpty &&
-                                                      dataGridController.selectedRows.length > 1) {
-                                                    // Nếu đang chọn nhiều dòng, click vào 1 dòng bất kỳ không giữ phím -> Reset về duy nhất dòng đó
-                                                    final clickedRow = removedRows.first;
-
-                                                    _isSelectionChange = true;
-                                                    dataGridController.selectedRows = [clickedRow];
-                                                    _isSelectionChange = false;
-
-                                                    _updateSelectedIdsFromRows(
-                                                      dataGridController.selectedRows,
-                                                    );
-                                                    return false;
-                                                  }
-                                                }
-
-                                                // TH 2: Giữ phím Shift (Chọn một dải dòng liên tiếp)
-                                                if (isShiftPressed &&
-                                                    dataGridController.selectedRows.isNotEmpty &&
-                                                    addedRows.isNotEmpty) {
-                                                  final lastSelected =
-                                                      dataGridController.selectedRows.last;
-                                                  final newlyClicked = addedRows.last;
-
-                                                  final allRows = _cachedDatasource!.rows;
-                                                  final startIdx = allRows.indexOf(lastSelected);
-                                                  final endIdx = allRows.indexOf(newlyClicked);
-
-                                                  if (startIdx != -1 && endIdx != -1) {
-                                                    final min =
-                                                        startIdx < endIdx ? startIdx : endIdx;
-                                                    final max =
-                                                        startIdx > endIdx ? startIdx : endIdx;
-
-                                                    final List<DataGridRow> rangeSelection = [];
-                                                    for (int i = min; i <= max; i++) {
-                                                      rangeSelection.add(allRows[i]);
-                                                    }
-
-                                                    _isSelectionChange = true;
-                                                    dataGridController.selectedRows = List.from(
-                                                      rangeSelection,
-                                                    );
-                                                    _isSelectionChange = false;
-
-                                                    _updateSelectedIdsFromRows(rangeSelection);
-                                                    return false;
-                                                  }
-                                                }
-
-                                                // TH 3: Giữ phím Ctrl
-                                                return true;
-                                              },
-
-                                              onSelectionChanged: (addedRows, removedRows) async {
-                                                if (_isSelectionChange) return;
-                                                _updateSelectedIdsFromRows(
-                                                  dataGridController.selectedRows,
-                                                );
-                                              },
-                                            ),
-                                          ),
-
-                                          selectedBoxesDetail.isNotEmpty
-                                              ? Expanded(
-                                                flex: 1,
-                                                child: AnimatedSize(
-                                                  duration: const Duration(milliseconds: 300),
-                                                  curve: Curves.easeInOut,
-                                                  child: SfDataGrid(
-                                                    source: SyntheticBoxDetail(
-                                                      boxes: selectedBoxesDetail,
-                                                    ),
-                                                    isScrollbarAlwaysShown: true,
-                                                    headerRowHeight: 30,
-                                                    rowHeight: 35,
-                                                    columnWidthMode: ColumnWidthMode.fill,
-                                                    selectionMode: SelectionMode.single,
-                                                    columns: ColumnWidthTable.applySavedWidths(
-                                                      columns: columnsBoxes,
-                                                      widths: columnWidthBoxes,
-                                                    ),
-
-                                                    //auto resize
-                                                    allowColumnsResizing: true,
-                                                    columnResizeMode: ColumnResizeMode.onResize,
-
-                                                    onColumnResizeStart:
-                                                        GridResizeHelper.onResizeStart,
-                                                    onColumnResizeUpdate:
-                                                        (details) =>
-                                                            GridResizeHelper.onResizeUpdate(
-                                                              details: details,
-                                                              columns: columnsBoxes,
-                                                              setState: setState,
-                                                            ),
-                                                    onColumnResizeEnd:
-                                                        (details) => GridResizeHelper.onResizeEnd(
-                                                          details: details,
-                                                          tableKey: "boxesDetail",
-                                                          columnWidths: columnWidthBoxes,
-                                                          setState: setState,
-                                                        ),
-                                                  ),
-                                                ),
-                                              )
-                                              : const SizedBox.shrink(),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-
-                              // Nút chuyển trang
-                              PaginationControls(
-                                currentPage: currentPg,
-                                totalPages: totalPgs,
-                                onPrevious: () {
-                                  setState(() {
-                                    currentPage--;
-                                    loadOrders();
-                                  });
-                                },
-                                onNext: () {
-                                  setState(() {
-                                    currentPage++;
-                                    loadOrders();
-                                  });
-                                },
-                                onJumpToPage: (page) {
-                                  setState(() {
-                                    currentPage = page;
-                                    loadOrders();
-                                  });
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -844,7 +278,8 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 125),
+                  // initialMargin: Offset(73, 125),
+                  initialMargin: Offset(73, 152),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -858,6 +293,516 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "TỔNG HỢP ĐƠN HÀNG",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Row(
+          children: [
+            //left button
+            Expanded(
+              flex: 2,
+              child: LeftButtonSearch(
+                selectedType: searchType,
+                types: const [
+                  "Tất cả",
+                  "Mã Đơn Hàng",
+                  "Tên Khách Hàng",
+                  "Ngày Nhận Đơn",
+                  "Nhân Viên",
+                ],
+                onTypeChanged: (value) {
+                  setState(() {
+                    searchType = value;
+                    isTextFieldEnabled = value != "Tất cả";
+
+                    startDate = null;
+                    endDate = null;
+
+                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                      searchController.clear();
+                      currentPage = 1;
+                      _fetchData();
+                    }
+                  });
+                },
+                controller: searchController,
+                textFieldEnabled: isTextFieldEnabled,
+                buttonColor: themeController.buttonColor,
+                onSearch: () => searchOrders(),
+                customInputBuilder: (inputWidth) {
+                  if (searchType != "Ngày Nhận Đơn") return null;
+
+                  return SizedBox(
+                    width: inputWidth,
+                    height: 50,
+                    child: InkWell(
+                      onTap: () async {
+                        final now = DateTime.now();
+                        final size = MediaQuery.of(context).size;
+
+                        final DateTimeRange? picked = await showDateRangePicker(
+                          context: context,
+                          firstDate: DateTime(2025),
+                          lastDate: DateTime(2100),
+                          initialDateRange:
+                              (startDate != null && endDate != null)
+                                  ? DateTimeRange(start: startDate!, end: endDate!)
+                                  : DateTimeRange(
+                                    start: now.subtract(const Duration(days: 7)),
+                                    end: now,
+                                  ),
+                          builder: (context, child) {
+                            return Center(
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: size.width * 0.3,
+                                  maxHeight: size.height * 0.8,
+                                ),
+                                child: Material(
+                                  borderRadius: BorderRadius.circular(16),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: child!,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+
+                        if (picked != null) {
+                          final displayStart = DateFormat("dd/MM/yyyy").format(picked.start);
+                          final displayEnd = DateFormat("dd/MM/yyyy").format(picked.end);
+
+                          setState(() {
+                            startDate = picked.start;
+                            endDate = picked.end;
+                            searchController.text = "$displayStart - $displayEnd";
+                          });
+                        }
+                      },
+                      child: IgnorePointer(
+                        child: TextField(
+                          controller: searchController,
+                          decoration: InputDecoration(
+                            hintText: "Chọn khoảng thời gian...",
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            suffixIcon: const Icon(Icons.date_range),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            //right button
+            Expanded(
+              flex: 3,
+              child: ValueListenableBuilder(
+                valueListenable: _selectedOrderIdsNotifier,
+                builder: (context, selectedOrderIds, _) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      //export excel
+                      isAccountant
+                          ? AnimatedButton(
+                            onPressed: () async {
+                              showDialog(context: context, builder: (_) => DialogExportOrders());
+                            },
+                            label: "Xuất Excel",
+                            icon: Symbols.export_notes,
+                            backgroundColor: themeController.buttonColor,
+                          )
+                          : const SizedBox.shrink(),
+                      const SizedBox(width: 8),
+
+                      //complete order
+                      isPlan
+                          ? AnimatedButton(
+                            onPressed:
+                                selectedOrderIds.isEmpty
+                                    ? null
+                                    : () async {
+                                      try {
+                                        final bool confirm = await showConfirmDialog(
+                                          context: context,
+                                          title: "Xác nhận hoàn thành đơn hàng",
+                                          content: "Bạn có chắc chắn muốn hoàn thành đơn hàng này?",
+                                          confirmText: "Xác nhận",
+                                        );
+
+                                        if (confirm) {
+                                          final success = await SyntheticService().completeOrders(
+                                            orderIds: selectedOrderIds,
+                                          );
+
+                                          if (success) {
+                                            if (context.mounted) {
+                                              showSnackBarSuccess(
+                                                context,
+                                                "Đơn hàng đã được hoàn thành thành công.",
+                                              );
+
+                                              setState(() {
+                                                selectedOrderIds.clear();
+                                                loadOrders();
+                                              });
+                                            }
+                                          }
+                                          return true;
+                                        }
+                                        return false;
+                                      } on ApiException catch (e) {
+                                        final errorText = switch (e.errorCode) {
+                                          "EMPLOYEE_NOT_FOUND" => e.message!,
+                                          "INVALID_ORDER_STATUS" => e.message!,
+                                          "ZERO_QTY_PRODUCED" => e.message!,
+                                          _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                        };
+
+                                        if (context.mounted) {
+                                          showSnackBarError(context, errorText);
+                                        }
+                                        return false;
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          showSnackBarError(
+                                            context,
+                                            "Hoàn thành đơn hàng thất bại",
+                                          );
+                                        }
+                                        return false;
+                                      }
+                                    },
+                            label: "Hoàn Thành",
+                            icon: Symbols.export_notes,
+                            backgroundColor: themeController.buttonColor,
+                          )
+                          : const SizedBox.shrink(),
+                      const SizedBox(width: 8),
+
+                      //filter
+                      buildDropdownItems(
+                        value: filterType,
+                        items: const ["all", "accept", "planning", "completed"],
+                        width: 180,
+                        onChanged:
+                            (value) => {
+                              setState(() {
+                                filterType = value!;
+                                selectedOrderIds.clear();
+                                selectedBoxesDetail = [];
+                                currentPage = 1;
+                                loadOrders();
+                              }),
+                            },
+                        itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureOrders,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!["orders"].isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn hàng nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final orders = data["orders"] as List<OrderModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
+
+        if (_cachedOrders == null || _cachedOrders != orders) {
+          _cachedOrders = orders;
+          _cachedDatasource = SyntheticOrdersDataSource(
+            orders: orders,
+            selectedOrderIds: _selectedOrderIdsNotifier.value,
+            currentPage: currentPg,
+            pageSize: pageSize,
+          );
+        }
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: StatefulBuilder(
+                builder: (context, localSetState) {
+                  return SfDataGridTheme(
+                    data: SfDataGridThemeData(
+                      selectionColor: Colors.blue.withValues(alpha: 0.3),
+                      currentCellStyle: const DataGridCurrentCellStyle(
+                        borderColor: Colors.transparent,
+                        borderWidth: 0,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: SfDataGrid(
+                            controller: dataGridController,
+                            source: _cachedDatasource!,
+                            isScrollbarAlwaysShown: true,
+                            columnWidthMode: ColumnWidthMode.auto,
+                            selectionMode: SelectionMode.multiple,
+                            headerRowHeight: 35,
+                            rowHeight: 40,
+                            columns: ColumnWidthTable.applySavedWidths(
+                              columns: columnsOrders,
+                              widths: columnWidthOrders,
+                            ),
+                            stackedHeaderRows: <StackedHeaderRow>[
+                              StackedHeaderRow(
+                                cells: [
+                                  StackedHeaderCell(
+                                    columnNames: [
+                                      "sizeCust",
+                                      "lengthCust",
+                                      "sizeManu",
+                                      "lengthManu",
+                                    ],
+                                    child: Obx(
+                                      () => formatColumn(
+                                        label: "Quy Cách",
+                                        themeController: themeController,
+                                      ),
+                                    ),
+                                  ),
+                                  StackedHeaderCell(
+                                    columnNames: [
+                                      "quantityCustomer",
+                                      "qtyOutbound",
+                                      "qtyInventory",
+                                      "qtyVariance",
+                                      "qtyWasteNorm",
+                                    ],
+                                    child: Obx(
+                                      () => formatColumn(
+                                        label: "Số Lượng",
+                                        themeController: themeController,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+
+                            //auto resize
+                            allowColumnsResizing: true,
+                            columnResizeMode: ColumnResizeMode.onResize,
+
+                            onColumnResizeStart: GridResizeHelper.onResizeStart,
+                            onColumnResizeUpdate:
+                                (details) => GridResizeHelper.onResizeUpdate(
+                                  details: details,
+                                  columns: columnsOrders,
+                                  setState: localSetState,
+                                ),
+                            onColumnResizeEnd:
+                                (details) => GridResizeHelper.onResizeEnd(
+                                  details: details,
+                                  tableKey: "syntheticOrders",
+                                  columnWidths: columnWidthOrders,
+                                  setState: setState,
+                                ),
+
+                            onSelectionChanging: (addedRows, removedRows) {
+                              if (_isSelectionChange) return true;
+
+                              // Kiểm tra trạng thái bấm phím từ bàn phím
+                              final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                              final isShiftPressed =
+                                  keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                                  keys.contains(LogicalKeyboardKey.shiftRight);
+                              final isCtrlPressed =
+                                  keys.contains(LogicalKeyboardKey.controlLeft) ||
+                                  keys.contains(LogicalKeyboardKey.controlRight);
+
+                              // TH 1: Click bình thường (Không nhấn Shift & Ctrl)
+                              if (!isShiftPressed && !isCtrlPressed) {
+                                if (addedRows.isNotEmpty) {
+                                  final latestRow = addedRows.last;
+
+                                  _isSelectionChange = true;
+                                  dataGridController.selectedRows = [latestRow];
+                                  _isSelectionChange = false;
+
+                                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                                  return false;
+                                } else if (removedRows.isNotEmpty &&
+                                    dataGridController.selectedRows.length > 1) {
+                                  // Nếu đang chọn nhiều dòng, click vào 1 dòng bất kỳ không giữ phím -> Reset về duy nhất dòng đó
+                                  final clickedRow = removedRows.first;
+
+                                  _isSelectionChange = true;
+                                  dataGridController.selectedRows = [clickedRow];
+                                  _isSelectionChange = false;
+
+                                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                                  return false;
+                                }
+                              }
+
+                              // TH 2: Giữ phím Shift (Chọn một dải dòng liên tiếp)
+                              if (isShiftPressed &&
+                                  dataGridController.selectedRows.isNotEmpty &&
+                                  addedRows.isNotEmpty) {
+                                final lastSelected = dataGridController.selectedRows.last;
+                                final newlyClicked = addedRows.last;
+
+                                final allRows = _cachedDatasource!.rows;
+                                final startIdx = allRows.indexOf(lastSelected);
+                                final endIdx = allRows.indexOf(newlyClicked);
+
+                                if (startIdx != -1 && endIdx != -1) {
+                                  final min = startIdx < endIdx ? startIdx : endIdx;
+                                  final max = startIdx > endIdx ? startIdx : endIdx;
+
+                                  final List<DataGridRow> rangeSelection = [];
+                                  for (int i = min; i <= max; i++) {
+                                    rangeSelection.add(allRows[i]);
+                                  }
+
+                                  _isSelectionChange = true;
+                                  dataGridController.selectedRows = List.from(rangeSelection);
+                                  _isSelectionChange = false;
+
+                                  _updateSelectedIdsFromRows(rangeSelection);
+                                  return false;
+                                }
+                              }
+
+                              // TH 3: Giữ phím Ctrl
+                              return true;
+                            },
+
+                            onSelectionChanged: (addedRows, removedRows) async {
+                              if (_isSelectionChange) return;
+                              _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                            },
+                          ),
+                        ),
+
+                        selectedBoxesDetail.isNotEmpty
+                            ? Expanded(
+                              flex: 1,
+                              child: AnimatedSize(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                child: SfDataGrid(
+                                  source: SyntheticBoxDetail(boxes: selectedBoxesDetail),
+                                  isScrollbarAlwaysShown: true,
+                                  headerRowHeight: 30,
+                                  rowHeight: 35,
+                                  columnWidthMode: ColumnWidthMode.fill,
+                                  selectionMode: SelectionMode.single,
+                                  columns: ColumnWidthTable.applySavedWidths(
+                                    columns: columnsBoxes,
+                                    widths: columnWidthBoxes,
+                                  ),
+
+                                  //auto resize
+                                  allowColumnsResizing: true,
+                                  columnResizeMode: ColumnResizeMode.onResize,
+
+                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                  onColumnResizeUpdate:
+                                      (details) => GridResizeHelper.onResizeUpdate(
+                                        details: details,
+                                        columns: columnsBoxes,
+                                        setState: setState,
+                                      ),
+                                  onColumnResizeEnd:
+                                      (details) => GridResizeHelper.onResizeEnd(
+                                        details: details,
+                                        tableKey: "boxesDetail",
+                                        columnWidths: columnWidthBoxes,
+                                        setState: setState,
+                                      ),
+                                ),
+                              ),
+                            )
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Nút chuyển trang
+            PaginationControls(
+              currentPage: currentPg,
+              totalPages: totalPgs,
+              onPrevious: () {
+                setState(() {
+                  currentPage--;
+                  loadOrders();
+                });
+              },
+              onNext: () {
+                setState(() {
+                  currentPage++;
+                  loadOrders();
+                });
+              },
+              onJumpToPage: (page) {
+                setState(() {
+                  currentPage = page;
+                  loadOrders();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

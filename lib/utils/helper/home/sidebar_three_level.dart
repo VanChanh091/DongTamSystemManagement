@@ -31,6 +31,11 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
     final sidebarController = Get.find<SidebarController>();
     final unsavedChangeController = Get.find<UnsavedChangeController>();
 
+    // Tạo Map tra cứu Index theo Type chỉ 1 lần duy nhất
+    final Map<Type, int> pageTypeToIndex = {
+      for (int i = 0; i < widget.pages.length; i++) widget.pages[i].runtimeType: i,
+    };
+
     return Obx(() {
       final selectedIndex = sidebarController.selectedIndex.value;
       String activeKey = sidebarController.activeMenuKey.value;
@@ -38,10 +43,11 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
       sidebarController.expandParentsForActiveKey(activeKey);
       bool keyMatchesCurrentIndex = false;
 
+      // Kiếm tra activeKey hiện tại có khớp với selectedIndex không
       for (var item in widget.menuConfigs) {
         if (item is LeafMenuConfig &&
             item.label == activeKey &&
-            item.getIndex(widget.pages) == selectedIndex) {
+            item.getIndex(pageTypeToIndex) == selectedIndex) {
           keyMatchesCurrentIndex = true;
           break;
         }
@@ -49,14 +55,14 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
           for (var child in item.children) {
             if (child is LeafMenuConfig &&
                 "${item.label} > ${child.label}" == activeKey &&
-                child.getIndex(widget.pages) == selectedIndex) {
+                child.getIndex(pageTypeToIndex) == selectedIndex) {
               keyMatchesCurrentIndex = true;
               break;
             }
             if (child is GroupMenuConfig) {
               for (var leaf in child.items) {
                 if ("${item.label} > ${child.label} > ${leaf.label}" == activeKey &&
-                    leaf.getIndex(widget.pages) == selectedIndex) {
+                    leaf.getIndex(pageTypeToIndex) == selectedIndex) {
                   keyMatchesCurrentIndex = true;
                   break;
                 }
@@ -66,22 +72,23 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
         }
       }
 
+      // Nếu không khớp, tìm fallbackKey
       if (!keyMatchesCurrentIndex) {
         String? fallbackKey;
         for (var item in widget.menuConfigs) {
-          if (item is LeafMenuConfig && item.getIndex(widget.pages) == selectedIndex) {
+          if (item is LeafMenuConfig && item.getIndex(pageTypeToIndex) == selectedIndex) {
             fallbackKey = item.label;
             break;
           }
           if (item is DepartmentMenuConfig) {
             for (var child in item.children) {
-              if (child is LeafMenuConfig && child.getIndex(widget.pages) == selectedIndex) {
+              if (child is LeafMenuConfig && child.getIndex(pageTypeToIndex) == selectedIndex) {
                 fallbackKey = "${item.label} > ${child.label}";
                 break;
               }
               if (child is GroupMenuConfig) {
                 for (var leaf in child.items) {
-                  if (leaf.getIndex(widget.pages) == selectedIndex) {
+                  if (leaf.getIndex(pageTypeToIndex) == selectedIndex) {
                     fallbackKey = "${item.label} > ${child.label} > ${leaf.label}";
                     break;
                   }
@@ -92,6 +99,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
           }
           if (fallbackKey != null) break;
         }
+
         if (fallbackKey != null) {
           activeKey = fallbackKey;
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -107,27 +115,27 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
 
           // Nếu là Menu độc lập cấp 1 (Dashboard, Đổi màu theme)
           if (item is LeafMenuConfig) {
-            if (item.onTap == null && !item.isVisible(widget.pages)) {
+            if (item.onTap == null && !item.isVisible(pageTypeToIndex)) {
               return const SizedBox.shrink();
             }
 
             return _buildLeafNode(
               leaf: item,
-              pages: widget.pages,
+              itemIndex: item.getIndex(pageTypeToIndex),
               selectedIndex: selectedIndex,
               unsavedController: unsavedChangeController,
               sidebarController: sidebarController,
               indentation: 16.0,
               isRoot: true,
-              level: 1, // Cấp 1: Giữ nguyên khoảng cách gốc rộng rãi
+              level: 1,
               uniqueKey: item.label,
               activeKey: activeKey,
             );
           }
 
-          // Nếu là Menu Phòng ban
+          // Nếu là Menu Phòng ban cấp 1
           if (item is DepartmentMenuConfig) {
-            if (!item.isVisible(widget.pages)) return const SizedBox.shrink();
+            if (!item.isVisible(pageTypeToIndex)) return const SizedBox.shrink();
 
             final isDeptActive = activeKey.startsWith("${item.label} > ");
             final deptKey = "dept_${item.label}";
@@ -208,10 +216,11 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                   if (widget.isSidebarOpen && isDeptExpanded)
                     ...item.children.map<Widget>((child) {
                       if (child is GroupMenuConfig) {
-                        if (!child.isVisible(widget.pages)) return const SizedBox.shrink();
-                        final groupKey = "group_${item.label}_${child.label}";
+                        if (!child.isVisible(pageTypeToIndex)) return const SizedBox.shrink();
 
+                        final groupKey = "group_${item.label}_${child.label}";
                         final isGroupExpanded = sidebarController.isExpanded(groupKey);
+
                         final isGroupActive = activeKey.startsWith(
                           "${item.label} > ${child.label} > ",
                         );
@@ -254,6 +263,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                                               size: groupIconSize,
                                             ),
                                         const SizedBox(width: 12),
+
                                         Expanded(
                                           child: Text(
                                             child.label,
@@ -269,6 +279,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                                             ),
                                           ),
                                         ),
+
                                         Icon(
                                           isGroupExpanded ? Icons.expand_less : Icons.expand_more,
                                           color: Colors.white,
@@ -282,13 +293,15 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                             ),
                             if (isGroupExpanded)
                               ...child.items.map<Widget>((leaf) {
-                                if (!leaf.isVisible(widget.pages)) return const SizedBox.shrink();
+                                if (!leaf.isVisible(pageTypeToIndex)) {
+                                  return const SizedBox.shrink();
+                                }
 
                                 final leafKey = "${item.label} > ${child.label} > ${leaf.label}";
 
                                 return _buildLeafNode(
                                   leaf: leaf,
-                                  pages: widget.pages,
+                                  itemIndex: leaf.getIndex(pageTypeToIndex),
                                   selectedIndex: selectedIndex,
                                   unsavedController: unsavedChangeController,
                                   sidebarController: sidebarController,
@@ -304,13 +317,12 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
 
                       // Xử lý Cấp 2 dạng Leaf trực thuộc Phòng ban
                       if (child is LeafMenuConfig) {
-                        if (!child.isVisible(widget.pages)) return const SizedBox.shrink();
-
+                        if (!child.isVisible(pageTypeToIndex)) return const SizedBox.shrink();
                         final leafKey = "${item.label} > ${child.label}";
 
                         return _buildLeafNode(
                           leaf: child,
-                          pages: widget.pages,
+                          itemIndex: child.getIndex(pageTypeToIndex),
                           selectedIndex: selectedIndex,
                           unsavedController: unsavedChangeController,
                           sidebarController: sidebarController,
@@ -336,7 +348,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
   // Builder dùng chung vẽ Dashboard, Menu lẻ Cấp 2, Menu Cấp 3
   Widget _buildLeafNode({
     required LeafMenuConfig leaf,
-    required List<Widget> pages,
+    required int itemIndex,
     required int selectedIndex,
     required double indentation, // Khoảng cách thụt lề cho Cấp 2 và Cấp 3
     required SidebarController sidebarController,
@@ -347,7 +359,6 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
     bool isRoot = false,
   }) {
     final bool isActive = activeKey == uniqueKey;
-    final int itemIndex = leaf.getIndex(pages);
     final int badgeValue = leaf.getBadgeValue();
 
     double finalIconSize = 23.0;

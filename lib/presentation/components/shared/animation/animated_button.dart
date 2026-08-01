@@ -34,8 +34,8 @@ class _AnimatedButtonState extends State<AnimatedButton> {
 
   Widget _buildButton(Color bgColor) {
     return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 1, end: _isPressed ? 0.9 : 1),
-      duration: const Duration(milliseconds: 200),
+      tween: Tween(begin: 1, end: _isPressed ? 0.9 : 1), // Khi nhấn, scale giảm xuống 0.9
+      duration: const Duration(milliseconds: 200), // Thời gian hiệu ứng
       builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
       child: Listener(
         onPointerDown: (_) => setState(() => _isPressed = true),
@@ -49,7 +49,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
                   : const SizedBox.shrink(),
           label: Text(
             widget.label,
-            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
+            style: GoogleFonts.inter(fontSize: 15.5, fontWeight: FontWeight.bold),
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: bgColor,

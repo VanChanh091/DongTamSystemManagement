@@ -52,7 +52,6 @@ class LeftButtonSearch extends StatelessWidget {
         builder: (context, constraints) {
           final maxWidth = constraints.maxWidth;
 
-          // giữ y nguyên logic của ông
           final dropdownWidth = (maxWidth * 0.2).clamp(minDropdownWidth, maxDropdownWidth);
           final textInputWidth = (maxWidth * 0.3).clamp(minInputWidth, maxInputWidth);
 
@@ -62,13 +61,15 @@ class LeftButtonSearch extends StatelessWidget {
               custom ??
               SizedBox(
                 width: textInputWidth,
-                height: 50,
+                height: 45,
                 child: TextField(
                   controller: controller,
                   enabled: textFieldEnabled,
                   onSubmitted: (_) => onSearch(),
                   decoration: InputDecoration(
                     hintText: 'Tìm kiếm...',
+                    filled: true,
+                    fillColor: textFieldEnabled ? Colors.white : Colors.grey.shade200,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   ),

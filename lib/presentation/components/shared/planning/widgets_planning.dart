@@ -199,6 +199,7 @@ Widget buildDropdownItems({
 }) {
   return SizedBox(
     width: width,
+    height: 45,
     child: DropdownButtonFormField<String>(
       isExpanded: true,
       initialValue: value,

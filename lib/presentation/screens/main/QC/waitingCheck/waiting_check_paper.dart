@@ -98,6 +98,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -131,264 +132,24 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                   },
                 );
               },
-              //container contain button and table
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 105,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 35,
-                            width: double.infinity,
-                            child: Center(
-                              child: Text(
-                                "DANH SÁCH GIẤY TẤM CHỜ KIỂM ABC",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                  color: themeController.currentColor.value,
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          //button menu
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const SizedBox(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedPlanningIdNotifier,
-                                      builder: (context, selectedPlanningIds, _) {
-                                        //QC Check
-                                        final bool qcCheck =
-                                            userController.hasPermission(permission: 'QC') &&
-                                            canExecuteAction(
-                                              selectedPlanningIds:
-                                                  _selectedPlanningIdNotifier.value
-                                                      .map(int.parse)
-                                                      .toList(),
-                                              planningList: planningList,
-                                            );
-
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            //inbound warehouse
-                                            AnimatedButton(
-                                              onPressed:
-                                                  qcCheck
-                                                      ? () async {
-                                                        final int selectedPlanningId = int.parse(
-                                                          selectedPlanningIds.first,
-                                                        );
-
-                                                        final selectedPlanning = planningList
-                                                            .firstWhere(
-                                                              (p) =>
-                                                                  p.planningId ==
-                                                                  selectedPlanningId,
-                                                              orElse:
-                                                                  () =>
-                                                                      throw Exception(
-                                                                        "Không tìm thấy kế hoạch",
-                                                                      ),
-                                                            );
-
-                                                        final int remainQty =
-                                                            (selectedPlanning.qtyProduced ?? 0) -
-                                                            selectedPlanning.getTotalQtyInbound;
-
-                                                        showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (_) => DialogCheckQC(
-                                                                planningId:
-                                                                    selectedPlanning.planningId,
-                                                                onQcSessionAddOrUpdate:
-                                                                    () => loadPaperWaiting(),
-                                                                type: 'paper',
-                                                                valueInbound: remainQty,
-                                                              ),
-                                                        );
-                                                      }
-                                                      : null,
-                                              label: "Nhập Kho",
-                                              icon: Symbols.input,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    // table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futurePlanning,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có đơn hàng nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final data = snapshot.data as List<PlanningPaperModel>;
-                          planningList = data;
-
-                          if (_cachedPapers != data || _cachedDatasource == null) {
-                            _cachedPapers = data;
-                            _cachedDatasource = WaitingCheckPaperDataSource(
-                              planning: data,
-                              selectedPlanningIds: _selectedPlanningIdNotifier.value,
-                              showGroup: showGroup,
-                            );
-                          }
-
-                          return StatefulBuilder(
-                            builder: (context, localSetState) {
-                              return SfDataGridTheme(
-                                data: SfDataGridThemeData(
-                                  selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                ),
-                                child: SfDataGrid(
-                                  controller: dataGridController,
-                                  source: _cachedDatasource!,
-                                  allowExpandCollapseGroup: true, // Bật grouping
-                                  autoExpandGroups: true,
-                                  isScrollbarAlwaysShown: true,
-                                  columnWidthMode: ColumnWidthMode.auto,
-                                  selectionMode: SelectionMode.single,
-                                  headerRowHeight: 35,
-                                  rowHeight: 40,
-                                  frozenColumnsCount: 7,
-                                  columns: ColumnWidthTable.applySavedWidths(
-                                    columns: columns,
-                                    widths: columnWidths,
-                                  ),
-                                  stackedHeaderRows: <StackedHeaderRow>[
-                                    StackedHeaderRow(
-                                      cells: [
-                                        StackedHeaderCell(
-                                          columnNames: ['qtyProduced', "inboundQty"],
-                                          child: formatColumn(
-                                            label: 'Số Lượng',
-                                            themeController: themeController,
-                                          ),
-                                        ),
-                                        StackedHeaderCell(
-                                          columnNames: [
-                                            'bottom',
-                                            'fluteE',
-                                            'fluteE2',
-                                            'fluteB',
-                                            'fluteC',
-                                            'knife',
-                                            'totalLoss',
-                                          ],
-                                          child: formatColumn(
-                                            label: 'Định Mức Phế Liệu',
-                                            themeController: themeController,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-
-                                  //auto resize
-                                  allowColumnsResizing: true,
-                                  columnResizeMode: ColumnResizeMode.onResize,
-
-                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                  onColumnResizeUpdate:
-                                      (details) => GridResizeHelper.onResizeUpdate(
-                                        details: details,
-                                        columns: columns,
-                                        setState: localSetState,
-                                      ),
-                                  onColumnResizeEnd:
-                                      (details) => GridResizeHelper.onResizeEnd(
-                                        details: details,
-                                        tableKey: 'queuePaper',
-                                        columnWidths: columnWidths,
-                                        setState: setState,
-                                      ),
-
-                                  onSelectionChanged: (addedRows, removedRows) {
-                                    if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                                    final selectedRows = dataGridController.selectedRows;
-
-                                    final newIds =
-                                        selectedRows
-                                            .map((row) {
-                                              final cell = row.getCells().firstWhere(
-                                                (c) => c.columnName == 'planningId',
-                                                orElse:
-                                                    () => const DataGridCell(
-                                                      columnName: 'planningId',
-                                                      value: '',
-                                                    ),
-                                              );
-                                              return cell.value.toString();
-                                            })
-                                            .where((id) => id.isNotEmpty)
-                                            .toList();
-
-                                    // cập nhật cho datasource
-                                    _selectedPlanningIdNotifier.value = newIds;
-                                    _cachedDatasource?.selectedPlanningIds = newIds;
-                                    localSetState(() {});
-                                  },
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -399,7 +160,8 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 125),
+                  // initialMargin: Offset(73, 125),
+                  initialMargin: Offset(73, 152),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -413,6 +175,221 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Text(
+            "DANH SÁCH GIẤY TẤM CHỜ KIỂM",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              color: themeController.currentColor.value,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        //button menu
+        Row(
+          children: [
+            Expanded(flex: 2, child: const SizedBox()),
+
+            //right button
+            Expanded(
+              flex: 3,
+              child: ValueListenableBuilder(
+                valueListenable: _selectedPlanningIdNotifier,
+                builder: (context, selectedPlanningIds, _) {
+                  //QC Check
+                  final bool qcCheck =
+                      userController.hasPermission(permission: 'QC') &&
+                      canExecuteAction(
+                        selectedPlanningIds:
+                            _selectedPlanningIdNotifier.value.map(int.parse).toList(),
+                        planningList: planningList,
+                      );
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      //inbound warehouse
+                      AnimatedButton(
+                        onPressed:
+                            qcCheck
+                                ? () async {
+                                  final int selectedPlanningId = int.parse(
+                                    selectedPlanningIds.first,
+                                  );
+
+                                  final selectedPlanning = planningList.firstWhere(
+                                    (p) => p.planningId == selectedPlanningId,
+                                    orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+                                  );
+
+                                  final int remainQty =
+                                      (selectedPlanning.qtyProduced ?? 0) -
+                                      selectedPlanning.getTotalQtyInbound;
+
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (_) => DialogCheckQC(
+                                          planningId: selectedPlanning.planningId,
+                                          onQcSessionAddOrUpdate: () => loadPaperWaiting(),
+                                          type: 'paper',
+                                          valueInbound: remainQty,
+                                        ),
+                                  );
+                                }
+                                : null,
+                        label: "Nhập Kho",
+                        icon: Symbols.input,
+                        backgroundColor: themeController.buttonColor,
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futurePlanning,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn hàng chờ kiểm nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data as List<PlanningPaperModel>;
+        planningList = data;
+
+        if (_cachedPapers != data || _cachedDatasource == null) {
+          _cachedPapers = data;
+          _cachedDatasource = WaitingCheckPaperDataSource(
+            planning: data,
+            selectedPlanningIds: _selectedPlanningIdNotifier.value,
+            showGroup: showGroup,
+          );
+        }
+
+        return StatefulBuilder(
+          builder: (context, localSetState) {
+            return SfDataGridTheme(
+              data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+              child: SfDataGrid(
+                controller: dataGridController,
+                source: _cachedDatasource!,
+                allowExpandCollapseGroup: true, // Bật grouping
+                autoExpandGroups: true,
+                isScrollbarAlwaysShown: true,
+                columnWidthMode: ColumnWidthMode.auto,
+                selectionMode: SelectionMode.single,
+                headerRowHeight: 35,
+                rowHeight: 40,
+                frozenColumnsCount: 7,
+                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
+                stackedHeaderRows: <StackedHeaderRow>[
+                  StackedHeaderRow(
+                    cells: [
+                      StackedHeaderCell(
+                        columnNames: ['qtyProduced', "inboundQty"],
+                        child: formatColumn(label: 'Số Lượng', themeController: themeController),
+                      ),
+                      StackedHeaderCell(
+                        columnNames: [
+                          'bottom',
+                          'fluteE',
+                          'fluteE2',
+                          'fluteB',
+                          'fluteC',
+                          'knife',
+                          'totalLoss',
+                        ],
+                        child: formatColumn(
+                          label: 'Định Mức Phế Liệu',
+                          themeController: themeController,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                //auto resize
+                allowColumnsResizing: true,
+                columnResizeMode: ColumnResizeMode.onResize,
+
+                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                onColumnResizeUpdate:
+                    (details) => GridResizeHelper.onResizeUpdate(
+                      details: details,
+                      columns: columns,
+                      setState: localSetState,
+                    ),
+                onColumnResizeEnd:
+                    (details) => GridResizeHelper.onResizeEnd(
+                      details: details,
+                      tableKey: 'queuePaper',
+                      columnWidths: columnWidths,
+                      setState: setState,
+                    ),
+
+                onSelectionChanged: (addedRows, removedRows) {
+                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                  final selectedRows = dataGridController.selectedRows;
+
+                  final newIds =
+                      selectedRows
+                          .map((row) {
+                            final cell = row.getCells().firstWhere(
+                              (c) => c.columnName == 'planningId',
+                              orElse: () => const DataGridCell(columnName: 'planningId', value: ''),
+                            );
+                            return cell.value.toString();
+                          })
+                          .where((id) => id.isNotEmpty)
+                          .toList();
+
+                  // cập nhật cho datasource
+                  _selectedPlanningIdNotifier.value = newIds;
+                  _cachedDatasource?.selectedPlanningIds = newIds;
+                  localSetState(() {});
+                },
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

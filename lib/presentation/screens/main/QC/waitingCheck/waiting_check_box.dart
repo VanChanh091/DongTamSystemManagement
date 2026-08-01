@@ -130,6 +130,7 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -164,399 +165,23 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                 );
               },
 
-              //container contain button and table
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //button
-                    SizedBox(
-                      height: 105,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 35,
-                            width: double.infinity,
-                            child: Center(
-                              child: Text(
-                                "DANH SÁCH CÔNG ĐOẠN 2 CHỜ KIỂM",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                  color: themeController.currentColor.value,
-                                ),
-                              ),
-                            ),
-                          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                          //button
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //left button
-                                const SizedBox(),
-
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedPlanningBoxIdsNotifier,
-                                      builder: (context, selectedPlanningBoxIds, _) {
-                                        //QC Check
-                                        final bool qcCheck =
-                                            userController.hasPermission(permission: 'QC') &&
-                                            canExecuteAction(
-                                              selectedPlanningBoxIds:
-                                                  _selectedPlanningBoxIdsNotifier.value,
-                                              planningList: planningList,
-                                            );
-
-                                        final PlanningBoxModel? selectedPlanning =
-                                            _selectedPlanningBoxIdsNotifier.value != null
-                                                ? planningList.firstWhereOrNull(
-                                                  (p) =>
-                                                      p.planningBoxId ==
-                                                      _selectedPlanningBoxIdsNotifier.value,
-                                                )
-                                                : null;
-
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            //inbound warehouse
-                                            AnimatedButton(
-                                              onPressed:
-                                                  qcCheck
-                                                      ? () async {
-                                                        final int remainQty =
-                                                            requestQtyProduced -
-                                                            selectedPlanning!.getTotalQtyInbound;
-
-                                                        showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (_) => DialogCheckQC(
-                                                                planningBoxId:
-                                                                    selectedPlanningBoxIds!,
-                                                                onQcSessionAddOrUpdate:
-                                                                    () => loadBoxWaiting(),
-                                                                valueInbound: remainQty,
-                                                                type: 'box',
-                                                              ),
-                                                        );
-                                                      }
-                                                      : null,
-                                              label: "Nhập Kho",
-                                              icon: Symbols.input,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    // table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futureBoxWaiting,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có đơn hàng nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final List<PlanningBoxModel> data = snapshot.data!;
-                          planningList = data;
-
-                          if (_cachedBoxes != data || _cachedDatasource == null) {
-                            _cachedBoxes = data;
-                            _cachedDatasource = WaitingCheckBoxDataSource(
-                              planning: data,
-                              selectedPlanningBoxIds: _selectedPlanningBoxIdsNotifier.value,
-                            );
-                          }
-
-                          return Column(
-                            children: [
-                              //table
-                              Expanded(
-                                child: StatefulBuilder(
-                                  builder: (context, localSetState) {
-                                    return Column(
-                                      children: [
-                                        Expanded(
-                                          flex: 2,
-                                          child: SfDataGridTheme(
-                                            data: SfDataGridThemeData(
-                                              selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                            ),
-                                            child: SfDataGrid(
-                                              source: _cachedDatasource!,
-                                              isScrollbarAlwaysShown: true,
-                                              columnWidthMode: ColumnWidthMode.auto,
-                                              selectionMode: SelectionMode.single,
-                                              headerRowHeight: 35,
-                                              rowHeight: 38,
-                                              columns: ColumnWidthTable.applySavedWidths(
-                                                columns: columnsBox,
-                                                widths: columnWidthsPlanning,
-                                              ),
-                                              stackedHeaderRows: <StackedHeaderRow>[
-                                                StackedHeaderRow(
-                                                  cells: [
-                                                    StackedHeaderCell(
-                                                      columnNames: [
-                                                        "quantityOrd",
-                                                        "qtyPaper",
-                                                        "inboundQty",
-                                                      ],
-                                                      child: Obx(
-                                                        () => formatColumn(
-                                                          label: 'Số Lượng',
-                                                          themeController: themeController,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    StackedHeaderCell(
-                                                      columnNames: ["inMatTruoc", "inMatSau"],
-                                                      child: Obx(
-                                                        () => formatColumn(
-                                                          label: 'In Ấn',
-                                                          themeController: themeController,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    StackedHeaderCell(
-                                                      columnNames: ["dan_1_Manh", "dan_2_Manh"],
-                                                      child: Obx(
-                                                        () => formatColumn(
-                                                          label: 'Dán',
-                                                          themeController: themeController,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    StackedHeaderCell(
-                                                      columnNames: [
-                                                        "dongGhim1Manh",
-                                                        "dongGhim2Manh",
-                                                      ],
-                                                      child: Obx(
-                                                        () => formatColumn(
-                                                          label: 'Đóng Ghim',
-                                                          themeController: themeController,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-
-                                              //auto resize
-                                              allowColumnsResizing: true,
-                                              columnResizeMode: ColumnResizeMode.onResize,
-
-                                              onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                              onColumnResizeUpdate:
-                                                  (details) => GridResizeHelper.onResizeUpdate(
-                                                    details: details,
-                                                    columns: columnsBox,
-                                                    setState: localSetState,
-                                                  ),
-                                              onColumnResizeEnd:
-                                                  (details) => GridResizeHelper.onResizeEnd(
-                                                    details: details,
-                                                    tableKey: 'boxWaiting',
-                                                    columnWidths: columnWidthsPlanning,
-                                                    setState: setState,
-                                                  ),
-
-                                              onSelectionChanged: (addedRows, removedRows) async {
-                                                if (addedRows.isNotEmpty) {
-                                                  final selectedRow = addedRows.first;
-
-                                                  final planningBoxId =
-                                                      selectedRow
-                                                          .getCells()
-                                                          .firstWhere(
-                                                            (cell) =>
-                                                                cell.columnName == 'planningBoxId',
-                                                          )
-                                                          .value;
-
-                                                  setState(() {
-                                                    _selectedPlanningBoxIdsNotifier.value =
-                                                        planningBoxId;
-                                                    selectedStages = [];
-                                                  });
-
-                                                  try {
-                                                    final stages = await WarehouseService()
-                                                        .getBoxWaitingCheckedDetail(
-                                                          planningBoxId: planningBoxId,
-                                                        );
-
-                                                    setState(() {
-                                                      selectedStages = stages;
-                                                      localSetState(() {});
-                                                    });
-                                                  } catch (e) {
-                                                    if (context.mounted) {
-                                                      showSnackBarError(
-                                                        context,
-                                                        "Lỗi khi lấy chi tiết công đoạn",
-                                                      );
-                                                    }
-                                                  }
-                                                } else {
-                                                  setState(() {
-                                                    _selectedPlanningBoxIdsNotifier.value = null;
-                                                    selectedStages = [];
-                                                  });
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ),
-
-                                        selectedStages.isNotEmpty
-                                            ? Expanded(
-                                              flex: 1,
-                                              child: AnimatedSize(
-                                                duration: const Duration(milliseconds: 300),
-                                                curve: Curves.easeInOut,
-                                                child: SfDataGrid(
-                                                  source: StagesDataSource(stages: selectedStages),
-                                                  isScrollbarAlwaysShown: true,
-                                                  headerRowHeight: 30,
-                                                  rowHeight: 35,
-                                                  columnWidthMode: ColumnWidthMode.fill,
-                                                  selectionMode: SelectionMode.single,
-                                                  columns: ColumnWidthTable.applySavedWidths(
-                                                    columns: columnsStages,
-                                                    widths: columnWidthsStage,
-                                                  ),
-                                                  stackedHeaderRows: <StackedHeaderRow>[
-                                                    StackedHeaderRow(
-                                                      cells: [
-                                                        StackedHeaderCell(
-                                                          columnNames: [
-                                                            "dayStart",
-                                                            "dayCompleted",
-                                                            "dayCompletedOvfl",
-                                                          ],
-                                                          child: Obx(
-                                                            () => formatColumn(
-                                                              label: 'Ngày',
-                                                              themeController: themeController,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        StackedHeaderCell(
-                                                          columnNames: [
-                                                            "timeRunning",
-                                                            "timeRunningOvfl",
-                                                          ],
-                                                          child: Obx(
-                                                            () => formatColumn(
-                                                              label: 'Thời Gian',
-                                                              themeController: themeController,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        StackedHeaderCell(
-                                                          columnNames: [
-                                                            "runningPlan",
-                                                            "qtyProduced",
-                                                          ],
-                                                          child: Obx(
-                                                            () => formatColumn(
-                                                              label: 'Số Lượng',
-                                                              themeController: themeController,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        StackedHeaderCell(
-                                                          columnNames: ["wasteBox", "rpWasteLoss"],
-                                                          child: Obx(
-                                                            () => formatColumn(
-                                                              label: 'Phế Liệu',
-                                                              themeController: themeController,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-
-                                                  //auto resize
-                                                  allowColumnsResizing: true,
-                                                  columnResizeMode: ColumnResizeMode.onResize,
-
-                                                  onColumnResizeStart:
-                                                      GridResizeHelper.onResizeStart,
-                                                  onColumnResizeUpdate:
-                                                      (details) => GridResizeHelper.onResizeUpdate(
-                                                        details: details,
-                                                        columns: columnsStages,
-                                                        setState: setState,
-                                                      ),
-                                                  onColumnResizeEnd:
-                                                      (details) => GridResizeHelper.onResizeEnd(
-                                                        details: details,
-                                                        tableKey: 'stage',
-                                                        columnWidths: columnWidthsStage,
-                                                        setState: setState,
-                                                      ),
-                                                ),
-                                              ),
-                                            )
-                                            : const SizedBox.shrink(),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -567,7 +192,8 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 125),
+                  // initialMargin: Offset(73, 125),
+                  initialMargin: Offset(73, 152),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -581,6 +207,349 @@ class _WaitingCheckBoxState extends State<WaitingCheckBox> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Text(
+            "DANH SÁCH CÔNG ĐOẠN 2 CHỜ KIỂM",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              color: themeController.currentColor.value,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        //button
+        Row(
+          children: [
+            //left button
+            Expanded(flex: 2, child: const SizedBox()),
+
+            //right button
+            Expanded(
+              flex: 3,
+              child: ValueListenableBuilder(
+                valueListenable: _selectedPlanningBoxIdsNotifier,
+                builder: (context, selectedPlanningBoxIds, _) {
+                  //QC Check
+                  final bool qcCheck =
+                      userController.hasPermission(permission: 'QC') &&
+                      canExecuteAction(
+                        selectedPlanningBoxIds: _selectedPlanningBoxIdsNotifier.value,
+                        planningList: planningList,
+                      );
+
+                  final PlanningBoxModel? selectedPlanning =
+                      _selectedPlanningBoxIdsNotifier.value != null
+                          ? planningList.firstWhereOrNull(
+                            (p) => p.planningBoxId == _selectedPlanningBoxIdsNotifier.value,
+                          )
+                          : null;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      //inbound warehouse
+                      AnimatedButton(
+                        onPressed:
+                            qcCheck
+                                ? () async {
+                                  final int remainQty =
+                                      requestQtyProduced - selectedPlanning!.getTotalQtyInbound;
+
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (_) => DialogCheckQC(
+                                          planningBoxId: selectedPlanningBoxIds!,
+                                          onQcSessionAddOrUpdate: () => loadBoxWaiting(),
+                                          valueInbound: remainQty,
+                                          type: 'box',
+                                        ),
+                                  );
+                                }
+                                : null,
+                        label: "Nhập Kho",
+                        icon: Symbols.input,
+                        backgroundColor: themeController.buttonColor,
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureBoxWaiting,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có đơn hàng chờ kiểm nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final List<PlanningBoxModel> data = snapshot.data!;
+        planningList = data;
+
+        if (_cachedBoxes != data || _cachedDatasource == null) {
+          _cachedBoxes = data;
+          _cachedDatasource = WaitingCheckBoxDataSource(
+            planning: data,
+            selectedPlanningBoxIds: _selectedPlanningBoxIdsNotifier.value,
+          );
+        }
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: StatefulBuilder(
+                builder: (context, localSetState) {
+                  return Column(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: SfDataGridTheme(
+                          data: SfDataGridThemeData(
+                            selectionColor: Colors.blue.withValues(alpha: 0.3),
+                          ),
+                          child: SfDataGrid(
+                            source: _cachedDatasource!,
+                            isScrollbarAlwaysShown: true,
+                            columnWidthMode: ColumnWidthMode.auto,
+                            selectionMode: SelectionMode.single,
+                            headerRowHeight: 35,
+                            rowHeight: 38,
+                            columns: ColumnWidthTable.applySavedWidths(
+                              columns: columnsBox,
+                              widths: columnWidthsPlanning,
+                            ),
+                            stackedHeaderRows: <StackedHeaderRow>[
+                              StackedHeaderRow(
+                                cells: [
+                                  StackedHeaderCell(
+                                    columnNames: ["quantityOrd", "qtyPaper", "inboundQty"],
+                                    child: Obx(
+                                      () => formatColumn(
+                                        label: 'Số Lượng',
+                                        themeController: themeController,
+                                      ),
+                                    ),
+                                  ),
+                                  StackedHeaderCell(
+                                    columnNames: ["inMatTruoc", "inMatSau"],
+                                    child: Obx(
+                                      () => formatColumn(
+                                        label: 'In Ấn',
+                                        themeController: themeController,
+                                      ),
+                                    ),
+                                  ),
+                                  StackedHeaderCell(
+                                    columnNames: ["dan_1_Manh", "dan_2_Manh"],
+                                    child: Obx(
+                                      () => formatColumn(
+                                        label: 'Dán',
+                                        themeController: themeController,
+                                      ),
+                                    ),
+                                  ),
+                                  StackedHeaderCell(
+                                    columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
+                                    child: Obx(
+                                      () => formatColumn(
+                                        label: 'Đóng Ghim',
+                                        themeController: themeController,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+
+                            //auto resize
+                            allowColumnsResizing: true,
+                            columnResizeMode: ColumnResizeMode.onResize,
+
+                            onColumnResizeStart: GridResizeHelper.onResizeStart,
+                            onColumnResizeUpdate:
+                                (details) => GridResizeHelper.onResizeUpdate(
+                                  details: details,
+                                  columns: columnsBox,
+                                  setState: localSetState,
+                                ),
+                            onColumnResizeEnd:
+                                (details) => GridResizeHelper.onResizeEnd(
+                                  details: details,
+                                  tableKey: 'boxWaiting',
+                                  columnWidths: columnWidthsPlanning,
+                                  setState: setState,
+                                ),
+
+                            onSelectionChanged: (addedRows, removedRows) async {
+                              if (addedRows.isNotEmpty) {
+                                final selectedRow = addedRows.first;
+
+                                final planningBoxId =
+                                    selectedRow
+                                        .getCells()
+                                        .firstWhere((cell) => cell.columnName == 'planningBoxId')
+                                        .value;
+
+                                setState(() {
+                                  _selectedPlanningBoxIdsNotifier.value = planningBoxId;
+                                  selectedStages = [];
+                                });
+
+                                try {
+                                  final stages = await WarehouseService()
+                                      .getBoxWaitingCheckedDetail(planningBoxId: planningBoxId);
+
+                                  setState(() {
+                                    selectedStages = stages;
+                                    localSetState(() {});
+                                  });
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    showSnackBarError(context, "Lỗi khi lấy chi tiết công đoạn");
+                                  }
+                                }
+                              } else {
+                                setState(() {
+                                  _selectedPlanningBoxIdsNotifier.value = null;
+                                  selectedStages = [];
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+
+                      selectedStages.isNotEmpty
+                          ? Expanded(
+                            flex: 1,
+                            child: AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              child: SfDataGrid(
+                                source: StagesDataSource(stages: selectedStages),
+                                isScrollbarAlwaysShown: true,
+                                headerRowHeight: 30,
+                                rowHeight: 35,
+                                columnWidthMode: ColumnWidthMode.fill,
+                                selectionMode: SelectionMode.single,
+                                columns: ColumnWidthTable.applySavedWidths(
+                                  columns: columnsStages,
+                                  widths: columnWidthsStage,
+                                ),
+                                stackedHeaderRows: <StackedHeaderRow>[
+                                  StackedHeaderRow(
+                                    cells: [
+                                      StackedHeaderCell(
+                                        columnNames: [
+                                          "dayStart",
+                                          "dayCompleted",
+                                          "dayCompletedOvfl",
+                                        ],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Ngày',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: ["timeRunning", "timeRunningOvfl"],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Thời Gian',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: ["runningPlan", "qtyProduced"],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Số Lượng',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                      StackedHeaderCell(
+                                        columnNames: ["wasteBox", "rpWasteLoss"],
+                                        child: Obx(
+                                          () => formatColumn(
+                                            label: 'Phế Liệu',
+                                            themeController: themeController,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+
+                                //auto resize
+                                allowColumnsResizing: true,
+                                columnResizeMode: ColumnResizeMode.onResize,
+
+                                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                onColumnResizeUpdate:
+                                    (details) => GridResizeHelper.onResizeUpdate(
+                                      details: details,
+                                      columns: columnsStages,
+                                      setState: setState,
+                                    ),
+                                onColumnResizeEnd:
+                                    (details) => GridResizeHelper.onResizeEnd(
+                                      details: details,
+                                      tableKey: 'stage',
+                                      columnWidths: columnWidthsStage,
+                                      setState: setState,
+                                    ),
+                              ),
+                            ),
+                          )
+                          : const SizedBox.shrink(),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

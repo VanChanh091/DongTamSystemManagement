@@ -223,26 +223,32 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
       icon: Icons.fact_check,
       label: "Chất Lượng",
       children: [
-        LeafMenuConfig(
-          icon: Icons.article,
-          label: "Giấy Tấm",
-          pageType: WaitingCheckPaper,
-          showBadge: true,
-          badge: badges.numberPaperWaiting,
-        ),
-        LeafMenuConfig(
-          icon: Symbols.package_2,
-          label: "Thùng và In ấn",
-          pageType: WaitingCheckBox,
-          showBadge: true,
-          badge: badges.numberBoxWaiting,
-        ),
-        LeafMenuConfig(
-          icon: Symbols.delete_sweep,
-          label: "Chờ Kiểm Phế Liệu",
-          pageType: WaitingCheckScrapReport,
-          showBadge: true,
-          badge: badges.numberScrapWaiting,
+        GroupMenuConfig(
+          icon: Icons.schedule,
+          label: "Chờ Kiểm",
+          items: [
+            LeafMenuConfig(
+              icon: Icons.article,
+              label: "Giấy Tấm",
+              pageType: WaitingCheckPaper,
+              showBadge: true,
+              badge: badges.numberPaperWaiting,
+            ),
+            LeafMenuConfig(
+              icon: Symbols.package_2,
+              label: "Thùng và In Ấn",
+              pageType: WaitingCheckBox,
+              showBadge: true,
+              badge: badges.numberBoxWaiting,
+            ),
+            LeafMenuConfig(
+              icon: Symbols.delete_sweep,
+              label: "Phế Liệu",
+              pageType: WaitingCheckScrapReport,
+              showBadge: true,
+              badge: badges.numberScrapWaiting,
+            ),
+          ],
         ),
         LeafMenuConfig(
           icon: Symbols.engineering,

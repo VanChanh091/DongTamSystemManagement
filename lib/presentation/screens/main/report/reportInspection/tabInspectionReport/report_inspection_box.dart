@@ -117,27 +117,6 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
     setState(() => _fetchData());
   }
 
-  // void searchReportBox() {
-  //   String keyword = searchController.text.trim().toLowerCase();
-  //   final bool isDateSearch = searchType == "Ngày Báo Cáo";
-
-  //   if (isDateSearch) {
-  //     if (startDate == null || endDate == null) {
-  //       AppLogger.w("searchOrders => chưa chọn khoảng thời gian");
-  //       return;
-  //     }
-  //   } else if (isTextFieldEnabled && keyword.isEmpty) {
-  //     AppLogger.w("searchReportPaper => searchType=$searchType nhưng keyword rỗng");
-  //     return;
-  //   }
-
-  //   setState(() {
-  //     currentPage = 1;
-  //     isSearching = (searchType != "Tất cả");
-  //     _fetchData();
-  //   });
-  // }
-
   void changeMachine(String newMachine) {
     setState(() {
       machine = newMachine;
@@ -162,6 +141,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -195,302 +175,24 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                   },
                 );
               },
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    //button
-                    SizedBox(
-                      height: 105,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          //title
-                          SizedBox(
-                            height: 35,
-                            width: double.infinity,
-                            child: Center(
-                              child: Obx(
-                                () => Text(
-                                  "LỊCH SỬ KIỂM TRA CHẤT LƯỢNG LÀM THÙNG",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 22,
-                                    color: themeController.currentColor.value,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          //button
-                          SizedBox(
-                            height: 70,
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //left button
-                                const SizedBox(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title & buttons
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                                //right button
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 10,
-                                    ),
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedBoxIdsNotifier,
-                                      builder: (context, selectedReportId, _) {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            AnimatedButton(
-                                              onPressed: () async {
-                                                showDialog(
-                                                  // barrierDismissible: false,
-                                                  context: context,
-                                                  builder:
-                                                      (_) => DialogSummaryInspecErr(
-                                                        type: InspectionType.box,
-                                                        machine: machine,
-                                                        machineList: machineList,
-                                                      ),
-                                                );
-                                              },
-                                              label: "Tổng lỗi",
-                                              icon: Icons.summarize,
-                                              backgroundColor: themeController.buttonColor,
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            //choose machine
-                                            buildDropdownItems(
-                                              value: machine,
-                                              items: machineList,
-                                              onChanged: (value) {
-                                                if (value != null) {
-                                                  changeMachine(value);
-                                                }
-                                              },
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  //table & pagination
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _buildTableSection(),
                     ),
-
-                    //table
-                    Expanded(
-                      child: FutureBuilder(
-                        future: futureReportBox,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SizedBox(
-                                height: 400,
-                                child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text("Lỗi: ${snapshot.error}"));
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!['inspectionBoxes'].isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "Không có báo cáo nào",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                              ),
-                            );
-                          }
-
-                          final data = snapshot.data!;
-                          final inspectionBoxes =
-                              data['inspectionBoxes'] as List<QcInspectionBoxModel>;
-                          final currentPg = data['currentPage'];
-                          final totalPgs = data['totalPages'];
-
-                          if (_cachedInspecBoxes == null || _cachedInspecBoxes != inspectionBoxes) {
-                            _cachedInspecBoxes = inspectionBoxes;
-                            _cachedDatasource = InspectionBoxDataSource(
-                              inspectionBoxes: inspectionBoxes,
-                              selectedBoxIds: _selectedBoxIdsNotifier.value,
-                              machine: machine,
-                              currentPage: currentPage,
-                              pageSize: pageSize,
-                            );
-                          }
-
-                          final dynamicColumns = buildInspectionBoxColumn(
-                            themeController: themeController,
-                            machine: machine,
-                          );
-
-                          return Column(
-                            children: [
-                              //table
-                              Expanded(
-                                child: StatefulBuilder(
-                                  builder: (context, localSetState) {
-                                    return SfDataGridTheme(
-                                      data: SfDataGridThemeData(
-                                        selectionColor: Colors.blue.withValues(alpha: 0.3),
-                                      ),
-                                      child: SfDataGrid(
-                                        key: ValueKey(
-                                          machine,
-                                        ), // Thêm key để rebuild khi máy thay đổi
-                                        source: _cachedDatasource!,
-                                        isScrollbarAlwaysShown: true,
-                                        allowExpandCollapseGroup: true, // Bật grouping
-                                        autoExpandGroups: true,
-                                        columnWidthMode: ColumnWidthMode.auto,
-                                        navigationMode: GridNavigationMode.row,
-                                        selectionMode: SelectionMode.multiple,
-                                        headerRowHeight: 35,
-                                        rowHeight: 38,
-                                        columns: ColumnWidthTable.applySavedWidths(
-                                          columns: dynamicColumns,
-                                          widths: columnWidths,
-                                        ),
-                                        stackedHeaderRows: <StackedHeaderRow>[
-                                          StackedHeaderRow(
-                                            cells: [
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  "orderId",
-                                                  "customerName",
-                                                  "productName",
-                                                  "structure",
-                                                  "sizePaper",
-                                                  "lengthPaper",
-                                                  "runningPlan",
-                                                  "qcBox",
-                                                ],
-                                                child: Obx(
-                                                  () => formatColumn(
-                                                    label: "Thông Tin Đơn Hàng",
-                                                    themeController: themeController,
-                                                  ),
-                                                ),
-                                              ),
-                                              StackedHeaderCell(
-                                                columnNames: [
-                                                  "boxDimension",
-                                                  "colorCount",
-                                                  "colorMatch",
-                                                  "colorRegistration",
-                                                  "fluteCrushing",
-                                                  "glueAdhesion",
-                                                  "glueViscosity",
-                                                  "imagePosition",
-                                                  "jointGap",
-                                                  "jointMisalignment",
-                                                  "paperSurface",
-                                                  "printContent",
-                                                  "printSharpness",
-                                                  "scoringLine",
-                                                  "stitchCount",
-                                                  "stitchHolding",
-                                                  "stitchPitch",
-                                                  "stitchPosition",
-                                                  "tabOverlap",
-                                                  "trimLineBurr",
-                                                ],
-                                                child: formatColumn(
-                                                  label: "Lỗi",
-                                                  themeController: themeController,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-
-                                        //auto resize
-                                        allowColumnsResizing: true,
-                                        columnResizeMode: ColumnResizeMode.onResize,
-
-                                        onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                        onColumnResizeUpdate:
-                                            (details) => GridResizeHelper.onResizeUpdate(
-                                              details: details,
-                                              columns: dynamicColumns,
-                                              setState: localSetState,
-                                            ),
-                                        onColumnResizeEnd:
-                                            (details) => GridResizeHelper.onResizeEnd(
-                                              details: details,
-                                              tableKey: 'inspectionBox',
-                                              columnWidths: columnWidths,
-                                              setState: setState,
-                                            ),
-
-                                        onSelectionChanged: (addedRows, removedRows) {
-                                          if (addedRows.isNotEmpty) {
-                                            final selectedRow = addedRows.first;
-                                            final selectedBoxId =
-                                                selectedRow
-                                                        .getCells()
-                                                        .firstWhere(
-                                                          (cell) =>
-                                                              cell.columnName == 'inspecBoxId',
-                                                        )
-                                                        .value
-                                                    as int?;
-
-                                            _selectedBoxIdsNotifier.value = selectedBoxId;
-                                          } else {
-                                            _selectedBoxIdsNotifier.value = null;
-                                          }
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-
-                              // Nút chuyển trang
-                              PaginationControls(
-                                currentPage: currentPg,
-                                totalPages: totalPgs,
-                                onPrevious: () {
-                                  setState(() {
-                                    currentPage--;
-                                    loadInspectionBox();
-                                  });
-                                },
-                                onNext: () {
-                                  setState(() {
-                                    currentPage++;
-                                    loadInspectionBox();
-                                  });
-                                },
-                                onJumpToPage: (page) {
-                                  setState(() {
-                                    currentPage = page;
-                                    loadInspectionBox();
-                                  });
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -501,7 +203,8 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: Offset(73, 173),
+                  // initialMargin: Offset(73, 173),
+                  initialMargin: Offset(73, 200),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -515,6 +218,265 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "LỊCH SỬ KIỂM TRA CHẤT LƯỢNG LÀM THÙNG",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Row(
+          children: [
+            //left button
+            Expanded(flex: 2, child: const SizedBox()),
+
+            //right button
+            Expanded(
+              flex: 3,
+              child: ValueListenableBuilder(
+                valueListenable: _selectedBoxIdsNotifier,
+                builder: (context, selectedReportId, _) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      AnimatedButton(
+                        onPressed: () async {
+                          showDialog(
+                            // barrierDismissible: false,
+                            context: context,
+                            builder:
+                                (_) => DialogSummaryInspecErr(
+                                  type: InspectionType.box,
+                                  machine: machine,
+                                  machineList: machineList,
+                                ),
+                          );
+                        },
+                        label: "Tổng lỗi",
+                        icon: Icons.summarize,
+                        backgroundColor: themeController.buttonColor,
+                      ),
+                      const SizedBox(width: 8),
+
+                      //choose machine
+                      buildDropdownItems(
+                        value: machine,
+                        items: machineList,
+                        onChanged: (value) {
+                          if (value != null) {
+                            changeMachine(value);
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureReportBox,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!['inspectionBoxes'].isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có báo cáo nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final inspectionBoxes = data['inspectionBoxes'] as List<QcInspectionBoxModel>;
+        final currentPg = data['currentPage'];
+        final totalPgs = data['totalPages'];
+
+        if (_cachedInspecBoxes == null || _cachedInspecBoxes != inspectionBoxes) {
+          _cachedInspecBoxes = inspectionBoxes;
+          _cachedDatasource = InspectionBoxDataSource(
+            inspectionBoxes: inspectionBoxes,
+            selectedBoxIds: _selectedBoxIdsNotifier.value,
+            machine: machine,
+            currentPage: currentPage,
+            pageSize: pageSize,
+          );
+        }
+
+        final dynamicColumns = buildInspectionBoxColumn(
+          themeController: themeController,
+          machine: machine,
+        );
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: StatefulBuilder(
+                builder: (context, localSetState) {
+                  return SfDataGridTheme(
+                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                    child: SfDataGrid(
+                      key: ValueKey(machine), // Thêm key để rebuild khi máy thay đổi
+                      source: _cachedDatasource!,
+                      isScrollbarAlwaysShown: true,
+                      allowExpandCollapseGroup: true, // Bật grouping
+                      autoExpandGroups: true,
+                      columnWidthMode: ColumnWidthMode.auto,
+                      navigationMode: GridNavigationMode.row,
+                      selectionMode: SelectionMode.multiple,
+                      headerRowHeight: 35,
+                      rowHeight: 38,
+                      columns: ColumnWidthTable.applySavedWidths(
+                        columns: dynamicColumns,
+                        widths: columnWidths,
+                      ),
+                      stackedHeaderRows: <StackedHeaderRow>[
+                        StackedHeaderRow(
+                          cells: [
+                            StackedHeaderCell(
+                              columnNames: [
+                                "orderId",
+                                "customerName",
+                                "productName",
+                                "structure",
+                                "sizePaper",
+                                "lengthPaper",
+                                "runningPlan",
+                                "qcBox",
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: "Thông Tin Đơn Hàng",
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                            StackedHeaderCell(
+                              columnNames: [
+                                "boxDimension",
+                                "colorCount",
+                                "colorMatch",
+                                "colorRegistration",
+                                "fluteCrushing",
+                                "glueAdhesion",
+                                "glueViscosity",
+                                "imagePosition",
+                                "jointGap",
+                                "jointMisalignment",
+                                "paperSurface",
+                                "printContent",
+                                "printSharpness",
+                                "scoringLine",
+                                "stitchCount",
+                                "stitchHolding",
+                                "stitchPitch",
+                                "stitchPosition",
+                                "tabOverlap",
+                                "trimLineBurr",
+                              ],
+                              child: formatColumn(label: "Lỗi", themeController: themeController),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      //auto resize
+                      allowColumnsResizing: true,
+                      columnResizeMode: ColumnResizeMode.onResize,
+
+                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                      onColumnResizeUpdate:
+                          (details) => GridResizeHelper.onResizeUpdate(
+                            details: details,
+                            columns: dynamicColumns,
+                            setState: localSetState,
+                          ),
+                      onColumnResizeEnd:
+                          (details) => GridResizeHelper.onResizeEnd(
+                            details: details,
+                            tableKey: 'inspectionBox',
+                            columnWidths: columnWidths,
+                            setState: setState,
+                          ),
+
+                      onSelectionChanged: (addedRows, removedRows) {
+                        if (addedRows.isNotEmpty) {
+                          final selectedRow = addedRows.first;
+                          final selectedBoxId =
+                              selectedRow
+                                      .getCells()
+                                      .firstWhere((cell) => cell.columnName == 'inspecBoxId')
+                                      .value
+                                  as int?;
+
+                          _selectedBoxIdsNotifier.value = selectedBoxId;
+                        } else {
+                          _selectedBoxIdsNotifier.value = null;
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Nút chuyển trang
+            PaginationControls(
+              currentPage: currentPg,
+              totalPages: totalPgs,
+              onPrevious: () {
+                setState(() {
+                  currentPage--;
+                  loadInspectionBox();
+                });
+              },
+              onNext: () {
+                setState(() {
+                  currentPage++;
+                  loadInspectionBox();
+                });
+              },
+              onJumpToPage: (page) {
+                setState(() {
+                  currentPage = page;
+                  loadInspectionBox();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

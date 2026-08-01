@@ -145,440 +145,308 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(5),
-        child: Column(
-          children: [
-            //button
-            SizedBox(
-              height: 105,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  //title
-                  SizedBox(
-                    height: 35,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        "BÁO CÁO PHẾ LIỆU CHỜ KIỂM TRA",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: themeController.currentColor.value,
-                        ),
-                      ),
-                    ),
-                  ),
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // title & buttons
+          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                  //button
-                  SizedBox(
-                    height: 70,
-                    width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        //left button
-                        const SizedBox(),
-                        // Expanded(
-                        //   flex: 1,
-                        //   child: LeftButtonSearch(
-                        //     selectedType: searchType,
-                        //     types: const ['Tất cả', "Người Báo Cáo", "Ngày Báo Cáo"],
-                        //     onTypeChanged: (value) {
-                        //       setState(() {
-                        //         searchType = value;
-                        //         isTextFieldEnabled = searchType != 'Tất cả';
-
-                        //         startDate = null;
-                        //         endDate = null;
-
-                        //         if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                        //           searchController.clear();
-                        //           currentPage = 1;
-                        //           _fetchData();
-                        //         }
-                        //       });
-                        //     },
-                        //     controller: searchController,
-                        //     textFieldEnabled: isTextFieldEnabled,
-                        //     buttonColor: themeController.buttonColor,
-                        //     onSearch: () => searchScrapReports(),
-                        //     customInputBuilder: (inputWidth) {
-                        //       if (searchType != 'Ngày Báo Cáo') return null;
-
-                        //       return SizedBox(
-                        //         width: inputWidth,
-                        //         height: 50,
-                        //         child: InkWell(
-                        //           onTap: () async {
-                        //             final now = DateTime.now();
-                        //             final size = MediaQuery.of(context).size;
-
-                        //             final DateTimeRange? picked = await showDateRangePicker(
-                        //               context: context,
-                        //               firstDate: DateTime(2025),
-                        //               lastDate: DateTime(2100),
-                        //               initialDateRange:
-                        //                   (startDate != null && endDate != null)
-                        //                       ? DateTimeRange(start: startDate!, end: endDate!)
-                        //                       : DateTimeRange(
-                        //                         start: now.subtract(const Duration(days: 7)),
-                        //                         end: now,
-                        //                       ),
-                        //               builder: (context, child) {
-                        //                 return Center(
-                        //                   child: ConstrainedBox(
-                        //                     constraints: BoxConstraints(
-                        //                       maxWidth: size.width * 0.3,
-                        //                       maxHeight: size.height * 0.8,
-                        //                     ),
-                        //                     child: Material(
-                        //                       borderRadius: BorderRadius.circular(16),
-                        //                       clipBehavior: Clip.antiAlias,
-                        //                       child: child!,
-                        //                     ),
-                        //                   ),
-                        //                 );
-                        //               },
-                        //             );
-
-                        //             if (picked != null) {
-                        //               final displayStart = DateFormat(
-                        //                 "dd/MM/yyyy",
-                        //               ).format(picked.start);
-                        //               final displayEnd = DateFormat(
-                        //                 "dd/MM/yyyy",
-                        //               ).format(picked.end);
-
-                        //               setState(() {
-                        //                 startDate = picked.start;
-                        //                 endDate = picked.end;
-                        //                 searchController.text = "$displayStart - $displayEnd";
-                        //               });
-                        //             }
-                        //           },
-                        //           child: IgnorePointer(
-                        //             child: TextField(
-                        //               controller: searchController,
-                        //               decoration: InputDecoration(
-                        //                 hintText: "Chọn khoảng thời gian...",
-                        //                 border: OutlineInputBorder(
-                        //                   borderRadius: BorderRadius.circular(12),
-                        //                 ),
-                        //                 suffixIcon: const Icon(Icons.calendar_today),
-                        //                 contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                        //               ),
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       );
-                        //     },
-                        //   ),
-                        // ),
-
-                        //right button
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              reverse: true,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  //export excel
-                                  // AnimatedButton(
-                                  //   onPressed: () async {
-                                  //     // showDialog(
-                                  //     //   context: context,
-                                  //     //   builder: (_) => DialogExportCusOrProd(),
-                                  //     // );
-                                  //   },
-                                  //   label: "Xuất Excel",
-                                  //   icon: Symbols.export_notes,
-                                  //   backgroundColor: themeController.buttonColor,
-                                  // ),
-                                  // const SizedBox(width: 10),
-
-                                  // allocate
-                                  AnimatedButton(
-                                    onPressed: () async {
-                                      try {
-                                        if (selectedScrapIds.isEmpty) {
-                                          showSnackBarError(
-                                            context,
-                                            "Chưa chọn dòng để phân bổ phế liệu",
-                                          );
-                                          return;
-                                        }
-
-                                        bool success = await showConfirmDialog(
-                                          context: context,
-                                          title: "Phân bổ báo cáo phế liệu",
-                                          content:
-                                              "Xác nhận phân bổ các báo cáo phế liệu đã chọn không?",
-                                          confirmText: "Phân bổ",
-                                        );
-
-                                        if (success) {
-                                          final scrapReports = await futureScrap;
-                                          final List<ScrapReportModel> scrapReportList =
-                                              (scrapReports['scrapReports'] as List? ?? [])
-                                                  .cast<ScrapReportModel>();
-                                          final selectedScrap = scrapReportList.firstWhere(
-                                            (scrap) => scrap.scrapId == selectedScrapIds.first,
-                                            orElse: () => throw Exception("Không tìm thấy báo cáo"),
-                                          );
-
-                                          await QualityControlService().handleUpdateScrapReport(
-                                            scrapIds: selectedScrapIds,
-                                            machine: machine,
-                                            dayCompleted: selectedScrap.dayCompleted,
-                                            shiftProduction: selectedScrap.shiftProduction,
-                                            action: "ALLOCATE_SCRAP_REPORT",
-                                          );
-
-                                          if (context.mounted) {
-                                            showSnackBarSuccess(
-                                              context,
-                                              "Phân bổ báo cáo phế liệu thành công",
-                                            );
-
-                                            loadScrapReports();
-                                          }
-                                        }
-                                      } on ApiException catch (e) {
-                                        final errorText = switch (e.errorCode) {
-                                          "INVALID_SCRAP_REPORT_STATUS" => e.message!,
-                                          "MISSING_SCRAP_REPORTS_IN_BATCH" => e.message!,
-                                          _ => "Có lỗi xảy ra, vui lòng thử lại",
-                                        };
-                                        if (context.mounted) showSnackBarError(context, errorText);
-                                      } catch (e) {
-                                        if (context.mounted) {
-                                          showSnackBarError(
-                                            context,
-                                            "Đã xảy ra lỗi không mong muốn",
-                                          );
-                                        }
-                                      }
-                                    },
-                                    label: "Phân bổ",
-                                    icon: Symbols.account_tree,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 10),
-
-                                  //confirm
-                                  _buildScrapButton(isConfirm: true),
-                                  const SizedBox(width: 10),
-
-                                  //reject
-                                  _buildScrapButton(isConfirm: false),
-                                  const SizedBox(width: 10),
-
-                                  buildDropdownItems(
-                                    width: 160,
-                                    value: machine,
-                                    items: const [
-                                      'Máy 1350',
-                                      "Máy 1900",
-                                      "Máy 2 Lớp",
-                                      "Máy Quấn Cuồn",
-                                    ],
-                                    onChanged: (value) {
-                                      if (value == null) return;
-                                      setState(() {
-                                        machine = value;
-                                        selectedScrapIds.clear();
-                                        loadScrapReports();
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(width: 10),
-
-                                  //filter
-                                  buildDropdownItems(
-                                    width: 155,
-                                    value: filterType,
-                                    items: const ["pending", "confirmed", "allocated"],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        filterType = value!;
-                                        selectedScrapIds.clear();
-                                        loadScrapReports();
-                                      });
-                                    },
-                                    itemLabelBuilder: (value) => filterOptions[value] ?? value,
-                                  ),
-                                  const SizedBox(width: 10),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+          //table & pagination
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: _buildTableSection(),
             ),
-
-            // table
-            Expanded(
-              child: FutureBuilder(
-                future: futureScrap,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SizedBox(
-                        height: 400,
-                        child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Lỗi: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!['scrapReports'].isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Không có báo cáo thanh lý nào",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                    );
-                  }
-
-                  final data = snapshot.data!;
-                  final scrapReports = data['scrapReports'] as List<ScrapReportModel>;
-                  final currentPg = data['currentPage'];
-                  final totalPgs = data['totalPages'];
-
-                  scrapReportDatasource = ScrapReportDataSource(
-                    scrapReports: scrapReports,
-                    selectedScrapIds: selectedScrapIds,
-                    currentPage: currentPage,
-                    pageSize: pageSize,
-                  );
-
-                  return Column(
-                    children: [
-                      //table
-                      Expanded(
-                        child: SfDataGrid(
-                          controller: dataGridController,
-                          source: scrapReportDatasource,
-                          isScrollbarAlwaysShown: true,
-                          columnWidthMode: ColumnWidthMode.auto,
-                          selectionMode: SelectionMode.multiple,
-                          headerRowHeight: 35,
-                          rowHeight: 40,
-                          columns: ColumnWidthTable.applySavedWidths(
-                            columns: columns,
-                            widths: columnWidths,
-                          ),
-                          stackedHeaderRows: <StackedHeaderRow>[
-                            StackedHeaderRow(
-                              cells: [
-                                StackedHeaderCell(
-                                  columnNames: [
-                                    "qtyForklift",
-                                    "qtyInventory",
-                                    "qtyCoreTube",
-                                    "qtyProduction",
-                                    "qtyOther",
-                                  ],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: "Số Lượng Phế Liệu (Kg)",
-                                      themeController: themeController,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-
-                          //auto resize
-                          allowColumnsResizing: true,
-                          columnResizeMode: ColumnResizeMode.onResize,
-
-                          onColumnResizeStart: GridResizeHelper.onResizeStart,
-                          onColumnResizeUpdate:
-                              (details) => GridResizeHelper.onResizeUpdate(
-                                details: details,
-                                columns: columns,
-                                setState: setState,
-                              ),
-                          onColumnResizeEnd:
-                              (details) => GridResizeHelper.onResizeEnd(
-                                details: details,
-                                tableKey: 'scrapReport',
-                                columnWidths: columnWidths,
-                                setState: setState,
-                              ),
-
-                          onSelectionChanged: (addedRows, removedRows) async {
-                            if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                            setState(() {
-                              // Lấy selection thật sự từ controller
-                              final selectedRows = dataGridController.selectedRows;
-
-                              selectedScrapIds =
-                                  selectedRows.map((row) {
-                                    final cell = row.getCells().firstWhere(
-                                      (c) => c.columnName == 'scrapId',
-                                    );
-                                    return cell.value as int;
-                                  }).toList();
-
-                              // cập nhật cho datasource
-                              scrapReportDatasource.selectedScrapIds = selectedScrapIds;
-                              scrapReportDatasource.notifyListeners();
-                            });
-                          },
-                        ),
-                      ),
-
-                      // Nút chuyển trang
-                      PaginationControls(
-                        currentPage: currentPg,
-                        totalPages: totalPgs,
-                        onPrevious: () {
-                          setState(() {
-                            currentPage--;
-                            loadScrapReports();
-                          });
-                        },
-                        onNext: () {
-                          setState(() {
-                            currentPage++;
-                            loadScrapReports();
-                          });
-                        },
-                        onJumpToPage: (page) {
-                          setState(() {
-                            currentPage = page;
-                            loadScrapReports();
-                          });
-                        },
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadScrapReports(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Column(
+      children: [
+        //title
+        Text(
+          "BÁO CÁO PHẾ LIỆU CHỜ KIỂM TRA",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: themeController.currentColor.value,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        //button
+        Row(
+          children: [
+            //left button
+            Expanded(flex: 2, child: const SizedBox()),
+
+            //right button
+            Expanded(
+              flex: 3,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // allocate
+                    AnimatedButton(
+                      onPressed: () async {
+                        try {
+                          if (selectedScrapIds.isEmpty) {
+                            showSnackBarError(context, "Chưa chọn dòng để phân bổ phế liệu");
+                            return;
+                          }
+
+                          bool success = await showConfirmDialog(
+                            context: context,
+                            title: "Phân bổ báo cáo phế liệu",
+                            content: "Xác nhận phân bổ các báo cáo phế liệu đã chọn không?",
+                            confirmText: "Phân bổ",
+                          );
+
+                          if (success) {
+                            final scrapReports = await futureScrap;
+                            final List<ScrapReportModel> scrapReportList =
+                                (scrapReports['scrapReports'] as List? ?? [])
+                                    .cast<ScrapReportModel>();
+                            final selectedScrap = scrapReportList.firstWhere(
+                              (scrap) => scrap.scrapId == selectedScrapIds.first,
+                              orElse: () => throw Exception("Không tìm thấy báo cáo"),
+                            );
+
+                            await QualityControlService().handleUpdateScrapReport(
+                              scrapIds: selectedScrapIds,
+                              machine: machine,
+                              dayCompleted: selectedScrap.dayCompleted,
+                              shiftProduction: selectedScrap.shiftProduction,
+                              action: "ALLOCATE_SCRAP_REPORT",
+                            );
+
+                            if (mounted) {
+                              showSnackBarSuccess(context, "Phân bổ báo cáo phế liệu thành công");
+
+                              loadScrapReports();
+                            }
+                          }
+                        } on ApiException catch (e) {
+                          final errorText = switch (e.errorCode) {
+                            "INVALID_SCRAP_REPORT_STATUS" => e.message!,
+                            "MISSING_SCRAP_REPORTS_IN_BATCH" => e.message!,
+                            _ => "Có lỗi xảy ra, vui lòng thử lại",
+                          };
+                          if (mounted) showSnackBarError(context, errorText);
+                        } catch (e) {
+                          if (mounted) {
+                            showSnackBarError(context, "Đã xảy ra lỗi không mong muốn");
+                          }
+                        }
+                      },
+                      label: "Phân bổ",
+                      icon: Symbols.account_tree,
+                      backgroundColor: themeController.buttonColor,
+                    ),
+                    const SizedBox(width: 8),
+
+                    //confirm
+                    _buildScrapButton(isConfirm: true),
+                    const SizedBox(width: 8),
+
+                    //reject
+                    _buildScrapButton(isConfirm: false),
+                    const SizedBox(width: 8),
+
+                    buildDropdownItems(
+                      width: 160,
+                      value: machine,
+                      items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
+                      onChanged: (value) {
+                        if (value == null) return;
+                        setState(() {
+                          machine = value;
+                          selectedScrapIds.clear();
+                          loadScrapReports();
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+
+                    //filter
+                    buildDropdownItems(
+                      width: 155,
+                      value: filterType,
+                      items: const ["pending", "confirmed", "allocated"],
+                      onChanged: (value) {
+                        setState(() {
+                          filterType = value!;
+                          selectedScrapIds.clear();
+                          loadScrapReports();
+                        });
+                      },
+                      itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableSection() {
+    return FutureBuilder(
+      future: futureScrap,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: SizedBox(
+              height: 400,
+              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Lỗi: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!['scrapReports'].isEmpty) {
+          return Container(
+            color: themeController.backgroundColor.value,
+            child: Center(
+              child: Text(
+                "Không có báo cáo phế liệu chờ kiểm nào",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        final scrapReports = data['scrapReports'] as List<ScrapReportModel>;
+        final currentPg = data['currentPage'];
+        final totalPgs = data['totalPages'];
+
+        scrapReportDatasource = ScrapReportDataSource(
+          scrapReports: scrapReports,
+          selectedScrapIds: selectedScrapIds,
+          currentPage: currentPage,
+          pageSize: pageSize,
+        );
+
+        return Column(
+          children: [
+            //table
+            Expanded(
+              child: SfDataGrid(
+                controller: dataGridController,
+                source: scrapReportDatasource,
+                isScrollbarAlwaysShown: true,
+                columnWidthMode: ColumnWidthMode.auto,
+                selectionMode: SelectionMode.multiple,
+                headerRowHeight: 35,
+                rowHeight: 40,
+                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
+                stackedHeaderRows: <StackedHeaderRow>[
+                  StackedHeaderRow(
+                    cells: [
+                      StackedHeaderCell(
+                        columnNames: [
+                          "qtyForklift",
+                          "qtyInventory",
+                          "qtyCoreTube",
+                          "qtyProduction",
+                          "qtyOther",
+                        ],
+                        child: Obx(
+                          () => formatColumn(
+                            label: "Số Lượng Phế Liệu (Kg)",
+                            themeController: themeController,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                //auto resize
+                allowColumnsResizing: true,
+                columnResizeMode: ColumnResizeMode.onResize,
+
+                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                onColumnResizeUpdate:
+                    (details) => GridResizeHelper.onResizeUpdate(
+                      details: details,
+                      columns: columns,
+                      setState: setState,
+                    ),
+                onColumnResizeEnd:
+                    (details) => GridResizeHelper.onResizeEnd(
+                      details: details,
+                      tableKey: 'scrapReport',
+                      columnWidths: columnWidths,
+                      setState: setState,
+                    ),
+
+                onSelectionChanged: (addedRows, removedRows) async {
+                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                  setState(() {
+                    // Lấy selection thật sự từ controller
+                    final selectedRows = dataGridController.selectedRows;
+
+                    selectedScrapIds =
+                        selectedRows.map((row) {
+                          final cell = row.getCells().firstWhere((c) => c.columnName == 'scrapId');
+                          return cell.value as int;
+                        }).toList();
+
+                    // cập nhật cho datasource
+                    scrapReportDatasource.selectedScrapIds = selectedScrapIds;
+                    scrapReportDatasource.notifyListeners();
+                  });
+                },
+              ),
+            ),
+
+            // Nút chuyển trang
+            PaginationControls(
+              currentPage: currentPg,
+              totalPages: totalPgs,
+              onPrevious: () {
+                setState(() {
+                  currentPage--;
+                  loadScrapReports();
+                });
+              },
+              onNext: () {
+                setState(() {
+                  currentPage++;
+                  loadScrapReports();
+                });
+              },
+              onJumpToPage: (page) {
+                setState(() {
+                  currentPage = page;
+                  loadScrapReports();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

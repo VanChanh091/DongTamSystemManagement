@@ -1,6 +1,8 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/presentation/screens/main/report/reportPlanning/tabChildReport/report_planning_box.dart';
 import 'package:dongtam/presentation/screens/main/report/reportPlanning/tabChildReport/report_planning_paper.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class TopTabHistoryReport extends StatefulWidget {
   const TopTabHistoryReport({super.key});
@@ -10,6 +12,8 @@ class TopTabHistoryReport extends StatefulWidget {
 }
 
 class _TopTabHistoryReportState extends State<TopTabHistoryReport> {
+  final themeController = Get.find<ThemeController>();
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -17,7 +21,7 @@ class _TopTabHistoryReportState extends State<TopTabHistoryReport> {
       child: Column(
         children: [
           Container(
-            color: Colors.white,
+            color: themeController.backgroundColor.value,
             child: TabBar(
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,

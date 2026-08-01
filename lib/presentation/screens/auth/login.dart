@@ -66,13 +66,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
       sidebarController.reset();
 
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         PageTransition(
           type: PageTransitionType.fade,
           duration: Duration(milliseconds: 500),
           child: HomePage(),
         ),
+        (route) => false,
       );
     }
   }
