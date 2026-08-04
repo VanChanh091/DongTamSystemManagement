@@ -69,8 +69,9 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   List<OutboundHistoryModel>? _cachedOutbound;
 
   //text controller
-  TextEditingController searchController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
+  final searchController = TextEditingController();
+  final dateController = TextEditingController();
+  final headerScrollController = ScrollController();
 
   //date range
   DateTime? startDate;
@@ -185,6 +186,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
     dateController.dispose();
     _zoomNotifier.dispose();
     _selectedOutboundIdNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -285,293 +287,314 @@ class _OutboundHistoryState extends State<OutboundHistory> {
         const SizedBox(height: 8),
 
         //button
-        Column(
-          children: [
-            Row(
-              children: [
-                //left button
-                Expanded(
-                  flex: 2,
-                  child: LeftButtonSearch(
-                    selectedType: searchType,
-                    types: const ['Tất cả', "Tên Khách Hàng", "Ngày Xuất Kho"],
-                    onTypeChanged: (value) {
-                      setState(() {
-                        searchType = value;
-                        isTextFieldEnabled = searchType != 'Tất cả';
-
-                        if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                          searchController.clear();
-                          currentPage = 1;
-                          _fetchData();
-                        }
-                      });
-                    },
-                    controller: searchController,
-                    textFieldEnabled: isTextFieldEnabled,
-                    buttonColor: themeController.buttonColor,
-                    onSearch: () => searchOutbound(),
-                    customInputBuilder: (inputWidth) {
-                      if (searchType != 'Ngày Xuất Kho') return null;
-
-                      return SizedBox(
-                        width: inputWidth,
-                        height: 50,
-                        child: InkWell(
-                          onTap: () async {
-                            final now = DateTime.now();
-                            final size = MediaQuery.of(context).size;
-
-                            final DateTimeRange? picked = await showDateRangePicker(
-                              context: context,
-                              firstDate: DateTime(2025),
-                              lastDate: DateTime(2100),
-                              initialDateRange:
-                                  (startDate != null && endDate != null)
-                                      ? DateTimeRange(start: startDate!, end: endDate!)
-                                      : DateTimeRange(
-                                        start: now.subtract(const Duration(days: 7)),
-                                        end: now,
-                                      ),
-                              builder: (context, child) {
-                                return Center(
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxWidth: size.width * 0.3,
-                                      maxHeight: size.height * 0.8,
-                                    ),
-                                    child: Material(
-                                      borderRadius: BorderRadius.circular(16),
-                                      clipBehavior: Clip.antiAlias,
-                                      child: child!,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-
-                            if (picked != null) {
-                              final displayStart = DateFormat('dd/MM/yyyy').format(picked.start);
-                              final displayEnd = DateFormat('dd/MM/yyyy').format(picked.end);
-
-                              setState(() {
-                                startDate = picked.start;
-                                endDate = picked.end;
-                                searchController.text = '$displayStart - $displayEnd';
-                              });
-                            }
-                          },
-                          child: IgnorePointer(
-                            child: TextField(
-                              controller: searchController,
-                              decoration: InputDecoration(
-                                hintText: 'Chọn ngày...',
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                suffixIcon: const Icon(Icons.calendar_today),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                //right button
-                Expanded(
-                  flex: 3,
-                  child: ValueListenableBuilder(
-                    valueListenable: _selectedOutboundIdNotifier,
-                    builder: (context, selectedOutboundId, _) {
-                      final bool isEdit =
-                          _selectedOutboundIdNotifier.value != null &&
-                          selectOutbound != null &&
-                          canExecuteAction(
-                            outboundId: _selectedOutboundIdNotifier.value,
-                            selectOutbound: selectOutbound!,
-                          );
-
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          //export pdf
-                          handleExportFile(),
-                          const SizedBox(width: 8),
+                          //left button
+                          LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const ['Tất cả', "Tên Khách Hàng", "Ngày Xuất Kho"],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = searchType != 'Tất cả';
 
-                          //export excel
-                          isAccountant
-                              ? Row(
-                                children: [
-                                  AnimatedButton(
-                                    onPressed: () async {
-                                      showDialog(
-                                        context: context,
-                                        builder:
-                                            (_) => DialogExportOutbound(
-                                              onLoading: () => loadOutbound(),
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
+                                  currentPage = 1;
+                                  _fetchData();
+                                }
+                              });
+                            },
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
+                            onSearch: () => searchOutbound(),
+                            customInputBuilder: (inputWidth) {
+                              if (searchType != 'Ngày Xuất Kho') return null;
+
+                              return SizedBox(
+                                width: inputWidth,
+                                height: 50,
+                                child: InkWell(
+                                  onTap: () async {
+                                    final now = DateTime.now();
+                                    final size = MediaQuery.of(context).size;
+
+                                    final DateTimeRange? picked = await showDateRangePicker(
+                                      context: context,
+                                      firstDate: DateTime(2025),
+                                      lastDate: DateTime(2100),
+                                      initialDateRange:
+                                          (startDate != null && endDate != null)
+                                              ? DateTimeRange(start: startDate!, end: endDate!)
+                                              : DateTimeRange(
+                                                start: now.subtract(const Duration(days: 7)),
+                                                end: now,
+                                              ),
+                                      builder: (context, child) {
+                                        return Center(
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: size.width * 0.3,
+                                              maxHeight: size.height * 0.8,
                                             ),
-                                      );
-                                    },
-                                    label: "Xuất Excel",
-                                    icon: Symbols.file_download,
-                                    backgroundColor: themeController.buttonColor,
+                                            child: Material(
+                                              borderRadius: BorderRadius.circular(16),
+                                              clipBehavior: Clip.antiAlias,
+                                              child: child!,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+
+                                    if (picked != null) {
+                                      final displayStart = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(picked.start);
+                                      final displayEnd = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(picked.end);
+
+                                      setState(() {
+                                        startDate = picked.start;
+                                        endDate = picked.end;
+                                        searchController.text = '$displayStart - $displayEnd';
+                                      });
+                                    }
+                                  },
+                                  child: IgnorePointer(
+                                    child: TextField(
+                                      controller: searchController,
+                                      decoration: InputDecoration(
+                                        hintText: 'Chọn ngày...',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        suffixIcon: const Icon(Icons.calendar_today),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                                      ),
+                                    ),
                                   ),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 20),
+
+                          //right button
+                          ValueListenableBuilder(
+                            valueListenable: _selectedOutboundIdNotifier,
+                            builder: (context, selectedOutboundId, _) {
+                              final bool isEdit =
+                                  _selectedOutboundIdNotifier.value != null &&
+                                  selectOutbound != null &&
+                                  canExecuteAction(
+                                    outboundId: _selectedOutboundIdNotifier.value,
+                                    selectOutbound: selectOutbound!,
+                                  );
+
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  //export pdf
+                                  handleExportFile(),
                                   const SizedBox(width: 8),
 
-                                  //update
-                                  AnimatedButton(
-                                    onPressed:
-                                        isEdit
-                                            ? () async {
-                                              try {
-                                                final data = await futureOutbound;
-                                                final orders =
-                                                    data['outbounds'] as List<OutboundHistoryModel>;
-                                                final selectedOutbound = orders.firstWhere(
-                                                  (order) => order.outboundId == selectedOutboundId,
-                                                );
-
-                                                if (!context.mounted) return;
-
-                                                showDialog(
-                                                  barrierDismissible: false,
-                                                  context: context,
-                                                  builder:
-                                                      (_) => OutBoundDialog(
-                                                        outbound: selectedOutbound,
-                                                        onOutboundHistory: () => loadOutbound(),
-                                                      ),
-                                                );
-                                              } catch (e, s) {
-                                                AppLogger.e(
-                                                  "Lỗi không tìm thấy phiếu xuất kho",
-                                                  error: e,
-                                                  stackTrace: s,
-                                                );
-                                              }
-                                            }
-                                            : null,
-                                    label: "Sửa Phiếu",
-                                    icon: Symbols.construction,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 8),
-
-                                  //delete
-                                  AnimatedButton(
-                                    onPressed:
-                                        isEdit
-                                            ? () async {
-                                              await showDeleteConfirmHelper(
+                                  //export excel
+                                  isAccountant
+                                      ? Row(
+                                        children: [
+                                          AnimatedButton(
+                                            onPressed: () async {
+                                              showDialog(
                                                 context: context,
-                                                title: "⚠️ Xác nhận xoá",
-                                                content:
-                                                    "Bạn có chắc chắn muốn hủy phiếu xuất kho này?",
-                                                onDelete: () async {
-                                                  await WarehouseService().deleteOutbound(
-                                                    outboundId: selectedOutboundId!,
-                                                  );
-                                                },
-                                                onSuccess: () {
-                                                  setState(() => selectedOutboundId = null);
-                                                  loadOutbound();
-                                                },
+                                                builder:
+                                                    (_) => DialogExportOutbound(
+                                                      onLoading: () => loadOutbound(),
+                                                    ),
                                               );
-                                            }
-                                            : null,
-                                    label: "Hủy Phiếu",
-                                    icon: Icons.delete,
-                                    backgroundColor: const Color(0xffEA4346),
-                                  ),
-                                  const SizedBox(width: 5),
+                                            },
+                                            label: "Xuất Excel",
+                                            icon: Symbols.file_download,
+                                            backgroundColor: themeController.buttonColor,
+                                          ),
+                                          const SizedBox(width: 8),
+
+                                          //update
+                                          AnimatedButton(
+                                            onPressed:
+                                                isEdit
+                                                    ? () async {
+                                                      try {
+                                                        final data = await futureOutbound;
+                                                        final orders =
+                                                            data['outbounds']
+                                                                as List<OutboundHistoryModel>;
+                                                        final selectedOutbound = orders.firstWhere(
+                                                          (order) =>
+                                                              order.outboundId ==
+                                                              selectedOutboundId,
+                                                        );
+
+                                                        if (!context.mounted) return;
+
+                                                        showDialog(
+                                                          barrierDismissible: false,
+                                                          context: context,
+                                                          builder:
+                                                              (_) => OutBoundDialog(
+                                                                outbound: selectedOutbound,
+                                                                onOutboundHistory:
+                                                                    () => loadOutbound(),
+                                                              ),
+                                                        );
+                                                      } catch (e, s) {
+                                                        AppLogger.e(
+                                                          "Lỗi không tìm thấy phiếu xuất kho",
+                                                          error: e,
+                                                          stackTrace: s,
+                                                        );
+                                                      }
+                                                    }
+                                                    : null,
+                                            label: "Sửa Phiếu",
+                                            icon: Symbols.construction,
+                                            backgroundColor: themeController.buttonColor,
+                                          ),
+                                          const SizedBox(width: 8),
+
+                                          //delete
+                                          AnimatedButton(
+                                            onPressed:
+                                                isEdit
+                                                    ? () async {
+                                                      await showDeleteConfirmHelper(
+                                                        context: context,
+                                                        title: "⚠️ Xác nhận xoá",
+                                                        content:
+                                                            "Bạn có chắc chắn muốn hủy phiếu xuất kho này?",
+                                                        onDelete: () async {
+                                                          await WarehouseService().deleteOutbound(
+                                                            outboundId: selectedOutboundId!,
+                                                          );
+                                                        },
+                                                        onSuccess: () {
+                                                          setState(() => selectedOutboundId = null);
+                                                          loadOutbound();
+                                                        },
+                                                      );
+                                                    }
+                                                    : null,
+                                            label: "Hủy Phiếu",
+                                            icon: Icons.delete,
+                                            backgroundColor: const Color(0xffEA4346),
+                                          ),
+                                          const SizedBox(width: 5),
+                                        ],
+                                      )
+                                      : const SizedBox.shrink(),
                                 ],
-                              )
-                              : const SizedBox.shrink(),
+                              );
+                            },
+                          ),
                         ],
-                      );
-                    },
-                  ),
+                      ),
+                    ),
+
+                    //grand total price
+                    Padding(
+                      padding: const EdgeInsets.only(right: 7),
+                      child: FutureBuilder(
+                        future: futureOutbound,
+                        builder: (context, snapshot) {
+                          final Map<String, dynamic> grandTotalData =
+                              snapshot.hasData
+                                  ? (snapshot.data!['grandTotal'] as Map<String, dynamic>? ?? {})
+                                  : {};
+
+                          final totalPriceOrder = grandTotalData['totalPriceOrder'] ?? 0;
+                          final totalPriceVAT = grandTotalData['totalPriceVAT'] ?? 0;
+                          final totalPricePayment = grandTotalData['totalPricePayment'] ?? 0;
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // Tổng tiền hàng
+                              const Text(
+                                "Tiền hàng: ",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              Text(
+                                OrderModel.formatCurrency(totalPriceOrder),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                  color: Colors.green.shade600,
+                                ),
+                              ),
+
+                              const Text(
+                                " – ",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+
+                              // Tiền VAT
+                              const Text(
+                                "VAT: ",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              Text(
+                                OrderModel.formatCurrency(totalPriceVAT),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                  color: Colors.amber.shade800,
+                                ),
+                              ),
+
+                              const Text(
+                                " – ",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+
+                              // Tổng thanh toán
+                              const Text(
+                                "Tổng: ",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              Text(
+                                OrderModel.formatCurrency(totalPricePayment),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                  color: Colors.blue.shade800,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 6),
-
-            //grand total price
-            Padding(
-              padding: const EdgeInsets.only(right: 7),
-              child: FutureBuilder(
-                future: futureOutbound,
-                builder: (context, snapshot) {
-                  final Map<String, dynamic> grandTotalData =
-                      snapshot.hasData
-                          ? (snapshot.data!['grandTotal'] as Map<String, dynamic>? ?? {})
-                          : {};
-
-                  final totalPriceOrder = grandTotalData['totalPriceOrder'] ?? 0;
-                  final totalPriceVAT = grandTotalData['totalPriceVAT'] ?? 0;
-                  final totalPricePayment = grandTotalData['totalPricePayment'] ?? 0;
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // Tổng tiền hàng
-                      const Text(
-                        "Tiền hàng: ",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      Text(
-                        OrderModel.formatCurrency(totalPriceOrder),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                          color: Colors.green.shade600,
-                        ),
-                      ),
-
-                      const Text(
-                        " – ",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-
-                      // Tiền VAT
-                      const Text(
-                        "VAT: ",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      Text(
-                        OrderModel.formatCurrency(totalPriceVAT),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                          color: Colors.amber.shade800,
-                        ),
-                      ),
-
-                      const Text(
-                        " – ",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-
-                      // Tổng thanh toán
-                      const Text(
-                        "Tổng: ",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      Text(
-                        OrderModel.formatCurrency(totalPricePayment),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                          color: Colors.blue.shade800,
-                        ),
-                      ),
-                    ],
-                  );
-                },
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

@@ -53,7 +53,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
   OrderDataSource? _cachedDatasource;
 
   //text controller
-  TextEditingController searchController = TextEditingController();
+  final searchController = TextEditingController();
+  final headerScrollController = ScrollController();
 
   //flag
   late bool isManager;
@@ -76,7 +77,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
     });
   }
 
-  void loadOrders({bool ownOnly = false}) {
+  void loadOrders({required bool ownOnly}) {
     setState(() {
       final String keyword = searchController.text.trim().toLowerCase();
       final String selectedField = searchFieldMap[searchType] ?? "";
@@ -126,6 +127,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
     searchController.dispose();
     _zoomNotifier.dispose();
     _selectedOrderIdNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -228,90 +230,102 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
         ),
         const SizedBox(height: 8),
 
-        Row(
-          children: [
-            //left button
-            Expanded(
-              flex: 3,
-              child: LeftButtonSearch(
-                selectedType: searchType,
-                types: const [
-                  'Tất cả',
-                  "Mã Đơn Hàng",
-                  "Tên Khách Hàng",
-                  "Tên Sản Phẩm",
-                  "QC Thùng",
-                ],
-                onTypeChanged: (value) {
-                  setState(() {
-                    searchType = value;
-                    isTextFieldEnabled = value != 'Tất cả';
-
-                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                      searchController.clear();
-                      loadOrders();
-                    }
-                  });
-                },
-                controller: searchController,
-                textFieldEnabled: isTextFieldEnabled,
-                buttonColor: themeController.buttonColor,
-                onSearch: () => searchOrders(),
-                extraWidgets: [
-                  isManager
-                      ? AnimatedButton(
-                        onPressed: () {
-                          setState(() {
-                            isSeenOrder = !isSeenOrder;
-                          });
-                          loadOrders(ownOnly: isSeenOrder);
-                        },
-                        label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
-                        icon: null,
-                        backgroundColor: themeController.buttonColor,
-                      )
-                      : const SizedBox.shrink(),
-                ],
-              ),
-            ),
-
-            //right button
-            Expanded(
-              flex: 2,
-              child: ValueListenableBuilder(
-                valueListenable: _selectedOrderIdNotifier,
-                builder: (context, selectedOrderId, _) {
-                  final bool hasSelection = selectedOrderId != null && selectedOrderId.isNotEmpty;
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      //send request
-                      AnimatedButton(
-                        onPressed:
-                            hasSelection
-                                ? () {
-                                  showDialog(
-                                    context: context,
-                                    builder:
-                                        (_) => DialogOrderNotification(
-                                          orderId: selectedOrderId,
-                                          onLoading: () => loadOrders(ownOnly: isSeenOrder),
-                                        ),
-                                  );
-                                }
-                                : null,
-                        label: "Gửi Yêu Cầu",
-                        icon: Icons.send,
-                        backgroundColor: themeController.buttonColor,
+                      //left button
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const [
+                          'Tất cả',
+                          "Mã Đơn Hàng",
+                          "Tên Khách Hàng",
+                          "Tên Sản Phẩm",
+                          "QC Thùng",
+                        ],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = value != 'Tất cả';
+
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              loadOrders(ownOnly: isSeenOrder);
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
+                        onSearch: () => searchOrders(),
+                        extraWidgets: [
+                          isManager
+                              ? AnimatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isSeenOrder = !isSeenOrder;
+                                  });
+                                  loadOrders(ownOnly: isSeenOrder);
+                                },
+                                label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
+                                icon: null,
+                                backgroundColor: themeController.buttonColor,
+                              )
+                              : const SizedBox.shrink(),
+                        ],
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 20),
+
+                      //right button
+                      ValueListenableBuilder(
+                        valueListenable: _selectedOrderIdNotifier,
+                        builder: (context, selectedOrderId, _) {
+                          final bool hasSelection =
+                              selectedOrderId != null && selectedOrderId.isNotEmpty;
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              //send request
+                              AnimatedButton(
+                                onPressed:
+                                    hasSelection
+                                        ? () {
+                                          showDialog(
+                                            context: context,
+                                            builder:
+                                                (_) => DialogOrderNotification(
+                                                  orderId: selectedOrderId,
+                                                  onLoading: () => loadOrders(ownOnly: isSeenOrder),
+                                                ),
+                                          );
+                                        }
+                                        : null,
+                                label: "Gửi Yêu Cầu",
+                                icon: Icons.send,
+                                backgroundColor: themeController.buttonColor,
+                              ),
+                              const SizedBox(width: 4),
+                            ],
+                          );
+                        },
+                      ),
                     ],
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

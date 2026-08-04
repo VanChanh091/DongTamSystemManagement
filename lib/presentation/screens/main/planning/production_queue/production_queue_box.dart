@@ -45,6 +45,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final unsavedChangeController = Get.find<UnsavedChangeController>();
+  final headerScrollController = ScrollController();
 
   //search
   String machine = "Máy In";
@@ -205,6 +206,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     _zoomNotifier.dispose();
     _isSavingNotifier.dispose();
     _selectedPlanningBoxIdsNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -311,234 +313,245 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         const SizedBox(height: 8),
 
         //button
-        Column(
-          children: [
-            Row(
-              children: [
-                //left button
-                Expanded(
-                  flex: 2,
-                  child: LeftButtonSearch(
-                    selectedType: searchType,
-                    types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Quy Cách'],
-                    onTypeChanged: (value) {
-                      setState(() {
-                        searchType = value;
-                        isTextFieldEnabled = searchType != 'Tất cả';
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          //left button
+                          LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Quy Cách'],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = searchType != 'Tất cả';
 
-                        if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                          searchController.clear();
-                          loadPlanning();
-                        }
-                      });
-                    },
-                    controller: searchController,
-                    textFieldEnabled: isTextFieldEnabled,
-                    buttonColor: themeController.buttonColor,
-
-                    onSearch: () {
-                      unsavedChangeController.runSafe(() {
-                        searchPlanning();
-                      });
-                    },
-                  ),
-                ),
-
-                //right button
-                Expanded(
-                  flex: 3,
-                  child: ValueListenableBuilder(
-                    valueListenable: _selectedPlanningBoxIdsNotifier,
-                    builder: (context, selectedPlanningBoxIds, _) {
-                      final bool hasSelection = selectedPlanningBoxIds.isNotEmpty;
-
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        reverse: true,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            // nút lên xuống
-                            rowMoveButtons(
-                              enabled: hasSelection,
-                              onMoveUp: () {
-                                _cachedDatasource!.moveRowUp(selectedPlanningBoxIds);
-                              },
-                              onMoveDown: () {
-                                _cachedDatasource!.moveRowDown(selectedPlanningBoxIds);
-                              },
-                            ),
-                            const SizedBox(width: 8),
-
-                            // save
-                            ValueListenableBuilder(
-                              valueListenable: _isSavingNotifier,
-                              builder: (context, isSaving, _) {
-                                return SavePlanning(
-                                  isLoading: isLoading,
-                                  dayStartController: dayStartController,
-                                  timeStartController: timeStartController,
-                                  totalTimeWorkingController: totalTimeWorkingController,
-                                  getRows: () => _cachedDatasource!.rows,
-                                  idColumn: 'planningBoxId',
-                                  isBox: true,
-                                  backgroundColor: themeController.buttonColor,
-                                  machine: machine,
-                                  onSuccess: () {
-                                    loadPlanning(clearSelection: true);
-                                    unsavedChangeController.resetUnsavedChanges();
-                                  },
-                                  onStartLoading: () => _isSavingNotifier.value = true,
-                                  onEndLoading: () => _isSavingNotifier.value = false,
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 8),
-
-                            //group/unGroup
-                            AnimatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  showGroup = !showGroup;
-                                });
-                              },
-                              label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
-                              icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
-                              backgroundColor: themeController.buttonColor,
-                            ),
-                            const SizedBox(width: 8),
-
-                            //confirm complete
-                            confirmCompleteButton(
-                              context: context,
-                              selectedIds: selectedPlanningBoxIds,
-                              onConfirmComplete: (ids) async {
-                                return await PlanningService().confirmCompletePlanning(
-                                  ids: ids,
-                                  machine: machine,
-                                  isBox: true,
-                                  action: 'CONFIRM_COMPLETE',
-                                );
-                              },
-                              backgroundColor: themeController.buttonColor,
-                              onReload: () => loadPlanning(clearSelection: true),
-                            ),
-                            const SizedBox(width: 8),
-
-                            //change machine
-                            buildDropdownItems(
-                              value: machine,
-                              items: const [
-                                'Máy In',
-                                "Máy Bế",
-                                "Máy Xả",
-                                "Máy Dán",
-                                'Máy Cấn Lằn',
-                                "Máy Cắt Khe",
-                                "Máy Cán Màng",
-                                "Máy Đóng Ghim",
-                              ],
-                              onChanged: (value) async {
-                                if (value == null) return;
-
-                                bool canChange = await UnsavedChangeDialog(unsavedChangeController);
-
-                                if (canChange) {
-                                  changeMachine(value);
-                                } else {
-                                  setState(() {}); // reset dropdown về máy cũ
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
+                                  loadPlanning();
                                 }
-                              },
-                            ),
-                            const SizedBox(width: 8),
+                              });
+                            },
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
 
-                            //popup menu
-                            PopupMenuButton<String>(
-                              icon: const Icon(Icons.more_vert, color: Colors.black),
-                              color: Colors.white,
-                              onSelected: (value) async {
-                                if (value == 'acceptLack') {
-                                  await handlePlanningAction(
-                                    context: context,
-                                    selectedPlanningIds: selectedPlanningBoxIds,
-                                    planningList: _cachedDatasource!.planning,
-                                    machine: machine,
-                                    status: "complete",
-                                    title: "Xác nhận thiếu số lượng",
-                                    message: "Bạn có chắc muốn chấp nhận thiếu không?",
-                                    successMessage: "Thực thi thành công",
-                                    errorMessage: "Có lỗi xảy ra khi thực thi",
-                                    onSuccess: () => loadPlanning(clearSelection: true),
-                                  );
-                                }
-                                if (value == 'notify') {
-                                  if (!context.mounted) return;
+                            onSearch: () {
+                              unsavedChangeController.runSafe(() {
+                                searchPlanning();
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 20),
 
-                                  bool confirm = await showConfirmDialog(
-                                    context: context,
-                                    title: "Xác Nhận Lịch Sản Xuất",
-                                    content: "Bạn có muốn gửi lịch sản xuất này không?",
-                                    confirmText: "Xác nhận",
-                                    confirmColor: const Color(0xffEA4346),
-                                  );
+                          //right button
+                          ValueListenableBuilder(
+                            valueListenable: _selectedPlanningBoxIdsNotifier,
+                            builder: (context, selectedPlanningBoxIds, _) {
+                              final bool hasSelection = selectedPlanningBoxIds.isNotEmpty;
 
-                                  if (confirm) {
-                                    try {
-                                      final success = await PlanningService().notifyUpdatePlanning(
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // nút lên xuống
+                                  rowMoveButtons(
+                                    enabled: hasSelection,
+                                    onMoveUp: () {
+                                      _cachedDatasource!.moveRowUp(selectedPlanningBoxIds);
+                                    },
+                                    onMoveDown: () {
+                                      _cachedDatasource!.moveRowDown(selectedPlanningBoxIds);
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+
+                                  // save
+                                  ValueListenableBuilder(
+                                    valueListenable: _isSavingNotifier,
+                                    builder: (context, isSaving, _) {
+                                      return SavePlanning(
+                                        isLoading: isLoading,
+                                        dayStartController: dayStartController,
+                                        timeStartController: timeStartController,
+                                        totalTimeWorkingController: totalTimeWorkingController,
+                                        getRows: () => _cachedDatasource!.rows,
+                                        idColumn: 'planningBoxId',
+                                        isBox: true,
+                                        backgroundColor: themeController.buttonColor,
                                         machine: machine,
-                                        isPaper: false,
+                                        onSuccess: () {
+                                          loadPlanning(clearSelection: true);
+                                          unsavedChangeController.resetUnsavedChanges();
+                                        },
+                                        onStartLoading: () => _isSavingNotifier.value = true,
+                                        onEndLoading: () => _isSavingNotifier.value = false,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+
+                                  //group/unGroup
+                                  AnimatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        showGroup = !showGroup;
+                                      });
+                                    },
+                                    label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                    icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
+                                    backgroundColor: themeController.buttonColor,
+                                  ),
+                                  const SizedBox(width: 8),
+
+                                  //confirm complete
+                                  confirmCompleteButton(
+                                    context: context,
+                                    selectedIds: selectedPlanningBoxIds,
+                                    onConfirmComplete: (ids) async {
+                                      return await PlanningService().confirmCompletePlanning(
+                                        ids: ids,
+                                        machine: machine,
+                                        isBox: true,
+                                        action: 'CONFIRM_COMPLETE',
+                                      );
+                                    },
+                                    backgroundColor: themeController.buttonColor,
+                                    onReload: () => loadPlanning(clearSelection: true),
+                                  ),
+                                  const SizedBox(width: 8),
+
+                                  //change machine
+                                  buildDropdownItems(
+                                    value: machine,
+                                    items: const [
+                                      'Máy In',
+                                      "Máy Bế",
+                                      "Máy Xả",
+                                      "Máy Dán",
+                                      'Máy Cấn Lằn',
+                                      "Máy Cắt Khe",
+                                      "Máy Cán Màng",
+                                      "Máy Đóng Ghim",
+                                    ],
+                                    onChanged: (value) async {
+                                      if (value == null) return;
+
+                                      bool canChange = await UnsavedChangeDialog(
+                                        unsavedChangeController,
                                       );
 
-                                      if (!context.mounted) return;
-                                      if (success) {
-                                        showSnackBarSuccess(
-                                          context,
-                                          "Gửi lịch sản xuất thành công",
+                                      if (canChange) {
+                                        changeMachine(value);
+                                      } else {
+                                        setState(() {}); // reset dropdown về máy cũ
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+
+                                  //popup menu
+                                  PopupMenuButton<String>(
+                                    icon: const Icon(Icons.more_vert, color: Colors.black),
+                                    color: Colors.white,
+                                    onSelected: (value) async {
+                                      if (value == 'acceptLack') {
+                                        await handlePlanningAction(
+                                          context: context,
+                                          selectedPlanningIds: selectedPlanningBoxIds,
+                                          planningList: _cachedDatasource!.planning,
+                                          machine: machine,
+                                          status: "complete",
+                                          title: "Xác nhận thiếu số lượng",
+                                          message: "Bạn có chắc muốn chấp nhận thiếu không?",
+                                          successMessage: "Thực thi thành công",
+                                          errorMessage: "Có lỗi xảy ra khi thực thi",
+                                          onSuccess: () => loadPlanning(clearSelection: true),
                                         );
                                       }
-                                    } catch (e) {
-                                      if (!context.mounted) return;
-                                      showSnackBarError(context, "Lỗi khi gửi lịch sản xuất");
-                                    }
-                                  }
-                                }
-                              },
-                              itemBuilder:
-                                  (BuildContext context) => [
-                                    const PopupMenuItem<String>(
-                                      value: 'acceptLack',
-                                      child: ListTile(
-                                        leading: Icon(Icons.approval_outlined),
-                                        title: Text('Chấp Nhận Thiếu SL'),
-                                      ),
-                                    ),
-                                    const PopupMenuItem<String>(
-                                      value: 'notify',
-                                      child: ListTile(
-                                        leading: Icon(Symbols.send),
-                                        title: Text('Xác Nhận Kế Hoạch SX'),
-                                      ),
-                                    ),
-                                  ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+                                      if (value == 'notify') {
+                                        if (!context.mounted) return;
 
-            //set day and time for time running
-            const SizedBox(height: 5),
-            timeAndDayPlanning(
-              context: context,
-              dayStartController: dayStartController,
-              timeStartController: timeStartController,
-              totalTimeWorkingController: totalTimeWorkingController,
-            ),
-          ],
+                                        bool confirm = await showConfirmDialog(
+                                          context: context,
+                                          title: "Xác Nhận Lịch Sản Xuất",
+                                          content: "Bạn có muốn gửi lịch sản xuất này không?",
+                                          confirmText: "Xác nhận",
+                                          confirmColor: const Color(0xffEA4346),
+                                        );
+
+                                        if (confirm) {
+                                          try {
+                                            final success = await PlanningService()
+                                                .notifyUpdatePlanning(
+                                                  machine: machine,
+                                                  isPaper: false,
+                                                );
+
+                                            if (!context.mounted) return;
+                                            if (success) {
+                                              showSnackBarSuccess(
+                                                context,
+                                                "Gửi lịch sản xuất thành công",
+                                              );
+                                            }
+                                          } catch (e) {
+                                            if (!context.mounted) return;
+                                            showSnackBarError(context, "Lỗi khi gửi lịch sản xuất");
+                                          }
+                                        }
+                                      }
+                                    },
+                                    itemBuilder:
+                                        (BuildContext context) => [
+                                          const PopupMenuItem<String>(
+                                            value: 'acceptLack',
+                                            child: ListTile(
+                                              leading: Icon(Icons.approval_outlined),
+                                              title: Text('Chấp Nhận Thiếu SL'),
+                                            ),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'notify',
+                                            child: ListTile(
+                                              leading: Icon(Symbols.send),
+                                              title: Text('Xác Nhận Kế Hoạch SX'),
+                                            ),
+                                          ),
+                                        ],
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    //set day and time for time running
+                    const SizedBox(height: 5),
+                    timeAndDayPlanning(
+                      context: context,
+                      dayStartController: dayStartController,
+                      timeStartController: timeStartController,
+                      totalTimeWorkingController: totalTimeWorkingController,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

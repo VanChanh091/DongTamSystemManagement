@@ -1,4 +1,6 @@
+import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SkeletonLoading extends StatefulWidget {
   final Widget child;
@@ -66,6 +68,8 @@ Widget buildShimmerSkeletonTable({
   double rowHeight = 38,
   double horizontalPadding = 8,
 }) {
+  final themeController = Get.find<ThemeController>();
+
   Widget headerFake() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 6),
@@ -74,7 +78,10 @@ Widget buildShimmerSkeletonTable({
           Container(
             width: 200,
             height: headerHeight,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
+            decoration: BoxDecoration(
+              color: themeController.backgroundColor.value,
+              borderRadius: BorderRadius.circular(6),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(

@@ -39,6 +39,7 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
+  final headerScrollController = ScrollController();
 
   List<int> selectedScrapIds = [];
   Map<String, double> columnWidths = {}; //map header table
@@ -140,6 +141,7 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
     super.dispose();
     searchController.dispose();
     reasonController.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -187,122 +189,133 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
         const SizedBox(height: 8),
 
         //button
-        Row(
-          children: [
-            //left button
-            Expanded(flex: 2, child: const SizedBox()),
-
-            //right button
-            Expanded(
-              flex: 3,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
               child: SingleChildScrollView(
+                controller: headerScrollController,
                 scrollDirection: Axis.horizontal,
-                reverse: true,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // allocate
-                    AnimatedButton(
-                      onPressed: () async {
-                        try {
-                          if (selectedScrapIds.isEmpty) {
-                            showSnackBarError(context, "Chưa chọn dòng để phân bổ phế liệu");
-                            return;
-                          }
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //left button
+                      const SizedBox(), const SizedBox(width: 20),
 
-                          bool success = await showConfirmDialog(
-                            context: context,
-                            title: "Phân bổ báo cáo phế liệu",
-                            content: "Xác nhận phân bổ các báo cáo phế liệu đã chọn không?",
-                            confirmText: "Phân bổ",
-                          );
+                      //right button
+                      Row(
+                        children: [
+                          // allocate
+                          AnimatedButton(
+                            onPressed: () async {
+                              try {
+                                if (selectedScrapIds.isEmpty) {
+                                  showSnackBarError(context, "Chưa chọn dòng để phân bổ phế liệu");
+                                  return;
+                                }
 
-                          if (success) {
-                            final scrapReports = await futureScrap;
-                            final List<ScrapReportModel> scrapReportList =
-                                (scrapReports['scrapReports'] as List? ?? [])
-                                    .cast<ScrapReportModel>();
-                            final selectedScrap = scrapReportList.firstWhere(
-                              (scrap) => scrap.scrapId == selectedScrapIds.first,
-                              orElse: () => throw Exception("Không tìm thấy báo cáo"),
-                            );
+                                bool success = await showConfirmDialog(
+                                  context: context,
+                                  title: "Phân bổ báo cáo phế liệu",
+                                  content: "Xác nhận phân bổ các báo cáo phế liệu đã chọn không?",
+                                  confirmText: "Phân bổ",
+                                );
 
-                            await QualityControlService().handleUpdateScrapReport(
-                              scrapIds: selectedScrapIds,
-                              machine: machine,
-                              dayCompleted: selectedScrap.dayCompleted,
-                              shiftProduction: selectedScrap.shiftProduction,
-                              action: "ALLOCATE_SCRAP_REPORT",
-                            );
+                                if (success) {
+                                  final scrapReports = await futureScrap;
+                                  final List<ScrapReportModel> scrapReportList =
+                                      (scrapReports['scrapReports'] as List? ?? [])
+                                          .cast<ScrapReportModel>();
+                                  final selectedScrap = scrapReportList.firstWhere(
+                                    (scrap) => scrap.scrapId == selectedScrapIds.first,
+                                    orElse: () => throw Exception("Không tìm thấy báo cáo"),
+                                  );
 
-                            if (mounted) {
-                              showSnackBarSuccess(context, "Phân bổ báo cáo phế liệu thành công");
+                                  await QualityControlService().handleUpdateScrapReport(
+                                    scrapIds: selectedScrapIds,
+                                    machine: machine,
+                                    dayCompleted: selectedScrap.dayCompleted,
+                                    shiftProduction: selectedScrap.shiftProduction,
+                                    action: "ALLOCATE_SCRAP_REPORT",
+                                  );
 
-                              loadScrapReports();
-                            }
-                          }
-                        } on ApiException catch (e) {
-                          final errorText = switch (e.errorCode) {
-                            "INVALID_SCRAP_REPORT_STATUS" => e.message!,
-                            "MISSING_SCRAP_REPORTS_IN_BATCH" => e.message!,
-                            _ => "Có lỗi xảy ra, vui lòng thử lại",
-                          };
-                          if (mounted) showSnackBarError(context, errorText);
-                        } catch (e) {
-                          if (mounted) {
-                            showSnackBarError(context, "Đã xảy ra lỗi không mong muốn");
-                          }
-                        }
-                      },
-                      label: "Phân bổ",
-                      icon: Symbols.account_tree,
-                      backgroundColor: themeController.buttonColor,
-                    ),
-                    const SizedBox(width: 8),
+                                  if (context.mounted) {
+                                    showSnackBarSuccess(
+                                      context,
+                                      "Phân bổ báo cáo phế liệu thành công",
+                                    );
 
-                    //confirm
-                    _buildScrapButton(isConfirm: true),
-                    const SizedBox(width: 8),
+                                    loadScrapReports();
+                                  }
+                                }
+                              } on ApiException catch (e) {
+                                final errorText = switch (e.errorCode) {
+                                  "INVALID_SCRAP_REPORT_STATUS" => e.message!,
+                                  "MISSING_SCRAP_REPORTS_IN_BATCH" => e.message!,
+                                  _ => "Có lỗi xảy ra, vui lòng thử lại",
+                                };
+                                if (context.mounted) showSnackBarError(context, errorText);
+                              } catch (e) {
+                                if (context.mounted) {
+                                  showSnackBarError(context, "Đã xảy ra lỗi không mong muốn");
+                                }
+                              }
+                            },
+                            label: "Phân bổ",
+                            icon: Symbols.account_tree,
+                            backgroundColor: themeController.buttonColor,
+                          ),
+                          const SizedBox(width: 8),
 
-                    //reject
-                    _buildScrapButton(isConfirm: false),
-                    const SizedBox(width: 8),
+                          //confirm
+                          _buildScrapButton(isConfirm: true),
+                          const SizedBox(width: 8),
 
-                    buildDropdownItems(
-                      width: 160,
-                      value: machine,
-                      items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setState(() {
-                          machine = value;
-                          selectedScrapIds.clear();
-                          loadScrapReports();
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 8),
+                          //reject
+                          _buildScrapButton(isConfirm: false),
+                          const SizedBox(width: 8),
 
-                    //filter
-                    buildDropdownItems(
-                      width: 155,
-                      value: filterType,
-                      items: const ["pending", "confirmed", "allocated"],
-                      onChanged: (value) {
-                        setState(() {
-                          filterType = value!;
-                          selectedScrapIds.clear();
-                          loadScrapReports();
-                        });
-                      },
-                      itemLabelBuilder: (value) => filterOptions[value] ?? value,
-                    ),
-                    const SizedBox(width: 8),
-                  ],
+                          buildDropdownItems(
+                            width: 160,
+                            value: machine,
+                            items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setState(() {
+                                machine = value;
+                                selectedScrapIds.clear();
+                                loadScrapReports();
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 8),
+
+                          //filter
+                          buildDropdownItems(
+                            width: 155,
+                            value: filterType,
+                            items: const ["pending", "confirmed", "allocated"],
+                            onChanged: (value) {
+                              setState(() {
+                                filterType = value!;
+                                selectedScrapIds.clear();
+                                loadScrapReports();
+                              });
+                            },
+                            itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

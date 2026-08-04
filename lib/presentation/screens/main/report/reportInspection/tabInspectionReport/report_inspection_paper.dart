@@ -30,6 +30,7 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
 
   //controller
   final themeController = Get.find<ThemeController>();
+  final headerScrollController = ScrollController();
 
   String machine = "Máy 1350";
   final List<String> machineList = ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
@@ -117,6 +118,7 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
     dateController.dispose();
     _zoomNotifier.dispose();
     _selectedPaperIdsNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -217,55 +219,68 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
         const SizedBox(height: 8),
 
         //button
-        Row(
-          children: [
-            //left button
-            Expanded(flex: 2, child: const SizedBox()),
-
-            //right button
-            Expanded(
-              flex: 3,
-              child: ValueListenableBuilder(
-                valueListenable: _selectedPaperIdsNotifier,
-                builder: (context, selectedReportId, _) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      AnimatedButton(
-                        onPressed: () async {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => DialogSummaryInspecErr(
-                                  type: InspectionType.paper,
-                                  machine: machine,
-                                  machineList: machineList,
-                                ),
+                      //left button
+                      const SizedBox(), const SizedBox(width: 20),
+
+                      //right button
+                      ValueListenableBuilder(
+                        valueListenable: _selectedPaperIdsNotifier,
+                        builder: (context, selectedReportId, _) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedButton(
+                                onPressed: () async {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (_) => DialogSummaryInspecErr(
+                                          type: InspectionType.paper,
+                                          machine: machine,
+                                          machineList: machineList,
+                                        ),
+                                  );
+                                },
+                                label: "Tổng lỗi",
+                                icon: Icons.summarize,
+                                backgroundColor: themeController.buttonColor,
+                              ),
+                              const SizedBox(width: 8),
+
+                              //choose machine
+                              buildDropdownItems(
+                                value: machine,
+                                items: machineList,
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    changeMachine(value);
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                            ],
                           );
                         },
-                        label: "Tổng lỗi",
-                        icon: Icons.summarize,
-                        backgroundColor: themeController.buttonColor,
                       ),
-                      const SizedBox(width: 8),
-
-                      //choose machine
-                      buildDropdownItems(
-                        value: machine,
-                        items: machineList,
-                        onChanged: (value) {
-                          if (value != null) {
-                            changeMachine(value);
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 8),
                     ],
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

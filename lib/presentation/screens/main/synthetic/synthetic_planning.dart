@@ -40,6 +40,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final headerScrollController = ScrollController();
 
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
@@ -218,6 +219,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
     searchController.dispose();
     _zoomNotifier.dispose();
     _selectedDbPaperIdNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -318,101 +320,121 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
         const SizedBox(height: 8),
 
         //button
-        Row(
-          children: [
-            //left button
-            Expanded(
-              flex: 2,
-              child: LeftButtonSearch(
-                selectedType: searchType,
-                types: const [
-                  'Tất cả',
-                  "Theo Mã Đơn",
-                  "Ghép Khổ",
-                  "Theo Máy",
-                  "Tên Khách Hàng",
-                  "Tên Công Ty",
-                  "Tên Nhân Viên",
-                ],
-                onTypeChanged: (value) {
-                  setState(() {
-                    searchType = value;
-                    isTextFieldEnabled = value != 'Tất cả';
-
-                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                      searchController.clear();
-                      currentPage = 1;
-                      loadDashboard();
-                    }
-                  });
-                },
-                controller: searchController,
-                textFieldEnabled: isTextFieldEnabled,
-                buttonColor: themeController.buttonColor,
-                onSearch: () => searchDashboard(),
-                minDropdownWidth: 170,
-                maxDropdownWidth: 200,
-              ),
-            ),
-
-            //right button
-            Expanded(
-              flex: 3,
-              child: ValueListenableBuilder(
-                valueListenable: _selectedDbPaperIdNotifier,
-                builder: (context, selectedPlanningIds, _) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      //export excel
-                      AnimatedButton(
-                        onPressed: () async {
-                          showDialog(context: context, builder: (_) => DialogExportDbPlannings());
-                        },
-                        label: "Xuất Excel",
-                        icon: Symbols.export_notes,
-                        backgroundColor: themeController.buttonColor,
-                      ),
-                      const SizedBox(width: 8),
+                      //left button
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const [
+                          'Tất cả',
+                          "Theo Mã Đơn",
+                          "Ghép Khổ",
+                          "Theo Máy",
+                          "Tên Khách Hàng",
+                          "Tên Công Ty",
+                          "Tên Nhân Viên",
+                        ],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = value != 'Tất cả';
 
-                      //choose machine
-                      SizedBox(
-                        width: 180,
-                        child: DropdownButtonFormField<String>(
-                          initialValue: status,
-                          items:
-                              [
-                                "Hoàn Thành",
-                                "Đã Sắp Xếp",
-                                "Thiếu Số Lượng",
-                                "Bị Dừng",
-                                "Bị Hủy",
-                              ].map((String value) {
-                                return DropdownMenuItem<String>(value: value, child: Text(value));
-                              }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              changeStatus(value);
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              currentPage = 1;
+                              loadDashboard();
                             }
-                          },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Colors.grey),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          ),
-                        ),
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
+                        onSearch: () => searchDashboard(),
+                        minDropdownWidth: 170,
+                        maxDropdownWidth: 200,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 20),
+
+                      //right button
+                      ValueListenableBuilder(
+                        valueListenable: _selectedDbPaperIdNotifier,
+                        builder: (context, selectedPlanningIds, _) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              //export excel
+                              AnimatedButton(
+                                onPressed: () async {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => DialogExportDbPlannings(),
+                                  );
+                                },
+                                label: "Xuất Excel",
+                                icon: Symbols.export_notes,
+                                backgroundColor: themeController.buttonColor,
+                              ),
+                              const SizedBox(width: 8),
+
+                              //choose machine
+                              SizedBox(
+                                width: 180,
+                                child: DropdownButtonFormField<String>(
+                                  initialValue: status,
+                                  items:
+                                      [
+                                        "Hoàn Thành",
+                                        "Đã Sắp Xếp",
+                                        "Thiếu Số Lượng",
+                                        "Bị Dừng",
+                                        "Bị Hủy",
+                                      ].map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      changeStatus(value);
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: Colors.grey),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                          );
+                        },
+                      ),
                     ],
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

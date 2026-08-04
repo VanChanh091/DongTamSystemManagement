@@ -73,6 +73,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   //text controller
   final dayStartController = TextEditingController();
   final lisencePlateController = TextEditingController();
+  final headerScrollController = ScrollController();
 
   @override
   void initState() {
@@ -153,6 +154,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
     lisencePlateController.dispose();
     _zoomNotifier.dispose();
     _selectedDeliveryIdsNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -261,282 +263,306 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
         const SizedBox(height: 8),
 
         //button
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            //left button
-            const SizedBox(),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //left button
+                      const SizedBox(), const SizedBox(width: 20),
 
-            //right button
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-                child: ValueListenableBuilder(
-                  valueListenable: _selectedDeliveryIdsNotifier,
-                  builder: (context, selectedDeliveryIds, _) {
-                    final bool hasSelection = selectedDeliveryIds.isNotEmpty;
+                      //right button
+                      ValueListenableBuilder(
+                        valueListenable: _selectedDeliveryIdsNotifier,
+                        builder: (context, selectedDeliveryIds, _) {
+                          final bool hasSelection = selectedDeliveryIds.isNotEmpty;
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // Ngày giao
-                        buildLabelAndUnderlineInput(
-                          label: "Ngày giao:",
-                          controller: dayStartController,
-                          width: 120,
-                          readOnly: true,
-                          onTap: () async {
-                            final selected = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2026),
-                              lastDate: DateTime(2100),
-                              builder: (BuildContext context, Widget? child) {
-                                return Theme(
-                                  data: Theme.of(context).copyWith(
-                                    colorScheme: ColorScheme.light(
-                                      primary: Colors.blue,
-                                      onPrimary: Colors.white,
-                                      onSurface: Colors.black,
-                                    ),
-                                    dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
-                                  ),
-                                  child: child!,
-                                );
-                              },
-                            );
-
-                            if (selected != null) {
-                              setState(() {
-                                dayStartController.text = DateFormat("dd/MM/yyyy").format(selected);
-
-                                selectedDeliveryIds.clear();
-                              });
-
-                              loadDeliverySchedule();
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 12),
-
-                        //export file
-                        AnimatedButton(
-                          onPressed: () async {
-                            bool confirm = await showConfirmDialog(
-                              context: context,
-                              title: "Xuất Lịch Giao Hàng",
-                              content: "Xuất lịch giao hàng cho ngày ${dayStartController.text}?",
-                              confirmText: "Xác Nhận",
-                            );
-
-                            if (confirm) {
-                              final parsedDate = formatter.parse(dayStartController.text);
-
-                              final file = await DeliveryService().exportDeliverySchedule(
-                                deliveryDate: parsedDate,
-                              );
-
-                              if (file != null && context.mounted) {
-                                showSnackBarSuccess(context, "Xuất file thành công");
-                              } else if (context.mounted) {
-                                showSnackBarError(context, "Xuất file thất bại");
-                              }
-                            }
-                          },
-                          label: "Xuất File",
-                          icon: Symbols.export_notes,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
-
-                        //outbound
-                        AnimatedButton(
-                          onPressed: () async {
-                            if (!context.mounted) return;
-
-                            if (selectedDeliveryIds.isNotEmpty) {
-                              try {
-                                final data = await futureDelivery;
-                                final allItems =
-                                    data
-                                        .expand(
-                                          (plan) => plan.deliveryItems ?? <DeliveryItemModel>[],
-                                        )
-                                        .toList();
-                                final selectedItems =
-                                    allItems
-                                        .where(
-                                          (item) =>
-                                              selectedDeliveryIds.contains(item.deliveryItemId),
-                                        )
-                                        .toList();
-
-                                initialItems =
-                                    selectedItems
-                                        .map(
-                                          (item) =>
-                                              OutboundTempItemModel.fromDeliveryItemModel(item),
-                                        )
-                                        .toList();
-                              } catch (e) {
-                                if (!context.mounted) return;
-                                showSnackBarError(context, "Lấy dữ liệu xuất kho thất bại");
-                                return;
-                              }
-                            }
-
-                            if (!context.mounted) return;
-                            showDialog(
-                              barrierDismissible: false,
-                              context: context,
-                              builder:
-                                  (_) => OutBoundDialog(
-                                    outbound: null,
-                                    onOutboundHistory: () {
-                                      //cập nhật lại badge
-                                      badgesController.fetchPrepareGoods();
-                                      loadDeliverySchedule();
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // Ngày giao
+                              buildLabelAndUnderlineInput(
+                                label: "Ngày giao:",
+                                controller: dayStartController,
+                                width: 120,
+                                readOnly: true,
+                                onTap: () async {
+                                  final selected = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2026),
+                                    lastDate: DateTime(2100),
+                                    builder: (BuildContext context, Widget? child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: ColorScheme.light(
+                                            primary: Colors.blue,
+                                            onPrimary: Colors.white,
+                                            onSurface: Colors.black,
+                                          ),
+                                          dialogTheme: DialogThemeData(
+                                            backgroundColor: Colors.white12,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
                                     },
-                                    initialItems: initialItems,
-                                  ),
-                            );
-                          },
+                                  );
 
-                          label: "Xuất Kho",
-                          icon: Symbols.input,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
+                                  if (selected != null) {
+                                    setState(() {
+                                      dayStartController.text = DateFormat(
+                                        "dd/MM/yyyy",
+                                      ).format(selected);
 
-                        //request prepare goods
-                        AnimatedButton(
-                          onPressed:
-                              isActionable && hasSelection
-                                  ? () async {
-                                    lisencePlateController.clear();
+                                      selectedDeliveryIds.clear();
+                                    });
 
-                                    await showInputQtyDialog(
-                                      context: context,
-                                      title: "Yêu cầu chuẩn bị hàng",
-                                      labelText: "Nhập vào biển số xe",
-                                      controller: lisencePlateController,
-                                      onConfirm: () async {
-                                        showSnackBarSuccess(
-                                          context,
-                                          "Đã gửi yêu cầu chuẩn bị hàng",
-                                        );
+                                    loadDeliverySchedule();
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 12),
 
-                                        final success = await DeliveryService()
-                                            .handleUpdatePreparedGoods(
-                                              action: "REQUEST",
-                                              isRequest: true,
-                                              deliveryItemIds: selectedDeliveryIds,
-                                              lisencePlate: lisencePlateController.text,
-                                            );
+                              //export file
+                              AnimatedButton(
+                                onPressed: () async {
+                                  bool confirm = await showConfirmDialog(
+                                    context: context,
+                                    title: "Xuất Lịch Giao Hàng",
+                                    content:
+                                        "Xuất lịch giao hàng cho ngày ${dayStartController.text}?",
+                                    confirmText: "Xác Nhận",
+                                  );
 
-                                        if (success) {
-                                          if (context.mounted) {
-                                            showSnackBarSuccess(
-                                              context,
-                                              "Đã gửi yêu cầu chuẩn bị hàng",
-                                            );
+                                  if (confirm) {
+                                    final parsedDate = formatter.parse(dayStartController.text);
 
-                                            await DeliveryService().notifyRequestPrepareGoods();
+                                    final file = await DeliveryService().exportDeliverySchedule(
+                                      deliveryDate: parsedDate,
+                                    );
 
+                                    if (file != null && context.mounted) {
+                                      showSnackBarSuccess(context, "Xuất file thành công");
+                                    } else if (context.mounted) {
+                                      showSnackBarError(context, "Xuất file thất bại");
+                                    }
+                                  }
+                                },
+                                label: "Xuất File",
+                                icon: Symbols.export_notes,
+                                backgroundColor: themeController.buttonColor,
+                              ),
+                              const SizedBox(width: 8),
+
+                              //outbound
+                              AnimatedButton(
+                                onPressed: () async {
+                                  if (!context.mounted) return;
+
+                                  if (selectedDeliveryIds.isNotEmpty) {
+                                    try {
+                                      final data = await futureDelivery;
+                                      final allItems =
+                                          data
+                                              .expand(
+                                                (plan) =>
+                                                    plan.deliveryItems ?? <DeliveryItemModel>[],
+                                              )
+                                              .toList();
+                                      final selectedItems =
+                                          allItems
+                                              .where(
+                                                (item) => selectedDeliveryIds.contains(
+                                                  item.deliveryItemId,
+                                                ),
+                                              )
+                                              .toList();
+
+                                      initialItems =
+                                          selectedItems
+                                              .map(
+                                                (item) =>
+                                                    OutboundTempItemModel.fromDeliveryItemModel(
+                                                      item,
+                                                    ),
+                                              )
+                                              .toList();
+                                    } catch (e) {
+                                      if (!context.mounted) return;
+                                      showSnackBarError(context, "Lấy dữ liệu xuất kho thất bại");
+                                      return;
+                                    }
+                                  }
+
+                                  if (!context.mounted) return;
+                                  showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder:
+                                        (_) => OutBoundDialog(
+                                          outbound: null,
+                                          onOutboundHistory: () {
+                                            //cập nhật lại badge
                                             badgesController.fetchPrepareGoods();
                                             loadDeliverySchedule();
-                                          }
+                                          },
+                                          initialItems: initialItems,
+                                        ),
+                                  );
+                                },
+
+                                label: "Xuất Kho",
+                                icon: Symbols.input,
+                                backgroundColor: themeController.buttonColor,
+                              ),
+                              const SizedBox(width: 8),
+
+                              //request prepare goods
+                              AnimatedButton(
+                                onPressed:
+                                    isActionable && hasSelection
+                                        ? () async {
+                                          lisencePlateController.clear();
+
+                                          await showInputQtyDialog(
+                                            context: context,
+                                            title: "Yêu cầu chuẩn bị hàng",
+                                            labelText: "Nhập vào biển số xe",
+                                            controller: lisencePlateController,
+                                            onConfirm: () async {
+                                              showSnackBarSuccess(
+                                                context,
+                                                "Đã gửi yêu cầu chuẩn bị hàng",
+                                              );
+
+                                              final success = await DeliveryService()
+                                                  .handleUpdatePreparedGoods(
+                                                    action: "REQUEST",
+                                                    isRequest: true,
+                                                    deliveryItemIds: selectedDeliveryIds,
+                                                    lisencePlate: lisencePlateController.text,
+                                                  );
+
+                                              if (success) {
+                                                if (context.mounted) {
+                                                  showSnackBarSuccess(
+                                                    context,
+                                                    "Đã gửi yêu cầu chuẩn bị hàng",
+                                                  );
+
+                                                  await DeliveryService()
+                                                      .notifyRequestPrepareGoods();
+
+                                                  badgesController.fetchPrepareGoods();
+                                                  loadDeliverySchedule();
+                                                }
+                                              }
+                                              return true;
+                                            },
+                                          );
                                         }
-                                        return true;
-                                      },
-                                    );
-                                  }
-                                  : null,
-                          label: "YC Xuất Hàng",
-                          icon: Symbols.request_quote,
-                          backgroundColor: isActionable ? themeController.buttonColor : Colors.grey,
-                        ),
-                        const SizedBox(width: 8),
+                                        : null,
+                                label: "YC Xuất Hàng",
+                                icon: Symbols.request_quote,
+                                backgroundColor:
+                                    isActionable ? themeController.buttonColor : Colors.grey,
+                              ),
+                              const SizedBox(width: 8),
 
-                        isPlan
-                            ? Row(
-                              children: [
-                                AnimatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      showGroup = !showGroup;
-                                    });
-                                  },
-                                  label: showGroup ? "Tắt nhóm" : "Bật nhóm",
-                                  icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
-                                  backgroundColor: themeController.buttonColor,
-                                ),
-                                const SizedBox(width: 8),
+                              isPlan
+                                  ? Row(
+                                    children: [
+                                      AnimatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            showGroup = !showGroup;
+                                          });
+                                        },
+                                        label: showGroup ? "Tắt nhóm" : "Bật nhóm",
+                                        icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
+                                        backgroundColor: themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 8),
 
-                                //complete
-                                AnimatedButton(
-                                  onPressed:
-                                      isActionable && hasSelection
-                                          ? () async {
-                                            await handleDeliveryAction(
-                                              context: context,
-                                              deliveryId: currentDeliveryId!,
-                                              selectedItemIds: selectedDeliveryIds,
-                                              action: "complete",
-                                              title: "Xác Nhận Hoàn Thành Giao Hàng",
-                                              content: "Hoàn thành các kế hoạch giao hàng đã chọn?",
-                                              successMessage: "Hoàn thành giao hàng thành công",
-                                              errorMessage: "Hoàn thành giao hàng thất bại",
-                                              onSuccess: () {
-                                                loadDeliverySchedule();
-                                              },
-                                            );
-                                          }
-                                          : null,
-                                  label: "Hoàn Thành",
-                                  icon: Symbols.check,
-                                  backgroundColor:
-                                      isActionable ? themeController.buttonColor : Colors.grey,
-                                ),
-                                const SizedBox(width: 8),
+                                      //complete
+                                      AnimatedButton(
+                                        onPressed:
+                                            isActionable && hasSelection
+                                                ? () async {
+                                                  await handleDeliveryAction(
+                                                    context: context,
+                                                    deliveryId: currentDeliveryId!,
+                                                    selectedItemIds: selectedDeliveryIds,
+                                                    action: "complete",
+                                                    title: "Xác Nhận Hoàn Thành Giao Hàng",
+                                                    content:
+                                                        "Hoàn thành các kế hoạch giao hàng đã chọn?",
+                                                    successMessage:
+                                                        "Hoàn thành giao hàng thành công",
+                                                    errorMessage: "Hoàn thành giao hàng thất bại",
+                                                    onSuccess: () {
+                                                      loadDeliverySchedule();
+                                                    },
+                                                  );
+                                                }
+                                                : null,
+                                        label: "Hoàn Thành",
+                                        icon: Symbols.check,
+                                        backgroundColor:
+                                            isActionable
+                                                ? themeController.buttonColor
+                                                : Colors.grey,
+                                      ),
+                                      const SizedBox(width: 8),
 
-                                //cancel
-                                AnimatedButton(
-                                  onPressed:
-                                      isActionable && hasSelection
-                                          ? () async {
-                                            await handleDeliveryAction(
-                                              context: context,
-                                              deliveryId: currentDeliveryId!,
-                                              selectedItemIds: selectedDeliveryIds,
-                                              action: "cancel",
-                                              title: "Xác Nhận Hủy Giao Hàng",
-                                              content: "Hủy các kế hoạch giao hàng đã chọn?",
-                                              successMessage: "Hủy giao hàng thành công",
-                                              errorMessage: "Hủy giao hàng thất bại",
-                                              onSuccess: () {
-                                                loadDeliverySchedule();
-                                              },
-                                            );
-                                          }
-                                          : null,
-                                  label: "Hủy Giao",
-                                  icon: Symbols.cancel,
-                                  backgroundColor:
-                                      isActionable ? const Color(0xffEA4346) : Colors.grey,
-                                ),
-                                const SizedBox(width: 5),
-                              ],
-                            )
-                            : const SizedBox.shrink(),
-                      ],
-                    );
-                  },
+                                      //cancel
+                                      AnimatedButton(
+                                        onPressed:
+                                            isActionable && hasSelection
+                                                ? () async {
+                                                  await handleDeliveryAction(
+                                                    context: context,
+                                                    deliveryId: currentDeliveryId!,
+                                                    selectedItemIds: selectedDeliveryIds,
+                                                    action: "cancel",
+                                                    title: "Xác Nhận Hủy Giao Hàng",
+                                                    content: "Hủy các kế hoạch giao hàng đã chọn?",
+                                                    successMessage: "Hủy giao hàng thành công",
+                                                    errorMessage: "Hủy giao hàng thất bại",
+                                                    onSuccess: () {
+                                                      loadDeliverySchedule();
+                                                    },
+                                                  );
+                                                }
+                                                : null,
+                                        label: "Hủy Giao",
+                                        icon: Symbols.cancel,
+                                        backgroundColor:
+                                            isActionable ? const Color(0xffEA4346) : Colors.grey,
+                                      ),
+                                      const SizedBox(width: 5),
+                                    ],
+                                  )
+                                  : const SizedBox.shrink(),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

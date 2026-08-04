@@ -39,6 +39,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
+  final headerScrollController = ScrollController();
 
   Map<String, double> columnWidths = {};
   final _zoomNotifier = ValueNotifier<double>(1.0);
@@ -85,6 +86,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
     super.dispose();
     _zoomNotifier.dispose();
     _selectedOrderIdNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -187,110 +189,124 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
         ),
         const SizedBox(height: 8),
 
-        //button menu
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Expanded(flex: 1, child: SizedBox()),
+        //search & button
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(),
+                      const SizedBox(width: 20),
 
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                child: ValueListenableBuilder(
-                  valueListenable: _selectedOrderIdNotifier,
-                  builder: (context, selectedOrderId, _) {
-                    final bool hasSelection = selectedOrderId != null && selectedOrderId.isNotEmpty;
+                      ValueListenableBuilder(
+                        valueListenable: _selectedOrderIdNotifier,
+                        builder: (context, selectedOrderId, _) {
+                          final bool hasSelection =
+                              selectedOrderId != null && selectedOrderId.isNotEmpty;
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        //see all/see only
-                        isManager
-                            ? SizedBox(
-                              width: 150,
-                              child: AnimatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isSeenOrder = !isSeenOrder;
-                                  });
-
-                                  loadOrders(ownOnly: isSeenOrder);
-                                },
-                                label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
-                                icon: null,
-                                backgroundColor: themeController.buttonColor,
-                              ),
-                            )
-                            : const SizedBox.shrink(),
-                        const SizedBox(width: 10),
-
-                        //add
-                        AnimatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder:
-                                  (_) => OrderDialog(
-                                    order: null,
-                                    onOrderAddOrUpdate: (String newOrderId) {
-                                      loadOrders(ownOnly: isSeenOrder);
-                                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                                        Future.delayed(const Duration(milliseconds: 300), () {
-                                          _scrollToOrder(newOrderId);
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              //see all/see only
+                              isManager
+                                  ? SizedBox(
+                                    width: 150,
+                                    child: AnimatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isSeenOrder = !isSeenOrder;
                                         });
-                                      });
-                                    },
-                                  ),
-                            );
-                          },
-                          label: "Thêm mới",
-                          icon: Icons.add,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 10),
 
-                        //update
-                        AnimatedButton(
-                          onPressed: hasSelection ? () => _handleEditOrder(selectedOrderId!) : null,
-                          label: "Sửa",
-                          icon: Symbols.construction,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 10),
-
-                        //delete
-                        AnimatedButton(
-                          onPressed:
-                              hasSelection
-                                  ? () async {
-                                    await showDeleteConfirmHelper(
-                                      context: context,
-                                      title: "⚠️ Xác nhận xoá",
-                                      content: "Bạn có chắc chắn muốn xoá đơn hàng này?",
-                                      onDelete: () async {
-                                        await OrderService().deleteOrder(orderId: selectedOrderId!);
-                                      },
-                                      onSuccess: () {
-                                        setState(() => selectedOrderId = null);
-                                        badgesController.fetchPendingApprovals();
                                         loadOrders(ownOnly: isSeenOrder);
                                       },
-                                    );
-                                  }
-                                  : null,
-                          label: "Xóa",
-                          icon: Icons.delete,
-                          backgroundColor: const Color(0xffEA4346),
-                        ),
-                      ],
-                    );
-                  },
+                                      label: isSeenOrder ? "Xem Tất Cả" : "Đơn Bản Thân",
+                                      icon: null,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                  )
+                                  : const SizedBox.shrink(),
+                              const SizedBox(width: 10),
+
+                              //add
+                              AnimatedButton(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder:
+                                        (_) => OrderDialog(
+                                          order: null,
+                                          onOrderAddOrUpdate: (String newOrderId) {
+                                            loadOrders(ownOnly: isSeenOrder);
+                                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                                              Future.delayed(const Duration(milliseconds: 300), () {
+                                                _scrollToOrder(newOrderId);
+                                              });
+                                            });
+                                          },
+                                        ),
+                                  );
+                                },
+                                label: "Thêm mới",
+                                icon: Icons.add,
+                                backgroundColor: themeController.buttonColor,
+                              ),
+                              const SizedBox(width: 10),
+
+                              //update
+                              AnimatedButton(
+                                onPressed:
+                                    hasSelection ? () => _handleEditOrder(selectedOrderId!) : null,
+                                label: "Sửa",
+                                icon: Symbols.construction,
+                                backgroundColor: themeController.buttonColor,
+                              ),
+                              const SizedBox(width: 10),
+
+                              //delete
+                              AnimatedButton(
+                                onPressed:
+                                    hasSelection
+                                        ? () async {
+                                          await showDeleteConfirmHelper(
+                                            context: context,
+                                            title: "⚠️ Xác nhận xoá",
+                                            content: "Bạn có chắc chắn muốn xoá đơn hàng này?",
+                                            onDelete: () async {
+                                              await OrderService().deleteOrder(
+                                                orderId: selectedOrderId!,
+                                              );
+                                            },
+                                            onSuccess: () {
+                                              setState(() => selectedOrderId = null);
+                                              badgesController.fetchPendingApprovals();
+                                              loadOrders(ownOnly: isSeenOrder);
+                                            },
+                                          );
+                                        }
+                                        : null,
+                                label: "Xóa",
+                                icon: Icons.delete,
+                                backgroundColor: const Color(0xffEA4346),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

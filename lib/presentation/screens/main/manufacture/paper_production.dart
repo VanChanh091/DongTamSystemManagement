@@ -90,6 +90,7 @@ class _PaperProductionState extends State<PaperProduction> {
 
   //text controller
   TextEditingController searchController = TextEditingController();
+  final headerScrollController = ScrollController();
 
   @override
   void initState() {
@@ -245,6 +246,7 @@ class _PaperProductionState extends State<PaperProduction> {
     _initSocket.stop(machine);
     _zoomNotifier.dispose();
     _selectedPlanningIdsNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -352,112 +354,276 @@ class _PaperProductionState extends State<PaperProduction> {
         const SizedBox(height: 8),
 
         //button menu
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            //left button
-            Expanded(
-              flex: 2,
-              child:
-                  (userController.role.value == "admin" ||
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //left button
+                      if (userController.role.value == "admin" ||
                           userController.role.value == "manager" ||
                           !permissionCheck)
-                      ? LeftButtonSearch(
-                        selectedType: searchType,
-                        types: const ["Tất cả", "Mã Đơn Hàng", "Tên Khách Hàng", "Khổ Cấp Giấy"],
-                        onTypeChanged: (value) {
-                          setState(() {
-                            searchType = value;
-                            isTextFieldEnabled = value != "Tất cả";
+                        LeftButtonSearch(
+                          selectedType: searchType,
+                          types: const ["Tất cả", "Mã Đơn Hàng", "Tên Khách Hàng", "Khổ Cấp Giấy"],
+                          onTypeChanged: (value) {
+                            setState(() {
+                              searchType = value;
+                              isTextFieldEnabled = value != "Tất cả";
 
-                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                              searchController.clear();
-                              _fetchData();
-                            }
-                          });
-                        },
-                        controller: searchController,
-                        textFieldEnabled: isTextFieldEnabled,
-                        buttonColor: themeController.buttonColor,
-                        onSearch: () => searchPlanning(),
-                      )
-                      : const SizedBox.shrink(),
-            ),
-
-            //right button
-            Expanded(
-              flex: 3,
-              child: ValueListenableBuilder(
-                valueListenable: _selectedPlanningIdsNotifier,
-                builder: (context, selectedPlanningIds, _) {
-                  final bool isProduction =
-                      permissionCheck &&
-                      canExecuteAction(
-                        selectedPlanningIds:
-                            _selectedPlanningIdsNotifier.value.map(int.parse).toList(),
-                        planningList: planningList,
-                      );
-
-                  final bool isEdit =
-                      permissionCheck &&
-                      canEditAction(
-                        selectedPlanningIds:
-                            _selectedPlanningIdsNotifier.value.map(int.parse).toList(),
-                        planningList: planningList,
-                      );
-
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    reverse: true,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        //report production
-                        AnimatedButton(
-                          onPressed:
-                              isProduction
-                                  ? () async {
-                                    try {
-                                      final int selectedPlanningId = int.parse(
-                                        selectedPlanningIds.first,
-                                      );
-
-                                      final selectedPlanning = planningList.firstWhere(
-                                        (p) => p.planningId == selectedPlanningId,
-                                        orElse: () => throw Exception("Không tìm thấy kế hoạch"),
-                                      );
-
-                                      showDialog(
-                                        context: context,
-                                        builder:
-                                            (_) => DialogReportProduction(
-                                              planningId: selectedPlanning.planningId,
-                                              runningPlan: selectedPlanning.runningPlan,
-                                              onReport: () => loadPlanning(),
-                                            ),
-                                      );
-                                    } catch (e, s) {
-                                      if (selectedPlanningIds.isEmpty) {
-                                        showSnackBarError(context, "Chưa chọn dòng cần báo cáo");
-                                      } else {
-                                        AppLogger.e("Lỗi khi mở dialog", error: e, stackTrace: s);
-                                        showSnackBarError(context, "Đã xảy ra lỗi khi mở báo cáo.");
-                                      }
-                                    }
-                                  }
-                                  : null,
-                          label: "Báo Cáo",
-                          icon: Icons.assignment,
-                          backgroundColor: themeController.buttonColor,
+                              if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                searchController.clear();
+                                _fetchData();
+                              }
+                            });
+                          },
+                          controller: searchController,
+                          textFieldEnabled: isTextFieldEnabled,
+                          buttonColor: themeController.buttonColor,
+                          onSearch: () => searchPlanning(),
                         ),
-                        const SizedBox(width: 8),
+                      const SizedBox(width: 20),
 
-                        //edit qty report
-                        AnimatedButton(
-                          onPressed:
-                              isEdit
-                                  ? () async {
-                                    try {
+                      //right button
+                      ValueListenableBuilder(
+                        valueListenable: _selectedPlanningIdsNotifier,
+                        builder: (context, selectedPlanningIds, _) {
+                          final bool isProduction =
+                              permissionCheck &&
+                              canExecuteAction(
+                                selectedPlanningIds:
+                                    _selectedPlanningIdsNotifier.value.map(int.parse).toList(),
+                                planningList: planningList,
+                              );
+
+                          final bool isEdit =
+                              permissionCheck &&
+                              canEditAction(
+                                selectedPlanningIds:
+                                    _selectedPlanningIdsNotifier.value.map(int.parse).toList(),
+                                planningList: planningList,
+                              );
+
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            reverse: true,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                //report production
+                                AnimatedButton(
+                                  onPressed:
+                                      isProduction
+                                          ? () async {
+                                            try {
+                                              final int selectedPlanningId = int.parse(
+                                                selectedPlanningIds.first,
+                                              );
+
+                                              final selectedPlanning = planningList.firstWhere(
+                                                (p) => p.planningId == selectedPlanningId,
+                                                orElse:
+                                                    () =>
+                                                        throw Exception("Không tìm thấy kế hoạch"),
+                                              );
+
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => DialogReportProduction(
+                                                      planningId: selectedPlanning.planningId,
+                                                      runningPlan: selectedPlanning.runningPlan,
+                                                      onReport: () => loadPlanning(),
+                                                    ),
+                                              );
+                                            } catch (e, s) {
+                                              if (selectedPlanningIds.isEmpty) {
+                                                showSnackBarError(
+                                                  context,
+                                                  "Chưa chọn dòng cần báo cáo",
+                                                );
+                                              } else {
+                                                AppLogger.e(
+                                                  "Lỗi khi mở dialog",
+                                                  error: e,
+                                                  stackTrace: s,
+                                                );
+                                                showSnackBarError(
+                                                  context,
+                                                  "Đã xảy ra lỗi khi mở báo cáo.",
+                                                );
+                                              }
+                                            }
+                                          }
+                                          : null,
+                                  label: "Báo Cáo",
+                                  icon: Icons.assignment,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+
+                                //edit qty report
+                                AnimatedButton(
+                                  onPressed:
+                                      isEdit
+                                          ? () async {
+                                            try {
+                                              final int selectedPlanningId = int.parse(
+                                                selectedPlanningIds.first,
+                                              );
+
+                                              final selectedPlanning = planningList.firstWhere(
+                                                (p) => p.planningId == selectedPlanningId,
+                                                orElse:
+                                                    () =>
+                                                        throw Exception("Không tìm thấy kế hoạch"),
+                                              );
+
+                                              final existingData = {
+                                                "manager": selectedPlanning.shiftManagement,
+                                                "shift": selectedPlanning.shiftProduction,
+                                              };
+
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => DialogReportProduction(
+                                                      planningId: selectedPlanning.planningId,
+                                                      initialData: existingData,
+                                                      onReport: () => loadPlanning(),
+                                                    ),
+                                              );
+                                            } catch (e, s) {
+                                              if (selectedPlanningIds.isEmpty) {
+                                                showSnackBarError(
+                                                  context,
+                                                  "Chưa chọn dòng cần sửa",
+                                                );
+                                              } else {
+                                                AppLogger.e(
+                                                  "Lỗi khi mở dialog",
+                                                  error: e,
+                                                  stackTrace: s,
+                                                );
+                                                showSnackBarError(
+                                                  context,
+                                                  "Đã xảy ra lỗi khi mở báo cáo.",
+                                                );
+                                              }
+                                            }
+                                          }
+                                          : null,
+                                  label: "Sửa Báo Cáo",
+                                  icon: Symbols.construction,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+
+                                //choose machine
+                                buildDropdownItems(
+                                  value: machine,
+                                  items: const [
+                                    "Máy 1350",
+                                    "Máy 1900",
+                                    "Máy 2 Lớp",
+                                    "Máy Quấn Cuồn",
+                                  ],
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      changeMachine(value);
+                                    }
+                                  },
+                                ),
+                                const SizedBox(width: 8),
+
+                                //filter
+                                buildDropdownItems(
+                                  width: 155,
+                                  value: filterType,
+                                  items: const ["all", "gtZero", "ltZero"],
+                                  onChanged:
+                                      (value) => {
+                                        setState(() {
+                                          filterType = value!;
+                                          selectedPlanningIds.clear();
+                                          loadPlanning();
+                                        }),
+                                      },
+                                  itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                                ),
+                                const SizedBox(width: 8),
+
+                                //popup menu
+                                PopupMenuButton(
+                                  icon: const Icon(Icons.more_vert, color: Colors.black),
+                                  color: Colors.white,
+                                  onSelected: (value) async {
+                                    if (value == "confirm") {
+                                      try {
+                                        final int selectedPlanningId = int.parse(
+                                          selectedPlanningIds.first,
+                                        );
+
+                                        // Tìm planning tương ứng
+                                        final selectedPlanning = planningList.firstWhere(
+                                          (p) => p.planningId == selectedPlanningId,
+                                          orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+                                        );
+
+                                        await ManufactureService().handlePutManufacturePaper(
+                                          planningId: [selectedPlanning.planningId],
+                                          action: "CONFIRM_PRODUCING",
+                                        );
+
+                                        loadPlanning();
+
+                                        if (!context.mounted) return;
+                                        showSnackBarSuccess(
+                                          context,
+                                          "Xác nhận sản xuất thành công",
+                                        );
+                                      } on ApiException catch (e) {
+                                        final errorText = switch (e.errorCode) {
+                                          "PLANNING_HAS_COMPLETED" => "Đơn hàng đã hoàn thành",
+                                          _ => "Có lỗi xảy ra, vui lòng thử lại",
+                                        };
+
+                                        if (!context.mounted) return;
+                                        showSnackBarError(context, errorText);
+                                      } catch (e, s) {
+                                        AppLogger.e("Lỗi khi xác nhận SX", error: e, stackTrace: s);
+                                        if (!context.mounted) return;
+                                        showSnackBarError(context, "Có lỗi khi xác nhận SX: $e");
+                                      }
+                                    } else if (value == "request") {
+                                      await handlePlanningTask(
+                                        context: context,
+                                        selectedPlanningIds: selectedPlanningIds,
+                                        content: "Xác nhận yêu cầu hoàn thành kế hoạch này?",
+                                        onExecute:
+                                            (ids) => ManufactureService().handlePutManufacturePaper(
+                                              planningId: ids,
+                                              action: "REQUEST_COMPLETE",
+                                            ),
+                                        onLoadPlanning: loadPlanning,
+                                      );
+                                    } else if (value == "scrapReport") {
+                                      if (selectedPlanningIds.isEmpty) {
+                                        showSnackBarError(
+                                          context,
+                                          "Chưa chọn dòng để báo cáo phế liệu",
+                                        );
+                                        return;
+                                      }
+
                                       final int selectedPlanningId = int.parse(
                                         selectedPlanningIds.first,
                                       );
@@ -466,209 +632,92 @@ class _PaperProductionState extends State<PaperProduction> {
                                         (p) => p.planningId == selectedPlanningId,
                                         orElse: () => throw Exception("Không tìm thấy kế hoạch"),
                                       );
+
+                                      if (selectedPlanning.qtyProduced == null ||
+                                          selectedPlanning.qtyProduced! == 0) {
+                                        showSnackBarError(
+                                          context,
+                                          "Chưa có số lượng sản xuất, không thể báo cáo phế liệu",
+                                        );
+                                        return;
+                                      }
 
                                       final existingData = {
-                                        "manager": selectedPlanning.shiftManagement,
-                                        "shift": selectedPlanning.shiftProduction,
+                                        "machine": selectedPlanning.chooseMachine,
+                                        "shiftManagement": selectedPlanning.shiftManagement,
+                                        "shiftProduction": selectedPlanning.shiftProduction,
+                                        "dayCompleted": selectedPlanning.dayCompleted,
                                       };
 
                                       showDialog(
+                                        barrierDismissible: false,
                                         context: context,
                                         builder:
-                                            (_) => DialogReportProduction(
-                                              planningId: selectedPlanning.planningId,
+                                            (_) => ScrapReportDialog(
+                                              scrapReport: null,
                                               initialData: existingData,
-                                              onReport: () => loadPlanning(),
+                                              onSubmit: () {
+                                                loadPlanning();
+                                              },
                                             ),
                                       );
-                                    } catch (e, s) {
-                                      if (selectedPlanningIds.isEmpty) {
-                                        showSnackBarError(context, "Chưa chọn dòng cần sửa");
-                                      } else {
-                                        AppLogger.e("Lỗi khi mở dialog", error: e, stackTrace: s);
-                                        showSnackBarError(context, "Đã xảy ra lỗi khi mở báo cáo.");
-                                      }
+                                    } else if (value == "confirmFixErr") {
+                                      await handlePlanningTask(
+                                        context: context,
+                                        selectedPlanningIds: selectedPlanningIds,
+                                        content: "Xác nhận sửa lỗi kế hoạch này?",
+                                        onExecute:
+                                            (ids) => ManufactureService().handlePutManufacturePaper(
+                                              planningId: [ids.first],
+                                              action: "CONFIRM_FIX_ERROR",
+                                            ),
+                                        onLoadPlanning: loadPlanning,
+                                      );
                                     }
-                                  }
-                                  : null,
-                          label: "Sửa Báo Cáo",
-                          icon: Symbols.construction,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
-
-                        //choose machine
-                        buildDropdownItems(
-                          value: machine,
-                          items: const ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
-                          onChanged: (value) {
-                            if (value != null) {
-                              changeMachine(value);
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 8),
-
-                        //filter
-                        buildDropdownItems(
-                          width: 155,
-                          value: filterType,
-                          items: const ["all", "gtZero", "ltZero"],
-                          onChanged:
-                              (value) => {
-                                setState(() {
-                                  filterType = value!;
-                                  selectedPlanningIds.clear();
-                                  loadPlanning();
-                                }),
-                              },
-                          itemLabelBuilder: (value) => filterOptions[value] ?? value,
-                        ),
-                        const SizedBox(width: 8),
-
-                        //popup menu
-                        PopupMenuButton(
-                          icon: const Icon(Icons.more_vert, color: Colors.black),
-                          color: Colors.white,
-                          onSelected: (value) async {
-                            if (value == "confirm") {
-                              try {
-                                final int selectedPlanningId = int.parse(selectedPlanningIds.first);
-
-                                // Tìm planning tương ứng
-                                final selectedPlanning = planningList.firstWhere(
-                                  (p) => p.planningId == selectedPlanningId,
-                                  orElse: () => throw Exception("Không tìm thấy kế hoạch"),
-                                );
-
-                                await ManufactureService().handlePutManufacturePaper(
-                                  planningId: [selectedPlanning.planningId],
-                                  action: "CONFIRM_PRODUCING",
-                                );
-
-                                loadPlanning();
-
-                                if (!context.mounted) return;
-                                showSnackBarSuccess(context, "Xác nhận sản xuất thành công");
-                              } on ApiException catch (e) {
-                                final errorText = switch (e.errorCode) {
-                                  "PLANNING_HAS_COMPLETED" => "Đơn hàng đã hoàn thành",
-                                  _ => "Có lỗi xảy ra, vui lòng thử lại",
-                                };
-
-                                if (!context.mounted) return;
-                                showSnackBarError(context, errorText);
-                              } catch (e, s) {
-                                AppLogger.e("Lỗi khi xác nhận SX", error: e, stackTrace: s);
-                                if (!context.mounted) return;
-                                showSnackBarError(context, "Có lỗi khi xác nhận SX: $e");
-                              }
-                            } else if (value == "request") {
-                              await handlePlanningTask(
-                                context: context,
-                                selectedPlanningIds: selectedPlanningIds,
-                                content: "Xác nhận yêu cầu hoàn thành kế hoạch này?",
-                                onExecute:
-                                    (ids) => ManufactureService().handlePutManufacturePaper(
-                                      planningId: ids,
-                                      action: "REQUEST_COMPLETE",
-                                    ),
-                                onLoadPlanning: loadPlanning,
-                              );
-                            } else if (value == "scrapReport") {
-                              if (selectedPlanningIds.isEmpty) {
-                                showSnackBarError(context, "Chưa chọn dòng để báo cáo phế liệu");
-                                return;
-                              }
-
-                              final int selectedPlanningId = int.parse(selectedPlanningIds.first);
-
-                              final selectedPlanning = planningList.firstWhere(
-                                (p) => p.planningId == selectedPlanningId,
-                                orElse: () => throw Exception("Không tìm thấy kế hoạch"),
-                              );
-
-                              if (selectedPlanning.qtyProduced == null ||
-                                  selectedPlanning.qtyProduced! == 0) {
-                                showSnackBarError(
-                                  context,
-                                  "Chưa có số lượng sản xuất, không thể báo cáo phế liệu",
-                                );
-                                return;
-                              }
-
-                              final existingData = {
-                                "machine": selectedPlanning.chooseMachine,
-                                "shiftManagement": selectedPlanning.shiftManagement,
-                                "shiftProduction": selectedPlanning.shiftProduction,
-                                "dayCompleted": selectedPlanning.dayCompleted,
-                              };
-
-                              showDialog(
-                                barrierDismissible: false,
-                                context: context,
-                                builder:
-                                    (_) => ScrapReportDialog(
-                                      scrapReport: null,
-                                      initialData: existingData,
-                                      onSubmit: () {
-                                        loadPlanning();
-                                      },
-                                    ),
-                              );
-                            } else if (value == "confirmFixErr") {
-                              await handlePlanningTask(
-                                context: context,
-                                selectedPlanningIds: selectedPlanningIds,
-                                content: "Xác nhận sửa lỗi kế hoạch này?",
-                                onExecute:
-                                    (ids) => ManufactureService().handlePutManufacturePaper(
-                                      planningId: [ids.first],
-                                      action: "CONFIRM_FIX_ERROR",
-                                    ),
-                                onLoadPlanning: loadPlanning,
-                              );
-                            }
-                          },
-                          itemBuilder:
-                              (BuildContext context) => [
-                                const PopupMenuItem<String>(
-                                  value: "confirm",
-                                  child: ListTile(
-                                    leading: Icon(Symbols.done_outline),
-                                    title: Text("Xác Nhận Sản Xuất"),
-                                  ),
-                                ),
-                                const PopupMenuItem<String>(
-                                  value: "request",
-                                  child: ListTile(
-                                    leading: Icon(Symbols.send),
-                                    title: Text("Yêu Cầu Hoàn Thành"),
-                                  ),
-                                ),
-                                const PopupMenuItem<String>(
-                                  value: "scrapReport",
-                                  child: ListTile(
-                                    leading: Icon(Symbols.add),
-                                    title: Text("Báo Cáo Phế Liệu"),
-                                  ),
-                                ),
-                                const PopupMenuItem<String>(
-                                  value: "confirmFixErr",
-                                  child: ListTile(
-                                    leading: Icon(Symbols.construction),
-                                    title: Text("Xác Nhận Sửa Lỗi"),
-                                  ),
+                                  },
+                                  itemBuilder:
+                                      (BuildContext context) => [
+                                        const PopupMenuItem<String>(
+                                          value: "confirm",
+                                          child: ListTile(
+                                            leading: Icon(Symbols.done_outline),
+                                            title: Text("Xác Nhận Sản Xuất"),
+                                          ),
+                                        ),
+                                        const PopupMenuItem<String>(
+                                          value: "request",
+                                          child: ListTile(
+                                            leading: Icon(Symbols.send),
+                                            title: Text("Yêu Cầu Hoàn Thành"),
+                                          ),
+                                        ),
+                                        const PopupMenuItem<String>(
+                                          value: "scrapReport",
+                                          child: ListTile(
+                                            leading: Icon(Symbols.add),
+                                            title: Text("Báo Cáo Phế Liệu"),
+                                          ),
+                                        ),
+                                        const PopupMenuItem<String>(
+                                          value: "confirmFixErr",
+                                          child: ListTile(
+                                            leading: Icon(Symbols.construction),
+                                            title: Text("Xác Nhận Sửa Lỗi"),
+                                          ),
+                                        ),
+                                      ],
                                 ),
                               ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

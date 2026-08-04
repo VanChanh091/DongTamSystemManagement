@@ -41,6 +41,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
+  final headerScrollController = ScrollController();
 
   String type = 'unplanned';
   final Map<String, String> filterOptions = {
@@ -132,6 +133,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
     searchController.dispose();
     _zoomNotifier.dispose();
     _selectedOrderIdNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -232,119 +234,130 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
         const SizedBox(height: 8),
 
         //button
-        if (isPlan)
-          Row(
-            children: [
-              //left button
-              Expanded(
-                flex: 2,
-                child: LeftButtonSearch(
-                  selectedType: searchType,
-                  types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng", "Theo Quy Cách"],
-                  onTypeChanged: (value) {
-                    setState(() {
-                      searchType = value;
-                      isTextFieldEnabled = searchType != 'Tất cả';
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //left button
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng", "Theo Quy Cách"],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = searchType != 'Tất cả';
 
-                      if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                        searchController.clear();
-                        loadOrders();
-                      }
-                    });
-                  },
-                  controller: searchController,
-                  textFieldEnabled: isTextFieldEnabled,
-                  buttonColor: themeController.buttonColor,
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              loadOrders();
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
 
-                  onSearch: () => searchOrders(),
+                        onSearch: () => searchOrders(),
+                      ),
+                      const SizedBox(width: 20),
+
+                      //right button
+                      if (isPlan)
+                        ValueListenableBuilder(
+                          valueListenable: _selectedOrderIdNotifier,
+                          builder: (context, selectedOrderId, _) {
+                            final bool hasSelection =
+                                selectedOrderId != null && selectedOrderId.isNotEmpty;
+
+                            return Row(
+                              children: [
+                                //planning order
+                                AnimatedButton(
+                                  onPressed:
+                                      hasSelection
+                                          ? () async {
+                                            try {
+                                              final order = await futureOrdersAccept;
+                                              final selectedOrder = order.firstWhere(
+                                                (order) => order.orderId == selectedOrderId,
+                                              );
+
+                                              if (context.mounted) {
+                                                showDialog(
+                                                  barrierDismissible: false,
+                                                  context: context,
+                                                  builder:
+                                                      (_) => PLanningDialog(
+                                                        order: selectedOrder,
+                                                        onPlanningOrder: () => loadOrders(),
+                                                      ),
+                                                );
+                                              }
+                                            } catch (e, s) {
+                                              AppLogger.e(
+                                                "Lỗi không tìm thấy đơn hàng",
+                                                error: e,
+                                                stackTrace: s,
+                                              );
+                                            }
+                                          }
+                                          : null,
+                                  label: "Lên kế hoạch",
+                                  icon: Icons.add,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+
+                                //back order
+                                AnimatedButton(
+                                  onPressed:
+                                      hasSelection
+                                          ? () async {
+                                            await handleBackOrder(
+                                              context: context,
+                                              orderId: selectedOrderId!,
+                                              badgesController: badgesController,
+                                              onSuccess: () {
+                                                setState(() => selectedOrderId = null);
+                                                loadOrders();
+                                              },
+                                            );
+                                          }
+                                          : null,
+                                  label: "Hoàn Đơn",
+                                  icon: Symbols.keyboard_return,
+                                  backgroundColor: const Color(0xffEA4346),
+                                ),
+                                const SizedBox(width: 8),
+
+                                //filter
+                                buildDropdownItems(
+                                  value: type,
+                                  items: const ['unplanned', 'partial', 'planned'],
+                                  onChanged: (value) => changeFilter(value!),
+                                  itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                                ),
+                                const SizedBox(width: 5),
+                              ],
+                            );
+                          },
+                        ),
+                    ],
+                  ),
                 ),
               ),
-
-              //right button
-              Expanded(
-                flex: 3,
-                child: ValueListenableBuilder(
-                  valueListenable: _selectedOrderIdNotifier,
-                  builder: (context, selectedOrderId, _) {
-                    final bool hasSelection = selectedOrderId != null && selectedOrderId.isNotEmpty;
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        //planning order
-                        AnimatedButton(
-                          onPressed:
-                              hasSelection
-                                  ? () async {
-                                    try {
-                                      final order = await futureOrdersAccept;
-                                      final selectedOrder = order.firstWhere(
-                                        (order) => order.orderId == selectedOrderId,
-                                      );
-
-                                      if (context.mounted) {
-                                        showDialog(
-                                          barrierDismissible: false,
-                                          context: context,
-                                          builder:
-                                              (_) => PLanningDialog(
-                                                order: selectedOrder,
-                                                onPlanningOrder: () => loadOrders(),
-                                              ),
-                                        );
-                                      }
-                                    } catch (e, s) {
-                                      AppLogger.e(
-                                        "Lỗi không tìm thấy đơn hàng",
-                                        error: e,
-                                        stackTrace: s,
-                                      );
-                                    }
-                                  }
-                                  : null,
-                          label: "Lên kế hoạch",
-                          icon: Icons.add,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
-
-                        //back order
-                        AnimatedButton(
-                          onPressed:
-                              hasSelection
-                                  ? () async {
-                                    await handleBackOrder(
-                                      context: context,
-                                      orderId: selectedOrderId!,
-                                      badgesController: badgesController,
-                                      onSuccess: () {
-                                        setState(() => selectedOrderId = null);
-                                        loadOrders();
-                                      },
-                                    );
-                                  }
-                                  : null,
-                          label: "Hoàn Đơn",
-                          icon: Symbols.keyboard_return,
-                          backgroundColor: const Color(0xffEA4346),
-                        ),
-                        const SizedBox(width: 8),
-
-                        //filter
-                        buildDropdownItems(
-                          value: type,
-                          items: const ['unplanned', 'partial', 'planned'],
-                          onChanged: (value) => changeFilter(value!),
-                          itemLabelBuilder: (value) => filterOptions[value] ?? value,
-                        ),
-                        const SizedBox(width: 5),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            );
+          },
+        ),
       ],
     );
   }

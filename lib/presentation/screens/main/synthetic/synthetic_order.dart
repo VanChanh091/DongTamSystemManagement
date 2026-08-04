@@ -45,6 +45,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final headerScrollController = ScrollController();
 
   //width column
   Map<String, double> columnWidthOrders = {}; //map header table
@@ -211,6 +212,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
     searchController.dispose();
     _zoomNotifier.dispose();
     _selectedOrderIdsNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -311,217 +313,235 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
         const SizedBox(height: 8),
 
         //button
-        Row(
-          children: [
-            //left button
-            Expanded(
-              flex: 2,
-              child: LeftButtonSearch(
-                selectedType: searchType,
-                types: const [
-                  "Tất cả",
-                  "Mã Đơn Hàng",
-                  "Tên Khách Hàng",
-                  "Ngày Nhận Đơn",
-                  "Nhân Viên",
-                ],
-                onTypeChanged: (value) {
-                  setState(() {
-                    searchType = value;
-                    isTextFieldEnabled = value != "Tất cả";
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //left button
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const [
+                          "Tất cả",
+                          "Mã Đơn Hàng",
+                          "Tên Khách Hàng",
+                          "Ngày Nhận Đơn",
+                          "Nhân Viên",
+                        ],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = value != "Tất cả";
 
-                    startDate = null;
-                    endDate = null;
+                            startDate = null;
+                            endDate = null;
 
-                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                      searchController.clear();
-                      currentPage = 1;
-                      _fetchData();
-                    }
-                  });
-                },
-                controller: searchController,
-                textFieldEnabled: isTextFieldEnabled,
-                buttonColor: themeController.buttonColor,
-                onSearch: () => searchOrders(),
-                customInputBuilder: (inputWidth) {
-                  if (searchType != "Ngày Nhận Đơn") return null;
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              currentPage = 1;
+                              _fetchData();
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
+                        onSearch: () => searchOrders(),
+                        customInputBuilder: (inputWidth) {
+                          if (searchType != "Ngày Nhận Đơn") return null;
 
-                  return SizedBox(
-                    width: inputWidth,
-                    height: 50,
-                    child: InkWell(
-                      onTap: () async {
-                        final now = DateTime.now();
-                        final size = MediaQuery.of(context).size;
+                          return SizedBox(
+                            width: inputWidth,
+                            height: 50,
+                            child: InkWell(
+                              onTap: () async {
+                                final now = DateTime.now();
+                                final size = MediaQuery.of(context).size;
 
-                        final DateTimeRange? picked = await showDateRangePicker(
-                          context: context,
-                          firstDate: DateTime(2025),
-                          lastDate: DateTime(2100),
-                          initialDateRange:
-                              (startDate != null && endDate != null)
-                                  ? DateTimeRange(start: startDate!, end: endDate!)
-                                  : DateTimeRange(
-                                    start: now.subtract(const Duration(days: 7)),
-                                    end: now,
+                                final DateTimeRange? picked = await showDateRangePicker(
+                                  context: context,
+                                  firstDate: DateTime(2025),
+                                  lastDate: DateTime(2100),
+                                  initialDateRange:
+                                      (startDate != null && endDate != null)
+                                          ? DateTimeRange(start: startDate!, end: endDate!)
+                                          : DateTimeRange(
+                                            start: now.subtract(const Duration(days: 7)),
+                                            end: now,
+                                          ),
+                                  builder: (context, child) {
+                                    return Center(
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxWidth: size.width * 0.3,
+                                          maxHeight: size.height * 0.8,
+                                        ),
+                                        child: Material(
+                                          borderRadius: BorderRadius.circular(16),
+                                          clipBehavior: Clip.antiAlias,
+                                          child: child!,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+
+                                if (picked != null) {
+                                  final displayStart = DateFormat(
+                                    "dd/MM/yyyy",
+                                  ).format(picked.start);
+                                  final displayEnd = DateFormat("dd/MM/yyyy").format(picked.end);
+
+                                  setState(() {
+                                    startDate = picked.start;
+                                    endDate = picked.end;
+                                    searchController.text = "$displayStart - $displayEnd";
+                                  });
+                                }
+                              },
+                              child: IgnorePointer(
+                                child: TextField(
+                                  controller: searchController,
+                                  decoration: InputDecoration(
+                                    hintText: "Chọn khoảng thời gian...",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    suffixIcon: const Icon(Icons.date_range),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                                   ),
-                          builder: (context, child) {
-                            return Center(
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxWidth: size.width * 0.3,
-                                  maxHeight: size.height * 0.8,
-                                ),
-                                child: Material(
-                                  borderRadius: BorderRadius.circular(16),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: child!,
                                 ),
                               ),
-                            );
-                          },
-                        );
-
-                        if (picked != null) {
-                          final displayStart = DateFormat("dd/MM/yyyy").format(picked.start);
-                          final displayEnd = DateFormat("dd/MM/yyyy").format(picked.end);
-
-                          setState(() {
-                            startDate = picked.start;
-                            endDate = picked.end;
-                            searchController.text = "$displayStart - $displayEnd";
-                          });
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: TextField(
-                          controller: searchController,
-                          decoration: InputDecoration(
-                            hintText: "Chọn khoảng thời gian...",
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            suffixIcon: const Icon(Icons.date_range),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
+                      const SizedBox(width: 20),
 
-            //right button
-            Expanded(
-              flex: 3,
-              child: ValueListenableBuilder(
-                valueListenable: _selectedOrderIdsNotifier,
-                builder: (context, selectedOrderIds, _) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      //export excel
-                      isAccountant
-                          ? AnimatedButton(
-                            onPressed: () async {
-                              showDialog(context: context, builder: (_) => DialogExportOrders());
-                            },
-                            label: "Xuất Excel",
-                            icon: Symbols.export_notes,
-                            backgroundColor: themeController.buttonColor,
-                          )
-                          : const SizedBox.shrink(),
-                      const SizedBox(width: 8),
-
-                      //complete order
-                      isPlan
-                          ? AnimatedButton(
-                            onPressed:
-                                selectedOrderIds.isEmpty
-                                    ? null
-                                    : () async {
-                                      try {
-                                        final bool confirm = await showConfirmDialog(
-                                          context: context,
-                                          title: "Xác nhận hoàn thành đơn hàng",
-                                          content: "Bạn có chắc chắn muốn hoàn thành đơn hàng này?",
-                                          confirmText: "Xác nhận",
-                                        );
-
-                                        if (confirm) {
-                                          final success = await SyntheticService().completeOrders(
-                                            orderIds: selectedOrderIds,
-                                          );
-
-                                          if (success) {
-                                            if (context.mounted) {
-                                              showSnackBarSuccess(
-                                                context,
-                                                "Đơn hàng đã được hoàn thành thành công.",
-                                              );
-
-                                              setState(() {
-                                                selectedOrderIds.clear();
-                                                loadOrders();
-                                              });
-                                            }
-                                          }
-                                          return true;
-                                        }
-                                        return false;
-                                      } on ApiException catch (e) {
-                                        final errorText = switch (e.errorCode) {
-                                          "EMPLOYEE_NOT_FOUND" => e.message!,
-                                          "INVALID_ORDER_STATUS" => e.message!,
-                                          "ZERO_QTY_PRODUCED" => e.message!,
-                                          _ => 'Có lỗi xảy ra, vui lòng thử lại',
-                                        };
-
-                                        if (context.mounted) {
-                                          showSnackBarError(context, errorText);
-                                        }
-                                        return false;
-                                      } catch (e) {
-                                        if (context.mounted) {
-                                          showSnackBarError(
-                                            context,
-                                            "Hoàn thành đơn hàng thất bại",
-                                          );
-                                        }
-                                        return false;
-                                      }
+                      //right button
+                      ValueListenableBuilder(
+                        valueListenable: _selectedOrderIdsNotifier,
+                        builder: (context, selectedOrderIds, _) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              //export excel
+                              isAccountant
+                                  ? AnimatedButton(
+                                    onPressed: () async {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => DialogExportOrders(),
+                                      );
                                     },
-                            label: "Hoàn Thành",
-                            icon: Symbols.export_notes,
-                            backgroundColor: themeController.buttonColor,
-                          )
-                          : const SizedBox.shrink(),
-                      const SizedBox(width: 8),
+                                    label: "Xuất Excel",
+                                    icon: Symbols.export_notes,
+                                    backgroundColor: themeController.buttonColor,
+                                  )
+                                  : const SizedBox.shrink(),
+                              const SizedBox(width: 8),
 
-                      //filter
-                      buildDropdownItems(
-                        value: filterType,
-                        items: const ["all", "accept", "planning", "completed"],
-                        width: 180,
-                        onChanged:
-                            (value) => {
-                              setState(() {
-                                filterType = value!;
-                                selectedOrderIds.clear();
-                                selectedBoxesDetail = [];
-                                currentPage = 1;
-                                loadOrders();
-                              }),
-                            },
-                        itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                              //complete order
+                              isPlan
+                                  ? AnimatedButton(
+                                    onPressed:
+                                        selectedOrderIds.isEmpty
+                                            ? null
+                                            : () async {
+                                              try {
+                                                final bool confirm = await showConfirmDialog(
+                                                  context: context,
+                                                  title: "Xác nhận hoàn thành đơn hàng",
+                                                  content:
+                                                      "Bạn có chắc chắn muốn hoàn thành đơn hàng này?",
+                                                  confirmText: "Xác nhận",
+                                                );
+
+                                                if (confirm) {
+                                                  final success = await SyntheticService()
+                                                      .completeOrders(orderIds: selectedOrderIds);
+
+                                                  if (success) {
+                                                    if (context.mounted) {
+                                                      showSnackBarSuccess(
+                                                        context,
+                                                        "Đơn hàng đã được hoàn thành thành công.",
+                                                      );
+
+                                                      setState(() {
+                                                        selectedOrderIds.clear();
+                                                        loadOrders();
+                                                      });
+                                                    }
+                                                  }
+                                                  return true;
+                                                }
+                                                return false;
+                                              } on ApiException catch (e) {
+                                                final errorText = switch (e.errorCode) {
+                                                  "EMPLOYEE_NOT_FOUND" => e.message!,
+                                                  "INVALID_ORDER_STATUS" => e.message!,
+                                                  "ZERO_QTY_PRODUCED" => e.message!,
+                                                  _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                };
+
+                                                if (context.mounted) {
+                                                  showSnackBarError(context, errorText);
+                                                }
+                                                return false;
+                                              } catch (e) {
+                                                if (context.mounted) {
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Hoàn thành đơn hàng thất bại",
+                                                  );
+                                                }
+                                                return false;
+                                              }
+                                            },
+                                    label: "Hoàn Thành",
+                                    icon: Symbols.export_notes,
+                                    backgroundColor: themeController.buttonColor,
+                                  )
+                                  : const SizedBox.shrink(),
+                              const SizedBox(width: 8),
+
+                              //filter
+                              buildDropdownItems(
+                                value: filterType,
+                                items: const ["all", "accept", "planning", "completed"],
+                                width: 180,
+                                onChanged:
+                                    (value) => {
+                                      setState(() {
+                                        filterType = value!;
+                                        selectedOrderIds.clear();
+                                        selectedBoxesDetail = [];
+                                        currentPage = 1;
+                                        loadOrders();
+                                      }),
+                                    },
+                                itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                          );
+                        },
                       ),
-                      const SizedBox(width: 8),
                     ],
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

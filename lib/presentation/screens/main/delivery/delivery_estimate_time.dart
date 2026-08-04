@@ -45,6 +45,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   late List<GridColumn> columnsStages;
 
   //controller
+  final headerScrollController = ScrollController();
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -207,6 +208,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   @override
   void dispose() {
     super.dispose();
+    headerScrollController.dispose();
     searchController.dispose();
     dayStartController.dispose();
     estimateTimeController.dispose();
@@ -219,7 +221,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
+      backgroundColor: const Color(0xFFF5F5F7), // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
         onPointerSignal:
             (pointerSignal) => handleScrollZoom(
@@ -313,47 +315,48 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
         ),
         const SizedBox(height: 8),
 
-        Row(
-          children: [
-            //button
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      //left button
-                      Expanded(
-                        flex: 1,
-                        child: LeftButtonSearch(
-                          selectedType: searchType,
-                          types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên Khách Hàng'],
-                          onTypeChanged: (value) {
-                            setState(() {
-                              searchType = value;
-                              isTextFieldEnabled = value != 'Tất cả';
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          //left button
+                          LeftButtonSearch(
+                            selectedType: searchType,
+                            types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên Khách Hàng'],
+                            onTypeChanged: (value) {
+                              setState(() {
+                                searchType = value;
+                                isTextFieldEnabled = value != 'Tất cả';
 
-                              if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                                searchController.clear();
-                                currentPage = 1;
-                                _fetchData();
-                              }
-                            });
-                          },
-                          buttonLabel: "Lọc Đơn",
-                          controller: searchController,
-                          textFieldEnabled: isTextFieldEnabled,
-                          buttonColor: themeController.buttonColor,
-                          onSearch: () => searchPlanningEstimate(),
-                        ),
-                      ),
+                                if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                                  searchController.clear();
+                                  currentPage = 1;
+                                  _fetchData();
+                                }
+                              });
+                            },
+                            buttonLabel: "Lọc Đơn",
+                            controller: searchController,
+                            textFieldEnabled: isTextFieldEnabled,
+                            buttonColor: themeController.buttonColor,
+                            onSearch: () => searchPlanningEstimate(),
+                          ),
+                          const SizedBox(width: 20),
 
-                      //right button
-                      Expanded(
-                        flex: 1,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                          child: ValueListenableBuilder(
+                          //right button
+                          ValueListenableBuilder(
                             valueListenable: _selectedPaperIdsNotifier,
                             builder: (context, selectedPlanningIds, _) {
                               final bool hasSelection = selectedPlanningIds.isNotEmpty;
@@ -410,68 +413,67 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                               );
                             },
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-
-                  //set day and time
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Ngày giao
-                        buildLabelAndUnderlineInput(
-                          label: "Ngày dự kiến:",
-                          controller: dayStartController,
-                          width: 120,
-                          readOnly: true,
-                          onTap: () async {
-                            final selected = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2026),
-                              lastDate: DateTime(2100),
-                              builder: (BuildContext context, Widget? child) {
-                                return Theme(
-                                  data: Theme.of(context).copyWith(
-                                    colorScheme: ColorScheme.light(
-                                      primary: Colors.blue,
-                                      onPrimary: Colors.white,
-                                      onSurface: Colors.black,
-                                    ),
-                                    dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
-                                  ),
-                                  child: child!,
-                                );
-                              },
-                            );
-                            if (selected != null) {
-                              dayStartController.text =
-                                  "${selected.day.toString().padLeft(2, '0')}/"
-                                  "${selected.month.toString().padLeft(2, '0')}/"
-                                  "${selected.year}";
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 32),
-
-                        // Giờ dự kiến
-                        buildLabelAndUnderlineInput(
-                          label: "Giờ dự kiến:",
-                          controller: estimateTimeController,
-                          width: 60,
-                        ),
-                        const SizedBox(width: 32),
-                      ],
                     ),
-                  ),
-                ],
+
+                    //set day and time
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Ngày giao
+                          buildLabelAndUnderlineInput(
+                            label: "Ngày dự kiến:",
+                            controller: dayStartController,
+                            width: 120,
+                            readOnly: true,
+                            onTap: () async {
+                              final selected = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2026),
+                                lastDate: DateTime(2100),
+                                builder: (BuildContext context, Widget? child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: ColorScheme.light(
+                                        primary: Colors.blue,
+                                        onPrimary: Colors.white,
+                                        onSurface: Colors.black,
+                                      ),
+                                      dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (selected != null) {
+                                dayStartController.text =
+                                    "${selected.day.toString().padLeft(2, '0')}/"
+                                    "${selected.month.toString().padLeft(2, '0')}/"
+                                    "${selected.year}";
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 32),
+
+                          // Giờ dự kiến
+                          buildLabelAndUnderlineInput(
+                            label: "Giờ dự kiến:",
+                            controller: estimateTimeController,
+                            width: 60,
+                          ),
+                          const SizedBox(width: 32),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );
@@ -493,7 +495,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
         } else if (!snapshot.hasData || snapshot.data!['plannings'].isEmpty) {
           return Container(
-            color: themeController.backgroundColor.value,
+            color: const Color(0xFFF5F5F7),
             child: Center(
               child: Text(
                 "Không có đơn hàng nào",

@@ -55,7 +55,8 @@ class _EmployeeState extends State<Employee> {
   late EmployeeDataSource _cachedDatasource;
 
   //text controller
-  TextEditingController searchController = TextEditingController();
+  final searchController = TextEditingController();
+  final headerScrollController = ScrollController();
 
   //flag
   late bool isHR;
@@ -132,6 +133,7 @@ class _EmployeeState extends State<Employee> {
     searchController.dispose();
     _zoomNotifier.dispose();
     _selectedEmployeeIdNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -233,126 +235,141 @@ class _EmployeeState extends State<Employee> {
         const SizedBox(height: 8),
 
         //button
-        Row(
-          children: [
-            //left button
-            Expanded(
-              flex: 3,
-              child: LeftButtonSearch(
-                selectedType: searchType,
-                types: const [
-                  'Tất cả',
-                  "Tên Nhân Viên",
-                  "Số Điện Thoại",
-                  "Mã Nhân Viên",
-                  "Tình Trạng",
-                ],
-                onTypeChanged: (value) {
-                  setState(() {
-                    searchType = value;
-                    isTextFieldEnabled = value != 'Tất cả';
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //left button
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const [
+                          'Tất cả',
+                          "Tên Nhân Viên",
+                          "Số Điện Thoại",
+                          "Mã Nhân Viên",
+                          "Tình Trạng",
+                        ],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = value != 'Tất cả';
 
-                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                      searchController.clear();
-                      currentPage = 1;
-                      _fetchData();
-                    }
-                  });
-                },
-                controller: searchController,
-                textFieldEnabled: isTextFieldEnabled,
-                buttonColor: themeController.buttonColor,
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              currentPage = 1;
+                              _fetchData();
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
 
-                onSearch: () => searchEmployee(),
-              ),
-            ),
+                        onSearch: () => searchEmployee(),
+                      ),
+                      const SizedBox(width: 20),
 
-            //right button
-            if (isHR)
-              Expanded(
-                flex: 2,
-                child: ValueListenableBuilder(
-                  valueListenable: _selectedEmployeeIdNotifier,
-                  builder: (context, selectedEmployeeId, _) {
-                    final bool hasSelection = selectedEmployeeId != null;
+                      //right button
+                      if (isHR)
+                        ValueListenableBuilder(
+                          valueListenable: _selectedEmployeeIdNotifier,
+                          builder: (context, selectedEmployeeId, _) {
+                            final bool hasSelection = selectedEmployeeId != null;
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        //export excel
-                        AnimatedButton(
-                          onPressed: () async {
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (_) => DialogExportEmployee(onEmployee: () => loadEmployee()),
-                            );
-                          },
-                          label: "Xuất Excel",
-                          icon: Symbols.export_notes,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 10),
-
-                        //add
-                        AnimatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (_) => EmployeeDialog(
-                                    employee: null,
-                                    onEmployeeAddOrUpdate: () => loadEmployee(),
-                                  ),
-                            );
-                          },
-                          label: "Thêm mới",
-                          icon: Icons.add,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 10),
-
-                        // update
-                        AnimatedButton(
-                          onPressed:
-                              hasSelection ? () => _handleEditEmployee(selectedEmployeeId!) : null,
-                          label: "Sửa",
-                          icon: Symbols.construction,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 10),
-
-                        //delete employee
-                        AnimatedButton(
-                          onPressed:
-                              hasSelection
-                                  ? () async {
-                                    await showDeleteConfirmHelper(
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                //export excel
+                                AnimatedButton(
+                                  onPressed: () async {
+                                    showDialog(
                                       context: context,
-                                      title: "⚠️ Xác nhận xoá",
-                                      content: "Bạn có chắc chắn muốn xoá nhân viên này?",
-                                      onDelete: () async {
-                                        await EmployeeService().deleteEmployee(
-                                          employeeId: selectedEmployeeId!,
-                                        );
-                                      },
-                                      onSuccess: () {
-                                        setState(() => selectedEmployeeId = null);
-                                        loadEmployee();
-                                      },
+                                      builder:
+                                          (_) => DialogExportEmployee(
+                                            onEmployee: () => loadEmployee(),
+                                          ),
                                     );
-                                  }
-                                  : null,
-                          label: "Xóa",
-                          icon: Icons.delete,
-                          backgroundColor: const Color(0xffEA4346),
+                                  },
+                                  label: "Xuất Excel",
+                                  icon: Symbols.export_notes,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
+                                //add
+                                AnimatedButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => EmployeeDialog(
+                                            employee: null,
+                                            onEmployeeAddOrUpdate: () => loadEmployee(),
+                                          ),
+                                    );
+                                  },
+                                  label: "Thêm mới",
+                                  icon: Icons.add,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
+                                // update
+                                AnimatedButton(
+                                  onPressed:
+                                      hasSelection
+                                          ? () => _handleEditEmployee(selectedEmployeeId!)
+                                          : null,
+                                  label: "Sửa",
+                                  icon: Symbols.construction,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 10),
+
+                                //delete employee
+                                AnimatedButton(
+                                  onPressed:
+                                      hasSelection
+                                          ? () async {
+                                            await showDeleteConfirmHelper(
+                                              context: context,
+                                              title: "⚠️ Xác nhận xoá",
+                                              content: "Bạn có chắc chắn muốn xoá nhân viên này?",
+                                              onDelete: () async {
+                                                await EmployeeService().deleteEmployee(
+                                                  employeeId: selectedEmployeeId!,
+                                                );
+                                              },
+                                              onSuccess: () {
+                                                setState(() => selectedEmployeeId = null);
+                                                loadEmployee();
+                                              },
+                                            );
+                                          }
+                                          : null,
+                                  label: "Xóa",
+                                  icon: Icons.delete,
+                                  backgroundColor: const Color(0xffEA4346),
+                                ),
+                              ],
+                            );
+                          },
                         ),
-                      ],
-                    );
-                  },
+                    ],
+                  ),
                 ),
               ),
-          ],
+            );
+          },
         ),
       ],
     );

@@ -44,7 +44,7 @@ final List<Map<String, dynamic>> inspectionBoxColumns = [
   {
     "key": "glueAdhesion",
     "title": "Độ Bám Keo",
-    "dataKey": "GLUE_ADESION",
+    "dataKey": "GLUE_ADHESION",
     "visibleFields": ["Máy Dán"],
   },
   {

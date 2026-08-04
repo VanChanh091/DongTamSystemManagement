@@ -37,7 +37,9 @@ class _CustomerPageState extends State<CustomerPage> {
   // Controllers
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
-  final TextEditingController searchController = TextEditingController();
+
+  final headerScrollController = ScrollController();
+  final searchController = TextEditingController();
 
   // Search & Filter
   String searchType = "Tất cả";
@@ -161,10 +163,11 @@ class _CustomerPageState extends State<CustomerPage> {
 
   @override
   void dispose() {
+    super.dispose();
     searchController.dispose();
     _zoomNotifier.dispose();
     _selectedCustomerIdNotifier.dispose();
-    super.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -252,6 +255,7 @@ class _CustomerPageState extends State<CustomerPage> {
   Widget _buildHeaderBar() {
     return Column(
       children: [
+        //title
         Text(
           "DANH SÁCH KHÁCH HÀNG",
           style: TextStyle(
@@ -262,133 +266,147 @@ class _CustomerPageState extends State<CustomerPage> {
         ),
         const SizedBox(height: 8),
 
-        Row(
-          children: [
-            //search
-            Expanded(
-              flex: 2,
-              child: LeftButtonSearch(
-                selectedType: searchType,
-                types: const [
-                  'Tất cả',
-                  "Mã Khách Hàng",
-                  "Tên Khách Hàng",
-                  "Theo CSKH",
-                  "Theo SDT",
-                  "Ngày Tạo",
-                ],
-                onTypeChanged: (value) {
-                  setState(() {
-                    searchType = value;
-                    isTextFieldEnabled = searchType != 'Tất cả';
-                    startDate = null;
-                    endDate = null;
+        //search & button
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // search
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const [
+                          'Tất cả',
+                          "Mã Khách Hàng",
+                          "Tên Khách Hàng",
+                          "Theo CSKH",
+                          "Theo SDT",
+                          "Ngày Tạo",
+                        ],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = searchType != 'Tất cả';
+                            startDate = null;
+                            endDate = null;
 
-                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                      searchController.clear();
-                      currentPage = 1;
-                      _fetchData();
-                    }
-                  });
-                },
-                controller: searchController,
-                textFieldEnabled: isTextFieldEnabled,
-                buttonColor: themeController.buttonColor,
-                onSearch: searchCustomer,
-                customInputBuilder: (inputWidth) {
-                  if (searchType != 'Ngày Tạo') return null;
-                  return SizedBox(
-                    width: inputWidth,
-                    height: 45,
-                    child: InkWell(
-                      onTap: _selectDateRange,
-                      child: IgnorePointer(
-                        child: TextField(
-                          controller: searchController,
-                          decoration: InputDecoration(
-                            hintText: "Chọn khoảng thời gian...",
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                            suffixIcon: const Icon(Icons.calendar_today, size: 18),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            //buttons
-            if (isSale)
-              Expanded(
-                flex: 3,
-                child: ValueListenableBuilder(
-                  valueListenable: _selectedCustomerIdNotifier,
-                  builder: (context, selectedCustomerId, _) {
-                    final bool hasSelection =
-                        selectedCustomerId != null && selectedCustomerId.isNotEmpty;
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        //export
-                        AnimatedButton(
-                          onPressed:
-                              () => showDialog(
-                                context: context,
-                                builder: (_) => DialogExportCusOrProd(),
-                              ),
-                          label: "Xuất Excel",
-                          icon: Symbols.export_notes,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
-
-                        //add
-                        AnimatedButton(
-                          onPressed:
-                              () => showDialog(
-                                context: context,
-                                builder:
-                                    (_) => CustomerDialog(
-                                      customer: null,
-                                      onCustomerAddOrUpdate: loadCustomer,
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              currentPage = 1;
+                              _fetchData();
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
+                        onSearch: searchCustomer,
+                        customInputBuilder: (inputWidth) {
+                          if (searchType != 'Ngày Tạo') return null;
+                          return SizedBox(
+                            width: inputWidth,
+                            height: 45,
+                            child: InkWell(
+                              onTap: _selectDateRange,
+                              child: IgnorePointer(
+                                child: TextField(
+                                  controller: searchController,
+                                  decoration: InputDecoration(
+                                    hintText: "Chọn khoảng thời gian...",
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
+                                    suffixIcon: const Icon(Icons.calendar_today, size: 18),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                                  ),
+                                ),
                               ),
-                          label: "Thêm mới",
-                          icon: Icons.add,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 20),
 
-                        //update
-                        AnimatedButton(
-                          onPressed:
-                              hasSelection ? () => _handleEditCustomer(selectedCustomerId) : null,
-                          label: "Sửa",
-                          icon: Symbols.construction,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
+                      // button
+                      if (isSale)
+                        ValueListenableBuilder(
+                          valueListenable: _selectedCustomerIdNotifier,
+                          builder: (context, selectedCustomerId, _) {
+                            final bool hasSelection =
+                                selectedCustomerId != null && selectedCustomerId.isNotEmpty;
 
-                        //delete
-                        AnimatedButton(
-                          onPressed:
-                              hasSelection ? () => _handleDeleteCustomer(selectedCustomerId) : null,
-                          label: "Xóa",
-                          icon: Icons.delete,
-                          backgroundColor: const Color(0xFFEA4346),
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                AnimatedButton(
+                                  onPressed:
+                                      () => showDialog(
+                                        context: context,
+                                        builder: (_) => DialogExportCusOrProd(),
+                                      ),
+                                  label: "Xuất Excel",
+                                  icon: Symbols.export_notes,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+
+                                AnimatedButton(
+                                  onPressed:
+                                      () => showDialog(
+                                        context: context,
+                                        builder:
+                                            (_) => CustomerDialog(
+                                              customer: null,
+                                              onCustomerAddOrUpdate: loadCustomer,
+                                            ),
+                                      ),
+                                  label: "Thêm mới",
+                                  icon: Icons.add,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+
+                                AnimatedButton(
+                                  onPressed:
+                                      hasSelection
+                                          ? () => _handleEditCustomer(selectedCustomerId)
+                                          : null,
+                                  label: "Sửa",
+                                  icon: Symbols.construction,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+
+                                AnimatedButton(
+                                  onPressed:
+                                      hasSelection
+                                          ? () => _handleDeleteCustomer(selectedCustomerId)
+                                          : null,
+                                  label: "Xóa",
+                                  icon: Icons.delete,
+                                  backgroundColor: const Color(0xFFEA4346),
+                                ),
+                                const SizedBox(width: 5),
+                              ],
+                            );
+                          },
                         ),
-                        const SizedBox(width: 5),
-                      ],
-                    );
-                  },
+                    ],
+                  ),
                 ),
               ),
-          ],
+            );
+          },
         ),
       ],
     );

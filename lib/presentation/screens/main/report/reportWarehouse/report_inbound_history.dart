@@ -35,6 +35,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final dataGridController = DataGridController();
+  final headerScrollController = ScrollController();
 
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
@@ -130,6 +131,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
     super.dispose();
     searchController.dispose();
     dateController.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -179,128 +181,146 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
         const SizedBox(height: 8),
 
         //button
-        Row(
-          children: [
-            //left button
-            Expanded(
-              flex: 2,
-              child: LeftButtonSearch(
-                selectedType: searchType,
-                types: const [
-                  'Tất cả',
-                  "Mã Đơn Hàng",
-                  "Tên Khách Hàng",
-                  "Ngày Nhập Kho",
-                  "Người Kiểm",
-                ],
-                onTypeChanged: (value) {
-                  setState(() {
-                    searchType = value;
-                    isTextFieldEnabled = value != 'Tất cả';
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //left button
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const [
+                          'Tất cả',
+                          "Mã Đơn Hàng",
+                          "Tên Khách Hàng",
+                          "Ngày Nhập Kho",
+                          "Người Kiểm",
+                        ],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = value != 'Tất cả';
 
-                    startDate = null;
-                    endDate = null;
+                            startDate = null;
+                            endDate = null;
 
-                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                      searchController.clear();
-                      currentPage = 1;
-                      _fetchData();
-                    }
-                  });
-                },
-                controller: searchController,
-                textFieldEnabled: isTextFieldEnabled,
-                buttonColor: themeController.buttonColor,
-                onSearch: () => searchReportInbound(),
-                customInputBuilder: (inputWidth) {
-                  if (searchType != "Ngày Nhập Kho") return null;
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              currentPage = 1;
+                              _fetchData();
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
+                        onSearch: () => searchReportInbound(),
+                        customInputBuilder: (inputWidth) {
+                          if (searchType != "Ngày Nhập Kho") return null;
 
-                  return SizedBox(
-                    width: inputWidth,
-                    height: 50,
-                    child: InkWell(
-                      onTap: () async {
-                        final now = DateTime.now();
-                        final size = MediaQuery.of(context).size;
+                          return SizedBox(
+                            width: inputWidth,
+                            height: 50,
+                            child: InkWell(
+                              onTap: () async {
+                                final now = DateTime.now();
+                                final size = MediaQuery.of(context).size;
 
-                        final DateTimeRange? picked = await showDateRangePicker(
-                          context: context,
-                          firstDate: DateTime(2025),
-                          lastDate: DateTime(2100),
-                          initialDateRange:
-                              (startDate != null && endDate != null)
-                                  ? DateTimeRange(start: startDate!, end: endDate!)
-                                  : DateTimeRange(
-                                    start: now.subtract(const Duration(days: 7)),
-                                    end: now,
+                                final DateTimeRange? picked = await showDateRangePicker(
+                                  context: context,
+                                  firstDate: DateTime(2025),
+                                  lastDate: DateTime(2100),
+                                  initialDateRange:
+                                      (startDate != null && endDate != null)
+                                          ? DateTimeRange(start: startDate!, end: endDate!)
+                                          : DateTimeRange(
+                                            start: now.subtract(const Duration(days: 7)),
+                                            end: now,
+                                          ),
+                                  builder: (context, child) {
+                                    return Center(
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxWidth: size.width * 0.3,
+                                          maxHeight: size.height * 0.8,
+                                        ),
+                                        child: Material(
+                                          borderRadius: BorderRadius.circular(16),
+                                          clipBehavior: Clip.antiAlias,
+                                          child: child!,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+
+                                if (picked != null) {
+                                  final displayStart = DateFormat(
+                                    'dd/MM/yyyy',
+                                  ).format(picked.start);
+                                  final displayEnd = DateFormat('dd/MM/yyyy').format(picked.end);
+
+                                  setState(() {
+                                    startDate = picked.start;
+                                    endDate = picked.end;
+                                    searchController.text = '$displayStart - $displayEnd';
+                                  });
+                                }
+                              },
+                              child: IgnorePointer(
+                                child: TextField(
+                                  controller: searchController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Chọn ngày...',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    suffixIcon: const Icon(Icons.calendar_today),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                                   ),
-                          builder: (context, child) {
-                            return Center(
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxWidth: size.width * 0.3,
-                                  maxHeight: size.height * 0.8,
-                                ),
-                                child: Material(
-                                  borderRadius: BorderRadius.circular(16),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: child!,
                                 ),
                               ),
-                            );
-                          },
-                        );
-
-                        if (picked != null) {
-                          final displayStart = DateFormat('dd/MM/yyyy').format(picked.start);
-                          final displayEnd = DateFormat('dd/MM/yyyy').format(picked.end);
-
-                          setState(() {
-                            startDate = picked.start;
-                            endDate = picked.end;
-                            searchController.text = '$displayStart - $displayEnd';
-                          });
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: TextField(
-                          controller: searchController,
-                          decoration: InputDecoration(
-                            hintText: 'Chọn ngày...',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            suffixIcon: const Icon(Icons.calendar_today),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            //right button
-            Expanded(
-              flex: 3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  //export excel
-                  isAccountant
-                      ? AnimatedButton(
-                        onPressed: () async {
-                          showDialog(context: context, builder: (_) => DialogExportInbound());
+                            ),
+                          );
                         },
-                        label: "Xuất Excel",
-                        icon: Symbols.export_notes,
-                        backgroundColor: themeController.buttonColor,
-                      )
-                      : const SizedBox.shrink(),
-                  const SizedBox(width: 8),
-                ],
+                      ),
+                      const SizedBox(width: 20),
+
+                      //right button
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          //export excel
+                          isAccountant
+                              ? AnimatedButton(
+                                onPressed: () async {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => DialogExportInbound(),
+                                  );
+                                },
+                                label: "Xuất Excel",
+                                icon: Symbols.export_notes,
+                                backgroundColor: themeController.buttonColor,
+                              )
+                              : const SizedBox.shrink(),
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

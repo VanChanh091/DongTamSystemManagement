@@ -35,6 +35,7 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+  final headerScrollController = ScrollController();
 
   //notifiters
   final _zoomNotifier = ValueNotifier<double>(1.0);
@@ -75,7 +76,6 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
   }
 
   void changeMachine(String selectedMachine) {
-    AppLogger.i("changeMachine | from=$machine -> to=$selectedMachine");
     setState(() {
       machine = selectedMachine;
       _selectedPlanningBoxIdsNotifier.value = [];
@@ -109,6 +109,7 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
     super.dispose();
     _zoomNotifier.dispose();
     _selectedPlanningBoxIdsNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -209,101 +210,115 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
         const SizedBox(height: 8),
 
         //button menu
-        Row(
-          children: [
-            //left button
-            Expanded(flex: 2, child: const SizedBox()),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //left button
+                      const SizedBox(), const SizedBox(width: 20),
 
-            //right button
-            Expanded(
-              flex: 3,
-              child: ValueListenableBuilder(
-                valueListenable: _selectedPlanningBoxIdsNotifier,
-                builder: (context, selectedPlanningBoxIds, _) {
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    reverse: true,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        //dialog inspection check
-                        AnimatedButton(
-                          onPressed:
-                              selectedPlanningBoxIds.isNotEmpty
-                                  ? () async {
-                                    try {
-                                      final int selectedPlanningBoxId = int.parse(
-                                        selectedPlanningBoxIds.first,
-                                      );
+                      //right button
+                      ValueListenableBuilder(
+                        valueListenable: _selectedPlanningBoxIdsNotifier,
+                        builder: (context, selectedPlanningBoxIds, _) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              //dialog inspection check
+                              AnimatedButton(
+                                onPressed:
+                                    selectedPlanningBoxIds.isNotEmpty
+                                        ? () async {
+                                          try {
+                                            final int selectedPlanningBoxId = int.parse(
+                                              selectedPlanningBoxIds.first,
+                                            );
 
-                                      final selectedPlanning = planningList.firstWhere(
-                                        (p) => p.planningBoxId == selectedPlanningBoxId,
-                                        orElse: () => throw Exception("Không tìm thấy kế hoạch"),
-                                      );
+                                            final selectedPlanning = planningList.firstWhere(
+                                              (p) => p.planningBoxId == selectedPlanningBoxId,
+                                              orElse:
+                                                  () => throw Exception("Không tìm thấy kế hoạch"),
+                                            );
 
-                                      showDialog(
-                                        barrierDismissible: false,
-                                        context: context,
-                                        builder:
-                                            (_) => DialogInspectionCheck(
-                                              isQC: true,
-                                              isPaper: false,
-                                              machine: machine,
-                                              planningBoxId: selectedPlanning.planningBoxId,
-                                              onSubmit: () {
-                                                loadPlanning();
-                                              },
-                                            ),
-                                      );
-                                    } catch (e, s) {
-                                      if (selectedPlanningBoxIds.isEmpty) {
-                                        showSnackBarError(
-                                          context,
-                                          "Vui lòng chọn một kế hoạch để kiểm tra",
-                                        );
-                                      } else {
-                                        AppLogger.e("Lỗi khi mở dialog", error: e, stackTrace: s);
-                                        showSnackBarError(
-                                          context,
-                                          "Đã xảy ra lỗi khi mở form kiểm tra.",
-                                        );
-                                      }
-                                    }
+                                            showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder:
+                                                  (_) => DialogInspectionCheck(
+                                                    isQC: true,
+                                                    isPaper: false,
+                                                    machine: machine,
+                                                    planningBoxId: selectedPlanning.planningBoxId,
+                                                    onSubmit: () {
+                                                      loadPlanning();
+                                                    },
+                                                  ),
+                                            );
+                                          } catch (e, s) {
+                                            if (selectedPlanningBoxIds.isEmpty) {
+                                              showSnackBarError(
+                                                context,
+                                                "Vui lòng chọn một kế hoạch để kiểm tra",
+                                              );
+                                            } else {
+                                              AppLogger.e(
+                                                "Lỗi khi mở dialog",
+                                                error: e,
+                                                stackTrace: s,
+                                              );
+                                              showSnackBarError(
+                                                context,
+                                                "Đã xảy ra lỗi khi mở form kiểm tra.",
+                                              );
+                                            }
+                                          }
+                                        }
+                                        : null,
+                                label: "Kiểm Tra",
+                                icon: Icons.check_circle,
+                                backgroundColor: themeController.buttonColor,
+                              ),
+                              const SizedBox(width: 8),
+
+                              //choose machine
+                              buildDropdownItems(
+                                value: machine,
+                                items: const [
+                                  'Máy In',
+                                  "Máy Bế",
+                                  "Máy Xả",
+                                  "Máy Dán",
+                                  'Máy Cấn Lằn',
+                                  "Máy Cắt Khe",
+                                  "Máy Cán Màng",
+                                  "Máy Đóng Ghim",
+                                ],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    changeMachine(value);
                                   }
-                                  : null,
-                          label: "Kiểm Tra",
-                          icon: Icons.check_circle,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
-
-                        //choose machine
-                        buildDropdownItems(
-                          value: machine,
-                          items: const [
-                            'Máy In',
-                            "Máy Bế",
-                            "Máy Xả",
-                            "Máy Dán",
-                            'Máy Cấn Lằn',
-                            "Máy Cắt Khe",
-                            "Máy Cán Màng",
-                            "Máy Đóng Ghim",
-                          ],
-                          onChanged: (value) {
-                            if (value != null) {
-                              changeMachine(value);
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                    ),
-                  );
-                },
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

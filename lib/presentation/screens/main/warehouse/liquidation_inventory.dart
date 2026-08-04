@@ -37,6 +37,8 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
   Map<String, double> columnWidths = {};
 
   // TextEditingController searchController = TextEditingController();
+  final headerScrollController = ScrollController();
+
   // bool isTextFieldEnabled = false;
   // bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
@@ -68,11 +70,12 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
     selectedLiquidationId.clear();
   }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   searchController.dispose();
-  // }
+  @override
+  void dispose() {
+    super.dispose();
+    // searchController.dispose();
+    headerScrollController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,46 +122,62 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
         const SizedBox(height: 8),
 
         //button
-        Column(
-          children: [
-            Row(children: []),
-            const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: []),
+                    ),
 
-            //total price
-            Padding(
-              padding: const EdgeInsets.only(right: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    "Tổng Giá Trị: ",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  FutureBuilder(
-                    future: futureLiquidation,
-                    builder: (context, snapshot) {
-                      final double totalValue =
-                          snapshot.hasData
-                              ? (double.tryParse(
-                                    snapshot.data!['totalValueInventory']?.toString() ?? '0',
-                                  ) ??
-                                  0.0)
-                              : 0.0;
+                    //total price
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Tổng Giá Trị: ",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          FutureBuilder(
+                            future: futureLiquidation,
+                            builder: (context, snapshot) {
+                              final double totalValue =
+                                  snapshot.hasData
+                                      ? (double.tryParse(
+                                            snapshot.data!['totalValueInventory']?.toString() ??
+                                                '0',
+                                          ) ??
+                                          0.0)
+                                      : 0.0;
 
-                      return Text(
-                        "${OrderModel.formatCurrency(totalValue)} VNĐ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.green.shade500,
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                              return Text(
+                                "${OrderModel.formatCurrency(totalValue)} VNĐ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.green.shade500,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );

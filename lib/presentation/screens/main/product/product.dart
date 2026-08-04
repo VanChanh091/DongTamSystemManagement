@@ -53,7 +53,8 @@ class _ProductPageState extends State<ProductPage> {
   ProductDataSource? _cachedDatasource;
 
   //text controller
-  TextEditingController searchController = TextEditingController();
+  final searchController = TextEditingController();
+  final headerScrollController = ScrollController();
 
   //flag
   late bool isSale;
@@ -130,6 +131,7 @@ class _ProductPageState extends State<ProductPage> {
     searchController.dispose();
     _zoomNotifier.dispose();
     _selectedProductIdNotifier.dispose();
+    headerScrollController.dispose();
   }
 
   @override
@@ -231,101 +233,114 @@ class _ProductPageState extends State<ProductPage> {
         const SizedBox(height: 8),
 
         //search & button
-        Row(
-          children: [
-            //search
-            Expanded(
-              flex: 3,
-              child: LeftButtonSearch(
-                selectedType: searchType,
-                types: const ['Tất cả', "Mã Sản Phẩm", "Tên Sản Phẩm"],
-                onTypeChanged: (value) {
-                  setState(() {
-                    searchType = value;
-                    isTextFieldEnabled = value != 'Tất cả';
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //search
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const ['Tất cả', "Mã Sản Phẩm", "Tên Sản Phẩm"],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = value != 'Tất cả';
 
-                    if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                      searchController.clear();
-                      currentPage = 1;
-                      _fetchData();
-                    }
-                  });
-                },
-                controller: searchController,
-                textFieldEnabled: isTextFieldEnabled,
-                buttonColor: themeController.buttonColor,
-                onSearch: () => searchProduct(),
-              ),
-            ),
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              currentPage = 1;
+                              _fetchData();
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
+                        onSearch: () => searchProduct(),
+                      ),
+                      const SizedBox(width: 20),
 
-            //right button
-            if (isSale)
-              Expanded(
-                flex: 2,
-                child: ValueListenableBuilder(
-                  valueListenable: _selectedProductIdNotifier,
-                  builder: (context, selectedProductId, _) {
-                    final bool hasSelection =
-                        selectedProductId != null && selectedProductId.isNotEmpty;
+                      //right button
+                      if (isSale)
+                        ValueListenableBuilder(
+                          valueListenable: _selectedProductIdNotifier,
+                          builder: (context, selectedProductId, _) {
+                            final bool hasSelection =
+                                selectedProductId != null && selectedProductId.isNotEmpty;
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        //export excel
-                        AnimatedButton(
-                          onPressed: () async {
-                            showDialog(
-                              context: context,
-                              builder: (_) => DialogExportCusOrProd(isProduct: true),
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                //export excel
+                                AnimatedButton(
+                                  onPressed: () async {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => DialogExportCusOrProd(isProduct: true),
+                                    );
+                                  },
+                                  label: "Xuất Excel",
+                                  icon: Symbols.export_notes,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+
+                                //add
+                                AnimatedButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => ProductDialog(
+                                            product: null,
+                                            onProductAddOrUpdate: () => loadProduct(),
+                                          ),
+                                    );
+                                  },
+                                  label: "Thêm mới",
+                                  icon: Icons.add,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+
+                                // update
+                                AnimatedButton(
+                                  onPressed:
+                                      hasSelection ? () => _handleEdit(selectedProductId) : null,
+                                  label: "Sửa",
+                                  icon: Symbols.construction,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+
+                                //delete
+                                AnimatedButton(
+                                  onPressed:
+                                      hasSelection ? () => _handleDelete(selectedProductId) : null,
+                                  label: "Xóa",
+                                  icon: Icons.delete,
+                                  backgroundColor: const Color(0xffEA4346),
+                                ),
+                                const SizedBox(width: 3),
+                              ],
                             );
                           },
-                          label: "Xuất Excel",
-                          icon: Symbols.export_notes,
-                          backgroundColor: themeController.buttonColor,
                         ),
-                        const SizedBox(width: 8),
-
-                        //add
-                        AnimatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (_) => ProductDialog(
-                                    product: null,
-                                    onProductAddOrUpdate: () => loadProduct(),
-                                  ),
-                            );
-                          },
-                          label: "Thêm mới",
-                          icon: Icons.add,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
-
-                        // update
-                        AnimatedButton(
-                          onPressed: hasSelection ? () => _handleEdit(selectedProductId) : null,
-                          label: "Sửa",
-                          icon: Symbols.construction,
-                          backgroundColor: themeController.buttonColor,
-                        ),
-                        const SizedBox(width: 8),
-
-                        //delete
-                        AnimatedButton(
-                          onPressed: hasSelection ? () => _handleDelete(selectedProductId) : null,
-                          label: "Xóa",
-                          icon: Icons.delete,
-                          backgroundColor: const Color(0xffEA4346),
-                        ),
-                        const SizedBox(width: 3),
-                      ],
-                    );
-                  },
+                    ],
+                  ),
                 ),
               ),
-          ],
+            );
+          },
         ),
       ],
     );

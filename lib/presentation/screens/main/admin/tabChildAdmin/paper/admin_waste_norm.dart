@@ -47,7 +47,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
     final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
 
     return Scaffold(
-       backgroundColor: themeController.backgroundColor.value,
+      backgroundColor: themeController.backgroundColor.value,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -133,11 +133,10 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
                         );
                       }
 
-                      if (!context.mounted) return;
-
-                      loadWasteNorm();
-
-                      showSnackBarSuccess(context, 'Đã cập nhật thành công');
+                      if (mounted) {
+                        loadWasteNorm();
+                        showSnackBarSuccess(context, 'Đã cập nhật thành công');
+                      }
                     },
                     label: "Lưu Thay Đổi",
                     icon: Symbols.save,
