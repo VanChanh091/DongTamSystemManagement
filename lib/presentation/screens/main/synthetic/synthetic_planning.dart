@@ -382,7 +382,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                                   );
                                 },
                                 label: "Xuất Excel",
-                                icon: Symbols.export_notes,
+                                icon: Symbols.file_download,
                                 backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 8),

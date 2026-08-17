@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/customer/customer_model.dart';
+import 'package:dongtam/data/models/user/user_user_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -32,6 +33,14 @@ class CustomerService {
       },
       fromJson: (json) => CustomerModel.fromJson(json),
       dataKey: 'customers',
+    );
+  }
+
+  Future<List<UserUserModel>> getUserSales() async {
+    return HelperService().fetchingData<UserUserModel>(
+      endpoint: "customer/user-sales",
+      queryParameters: const {},
+      fromJson: (json) => UserUserModel.fromJson(json),
     );
   }
 

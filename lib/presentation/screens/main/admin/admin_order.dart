@@ -547,7 +547,7 @@ class _ManageOrderState extends State<AdminOrder> {
     final infoRows = [
       //left
       _infoRow('🧾 Mã đơn:', order.orderId),
-      _infoRow('📅 Ngày nhận:', formatter.format(order.dayReceiveOrder)),
+      _infoRow('📅 Ngày nhận:', formatter.format(order.dayReceiveOrder!)),
       _infoRow('🚚 Ngày giao:', formatter.format(order.dateRequestShipping!)),
       _infoRow('👤 Tên khách hàng:', order.customer!.customerName),
       _infoRow('🏢 Tên công ty:', order.customer!.companyName, valueColor: Colors.redAccent),

@@ -4,6 +4,7 @@ import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/qc/dialog_inspection_check.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
@@ -205,14 +206,21 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   Widget _buildHeaderBar() {
     return Column(
       children: [
-        //title
-        Text(
-          "DANH SÁCH GIẤY TẤM CHỜ KIỂM TRA",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: themeController.currentColor.value,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "DANH SÁCH GIẤY TẤM CHỜ KIỂM TRA",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: themeController.currentColor.value,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const MachinePaperColorLegendButton(),
+          ],
         ),
         const SizedBox(height: 8),
 

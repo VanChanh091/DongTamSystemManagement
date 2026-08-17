@@ -255,6 +255,7 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
                                 final errorText = switch (e.errorCode) {
                                   "INVALID_SCRAP_REPORT_STATUS" => e.message!,
                                   "MISSING_SCRAP_REPORTS_IN_BATCH" => e.message!,
+                                  "REPORTS_NOT_FOUND" => e.message!,
                                   _ => "Có lỗi xảy ra, vui lòng thử lại",
                                 };
                                 if (context.mounted) showSnackBarError(context, errorText);

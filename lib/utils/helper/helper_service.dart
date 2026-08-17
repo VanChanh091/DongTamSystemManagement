@@ -264,4 +264,26 @@ class HelperService {
       return null;
     }
   }
+
+  //import file
+  Future<bool> importFile({required String endpoint, required String filePath}) async {
+    try {
+      FormData formData = FormData.fromMap({
+        "file": await MultipartFile.fromFile(filePath, filename: filePath.split("/").last),
+      });
+
+      await dioService.post(
+        "/api/$endpoint",
+        data: formData,
+        options: Options(headers: {"Content-Type": "multipart/form-data"}),
+      );
+
+      AppLogger.i("File imported successfully: $filePath");
+
+      return true;
+    } catch (e) {
+      AppLogger.e("Error import file: $e");
+      return false;
+    }
+  }
 }

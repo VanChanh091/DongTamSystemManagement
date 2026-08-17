@@ -1,3 +1,4 @@
+import "package:dongtam/data/models/customer/customer_model.dart";
 import "package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
 
@@ -11,16 +12,22 @@ class OutboundHistoryModel {
   final double totalPricePayment;
   final int totalOutboundQty;
 
-  final DateTime? dueDate;
   final double? paidAmount;
   final double? remainingAmount;
 
   final String outboundBy;
+  final String? updatedBy;
 
+  final DateTime? dueDate;
   final String status;
+
+  final double? writeOffAmount;
 
   //FK
   final List<OutboundDetailModel>? detail;
+
+  final String customerId;
+  final CustomerModel? customer;
 
   OutboundHistoryModel({
     required this.outboundId,
@@ -32,14 +39,19 @@ class OutboundHistoryModel {
     required this.totalPricePayment,
     required this.totalOutboundQty,
 
-    this.dueDate,
     this.paidAmount,
     this.remainingAmount,
 
     required this.outboundBy,
+    this.updatedBy,
 
+    this.dueDate,
     required this.status,
 
+    this.writeOffAmount,
+
+    required this.customerId,
+    this.customer,
     this.detail,
   });
 
@@ -57,6 +69,7 @@ class OutboundHistoryModel {
       remainingAmount: toDouble(json["remainingAmount"]),
       outboundBy: json["outboundBy"] ?? "",
       status: json["status"] ?? "",
+      writeOffAmount: toDouble(json["writeOffAmount"]),
 
       detail:
           json["detail"] != null
@@ -64,6 +77,8 @@ class OutboundHistoryModel {
                 json["detail"].map((x) => OutboundDetailModel.fromJson(x)),
               )
               : [],
+      customerId: json["customerId"] ?? "",
+      customer: json["customer"] != null ? CustomerModel.fromJson(json["customer"]) : null,
     );
   }
 }

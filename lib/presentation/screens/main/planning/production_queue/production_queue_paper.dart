@@ -7,6 +7,7 @@ import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/export/dialog_export_planning.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_change_machine.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
+import 'package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart';
 import 'package:dongtam/presentation/components/shared/planning/save_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
@@ -308,14 +309,21 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   Widget _buildHeaderBar() {
     return Column(
       children: [
-        //title
-        Text(
-          "KẾ HOẠCH SẢN XUẤT GIẤY TẤM",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: themeController.currentColor.value,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "KẾ HOẠCH SẢN XUẤT GIẤY TẤM",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: themeController.currentColor.value,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const MachinePaperColorLegendButton(),
+          ],
         ),
         const SizedBox(height: 8),
 
@@ -714,7 +722,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                           const PopupMenuItem<String>(
                                             value: 'export',
                                             child: ListTile(
-                                              leading: Icon(Symbols.download),
+                                              leading: Icon(Symbols.file_download),
                                               title: Text('Xuất Excel'),
                                             ),
                                           ),

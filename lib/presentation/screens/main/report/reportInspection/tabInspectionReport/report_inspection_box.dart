@@ -1,21 +1,21 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_box_model.dart';
-import 'package:dongtam/presentation/components/dialog/qc/dialog_summary_inspec_err.dart';
-import 'package:dongtam/presentation/components/headerTable/report/header_table_inspection_box.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/report/inspection_box_data_source.dart';
-import 'package:dongtam/service/report_service.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_box_model.dart";
+import "package:dongtam/presentation/components/dialog/qc/dialog_summary_inspec_err.dart";
+import "package:dongtam/presentation/components/headerTable/report/header_table_inspection_box.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/report/inspection_box_data_source.dart";
+import "package:dongtam/service/report_service.dart";
+import "package:dongtam/utils/helper/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ReportInspectionBox extends StatefulWidget {
   const ReportInspectionBox({super.key});
@@ -33,11 +33,11 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
 
   String machine = "Máy In";
   final List<String> machineList = [
-    'Máy In',
+    "Máy In",
     "Máy Bế",
     "Máy Xả",
     "Máy Dán",
-    'Máy Cấn Lằn',
+    "Máy Cấn Lằn",
     "Máy Cắt Khe",
     "Máy Cán Màng",
     "Máy Đóng Ghim",
@@ -86,7 +86,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
       machine: machine,
     );
 
-    ColumnWidthTable.loadWidths(tableKey: 'inspectionBox', columns: initialColumns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "inspectionBox", columns: initialColumns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -103,7 +103,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
 
     futureReportBox = ensureMinLoading(
       ReportService().getReportQcInspection(
-        isPaper: 'box',
+        isPaper: "box",
         page: currentPage,
         pageSize: pageSize,
         machine: machine,
@@ -320,7 +320,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['inspectionBoxes'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["inspectionBoxes"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -333,9 +333,9 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
         }
 
         final data = snapshot.data!;
-        final inspectionBoxes = data['inspectionBoxes'] as List<QcInspectionBoxModel>;
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final inspectionBoxes = data["inspectionBoxes"] as List<QcInspectionBoxModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
         if (_cachedInspecBoxes == null || _cachedInspecBoxes != inspectionBoxes) {
           _cachedInspecBoxes = inspectionBoxes;
@@ -440,7 +440,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                       onColumnResizeEnd:
                           (details) => GridResizeHelper.onResizeEnd(
                             details: details,
-                            tableKey: 'inspectionBox',
+                            tableKey: "inspectionBox",
                             columnWidths: columnWidths,
                             setState: setState,
                           ),
@@ -451,7 +451,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                           final selectedBoxId =
                               selectedRow
                                       .getCells()
-                                      .firstWhere((cell) => cell.columnName == 'inspecBoxId')
+                                      .firstWhere((cell) => cell.columnName == "inspecBoxId")
                                       .value
                                   as int?;
 

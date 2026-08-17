@@ -17,6 +17,7 @@ import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
+import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -44,6 +45,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   late Map<String, dynamic> grandTotal;
 
   //controller
+  final headerScrollController = ScrollController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
@@ -59,6 +61,11 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   Map<String, double> columnWidthsObDetail = {};
   List<OutboundDetailModel> selectedObDetail = [];
 
+  //cached grand totals for smooth animated count transitions
+  double _lastPriceOrder = 0;
+  double _lastPriceVAT = 0;
+  double _lastPricePayment = 0;
+
   Map<String, double> columnWidths = {};
   final _zoomNotifier = ValueNotifier<double>(1.0);
   final _selectedOutboundIdNotifier = ValueNotifier<int?>(null);
@@ -71,7 +78,6 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   //text controller
   final searchController = TextEditingController();
   final dateController = TextEditingController();
-  final headerScrollController = ScrollController();
 
   //date range
   DateTime? startDate;
@@ -415,10 +421,10 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                   handleExportFile(),
                                   const SizedBox(width: 8),
 
-                                  //export excel
                                   isAccountant
                                       ? Row(
                                         children: [
+                                          //export excel
                                           AnimatedButton(
                                             onPressed: () async {
                                               showDialog(
@@ -522,70 +528,77 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                       child: FutureBuilder(
                         future: futureOutbound,
                         builder: (context, snapshot) {
-                          final Map<String, dynamic> grandTotalData =
-                              snapshot.hasData
-                                  ? (snapshot.data!['grandTotal'] as Map<String, dynamic>? ?? {})
-                                  : {};
+                          final isLoading = snapshot.connectionState == ConnectionState.waiting;
 
-                          final totalPriceOrder = grandTotalData['totalPriceOrder'] ?? 0;
-                          final totalPriceVAT = grandTotalData['totalPriceVAT'] ?? 0;
-                          final totalPricePayment = grandTotalData['totalPricePayment'] ?? 0;
+                          if (snapshot.hasData) {
+                            final Map<String, dynamic> grandTotalData =
+                                snapshot.hasData
+                                    ? (snapshot.data!['grandTotal'] as Map<String, dynamic>? ?? {})
+                                    : {};
 
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              // Tổng tiền hàng
-                              const Text(
-                                "Tiền hàng: ",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              Text(
-                                OrderModel.formatCurrency(totalPriceOrder),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 17,
-                                  color: Colors.green.shade600,
+                            _lastPriceOrder = toDouble(grandTotalData['totalPriceOrder']);
+                            _lastPriceVAT = toDouble(grandTotalData['totalPriceVAT']);
+                            _lastPricePayment = toDouble(grandTotalData['totalPricePayment']);
+                          }
+
+                          return AnimatedOpacity(
+                            duration: const Duration(milliseconds: 400),
+                            opacity: isLoading ? 0.4 : 1.0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                // Tổng tiền hàng
+                                const Text(
+                                  "Tiền hàng: ",
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
-                              ),
-
-                              const Text(
-                                " – ",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-
-                              // Tiền VAT
-                              const Text(
-                                "VAT: ",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              Text(
-                                OrderModel.formatCurrency(totalPriceVAT),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 17,
-                                  color: Colors.amber.shade800,
+                                _buildAnimatedCounter(
+                                  targetValue: _lastPriceOrder,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                    color: Colors.green.shade600,
+                                  ),
                                 ),
-                              ),
-
-                              const Text(
-                                " – ",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-
-                              // Tổng thanh toán
-                              const Text(
-                                "Tổng: ",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              Text(
-                                OrderModel.formatCurrency(totalPricePayment),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 17,
-                                  color: Colors.blue.shade800,
+                                const Text(
+                                  " – ",
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
-                              ),
-                            ],
+
+                                // Tiền VAT
+                                const Text(
+                                  "VAT: ",
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                _buildAnimatedCounter(
+                                  targetValue: _lastPriceVAT,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                    color: Colors.amber.shade800,
+                                  ),
+                                ),
+
+                                const Text(
+                                  " – ",
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+
+                                // Tổng thanh toán
+                                const Text(
+                                  "Tổng Tiền: ",
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                _buildAnimatedCounter(
+                                  targetValue: _lastPricePayment,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                    color: Colors.blue.shade800,
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),
@@ -935,6 +948,18 @@ class _OutboundHistoryState extends State<OutboundHistory> {
           ),
         ),
       ],
+    );
+  }
+
+  //helper animation
+  Widget _buildAnimatedCounter({required num targetValue, required TextStyle style}) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: targetValue.toDouble()),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Text(OrderModel.formatCurrency(value), style: style);
+      },
     );
   }
 }

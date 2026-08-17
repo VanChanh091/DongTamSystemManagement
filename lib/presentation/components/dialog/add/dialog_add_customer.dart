@@ -1,6 +1,7 @@
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/customer/customer_model.dart";
 import "package:dongtam/data/models/customer/customer_payment_model.dart";
+import "package:dongtam/data/models/user/user_user_model.dart";
 import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
@@ -14,8 +15,6 @@ import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/validation/validation_helper.dart";
 import "package:flutter/material.dart";
 import "package:get/get.dart";
-import "package:intl/intl.dart";
-import "package:material_symbols_icons/symbols.dart";
 
 class CustomerDialog extends StatefulWidget {
   final CustomerModel? customer;
@@ -28,6 +27,7 @@ class CustomerDialog extends StatefulWidget {
 }
 
 class _CustomerDialogState extends State<CustomerDialog> {
+  late Future<List<UserUserModel>> futureUserSales;
   final formKey = GlobalKey<FormState>();
   final userController = Get.find<UserController>();
 
@@ -35,8 +35,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
   bool isLoading = true;
   String? idServerError;
   String? mstServerError;
-
-  final Map<String, String> paymentMapping = {"daily": "Tiền Liền", "monthly": "Theo Tháng"};
 
   final _idController = TextEditingController();
   final _nameController = TextEditingController();
@@ -46,37 +44,65 @@ class _CustomerDialogState extends State<CustomerDialog> {
   final _distanceController = TextEditingController();
   final _mstController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _cskhController = TextEditingController();
   final _contactPersonController = TextEditingController();
-
   final _customerSourceController = TextEditingController();
+
+  int? selectedUserId;
+  String? cskhSelected;
 
   late String typeRating = "Bình Thường";
   final List<String> itemRating = ["Xấu", "Bình Thường", "Tốt", "VIP"];
 
   //payment
-  DateTime? timePayment;
-  final _timePaymentController = TextEditingController();
-  final _debtLimitController = TextEditingController();
-  final _closingDateController = TextEditingController();
+  String paymentType = "Theo ngày";
+  final List<String> itemsPaymentType = ["Theo ngày", "Theo tuần", "Theo tháng", "Tùy chỉnh"];
+  final Map<String, String> paymentMapping = {
+    "daily": "Theo ngày",
+    "weekly": "Theo tuần",
+    "monthly": "Theo tháng",
+    "custom_days": "Tùy chỉnh",
+  };
 
-  String paymentType = "Tiền Liền";
-  final List<String> itemsPaymentType = ["Tiền Liền", "Theo Tháng"];
+  String closingDay = "Thứ 2";
+  final List<String> itemClosingDay = [
+    "Thứ 2",
+    "Thứ 3",
+    "Thứ 4",
+    "Thứ 5",
+    "Thứ 6",
+    "Thứ 7",
+    "Chủ nhật",
+  ];
+  final Map<int, String> closingDaysMapping = {
+    1: "Thứ 2",
+    2: "Thứ 3",
+    3: "Thứ 4",
+    4: "Thứ 5",
+    5: "Thứ 6",
+    6: "Thứ 7",
+    0: "Chủ nhật",
+  };
+
+  final _debtLimitController = TextEditingController();
+  final _closingDaysController = TextEditingController();
+  final _paymentTermDaysController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
     if (widget.customer != null) {
       customerInitState();
     }
-    fetchAllCustomer();
+
+    futureUserSales = CustomerService().getUserSales();
+    getPhoneCustomer();
   }
 
   //create value of customer to update
   void customerInitState() {
     final customer = widget.customer!;
     final payment = customer.payment;
-    AppLogger.i("Khởi tạo form với customerId=${customer.customerId}");
 
     _idController.text = customer.customerId;
     _nameController.text = customer.customerName;
@@ -86,30 +112,29 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _distanceController.text = customer.distance?.toString() ?? "0";
     _mstController.text = customer.mst;
     _phoneController.text = customer.phone;
-    _cskhController.text = customer.cskh;
     _contactPersonController.text = customer.contactPerson ?? "";
     _customerSourceController.text = customer.customerSource;
+    cskhSelected = customer.cskh;
 
     //=====================PAYMENT=======================
-    //date
-    if (payment?.timePayment != null) {
-      timePayment = payment?.timePayment;
-      _timePaymentController.text = DateFormat("dd/MM/yyyy").format(timePayment!);
-    }
-
     _debtLimitController.text = payment?.debtLimit?.toString() ?? "0";
-    _closingDateController.text = payment?.closingDate.toString() ?? "0";
+    _closingDaysController.text = payment?.closingDays?.join(", ") ?? "0";
+    _paymentTermDaysController.text = payment?.paymentTermDays.toString() ?? "0";
 
     //dropdown
     typeRating = customer.rateCustomer ?? "";
-    paymentType = paymentMapping[payment?.paymentType] ?? "Tiền Liền";
+    paymentType = paymentMapping[payment?.paymentType] ?? "Theo ngày";
+
+    closingDay =
+        (payment?.closingDays != null && payment!.closingDays!.isNotEmpty)
+            ? closingDaysMapping[payment.closingDays!.first] ?? "Thứ 2"
+            : "Thứ 2";
   }
 
   //get all customer to check sdt
-  Future<void> fetchAllCustomer() async {
+  Future<void> getPhoneCustomer() async {
     try {
       final result = await CustomerService().getCustomers(noPaging: true);
-
       allCustomers = result["customers"] as List<CustomerModel>;
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách khách hàng", error: e, stackTrace: s);
@@ -125,88 +150,108 @@ class _CustomerDialogState extends State<CustomerDialog> {
       return;
     }
 
+    //check sdt is existed
+    if (mounted) {
+      if (widget.customer == null && _phoneController.text.isNotEmpty) {
+        final isPhoneExist = allCustomers.any(
+          (customer) => customer.phone == _phoneController.text,
+        );
+
+        if (isPhoneExist) {
+          AppLogger.w("Số điện thoại đã tồn tại: ${_phoneController.text}");
+          final shouldContinue = await showDialog<bool>(
+            context: context,
+            builder:
+                (context) => AlertDialog(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  title: Row(
+                    children: [
+                      Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      const Text("Cảnh báo", style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  content: const Text(
+                    "Số điện thoại này đã tồn tại trong hệ thống.\nBạn có chắc chắn muốn tiếp tục lưu không?",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  actionsPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                  actionsAlignment: MainAxisAlignment.end,
+                  actions: [
+                    TextButton.icon(
+                      label: const Text(
+                        "Huỷ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.red,
+                        ),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(false),
+                    ),
+                    ElevatedButton.icon(
+                      label: const Text(
+                        "Tiếp tục",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(true),
+                    ),
+                  ],
+                ),
+          );
+
+          if (shouldContinue != true) return;
+        }
+      }
+    }
+
     // Show loading
+    if (!mounted) return;
     showLoadingDialog(context);
     await Future.delayed(const Duration(seconds: 1));
 
     try {
-      //check sdt is existed
-      if (mounted) {
-        if (widget.customer == null && _phoneController.text.isNotEmpty) {
-          final isPhoneExist = allCustomers.any(
-            (customer) => customer.phone == _phoneController.text,
-          );
-
-          if (isPhoneExist) {
-            AppLogger.w("Số điện thoại đã tồn tại: ${_phoneController.text}");
-            final shouldContinue = await showDialog<bool>(
-              context: context,
-              builder:
-                  (context) => AlertDialog(
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    title: Row(
-                      children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                        const SizedBox(width: 8),
-                        const Text("Cảnh báo", style: TextStyle(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    content: const Text(
-                      "Số điện thoại này đã tồn tại trong hệ thống.\nBạn có chắc chắn muốn tiếp tục lưu không?",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    actionsPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                    actionsAlignment: MainAxisAlignment.spaceBetween,
-                    actions: [
-                      TextButton.icon(
-                        label: const Text(
-                          "Huỷ",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.red,
-                          ),
-                        ),
-                        onPressed: () => Navigator.of(context).pop(false),
-                      ),
-                      ElevatedButton.icon(
-                        label: const Text(
-                          "Tiếp tục",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onPressed: () => Navigator.of(context).pop(true),
-                      ),
-                    ],
-                  ),
-            );
-
-            if (shouldContinue != true) return;
-          }
-        }
-      }
-
       final paymentTypeConvert = paymentMapping.keys.firstWhere(
         (k) => paymentMapping[k] == paymentType,
         orElse: () => "daily",
       );
 
+      List<int> closingDays = [];
+
+      if (paymentTypeConvert == 'weekly') {
+        final selectedInt =
+            closingDaysMapping.entries
+                .firstWhere((e) => e.value == closingDay, orElse: () => const MapEntry(1, 'Thứ 2'))
+                .key;
+        closingDays = [selectedInt];
+      } else if (paymentTypeConvert == 'monthly') {
+        closingDays =
+            _closingDaysController.trimmed
+                .split(",")
+                .map((e) => int.tryParse(e.trim()) ?? 0)
+                .where((e) => e > 0)
+                .toList();
+      } else {
+        closingDays = [];
+      }
+
       // Chuẩn hóa dữ liệu đầu vào
       final payment = CustomerPaymentModel(
         cusPaymentId: 0,
-        debtCurrent: double.tryParse(_debtLimitController.trimmed) ?? 0,
+        customerId: "",
         debtLimit: double.tryParse(_debtLimitController.trimmed) ?? 0,
-        timePayment: timePayment ?? DateTime.now(),
         paymentType: paymentTypeConvert,
-        closingDate: int.tryParse(_closingDateController.trimmed) ?? 0,
+        closingDays: closingDays,
+        paymentTermDays: int.tryParse(_paymentTermDaysController.trimmed) ?? 0,
       );
 
       final newCustomer = CustomerModel(
@@ -218,10 +263,11 @@ class _CustomerDialogState extends State<CustomerDialog> {
         distance: double.tryParse(_distanceController.trimmed) ?? 0,
         mst: _mstController.trimmed,
         phone: _phoneController.trimmed,
-        cskh: _cskhController.superClean,
-        contactPerson: _contactPersonController.superClean,
         rateCustomer: typeRating,
+        contactPerson: _contactPersonController.superClean,
         customerSource: _customerSourceController.trimmed,
+        cskh: cskhSelected ?? "",
+        userId: selectedUserId,
         payment: payment,
       );
 
@@ -286,6 +332,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
   @override
   void dispose() {
+    super.dispose();
     _idController.dispose();
     _nameController.dispose();
     _companyNameController.dispose();
@@ -294,13 +341,11 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _distanceController.dispose();
     _mstController.dispose();
     _phoneController.dispose();
-    _cskhController.dispose();
     _contactPersonController.dispose();
     _debtLimitController.dispose();
-    _timePaymentController.dispose();
     _customerSourceController.dispose();
-    _closingDateController.dispose();
-    super.dispose();
+    _closingDaysController.dispose();
+    _paymentTermDaysController.dispose();
   }
 
   @override
@@ -382,11 +427,77 @@ class _CustomerDialogState extends State<CustomerDialog> {
 
       {
         "leftKey": "CSKH",
-        "leftValue": ValidationHelper.customerInput(
-          label: "CSKH",
-          controller: _cskhController,
-          icon: Icons.support_agent,
+        "leftValue": FormField<String>(
+          validator: (_) {
+            if ((cskhSelected ?? "").trim().isEmpty) {
+              return "Vui lòng chọn nhân viên CSKH";
+            }
+            return null;
+          },
+          builder: (state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FutureBuilder<List<UserUserModel>>(
+                  future: futureUserSales,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: LinearProgressIndicator(),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Text("Lỗi tải nhân viên CSKH");
+                    }
+
+                    final users = snapshot.data ?? [];
+                    // final items = users.map((u) => u.fullName).whereType<String>().toList();
+
+                    if (users.isEmpty) {
+                      return const Text("Không có dữ liệu nhân viên CSKH");
+                    }
+
+                    if (cskhSelected == null || !users.any((u) => u.fullName == cskhSelected)) {
+                      cskhSelected = users.first.fullName;
+                      selectedUserId = users.first.userId;
+                    }
+
+                    final items = users.map((u) => u.fullName).whereType<String>().toList();
+
+                    return ValidationHelper.dropdownForTypes(
+                      items: items,
+                      type: cskhSelected!,
+                      onChanged: (selectedName) {
+                        final matchedUser = users.firstWhere(
+                          (u) => u.fullName == selectedName,
+                          orElse: () => users.first,
+                        );
+
+                        setState(() {
+                          cskhSelected = selectedName;
+                          selectedUserId = matchedUser.userId;
+                        });
+
+                        state.didChange(selectedName);
+                      },
+                    );
+                  },
+                ),
+                if (state.hasError)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6, left: 12),
+                    child: Text(
+                      state.errorText!,
+                      style: const TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
+
         "rightKey": "Nguồn Khách Hàng",
         "rightValue": ValidationHelper.customerInput(
           label: "Nguồn Khách Hàng",
@@ -405,41 +516,38 @@ class _CustomerDialogState extends State<CustomerDialog> {
           icon: Icons.money,
           readOnly: !canEditDebtLimit,
         ),
-        "rightKey": "Hạn Thanh Toán",
-        "rightValue": ValidationHelper.customerInput(
-          label: "Thời Hạn Thanh Toán",
-          controller: _timePaymentController,
-          icon: Symbols.calendar_month,
-          readOnly: true,
-          onTap: () async {
-            // firstDate <= initDate <= lastDate
-            DateTime? pickedDate = await showDatePicker(
-              context: context,
-              initialDate: timePayment ?? DateTime.now(),
-              firstDate: DateTime(2019),
-              lastDate: DateTime(2100),
-              builder: (BuildContext context, Widget? child) {
-                return Theme(
-                  data: Theme.of(context).copyWith(
-                    colorScheme: ColorScheme.light(
-                      primary: Colors.blue,
-                      onPrimary: Colors.white,
-                      onSurface: Colors.black,
-                    ),
-                    dialogTheme: DialogThemeData(backgroundColor: Colors.white12),
-                  ),
-                  child: child!,
-                );
+
+        "rightKey": "Ngày Chốt Công Nợ",
+        "rightValue": () {
+          if (paymentType == "Theo tuần" || paymentType == "weekly") {
+            return ValidationHelper.dropdownForTypes(
+              items: itemClosingDay,
+              type: closingDay,
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    closingDay = value;
+                  });
+                }
               },
             );
-            if (pickedDate != null) {
-              setState(() {
-                timePayment = pickedDate;
-                _timePaymentController.text = DateFormat("dd/MM/yyyy").format(pickedDate);
-              });
-            }
-          },
-        ),
+          }
+
+          final isDaily = paymentType == "Theo ngày" || paymentType == "daily";
+          return ValidationHelper.customerInput(
+            label: "Ngày Chốt Công Nợ",
+            controller: _closingDaysController,
+            icon: Icons.calendar_today,
+            isRequired: !isDaily,
+            readOnly: isDaily,
+            onChanged: (newType) {
+              paymentType = newType;
+              if (paymentType == "Theo Ngày" || newType == "daily") {
+                _closingDaysController.clear();
+              }
+            },
+          );
+        }(),
       },
       {
         "leftKey": "Kiểu Thanh Toán",
@@ -452,10 +560,10 @@ class _CustomerDialogState extends State<CustomerDialog> {
             });
           },
         ),
-        "rightKey": "Ngày Chốt Công Nợ",
+        "rightKey": "Số Ngày Công Nợ",
         "rightValue": ValidationHelper.customerInput(
-          label: "Ngày Chốt Công Nợ",
-          controller: _closingDateController,
+          label: "Số Ngày Công Nợ",
+          controller: _paymentTermDaysController,
           icon: Icons.calendar_today,
         ),
       },
@@ -522,6 +630,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
                   ),
                 ),
               ],
+
       child:
           isLoading
               ? const Center(child: CircularProgressIndicator())

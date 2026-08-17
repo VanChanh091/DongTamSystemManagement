@@ -326,6 +326,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
         "FEE_ORDER_NOT_INCLUDED" => e.message!,
         "INVENTORY_NOT_FOUND" => e.message!,
         "DELIVERY_ITEM_NOT_FOUND" => e.message!,
+        "OUTBOUND_ALREADY_PAID" => e.message!,
         _ => "Có lỗi xảy ra, vui lòng thử lại",
       };
 

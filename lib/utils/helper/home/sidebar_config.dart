@@ -11,6 +11,7 @@ import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_cri
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
+import 'package:dongtam/presentation/screens/main/debt/debt_customer_summary.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart';
 import 'package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart';
@@ -121,6 +122,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
       children: [
         LeafMenuConfig(icon: Symbols.lab_profile, label: "Xuất Kho", pageType: OutboundHistory),
         LeafMenuConfig(icon: Symbols.garage_home, label: "Kho Thành Phẩm", pageType: Inventory),
+        LeafMenuConfig(
+          icon: Symbols.account_balance_wallet,
+          label: "Công Nợ Khách Hàng",
+          pageType: DebtCustomerSummary,
+        ),
       ],
     ),
 

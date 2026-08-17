@@ -22,7 +22,7 @@ class PlanningDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'orderId', value: order.orderId),
       DataGridCell<String>(
         columnName: 'dayReceiveOrder',
-        value: formatter.format(order.dayReceiveOrder),
+        value: formatter.format(order.dayReceiveOrder!),
       ),
       DataGridCell<String>(
         columnName: 'dateRequestShipping',

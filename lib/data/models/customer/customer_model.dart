@@ -1,5 +1,7 @@
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:dongtam/data/models/customer/customer_payment_model.dart";
+import "package:dongtam/data/models/warehouse/payment/payment_receipt_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart";
 
 class CustomerModel {
   final String customerId;
@@ -16,7 +18,11 @@ class CustomerModel {
   final String? rateCustomer;
   final DateTime? createdAt;
 
+  //FK
+  final int? userId;
   final CustomerPaymentModel? payment;
+  final List<OutboundHistoryModel>? outboundHistory;
+  final List<PaymentReceiptModel>? PaymentReceipt;
 
   CustomerModel({
     required this.customerId,
@@ -33,7 +39,11 @@ class CustomerModel {
     this.rateCustomer,
     this.createdAt,
 
+    //FK
+    this.userId,
     this.payment,
+    this.outboundHistory,
+    this.PaymentReceipt,
   });
 
   factory CustomerModel.fromJson(Map<String, dynamic> json) {
@@ -50,11 +60,24 @@ class CustomerModel {
       contactPerson: json["contactPerson"] ?? "",
       rateCustomer: json["rateCustomer"] ?? "",
       customerSource: json["customerSource"] ?? "",
+      userId: json["userId"] ?? 0,
       createdAt:
           json["createdAt"] != null && json["createdAt"].toString().isNotEmpty
               ? DateTime.tryParse(json["createdAt"].toString())
               : null,
       payment: json["payment"] != null ? CustomerPaymentModel.fromJson(json["payment"]) : null,
+      outboundHistory:
+          json["OutboundHistory"] != null
+              ? List<OutboundHistoryModel>.from(
+                json["OutboundHistory"].map((x) => OutboundHistoryModel.fromJson(x)),
+              )
+              : [],
+      PaymentReceipt:
+          json["PaymentReceipt"] != null
+              ? List<PaymentReceiptModel>.from(
+                json["PaymentReceipt"].map((x) => PaymentReceiptModel.fromJson(x)),
+              )
+              : [],
     );
   }
 
@@ -72,6 +95,7 @@ class CustomerModel {
       "contactPerson": contactPerson,
       "rateCustomer": rateCustomer,
       "customerSource": customerSource,
+      "userId": userId,
       "payment": payment!.toJson(),
     };
   }

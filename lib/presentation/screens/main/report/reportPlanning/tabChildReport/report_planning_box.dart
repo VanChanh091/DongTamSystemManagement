@@ -383,7 +383,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                                   );
                                 },
                                 label: "Xuất Excel",
-                                icon: Symbols.export_notes,
+                                icon: Symbols.file_download,
                                 backgroundColor: themeController.buttonColor,
                               ),
                               const SizedBox(width: 8),

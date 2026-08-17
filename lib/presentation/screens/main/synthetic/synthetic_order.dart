@@ -443,7 +443,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                       );
                                     },
                                     label: "Xuất Excel",
-                                    icon: Symbols.export_notes,
+                                    icon: Symbols.file_download,
                                     backgroundColor: themeController.buttonColor,
                                   )
                                   : const SizedBox.shrink(),

@@ -18,14 +18,13 @@ class OrderModel {
   final double profit, price;
   final int quantityCustomer, quantityManufacture;
   final int numberChild;
-  final DateTime dayReceiveOrder;
   final bool isBox, chongTham;
 
   final String? flute, QC_box, canLan;
   final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
   final String? instructSpecial, rejectReason, orderIdCustomer, note;
   final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT, volume;
-  final DateTime? dateRequestShipping;
+  final DateTime? dateRequestShipping, dayReceiveOrder;
   final int? vat;
 
   //temp field
@@ -159,10 +158,13 @@ class OrderModel {
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
-      orderId: json["orderId"] ?? "OrderModel",
-      customerId: json["customerId"] ?? "CUSTOMER",
-      productId: json["productId"] ?? "PRODUCT",
-      dayReceiveOrder: DateTime.parse(json["dayReceiveOrder"]),
+      orderId: json["orderId"] ?? "",
+      customerId: json["customerId"] ?? "",
+      productId: json["productId"] ?? "",
+      dayReceiveOrder:
+          json["dayReceiveOrder"] != null && json["dayReceiveOrder"].toString().isNotEmpty
+              ? DateTime.tryParse(json["dayReceiveOrder"].toString())
+              : null,
       flute: json["flute"] ?? "",
       QC_box: json["QC_box"] ?? "",
       canLan: json["canLan"] ?? "",

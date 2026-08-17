@@ -71,6 +71,7 @@ class ValidationHelper {
     required TextEditingController controller,
     bool readOnly = false,
     bool checkId = false, // dùng cho validator
+    bool isRequired = true,
     VoidCallback? onTap,
     String? externalError,
     Function(String)? onChanged,
@@ -95,14 +96,14 @@ class ValidationHelper {
           "Địa chỉ công ty",
           "Địa chỉ giao hàng",
           "Hạn Mức Công Nợ",
-          "Thời Hạn Thanh Toán",
+          "Số Ngày Công Nợ",
           "Nguồn Khách Hàng",
           "Ngày Chốt Công Nợ",
           "CSKH",
           "SDT",
         ];
 
-        if (requiredFields.contains(label) && cleanValue.isEmpty) {
+        if (isRequired && requiredFields.contains(label) && cleanValue.isEmpty) {
           return 'Không được để trống';
         }
 

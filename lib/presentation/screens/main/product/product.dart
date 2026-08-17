@@ -289,7 +289,7 @@ class _ProductPageState extends State<ProductPage> {
                                     );
                                   },
                                   label: "Xuất Excel",
-                                  icon: Symbols.export_notes,
+                                  icon: Symbols.file_download,
                                   backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 8),

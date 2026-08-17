@@ -7,6 +7,7 @@ class AutoCompleteField<T> extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final IconData icon;
+  final Color? iconColor;
   final bool? readOnly;
   final bool? checkId;
   final Future<List<T>> Function(String pattern) suggestionsCallback;
@@ -14,7 +15,7 @@ class AutoCompleteField<T> extends StatefulWidget {
   final String Function(T item) displayStringForItem;
   final VoidCallback? onPlusTap;
   final void Function(T selectedItem) onSelected;
-  final void Function(String) onChanged;
+  final void Function(String)? onChanged;
 
   const AutoCompleteField({
     super.key,
@@ -24,11 +25,12 @@ class AutoCompleteField<T> extends StatefulWidget {
     required this.onSelected,
     required this.labelText,
     required this.icon,
+    this.iconColor,
     this.readOnly = false,
     this.checkId = false,
     required this.displayStringForItem,
     this.onPlusTap,
-    required this.onChanged,
+    this.onChanged,
   });
 
   @override
@@ -89,10 +91,11 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
           decoration: InputDecoration(
             labelText: widget.labelText,
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
-            prefixIcon: Icon(widget.icon),
+            prefixIcon: Icon(widget.icon, color: widget.iconColor ?? Colors.black),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             floatingLabelBehavior: FloatingLabelBehavior.always,
+
             fillColor:
                 widget.readOnly == true
                     ? Colors.grey.shade300
@@ -110,7 +113,7 @@ class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
           ),
           onChanged: (value) {
             widget.controller.text = value;
-            widget.onChanged(value);
+            widget.onChanged?.call(value);
           },
           validator: (value) {
             if (value == null || value.trim().isEmpty) {

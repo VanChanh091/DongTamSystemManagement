@@ -57,7 +57,7 @@ class SyntheticOrdersDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'orderIdCus', value: order.orderIdCustomer ?? ""),
       DataGridCell<String>(
         columnName: 'dayReceive',
-        value: formatter.format(order.dayReceiveOrder),
+        value: formatter.format(order.dayReceiveOrder!),
       ),
       DataGridCell<String>(
         columnName: 'dateShipping',

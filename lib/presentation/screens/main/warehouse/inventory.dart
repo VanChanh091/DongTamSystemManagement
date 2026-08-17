@@ -66,6 +66,9 @@ class _InventoryState extends State<Inventory> {
   List<OutboundTempItemModel>? initialItems;
   Map<String, double> columnWidths = {};
 
+  //cache grand totals price for smooth animated
+  double _lastTotalPrice = 0;
+
   //text controller
   final headerScrollController = ScrollController();
   final searchController = TextEditingController();
@@ -502,7 +505,7 @@ class _InventoryState extends State<Inventory> {
                                           const PopupMenuItem<String>(
                                             value: 'export',
                                             child: ListTile(
-                                              leading: Icon(Symbols.download),
+                                              leading: Icon(Symbols.file_download),
                                               title: Text('Xuất Excel'),
                                             ),
                                           ),
@@ -520,36 +523,41 @@ class _InventoryState extends State<Inventory> {
                     //total price
                     Padding(
                       padding: const EdgeInsets.only(right: 7),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text(
-                            "Tổng Giá Trị Tồn: ",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          FutureBuilder(
-                            future: futureInventory,
-                            builder: (context, snapshot) {
-                              final double totalValue =
-                                  snapshot.hasData
-                                      ? (double.tryParse(
-                                            snapshot.data!['totalValueInventory']?.toString() ??
-                                                '0',
-                                          ) ??
-                                          0.0)
-                                      : 0.0;
+                      child: FutureBuilder(
+                        future: futureInventory,
+                        builder: (context, snapshot) {
+                          final isLoading = snapshot.connectionState == ConnectionState.waiting;
 
-                              return Text(
-                                "${OrderModel.formatCurrency(totalValue)} VNĐ",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: Colors.green.shade500,
+                          if (snapshot.hasData) {
+                            final rawValue = snapshot.data?['totalValueInventory'];
+                            final double totalValue =
+                                double.tryParse(rawValue?.toString() ?? "") ?? 0.0;
+
+                            _lastTotalPrice = totalValue;
+                          }
+
+                          return AnimatedOpacity(
+                            duration: const Duration(milliseconds: 400),
+                            opacity: isLoading ? 0.4 : 1.0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  "Tổng Giá Trị Tồn: ",
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
-                              );
-                            },
-                          ),
-                        ],
+                                _buildAnimatedCounter(
+                                  targetValue: _lastTotalPrice,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.green.shade500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -927,6 +935,18 @@ class _InventoryState extends State<Inventory> {
             );
           },
         );
+      },
+    );
+  }
+
+  //helper animation
+  Widget _buildAnimatedCounter({required num targetValue, required TextStyle style}) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: targetValue.toDouble()),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Text(OrderModel.formatCurrency(value), style: style);
       },
     );
   }

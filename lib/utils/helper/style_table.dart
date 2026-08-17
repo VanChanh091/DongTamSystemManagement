@@ -39,12 +39,15 @@ Widget styleCell({required String label, double? width}) {
 Widget formatColumn({required String label, required ThemeController themeController}) {
   return Container(
     alignment: Alignment.center,
+    padding: const EdgeInsets.symmetric(horizontal: 3),
     decoration: BoxDecoration(
       color: themeController.currentColor.value,
       border: Border(right: BorderSide(color: Colors.grey.shade400, width: 1)),
     ),
     child: Text(
       label,
+      maxLines: 2,
+      textAlign: TextAlign.center,
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
     ),
@@ -56,6 +59,7 @@ Widget formatDataTable({
   required Alignment alignment,
   Color cellColor = Colors.transparent,
   TextStyle? textStyle,
+  Color? textColor,
   Widget? leading,
 }) {
   return Container(
@@ -72,7 +76,8 @@ Widget formatDataTable({
           child: Text(
             label,
             overflow: TextOverflow.ellipsis,
-            style: textStyle ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+            style:
+                textStyle ?? TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: textColor),
           ),
         ),
         const SizedBox(width: 5),

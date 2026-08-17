@@ -665,6 +665,7 @@ class _OrderDialogState extends State<OrderDialog> {
             }
           },
         ),
+
         "middleKey": "Tên Khách Hàng",
         "middleValue": ValidationHelper.orderInput(
           label: "Tên Khách Hàng",

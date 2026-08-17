@@ -7,6 +7,7 @@ import "package:dongtam/presentation/components/dialog/qc/dialog_inspection_chec
 import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart";
 import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
+import "package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/service/planning_service.dart";
@@ -342,14 +343,21 @@ class _PaperProductionState extends State<PaperProduction> {
   Widget _buildHeaderBar(bool permissionCheck) {
     return Column(
       children: [
-        //title
-        Text(
-          "LỊCH SẢN XUẤT GIẤY TẤM",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: themeController.currentColor.value,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "LỊCH SẢN XUẤT GIẤY TẤM",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: themeController.currentColor.value,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const MachinePaperColorLegendButton(),
+          ],
         ),
         const SizedBox(height: 8),
 

@@ -425,6 +425,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                     );
                   },
                 ),
+
                 const SizedBox(height: 10),
 
                 if (widget.isPaper) ...[

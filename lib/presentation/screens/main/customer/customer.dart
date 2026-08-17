@@ -12,6 +12,7 @@ import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
@@ -73,6 +74,7 @@ class _CustomerPageState extends State<CustomerPage> {
   @override
   void initState() {
     super.initState();
+
     isSale = userController.hasPermission(permission: "sale");
     loadCustomer();
 
@@ -355,7 +357,7 @@ class _CustomerPageState extends State<CustomerPage> {
                                         builder: (_) => DialogExportCusOrProd(),
                                       ),
                                   label: "Xuất Excel",
-                                  icon: Symbols.export_notes,
+                                  icon: Symbols.file_download,
                                   backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 8),
@@ -461,12 +463,34 @@ class _CustomerPageState extends State<CustomerPage> {
                       isScrollbarAlwaysShown: true,
                       columnWidthMode: ColumnWidthMode.auto,
                       selectionMode: SelectionMode.single,
-                      headerRowHeight: 42,
+                      headerRowHeight: 35,
                       rowHeight: 38,
                       columns: ColumnWidthTable.applySavedWidths(
                         columns: columns,
                         widths: columnWidths,
                       ),
+                      stackedHeaderRows: <StackedHeaderRow>[
+                        StackedHeaderRow(
+                          cells: [
+                            StackedHeaderCell(
+                              columnNames: [
+                                "debtLimit",
+                                "debtCurrent",
+                                "paymentTermDays",
+                                "paymentType",
+                                "closingDays",
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: "Công Nợ",
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+
                       allowColumnsResizing: true,
                       columnResizeMode: ColumnResizeMode.onResize,
                       onColumnResizeStart: GridResizeHelper.onResizeStart,

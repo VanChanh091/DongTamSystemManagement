@@ -1,10 +1,12 @@
 class UserUserModel {
+  final int userId;
   final String? fullName, email, password, role;
   final String? sex, phone;
   final String department;
   final List<String> permissions;
 
   UserUserModel({
+    required this.userId,
     required this.fullName,
     required this.email,
     required this.password,
@@ -18,6 +20,7 @@ class UserUserModel {
   //change JSON from api to object User
   factory UserUserModel.fromJson(Map<String, dynamic> json) {
     return UserUserModel(
+      userId: json["userId"] ?? 0,
       fullName: json["fullName"] ?? "",
       email: json["email"] ?? "",
       password: json["password"] ?? "",

@@ -1,59 +1,60 @@
-import "package:dongtam/data/controller/badges_controller.dart";
-import "package:dongtam/data/controller/notification_controller.dart";
-import "package:dongtam/data/controller/sidebar_controller.dart";
-import "package:dongtam/data/controller/theme_controller.dart";
-import "package:dongtam/data/controller/unsaved_change_controller.dart";
-import "package:dongtam/data/controller/user_controller.dart";
-import "package:dongtam/presentation/screens/auth/login.dart";
-import "package:dongtam/presentation/screens/main/QC/inspectionCheck/top_tab_inspection_check.dart";
-import "package:dongtam/presentation/screens/main/admin/admin_criteria.dart";
-import "package:dongtam/presentation/screens/main/admin/admin_order.dart";
-import "package:dongtam/presentation/screens/main/admin/admin_mange_user.dart";
-import "package:dongtam/presentation/screens/main/admin/admin_vehicle.dart";
-import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart";
-import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_criteria_check.dart";
-import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart";
-import "package:dongtam/presentation/screens/main/customer/customer.dart";
-import "package:dongtam/presentation/screens/main/dashboard/dashboard.dart";
-import "package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart";
-import "package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart";
-import "package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart";
-import "package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart";
-import "package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart";
-import "package:dongtam/presentation/screens/main/delivery/delivery_prepare_goods.dart";
-import "package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart";
-import "package:dongtam/presentation/screens/main/delivery/delivery_planning.dart";
-import "package:dongtam/presentation/screens/main/employee/employee.dart";
-import "package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart";
-import "package:dongtam/presentation/screens/main/manufacture/paper_production.dart";
-import "package:dongtam/presentation/screens/main/order/top_tab_order.dart";
-import "package:dongtam/presentation/screens/main/planning/planning_stop.dart";
-import "package:dongtam/presentation/screens/main/planning/production_queue/production_queue_box.dart";
-import "package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart";
-import "package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart";
-import "package:dongtam/presentation/screens/main/product/product.dart";
-import "package:dongtam/presentation/screens/main/report/reportWarehouse/report_inbound_history.dart";
-import "package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart";
-import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_box.dart";
-import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart";
-import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart";
-import "package:dongtam/presentation/screens/main/warehouse/inventory.dart";
-import "package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart";
-import "package:dongtam/presentation/screens/main/warehouse/outbound_history.dart";
+import "package:get/get.dart";
+import "package:flutter/material.dart";
+import "package:google_fonts/google_fonts.dart";
 import "package:dongtam/service/auth_service.dart";
 import "package:dongtam/socket/socket_service.dart";
-import "package:dongtam/utils/color/theme_picker_color.dart";
-import "package:dongtam/utils/helper/custom_title_bar.dart";
-import "package:dongtam/utils/helper/home/leaf_menu_config.dart";
-import "package:dongtam/utils/helper/home/sidebar_config.dart";
-import "package:dongtam/utils/helper/home/sidebar_three_level.dart";
-import "package:dongtam/utils/logger/app_logger.dart";
-import "package:dongtam/utils/handleError/show_snack_bar.dart";
-import "package:dongtam/utils/storage/secure_storage_service.dart";
-import "package:flutter/material.dart";
-import "package:get/get.dart";
-import "package:google_fonts/google_fonts.dart";
 import "package:page_transition/page_transition.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/helper/custom_title_bar.dart";
+import "package:dongtam/utils/color/theme_picker_color.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/presentation/screens/auth/login.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/home/sidebar_config.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/utils/helper/home/leaf_menu_config.dart";
+import "package:dongtam/data/controller/sidebar_controller.dart";
+import "package:dongtam/utils/storage/secure_storage_service.dart";
+import "package:dongtam/utils/helper/home/sidebar_three_level.dart";
+import "package:dongtam/data/controller/notification_controller.dart";
+import "package:dongtam/data/controller/unsaved_change_controller.dart";
+import "package:dongtam/presentation/screens/main/product/product.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_order.dart";
+import "package:dongtam/presentation/screens/main/employee/employee.dart";
+import "package:dongtam/presentation/screens/main/customer/customer.dart";
+import "package:dongtam/presentation/screens/main/dashboard/dashboard.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_vehicle.dart";
+import "package:dongtam/presentation/screens/main/warehouse/inventory.dart";
+import "package:dongtam/presentation/screens/main/order/top_tab_order.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_criteria.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_mange_user.dart";
+import "package:dongtam/presentation/screens/main/planning/planning_stop.dart";
+import "package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart";
+import "package:dongtam/presentation/screens/main/warehouse/outbound_history.dart";
+import "package:dongtam/presentation/screens/main/debt/debt_customer_summary.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_planning.dart";
+import "package:dongtam/presentation/screens/main/manufacture/paper_production.dart";
+import "package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart";
+import "package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart";
+import "package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart";
+import "package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_prepare_goods.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart";
+import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_box.dart";
+import "package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart";
+import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_criteria_check.dart";
+import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart";
+import "package:dongtam/presentation/screens/main/QC/inspectionCheck/top_tab_inspection_check.dart";
+import "package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart";
+import "package:dongtam/presentation/screens/main/report/reportWarehouse/report_inbound_history.dart";
+import "package:dongtam/presentation/screens/main/planning/production_queue/production_queue_box.dart";
+import "package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart";
+import "package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart";
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -127,6 +128,9 @@ class _HomePageState extends State<HomePage> {
       _buildPage(permissions: ["delivery", "accountant", "sale"], child: OutboundHistory()),
       Inventory(),
       LiquidationInventory(),
+
+      //debt closing & payment
+      _buildPage(permissions: ["accountant", "sale"], child: DebtCustomerSummary()),
 
       //delivery
       _buildPage(permissions: ["plan", "sale"], child: DeliveryEstimateTime()),

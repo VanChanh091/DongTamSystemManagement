@@ -139,7 +139,7 @@ class _ScrapReportPaperState extends State<ScrapReportPaper> {
                                 }
                               } catch (e, s) {
                                 AppLogger.e(
-                                  "Lỗi không tìm thấy phiếu xuất kho",
+                                  "Lỗi khi mở dialog sửa báo cáo phế liệu",
                                   error: e,
                                   stackTrace: s,
                                 );
@@ -152,7 +152,7 @@ class _ScrapReportPaperState extends State<ScrapReportPaper> {
                   ),
                   const SizedBox(width: 8),
 
-                  //delete customers
+                  //delete
                   AnimatedButton(
                     onPressed:
                         selectedScrapIds.isNotEmpty
