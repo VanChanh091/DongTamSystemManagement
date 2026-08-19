@@ -273,6 +273,9 @@ class _OrderDialogState extends State<OrderDialog> {
         case "Thùng/hộp":
           typeDVT = "Cái";
           break;
+        case "Giấy Quấn Cuồn":
+          typeDVT = "Kg";
+          break;
         default:
           typeDVT = "M2";
           break;

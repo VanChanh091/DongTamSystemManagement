@@ -115,10 +115,14 @@ class _CustomerDialogState extends State<CustomerDialog> {
     _contactPersonController.text = customer.contactPerson ?? "";
     _customerSourceController.text = customer.customerSource;
     cskhSelected = customer.cskh;
+    selectedUserId = customer.userId;
 
     //=====================PAYMENT=======================
     _debtLimitController.text = payment?.debtLimit?.toString() ?? "0";
-    _closingDaysController.text = payment?.closingDays?.join(", ") ?? "0";
+    _closingDaysController.text =
+        (payment?.closingDays != null && payment!.closingDays!.isNotEmpty)
+            ? payment.closingDays!.join(", ")
+            : "";
     _paymentTermDaysController.text = payment?.paymentTermDays.toString() ?? "0";
 
     //dropdown
@@ -233,7 +237,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
                 .firstWhere((e) => e.value == closingDay, orElse: () => const MapEntry(1, 'Thứ 2'))
                 .key;
         closingDays = [selectedInt];
-      } else if (paymentTypeConvert == 'monthly') {
+      } else if (paymentTypeConvert == 'monthly' || paymentTypeConvert == 'custom_days') {
         closingDays =
             _closingDaysController.trimmed
                 .split(",")
@@ -244,10 +248,17 @@ class _CustomerDialogState extends State<CustomerDialog> {
         closingDays = [];
       }
 
+      if (selectedUserId == null || selectedUserId == 0) {
+        if (!mounted) return;
+        showSnackBarError(context, "Vui lòng chọn nhân viên CSKH hợp lệ");
+        Navigator.pop(context);
+        return;
+      }
+
       // Chuẩn hóa dữ liệu đầu vào
       final payment = CustomerPaymentModel(
-        cusPaymentId: 0,
-        customerId: "",
+        cusPaymentId: widget.customer?.payment?.cusPaymentId ?? 0,
+        customerId: widget.customer?.customerId ?? "",
         debtLimit: double.tryParse(_debtLimitController.trimmed) ?? 0,
         paymentType: paymentTypeConvert,
         closingDays: closingDays,
@@ -462,6 +473,12 @@ class _CustomerDialogState extends State<CustomerDialog> {
                     if (cskhSelected == null || !users.any((u) => u.fullName == cskhSelected)) {
                       cskhSelected = users.first.fullName;
                       selectedUserId = users.first.userId;
+                    } else {
+                      final matchedUser = users.firstWhere(
+                        (u) => u.fullName == cskhSelected,
+                        orElse: () => users.first,
+                      );
+                      selectedUserId = matchedUser.userId;
                     }
 
                     final items = users.map((u) => u.fullName).whereType<String>().toList();
@@ -540,12 +557,6 @@ class _CustomerDialogState extends State<CustomerDialog> {
             icon: Icons.calendar_today,
             isRequired: !isDaily,
             readOnly: isDaily,
-            onChanged: (newType) {
-              paymentType = newType;
-              if (paymentType == "Theo Ngày" || newType == "daily") {
-                _closingDaysController.clear();
-              }
-            },
           );
         }(),
       },
@@ -557,6 +568,9 @@ class _CustomerDialogState extends State<CustomerDialog> {
           onChanged: (value) {
             setState(() {
               paymentType = value!;
+              if (paymentType == "Theo ngày" || paymentType == "daily") {
+                _closingDaysController.clear();
+              }
             });
           },
         ),

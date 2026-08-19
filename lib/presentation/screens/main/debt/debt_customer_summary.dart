@@ -73,6 +73,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
   //flag
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   late bool isManager;
+  late bool isAccountant;
 
   //paging
   int currentPage = 1;
@@ -84,6 +85,8 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
     super.initState();
 
     isManager = userController.hasAnyRole(roles: ["admin", "manager"]);
+    isAccountant = userController.hasPermission(permission: "accountant");
+
     _loadSalesUsers();
     loadOutbound();
 
@@ -295,44 +298,46 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   //closing debt
-                                  AnimatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder:
-                                            (context) => DialogClosingDebt(
-                                              customerId: _selectedDebtNotifier.value,
-                                              onClosingSuccess: () {
-                                                loadOutbound();
-                                              },
-                                            ),
-                                      );
-                                    },
-                                    label: "Chốt Công Nợ",
-                                    icon: Symbols.attach_money,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 8),
+                                  if (isAccountant) ...[
+                                    AnimatedButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (context) => DialogClosingDebt(
+                                                customerId: _selectedDebtNotifier.value,
+                                                onClosingSuccess: () {
+                                                  loadOutbound();
+                                                },
+                                              ),
+                                        );
+                                      },
+                                      label: "Chốt Công Nợ",
+                                      icon: Symbols.attach_money,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 8),
 
-                                  //payment
-                                  AnimatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder:
-                                            (context) => DialogPaymentDebt(
-                                              customerId: _selectedDebtNotifier.value,
-                                              onPaymentSuccess: () {
-                                                loadOutbound();
-                                              },
-                                            ),
-                                      );
-                                    },
-                                    label: "Thanh Toán",
-                                    icon: Symbols.payment,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 8),
+                                    //payment
+                                    AnimatedButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (context) => DialogPaymentDebt(
+                                                customerId: _selectedDebtNotifier.value,
+                                                onPaymentSuccess: () {
+                                                  loadOutbound();
+                                                },
+                                              ),
+                                        );
+                                      },
+                                      label: "Thanh Toán",
+                                      icon: Symbols.payment,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
 
                                   if (isManager) ...[
                                     buildDropdownItems(
@@ -392,15 +397,15 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 const Text(
-                                  "Tổng nợ: ",
+                                  "Nợ trong hạn: ",
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 _buildAnimatedCounter(
-                                  targetValue: _lastTotalDebt,
+                                  targetValue: _lastNotDueDebt,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 17,
-                                    color: Colors.blue.shade800,
+                                    color: Colors.green.shade600,
                                   ),
                                 ),
 
@@ -426,15 +431,15 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 const Text(
-                                  "Nợ trong hạn: ",
+                                  "Tổng nợ: ",
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 _buildAnimatedCounter(
-                                  targetValue: _lastNotDueDebt,
+                                  targetValue: _lastTotalDebt,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 17,
-                                    color: Colors.green.shade600,
+                                    color: Colors.blue.shade800,
                                   ),
                                 ),
                               ],
