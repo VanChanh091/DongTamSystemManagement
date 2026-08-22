@@ -7,6 +7,7 @@ import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/components/shared/resizable_dialog.dart';
 import 'package:dongtam/service/admin_service.dart';
 import 'package:dongtam/service/quality_control_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -49,13 +50,14 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   Map<String, dynamic>? savedErrorData;
   bool _isDataFilled = false;
 
-  final numberPalletController = TextEditingController();
-  final machineSpeedController = TextEditingController();
-  final moistureController = TextEditingController();
-  final steamPressureController = TextEditingController();
-  final preheaterTempController = TextEditingController();
-  final fctValueController = TextEditingController();
-  final patValueController = TextEditingController();
+  final _numberPalletController = TextEditingController();
+  final _machineSpeedController = TextEditingController();
+  final _moistureController = TextEditingController();
+  final _steamPressureController = TextEditingController();
+  final _preheaterTempController = TextEditingController();
+  final _fctValueController = TextEditingController();
+  final _patValueController = TextEditingController();
+  final _noteController = TextEditingController();
 
   @override
   void initState() {
@@ -149,13 +151,13 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       Map<String, num> checkingData = {};
       if (widget.isPaper) {
         checkingData = {
-          "numberPallet": int.tryParse(numberPalletController.text) ?? 0,
-          "machineSpeed": double.tryParse(machineSpeedController.text) ?? 0.0,
-          "moisture": double.tryParse(moistureController.text) ?? 0.0,
-          "steamPressure": double.tryParse(steamPressureController.text) ?? 0.0,
-          "preheaterTemp": double.tryParse(preheaterTempController.text) ?? 0.0,
-          "fctValue": double.tryParse(fctValueController.text) ?? 0.0,
-          "patValue": double.tryParse(patValueController.text) ?? 0.0,
+          "numberPallet": int.tryParse(_numberPalletController.text) ?? 0,
+          "machineSpeed": double.tryParse(_machineSpeedController.text) ?? 0.0,
+          "moisture": double.tryParse(_moistureController.text) ?? 0.0,
+          "steamPressure": double.tryParse(_steamPressureController.text) ?? 0.0,
+          "preheaterTemp": double.tryParse(_preheaterTempController.text) ?? 0.0,
+          "fctValue": double.tryParse(_fctValueController.text) ?? 0.0,
+          "patValue": double.tryParse(_patValueController.text) ?? 0.0,
         };
       }
 
@@ -166,6 +168,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
         checking: widget.isPaper ? checkingData : null,
         planningId: widget.isPaper ? widget.planningId : null,
         planningBoxId: !widget.isPaper ? widget.planningBoxId : null,
+        note: _noteController.superClean,
       );
 
       if (success) {
@@ -189,13 +192,14 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   @override
   void dispose() {
     super.dispose();
-    numberPalletController.dispose();
-    machineSpeedController.dispose();
-    moistureController.dispose();
-    steamPressureController.dispose();
-    preheaterTempController.dispose();
-    fctValueController.dispose();
-    patValueController.dispose();
+    _numberPalletController.dispose();
+    _machineSpeedController.dispose();
+    _moistureController.dispose();
+    _steamPressureController.dispose();
+    _preheaterTempController.dispose();
+    _fctValueController.dispose();
+    _patValueController.dispose();
+    _noteController.dispose();
   }
 
   // ===== CONTENT =====
@@ -510,59 +514,71 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> inspectionRows = [
-      {
-        "leftKey": "Số Pallet",
-        "leftValue": ValidationHelper.qcInspectionInput(
-          label: "Số Pallet",
-          controller: numberPalletController,
-          icon: Symbols.package,
-        ),
-        "middleKey": "Tốc Độ Máy",
-        "middleValue": ValidationHelper.qcInspectionInput(
-          label: "Tốc Độ Máy",
-          controller: machineSpeedController,
-          icon: Symbols.speed,
-        ),
-        "rightKey": "Áp Suất Hơi",
-        "rightValue": ValidationHelper.qcInspectionInput(
-          label: "Áp Suất Hơi",
-          controller: steamPressureController,
-          icon: Symbols.thermostat,
-        ),
-      },
+      if (widget.isPaper) ...[
+        {
+          "leftKey": "Số Pallet",
+          "leftValue": ValidationHelper.qcInspectionInput(
+            label: "Số Pallet",
+            controller: _numberPalletController,
+            icon: Symbols.package,
+          ),
+          "middleKey": "Tốc Độ Máy",
+          "middleValue": ValidationHelper.qcInspectionInput(
+            label: "Tốc Độ Máy",
+            controller: _machineSpeedController,
+            icon: Symbols.speed,
+          ),
+          "rightKey": "Áp Suất Hơi",
+          "rightValue": ValidationHelper.qcInspectionInput(
+            label: "Áp Suất Hơi",
+            controller: _steamPressureController,
+            icon: Symbols.thermostat,
+          ),
+        },
+
+        {
+          "leftKey": "Độ Ẩm",
+          "leftValue": ValidationHelper.qcInspectionInput(
+            label: "Độ Ẩm",
+            controller: _moistureController,
+            icon: Symbols.water_drop,
+          ),
+          "middleKey": "Nhiệt Độ",
+          "middleValue": ValidationHelper.qcInspectionInput(
+            label: "Nhiệt Độ Đầu Sóng",
+            controller: _preheaterTempController,
+            icon: Symbols.thermostat_auto,
+          ),
+          "rightKey": "",
+          "rightValue": const SizedBox.shrink(),
+        },
+
+        {
+          "leftKey": "FCT Nén Ngang",
+          "leftValue": ValidationHelper.qcInspectionInput(
+            label: "FCT Nén Ngang",
+            controller: _fctValueController,
+            icon: Symbols.speed,
+          ),
+          "middleKey": "PAT Bám Keo",
+          "middleValue": ValidationHelper.qcInspectionInput(
+            label: "PAT Bám Keo",
+            controller: _patValueController,
+            icon: Symbols.speed,
+          ),
+          "rightKey": "",
+          "rightValue": const SizedBox.shrink(),
+        },
+      ],
 
       {
-        "leftKey": "Độ Ẩm",
+        "leftKey": "Ghi Chú",
         "leftValue": ValidationHelper.qcInspectionInput(
-          label: "Độ Ẩm",
-          controller: moistureController,
-          icon: Symbols.water_drop,
+          label: "Ghi Chú",
+          controller: _noteController,
+          icon: Symbols.note,
+          isNumeric: false,
         ),
-        "middleKey": "Nhiệt Độ",
-        "middleValue": ValidationHelper.qcInspectionInput(
-          label: "Nhiệt Độ Đầu Sóng",
-          controller: preheaterTempController,
-          icon: Symbols.thermostat_auto,
-        ),
-        "rightKey": "",
-        "rightValue": const SizedBox.shrink(),
-      },
-
-      {
-        "leftKey": "FCT Nén Ngang",
-        "leftValue": ValidationHelper.qcInspectionInput(
-          label: "FCT Nén Ngang",
-          controller: fctValueController,
-          icon: Symbols.speed,
-        ),
-        "middleKey": "PAT Bám Keo",
-        "middleValue": ValidationHelper.qcInspectionInput(
-          label: "PAT Bám Keo",
-          controller: patValueController,
-          icon: Symbols.speed,
-        ),
-        "rightKey": "",
-        "rightValue": const SizedBox.shrink(),
       },
     ];
 
@@ -617,17 +633,16 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                 buildQcContent(),
 
                 //input user
-                widget.isPaper && widget.isQC
-                    ? buildingCard(
-                      title: "📃 Thông Tin Kiểm Tra",
-                      children: formatKeyValueRows(
-                        rows: inspectionRows,
-                        labelWidth: 120,
-                        columnCount: 4,
-                        centerAlign: true,
-                      ),
-                    )
-                    : const SizedBox.shrink(),
+                if (widget.isQC)
+                  buildingCard(
+                    title: "📃 Thông Tin Kiểm Tra",
+                    children: formatKeyValueRows(
+                      rows: inspectionRows,
+                      labelWidth: 120,
+                      columnCount: 4,
+                      centerAlign: true,
+                    ),
+                  ),
               ],
             ),
           ),

@@ -17,6 +17,8 @@ class QcInspectionPaperModel {
   final Map<String, bool> checkList;
   final String checkedBy;
 
+  final String? note;
+
   //FK
   final int planningId;
   final PlanningPaperModel? paper;
@@ -33,6 +35,7 @@ class QcInspectionPaperModel {
     required this.patValue,
     required this.checkList,
     required this.checkedBy,
+    this.note,
 
     //FK
     required this.planningId,
@@ -53,6 +56,7 @@ class QcInspectionPaperModel {
       patValue: toDouble(json["patValue"]),
       checkList: Map<String, bool>.from(json["checkList"] ?? {}),
       checkedBy: json["checkedBy"] ?? "",
+      note: json["note"] ?? "",
 
       //FK
       planningId: json["planningId"],

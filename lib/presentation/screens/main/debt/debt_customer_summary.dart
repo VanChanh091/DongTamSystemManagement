@@ -1,27 +1,31 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/payment/customer_debt_summary_model.dart';
-import 'package:dongtam/presentation/components/dialog/debt/dialog_closing_debt.dart';
-import 'package:dongtam/presentation/components/dialog/debt/dialog_payment_debt.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_debt.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/debt_customer_data_source.dart';
-import 'package:dongtam/service/customer_service.dart';
-import 'package:dongtam/service/debt_service.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "dart:io";
+
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/warehouse/payment/customer_debt_summary_model.dart";
+import "package:dongtam/presentation/components/dialog/debt/dialog_closing_debt.dart";
+import "package:dongtam/presentation/components/dialog/debt/dialog_payment_debt.dart";
+import "package:dongtam/presentation/components/headerTable/header_table_debt.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/debt_customer_data_source.dart";
+import "package:dongtam/service/customer_service.dart";
+import "package:dongtam/service/debt_service.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/symbols.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class DebtCustomerSummary extends StatefulWidget {
   const DebtCustomerSummary({super.key});
@@ -91,7 +95,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
     loadOutbound();
 
     columnsDebt = buildDebtColumn(themeController: themeController);
-    ColumnWidthTable.loadWidths(tableKey: 'debtCustomer', columns: columnsDebt).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "debtCustomer", columns: columnsDebt).then((w) {
       setState(() {
         columnWidthsDebt = w;
       });
@@ -100,7 +104,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
 
   String _getShortName(String fullName) {
     // Tách chuỗi theo khoảng trắng
-    final parts = fullName.trim().split(RegExp(r'\s+'));
+    final parts = fullName.trim().split(RegExp(r"\s+"));
 
     // Nếu tên chỉ có 1 hoặc 2 từ thì giữ nguyên
     if (parts.length <= 2) {
@@ -108,7 +112,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
     }
 
     // Lấy 2 từ cuối cùng và ghép lại
-    return parts.sublist(parts.length - 2).join(' ');
+    return parts.sublist(parts.length - 2).join(" ");
   }
 
   Future<void> _loadSalesUsers() async {
@@ -297,6 +301,40 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
+                                  AnimatedButton(
+                                    onPressed: () async {
+                                      final bool success = await showConfirmDialog(
+                                        context: context,
+                                        title: "Xuất file công nợ khách hàng",
+                                        content:
+                                            "Bạn có chắc chắn muốn xuất file công nợ khách hàng không?",
+                                        confirmText: "Xác Nhận",
+                                      );
+
+                                      if (success) {
+                                        final File? file = await DebtService().exportDebtCustomer();
+
+                                        if (context.mounted) {
+                                          if (file != null) {
+                                            showSnackBarSuccess(
+                                              context,
+                                              "Xuất file công nợ khách hàng thành công",
+                                            );
+                                          } else {
+                                            showSnackBarError(
+                                              context,
+                                              "Xuất file công nợ khách hàng thất bại",
+                                            );
+                                          }
+                                        }
+                                      }
+                                    },
+                                    label: "Xuất Excel",
+                                    icon: Symbols.file_download,
+                                    backgroundColor: themeController.buttonColor,
+                                  ),
+                                  const SizedBox(width: 8),
+
                                   //closing debt
                                   if (isAccountant) ...[
                                     AnimatedButton(
@@ -379,14 +417,14 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
 
                           if (snapshot.hasData) {
                             final grandTotalRaw =
-                                snapshot.data?['grandTotal'] as Map<String, dynamic>?;
+                                snapshot.data?["grandTotal"] as Map<String, dynamic>?;
                             final grandTotal =
                                 grandTotalRaw != null
                                     ? CustomerDebtItemModel.fromJson(grandTotalRaw)
                                     : null;
 
                             _lastTotalDebt = grandTotal?.totalDebt ?? 0;
-                            _lastDueDebt = grandTotal?.dueDebt ?? 0;
+                            _lastDueDebt = grandTotal?.overdueDebt ?? 0;
                             _lastNotDueDebt = grandTotal?.notDueDebt ?? 0;
                           }
 
@@ -472,7 +510,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['debts'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["debts"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -485,12 +523,12 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
         }
 
         final data = snapshot.data!;
-        final debts = data['debts'] as List<CustomerDebtItemModel>;
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final debts = data["debts"] as List<CustomerDebtItemModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
-        // totalPriceByDate = data['totalPriceByDate'] as Map<String, dynamic>;
-        // grandTotal = data['grandTotal'] as Map<String, dynamic>;
+        // totalPriceByDate = data["totalPriceByDate"] as Map<String, dynamic>;
+        // grandTotal = data["grandTotal"] as Map<String, dynamic>;
 
         if (_cachedDataSourceList != debts || _cachedDatasource != null) {
           _cachedDataSourceList = debts;
@@ -529,30 +567,30 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                 cells: [
                                   StackedHeaderCell(
                                     columnNames: [
-                                      "totalDebt",
-                                      "closedDebt",
-                                      "currentPeriodDebt",
-                                      "dueDebt",
                                       "notDueDebt",
+                                      "currentPeriodDebt",
+                                      "closedDebt",
+                                      "dueIn1_3",
                                     ],
                                     child: Obx(
                                       () => formatColumn(
-                                        label: 'Chi Tiết Công Nợ',
+                                        label: "Nợ Trong Hạn (VNĐ)",
                                         themeController: themeController,
                                       ),
                                     ),
                                   ),
                                   StackedHeaderCell(
                                     columnNames: [
-                                      "inTerm",
                                       "overdue1_30",
                                       "overdue31_60",
                                       "overdue61_90",
-                                      "overdueOver90",
+                                      "overdue91_120",
+                                      "overdueOver120",
+                                      "overdueDebt",
                                     ],
                                     child: Obx(
                                       () => formatColumn(
-                                        label: 'Tuổi Nợ',
+                                        label: "Nợ Quá Hạn (VNĐ)",
                                         themeController: themeController,
                                       ),
                                     ),
@@ -575,7 +613,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                             onColumnResizeEnd:
                                 (details) => GridResizeHelper.onResizeEnd(
                                   details: details,
-                                  tableKey: 'debtCustomer',
+                                  tableKey: "debtCustomer",
                                   columnWidths: columnWidthsDebt,
                                   setState: setState,
                                 ),
@@ -584,7 +622,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                               if (addedRows.isNotEmpty) {
                                 final selectedRow = addedRows.first;
                                 final custIdCell = selectedRow.getCells().firstWhere(
-                                  (cell) => cell.columnName == 'customerId',
+                                  (cell) => cell.columnName == "customerId",
                                 );
                                 _selectedDebtNotifier.value = custIdCell.value?.toString();
                               } else {

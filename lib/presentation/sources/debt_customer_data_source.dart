@@ -40,20 +40,21 @@ class DebtCustomerDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "customerId", value: item.customerId),
       DataGridCell<String>(columnName: "customerName", value: item.customerName),
       DataGridCell<int>(columnName: "unpaidOutboundCount", value: item.unpaidOutboundCount),
-      DataGridCell<double>(columnName: "dueIn1_3", value: item.aging.dueIn1_3),
+      DataGridCell<double>(columnName: "totalDebt", value: item.totalDebt),
 
       // Số tiền công nợ
-      DataGridCell<double>(columnName: "totalDebt", value: item.totalDebt),
-      DataGridCell<double>(columnName: "closedDebt", value: item.closedDebt),
-      DataGridCell<double>(columnName: "currentPeriodDebt", value: item.currentPeriodDebt),
       DataGridCell<double>(columnName: "notDueDebt", value: item.notDueDebt),
-      DataGridCell<double>(columnName: "dueDebt", value: item.dueDebt),
+      DataGridCell<double>(columnName: "currentPeriodDebt", value: item.currentPeriodDebt),
+      DataGridCell<double>(columnName: "closedDebt", value: item.closedDebt),
+      DataGridCell<double>(columnName: "dueIn1_3", value: item.aging.dueIn1_3),
 
       // Tuổi nợ (Aging)
       DataGridCell<double>(columnName: "overdue1_30", value: item.aging.overdue1_30),
       DataGridCell<double>(columnName: "overdue31_60", value: item.aging.overdue31_60),
       DataGridCell<double>(columnName: "overdue61_90", value: item.aging.overdue61_90),
-      DataGridCell<double>(columnName: "overdueOver90", value: item.aging.overdueOver90),
+      DataGridCell<double>(columnName: "overdue91_120", value: item.aging.overdue91_120),
+      DataGridCell<double>(columnName: "overdueOver120", value: item.aging.overdueOver120),
+      DataGridCell<double>(columnName: "dueDebt", value: item.overdueDebt),
     ];
   }
 

@@ -60,6 +60,7 @@ class InspectionPaperDataSource extends DataGridSource {
 
       //checklist
       ...buildChecklistCells(inspecPaper),
+      DataGridCell<String>(columnName: "note", value: inspecPaper.note),
       DataGridCell<String>(columnName: "checkedBy", value: inspecPaper.checkedBy),
 
       //hidden fields

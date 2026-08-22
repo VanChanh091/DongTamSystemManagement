@@ -141,7 +141,7 @@ class PlanningPaperModel {
 
   factory PlanningPaperModel.fromJson(Map<String, dynamic> json) {
     return PlanningPaperModel(
-      planningId: json["planningId"],
+      planningId: json["planningId"] ?? 0,
 
       dayStart:
           json["dayStart"] != null && json["dayStart"] != ""

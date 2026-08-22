@@ -13,6 +13,7 @@ import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/debt/debt_customer_summary.dart';
 import 'package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart';
+import 'package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart';
 import 'package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart';
@@ -200,6 +201,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           pageType: PlanningStop,
           showBadge: true,
           badge: badges.numberPlanningStop,
+        ),
+        LeafMenuConfig(
+          icon: Icons.queue,
+          label: "Định Mức Giấy Sản Xuất",
+          pageType: PaperRequirements,
         ),
         LeafMenuConfig(icon: Icons.list_alt, label: "Tổng Hợp Đơn Hàng", pageType: SyntheticOrder),
       ],

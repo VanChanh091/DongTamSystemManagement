@@ -8,20 +8,21 @@ const List<Map<String, dynamic>> _headerDebt = [
   {"key": "customerId", "title": "Mã Khách Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "unpaidOutboundCount", "title": "Số Đơn Chưa TT"},
-  {"key": "dueIn1_3", "title": "Sắp Tới Hạn (≤ 3 Ngày)"},
+  {"key": "totalDebt", "title": "Tổng Nợ (VNĐ)"},
 
-  // Tóm tắt công nợ
-  {"key": "totalDebt", "title": "Tổng Nợ"},
-  {"key": "closedDebt", "title": "Đã Chốt"},
-  {"key": "currentPeriodDebt", "title": "Chưa Chốt"},
-  {"key": "notDueDebt", "title": "Trong Hạn"},
-  {"key": "dueDebt", "title": "Đến Hạn"},
+  // Nợ trong hạn
+  {"key": "notDueDebt", "title": "Nợ Trong Hạn"},
+  {"key": "currentPeriodDebt", "title": "Nợ Chưa Chốt"},
+  {"key": "closedDebt", "title": "Nợ Đã Chốt"},
+  {"key": "dueIn1_3", "title": "Sắp Tới Hạn"},
 
-  // Chi tiết tuổi nợ (Aging)
+  // Nợ quá hạn
   {"key": "overdue1_30", "title": "1-30 Ngày"},
   {"key": "overdue31_60", "title": "31-60 Ngày"},
   {"key": "overdue61_90", "title": "61-90 Ngày"},
-  {"key": "overdueOver90", "title": "Hơn 90 Ngày"},
+  {"key": "overdue91_120", "title": "91-120 Ngày"},
+  {"key": "overdueOver120", "title": "Hơn 120 Ngày"},
+  {"key": "dueDebt", "title": "Tổng Quá Hạn"},
 ];
 
 List<GridColumn> buildDebtColumn({required ThemeController themeController}) {

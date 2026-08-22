@@ -129,12 +129,13 @@ class QualityControlService {
   }
 
   Future<bool> checkingInspection({
-    int? planningId,
-    int? planningBoxId,
     required String isPaper,
     required String machine,
-    Map<String, num>? checking,
     required Map<String, bool> errProgress,
+    Map<String, num>? checking,
+    int? planningId,
+    int? planningBoxId,
+    String? note,
   }) async {
     return HelperService().addItem(
       endpoint: "qc/inspection",
@@ -145,6 +146,7 @@ class QualityControlService {
         if (checking != null) "checking": checking,
         if (planningBoxId != null) "planningBoxId": planningBoxId,
         if (planningId != null) "planningId": planningId,
+        if (note != null) "note": note,
       },
     );
   }

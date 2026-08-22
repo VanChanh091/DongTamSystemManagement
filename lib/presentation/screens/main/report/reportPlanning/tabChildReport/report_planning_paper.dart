@@ -132,7 +132,6 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   }
 
   void changeMachine(String selectedMachine) {
-    AppLogger.i("changeMachine | from=$machine -> to=$selectedMachine");
     setState(() {
       machine = selectedMachine;
       _selectedReportIdNotifier.value = null;

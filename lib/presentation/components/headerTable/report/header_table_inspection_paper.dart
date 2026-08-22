@@ -45,6 +45,7 @@ final List<Map<String, dynamic>> _inspectionPaperColumns = [
   {"key": "totalWidthErr", "title": "Tổng Sai Khổ"},
   {"key": "wrongProductInfo", "title": "TTSP"},
 
+  {"key": "note", "title": "Ghi Chú"},
   {"key": "checkedBy", "title": "Người Kiểm"},
 
   //hidden fields

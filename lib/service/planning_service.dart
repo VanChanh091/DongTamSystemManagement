@@ -1,16 +1,18 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:dio/dio.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/service/report_service.dart';
-import 'package:dongtam/utils/handleError/dio_client.dart';
-import 'package:dongtam/utils/helper/helper_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import "package:dio/dio.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/data/models/planning/requirements/paper_requirement_layers.dart";
+import "package:dongtam/data/models/planning/requirements/paper_requirement_model.dart";
+import "package:dongtam/service/report_service.dart";
+import "package:dongtam/utils/handleError/dio_client.dart";
+import "package:dongtam/utils/helper/helper_service.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/secure_storage_service.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
 
 class PlanningService {
   final Dio dioService = DioClient().dio;
@@ -28,18 +30,18 @@ class PlanningService {
     try {
       final token = await SecureStorageService().getToken();
 
-      final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
+      final endpoint = isBox ? "planning-boxes" : "planning-papers";
 
       final response = await dioService.get(
-        '/api/planning/$endpoint',
-        queryParameters: {'machine': machine, 'field': field, 'keyword': keyword},
+        "/api/planning/$endpoint",
+        queryParameters: {"machine": machine, "field": field, "keyword": keyword},
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
-      final List<dynamic> planningData = response.data['data'];
-      final double totalPrice = double.tryParse(response.data['totalPrice'].toString()) ?? 0.0;
+      final List<dynamic> planningData = response.data["data"];
+      final double totalPrice = double.tryParse(response.data["totalPrice"].toString()) ?? 0.0;
 
       if (onTotalCalculated != null) {
         onTotalCalculated(totalPrice);
@@ -57,7 +59,7 @@ class PlanningService {
       rethrow;
     } catch (e, s) {
       AppLogger.e("Failed to get planning", error: e, stackTrace: s);
-      throw Exception('Failed to get planning: $e');
+      throw Exception("Failed to get planning: $e");
     }
   }
 
@@ -71,15 +73,15 @@ class PlanningService {
     bool? isNewDay,
     bool isBox = false, //flag FE
   }) async {
-    final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
+    final endpoint = isBox ? "planning-boxes" : "planning-papers";
     final data = {
-      'machine': machine,
-      "dayStart": DateFormat('yyyy-MM-dd').format(dayStart),
+      "machine": machine,
+      "dayStart": DateFormat("yyyy-MM-dd").format(dayStart),
       "timeStart":
-          "${timeStart.hour.toString().padLeft(2, '0')}:${timeStart.minute.toString().padLeft(2, '0')}",
+          "${timeStart.hour.toString().padLeft(2, "0")}:${timeStart.minute.toString().padLeft(2, "0")}",
       "totalTimeWorking": totalTimeWorking,
       "updateIndex": updateIndex,
-      'isNewDay': isNewDay,
+      "isNewDay": isNewDay,
     };
 
     return await HelperService().addItem(endpoint: "planning/$endpoint", body: data);
@@ -99,7 +101,7 @@ class PlanningService {
       if (machine != null) "machine": machine,
       "forceComplete": forceComplete,
     };
-    final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
+    final endpoint = isBox ? "planning-boxes" : "planning-papers";
 
     return await HelperService().updateItem(endpoint: "planning/$endpoint", body: data);
   }
@@ -132,7 +134,7 @@ class PlanningService {
       "action": action,
     };
 
-    final endpoint = isBox ? 'planning-boxes' : 'planning-papers';
+    final endpoint = isBox ? "planning-boxes" : "planning-papers";
 
     return await HelperService().updateItem(endpoint: "planning/$endpoint", body: data);
   }
@@ -159,7 +161,7 @@ class PlanningService {
 
     return await HelperService().addItem(
       endpoint: "planning/notify-planning",
-      body: {'machine': machine, "keyName": keyName, "isPlan": isPlan},
+      body: {"machine": machine, "keyName": keyName, "isPlan": isPlan},
     );
   }
 
@@ -172,7 +174,7 @@ class PlanningService {
         "/api/planning/export",
         data: {"machine": machine, "isAll": isAll},
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
           responseType: ResponseType.bytes,
         ),
       );
@@ -237,10 +239,10 @@ class PlanningService {
   Future<Map<String, dynamic>> getPlanningStop({int? page, int? pageSize}) async {
     return HelperService().fetchPaginatedData<PlanningPaperModel>(
       endpoint: "planning/planning-stops",
-      queryParameters: {'page': page, 'pageSize': pageSize},
+      queryParameters: {"page": page, "pageSize": pageSize},
       fromJson: (json) => PlanningPaperModel.fromJson(json),
-      dataKey: 'plannings',
-      totalKey: 'totalPlannings',
+      dataKey: "plannings",
+      totalKey: "totalPlannings",
     );
   }
 
@@ -254,9 +256,9 @@ class PlanningService {
 
       await dioService.put(
         "/api/planning/planning-stops",
-        data: {'planningId': planningId, "action": action},
+        data: {"planningId": planningId, "action": action},
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
@@ -268,7 +270,31 @@ class PlanningService {
         AppLogger.e("Failed to continue planning", error: e, stackTrace: s);
       }
 
-      throw Exception('Failed to update planning: $e');
+      throw Exception("Failed to update planning: $e");
     }
+  }
+
+  //=========================PAPER REQUIREMENTS=========================
+  Future<Map<String, dynamic>> getPaperRequirementsList({
+    required int page,
+    required int pageSize,
+    required String machine,
+  }) async {
+    return HelperService().fetchPaginatedData<PaperRequirementModel>(
+      endpoint: "planning/paper-requirements",
+      queryParameters: {"page": page, "pageSize": pageSize, "machine": machine},
+      fromJson: (json) => PaperRequirementModel.fromJson(json),
+      dataKey: "requirements",
+    );
+  }
+
+  Future<List<PaperRequirementLayerModel>> getLayersByRequirementId({
+    required int requirementId,
+  }) async {
+    return HelperService().fetchingData<PaperRequirementLayerModel>(
+      endpoint: "planning/paper-requirements",
+      queryParameters: {"requirementId": requirementId},
+      fromJson: (json) => PaperRequirementLayerModel.fromJson(json),
+    );
   }
 }

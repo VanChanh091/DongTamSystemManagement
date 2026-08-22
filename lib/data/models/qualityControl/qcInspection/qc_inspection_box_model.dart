@@ -5,6 +5,7 @@ class QcInspectionBoxModel {
   final DateTime timeInspection;
   final Map<String, bool> checkList;
   final String checkedBy;
+  final String? note;
 
   //FK
   final int boxTimeId;
@@ -15,6 +16,9 @@ class QcInspectionBoxModel {
     required this.timeInspection,
     required this.checkList,
     required this.checkedBy,
+    this.note,
+
+    //FK
     required this.boxTimeId,
     this.boxTime,
   });
@@ -26,6 +30,7 @@ class QcInspectionBoxModel {
           json["timeInspection"] != null ? DateTime.parse(json["timeInspection"]) : DateTime.now(),
       checkList: Map<String, bool>.from(json["checkList"] ?? {}),
       checkedBy: json["checkedBy"] ?? "",
+      note: json["note"] ?? "",
 
       //FK
       boxTimeId: json["boxTimeId"],

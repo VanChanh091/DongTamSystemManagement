@@ -6,7 +6,8 @@ class DebtAgingModel {
   final double overdue1_30;
   final double overdue31_60;
   final double overdue61_90;
-  final double overdueOver90;
+  final double overdue91_120;
+  final double overdueOver120;
 
   DebtAgingModel({
     required this.inTerm,
@@ -14,7 +15,8 @@ class DebtAgingModel {
     required this.overdue1_30,
     required this.overdue31_60,
     required this.overdue61_90,
-    required this.overdueOver90,
+    required this.overdue91_120,
+    required this.overdueOver120,
   });
 
   factory DebtAgingModel.fromJson(Map<String, dynamic> json) {
@@ -24,7 +26,8 @@ class DebtAgingModel {
       overdue1_30: toDouble(json["overdue1_30"]),
       overdue31_60: toDouble(json["overdue31_60"]),
       overdue61_90: toDouble(json["overdue61_90"]),
-      overdueOver90: toDouble(json["overdueOver90"]),
+      overdue91_120: toDouble(json["overdue91_120"]),
+      overdueOver120: toDouble(json["overdueOver120"]),
     );
   }
 }
@@ -35,7 +38,7 @@ class CustomerDebtItemModel {
   final double totalDebt;
   final double closedDebt;
   final double currentPeriodDebt;
-  final double dueDebt;
+  final double overdueDebt;
   final double notDueDebt;
   final int unpaidOutboundCount;
   final DebtAgingModel aging;
@@ -46,7 +49,7 @@ class CustomerDebtItemModel {
     required this.totalDebt,
     required this.closedDebt,
     required this.currentPeriodDebt,
-    required this.dueDebt,
+    required this.overdueDebt,
     required this.notDueDebt,
     required this.unpaidOutboundCount,
     required this.aging,
@@ -59,7 +62,7 @@ class CustomerDebtItemModel {
       totalDebt: toDouble(json["totalDebt"]),
       closedDebt: toDouble(json["closedDebt"]),
       currentPeriodDebt: toDouble(json["currentPeriodDebt"]),
-      dueDebt: toDouble(json["dueDebt"]),
+      overdueDebt: toDouble(json["overdueDebt"]),
       notDueDebt: toDouble(json["notDueDebt"]),
       unpaidOutboundCount: json['unpaidOutboundCount'] ?? 0,
       aging: DebtAgingModel.fromJson(json['aging'] as Map<String, dynamic>? ?? {}),

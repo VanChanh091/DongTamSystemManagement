@@ -207,6 +207,7 @@ final List<Map<String, dynamic>> inspectionBoxColumns = [
     "visibleFields": ["Máy Xả", "Máy Cấn Lằn"],
   },
 
+  {"key": "note", "title": "Ghi Chú"},
   {"key": "checkedBy", "title": "Người Kiểm"},
 
   // --- CÁC CỘT ẨN ---

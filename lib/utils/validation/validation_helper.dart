@@ -311,6 +311,7 @@ class ValidationHelper {
     required String label,
     required IconData icon,
     VoidCallback? onTap,
+    bool isNumeric = true,
   }) {
     return BaseValidateInput(
       label: label,
@@ -333,7 +334,7 @@ class ValidationHelper {
           return 'Không được để trống';
         }
 
-        if (cleanValue.isNotEmpty) {
+        if (isNumeric && label != "Ghi Chú" && cleanValue.isNotEmpty) {
           final normalizedValue = cleanValue.replaceAll(',', '.');
           if (num.tryParse(normalizedValue) == null) {
             return 'Vui lòng chỉ nhập số';

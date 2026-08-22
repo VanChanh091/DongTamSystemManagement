@@ -47,6 +47,7 @@ class InspectionBoxDataSource extends DataGridSource {
 
       //checklist
       ...buildChecklistCells(inspectionBox, machine),
+      DataGridCell<String>(columnName: "note", value: inspectionBox.note),
       DataGridCell<String>(columnName: "checkedBy", value: inspectionBox.checkedBy),
 
       //hidden fields

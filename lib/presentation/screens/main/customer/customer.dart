@@ -445,7 +445,6 @@ class _CustomerPageState extends State<CustomerPage> {
           _cachedCustomers = customers;
           _cachedDatasource = CustomerDatasource(
             customer: customers,
-            selectedCustomerId: _selectedCustomerIdNotifier.value,
             currentPage: currentPage,
             pageSize: pageSize,
           );

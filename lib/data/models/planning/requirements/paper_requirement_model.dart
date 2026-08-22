@@ -1,9 +1,10 @@
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/data/models/planning/requirements/paper_requirement_layers.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class PaperRequirementModel {
   final int requirementId;
-  final int totalRequiredQty;
+  final double totalRequiredQty;
   final String inventoryStatus;
 
   //FK
@@ -25,13 +26,13 @@ class PaperRequirementModel {
   factory PaperRequirementModel.fromJson(Map<String, dynamic> json) {
     return PaperRequirementModel(
       requirementId: json["requirementId"] ?? 0,
-      totalRequiredQty: json["totalRequiredQty"] ?? 0,
+      totalRequiredQty: toDouble(json["totalRequiredQty"]),
       inventoryStatus: json["inventoryStatus"] ?? "",
 
       //FK
       planningId: json["planningId"] ?? 0,
       planningPaper:
-          json["planningPaper"] != null ? PlanningPaperModel.fromJson(json["planningPaper"]) : null,
+          json["PlanningPaper"] != null ? PlanningPaperModel.fromJson(json["PlanningPaper"]) : null,
       layers:
           json["layers"] != null
               ? List<PaperRequirementLayerModel>.from(

@@ -173,7 +173,6 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   }
 
   void changeMachine(String selectedMachine) {
-    AppLogger.i("changeMachinePaper | from=$machine -> to=$selectedMachine");
     setState(() {
       machine = selectedMachine;
       _selectedPlanningIdsNotifier.value = [];

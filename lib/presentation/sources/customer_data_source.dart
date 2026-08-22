@@ -7,19 +7,13 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class CustomerDatasource extends DataGridSource {
   List<CustomerModel> customer = [];
-  String? selectedCustomerId;
   int currentPage;
   int pageSize;
 
   late List<DataGridRow> customerDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
 
-  CustomerDatasource({
-    required this.customer,
-    required this.currentPage,
-    required this.pageSize,
-    required this.selectedCustomerId,
-  }) {
+  CustomerDatasource({required this.customer, required this.currentPage, required this.pageSize}) {
     buildDataGridRows();
   }
 
